@@ -21,7 +21,7 @@ class gglmsControllerUsers extends JControllerLegacy
     {
         $app = JFactory::getApplication();
         $db = JFactory::getDBO();
-        $query = $this->_db->getQuery(true);
+        $query = $db->getQuery(true);
         $query->select('`id`, `username`, `password`');
         $query->from('`#__users`');
         $query->where('username=' . $db->Quote( $_REQUEST['username'])) ;
