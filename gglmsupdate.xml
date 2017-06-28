@@ -9,7 +9,7 @@
 	<version>3.6.3</version>
 	<infourl title="GGLMS">http://www.ggallery.it</infourl>
 	<downloads>
-		<downloadurl type="full" format="zip">https://github.com/AntonioGiangrave/updategglms/archive/master.zip</downloadurl>
+		<downloadurl type="full" format="zip">https://github.com/GGallery/com_gglms/archive/master.zip</downloadurl>
 	</downloads>
 	<maintainer>GGallery</maintainer>
 	<maintainerurl>https://www.ggallery.it/</maintainerurl>
