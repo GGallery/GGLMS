@@ -10,13 +10,13 @@
 	<copyright>Copyright Info</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>3.7.0</version>
+	<version>3.7.1</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>GGLMS component</description>
 
-	<updateservers>
-		<server type="extension" element="com_gglms" name="gglms" priority="1">https://raw.githubusercontent.com/AntonioGiangrave/updategglms/master/gglmsupdate.xml</server>
-	</updateservers>
+<updateservers>
+		<server type="extension" element="com_gglms" name="gglms" priority="1">https://raw.githubusercontent.com/GGallery/com_gglms/master/gglmsupdate.xml</server>
+</updateservers>
 
 	<install>
     <sql>
