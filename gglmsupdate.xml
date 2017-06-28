@@ -6,8 +6,8 @@
 	<element>com_gglms</element>
 	<type>component</type>
 	<folder></folder>
-	<version>3.7.3</version>
-	<infourl title="GGLMS">http://www.ggallery.it</infourl>
+	<version>3.7.4</version>
+	<infourl title="GGLMS - github">https://github.com/GGallery/com_gglms</infourl>
 	<downloads>
 		<downloadurl type="full" format="zip">https://github.com/GGallery/com_gglms/archive/master.zip</downloadurl>
 	</downloads>

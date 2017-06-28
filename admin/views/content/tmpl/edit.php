@@ -13,12 +13,12 @@ defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 JHtml::_('behavior.tooltip');
-//JHtml::_('behavior.calendar'); //RS
+//JHtml::_('behavior.calendar');
 
-JHtml::_('behavior.formvalidator');  //RS
-//JHtml::_('formbehavior.chosen', 'select'); //RS
+JHtml::_('behavior.formvalidator');
+//JHtml::_('formbehavior.chosen', 'select');
 
-$fieldsets = $this->form->getFieldsets();  //RS
+$fieldsets = $this->form->getFieldsets();
 ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_gglms&layout=edit&id=' . (int) $this->item->id); ?>"
@@ -42,7 +42,10 @@ $fieldsets = $this->form->getFieldsets();  //RS
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('categoria'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('categoria');
+                    ?>
                 </div>
 
             </div>
@@ -50,39 +53,58 @@ $fieldsets = $this->form->getFieldsets();  //RS
             <div class="span4">
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('alias'); ?>
+                    <?php
+                    if($this->item->id)
+                    echo $this->form->renderField('alias');
+                    ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('pubblicato'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('pubblicato'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('tipologia'); ?>
+                    <?php
+                    if($this->item->id)
+                    echo $this->form->renderField('tipologia'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('path'); ?>
+                    <?php
+                    if($this->item->id)
+                    echo $this->form->renderField('path'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('id_quizdeluxe'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('id_quizdeluxe'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('mod_track'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('mod_track'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('datapubblicazione'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('datapubblicazione'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('durata'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('durata'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('meta_tag'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('meta_tag'); ?>
                 </div>
             </div>
 
@@ -90,12 +112,16 @@ $fieldsets = $this->form->getFieldsets();  //RS
             <div class="span4">
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('prerequisiti'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('prerequisiti'); ?>
                 </div>
 
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('files'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('files'); ?>
                 </div>
 
 
@@ -109,18 +135,22 @@ $fieldsets = $this->form->getFieldsets();  //RS
         <input type="hidden" name="task" value="" />
         <?php echo JHtml::_('form.token'); ?>
     </div>
-    <?php echo JHtml::_('bootstrap.endTab'); ?>
+<?php echo JHtml::_('bootstrap.endTab'); ?>
 
-    <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'advanced', JText::_('Descrizione/Abstract', true)); ?>
+<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'advanced', JText::_('Descrizione/Abstract', true)); ?>
     <div class="row-fluid">
         <div class="span12">
 
             <fieldset>
                 <div class="span6">
-                    <?php echo $this->form->renderField('descrizione'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('descrizione'); ?>
                 </div>
                 <div class="span6">
-                    <?php echo $this->form->renderField('abstract'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('abstract'); ?>
                 </div>
             </fieldset>
 
@@ -130,10 +160,10 @@ $fieldsets = $this->form->getFieldsets();  //RS
         </div>
     </div>
 
-    <?php echo JHtml::_('bootstrap.endTab'); ?>
+<?php echo JHtml::_('bootstrap.endTab'); ?>
 
 
-    <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'files', 'Upload files'); ?>
+<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'files', 'Upload files'); ?>
 
 
     <div class="row-fluid">
@@ -182,6 +212,9 @@ $fieldsets = $this->form->getFieldsets();  //RS
             <!-- QUI FINISCE IL FILE UPLOAD -->
         </div>
     </div>
+
+
+
     <?php echo JHtml::_('bootstrap.endTab'); ?>
 
     <?php echo JHtml::_('bootstrap.endTabSet'); ?>
