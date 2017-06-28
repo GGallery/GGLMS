@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addrulepath="/administrator/components/com_gglms/models/rules">
+
+	<fieldset addfieldpath="/administrator/components/com_gglms/models/fields" >
+		<field
+				name="id"
+				type="text"
+				label="Id"
+				description="id"
+				size="100"
+				required="true"
+				default=""
+				readonly="true"
+		/>
+
+
+		<field
+				name="titolo"
+				type="text"
+				label="Unita"
+				description="Unita"
+				size="70"
+				class="inputbox"
+
+				required="true"
+				default=""
+		/>
+
+
+		<field
+				name="descrizione"
+				type="textarea"
+				label="Descrizione"
+				description="Descrizione unità"
+				size="70"
+				class="inputbox"
+				filter="safehtml"
+
+				required="false"
+				default=""
+
+				cols="50" rows="5"
+
+		/>
+
+		<!--<field-->
+
+
+				<!--name="categoriapadre"-->
+				<!--description="Categoria padre"-->
+				<!--type="sql"-->
+				<!--default=""-->
+				<!--class="inputbox"-->
+				<!--label="Categoriapadre"-->
+				<!--query=" SELECT-->
+					<!--u.id AS `value`,-->
+					<!--u.titolo AS title-->
+					<!--FROM #__gg_unit as u-->
+					<!--ORDER BY u.id ASC-->
+					<!--"-->
+				<!--key_field="value"-->
+				<!--value_field="title"-->
+
+		<!--/>-->
+
+
+		<field
+
+
+				name="unitapadre"
+				description="Categoria padre"
+				type="listaalberounita"
+				default=""
+				class="inputbox"
+				label="Categoriapadre"
+
+		/>
+
+
+
+		<field
+				name="alias"
+				type="text"
+				label="Alias"
+				description="Alias del contenuto, visualizzato nell'url quando richiamato"
+				size="70"
+				class="inputbox"
+				validate=""
+				required=""
+				default=""
+		/>
+
+
+		<field
+				name="pubblicato"
+				type="radio"
+				label="Pubblicato"
+				description="Contenuto pubblicato sulla piattaforma"
+				class="btn-group"
+				default="0"
+		>
+			<option value="1">Pubblicato</option>
+			<option value="0">Non Pubblicato</option>
+		</field>
+
+
+		<field
+				name="accesso"
+				type="radio"
+				label="Modalità di accesso "
+				description="Contenuto pubblicato sulla piattaforma"
+				multiple="true"
+				size = "4"
+		>
+			<option value="Accesso libero">Accesso libero</option>
+			<option value="coupon">Coupon classico</option>
+			<option value="couponeb">Coupon legato a campo EventBooking</option>
+			<option value="iscrizioneeb">Accesso legato solo all'iscrizione all'evento EventBooking</option>
+		</field>
+
+		<field
+				name="id_event_booking"
+				type="listaeventieb"
+				class="inputbox"
+				default=""
+				label="Evento EventBooking"
+				description="Use Ctrl per selezionare più categorie"
+				showon="accesso:couponeb[OR]accesso:iscrizioneeb"
+				required=""
+
+
+		/>
+
+
+	</fieldset>
+</form>

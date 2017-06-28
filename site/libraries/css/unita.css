@@ -1,0 +1,54 @@
+.box .g-block {
+
+    margin-bottom: 5px;
+}
+
+.box .rt-image {
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 180px;
+    overflow: hidden;
+}
+
+.interno {
+    border: 1px solid;
+    margin: 10px;
+}
+
+.title {
+    /*height: 50px;*/
+    border-top: 1px solid gray;
+    margin-top: 10px;
+    padding-left: 5px;
+}
+
+
+.trasparenza_inaccessibilita{
+    opacity: 0.5;
+}
+
+.corner {
+    float: right;
+    height: 60px;
+    width: 60px;
+    margin: -1px;
+    z-index: 12000;
+    position: absolute;
+}
+
+.corner_green {
+    background-image: url("../images/verde.png");
+}
+
+.corner_red {
+    background-image: url("../images/rosso.png");
+}
+
+.corner_yellow {
+    background-image: url("../images/giallo.png");
+}
+
+.corner_grey {
+    background-image: url("../images/grigio.png");
+}
+

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addrulepath="/administrator/components/com_gglms/models/rules">
+
+	<fieldset addfieldpath="/administrator/components/com_gglms/models/fields" >
+
+		<field
+				name="visualizza_solo_mieicorsi"
+				type="radio"
+				class="btn-group"
+				label="Visualizza solo miei corsi"
+				labelclass="control-label"
+				default="0">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+
+		<!--<field-->
+		<!--name="redirect_url_if_no_access"-->
+		<!--type="menuitem"-->
+		<!--class="btn-group"-->
+		<!--label="Redirigi utente se non può accedere"-->
+		<!--labelclass="control-label"-->
+		<!--default=""/>-->
+
+		<field
+				name="jumper_normalmente_aperti"
+				type="radio"
+				class="btn-group"
+				label="Box jumper aperto"
+				labelclass="control-label"
+				default="0">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field
+				name="nomenclatura_unita"
+				type="text"
+				class=""
+				label="Nomenclatura unita"
+				labelclass="control-label"
+				default="Unita"/>
+
+		<field
+				name="nomenclatura_moduli"
+				type="text"
+				class=""
+				label="Nomenclatura moduli"
+				labelclass="control-label"
+				default="Moduli"/>
+
+		<field
+				name="titolo_unita_visibile"
+				type="radio"
+				class="btn-group"
+				label="Titolo unita visibile"
+				labelclass="control-label"
+				default="1">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+
+		<field
+				name="titolo_moduli_visibile"
+				type="radio"
+				class="btn-group"
+				label="Titolo moduli visibile"
+				labelclass="control-label"
+				default="1">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+
+		<field
+				name="integrazione"
+				type="radio"
+				class="btn-group"
+				label="Integrazione componente"
+				labelclass="control-label"
+				default="1">
+			<option value="">Nessuno</option>
+			<option value="cb">Community builder</option>
+			<option value="eb">Event booking</option>
+		</field>
+
+		<field 	name="campo_event_booking_auto_abilitazione_coupon"
+				  type="sql"
+				  label="Campo EB autoabilitazioneCoupon"
+				  description="Campo EventBooking autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
+				  showon="integrazione:eb"
+				  query="SELECT  id, title  FROM #__eb_fields"
+				  key_field="id"
+				  value_field="title"
+				  header="Seleziona..."
+		/>
+
+
+		<field
+				name="verifica_cf"
+				type="radio"
+				class="btn-group"
+				label="Verifica Codice fiscale su anagrafica"
+				showon="integrazione:eb[OR]integrazione:cb"
+				labelclass="control-label"
+				default="0">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field 	name="campo_event_booking_controllo_cf"
+				  type="sql"
+				  label="Campo EventBooking controllo Codice fiscale"
+				  description="Campo EventBooking controllo CF"
+				  showon="verifica_cf:1"
+				  query="SELECT  name, title  FROM #__eb_fields"
+				  key_field="name"
+				  value_field="title"
+				  header="Seleziona..."
+		/>
+
+		<field
+				name="larghezza_box_contenuti"
+				type="radio"
+				class="btn-group"
+				label="Larghezza singolo box contenuti"
+				labelclass="control-label"
+				default="size-30">
+			<option value="size-15">15%</option>
+			<option value="size-20">20%</option>
+			<option value="size-25">25%</option>
+			<option value="size-30">30%</option>
+			<option value="size-33">33%</option>
+			<option value="size-40">40%</option>
+			<option value="size-50">50%</option>
+			<option value="size-60">60%</option>
+			<option value="size-66">66%</option>
+			<option value="size-70">70%</option>
+			<option value="size-75">75%</option>
+			<option value="size-80">80%</option>
+			<option value="size-85">85%</option>
+			<option value="size-90">90%</option>
+		</field>
+
+
+		<field
+				name="larghezza_box_unita"
+				type="radio"
+				class="btn-group"
+				label="Larghezza singolo box unita"
+				labelclass="control-label"
+				default="size-30">
+			<option value="size-15">15%</option>
+			<option value="size-20">20%</option>
+			<option value="size-25">25%</option>
+			<option value="size-30">30%</option>
+			<option value="size-33">33%</option>
+			<option value="size-40">40%</option>
+			<option value="size-50">50%</option>
+			<option value="size-60">60%</option>
+			<option value="size-66">66%</option>
+			<option value="size-70">70%</option>
+			<option value="size-75">75%</option>
+			<option value="size-80">80%</option>
+			<option value="size-85">85%</option>
+			<option value="size-90">90%</option>
+		</field>
+
+
+		<field 	name="visibilita_durata"
+				  type="text"
+				  label="Durata visibile per le tipologie"
+				  description="Durata visibile per le tipologie(1-videoslide, 2-solovideo, 3-allegati, 4-scorm, 5-attestato, 6-testuale, 7-quizdeluxe)"
+				  default="1,2"
+		/>
+
+		<field 	name="versione_gglms"
+				  type="text"
+				  readonly="true"
+				  label="Versione GGLMS"
+				  description="versione GGLMS"
+				  default="3.4.1"
+		/>
+
+
+
+		<!-- I N I Z I O BREADCRUMB-->
+
+		<field
+				name="abilita_breadcrumbs"
+				type="radio"
+				class="btn-group"
+				label="Attiva breadcrumbs componente"
+				labelclass="control-label"
+				default="1">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field
+				name="visualizza_ultimo"
+				type="radio"
+				class="btn-group"
+				label="Visualizza ultima voce"
+				labelclass="control-label"
+				default="1">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field
+				name="visualizza_primo_item"
+				type="radio"
+				class="btn-group"
+				label="Visualizza prima voce"
+				labelclass="control-label"
+				default="1">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field
+				name="customizza_primo_item"
+				type="radio"
+				class="btn-group"
+				label="Personalizza prima voce"
+				labelclass="control-label"
+				showon="visualizza_primo_item:1"
+				default="0">
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field 	name="customizza_testo_primo_item"
+				  type="text"
+				  label="Testo prima voce"
+				  description="Imposta il testo visualizzato nella prima breadcrumb"
+				  default="Corsi"
+				  showon="customizza_primo_item:1"
+		/>
+
+		<field 	name="customizza_link_primo_item"
+				  type="text"
+				  label="Testo prima voce"
+				  description="Imposta il link visualizzato nella prima breadcrumb"
+				  default="index.php?option=com_gglms"
+				  showon="customizza_primo_item:1"
+		/>
+
+		<!--F I N E BREADCRUMB -->
+
+
+
+	</fieldset>
+</form>

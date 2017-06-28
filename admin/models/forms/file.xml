@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addrulepath="/administrator/components/com_gglms/models/rules">
+    
+    <fieldset addfieldpath="/administrator/components/com_gglms/models/fields" >
+        <field
+            name="id"
+            type="text"
+            label="Id"
+            description="id"
+            size="100"
+            required="true"
+            default=""
+            readonly = "true"
+		/>
+
+
+<field
+            name="name"
+            type="text"
+            label="name"
+            description="id"
+            size="100"
+            required="true"
+            default=""
+        />
+
+
+<field
+            name="filename"
+            type="text"
+            label="filename"
+            description="id"
+            size="100"
+            required="false"
+            default=""
+            readonly="true"
+
+        />
+
+        
+             
+            <field
+            name="type" 
+            description="type"
+            type="sql" 
+            default="" 
+            class="inputbox" 
+            label="type"
+            query=" SELECT 
+                        id as value,              
+                        tipologia as title 
+                    FROM #__gg_files_type
+                    ORDER BY id DESC" 
+            key_field="value" 
+            value_field="title" 
+        />
+             
+            
+             
+        
+    </fieldset>
+</form>

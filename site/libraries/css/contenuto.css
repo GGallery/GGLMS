@@ -1,0 +1,32 @@
+.jumper{
+    border-top: 1px solid #61625D;
+    cursor: pointer;
+    float: left;
+    width: 98%;
+    padding-left: 5px;
+    color: #424242;
+}
+.jumper:hover{
+    background-color: #318BBC !important;
+}
+
+.jumper.disabled:hover {
+    background-color: red !important;
+}
+
+.mejs-slides-player-slides img {
+    max-height: calc(100vh - 280px) !important;
+}
+
+#files li {
+background-image: url("../images/icona_file.jpg");
+background-position: left center;
+background-repeat: no-repeat;
+background-size: 110px auto;
+font-size: large;
+list-style: outside none none;
+margin: 0;
+padding: 30px 0 10px 100px;
+}
+
+

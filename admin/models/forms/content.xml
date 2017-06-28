@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addrulepath="/administrator/components/com_gglms/models/rules">
+
+	<fieldset addfieldpath="/administrator/components/com_gglms/models/fields" >
+
+
+		<field
+				name="id"
+				type="text"
+				label="Id"
+				description="id"
+				size="100"
+				required=""
+				default=""
+				readonly="true"
+		/>
+
+		<field
+				name="titolo"
+				type="text"
+				label="Titolo"
+				description="COM_webtv_webtv_FIELD_GREETING_DESC"
+				size="100"
+				class="inputbox validate-titolo"
+
+				required="true"
+				default=""
+		/>
+		<field
+				name="datapubblicazione"
+				type="calendar"
+				label="Data Pubblicazione"
+				description="COM_webtv_webtv_FIELD_GREETING_DESC"
+				size="15"
+				required="true"
+				default="NOW"
+		/>
+
+		<field
+				name="categoria"
+				type="listaalberounita"
+				class="inputbox"
+				default=""
+				label="Unita"
+				description="Use Ctrl per selezionare più categorie"
+				required=""
+				multiple="multiple"
+				size="20"
+
+		/>
+
+		<field
+				name="prerequisiti"
+				type="listaprerequisiti"
+				class="inputbox"
+				default=""
+				label="Prerequisiti"
+				description="Use Ctrl per selezionare più Contenuti"
+				required=""
+				size="20"
+				multiple="multiple"
+		>
+			<option value="">Nessun Prerequisito</option>
+		</field>
+
+		<field
+				name="files"
+				type="listaFiles"
+				class="inputbox"
+				default="1"
+				label="Files"
+				description="Use Ctrl per selezionare più files"
+				required=""
+				size="20"
+				multiple="multiple"
+		>
+			<option value="">Nessun File</option>
+		</field>
+
+
+		<field
+				name="alias"
+				type="text"
+				label="Alias"
+				description="Alias del contenuto, visualizzato nell'url quando richiamato"
+				size="50"
+				class="inputbox validate-alias"
+				validate=""
+				required=""
+				default=""
+		/>
+
+
+
+
+
+		<field
+				name="pubblicato"
+				type="radio"
+				label="Pubblicato"
+				description="Contenuto pubblicato sulla piattaforma"
+				class="btn-group"
+				default="0"
+		>
+			<option value="1">Pubblicato</option>
+			<option value="0">Non Pubblicato</option>
+		</field>
+
+
+		<field
+				name="mod_track"
+				type="radio"
+				label="Modalità tracciamento"
+				description="Modalità con cui viene tracciata l'attività su questo contenuto (Scelta che ha effetto solo sui contenuti di tipo video)"
+				class="btn-group"
+				default="1"
+		>
+			<option value="1">Basta aprilo</option>
+			<option value="0">Bisogna vedersi tutto il video</option>
+		</field>
+
+		<field
+				name="tipologia"
+				type="sql"
+				label="Tipologia"
+				description="VideoSlide"
+				class="inputbox"
+				query=" SELECT
+						u.id AS value,
+						u.descrizione AS tipology
+						FROM #__gg_contenuti_tipology as u
+						where u.pubblicato = 1
+						ORDER BY u.id ASC
+						"
+				default=""
+				key_field="value"
+				value_field="tipology"
+		/>
+
+		<field
+				name="path"
+				type="listaprerequisiti"
+				label="Contenuto riferimento"
+				description="E' contenuto (solitamente un quiz) per il quale viene presa la data da apporre sull'attestato"
+				class="inputbox"
+				required="true"
+				showon="tipologia:5"
+				default="1"
+		>
+			<option value="">Nessun Prerequisito</option>
+		</field>
+
+		<field
+				name="id_quizdeluxe"
+				type="listaquizdeluxe"
+				label="Quizdeluxe associato"
+				description="Quiz del componente Quizdeluxe associato"
+				class="inputbox"
+				showon ="tipologia:7"
+				default="">
+			<option value="">Seleziona....</option>
+		</field>
+
+
+
+		<field
+				name="durata"
+				type="text"
+				label="Durata"
+				description="Durata del contenuto in secondi"
+				size="30"
+				class="inputbox"
+				validate=""
+				required=""
+				default=""
+		/>
+		<field
+				name="abstract"
+				type="editor"
+				buttons = "false"
+				label="Abstract"
+				description="Abstract del contenuto, visualizzato sotto il video"
+				class="inputbox"
+				validate=""
+				required=""
+				default=""
+				filter="safehtml"
+
+		/>
+
+		<field
+				name="descrizione"
+				type="editor"
+				buttons = "false"
+				label="Descrizione"
+				description="Descrizione del contenuto, visualizzato sotto il video"
+				size="100"
+				class="inputbox"
+				validate=""
+				required=""
+				default=""
+				filter="safehtml"
+
+		/>
+
+		<field
+				name="meta_tag"
+				type="textarea"
+				label="META-TAG"
+				description="Meta tag-del contenuto, utilizzati per le ricerche e per le funzionalità SEO"
+				size="100"
+				class="inputbox"
+				validate=""
+				required=""
+				default=""
+				cols="50" rows="1"
+		/>
+
+	</fieldset>
+</form>

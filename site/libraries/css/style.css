@@ -1,0 +1,20 @@
+.box .g-block {
+    padding: 0 5px;
+    margin-bottom: 5px;
+}
+
+.box .rt-image {
+    background-size: cover;
+    min-height: 180px;
+    overflow: hidden;
+}
+
+.interno {
+    border: 1px solid;
+}
+
+.title {
+    height: 50px;
+}
+
+

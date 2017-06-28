@@ -1,0 +1,20 @@
+
+.g-grid {
+    display: flex;
+    flex-flow: row wrap;
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+    text-rendering: optimizespeed;
+}
+
+.size-25 {
+    -moz-box-flex: 0;
+    flex: 0 1 25%;
+    width: 25%;
+}
+
+.title {
+    font-size: 15px !important;
+    line-height: 23px !important;
+}
