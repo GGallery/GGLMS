@@ -34,24 +34,34 @@ JHtml::_('behavior.formvalidation');
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('alias'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('alias'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('unitapadre'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('unitapadre'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('pubblicato'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('pubblicato'); ?>
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('accesso'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('accesso'); ?>
                 </div>
 
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('id_event_booking'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('id_event_booking'); ?>
                 </div>
 
 
@@ -59,7 +69,9 @@ JHtml::_('behavior.formvalidation');
 
             <div class="span4">
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('descrizione'); ?>
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('descrizione'); ?>
                 </div>
             </div>
 
