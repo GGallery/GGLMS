@@ -32,7 +32,7 @@ if($this->sottounita) {
                     if (file_exists('../mediagg/images/unit/'. $unita->id . '.jpg'))
                         $img =  '../mediagg/images/unit/' . $unita->id . '.jpg';
                     else
-                        $img =  'components/com_gglms/images/sample.jpg';
+                        $img =  'components/com_gglms/libraries/images/immagine_non_disponibile.png';
                     ?>
 
                     <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias='.$unita->alias )?>">
@@ -72,7 +72,7 @@ if($this->contenuti) {
                 if (file_exists('../mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg'))
                     $img = '../mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
                 else
-                    $img = 'components/com_gglms/images/sample.jpg';
+                    $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
                 $stato = $contenuto->getStato();
 

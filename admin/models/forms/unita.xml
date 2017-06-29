@@ -46,20 +46,20 @@
 		<!--<field-->
 
 
-				<!--name="categoriapadre"-->
-				<!--description="Categoria padre"-->
-				<!--type="sql"-->
-				<!--default=""-->
-				<!--class="inputbox"-->
-				<!--label="Categoriapadre"-->
-				<!--query=" SELECT-->
-					<!--u.id AS `value`,-->
-					<!--u.titolo AS title-->
-					<!--FROM #__gg_unit as u-->
-					<!--ORDER BY u.id ASC-->
-					<!--"-->
-				<!--key_field="value"-->
-				<!--value_field="title"-->
+		<!--name="categoriapadre"-->
+		<!--description="Categoria padre"-->
+		<!--type="sql"-->
+		<!--default=""-->
+		<!--class="inputbox"-->
+		<!--label="Categoriapadre"-->
+		<!--query=" SELECT-->
+		<!--u.id AS `value`,-->
+		<!--u.titolo AS title-->
+		<!--FROM #__gg_unit as u-->
+		<!--ORDER BY u.id ASC-->
+		<!--"-->
+		<!--key_field="value"-->
+		<!--value_field="title"-->
 
 		<!--/>-->
 
@@ -103,6 +103,19 @@
 			<option value="0">Non Pubblicato</option>
 		</field>
 
+		<field
+				name="is_corso"
+				type="radio"
+				label="Tipologia"
+				description="Impostare se questa unità rappresenta un corso oppure una semplice sottounita"
+				class="btn-group"
+				default="0"
+		>
+			<option value="1">Corso</option>
+			<option value="0">Sottounita</option>
+		</field>
+
+
 
 		<field
 				name="accesso"
@@ -110,6 +123,7 @@
 				label="Modalità di accesso "
 				description="Contenuto pubblicato sulla piattaforma"
 				multiple="true"
+				showon="is_corso:1"
 				size = "4"
 		>
 			<option value="Accesso libero">Accesso libero</option>
@@ -127,10 +141,18 @@
 				description="Use Ctrl per selezionare più categorie"
 				showon="accesso:couponeb[OR]accesso:iscrizioneeb"
 				required=""
-
-
 		/>
 
+		<field
+				name="id_contenuto_completamento"
+				type="listaquizdeluxe"
+				class="inputbox"
+				default=""
+				label="Contenuto superamento unita"
+				description="Seleziona un quiz per considerare completata questa unità. NB. Sono presenti solo i quizdeluxe ma non mi costa niente modificare questo elenco con TUTTI i contenuti presenti in piattaforma"
+				showon="is_corso:1"
+				required=""
+		/>
 
 	</fieldset>
 </form>

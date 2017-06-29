@@ -54,6 +54,12 @@ JHtml::_('behavior.formvalidation');
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                        echo $this->form->renderField('is_corso'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                         echo $this->form->renderField('accesso'); ?>
                 </div>
 
@@ -63,6 +69,15 @@ JHtml::_('behavior.formvalidation');
                     if($this->item->id)
                         echo $this->form->renderField('id_event_booking'); ?>
                 </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('id_contenuto_completamento'); ?>
+                </div>
+
+
+
 
 
             </div>
@@ -76,10 +91,13 @@ JHtml::_('behavior.formvalidation');
             </div>
 
             <div class ="span4">
+
                 <?php
-                if (file_exists($_SERVER['DOCUMENT_ROOT'] . "/mediagg/images/unit/" . $this->item->id . ".jpg")) {
-                    echo "<img alt='IMG-UNIT' src='" . JURI::root() . "../mediagg/images/unit/" . $this->item->id . ".jpg' width='150' height='150' />";
-                }
+                $imgurl="../../mediagg/images/unit/" . $this->item->id .".jpg";
+                if(file_exists($imgurl))
+                    echo "<img width='350' src='$imgurl'/>";
+                else
+                    echo "<img width='350px' src='components/com_gglms/images/immagine_non_disponibile.png'/>";
                 ?>
 
             </div>

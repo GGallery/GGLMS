@@ -31,7 +31,7 @@ class gglmsHelper {
         );
 
         JHtmlSidebar::addEntry(
-            '<i class="icon-folder-open"></i>' . JText::_('Unita'),
+            '<i class="icon-folder-open"></i>' . JText::_('Unita / Corsi'),
             'index.php?option=com_gglms&view=unitas',
             $submenu == 'unitas'
         );

@@ -26,6 +26,10 @@ defined('_JEXEC') or die;
 	</th>
 
 	<th>
+		Corso
+	</th>
+
+	<th>
 		Metodo di accesso
 	</th>
 </tr>

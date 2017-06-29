@@ -27,7 +27,8 @@ class gglmsViewUnita extends JViewLegacy {
   
         $this->unita       = $this->get('Unita');
 
-        $this->_params = $this->unita->_params; //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb
+        //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb, lo so è una vaccata
+        $this->_params = $this->unita->_params;
  
         if(!$this->unita->access()) {
             $app = JFactory::getApplication();
@@ -36,11 +37,14 @@ class gglmsViewUnita extends JViewLegacy {
             $app->redirect($url);
         }
 
+
+
         $this->sottounita   = $this->unita->getSottoUnita();
+
         $this->contenuti    = $this->unita->getContenuti();
 
         $this->breadcrumbs = outputHelper::buildUnitBreadcrumb($this->unita->id);
- 
+
         parent::display($tpl);
     }
 }

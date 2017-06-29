@@ -11,6 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.application.component.model');
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/coupon.php';
+//require_once JPATH_COMPONENT . '/models/unita.php';
 
 /**
  * WebTVContenuto Model
@@ -111,8 +112,6 @@ class gglmsModelUnita extends JModelLegacy {
 				->where('u.unitapadre  = ' . $this->id)
 				->order('ordinamento')
 			;
-
-
 			$this->_db->setQuery($query);
 			$data = $this->_db->loadObjectList('', 'gglmsModelUnita');
 
@@ -166,11 +165,46 @@ class gglmsModelUnita extends JModelLegacy {
 		return $contenuti;
 	}
 
-	public function access()
-	{
-		$access_list = explode(",",$this->accesso);
 
-		if($this->accesso) {
+	public function access(){
+
+		if($this->is_corso || $this->id == 1)
+			return $this->access_tipology($this);
+		else
+			return $this->access_tipology($this->find_corso($this->unitapadre));
+
+	}
+
+	private function find_corso($check){
+		try
+		{
+			$query = $this->_db->getQuery(true)
+				->select('*')
+				->from('#__gg_unit as u')
+				->where('u.id  = ' . $check)
+			;
+			$this->_db->setQuery($query);
+			$data = $this->_db->loadObject();
+
+			if($data->id == 1 && !$data->is_corso) {
+				$this->_app->enqueueMessage('L\'Unita alla quale hai tentato di accedere e nessuna di quelle dei livelli superiori sono impostate come UNITA-CORSO. Finchè non sarà definito il corso padre non potrai accedere a questa unità', 'Error');
+				$this->_app->redirect('index.php');
+
+			}
+			return ($data->is_corso) ? $data : $this->find_corso($data->unitapadre);
+
+		}
+		catch (Exception $e)
+		{
+			$this->setError($e);
+		}
+	}
+
+	public function access_tipology($corso)
+	{
+		$access_list = explode(",",$corso->accesso);
+
+		if($corso->accesso) {
 			foreach ($access_list as $metodo ) {
 				switch ($metodo) {
 					case 'coupon':
@@ -187,6 +221,7 @@ class gglmsModelUnita extends JModelLegacy {
 				}
 			}
 		}
+
 		return true;
 	}
 
@@ -272,10 +307,6 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 	}
 
-
-	public function test(){
-		echo "<br>Unita: ".$this->titolo;
-	}
 
 }
 

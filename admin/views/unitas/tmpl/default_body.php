@@ -19,12 +19,26 @@ defined('_JEXEC') or die;
 
         <td>
             <a href="<?php echo JRoute::_('index.php?option=com_gglms&task=unita.edit&id=' . $item->id); ?>">
-                <img width="70px" src="<?php echo "../../mediagg/images/unit/" . $item->id .".jpg"; ?>"/>
+
+                <?php
+                $imgurl="../../mediagg/images/unit/" . $item->id .".jpg";
+                if(file_exists($imgurl))
+                    echo "<img width='70px' src='$imgurl'/>";
+                else
+                    echo "<img width='70px' src='components/com_gglms/images/immagine_non_disponibile.png'/>";
+                ?>
+
+
                 <?php echo $item->titolo; ?>
             </a>
 
         </td>
-
+        <td>
+            <?php
+            if($item->is_corso)
+                echo '<span class="icon-bookmark" style="font-size:24px;"> </span>';
+            ?>
+        </td>
         <td>
             <?php
             echo $item->accesso;

@@ -70,7 +70,7 @@ class gglmsTableunita extends JTable {
 //        // Set alias
         $this->alias = $this->setAlias($this->alias);
         if (empty($this->alias)) {
-            $this->alias = $this->setAlias($this->categoria." ".$this->id);
+            $this->alias = $this->setAlias($this->categoria." ".rand(100,999));
         }
         return true;
     }

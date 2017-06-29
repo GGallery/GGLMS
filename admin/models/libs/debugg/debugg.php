@@ -25,6 +25,22 @@ class DEBUGG
             die();
     }
 
+    public static function query($query, $label = "", $die = 0){
+
+        if($label)
+            echo "<label>". $label ."</label>";
+
+
+        echo "<pre>";
+
+        print_r((string)$query);
+
+        echo "</pre>";
+
+        if($die)
+            die();
+    }
+    
 
     public static function info($object, $label, $die = 0){
 

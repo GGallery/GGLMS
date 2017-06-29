@@ -19,7 +19,14 @@ defined('_JEXEC') or die;
         <td>
             <a href="<?php echo JRoute::_('index.php?option=com_gglms&task=content.edit&id=' . $item->id); ?>">
 
-                <img width="70px" src="<?php echo "../../mediagg/contenuti/". $item->id ."/" . $item->id .".jpg"; ?>"/>
+                <?php
+                $imgurl="../../mediagg/contenuti/". $item->id ."/" . $item->id .".jpg";
+                if(file_exists($imgurl))
+                    echo "<img width='70px' src='$imgurl'/>";
+                else
+                    echo "<img width='70px' src='components/com_gglms/images/immagine_non_disponibile.png'/>";
+                ?>
+
                 <?php echo $item->titolo; ?>
             </a>
         </td>

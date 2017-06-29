@@ -35,12 +35,7 @@ class outputHelper {
             return $breadcrumblist;
 
         }catch (Exception $e){
-
-            echo "Problemi nel creare il brearcrumb";
-            echo "<pre>";
-            print_r($e);
-            echo "<pre>";
-            die();
+            DEBUGG::log($e, "ERROR", 1);
         }
 
     }
@@ -80,12 +75,8 @@ class outputHelper {
             return $res;
         }
         catch (Exception $e){
-            echo "Problemi nel creare il brearcrumb - sono nel queryUnitDb";
-            echo "<pre>";
-            print_r($e);
-            echo "<pre>";
-
-            die();
+            echo "";
+            DEBUGG::log($e, "Problemi nel creare il brearcrumb - sono nel queryUnitDb", 1);
         }
     }
 
