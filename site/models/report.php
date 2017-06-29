@@ -75,11 +75,7 @@ class gglmsModelReport extends JModelLegacy {
 		$unit= $this->getUnit($id);
 		$contenuti = $unit->getAllContenuti();
 
-
-		$this->debug($unit);
-
-		print_r($contenuti);
-		die;
+ 
 //		$contenuti = $unit->getContenuti();
 
 		
@@ -119,8 +115,7 @@ class gglmsModelReport extends JModelLegacy {
 			$this->_db->setQuery($query);
 			$unit = $this->_db->loadObject('gglmsModelUnita');
 
-
-			$this->debug($unit);
+ 
 			die;
 
 			return $unit;
@@ -150,17 +145,7 @@ class gglmsModelReport extends JModelLegacy {
 
 	}
 
-	public function debug($data, $die = false){
-
-		echo "<pre>";
-		print_r($data);
-		echo "</pre>";
-
-		if($die)
-			die();
-
-
-	}
+ 
 
 
 }

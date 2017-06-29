@@ -28,7 +28,6 @@ class gglmsModelFile extends JModelAdmin {
         if (empty($data)) {
             $data = $this->getItem();
         }
-         FB::log($data, " loadFormData file");
         return $data;
     }
 
