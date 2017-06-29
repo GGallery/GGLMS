@@ -4,7 +4,10 @@ defined('_JEXEC') or die('Restricted access');
 if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
+$files= $this->contenuto->getFiles();
+
 echo "<h1>".$this->contenuto->titolo."</h1>";
+
 ?>
 
 
@@ -220,6 +223,21 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
 </div>
 
+<?php if(!empty($files)): ?>
+    <div id="files" class="g-grid ">
+        <hr>
+        <ul>
+            <?php
+            foreach($files as $file){
+                echo "<li>";
+                echo '<a target="_blank" href="/mediagg/files/'.$file->id.'/'.$file->filename.'">'.$file->name.'</a>';
+                echo "</li>";
+            }
+            ?>
+        </ul>
+        <hr>
+    </div>
+<?php endif; ?>
 
 
 

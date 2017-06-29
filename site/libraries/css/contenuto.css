@@ -30,3 +30,20 @@ padding: 30px 0 10px 100px;
 }
 
 
+#files_sottotitolo li {
+    background-image: url("../images/icona_file.jpg");
+    background-position: left center;
+    background-repeat: no-repeat;
+    background-size: 82px auto;
+    float: left;
+    font-size: large;
+    list-style: outside none none;
+    margin: 0;
+    padding: 8px 0 10px 66px;
+    position: relative;
+}
+
+#files_sottotitolo ul, ol, dl {
+    margin-bottom: 35px !important;
+    margin-top: -8px !important;
+}
