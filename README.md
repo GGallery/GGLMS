@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.7.6
+ - D: Aggiunto Trigger per proteggere unita 1
+
 3.7.5
  - BF: Aggiunta classe DEBUGG
  - B: Auto Alias

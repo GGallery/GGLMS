@@ -7,8 +7,8 @@ CREATE TRIGGER `Protect_corsi` BEFORE UPDATE ON `#__gg_unit`
 FOR EACH ROW
         BEGIN
            IF OLD.id = 1 THEN
-                SET NEW.unitapadre = 0;
-                SET NEW.id = 1;
-                SET NEW.ordinamento = 0;
+                SET NEW.unitapadre = 0 ,
+                NEW.id = 1,
+                NEW.ordinamento = 0;
            END IF;
 END;
