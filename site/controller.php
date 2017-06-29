@@ -30,9 +30,6 @@ class gglmsController extends JControllerLegacy {
         define('PATH_PRINCIPALE', '../mediagg/');
         define('PATH_CONTENUTI', '../mediagg/contenuti/');
 
-
-      
-
         JHtml::_('jquery.framework');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
 
@@ -41,8 +38,10 @@ class gglmsController extends JControllerLegacy {
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
 
-        JHtml::_('script','components/com_gglms/js/mediaelement-and-player.js');
+        if(file_exists('gglms_custom.css'))
+            JHtml::_('stylesheet', 'gglms_custom.css');
 
+        JHtml::_('script','components/com_gglms/js/mediaelement-and-player.js');
 
         
         $this->_params = $this->_japp->getParams();
@@ -63,7 +62,6 @@ class gglmsController extends JControllerLegacy {
         $this->registerTask('returnfromjoomlaquiz', 'returnfromjoomlaquiz');
         $this->registerTask('attestato', 'attestato');
 
-        DEBUGG::log($this->_params);
     }
 
 

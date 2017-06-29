@@ -8,7 +8,7 @@
  */
 // No direct access to this file
 defined('_JEXEC') or die;
-require_once JPATH_COMPONENT_ADMINISTRATOR . '/models/libs/FirePHPCore/fb.php';
+
 jimport('joomla.application.component.controllerform');
 
 class gglmsControllerContent extends JControllerForm {

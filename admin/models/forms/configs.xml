@@ -176,15 +176,6 @@
 				  default="1,2"
 		/>
 
-		<field 	name="versione_gglms"
-				  type="text"
-				  readonly="true"
-				  label="Versione GGLMS"
-				  description="versione GGLMS"
-				  default="3.4.1"
-		/>
-
-
 
 		<!-- I N I Z I O BREADCRUMB-->
 
