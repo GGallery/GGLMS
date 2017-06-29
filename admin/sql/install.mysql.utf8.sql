@@ -256,4 +256,4 @@ CREATE TRIGGER `Protection` BEFORE UPDATE ON `un_gg_unit` FOR EACH ROW BEGIN
            END IF;
        END
 ;;
-DELIMITER ;
+
