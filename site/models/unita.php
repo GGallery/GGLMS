@@ -208,15 +208,15 @@ class gglmsModelUnita extends JModelLegacy {
 			foreach ($access_list as $metodo ) {
 				switch ($metodo) {
 					case 'coupon':
-						return $this->check_Standard_Coupon();
+						return $this->check_Standard_Coupon($corso);
 						break;
 
 					case 'couponeb':
-						return $this->check_EventBookingField_Coupon();
+						return $this->check_EventBookingField_Coupon($corso);
 						break;
 
 					case 'iscrizioneeb':
-						return $this->check_iscrizione_eb();
+						return $this->check_iscrizione_eb($corso);
 						break;
 				}
 			}
@@ -225,14 +225,14 @@ class gglmsModelUnita extends JModelLegacy {
 		return true;
 	}
 
-	private function check_Standard_Coupon()
+	private function check_Standard_Coupon($corso)
 	{
 		try {
 			$query = $this->_db->getQuery(true)
 				->select('count(coupon)')
 				->from('#__gg_coupon as u')
 				->where("u.id_utente = $this->_userid")
-				->where("u.corsi_abilitati = $this->id")
+				->where("u.corsi_abilitati = $corso->id")
 				->where("(data_scadenza > current_date() OR data_scadenza IS NULL)")
 				->where("if(durata is not null, DATEDIFF(DATE_ADD(data_utilizzo, INTERVAL durata DAY), current_date()) > 0, true)");
 
@@ -251,7 +251,7 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 	}
 
-	private function check_EventBookingField_Coupon()
+	private function check_EventBookingField_Coupon($corso)
 	{
 		try {
 			$query = $this->_db->getQuery(true)
@@ -262,7 +262,7 @@ class gglmsModelUnita extends JModelLegacy {
 				->where('v.field_id = '. $this->_params->get('campo_event_booking_auto_abilitazione_coupon'))
 				->where('r.user_id= ' . $this->_userid)
 				->where('r.published = 1 ')
-				->where('r.event_id = ' . $this->id_event_booking)
+				->where('r.event_id = ' . $corso->id_event_booking)
 				->where('abilitato = 1')
 			;
 
@@ -280,14 +280,14 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 	}
 
-	private function check_iscrizione_eb()
+	private function check_iscrizione_eb($corso)
 	{
 
 		try {
 			$query = $this->_db->getQuery(true)
 				->select('count(id)')
 				->from('#__eb_registrants as r')
-				->where('r.event_id = '. $this->id_event_booking)//parametrizzare con campo EB
+				->where('r.event_id = '. $corso->id_event_booking)//parametrizzare con campo EB
 				->where('r.user_id= ' . $this->_userid)
 				->where('r.published = 1 ')
 			;
@@ -303,7 +303,9 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 		catch (Exception $e)
 		{
-			JError::raiseError(500, $e->getMessage());
+			DEBUGG::query($query);
+			DEBUGG::log($e, 'check_iscrizione_eb', 1);
+
 		}
 	}
 
