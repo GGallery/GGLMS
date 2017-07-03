@@ -121,7 +121,7 @@ class gglmsModelReport extends JModelLegacy {
 			return $unit;
 		}
 		catch (Exception $e) {
-			die ('Errore getUnit report'.(string)$query);
+			DEBUGG::$query($query, 'Errore getUnit report', 1);
 		}
 
 	}
@@ -139,10 +139,8 @@ class gglmsModelReport extends JModelLegacy {
 			return $data;
 		}
 		catch (Exception $e) {
-			die ('Errore getUsersEventreport'. (string)$query);
+			DEBUGG::$query($query, 'Errore Report getUsersEvent', 1);
 		}
-
-
 	}
 
  

@@ -123,12 +123,7 @@ class gglmsControllerPdf extends JControllerLegacy
             
         }catch (Exception $e){
 
-            echo "Errore generazione attestato";
-
-            echo "<pre>";
-            print_r($e);
-            echo "</pre>";
-            die();
+            DEBUGG::log($e, 'Exception in generateAttestato ', 1);
         }
         $this->_japp->close();
     }

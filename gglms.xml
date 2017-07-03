@@ -10,22 +10,22 @@
 	<copyright>Copyright Info</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>3.7.9</version>
+	<version>3.7.10</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>GGLMS component</description>
 
-<updateservers>
+	<updateservers>
 		<server type="extension" element="com_gglms" name="gglms" priority="1">https://raw.githubusercontent.com/GGallery/com_gglms/master/gglmsupdate.xml</server>
-</updateservers>
+	</updateservers>
 
 	<install>
-    <sql>
-      <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
-    </sql>
-  	</install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
 
 	<update>
-		 	<schemas>
+		<schemas>
 			<schemapath type="mysql">sql/updates/mysql</schemapath>
 		</schemas>
 	</update>
@@ -42,7 +42,7 @@
 		<folder>libraries</folder>
 		<folder>models</folder>
 		<folder>views</folder>
-		 
+
 	</files>
 
 	<administration>
@@ -62,7 +62,7 @@
 			<folder>tables</folder>
 			<folder>views</folder>
 			<folder>sql</folder>
-		 
+
 		</files>
 	</administration>
 

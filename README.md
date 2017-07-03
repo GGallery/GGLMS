@@ -4,6 +4,15 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.7.10
+ - G: integrato CB
+
+3.7.8/9
+ - F: Sistemato controllo sulla modalità di accesso in unità Root
+
+3.7.7
+ - D: Rimosso Trigger per proteggere unita 1 e allineamento DB - Faceva casino perchè i DB non erano uguali
+
 3.7.6
  - D: Aggiunto Trigger per proteggere unita 1
 

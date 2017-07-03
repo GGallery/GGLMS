@@ -30,21 +30,35 @@ class gglmsModelUsers  extends JModelLegacy {
 
         switch ($params->get('integrazione')) {
             case 'cb':
+                $data =  $this->get_user_cb($id);
                 break;
 
             case 'eb':
                 $data =  $this->get_user_eb($id, $integration_element_id);
-
-                
                 break;
         }
-
-
 
         return $data;
 
     }
 
+    private function get_user_cb($id){
+
+        $query = $this->_db->getQuery(true)
+            ->select('*')
+            ->from('#__comprofiler as r')
+            ->where('r.user_id = ' . $id)
+
+        ;
+
+        $this->_db->setQuery($query);
+        $registrants = $this->_db->loadObject();
+
+        $registrants->nome=  $registrants->firstname;
+        $registrants->cognome=  $registrants->lastname;
+
+        return $registrants;
+    }
 
     private function get_user_eb($id, $id_eb){
 
@@ -79,17 +93,6 @@ class gglmsModelUsers  extends JModelLegacy {
 
         return $fields;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 }
 

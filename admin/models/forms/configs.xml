@@ -15,14 +15,6 @@
 		</field>
 
 
-		<!--<field-->
-		<!--name="redirect_url_if_no_access"-->
-		<!--type="menuitem"-->
-		<!--class="btn-group"-->
-		<!--label="Redirigi utente se non può accedere"-->
-		<!--labelclass="control-label"-->
-		<!--default=""/>-->
-
 		<field
 				name="jumper_normalmente_aperti"
 				type="radio"
@@ -87,14 +79,21 @@
 		</field>
 
 		<field 	name="campo_event_booking_auto_abilitazione_coupon"
-				  type="sql"
+				  type="listafieldeb"
 				  label="Campo EB autoabilitazioneCoupon"
+				  class="inputbox"
 				  description="Campo EventBooking autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
 				  showon="integrazione:eb"
-				  query="SELECT  id, title  FROM #__eb_fields"
-				  key_field="id"
-				  value_field="title"
-				  header="Seleziona..."
+
+		/>
+
+		<field 	name="campo_community_builder_auto_abilitazione_coupon"
+				  type="listafieldcb"
+				  label="Campo CB autoabilitazioneCoupon"
+				  class="inputbox"
+				  description="Campo CommunityBuilder autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
+				  showon="integrazione:cb"
+
 		/>
 
 
@@ -111,14 +110,20 @@
 		</field>
 
 		<field 	name="campo_event_booking_controllo_cf"
-				  type="sql"
+				  type="listafieldebxcf"
 				  label="Campo EventBooking controllo Codice fiscale"
 				  description="Campo EventBooking controllo CF"
-				  showon="verifica_cf:1"
-				  query="SELECT  name, title  FROM #__eb_fields"
-				  key_field="name"
-				  value_field="title"
-				  header="Seleziona..."
+				  showon="verifica_cf:1[AND]integrazione:eb"
+				  class="inputbox"
+		/>
+
+		<field 	name="campo_community_builder_controllo_cf"
+				  type="listafieldcbxcf"
+				  label="Campo CB controllo Codice fiscale"
+				  description="Campo Community Builder controllo CF"
+				  showon="verifica_cf:1[AND]integrazione:cb"
+				  class="inputbox"
+				  default=""
 		/>
 
 		<field

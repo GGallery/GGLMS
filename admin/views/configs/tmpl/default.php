@@ -40,9 +40,9 @@ JHtml::_('formbehavior.chosen', 'select');
             include(dirname(__FILE__).DS.'unita.php');
             echo JHtml::_('bootstrap.endTab');
 
-            echo JHtml::_('bootstrap.addTab', 'myTab', 'Contenuto', JText::_('Contenuto', true));
-            include(dirname(__FILE__).DS.'contenuto.php');
-            echo JHtml::_('bootstrap.endTab');
+//            echo JHtml::_('bootstrap.addTab', 'myTab', 'Contenuto', JText::_('Contenuto', true));
+//            include(dirname(__FILE__).DS.'contenuto.php');
+//            echo JHtml::_('bootstrap.endTab');
 
 
             ?>
