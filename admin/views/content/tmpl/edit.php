@@ -160,6 +160,7 @@ $fieldsets = $this->form->getFieldsets();
         </div>
     </div>
 
+
 <?php echo JHtml::_('bootstrap.endTab'); ?>
 
 
@@ -219,5 +220,5 @@ $fieldsets = $this->form->getFieldsets();
 
     <?php echo JHtml::_('bootstrap.endTabSet'); ?>
 
-</form>
 
+</form>

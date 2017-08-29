@@ -1,6 +1,6 @@
 <?php
 // no direct access
-FB::log("-> tmpl Unita");
+
 
 defined('_JEXEC') or die('Restricted access');
 

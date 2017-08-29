@@ -8,33 +8,41 @@
 class gglmsModelUsers  extends JModelLegacy {
 
     protected $_db;
+    private $_params;
+    private $_app;
     public $_userid;
     public $nome;
     public $cognome;
-    
 
     public function __construct($config = array()) {
         parent::__construct($config);
 
         $user = JFactory::getUser();
         $this->_userid = $user->get('id');
-
         $this->_db = $this->getDbo();
+        $this->_app = JFactory::getApplication();
+        $this->_params = $this->_app->getParams();
+
     }
 
-    public function get_user($id = null, $integration_element_id = null)
+
+
+    public function get_user($id = null, $integration_element_id = null  )
     {
 
-        $app = JFactory::getApplication();
-        $params = $app->getParams();
 
-        switch ($params->get('integrazione')) {
+
+        switch ($this->_params->get('integrazione')) {
             case 'cb':
                 $data =  $this->get_user_cb($id);
                 break;
 
             case 'eb':
                 $data =  $this->get_user_eb($id, $integration_element_id);
+                break;
+
+            default:
+                $data =  null;
                 break;
         }
 
@@ -44,39 +52,59 @@ class gglmsModelUsers  extends JModelLegacy {
 
     private function get_user_cb($id){
 
-        $query = $this->_db->getQuery(true)
-            ->select('*')
-            ->from('#__comprofiler as r')
-            ->where('r.user_id = ' . $id)
+        try {
 
-        ;
+            $query = $this->_db->getQuery(true)
+                ->select('*, "" as nome, "" as cognome ')
+                ->from('#__comprofiler as r')
+                ->join('inner', '#__users as u on u.id = r.id')
+                ->where('r.user_id = ' . $id);
 
-        $this->_db->setQuery($query);
-        $registrants = $this->_db->loadObject();
 
-        $registrants->nome=  $registrants->firstname;
-        $registrants->cognome=  $registrants->lastname;
+            $this->_db->setQuery($query);
+            $registrants = $this->_db->loadObject();
 
-        return $registrants;
+
+            $registrants->nome = $registrants->firstname;
+            $registrants->cognome = $registrants->lastname;
+
+            return $registrants;
+        }
+        catch (Exception $e){
+            DEBUGG::error($e, 'error get user cb', 1);
+        }
+
     }
 
     private function get_user_eb($id, $id_eb){
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__eb_registrants as r')
+                ->where('r.user_id = ' . $id)
+                ->where('r.event_id = ' . $id_eb);
 
-        $query = $this->_db->getQuery(true)
-            ->select('*')
-            ->from('#__eb_registrants as r')
-            ->where('r.user_id = ' . $id)
-            ->where('r.event_id = ' . $id_eb)
-        ;
 
-        $this->_db->setQuery($query);
-        $registrants = $this->_db->loadObject();
+            $this->_db->setQuery($query);
+            $registrants = $this->_db->loadAssoc();
 
-        $registrants->nome=  $registrants->first_name;
-        $registrants->cognome=  $registrants->last_name;
-        $registrants->fields = $this->get_user_field_eb($registrants->id);
+            if($registrants['id']) {
+                $registrants['nome'] = $registrants['first_name'];
+                $registrants['cognome'] = $registrants['last_name'];
 
-        return $registrants;
+                $extrafieldfields = $this->get_user_field_eb($registrants['id']);
+
+                if ($extrafieldfields)
+                    $registrants = (object)array_merge($registrants, $extrafieldfields);
+            }
+
+
+            return $registrants;
+        }catch (Exception $e){
+            DEBUGG::query($query, 'query error in get user eb');
+            DEBUGG::error($e, 'error in get user eb', 1);
+
+        }
     }
 
     private function get_user_field_eb($registrant_id){
@@ -93,6 +121,9 @@ class gglmsModelUsers  extends JModelLegacy {
 
         return $fields;
     }
+
+
+   
 
 }
 

@@ -74,7 +74,9 @@ class gglmsModelUnita extends JModelLegacy {
 			$query = $this->_db->getQuery(true)
 				->select('*')
 				->from('#__gg_unit as u')
-				->where('u.id = ' . (int) $pk);
+				->where('u.id = ' . (int) $pk)
+				->where('u.pubblicato = 1');
+
 
 			$this->_db->setQuery($query);
 			$unit = $this->_db->loadObject('gglmsModelUnita');
@@ -86,16 +88,7 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 		catch (Exception $e)
 		{
-			if ($e->getCode() == 404)
-			{
-				// Need to go thru the error handler to allow Redirect to work.
-				JError::raiseError(404, $e->getMessage());
-			}
-			else
-			{
-				$this->setError($e);
-				$this->_item = false;
-			}
+			DEBUGG::log($e, 'getUnita');
 		}
 
 		return $unit;
@@ -104,12 +97,16 @@ class gglmsModelUnita extends JModelLegacy {
 	
 	public function getSottoUnita($pk = null)
 	{
+		if($pk)
+			$this->id = $pk;
+
 		try
 		{
 			$query = $this->_db->getQuery(true)
 				->select('*')
 				->from('#__gg_unit as u')
 				->where('u.unitapadre  = ' . $this->id)
+				->where('u.pubblicato = 1')
 				->order('ordinamento')
 			;
 			$this->_db->setQuery($query);
@@ -118,7 +115,7 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 		catch (Exception $e)
 		{
-			$this->setError($e);
+			DEBUGG::log($e, 'getSottoUnita');
 		}
 
 //	
@@ -128,11 +125,15 @@ class gglmsModelUnita extends JModelLegacy {
 	public function getAllContenuti()
 	{
 		$sottunita = $this->getSottoUnita();
+
 		$contenuti= array();
 		foreach ($sottunita as $unitafiglio){
 			$sottocontenuti = $unitafiglio->getContenuti();
 			$contenuti=array_merge($contenuti, $sottocontenuti);
 		}
+
+//		DEBUGG::log($contenuti, 'contenuti', 1);
+
 		return $contenuti;
 	}
 
@@ -158,8 +159,7 @@ class gglmsModelUnita extends JModelLegacy {
 		}
 		catch (Exception $e)
 		{
-			if ($e->getCode() == 404)
-				JError::raiseError(404, $e->getMessage());
+			DEBUGG::log($e, 'getContenuti');
 
 		}
 		return $contenuti;
@@ -175,7 +175,7 @@ class gglmsModelUnita extends JModelLegacy {
 
 	}
 
-	private function find_corso($check){
+	public function find_corso($check){
 		try
 		{
 			$query = $this->_db->getQuery(true)

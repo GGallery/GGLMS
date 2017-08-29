@@ -135,24 +135,27 @@ class utilityHelper {
 
 
 
+    public static function setComponentParam($key, $value)    {
 
+        $params = JComponentHelper::getParams('com_gglms');
+        $params->set($key, $value);
 
+        $componentid = JComponentHelper::getComponent('com_gglms')->id;
+        $table = JTable::getInstance('extension');
+        $table->load($componentid);
+        $table->bind(array('params' => $params->toString()));
 
-
-
-    
-    public static function DISATTIVATOgetContentIconStatus($prerequisiti, $stato) {
-
-        if (!$prerequisiti) {
-            echo '<img class="img-rounded" title="Contenuto non ancora visionabile" src="components/com_gglms/images/state_red.jpg"> ';
-        } else {
-            if ($stato == "completed") {
-                echo '<img class="img-rounded" title="Contenuto già visionato" src="components/com_gglms/images/state_green.jpg">';
-            } else {
-                echo '<img class="img-rounded" title="Contenuto da visionare" src="components/com_gglms/images/state_grey.jpg"> ';
-            }
+        if (!$table->check()) {
+            DEBUGG::log('Errore salvataggio parametri', '', 1);
+            return false;
+        }
+        if (!$table->store()) {
+            DEBUGG::log('Errore salvataggio parametri', '', 1);
+            return false;
         }
     }
+
+
 
     public static function DISATTIVATOconvertiDurata($durata) {
         $m = floor(($durata % 3600) / 60);
@@ -161,50 +164,5 @@ class utilityHelper {
 
         return $result;
     }
-
-    public static function DISATTIVATOgetContent_Footer($item){
-
-        FB::log($item, 'itemFooter');
-
-
-        echo '<a href="component/gglms/contenuto/'. $item['alias'] . '"  title="'.htmlentities(utf8_decode($item['abstract'])).'" >';
-        ?>
-        <div class="boxContentFooter img-rounded">
-            <div class="boxtitle">
-                <?php
-                $maxlengh = 80;
-                if(strlen($item['titolo'])>$maxlengh)
-                    $item['titolo'] = substr($item['titolo'], 0, $maxlengh)."...";
-                echo $item['titolo'];
-                ?>
-            </div>
-
-            <div class="boximg">
-
-                <?php
-                if(file_exists('../mediagg/contenuti/'.$item["id"].'/'.$item["id"].'.jpg'))
-                    echo '<img class="img-responsive" src="../mediagg/contenuti/'.$item["id"].'/'.$item["id"].'.jpg">';
-                else
-                    echo '<img class="img-responsive" src="components/com_gglms/images/sample.jpg">';
-                ?>
-            </div>
-
-            <div class="boxinfo">
-                <table width="100%">
-                    <tr>
-                        <td rowspan="2" width="33%"><?php echo  outputHelper::getContentIconStatus($item); ?> </td>
-                        <!--  <td width="33%">Durata</td>
-                <td width="33%"><?php //echo outputHelper::convertiDurata($item["durata"]);   ?></td> -->
-                    </tr>
-                    <tr>
-                        <!--  <td>Visite</td>
-                <td><?php //echo $item["views"]; ?></td> -->
-                    </tr>
-                </table>
-            </div>
-        </div>
-        </a>
-        <?php
-    }
-
+    
 }

@@ -39,6 +39,10 @@ class gglmsController extends JControllerLegacy {
     }
 
     function fileupload() {
+
+
+        die("errore upload");
+
 //import joomlas filesystem functions, we will do all the filewriting with joomlas functions,
 //so if the ftp layer is on, joomla will write with that, not the apache user, which might
 //not have the correct permissions
@@ -132,7 +136,7 @@ class gglmsController extends JControllerLegacy {
             $fileName = $id_contenuto . "." . $uploadedFileExtension;
         }
 
-        $filename = strtolower($filename);
+        $filename = strtolower($fileName);
 
         DEBUGG::info($_FILES, " _FILES ");
 

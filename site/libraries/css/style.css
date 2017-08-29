@@ -18,3 +18,18 @@
 }
 
 
+.debugg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    border-top: dotted 2px;
+    overflow: scroll;
+
+}
+
+body {
+    left: 300px !important;
+    position: absolute !important;
+}

@@ -40,9 +40,7 @@ class gglmsControllerPdf extends JControllerLegacy
         define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT.'/libraries/smarty/extras/');
 
     }
-
-
-
+ 
     public function generateAttestato() {
 
         try {
@@ -65,6 +63,8 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $attestato = $db->loadObject('gglmsModelContenuto');
 
+            
+            
 
             if (!$attestato->path)
                 JFactory::getApplication()->enqueueMessage('Non hai impostato l\'id del contenuto di riferimento per l\'attestato ', 'error');
@@ -82,7 +82,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $contenuto_verifica = $db->loadObject('gglmsModelContenuto');
 
-         
+
             //UNITA PADRE
             $query = $db->getQuery(true)
                 ->select('*')

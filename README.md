@@ -4,6 +4,12 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.7.11 BOZZA
+ - G: sistemato UploadHandler - Rimosse chiamate FireBug e require_once
+ - F: implementati Report
+ - D: Aggiornate manualmente tabella scormars con l'aggiunta della colonna timestamp
+ - D: Creata tabella report
+
 3.7.10
  - G: integrato CB
 

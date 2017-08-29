@@ -84,9 +84,7 @@ class gglmsModelContenuto extends JModelLegacy {
 		try
 		{
 			$query = $this->_db->getQuery(true)
-				->select('c.*
-					,t.tipologia as tipologia_contenuto'
-				)
+				->select('c.*,t.tipologia as tipologia_contenuto')
 				->from('#__gg_contenuti as c')
 				->leftJoin('#__gg_contenuti_tipology as t on t.id=c.tipologia')
 				->where('c.id = ' . (int) $this->_id);
@@ -98,20 +96,13 @@ class gglmsModelContenuto extends JModelLegacy {
 
 			if (empty($data))
 			{
-				return JError::raiseError(404, JText::_('CONTENUTO NON TROVATO: '. (string)$query));
+				DEBUGG::query($query, 'query get contenuto' ,1 );
 			}
 		}
 		catch (Exception $e)
 		{
-			if ($e->getCode() == 404)
-			{
-				// Need to go thru the error handler to allow Redirect to work.
-				JError::raiseError(404, $e->getMessage());
-			}
-			else
-			{
-				$this->setError($e);
-			}
+			DEBUGG::query($query, 'query get contenuto');
+			DEBUGG::log($e, 'exception');
 		}
 		return $data;
 
@@ -153,7 +144,7 @@ class gglmsModelContenuto extends JModelLegacy {
 
 			return $jumpers;
 		} catch (Exception $e) {
-			FB::error($e, "error");
+			DEBUGG::error($e, "error");
 		}
 		return 0;
 	}
@@ -281,17 +272,20 @@ class gglmsModelContenuto extends JModelLegacy {
 	}
 
 	public function getUnitPadre(){
-		$query = $this->_db->getQuery(true)
-			->select('idunita')
-			->from('#__gg_unit_map as m')
-			->where('idcontenuto = ' . $this->id)
 
-		;
+		try {
+			$query = $this->_db->getQuery(true)
+				->select('idunita')
+				->from('#__gg_unit_map as m')
+				->where('idcontenuto = ' . $this->id);
 
-		$this->_db->setQuery($query);
-		$data = $this->_db->loadResult();
+			$this->_db->setQuery($query);
+			$data = $this->_db->loadResult();
 
-		return $data;
+			return $data;
+		}catch (Exception $e){
+			DEBUGG::log($e, 'getUnitPadre', 1);
+		}
 	}
 
 	public function getStato($user_id = null){
@@ -300,6 +294,7 @@ class gglmsModelContenuto extends JModelLegacy {
 		//Se passo come parametro lo user_id, invece che avere lo stato per l'utente corrente lo avrò per quell'id. Mi serve per i report
 		if($user_id)
 			$this->_userid=$user_id;
+
 
 
 //		RESTITUISCO UN OGGETTO STATO
@@ -323,6 +318,7 @@ class gglmsModelContenuto extends JModelLegacy {
 
 			case 7: //quizdeluxe
 				$data = $this->getStato_quiz_deluxe();
+
 				return $data;
 				break;
 
@@ -387,7 +383,6 @@ class gglmsModelContenuto extends JModelLegacy {
 			->order('c_date_time')
 			->setLimit(1);
 
-
 		$this->_db->setQuery($query);
 		$data = $this->_db->loadObject();
 
@@ -412,8 +407,11 @@ class gglmsModelContenuto extends JModelLegacy {
 			->where('s.userid = ' . $this->_userid)
 		;
 
+
 		$this->_db->setQuery($query);
 		$data = $this->_db->loadObjectList('varName');
+
+//		DEBUGG::log($data, 'data getStato_allegati');
 
 		$stato = new gglmsModelStatoContenuto();
 
@@ -436,6 +434,7 @@ class gglmsModelContenuto extends JModelLegacy {
 		;
 
 
+
 		$this->_db->setQuery($query);
 		$data = $this->_db->loadObjectList('varName');
 
@@ -455,11 +454,18 @@ class gglmsModelContenuto extends JModelLegacy {
 		$tmp->scoid = $this->id;
 		$tmp->userid = $this->_userid;
 
+		//ultima visualizzazione
 		$tmp->varName = 'cmi.core.last_visit_date';
 		$tmp->varValue = date('Y-m-d');
 		$stato->setStato($tmp);
 
 
+		//contatore
+		$tmp->varName = 'cmi.core.count_views';
+		$tmp->varValue= (int)$stato_attuale->visualizzazioni+1;
+		$stato->setStato($tmp);
+
+		//stato
 		if(!$stato_attuale->completato) {
 			$tmp->varName = 'cmi.core.lesson_status';
 

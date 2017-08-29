@@ -1,6 +1,8 @@
 jQuery(function ($) {
     'use strict';
     // Change this to the location of your server-side upload handler:
+    
+    
     var url = 'components/com_gglms/jupload/server/php/';
     $('#fileupload').fileupload({
         url: url,
@@ -12,6 +14,8 @@ jQuery(function ($) {
             });
         },
         progressall: function (e, data) {
+            console.log("prograss");
+
             var progress = parseInt(data.loaded / data.total * 100, 10);
             
             $('#progress .progress-bar').css(

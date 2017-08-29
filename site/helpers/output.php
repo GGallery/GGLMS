@@ -165,7 +165,7 @@ class outputHelper {
 //                    unset($res[$key]);
             }
 
-            FB::log($res, " getUnitMenu");
+            DEBUGG::log($res, " getUnitMenu");
 
             return $res;
         } catch (Exception $e) {
@@ -196,7 +196,7 @@ class outputHelper {
 
     public static function DISATTIVATOgetContent_Footer($item){
 
-        FB::log($item, 'itemFooter');
+        DEBUGG::log($item, 'itemFooter');
 
 
         echo '<a href="component/gglms/contenuto/'. $item['alias'] . '"  title="'.htmlentities(utf8_decode($item['abstract'])).'" >';

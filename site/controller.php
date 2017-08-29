@@ -35,13 +35,14 @@ class gglmsController extends JControllerLegacy {
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
 
         if(file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');
 
-        JHtml::_('script','components/com_gglms/js/mediaelement-and-player.js');
+//        JHtml::_('script','components/com_gglms/js/mediaelement-and-player.js');
 
         
         $this->_params = $this->_japp->getParams();
@@ -95,6 +96,11 @@ class gglmsController extends JControllerLegacy {
         $app->close();
     }
 
-    
+    public function sync_report(){
+        $report = $this->getModel('report');
+        $report->sync();
+        $this->_japp->close();
+    }
+
 
 }

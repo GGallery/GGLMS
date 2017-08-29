@@ -35,6 +35,16 @@
 				default="Unita"/>
 
 		<field
+				name="data_sync"
+				type="text"
+				class=""
+				label="Data ultima sync report"
+				labelclass="control-label"
+				readonly="true"
+				default="0000-00-00"/>
+
+
+		<field
 				name="nomenclatura_moduli"
 				type="text"
 				class=""

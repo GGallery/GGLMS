@@ -87,6 +87,18 @@ class GGlmsRouter extends JComponentRouterBase
 
                 break;
 
+            case 'report':
+
+                $vars['view'] = 'report';
+                break;
+
+            case 'syncreport':
+
+                $vars['task'] = 'sync_report';
+                break;
+
+
+
             default:
                 $vars['view'] = 'gglms';
                 break;

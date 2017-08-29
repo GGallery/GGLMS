@@ -11,21 +11,30 @@ class DEBUGG
 
     public static function log($object, $label = "", $die = 0){
 
+
+
+        if(is_object($object))
+            return  DEBUGG::object($object, $label , $die);
+
+        echo "<div class='debugg'>";
         if($label)
             echo "<label>". $label ."</label>";
 
 
-            echo "<pre>";
+        echo "<pre>";
 
-            print_r($object);
+        print_r($object);
 
-            echo "</pre>";
+        echo "</pre>";
+        
 
         if($die)
             die();
     }
 
     public static function query($query, $label = "", $die = 0){
+
+        echo "<div class='debugg'>";
 
         if($label)
             echo "<label>". $label ."</label>";
@@ -37,10 +46,12 @@ class DEBUGG
 
         echo "</pre>";
 
+        echo "</div>";
+
         if($die)
             die();
     }
-    
+
 
     public static function info($object, $label, $die = 0){
 
@@ -50,8 +61,42 @@ class DEBUGG
 
     public static function error($object, $label, $die = 0){
 
-        return self::log($object, $label, $die);
+        if($label)
+            echo "<label>". $label ."</label>";
+
+
+        echo "<pre>";
+        print_r($object);
+        echo "</pre>";
+
+        if($die)
+            die();
 
     }
+
+    public static function object($object, $label = "", $die = 0){
+
+        if($label)
+            echo "<label>". $label ."</label>";
+
+
+        $var= get_object_vars($object);
+
+        $method = get_class_methods($object);
+
+
+
+        echo "<pre>";
+
+        print_r($var);
+        print_r($method);
+
+        echo "</pre>";
+
+        if($die)
+            die();
+    }
+
+
 
 }

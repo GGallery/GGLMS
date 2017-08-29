@@ -42,7 +42,6 @@ class gglmsModelPdf extends JModelLegacy {
             if (null === ($datetest = $contenuto_verifica->getStato()->data))
                 throw new RuntimeException('L\'utente non ha superato l\'esame o lo ha fatto in data ignota', E_USER_ERROR);
 
-  
             $info['data_superamento']=$datetest;
             $info['path_id'] = $attestato->id;
             $info['path'] = $_SERVER['DOCUMENT_ROOT'].'/mediagg/contenuti/';
@@ -61,7 +60,7 @@ class gglmsModelPdf extends JModelLegacy {
             return 1;
         } catch (Exception $e) {
             // FB::log($e);
-            var_dump($e);
+            DEBUGG::error($e, 'error generate_pdf');
         }
         return 0;
     }

@@ -13,10 +13,12 @@
         <div class="row-fluid">
 
             <div class="row-fluid">
-                <?php echo $this->form->renderField('integrazione'); ?>
+                <?php echo $this->form->renderField('data_sync'); ?>
             </div>
 
-
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('integrazione'); ?>
+            </div>
 
             <div class="row-fluid">
                 <?php echo $this->form->renderField('campo_event_booking_auto_abilitazione_coupon'); ?>
@@ -25,9 +27,6 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('campo_community_builder_auto_abilitazione_coupon'); ?>
             </div>
-
-
-
 
             <div class="row-fluid">
                 <?php echo $this->form->renderField('verifica_cf'); ?>
