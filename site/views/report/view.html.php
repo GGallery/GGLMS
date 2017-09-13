@@ -23,21 +23,31 @@ class gglmsViewReport extends JViewLegacy {
 
     function display($tpl = null)
     {
+ 
         $this->state = $this->get('State');
+        $this->corsi = $this->get('Corsi');
+        $this->usergroups = $this->get('Usergroups');
+
+        $this->summarize = $this->get('SummarizeCourse');
+        
+        JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
+        JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
 
         //GRAFICO TORTA
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/Chart.bundle.min.js');
+        
+        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.fa.min.js');
+        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
 
-        //TABELLA DINAMICA
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/jquery.bootgrid.min.js');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/jquery.bootgrid.min.css');
-
-//        $modelReport  = $this->getModel('report');
-//        $this->header  = $modelReport->getSottoUnita($this->state->get('id_corso'));
+        $modelReport  = $this->getModel('report');
+        $this->header  = $modelReport->getSottoUnita($this->state->get('id_corso'));
 //
 //        $this->userReport = $this->get('User');
 
-//        DEBUGG::log($header, 'header');
+//        DEBUGG::log($this->corsi, 'corsi');
+//        DEBUGG::log($this->header, 'header');
+
+
 //        DEBUGG::log($this->userReport, 'userReport');
 
         parent::display($tpl);

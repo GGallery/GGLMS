@@ -240,6 +240,21 @@ class outputHelper {
     }
 
 
+    public static function output_select ($name, $items, $value, $text, $default=null, $class=null)
+    {
+        
+        
+        $html = '<select id="'.$name.'" name="'.$name.'" class="'.$class.'">';
+
+        foreach ($items as $item)
+        {
+                $selected = ($item->$value == $default) ? 'selected="selected"' : '';
+
+                $html .= "<option value=".$item->$value." $selected>".$item->$text."</option>";
+        }
+        $html .= "</select>";
+        return $html;
+    }
 
 
 }

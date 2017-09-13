@@ -1,3 +1,25 @@
-.valueTableReport{
-    text-align: center !important;
+/*.valueTableReport{*/
+    /*text-align: center !important;*/
+/*}*/
+
+input{
+    height: 28px !important;
+}
+
+.btn{
+ height: 28px !important;
+}
+
+.button{
+    cursor: pointer;
+}
+
+.form-inline .form-group {
+    margin-bottom: 20px !important;
+}
+
+#barrafiltri {
+    width: 250px;
+    float: left;
+    position: relative;
 }

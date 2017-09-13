@@ -53,8 +53,9 @@ class gglmsModelReport extends JModelLegacy {
 	{
 		$app = JFactory::getApplication('site');
 
-		// Load state from the request.
-		$id_corso = $app->input->getInt('id_corso');
+		//PERSONALIZZARE IL CORSO BASE
+
+		$id_corso = $app->input->getInt('id_corso', 2);
 		$this->setState('id_corso', $id_corso);
 
 
@@ -167,7 +168,7 @@ class gglmsModelReport extends JModelLegacy {
 
 	}
 
-	 
+
 	public function getSottoUnita($item = 0) {
 		$tree = array();
 
@@ -215,6 +216,51 @@ class gglmsModelReport extends JModelLegacy {
 		}
 	}
 
+	public function getCorsi(){
+
+		$query = $this->_db->getQuery(true);
+
+		$query->select('*');
+		$query->from('#__gg_unit AS a');
+		$query->where("is_corso=1 ");
+
+		$this->_db->setQuery($query);
+
+		$corsi = $this->_db->loadObjectList();
+
+		return $corsi;
+
+	}
+
+	public function getSummarizeCourse(){
+
+		$query = $this->_db->getQuery(true);
+
+		$query->select('stato, count(stato) as total ');
+		$query->from('#__gg_report AS r');
+		$query->where("id_corso=" . $this->getState('id_corso'));
+		$query->group('stato');
+
+		$this->_db->setQuery($query);
+
+		$summarize = $this->_db->loadAssocList('stato');
+
+		return $summarize;
+	}
+
+	public function getUserGroups(){
+
+		$query = $this->_db->getQuery(true);
+
+		$query->select('id, title');
+		$query->from('#__usergroups AS u');
+
+		$this->_db->setQuery($query);
+
+		$usergroups = $this->_db->loadObjectList();
+
+		return $usergroups;
+	}
 
 }
 
