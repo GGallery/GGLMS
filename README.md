@@ -4,7 +4,11 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
-3.7.11 BOZZA
+3.8.0
+ - B: Sistemata paginazione utenti e unita
+ - F: Creata vista Report
+
+3.7.11
  - G: sistemato UploadHandler - Rimosse chiamate FireBug e require_once
  - F: implementati Report
  - D: Aggiornate manualmente tabella scormars con l'aggiunta della colonna timestamp

@@ -88,18 +88,49 @@ defined('_JEXEC') or die;
 
         </div>
     </div>
-    <div class="row">
-        <div id="" class="span2">
-            <h2>Dettagli</h2>
-            <table id="details" class="table table-condensed table-hover table-striped ">
-                <thead> <tr> <th>Campo</th> <th>Valore</th> </tr> </thead>
-                <tbody>
-                </tbody>
-            </table>
+    <!--    <div class="row">-->
+    <!--        <div id="" class="span2">-->
+    <!--            <h2>Dettagli</h2>-->
+    <!--            <table id="details" class="table table-condensed table-hover table-striped ">-->
+    <!--                <thead> <tr> <th>Campo</th> <th>Valore</th> </tr> </thead>-->
+    <!--                <tbody>-->
+    <!--                </tbody>-->
+    <!--            </table>-->
+    <!--        </div>-->
+    <!--    </div>-->
+</div>
+</div>
+
+
+
+<!-- Modal -->
+<div id="details" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Dettagli utente</h4>
+            </div>
+            <div class="modal-body">
+                <table id="details_table" class="table table-condensed table-hover table-striped ">
+                    <thead> <tr> <th>Campo</th> <th>Valore</th> </tr> </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
+
     </div>
 </div>
-</div>
+
+
+
+
 
 <?php
 //echo "report aggiornato al :" .$this->state->get('params')->get('data_sync');
@@ -201,13 +232,16 @@ defined('_JEXEC') or die;
             /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
-                $('#details').html('');
+//                $('#details').html('<tbody></tbody>');
                 scelta = $(this).data("row-id");
                 data= JSON.parse(fields[scelta]);
                 $.each(data, function (key, value) {
                     var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
-                    $('#details').append(eachrow);
+                    $('#details_table tbody').append(eachrow);
+//                    $('#modal-body ').append(eachrow);
                 });
+                $("#details").modal('show');
+
             }).end();
         });
     });

@@ -23,3 +23,14 @@ input{
     float: left;
     position: relative;
 }
+
+.modal-body{
+    overflow: auto;
+}
+
+.modal {
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0px !important;
+    box-shadow: none ;
+}

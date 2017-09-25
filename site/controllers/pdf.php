@@ -99,7 +99,7 @@ class gglmsControllerPdf extends JControllerLegacy
             if($this->_params->get('verifica_cf')) {
 
                 if($this->_params->get('integrazione')=='eb')
-                    $cf = $user->fields[$this->_params->get('campo_event_booking_controllo_cf')];
+                    $cf = $user->fields[$this->_params->get('campo_event_booking_controllo_cf')];    
                 elseif($this->_params->get('integrazione')=='cb'){
                     $cf = $user->$this->_params->get('campo_event_booking_controllo_cf');
                 }
