@@ -32,6 +32,7 @@ class gglmsControllerReport extends JControllerLegacy
         $this->_db = JFactory::getDbo();
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
+        
 
     }
 
@@ -47,7 +48,6 @@ class gglmsControllerReport extends JControllerLegacy
         }
 
         $this->_app->close();
-
     }
 
 
@@ -74,50 +74,55 @@ class gglmsControllerReport extends JControllerLegacy
     //REPORT TRACCIAMENTO
     public function sync_report(){
 
-        $scormvar_list		= $this->_getScormvarsVariation();
-        $quizdeluxe_list 	= $this->_getQuizDeluxeVariation();
+        try {
+            $scormvar_list = $this->_getScormvarsVariation();
+            $quizdeluxe_list = $this->_getQuizDeluxeVariation();
 
-        $list = array_merge($scormvar_list, $quizdeluxe_list);
+            $list = array_merge($scormvar_list, $quizdeluxe_list);
 
-        foreach ($list as $item){
-            $data = new Stdclass();
+            foreach ($list as $item) {
+                $data = new Stdclass();
 
+                $data->id_utente = $item->id_utente;
 
-            $data->id_utente = $item->id_utente;
+                $data->id_contenuto = $item->id_contenuto;
 
-            $data->id_contenuto = $item->id_contenuto;
+                $modelcontenuto = new gglmsModelContenuto();
+                $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
 
-            $modelcontenuto = new gglmsModelContenuto();
-            $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
+                $stato = $contenuto->getStato($data->id_utente);
 
-            $stato = $contenuto->getStato($data->id_utente);
+                $data->data = $stato->data;
+                $data->stato = $stato->completato;
+                $data->visualizzazioni = $stato->visualizzazioni;
 
-            $data->data = $stato->data;
-            $data->stato = $stato->completato;
-            $data->visualizzazioni = $stato->visualizzazioni;
+                $data->id_unita = $contenuto->getUnitPadre();
 
-            $data->id_unita = $contenuto->getUnitPadre();
+                $modelunita = new gglmsModelUnita();
 
-            $modelunita = new gglmsModelUnita();
-            $unita = $modelunita->getUnita($data->id_unita);
-            $corso = $unita->find_corso($data->id_unita);
+                $unita = $modelunita->getUnita($data->id_unita);
+                $corso = $unita->find_corso($data->id_unita);
 
-            $data->id_corso = $corso->id;
-            $data->id_event_booking = $corso->id_event_booking;
+                $data->id_corso = $corso->id;
+                $data->id_event_booking = $corso->id_event_booking;
 
-            $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+                $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
-            $this->store_report($data);
+                DEBUGG::log($data, 'Data to store_report' );
 
+                $this->store_report($data);
+            }
             unset($modelcontenuto);
             unset($contenuto);
             unset($modelunita);
             unset($unita);
             unset($data);
+
+            return true;
         }
-
-
-        return true;
+        catch (Exception $e) {
+            DEBUGG::error($e, 'error' , 1);
+        }
     }
 
     private function _getScormvarsVariation(){
@@ -127,12 +132,11 @@ class gglmsControllerReport extends JControllerLegacy
                 ->select('DISTINCT s.scoid as id_contenuto, s.userid as id_utente')
                 ->from('#__gg_scormvars as s');
 
-              if($this->params->get('data_sync'))
+            if($this->params->get('data_sync'))
                 $query->where('timestamp > "' . $this->params->get('data_sync').'"');
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
-
 
             return $data;
         }
@@ -149,8 +153,8 @@ class gglmsControllerReport extends JControllerLegacy
                 ->from('#__quiz_r_student_quiz as q')
                 ->join('inner','#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe');
 
-                 if($this->params->get('data_sync'))
-                   $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
+            if($this->params->get('data_sync'))
+                $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
@@ -176,7 +180,7 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_db->setQuery($query);
             $res = $this->_db->loadResult();
 
-            return $res;
+            return $res ? $res : 0 ;
 
         }catch (Exception $e){
             DEBUGG::error($e, 'error get Anagrafica',1);
@@ -192,6 +196,8 @@ class gglmsControllerReport extends JControllerLegacy
     INSERT INTO #__gg_report (id_corso, id_event_booking,id_unita, id_contenuto,  id_utente , id_anagrafica, stato, visualizzazioni, data ) 
     VALUES ($data->id_corso, $data->id_event_booking, $data->id_unita,$data->id_contenuto,$data->id_utente,$data->id_anagrafica,$data->stato, $data->visualizzazioni, '$data->data')";
             $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data'  ";
+
+            DEBUGG::log($query, 'query');
 
             $this->_db->setQuery($query);
             $this->_db->execute();
@@ -223,6 +229,8 @@ class gglmsControllerReport extends JControllerLegacy
                 $tmp->cognome = $this->_db->quote($tmpuser->cognome);
                 $tmp->fields = $this->_db->quote(json_encode($tmpuser));
 
+
+
                 $this->store_report_users($tmp);
             }
 
@@ -249,6 +257,8 @@ class gglmsControllerReport extends JControllerLegacy
                 $data =  $this->get_users_joomla($from_date);
                 break;
         }
+
+        DEBUGG::log($data, 'data get_user_id: '. $this->params->get('integrazione'));
         return $data;
     }
 
@@ -290,12 +300,14 @@ class gglmsControllerReport extends JControllerLegacy
                 $query->Where('r.register_date > ' . $this->_db->quote($from_date));
             }
 
+            $query->where('user_id != "" ' );
+
             $this->_db->setQuery($query);
             $registrants = $this->_db->loadObjectList();
 
             return $registrants;
         }catch (Exception $e){
-            DEBUGG::query($query, 'query error in get_users_eb');
+            DEBUGG::query($query, 'query_ error_ in_ get_users_eb');
             DEBUGG::error($e, 'error in get user eb', 1);
 
         }
@@ -322,7 +334,7 @@ class gglmsControllerReport extends JControllerLegacy
         }
     }
 
-    private function store_report_users($data){
+    private function    store_report_users($data){
 
         try {
             $query = "
@@ -339,10 +351,6 @@ class gglmsControllerReport extends JControllerLegacy
 
 
     }
-
-
-
-
 
 
 }

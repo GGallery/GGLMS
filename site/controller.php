@@ -32,8 +32,10 @@ class gglmsController extends JControllerLegacy {
 
         JHtml::_('jquery.framework');
         
+
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
- 
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');
+
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
@@ -45,15 +47,15 @@ class gglmsController extends JControllerLegacy {
 
 //        JHtml::_('script','components/com_gglms/js/mediaelement-and-player.js');
 
-        
+
         $this->_params = $this->_japp->getParams();
 
         $this->_user =   JFactory::getUser();
 
-        if ($this->_user->guest) {
-            //TODO Personalizzare il messaggio per i non registrati
+
+
+        if ($this->_user->guest  ) {
             $msg = "Per accedere al corso è necessario loggarsi";
-            //TODO Sistemare per fare in modo che dopo il login torni al corso
             $uri      = JUri::getInstance();
             $return      = $uri->toString();
             $url  = 'index.php?option=com_users&view=login';

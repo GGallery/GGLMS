@@ -83,7 +83,7 @@ class gglmsModelUnita extends JModelLegacy {
 
 			if (empty($unit))
 			{
-				return JError::raiseError(404, JText::_('COM_CONTENT_ERROR_ARTICLE_NOT_FOUND').(string)$query);
+				return JError::raiseError(404, JText::_('Unita non disponibile -->').(string)$query);
 			}
 		}
 		catch (Exception $e)

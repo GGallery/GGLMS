@@ -50,6 +50,7 @@ class gglmsModelUsers  extends JModelLegacy {
 
     }
 
+        
     private function get_user_cb($id){
 
         try {

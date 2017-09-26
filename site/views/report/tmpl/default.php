@@ -7,6 +7,8 @@
  */
 // No direct access to this file
 defined('_JEXEC') or die;
+
+JHtml::_('bootstrap.modal');
 ?>
 <div id="barrafiltri" class="span2">
 
@@ -129,11 +131,8 @@ defined('_JEXEC') or die;
 </div>
 
 
-
-
-
 <?php
-//echo "report aggiornato al :" .$this->state->get('params')->get('data_sync');
+echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 ?>
 
 <script type="text/javascript">
