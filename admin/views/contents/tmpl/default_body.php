@@ -40,7 +40,7 @@ defined('_JEXEC') or die;
         </td>
 
         <td>
-            <?php echo $item->descrizione; ?>
+            <?php //echo substr($item->descrizione,0, 150 )."...  "  ; ?>
         </td>
 
     </tr>

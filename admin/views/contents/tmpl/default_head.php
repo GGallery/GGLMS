@@ -27,6 +27,6 @@ defined('_JEXEC') or die;
 	</th>
 
 	<th>
-		<?php echo JText::_('COM_GGLMS_DESCRIZIONE'); ?>
+		<?php // echo JText::_('COM_GGLMS_DESCRIZIONE'); ?>
 	</th>
 </tr>

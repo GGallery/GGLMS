@@ -39,10 +39,14 @@ class gglmsControllerReport extends JControllerLegacy
     //INGRESSO
     public function  sync(){
 
+
+        echo http_response_code(200);
         if($this->sync_report_users()){
-            echo "sync_report_users completato <br>";
+
+//            echo "sync_report_users completato <br>";
             if($this->sync_report()) {
-                echo "sync_report completato <br> ";
+//                echo "sync_report completato <br> ";
+                echo http_response_code(200);
                 $this->updateconfig();
             }
         }
@@ -108,7 +112,7 @@ class gglmsControllerReport extends JControllerLegacy
 
                 $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
-                DEBUGG::log($data, 'Data to store_report' );
+//                DEBUGG::log($data, 'Data to store_report' );
 
                 $this->store_report($data);
             }
@@ -141,6 +145,7 @@ class gglmsControllerReport extends JControllerLegacy
             return $data;
         }
         catch (Exception $e) {
+            DEBUGG::error($e, 'error', '_getScormvarsVariation');
             DEBUGG::query($query, '_getScormvarsVariation', 1);
         }
     }
@@ -197,7 +202,7 @@ class gglmsControllerReport extends JControllerLegacy
     VALUES ($data->id_corso, $data->id_event_booking, $data->id_unita,$data->id_contenuto,$data->id_utente,$data->id_anagrafica,$data->stato, $data->visualizzazioni, '$data->data')";
             $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data'  ";
 
-            DEBUGG::log($query, 'query');
+//            DEBUGG::log($query, 'query');
 
             $this->_db->setQuery($query);
             $this->_db->execute();
@@ -258,7 +263,7 @@ class gglmsControllerReport extends JControllerLegacy
                 break;
         }
 
-        DEBUGG::log($data, 'data get_user_id: '. $this->params->get('integrazione'));
+//        DEBUGG::log($data, 'data get_user_id: '. $this->params->get('integrazione'));
         return $data;
     }
 
