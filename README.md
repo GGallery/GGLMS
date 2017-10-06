@@ -4,7 +4,10 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
-3.8.0
+3.8.2
+ - B: Aggiunto tab attestato in configuration
+
+3.8.1
  - F: Sistemato visualizzazione slide 
 
 3.8.0
