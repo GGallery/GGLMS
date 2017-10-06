@@ -5,6 +5,9 @@ CHANGELOG
 F:Frontend, B:Backend, D:Database, G:Generale
 
 3.8.0
+ - F: Sistemato visualizzazione slide 
+
+3.8.0
  - B: Sistemata paginazione utenti e unita
  - F: Creata vista Report
 

@@ -158,8 +158,8 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
 
 
-<div class="container-videosidepanelhide g-grid">
-    <div id="boxvideo" class="g-block size-50 span5">
+<div class="container-videosidepanelhide g-grid span12">
+    <div id="boxvideo" class="g-block size-50 span6">
 
 
         <video  style="width:100%; height:100%; " height="100%" controls="controls" preload="auto" class="img-thumbnail">
@@ -206,7 +206,7 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
     </div>
 
-    <div id="boxslide" class="g-block size-50 span5">
+    <div id="boxslide" class="g-block size-50 span6">
         <div class="mejs-slides-player-slides img-thumbnail"></div>
     </div>
 </div>
