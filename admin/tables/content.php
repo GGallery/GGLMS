@@ -31,6 +31,8 @@ class gglmsTableContent extends JTable {
     public function bind($array, $ignore = '') {
 
 
+
+
         if (isset($array['categoria'])) {
             if(is_array($array['categoria']))
                 $array['categoria'] = implode(',', $array['categoria']);
@@ -44,9 +46,10 @@ class gglmsTableContent extends JTable {
 
             gglmsHelper::SetMappaContenutoFiles($array);
         }
-        
-        
-        
+
+        if (is_array($array['prerequisiti'])){
+            $array['prerequisiti'] = implode(',',$array['prerequisiti']);
+        }
 
         return parent::bind($array, $ignore);
     }

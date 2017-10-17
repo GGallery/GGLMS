@@ -47,3 +47,9 @@ padding: 30px 0 10px 100px;
     margin-bottom: 35px !important;
     margin-top: -8px !important;
 }
+
+
+#panel_jumper {
+    height: 300px;
+    overflow-y: scroll;
+}

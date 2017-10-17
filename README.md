@@ -5,6 +5,10 @@ CHANGELOG
 F:Frontend, B:Backend, D:Database, G:Generale
 
 3.8.2
+ - B: Sistemato bug prerequisiti
+ - F: Aggiunto scroll su jumper
+
+3.8.2
  - B: Aggiunto tab attestato in configuration
 
 3.8.1

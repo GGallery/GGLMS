@@ -55,15 +55,14 @@ class gglmsModelContent extends JModelAdmin {
 //            $registry = new JRegistry;
 //            $registry->loadString($item->unita);
 
+
             $item->categoria= gglmsHelper::GetMappaContenutoUnita($item);
 
             $item->files= gglmsHelper::GetMappaContenutoFiles($item);
 
             $item->prerequisiti= explode(',', $item->prerequisiti);
 
-//            print_r($item);
-
-//              $item->articletext = trim($item->fulltext) != '' ? $item->introtext . "<hr id=\"system-readmore\" />" . $item->fulltext : $item->introtext;
+//          $item->articletext = trim($item->fulltext) != '' ? $item->introtext . "<hr id=\"system-readmore\" />" . $item->fulltext : $item->introtext;
         }
 
 
