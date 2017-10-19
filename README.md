@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.5
+ - F: Layout VideoSlide tolto margine in css a boxvideo e boxslide
+
 3.8.4
  - F: Corretto baco per il quale l'accesso al corso in modalità coupon_eb non teneva conto del campo corsi_abilitati
 

@@ -53,3 +53,11 @@ padding: 30px 0 10px 100px;
     height: 300px;
     overflow-y: scroll;
 }
+
+#boxslide{
+    margin:0px !important;
+}
+
+#boxvideo{
+    margin:0px !important;
+}
