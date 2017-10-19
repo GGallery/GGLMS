@@ -4,7 +4,10 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
-3.8.2
+3.8.4
+ - F: Corretto baco per il quale l'accesso al corso in modalità coupon_eb non teneva conto del campo corsi_abilitati
+
+3.8.3
  - B: Sistemato bug prerequisiti
  - F: Aggiunto scroll su jumper
 

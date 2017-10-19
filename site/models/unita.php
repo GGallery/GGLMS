@@ -264,6 +264,7 @@ class gglmsModelUnita extends JModelLegacy {
 				->where('r.published = 1 ')
 				->where('r.event_id = ' . $corso->id_event_booking)
 				->where('abilitato = 1')
+				->where('FIND_IN_SET('.$corso->id .', corsi_abilitati)')
 			;
 
 			$this->_db->setQuery($query);

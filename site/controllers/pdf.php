@@ -103,7 +103,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 elseif($this->_params->get('integrazione')=='cb'){
                     $cf = $user->$this->_params->get('campo_event_booking_controllo_cf');
                 }
-                else {echo "Problema col componente di integrazione anagrafica"; die();}
+                else {echo "Componente di integrazione non specificato in GGLMS oppure non gestito"; die();}
 
                 $conformita = utilityHelper::conformita_cf($cf);
                 if(!$conformita['valido']) {
