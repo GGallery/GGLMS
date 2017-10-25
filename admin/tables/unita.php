@@ -26,18 +26,14 @@ class gglmsTableunita extends JTable {
      * @since 1.5
      */
     public function bind($array, $ignore = '') {
-        // if (is_array($array['categoria'])) {
-        //     $array['categoria'] = implode(',', $array['categoria']);
-        // }
-        
-        // if (is_array($array['esercizi'])) {
-        //     $array['esercizi'] = implode(',', $array['esercizi']);
-        // }
 
-//        if ($array['durata'] == 0) {
-//            $array['durata'] = $this->checkContentDuration($array['id']);
-//        }
-        
+        if (isset($array['id_gruppi_abilitati'])) {
+            if(is_array($array['id_gruppi_abilitati']))
+                $array['id_gruppi_abilitati'] = implode(',', $array['id_gruppi_abilitati']);
+
+            gglmsHelper::SetMappaAccessoGruppi($array);
+        }
+
         return parent::bind($array, $ignore);
     }
 

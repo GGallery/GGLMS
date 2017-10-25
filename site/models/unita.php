@@ -218,6 +218,10 @@ class gglmsModelUnita extends JModelLegacy {
 					case 'iscrizioneeb':
 						return $this->check_iscrizione_eb($corso);
 						break;
+
+                    case 'gruppo':
+                        return $this->check_iscrizione_gruppo($corso);
+                        break;
 				}
 			}
 		}
@@ -309,6 +313,36 @@ class gglmsModelUnita extends JModelLegacy {
 
 		}
 	}
+
+
+    private function check_iscrizione_gruppo($corso)
+    {
+
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('count(idunita)')
+                ->from('#__gg_usergroup_map AS ug')
+                ->join('inner','un_user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
+                ->where('ug.idunita = '. $corso->id)//parametrizzare con campo EB
+                ->where('uj.user_id= ' . $this->_userid)
+            ;
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadResult();
+
+
+            if ($data == 0)
+                return false;
+            else
+                return true;
+        }
+        catch (Exception $e)
+        {
+            DEBUGG::query($query);
+            DEBUGG::log($e, 'check_iscrizione_gruppo', 1);
+
+        }
+    }
 
 
 }

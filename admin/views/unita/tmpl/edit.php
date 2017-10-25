@@ -10,6 +10,7 @@ defined('_JEXEC') or die;
 
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
+JHtml::_('formbehavior.chosen', 'select');
 ?>
 
 
@@ -29,9 +30,11 @@ JHtml::_('behavior.formvalidation');
                     <?php echo $this->form->renderField('id'); ?>
                 </div>
 
+
                 <div class="row-fluid">
                     <?php echo $this->form->renderField('titolo'); ?>
                 </div>
+
 
                 <div class="row-fluid">
                     <?php
@@ -39,11 +42,13 @@ JHtml::_('behavior.formvalidation');
                         echo $this->form->renderField('alias'); ?>
                 </div>
 
+
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
                         echo $this->form->renderField('unitapadre'); ?>
                 </div>
+
 
                 <div class="row-fluid">
                     <?php
@@ -51,11 +56,20 @@ JHtml::_('behavior.formvalidation');
                         echo $this->form->renderField('pubblicato'); ?>
                 </div>
 
+
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
                         echo $this->form->renderField('is_corso'); ?>
                 </div>
+
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('id_contenuto_completamento'); ?>
+                </div>
+
 
                 <div class="row-fluid">
                     <?php
@@ -70,14 +84,12 @@ JHtml::_('behavior.formvalidation');
                         echo $this->form->renderField('id_event_booking'); ?>
                 </div>
 
+
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
-                        echo $this->form->renderField('id_contenuto_completamento'); ?>
+                        echo $this->form->renderField('id_gruppi_abilitati'); ?>
                 </div>
-
-
-
 
 
             </div>

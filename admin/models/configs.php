@@ -47,6 +47,10 @@ class gglmsModelconfigs extends JModelAdmin {
                 $value= $array['config_value'];
 
                 $data->$key = $value;
+
+                if($key=='id_gruppi_visibili')
+                    $data->$key = explode(",", $value);
+
             }
         }
         return $data;
@@ -99,8 +103,8 @@ class gglmsModelconfigs extends JModelAdmin {
 
 
               $item->articletext = trim($item->fulltext) != '' ? $item->introtext . "<hr id=\"system-readmore\" />" . $item->fulltext : $item->introtext;
-             * 
              */
+
         }
 
         return $item;

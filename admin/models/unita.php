@@ -57,33 +57,8 @@ class gglmsModelunita extends JModelAdmin {
 
         if ($item = parent::getItem($pk)) {
 
-//            $item->accesso=json_decode($item->accesso);
+            $item->id_gruppi_abilitati= gglmsHelper::GetMappaAccessoGruppi($item);
 
-            // Convert the params field to an array.
-            /* 	$registry = new JRegistry;
-              $registry->loadString($item->attribs);
-              $item->attribs = $registry->toArray();
-
-              // Convert the metadata field to an array.
-              $registry = new JRegistry;
-              $registry->loadString($item->metadata);
-              $item->metadata = $registry->toArray();
-
-              // Convert the images field to an array.
-              $registry = new JRegistry;
-              $registry->loadString($item->images);
-              $item->images = $registry->toArray();
-
-              // Convert the urls field to an array.
-              $registry = new JRegistry;
-              $registry->loadString($item->urls);
-              $item->urls = $registry->toArray();
-
-
-
-              $item->articletext = trim($item->fulltext) != '' ? $item->introtext . "<hr id=\"system-readmore\" />" . $item->fulltext : $item->introtext;
-             * 
-             */
         }
 
         return $item;

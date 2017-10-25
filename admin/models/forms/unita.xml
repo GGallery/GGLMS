@@ -130,6 +130,7 @@
 			<option value="coupon">Coupon classico</option>
 			<option value="couponeb">Coupon legato a campo EventBooking</option>
 			<option value="iscrizioneeb">Accesso legato solo all'iscrizione all'evento EventBooking</option>
+			<option value="gruppo">Accesso legato all'appartenenza a gruppi</option>
 		</field>
 
 		<field
@@ -142,6 +143,20 @@
 				showon="accesso:couponeb[OR]accesso:iscrizioneeb"
 				required=""
 		/>
+
+		<field
+				name="id_gruppi_abilitati"
+				type="listagruppiabilitati"
+				class="inputbox"
+				default=""
+				label="Gruppi abilitati all'accesso"
+				description="Use Ctrl per selezionare più gruppi"
+				showon="accesso:gruppo"
+				required=""
+				multiple="multiple"
+				size="10"
+		>
+		</field>
 
 		<field
 				name="id_contenuto_completamento"

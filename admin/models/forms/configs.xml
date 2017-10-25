@@ -26,6 +26,21 @@
 			<option value="1">ON</option>
 		</field>
 
+
+		<field
+				name="id_gruppi_visibili"
+				type="listagruppi"
+				class="inputbox"
+				label="Gruppi visibili per accesso corso e report"
+				description="Use Ctrl per selezionare più gruppi"
+				required=""
+				multiple="multiple"
+				size="10"
+				default="2,7,8"
+		>
+		</field>
+
+
 		<field
 				name="nomenclatura_unita"
 				type="text"

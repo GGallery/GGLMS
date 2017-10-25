@@ -4,6 +4,12 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.6
+ - F: Controllo accesso al corso mediante appartenenza al gruppo
+ - B: Controllo accesso al corso mediante appartenenza al gruppo
+ - B: Scelta gruppi utilizzabili nell'accesso ai corso anche per dashboard in frontend
+ - D: Aggiunta tabella #__gg_usergroup_map
+
 3.8.5
  - F: Layout VideoSlide tolto margine in css a boxvideo e boxslide
 

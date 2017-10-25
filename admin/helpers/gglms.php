@@ -328,6 +328,62 @@ class gglmsHelper {
 
     }
 
+
+    public static function SetMappaAccessoGruppi($item){
+
+        try{
+            $db = JFactory::getDBO();
+
+            $unitid=$item['id'];
+            $files = explode(",",$item['id_gruppi_abilitati']);
+
+            $query_del = "DELETE FROM #__gg_usergroup_map WHERE idunita = $unitid";
+            $db->setQuery((string) $query_del);
+            $db->execute();
+
+            foreach ($files as $value) {
+                $query = "INSERT IGNORE INTO #__gg_usergroup_map (idunita, idgruppo) values ($unitid,$value)";
+
+                $db->setQuery((string) $query);
+                $res = $db->execute();
+
+            }
+        }catch (Exception $e){
+            echo "<pre>";
+            print_r($e);
+            echo "</pre>";
+            die("SetMappaAccessoGruppi");
+        }
+
+        return $res;
+    }
+
+    public static function GetMappaAccessoGruppi($item){
+        $db = JFactory::getDBO();
+
+        $res = array();
+        if(!$item->id)
+            return $res;
+
+        try{
+            $query = $db->getQuery(true);
+            $query->select('idgruppo');
+            $query->from('#__gg_usergroup_map');
+            $query->where('idunita=' . $item->id);
+
+            $db->setQuery((string) $query);
+            $res = $db->loadColumn();
+
+        }
+        catch(Exception $e)
+        {
+            print_r($e);
+            die("Errore GetMappaAccessoGruppi");
+        }
+        return $res;
+    }
+
+
     
 
 }

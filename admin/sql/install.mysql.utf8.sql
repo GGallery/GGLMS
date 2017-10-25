@@ -275,7 +275,17 @@ CREATE TABLE `#__gg_unit_map` (
   PRIMARY KEY (`idlink`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1481 DEFAULT CHARSET=utf8;
 
+
+
 -- ----------------------------
--- Records of #__gg_unit_map
+-- Table of #__gg_usergroup_map
 -- ----------------------------
+
+DROP TABLE IF EXISTS `#__gg_usergroup_map`;
+CREATE TABLE `#__gg_usergroup_map` (
+  `idunita` int(11) unsigned NOT NULL,
+  `idgruppo` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`idunita`,`idgruppo`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 
