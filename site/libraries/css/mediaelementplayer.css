@@ -1,6 +1,6 @@
 .mejs-container {
 	position: relative;
-	background: #000;
+	/*background: #000;*/
 	font-family: Helvetica, Arial;
 	text-align: left;
 	vertical-align: top;
@@ -55,7 +55,7 @@
 }
 
 .mejs-mediaelement {
-	/*position: absolute;*/
+	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
