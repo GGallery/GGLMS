@@ -48,6 +48,8 @@ INSERT INTO `#__gg_configs` VALUES ('16', 'nomenclatura_moduli', 'Elementi');
 INSERT INTO `#__gg_configs` VALUES ('17', 'visibilita_durata', '1,2');
 INSERT INTO `#__gg_configs` VALUES ('18', 'larghezza_box_unita', 'size-25');
 INSERT INTO `#__gg_configs` VALUES ('19', 'larghezza_box_contenuti', 'size-25');
+INSERT INTO `#__gg_configs` VALUES ('20', 'id_gruppi_visibili', '2,7,8');
+
 
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
@@ -158,13 +160,7 @@ CREATE TABLE `#__gg_files` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of #__gg_files
--- ----------------------------
-INSERT INTO `#__gg_files` VALUES ('36', 'file di prova', '1', null, 'file_di_prova');
-INSERT INTO `#__gg_files` VALUES ('37', 'allegato', '1', null, 'allegato.pdf');
-INSERT INTO `#__gg_files` VALUES ('38', 'PDF Problem solving & decision making', '1', null, 'pdf_problem_solving_decision_making');
-INSERT INTO `#__gg_files` VALUES ('40', 'Master PS&DM', '1', null, 'master_ps_dm');
+
 
 -- ----------------------------
 -- Table structure for `#__gg_files_map`
@@ -178,24 +174,6 @@ CREATE TABLE `#__gg_files_map` (
   `data` date DEFAULT NULL,
   PRIMARY KEY (`idlink`)
 ) ENGINE=MyISAM AUTO_INCREMENT=431 DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of #__gg_files_map
--- ----------------------------
-INSERT INTO `#__gg_files_map` VALUES ('1', '2', '1', '3', null);
-INSERT INTO `#__gg_files_map` VALUES ('2', '2', '2', '2', null);
-INSERT INTO `#__gg_files_map` VALUES ('3', '2', '3', '1', null);
-INSERT INTO `#__gg_files_map` VALUES ('4', '2', '4', '0', null);
-INSERT INTO `#__gg_files_map` VALUES ('5', '2', '5', '6', null);
-INSERT INTO `#__gg_files_map` VALUES ('6', '2', '6', '4', null);
-INSERT INTO `#__gg_files_map` VALUES ('324', '9', '36', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('339', '11', '36', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('159', '12', '36', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('293', '13', '36', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('305', '14', '36', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('316', '15', '36', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('428', '24', '38', null, null);
-INSERT INTO `#__gg_files_map` VALUES ('430', '26', '40', null, null);
 
 -- ----------------------------
 -- Table structure for `#__gg_log`

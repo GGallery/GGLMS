@@ -34,11 +34,15 @@ class gglmsTableunita extends JTable {
             gglmsHelper::SetMappaAccessoGruppi($array);
         }
 
+        // Blocco unita padre per unita root
+        if(($array['id']) == 1 && ($array['unitapadre']) != 0 )
+            $array['unitapadre'] = 0;
+
         return parent::bind($array, $ignore);
     }
 
     /*
-     * Verifico la durata del contenuto 
+     * Verifico la durata del contenuto
      */
 
     public function checkContentDuration($id) {

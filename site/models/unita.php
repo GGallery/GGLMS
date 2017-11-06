@@ -322,7 +322,7 @@ class gglmsModelUnita extends JModelLegacy {
             $query = $this->_db->getQuery(true)
                 ->select('count(idunita)')
                 ->from('#__gg_usergroup_map AS ug')
-                ->join('inner','un_user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
+                ->join('inner','#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
                 ->where('ug.idunita = '. $corso->id)//parametrizzare con campo EB
                 ->where('uj.user_id= ' . $this->_userid)
             ;
@@ -330,7 +330,7 @@ class gglmsModelUnita extends JModelLegacy {
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
 
-
+            DEBUGG::query($query);
             if ($data == 0)
                 return false;
             else

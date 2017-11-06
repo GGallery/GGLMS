@@ -17,6 +17,10 @@
             </div>
 
             <div class="row-fluid">
+                <?php echo $this->form->renderField('do_sync'); ?>
+            </div>
+
+            <div class="row-fluid">
                 <?php echo $this->form->renderField('integrazione'); ?>
             </div>
 

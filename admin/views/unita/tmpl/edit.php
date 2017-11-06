@@ -45,8 +45,12 @@ JHtml::_('formbehavior.chosen', 'select');
 
                 <div class="row-fluid">
                     <?php
-                    if($this->item->id)
-                        echo $this->form->renderField('unitapadre'); ?>
+                    if($this->item->id )
+                        if($this->item->id != 1)
+                            echo $this->form->renderField('unitapadre');
+
+                    ?>
+
                 </div>
 
 

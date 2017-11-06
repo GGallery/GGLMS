@@ -9,7 +9,8 @@
 				class="btn-group"
 				label="Visualizza solo miei corsi"
 				labelclass="control-label"
-				default="0">
+				default="0"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
@@ -21,8 +22,10 @@
 				class="btn-group"
 				label="Box jumper aperto"
 				labelclass="control-label"
-				default="0">
+				default="0"
+		>
 			<option value="0">OFF</option>
+			<option value="1">ON</option>
 			<option value="1">ON</option>
 		</field>
 
@@ -47,7 +50,8 @@
 				class=""
 				label="Nomenclatura unita"
 				labelclass="control-label"
-				default="Unita"/>
+				default="Unita"
+		/>
 
 		<field
 				name="data_sync"
@@ -56,7 +60,16 @@
 				label="Data ultima sync report"
 				labelclass="control-label"
 				readonly="true"
-				default="0000-00-00"/>
+				default="0000-00-00"
+		/>
+
+		<field
+				name="do_sync"
+				type="button"
+				class=""
+				label="Data ultima sync report"
+				labelclass="control-label"
+		/>
 
 
 		<field
@@ -65,7 +78,8 @@
 				class=""
 				label="Nomenclatura moduli"
 				labelclass="control-label"
-				default="Moduli"/>
+				default="Moduli"
+		/>
 
 		<field
 				name="titolo_unita_visibile"
@@ -85,7 +99,8 @@
 				class="btn-group"
 				label="Titolo moduli visibile"
 				labelclass="control-label"
-				default="1">
+				default="1"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
@@ -97,7 +112,8 @@
 				class="btn-group"
 				label="Integrazione componente"
 				labelclass="control-label"
-				default="1">
+				default="1"
+		>
 			<option value="">Nessuno</option>
 			<option value="cb">Community builder</option>
 			<option value="eb">Event booking</option>
@@ -109,7 +125,6 @@
 				  class="inputbox"
 				  description="Campo EventBooking autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
 				  showon="integrazione:eb"
-
 		/>
 
 		<field 	name="campo_community_builder_auto_abilitazione_coupon"
@@ -118,7 +133,6 @@
 				  class="inputbox"
 				  description="Campo CommunityBuilder autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
 				  showon="integrazione:cb"
-
 		/>
 
 
@@ -129,7 +143,8 @@
 				label="Verifica Codice fiscale su anagrafica"
 				showon="integrazione:eb[OR]integrazione:cb"
 				labelclass="control-label"
-				default="0">
+				default="0"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
@@ -215,7 +230,8 @@
 				class="btn-group"
 				label="Attiva breadcrumbs componente"
 				labelclass="control-label"
-				default="1">
+				default="1"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
@@ -226,7 +242,8 @@
 				class="btn-group"
 				label="Visualizza ultima voce"
 				labelclass="control-label"
-				default="1">
+				default="1"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
@@ -237,7 +254,8 @@
 				class="btn-group"
 				label="Visualizza prima voce"
 				labelclass="control-label"
-				default="1">
+				default="1"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
@@ -249,7 +267,8 @@
 				label="Personalizza prima voce"
 				labelclass="control-label"
 				showon="visualizza_primo_item:1"
-				default="0">
+				default="0"
+		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
