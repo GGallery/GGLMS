@@ -115,7 +115,7 @@ CREATE TABLE `#__gg_contenuti_tipology` (
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('1', 'videoslide', 'Contenuti', '1', '1');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('2', 'solovideo', 'Contenuto Video', '2', '0');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('3', 'allegati', 'Allegati', '3', '0');
-INSERT INTO `#__gg_contenuti_tipology` VALUES ('4', 'scorm', 'Test', '4', '1');
+INSERT INTO `#__gg_contenuti_tipology` VALUES ('4', 'scorm', 'Scorm', '4', '1');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('5', 'attestato', 'Attestato', '5', '1');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('6', 'testuale', 'Testuale', '6', '1');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('7', 'quizdeluxe', 'Quiz Deluxe', '7', '1');

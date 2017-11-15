@@ -4,6 +4,13 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.10
+   - F: Aggiunta vista Coupon
+   - G: Folder Scorm convertita a zip scaricabile
+
+3.8.7/8/9
+   - F: FIX bug frontend
+
 3.8.6
  - F: Controllo accesso al corso mediante appartenenza al gruppo
  - B: Controllo accesso al corso mediante appartenenza al gruppo

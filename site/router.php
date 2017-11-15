@@ -48,14 +48,14 @@ class GGlmsRouter extends JComponentRouterBase
                 $vars['view'] = 'unita';
 
 
-                    $alias = $segments[1];
-                    $query = $db->getQuery(true)
-                        ->select('id')
-                        ->from('#__gg_unit')
-                        ->where('alias="' . $alias . '"');
+                $alias = $segments[1];
+                $query = $db->getQuery(true)
+                    ->select('id')
+                    ->from('#__gg_unit')
+                    ->where('alias="' . $alias . '"');
 
-                    $db->setQuery($query);
-                    $vars['id'] = $db->loadResult();
+                $db->setQuery($query);
+                $vars['id'] = $db->loadResult();
 
 
                 break;
@@ -87,6 +87,11 @@ class GGlmsRouter extends JComponentRouterBase
 
                 break;
 
+
+            case 'coupon':
+                $vars['view'] = 'coupon';
+                break;
+
             case 'dash':
 
                 $vars['view'] = 'dash';
@@ -96,6 +101,8 @@ class GGlmsRouter extends JComponentRouterBase
 
                 $vars['task'] = 'sync_report';
                 break;
+
+
 
             default:
                 $vars['view'] = 'gglms';

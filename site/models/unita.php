@@ -244,9 +244,12 @@ class gglmsModelUnita extends JModelLegacy {
 			$this->_db->setQuery($query);
 			$data = $this->_db->loadResult();
 
-
 			if ($data == 0)
-				return false;
+            {
+                $message = "Inserire il coupon per accedere a questa unita";
+                $url = JRoute::_('index.php?option=com_gglms&view=coupon');
+                $this->_app->redirect($url, $message);
+            }
 			else
 				return true;
 
@@ -330,7 +333,6 @@ class gglmsModelUnita extends JModelLegacy {
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
 
-            DEBUGG::query($query);
             if ($data == 0)
                 return false;
             else
