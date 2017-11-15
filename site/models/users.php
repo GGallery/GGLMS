@@ -50,13 +50,33 @@ class gglmsModelUsers  extends JModelLegacy {
 
     }
 
+    private function get_user_joomla($id){
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*, name as nome, name as cognome ')
+                ->from('#__users as u')
+                ->where('u.id = ' . $id);
+
+
+            $this->_db->setQuery($query);
+            $registrants = $this->_db->loadObject();
+
+            return $registrants;
+        }
+        catch (Exception $e){
+            DEBUGG::error($e, 'error get user cb', 1);
+        }
+
+    }
         
     private function get_user_cb($id){
 
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('*, "" as nome, "" as cognome ')
+                ->select('*, firstname as nome, lastname as cognome ')
                 ->from('#__comprofiler as r')
                 ->join('inner', '#__users as u on u.id = r.id')
                 ->where('r.user_id = ' . $id);
@@ -64,10 +84,6 @@ class gglmsModelUsers  extends JModelLegacy {
 
             $this->_db->setQuery($query);
             $registrants = $this->_db->loadObject();
-
-
-            $registrants->nome = $registrants->firstname;
-            $registrants->cognome = $registrants->lastname;
 
             return $registrants;
         }

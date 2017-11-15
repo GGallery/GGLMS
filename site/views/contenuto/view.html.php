@@ -41,9 +41,6 @@ class gglmsViewContenuto extends JViewLegacy {
 
         $this->breadcrumbs = outputHelper::buildContentBreadcrumb($this->contenuto->id);
 
-
-       
-        
         parent::display($this->contenuto->tipologia_contenuto);
     }
 }

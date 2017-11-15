@@ -1,25 +1,27 @@
 <?php
+
 /**
- * @package     Joomla.Site
- * @subpackage  com_contact
+ * WebTVContenuto Model
  *
- * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @package    Joomla.Components
+ * @subpackage WebTV
  */
+defined('_JEXEC') or die('Restricted access');
 
-defined('_JEXEC') or die;
-
+jimport('joomla.application.component.model');
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
+require_once JPATH_COMPONENT . '/models/coupon.php';
 require_once JPATH_COMPONENT . '/models/users.php';
 
+
 /**
- * Controller for single contact view
+ * WebTVContenuto Model
  *
- * @since  1.5.19
+ * @package    Joomla.Components
+ * @subpackage WebTV
  */
-class gglmsControllerReport extends JControllerLegacy
-{
+class gglmsModelSyncdatareport extends JModelLegacy {
     protected $_db;
     private $_app;
     private $params;
@@ -366,3 +368,5 @@ class gglmsControllerReport extends JControllerLegacy
 
 
 }
+
+

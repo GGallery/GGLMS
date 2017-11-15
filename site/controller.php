@@ -64,11 +64,17 @@ class gglmsController extends JControllerLegacy {
             $this->_japp->redirect(JRoute::_($url), $msg);
         }
 
+        $this->sync();
+
         $this->registerTask('returnfromjoomlaquiz', 'returnfromjoomlaquiz');
         $this->registerTask('attestato', 'attestato');
-
     }
 
+
+    public function sync(){
+        $model = $this->getModel('syncdatareport');
+        $model->sync();
+    }
 
     public function returnfromjoomlaquiz() {
 
@@ -87,7 +93,6 @@ class gglmsController extends JControllerLegacy {
             ->innerJoin('#__gg_contenuti c on c.id=m.idcontenuto')
             ->where("c.path = " . $quiz_id);
 
-        echo (string)$query;
 
         $db->setQuery((string) $query);
         $res = $db->loadResult();
@@ -100,11 +105,12 @@ class gglmsController extends JControllerLegacy {
         $app->close();
     }
 
-    public function sync_report(){
-        $report = $this->getModel('report');
-        $report->sync();
-        $this->_japp->close();
-    }
+//    public function sync_report(){
+//
+//        $report = $this->getModel('report');
+//        $report->sync();
+//        $this->_japp->close();
+//    }
 
 
 }

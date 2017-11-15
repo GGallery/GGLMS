@@ -63,13 +63,20 @@
 				default="0000-00-00"
 		/>
 
+
 		<field
-				name="do_sync"
-				type="button"
-				class=""
-				label="Data ultima sync report"
+				name="sync_automatico"
+				type="radio"
+				class="btn-group"
+				label="Attiva sync-report automatico"
 				labelclass="control-label"
-		/>
+				default="1"
+		>
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+
 
 
 		<field

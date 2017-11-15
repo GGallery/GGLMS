@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.11
+   - F: Aggiunto auto sync report
+   - B: Aggiunto auto sync report
 3.8.10
    - F: Aggiunta vista Coupon
    - G: Folder Scorm convertita a zip scaricabile
