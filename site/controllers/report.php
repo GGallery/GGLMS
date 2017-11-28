@@ -80,7 +80,6 @@ class gglmsControllerReport extends JControllerLegacy
 
     //REPORT TRACCIAMENTO
     public function sync_report(){
-    echo "<br>inizio sync_report";
         try {
             $scormvar_list = $this->_getScormvarsVariation();
             $quizdeluxe_list = $this->_getQuizDeluxeVariation();
@@ -98,28 +97,28 @@ class gglmsControllerReport extends JControllerLegacy
                 $data->visualizzazioni = $stato->visualizzazioni;
                 $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
 
-                    if (isset($data->id_unita)) {
-                        $modelunita = new gglmsModelUnita();
-                        $unita = $modelunita->getUnita($data->id_unita);
-                        $corso = $unita->find_corso($data->id_unita, false);
-                        $data->id_corso = $corso->id;
-                        $data->id_event_booking = $corso->id_event_booking;
-                        $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+                if (isset($data->id_unita)) {
+                    $modelunita = new gglmsModelUnita();
+                    $unita = $modelunita->getUnita($data->id_unita);
+                    $corso = $unita->find_corso($data->id_unita, false);
+                    $data->id_corso = $corso->id;
+                    $data->id_event_booking = $corso->id_event_booking;
+                    $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
-                DEBUGG::log($data, 'Data to store_report' );
-                        $this->store_report($data);
-                        unset($modelunita);
-                        unset($unita);
-                        unset($data);
-                    }
-                    unset($modelcontenuto);
-                    unset($contenuto);
+                    DEBUGG::log($data, 'Data to store_report' );
+                    $this->store_report($data);
+                    unset($modelunita);
+                    unset($unita);
+                    unset($data);
+                }
+                unset($modelcontenuto);
+                unset($contenuto);
             }
-                return true;
+            return true;
         }
         catch (Exception $e) {
             echo $e->getMessage();
-           DEBUGG::error($e, 'error' , 1);
+            DEBUGG::error($e, 'error' , 1);
         }
     }
 
@@ -209,20 +208,20 @@ class gglmsControllerReport extends JControllerLegacy
 
         try {
             $users = $this->get_users_id($this->params->get('data_sync'));
-                foreach ($users as $user) {
-                    $modelUser = new gglmsModelUsers();
-                    if (!$user->event_id)
-                        $user->event_id = 0;
-                    $tmpuser = $modelUser->get_user($user->id, $user->event_id);
-                    $tmp = new stdClass();
-                    $tmp->id = $user->id;
-                    $tmp->id_event_booking = $user->event_id;
-                    $tmp->id_user = $user->id;
-                    $tmp->nome = $this->_db->quote($tmpuser->nome);
-                    $tmp->cognome = $this->_db->quote($tmpuser->cognome);
-                    $tmp->fields = $this->_db->quote(json_encode($tmpuser));
-                    $this->store_report_users($tmp);
-                }
+            foreach ($users as $user) {
+                $modelUser = new gglmsModelUsers();
+                if (!$user->event_id)
+                    $user->event_id = 0;
+                $tmpuser = $modelUser->get_user($user->id, $user->event_id);
+                $tmp = new stdClass();
+                $tmp->id = $user->id;
+                $tmp->id_event_booking = $user->event_id;
+                $tmp->id_user = $user->id;
+                $tmp->nome = $this->_db->quote($tmpuser->nome);
+                $tmp->cognome = $this->_db->quote($tmpuser->cognome);
+                $tmp->fields = $this->_db->quote(json_encode($tmpuser));
+                $this->store_report_users($tmp);
+            }
             return true;
         }catch (Exception $e){
             echo ("sync_report_users error ");
