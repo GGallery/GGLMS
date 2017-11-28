@@ -21,7 +21,6 @@ class gglmsControllerApi extends JControllerLegacy
 	protected $_db;
 	private $_filterparam;
 
-
 	public function __construct($config = array())
 	{
 		parent::__construct($config);
@@ -56,10 +55,15 @@ class gglmsControllerApi extends JControllerLegacy
 
 		try {
 			$query = $this->_db->getQuery(true);
-			$query->select('r.id_utente , anagrafica.nome, anagrafica.cognome, r.stato, anagrafica.fields, r.`data`');
+			$query->select('r.id_utente , anagrafica.nome, anagrafica.cognome, r.stato');
+			$query->select('(select r1.data from un_gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' 
+                ORDER BY r1.data  limit 1) as hainiziato,
+                                (select r2.data from un_gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '. explode('|', $this->_filterparam->corso_id)[1]. ' and stato = 1 
+                ORDER BY r2.data limit 1) as hacompletato');
+			$query->select('anagrafica.fields, r.`data`');
 			$query->from('#__gg_report as r');
 			$query->join('inner', '#__gg_report_users as anagrafica ON anagrafica.id = r.id_anagrafica');
-			$query->where('r.id_contenuto = ' . $this->_filterparam->corso_id);
+			$query->where('r.id_corso = ' . explode('|', $this->_filterparam->corso_id)[0]);//id_corso, primo paramentro in combo
 
 			if ($this->_filterparam->startdate)
 				$query->where('r.data >= "' . $this->_filterparam->startdate . '"');
@@ -70,46 +74,40 @@ class gglmsControllerApi extends JControllerLegacy
 			if ($this->_filterparam->searchPhrase)
 				$query->where('concat(nome,cognome,fields) like "%'. $this->_filterparam->searchPhrase .'%"');
 
-			//Solo se completati o non compleati
-			if ($this->_filterparam->filterstato < 2)
-				$query->where('r.stato = "' . $this->_filterparam->filterstato . '"');
+			//Solo se completati
+			if ($this->_filterparam->filterstato == 1)
+				$query->where('r.stato = "' . $this->_filterparam->filterstato . '" and  r.id_contenuto="'.explode('|', $this->_filterparam->corso_id)[1].'"');
+
+            if ($this->_filterparam->filterstato != 1)
+                $query->where('r.stato = "<>1"');
 
 			if ($this->_filterparam->usergroups) {
 				$query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
 				$query->where('group_id = ' . $this->_filterparam->usergroups );
 			}
 
-			//totale
+            $offset=0;
+            if($this->_filterparam->task != 'get_csv' ) {
+                $offset = $this->_filterparam->rowCount * $this->_filterparam->current - $this->_filterparam->rowCount;
+                $query->setLimit($this->_filterparam->rowCount, $offset);
+            }
+
 			$this->_db->setQuery($query);
 			$this->_db->execute();
-			$total = $this->_db->getNumRows();
+            $total=null;
+            $total=$this->getNumRows($query)[0];
+            $total_query=$this->getNumRows($query)[1];
 
-			if ($this->_filterparam->sort) {
+			if ($this->_filterparam->sort && $this->_filterparam->filterstato == 1) {
 				foreach ($this->_filterparam->sort as $key => $value)
 					$query->order($key . " " . $value);
 
 			}
-
-			$offset=0;
-			if($this->_filterparam->task != 'get_csv' ) {
-				$offset = $this->_filterparam->rowCount * $this->_filterparam->current - $this->_filterparam->rowCount;
-				$query->setLimit($this->_filterparam->rowCount, $offset);
-			}
-
-
-			$this->_db->setQuery($query);
+            $this->_db->setQuery($query);
 			$rows = $this->_db->loadAssocList();
 
-//		foreach ($rows as &$row) {
-//			$a = json_decode($row['fields']);
-//
-//
-//
-//			$row['fields'] = http_build_query($a,' ',', ');
-////			DEBUGG::LOG($row['fields'], 'fields' , 1);
-//		}
-
 		}catch (Exception $e){
+
 			DEBUGG::error($e, 'error', 1);
 		}
 
@@ -119,9 +117,19 @@ class gglmsControllerApi extends JControllerLegacy
 		$result['rowCount']=10;
 		$result['rows']=$rows;
 		$result['total']=$total;
-
+        $result['total_query']=$total_query;
 		return $result;
 	}
+
+	public function getNumRows($query){
+
+        $query=explode("from",strtolower($query)); //delimita in base ai from
+        $query= 'select count(*) from '.$query[count($query)-1]; //poichè l'unico from buono è l'ultimo, prendo l'ultimo tronco della query originale
+        $query=explode('limit',strtolower($query))[0]; //poichè nel postback dai numeri di pagina genera il limit, lo tolgo
+        $this->_db->setQuery($query);
+        $rows=(int)$this->_db->loadResult();
+        return [$rows, $query];
+    }
 
 	public function get_csv()
 	{
@@ -194,6 +202,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 		return $titolo;
 	}
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){

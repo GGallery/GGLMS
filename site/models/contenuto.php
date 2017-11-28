@@ -293,7 +293,7 @@ class gglmsModelContenuto extends JModelLegacy {
 
 		//Se passo come parametro lo user_id, invece che avere lo stato per l'utente corrente lo avrò per quell'id. Mi serve per i report
 		if($user_id)
-			$this->_userid=$user_id;
+            $this->_userid = $user_id;
 
 
 
@@ -433,11 +433,10 @@ class gglmsModelContenuto extends JModelLegacy {
 			->where('s.userid = ' . $this->_userid)
 		;
 
-
+        //echo $query;
 
 		$this->_db->setQuery($query);
 		$data = $this->_db->loadObjectList('varName');
-
 		$stato = new gglmsModelStatoContenuto();
 
 		return $stato->format_scorm($data);

@@ -51,7 +51,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
     public function format_scorm($data){
 
 
-        if($data) {
+        if($data && isset($data['cmi.core.lesson_status'])) {
             if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish') {
                 $this->completato = 1;
                 $this->descrizione = 'Completato';
@@ -61,7 +61,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
             } else {
                 $this->completato = 0;
                 $this->descrizione = 'Non completato';
-                $this->data = $data['cmi.core.last_visit_date']->varValue;
+                $this->data =  isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';//$data['cmi.core.last_visit_date']->varValue;
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             }

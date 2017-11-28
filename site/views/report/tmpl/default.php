@@ -9,6 +9,7 @@
 defined('_JEXEC') or die;
 
 JHtml::_('bootstrap.modal');
+
 ?>
 <div id="barrafiltri" class="span2">
 
@@ -17,7 +18,17 @@ JHtml::_('bootstrap.modal');
 
         <h2>Corso</h2>
         <div class="form-group">
-            <?php echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
+
+            <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
+            <select id="corso_id" name="corso-id" class="refresh">
+                <?php
+                foreach ($this->corsi as $corso){
+
+                    echo '<option value="'.$corso->id.'|'.$corso->id_contenuto_completamento.'">'.$corso->titolo."</option>";
+                }
+                ?>
+            </select>
+
         </div>
 
         <h2>Filtri</h2>
@@ -37,23 +48,28 @@ JHtml::_('bootstrap.modal');
         </div>
 
         <div class="form-group">
-            <label for="startdate">Dal</label>
-            <?php echo JHTML::_( 'calendar','','startdate','startdate','%Y-%m-%d'); ?>
+            <label for="startdate">Dal</label><br>
+            <?php echo JHTML::calendar('','startdate','startdate','%Y-%m-%d'); ?>
         </div>
 
         <div class="form-group">
-            <label for="finishdate">Al</label>
+            <label for="finishdate">Al</label><br>
             <?php echo JHTML::_( 'calendar','','finishdate','finishdate','%Y-%m-%d'); ?>
+
+
         </div>
 
         <input type="hidden" id="option" name="option" value="com_gglms">
         <input type="hidden" id="task" name="task" value="api.get_csv">
 
+
+
         <div class="form-group">
             <button type="submit" id="get_csv" class="btn btn-success btn-lg">SCARICA CSV</button>
         </div>
-
-
+        <div class="form-group">
+            <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">aggiorna tabelle</button>
+        </div>
 
     </form>
 
@@ -76,9 +92,10 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="cognome" data-order="asc" >Cognome</th>
                     <th data-column-id="nome"  >Nome</th>
                     <th data-column-id="stato" data-formatter="stato"  >Stato</th>
+                    <th data-column-id="hainiziato">ha iniziato</th>
+                    <th data-column-id="hacompletato">ha completato</th>
                     <th data-column-id="data"  >Data</th>
                     <th data-column-id="fields" data-visible="false">Campi</th>
-
                     <th data-column-id="id_utente" data-visible="false" >Id</th>
                     <th data-column-id="commands" data-formatter="commands" data-sortable="false">Commands</th>
                 </tr>
@@ -90,16 +107,6 @@ JHtml::_('bootstrap.modal');
 
         </div>
     </div>
-    <!--    <div class="row">-->
-    <!--        <div id="" class="span2">-->
-    <!--            <h2>Dettagli</h2>-->
-    <!--            <table id="details" class="table table-condensed table-hover table-striped ">-->
-    <!--                <thead> <tr> <th>Campo</th> <th>Valore</th> </tr> </thead>-->
-    <!--                <tbody>-->
-    <!--                </tbody>-->
-    <!--            </table>-->
-    <!--        </div>-->
-    <!--    </div>-->
 </div>
 </div>
 
@@ -138,6 +145,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 <script type="text/javascript">
 
 
+
     jQuery( document ).ready(function($) {
 
 //        TORTA
@@ -169,22 +177,25 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         });
 
 
-
+        console.log('qui');
 
         //  TABELLA
         $(".refresh").change(function(){
+            console.log('refresh');
             notcompleted = 0;
             completed = 0;
             $("#grid-basic").bootgrid("reload");
         });
 
-        $("#startdate").change(function(){
+        $("#startdate").bind('change',function(){
+
             notcompleted = 0;
             completed = 0;
             $("#grid-basic").bootgrid("reload");
         });
 
         $("#finishdate").change(function(){
+            console.log('finishdate');
             notcompleted = 0;
             completed = 0;
             $("#grid-basic").bootgrid("reload");
@@ -244,4 +255,15 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             }).end();
         });
     });
+
+
+    function dataSync() {
+        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync"))
+        .done(function(data){
+
+        }).fail(function(data){
+
+        });
+    }
+
 </script>
