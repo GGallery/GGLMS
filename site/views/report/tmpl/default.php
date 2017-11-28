@@ -177,11 +177,11 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         });
 
 
-        console.log('qui');
+
 
         //  TABELLA
         $(".refresh").change(function(){
-            console.log('refresh');
+
             notcompleted = 0;
             completed = 0;
             $("#grid-basic").bootgrid("reload");
@@ -243,10 +243,15 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             grid.find(".command-edit").on("click", function(e)
             {
 //                $('#details').html('<tbody></tbody>');
+
                 scelta = $(this).data("row-id");
+                console.log(scelta);
                 data= JSON.parse(fields[scelta]);
+                console.log(data);
+                $('#details_table tbody').empty();
                 $.each(data, function (key, value) {
                     var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
+
                     $('#details_table tbody').append(eachrow);
 //                    $('#modal-body ').append(eachrow);
                 });
