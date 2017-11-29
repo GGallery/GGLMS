@@ -203,6 +203,25 @@ class gglmsControllerApi extends JControllerLegacy
 		return $titolo;
 	}
 
+    public function buildDettaglioCorso(){
+
+        $id_utente=(int)$_GET['id_utente'];
+        $id_corso=(int)$_GET['id_corso'];
+        $query = $this->_db->getQuery(true);
+        $query->select('u.titolo as \'titolo unità\',c.titolo as \'titolo contenuto\', 
+                      IF (r.stato=1, \'completato\',\'non completato\') as \'stato\', r.`data` as \'data\'');
+        $query->from('un_gg_report as r');
+        $query->join('inner','un_gg_unit as u on r.id_unita=u.id');
+        $query->join('inner','un_gg_contenuti c on r.id_contenuto=c.id');
+        $query->join('inner','un_gg_unit_map um on c.id=um.idcontenuto');
+        $query->where('id_utente='.$id_utente);
+        $query->where('id_corso='.$id_corso);
+        $query=$query." order by u.ordinamento, u.id, um.ordinamento ,r.`data`";
+        $this->_db->setQuery($query);
+        $result = $this->_db->loadAssocList();
+        echo  json_encode($result);
+        $this->_japp->close();
+    }
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){

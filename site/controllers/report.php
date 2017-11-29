@@ -324,4 +324,6 @@ class gglmsControllerReport extends JControllerLegacy
             DEBUGG::error($e, 'error store report', 1);
         }
     }
+
+
 }

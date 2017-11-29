@@ -75,9 +75,9 @@ JHtml::_('bootstrap.modal');
 
     <hr>
 
-    <!--    <div class="span6">-->
+
     <canvas id="myChart" width="100" height="100"></canvas>
-    <!--    </div>-->
+
 
 
 </div>
@@ -97,7 +97,8 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="data"  >Data</th>
                     <th data-column-id="fields" data-visible="false">Campi</th>
                     <th data-column-id="id_utente" data-visible="false" >Id</th>
-                    <th data-column-id="commands" data-formatter="commands" data-sortable="false">Commands</th>
+                    <th data-column-id="commands" data-formatter="commands" data-sortable="false">Anagrafica</th>
+                    <th data-column-id="dettaglicorso" data-formatter="dettaglicorso" data-sortable="false">Dettagli Corso</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -109,8 +110,6 @@ JHtml::_('bootstrap.modal');
     </div>
 </div>
 </div>
-
-
 
 <!-- Modal -->
 <div id="details" class="modal fade" role="dialog">
@@ -136,6 +135,33 @@ JHtml::_('bootstrap.modal');
 
     </div>
 </div>
+
+<!-- Modal Dettagli Corso-->
+<div id="detailsCorso" class="modal fade " role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Dettagli del corso</h4>
+            </div>
+            <div class="modal-body">
+                <table id="details_table_corso" class="table table-condensed table-hover table-striped ">
+                    <thead> <tr> <th>Titolo unità</th> <th>Titolo contenuto</th>  <th>stato</th><th>data</th></tr></thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
 
 
 <?php
@@ -229,7 +255,12 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 "commands": function(column, row)
                 {
                     fields[row.id_utente]=row.fields;
-                    return '<button type="button" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\">DETTAGLI<span class="fa fa-pencil"></span></button>';
+                    return '<button type="button" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\">Anagrafica<span class="fa fa-pencil"></span></button>';
+                },
+                "dettaglicorso": function(column, row)
+                {
+                    fields[row.id_utente]=row.fields;
+                    return '<button type="button" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\">Dettagli Corso<span class="fa fa-pencil"></span></button>';
                 }
             }
 
@@ -242,20 +273,45 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
-//                $('#details').html('<tbody></tbody>');
-
                 scelta = $(this).data("row-id");
-                console.log(scelta);
                 data= JSON.parse(fields[scelta]);
-                console.log(data);
                 $('#details_table tbody').empty();
                 $.each(data, function (key, value) {
                     var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
-
                     $('#details_table tbody').append(eachrow);
-//                    $('#modal-body ').append(eachrow);
+
                 });
                 $("#details").modal('show');
+
+            }).end();
+
+            grid.find(".command-edit-dettagli").on("click", function(e)
+            {
+                scelta = $(this).data("row-id");
+                var id_utente=scelta;
+                var id_corso=$('#corso_id')[0]['value'].split('|')[0];
+
+                jQuery.when(jQuery.get("index.php?option=com_gglms&task=api.buildDettaglioCorso&id_corso="+id_corso+"&id_utente="+id_utente))
+                    .done(function(data){
+                        data=JSON.parse(data);
+                        $('#details_table_corso tbody').empty();
+                        var eachrow;
+                        $.each(data, function (key,value) {
+
+                            eachrow=eachrow+"<tr><td>"+value['titolo unità']+"</td>"+
+                                "<td>"+value['titolo contenuto']+"</td>"+
+                                "<td>"+value['stato']+"</td>"+
+                                "<td>"+value['data']+"</td></tr>";
+                        });
+
+                        $('#details_table_corso tbody').append(eachrow);
+                        $("#detailsCorso").modal('show');
+
+                    }).fail(function(data){
+
+                });
+
+
 
             }).end();
         });
@@ -264,9 +320,9 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
     function dataSync() {
         jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync"))
-        .done(function(data){
+            .done(function(data){
 
-        }).fail(function(data){
+            }).fail(function(data){
 
         });
     }
