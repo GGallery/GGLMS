@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="modifiche videoslide">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/controllers/api.php" afterPath="$PROJECT_DIR$/site/controllers/api.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -60,10 +58,13 @@
       <file leaf-file-name="api.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="782">
-              <caret line="62" column="58" lean-forward="true" selection-start-line="62" selection-start-column="58" selection-end-line="62" selection-end-column="58" />
+            <state relative-caret-position="306">
+              <caret line="134" column="10" lean-forward="false" selection-start-line="134" selection-start-column="10" selection-end-line="134" selection-end-column="10" />
               <folding>
-                <marker date="1511968934328" expanded="true" signature="4530:4551" ph="select count... ${$query[count($query)-1]}" />
+                <marker date="1511972889099" expanded="true" signature="5116:5137" ph="select count... ${$query[count($query)-1]}" />
+                <marker date="1511972889099" expanded="true" signature="5116:5165" ph="select count... ${$query[count($query)-2]}" />
+                <marker date="1511972889099" expanded="true" signature="5116:5170" ph="select count... ${$query[count($query)-2]}" />
+                <marker date="1511972889099" expanded="true" signature="5282:5303" ph="select count... ${$query[count($query)-1]}" />
               </folding>
             </state>
           </provider>
@@ -211,6 +212,12 @@
               <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="controllers" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -267,7 +274,7 @@
       <workItem from="1511606172922" duration="7000" />
       <workItem from="1511769129535" duration="26426000" />
       <workItem from="1511856397742" duration="24912000" />
-      <workItem from="1511942982089" duration="21697000" />
+      <workItem from="1511942982089" duration="25077000" />
     </task>
     <task id="LOCAL-00001" summary="consuntivo modifiche">
       <created>1509988927038</created>
@@ -322,7 +329,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="179041000" />
+    <option name="totallyTimeSpent" value="182421000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -337,14 +344,14 @@
     <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21156661" sideWeight="0.877451" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21156661" sideWeight="0.5718954" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="WINDOWED" visible="false" show_stripe_button="true" weight="0.21303074" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="0" y="22" width="1366" height="706" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21156661" sideWeight="0.12254902" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21156661" sideWeight="0.42810458" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38666666" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -747,9 +754,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3774">
           <caret line="247" column="0" lean-forward="false" selection-start-line="247" selection-start-column="0" selection-end-line="247" selection-end-column="0" />
-          <folding>
-            <element signature="e#5963#6628#0#HTML" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -791,10 +796,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="782">
-          <caret line="62" column="58" lean-forward="true" selection-start-line="62" selection-start-column="58" selection-end-line="62" selection-end-column="58" />
+        <state relative-caret-position="306">
+          <caret line="134" column="10" lean-forward="false" selection-start-line="134" selection-start-column="10" selection-end-line="134" selection-end-column="10" />
           <folding>
-            <marker date="1511968934328" expanded="true" signature="4530:4551" ph="select count... ${$query[count($query)-1]}" />
+            <marker date="1511972889099" expanded="true" signature="5116:5137" ph="select count... ${$query[count($query)-1]}" />
+            <marker date="1511972889099" expanded="true" signature="5116:5165" ph="select count... ${$query[count($query)-2]}" />
+            <marker date="1511972889099" expanded="true" signature="5116:5170" ph="select count... ${$query[count($query)-2]}" />
+            <marker date="1511972889099" expanded="true" signature="5282:5303" ph="select count... ${$query[count($query)-1]}" />
           </folding>
         </state>
       </provider>

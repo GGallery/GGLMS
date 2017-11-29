@@ -75,11 +75,16 @@ class gglmsControllerApi extends JControllerLegacy
 				$query->where('concat(nome,cognome,fields) like "%'. $this->_filterparam->searchPhrase .'%"');
 
 			//Solo se completati
-			if ($this->_filterparam->filterstato == 1)
-				$query->where('r.stato = "' . $this->_filterparam->filterstato . '" and  r.id_contenuto="'.explode('|', $this->_filterparam->corso_id)[1].'"');
-
-            if ($this->_filterparam->filterstato != 1)
+            if ($this->_filterparam->filterstato == 2)
                 $query->where('r.stato <>1');
+			if ($this->_filterparam->filterstato == 1)
+				$query->where('r.stato = ' . $this->_filterparam->filterstato . ' and  r.id_contenuto='.explode('|', $this->_filterparam->corso_id)[1]);
+
+            if ($this->_filterparam->filterstato == 0)
+                $query->where('r.stato <>1 AND r.id_utente NOT IN (SELECT r.id_utente FROM un_gg_report as r 
+                               INNER JOIN un_user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
+                               WHERE r.id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' AND r.stato = 1 
+                               and  r.id_contenuto='.explode('|', $this->_filterparam->corso_id)[1].' AND group_id = '.$this->_filterparam->usergroups.')');
 
 			if ($this->_filterparam->usergroups) {
 				$query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
@@ -95,8 +100,8 @@ class gglmsControllerApi extends JControllerLegacy
 			$this->_db->setQuery($query);
 			$this->_db->execute();
             $total=null;
-            $total=$this->getNumRows($query)[0];
-            $total_query=$this->getNumRows($query)[1];
+            $total=$this->getNumRows($query,$this->_filterparam->filterstato)[0];//risultato della query
+
 
 			if ($this->_filterparam->sort && $this->_filterparam->filterstato == 1) {
 				foreach ($this->_filterparam->sort as $key => $value)
@@ -117,14 +122,17 @@ class gglmsControllerApi extends JControllerLegacy
 		$result['rowCount']=10;
 		$result['rows']=$rows;
 		$result['total']=$total;
-        $result['total_query']=$total_query;
-		return $result;
+       	return $result;
 	}
 
-	public function getNumRows($query){
+	public function getNumRows($query,$filtestate){
 
-        $query=explode("from",strtolower($query)); //delimita in base ai from
-        $query= 'select count(*) from '.$query[count($query)-1]; //poichè l'unico from buono è l'ultimo, prendo l'ultimo tronco della query originale
+        $query=explode("from",strtolower($query)); //spacchetta in base ai from
+        if($filtestate==0){//qui prende due tronchi con il from
+            $query= 'select count(*) from '.$query[count($query)-2].' from '.$query[count($query)-1];
+        }else{//per gli altri filtri basta solo un tronco, l'ultimo
+        $query= 'select count(*) from '.$query[count($query)-1];
+        } 
         $query=explode('limit',strtolower($query))[0]; //poichè nel postback dai numeri di pagina genera il limit, lo tolgo
         $this->_db->setQuery($query);
         $rows=(int)$this->_db->loadResult();
