@@ -56,9 +56,9 @@ class gglmsControllerApi extends JControllerLegacy
 		try {
 			$query = $this->_db->getQuery(true);
 			$query->select('r.id_utente , anagrafica.nome, anagrafica.cognome, r.stato');
-			$query->select('(select r1.data from un_gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' 
+			$query->select('(select r1.data from #__gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' 
                 ORDER BY r1.data  limit 1) as hainiziato,
-                                (select r2.data from un_gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '. explode('|', $this->_filterparam->corso_id)[1]. ' and stato = 1 
+                                (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '. explode('|', $this->_filterparam->corso_id)[1]. ' and stato = 1 
                 ORDER BY r2.data limit 1) as hacompletato');
 			$query->select('anagrafica.fields, r.`data`');
 			$query->from('#__gg_report as r');
@@ -79,7 +79,7 @@ class gglmsControllerApi extends JControllerLegacy
 				$query->where('r.stato = "' . $this->_filterparam->filterstato . '" and  r.id_contenuto="'.explode('|', $this->_filterparam->corso_id)[1].'"');
 
             if ($this->_filterparam->filterstato != 1)
-                $query->where('r.stato = "<>1"');
+                $query->where('r.stato <>1');
 
 			if ($this->_filterparam->usergroups) {
 				$query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
@@ -210,10 +210,10 @@ class gglmsControllerApi extends JControllerLegacy
         $query = $this->_db->getQuery(true);
         $query->select('u.titolo as \'titolo unità\',c.titolo as \'titolo contenuto\', 
                       IF (r.stato=1, \'completato\',\'non completato\') as \'stato\', r.`data` as \'data\'');
-        $query->from('un_gg_report as r');
-        $query->join('inner','un_gg_unit as u on r.id_unita=u.id');
-        $query->join('inner','un_gg_contenuti c on r.id_contenuto=c.id');
-        $query->join('inner','un_gg_unit_map um on c.id=um.idcontenuto');
+        $query->from('#__gg_report as r');
+        $query->join('inner','#__gg_unit as u on r.id_unita=u.id');
+        $query->join('inner','#__gg_contenuti c on r.id_contenuto=c.id');
+        $query->join('inner','#__gg_unit_map um on c.id=um.idcontenuto');
         $query->where('id_utente='.$id_utente);
         $query->where('id_corso='.$id_corso);
         $query=$query." order by u.ordinamento, u.id, um.ordinamento ,r.`data`";
