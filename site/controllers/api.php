@@ -81,8 +81,8 @@ class gglmsControllerApi extends JControllerLegacy
 				$query->where('r.stato = ' . $this->_filterparam->filterstato . ' and  r.id_contenuto='.explode('|', $this->_filterparam->corso_id)[1]);
 
             if ($this->_filterparam->filterstato == 0)
-                $query->where('r.stato <>1 AND r.id_utente NOT IN (SELECT r.id_utente FROM un_gg_report as r 
-                               INNER JOIN un_user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
+                $query->where('r.stato <>1 AND r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r 
+                               INNER JOIN #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
                                WHERE r.id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' AND r.stato = 1 
                                and  r.id_contenuto='.explode('|', $this->_filterparam->corso_id)[1].' AND group_id = '.$this->_filterparam->usergroups.')');
 
@@ -132,7 +132,7 @@ class gglmsControllerApi extends JControllerLegacy
             $query= 'select count(*) from '.$query[count($query)-2].' from '.$query[count($query)-1];
         }else{//per gli altri filtri basta solo un tronco, l'ultimo
         $query= 'select count(*) from '.$query[count($query)-1];
-        } 
+        }
         $query=explode('limit',strtolower($query))[0]; //poichè nel postback dai numeri di pagina genera il limit, lo tolgo
         $this->_db->setQuery($query);
         $rows=(int)$this->_db->loadResult();
@@ -203,8 +203,7 @@ class gglmsControllerApi extends JControllerLegacy
 		$query = $this->_db->getQuery(true);
 		$query->select('titolo');
 		$query->from('#__gg_unit as u');
-		$query->where('u.id= ' . $this->_filterparam->corso_id);
-
+		$query->where('u.id= ' .explode('|', $this->_filterparam->corso_id)[0]);
 		$this->_db->setQuery($query);
 		$titolo = $this->_db->loadResult();
 

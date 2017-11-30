@@ -83,16 +83,12 @@ class gglmsModelReport extends JModelLegacy {
 
 			$utenti = $this->_db->loadObjectList();
 
-
-
 			foreach ($utenti as $utente){
 
 				$modelUtente = new gglmsModelUsers();
 				$utente->info = $modelUtente->get_user($utente->id_utente, $utente->id_event_booking);
 				$utente->report =$this->getUserReport($utente->id_utente);
 			}
-
-//			DEBUGG::log($utenti, 'utenti');
 
 			return $utenti;
 
@@ -138,15 +134,11 @@ class gglmsModelReport extends JModelLegacy {
 
 			$query->join('inner', '#__gg_contenuti as contenuti on contenuti.id = r.id_contenuto');
 
-
-
 			if($this->getState('id_corso'))
 				$query->where('corso.id_contenuto_completamento = contenuti.id');
 
 			$this->_db->setQuery($query);
 			$data = $this->_db->loadObjectList();
-
-
 
 			foreach ($data as &$row){
 				$utente= new gglmsModelUsers();

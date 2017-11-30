@@ -13,14 +13,14 @@ JHtml::_('bootstrap.modal');
 ?>
 <div id="barrafiltri" class="span2">
 
-    <form class="form-inline" action="index.php">
+    <form id="theform" class="form-inline" action="index.php">
 
 
         <h2>Corso</h2>
         <div class="form-group">
 
             <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
-            <select id="corso_id" name="corso-id" class="refresh">
+            <select id="corso_id" name="corso_id" class="refresh">
                 <?php
                 foreach ($this->corsi as $corso){
 
@@ -59,16 +59,18 @@ JHtml::_('bootstrap.modal');
 
         </div>
 
+
+        <div class="form-group">
+            <button type="button" id="update" class="btn btn-success btn-lg" onclick="reload()">AGGIORNA DATI</button>
+        </div>
+        <HR>
         <input type="hidden" id="option" name="option" value="com_gglms">
         <input type="hidden" id="task" name="task" value="api.get_csv">
-
-
-
         <div class="form-group">
             <button type="submit" id="get_csv" class="btn btn-success btn-lg">SCARICA CSV</button>
-        </div>
-        <div class="form-group">
-            <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">aggiorna tabelle</button>
+
+
+            <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">SINCRONIZZA</button>
         </div>
 
     </form>
@@ -92,13 +94,13 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="cognome" data-order="asc" >Cognome</th>
                     <th data-column-id="nome"  >Nome</th>
                     <th data-column-id="stato" data-formatter="stato"  >Stato</th>
-                    <th data-column-id="hainiziato">ha iniziato</th>
-                    <th data-column-id="hacompletato">ha completato</th>
+                    <th data-column-id="hainiziato">Iniziato il:</th>
+                    <th data-column-id="hacompletato">Completato il:</th>
                     <th data-column-id="data"  >Data</th>
                     <th data-column-id="fields" data-visible="false">Campi</th>
                     <th data-column-id="id_utente" data-visible="false" >Id</th>
-                    <th data-column-id="commands" data-formatter="commands" data-sortable="false">Anagrafica</th>
-                    <th data-column-id="dettaglicorso" data-formatter="dettaglicorso" data-sortable="false">Dettagli Corso</th>
+                    <th data-column-id="commands" data-formatter="commands" data-sortable="false">Dettagli</th>
+<!--                    <th data-column-id="dettaglicorso" data-formatter="dettaglicorso" data-sortable="false">Dettagli Corso</th>-->
                 </tr>
                 </thead>
                 <tbody>
@@ -255,12 +257,12 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 "commands": function(column, row)
                 {
                     fields[row.id_utente]=row.fields;
-                    return '<button type="button" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\">Anagrafica<span class="fa fa-pencil"></span></button>';
+                    return '<button type="button" title="anagrafica" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>'+'<button type="button" title="dettagli corso" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>';
                 },
                 "dettaglicorso": function(column, row)
                 {
-                    fields[row.id_utente]=row.fields;
-                    return '<button type="button" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\">Dettagli Corso<span class="fa fa-pencil"></span></button>';
+                    //fields[row.id_utente]=row.fields;
+                    //return '<button type="button" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>';
                 }
             }
 
@@ -325,6 +327,10 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             }).fail(function(data){
 
         });
+    }
+
+    function reload() {
+        jQuery("#grid-basic").bootgrid("reload");
     }
 
 </script>
