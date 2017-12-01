@@ -44,6 +44,7 @@ JHtml::_('bootstrap.modal');
                 <option value="2">Qualisiasi stato</option>
                 <option value="1">Solo completati</option>
                 <option value="0">Solo NON compleati</option>
+                <option value="3">In scadenza</option>
             </select>
         </div>
 
@@ -96,7 +97,7 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="stato" data-formatter="stato"  >Stato</th>
                     <th data-column-id="hainiziato">Iniziato il:</th>
                     <th data-column-id="hacompletato">Completato il:</th>
-                    <th data-column-id="data"  >Data</th>
+                    <th data-column-id="alert" data-formatter="alert">In scadenza</th>
                     <th data-column-id="fields" data-visible="false">Campi</th>
                     <th data-column-id="id_utente" data-visible="false" >Id</th>
                     <th data-column-id="commands" data-formatter="commands" data-sortable="false">Dettagli</th>
@@ -252,6 +253,17 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                     else {
                         notcompleted++;
                         return "Non Completato";
+                    }
+                },
+                "alert": function (column, row)
+                {
+                    if(row.alert == 1) {
+
+                        return '<span class="glyphicon glyphicon-alert" aria-hidden="true"></span>';
+                    }
+                    else {
+
+                        return null;//'<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>';
                     }
                 },
                 "commands": function(column, row)

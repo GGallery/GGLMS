@@ -254,5 +254,6 @@ class gglmsModelReport extends JModelLegacy {
 		return $usergroups;
 	}
 
+
 }
 

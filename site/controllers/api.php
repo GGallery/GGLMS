@@ -8,6 +8,7 @@
  */
 
 defined('_JEXEC') or die;
+require_once JPATH_COMPONENT . '/models/report.php';
 
 /**
  * Controller for single contact view
@@ -44,28 +45,84 @@ class gglmsControllerApi extends JControllerLegacy
 	}
 
 	public function get_report(){
-		$data = $this->get_data();
-		echo  json_encode($data);
+
+	    $data = $this->get_data();
+        echo  json_encode($data);
 		$this->_japp->close();
 	}
+
+
 
 	private function get_data() {
 
 		$this->_filterparam->task = JRequest::getVar('task');
+        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
+        $id_corso=explode('|', $this->_filterparam->corso_id)[0];
+        $id_contenuto=explode('|', $this->_filterparam->corso_id)[1];
 
 		try {
 			$query = $this->_db->getQuery(true);
-			$query->select('r.id_utente , anagrafica.nome, anagrafica.cognome, r.stato');
-			$query->select('(select r1.data from #__gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' 
+			//CAMPI COMUNI A TUTTE LE QUERY
+			$query->select('r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
+
+			//DISTINZIONE PER DEFINIZIONE VALORE DI STATO
+            if($this->_filterparam->filterstato==1) {
+                $query->select('1 as stato');
+            }else{
+                $query->select('COALESCE((select r2.stato from un_gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '.$id_contenuto.' and stato = 1 limit 1),0) 
+                                as stato');
+            }
+
+			// SUBQUERY COMUNI A TUTTE E LE QUERY
+			$query->select('(select r1.data from #__gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '.$id_corso.' 
                 ORDER BY r1.data  limit 1) as hainiziato,
-                                (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '. explode('|', $this->_filterparam->corso_id)[1]. ' and stato = 1 
+                                (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '. $id_contenuto. ' and stato = 1 
                 ORDER BY r2.data limit 1) as hacompletato');
-			$query->select('anagrafica.fields, r.`data`');
+
+            //DISTINZIONE PER DEFINIZIONE VALORE DI ALERT
+            if($this->_filterparam->filterstato==1){
+                $query->select('0 as alert');
+            }else{
+                $query->select('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -7 DAY),	IF((select r2.stato from un_gg_report as r2 where r2.id_utente = r.id_utente 
+                                and id_contenuto='.$id_contenuto.' and stato = 1 limit 1),0,1),0) as alert');
+            }
+
+            // FINE DELLA SELECT INIZIO FROM - INNER JOIN
+
+            //FROM E JOIN COMUNI A TUTTE LE QUERY
 			$query->from('#__gg_report as r');
 			$query->join('inner', '#__gg_report_users as anagrafica ON anagrafica.id = r.id_anagrafica');
-			$query->where('r.id_corso = ' . explode('|', $this->_filterparam->corso_id)[0]);//id_corso, primo paramentro in combo
+            $query->join('inner','#__users as users on r.id_utente=users.id');
 
-			if ($this->_filterparam->startdate)
+            //SE NON SONO COMPLETI ALLORA BISOGNA RECUPERARE LA DATA DI SCADENZA: JOIN
+            if($this->_filterparam->filterstato != 1) {
+                $query->join('inner', '#__gg_unit as un on r.id_corso=un.id');
+            }
+
+            //FINE FROM - JOIN INIZIO WHERE
+
+            //WHERE COMUNE A TUTTE LE QUERY
+			$query->where('r.id_corso = '.$id_corso);//id_corso, primo paramentro in combo
+            if ($this->_filterparam->usergroups) {
+                $query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
+                $query->where('group_id = ' . $this->_filterparam->usergroups );
+            }
+
+            //WHERE DISTINTE IN BASE AI FILTERSTATE, PER TUTTI VA BENE COSI'
+            if ($this->_filterparam->filterstato == 1)
+                $query->where('r.stato = ' . $this->_filterparam->filterstato . ' and  r.id_contenuto='.$id_contenuto);
+
+            if($this->_filterparam->filterstato == 3)
+                $query->where('date(now())>DATE_ADD(un.data_fine, INTERVAL -7 DAY)');
+            //SOLO NON COMPLETATI O IN SCADENZA
+            if ($this->_filterparam->filterstato == 0 || $this->_filterparam->filterstato == 3)
+                $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r 
+                               INNER JOIN #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
+                               WHERE r.id_corso = '.$id_corso.' AND r.stato = 1 
+                               and  r.id_contenuto='.$id_contenuto.' AND group_id = '.$this->_filterparam->usergroups.')');
+
+             //FILTRI DA REPORT
+            if ($this->_filterparam->startdate)
 				$query->where('r.data >= "' . $this->_filterparam->startdate . '"');
 
 			if ($this->_filterparam->finishdate)
@@ -73,23 +130,6 @@ class gglmsControllerApi extends JControllerLegacy
 
 			if ($this->_filterparam->searchPhrase)
 				$query->where('concat(nome,cognome,fields) like "%'. $this->_filterparam->searchPhrase .'%"');
-
-			//Solo se completati
-            if ($this->_filterparam->filterstato == 2)
-                $query->where('r.stato <>1');
-			if ($this->_filterparam->filterstato == 1)
-				$query->where('r.stato = ' . $this->_filterparam->filterstato . ' and  r.id_contenuto='.explode('|', $this->_filterparam->corso_id)[1]);
-
-            if ($this->_filterparam->filterstato == 0)
-                $query->where('r.stato <>1 AND r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r 
-                               INNER JOIN #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
-                               WHERE r.id_corso = '. explode('|', $this->_filterparam->corso_id)[0].' AND r.stato = 1 
-                               and  r.id_contenuto='.explode('|', $this->_filterparam->corso_id)[1].' AND group_id = '.$this->_filterparam->usergroups.')');
-
-			if ($this->_filterparam->usergroups) {
-				$query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
-				$query->where('group_id = ' . $this->_filterparam->usergroups );
-			}
 
             $offset=0;
             if($this->_filterparam->task != 'get_csv' ) {
@@ -126,13 +166,23 @@ class gglmsControllerApi extends JControllerLegacy
 	}
 
 	public function getNumRows($query,$filtestate){
-
+        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
         $query=explode("from",strtolower($query)); //spacchetta in base ai from
-        if($filtestate==0){//qui prende due tronchi con il from
-            $query= 'select count(*) from '.$query[count($query)-2].' from '.$query[count($query)-1];
-        }else{//per gli altri filtri basta solo un tronco, l'ultimo
-        $query= 'select count(*) from '.$query[count($query)-1];
+
+        switch ($filtestate){
+            case 1:
+                $query= 'select count(*) from '.$query[count($query)-1];
+                break;
+            case 2:
+                $query= 'SELECT count(DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome, anagrafica.fields,users.email) from '.$query[count($query)-1];
+                break;
+            case 0:
+            case 3:
+                $query= 'SELECT count(DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome, anagrafica.fields,users.email) from '.$query[count($query)-2].' from '.$query[count($query)-1];
+                break;
+
         }
+
         $query=explode('limit',strtolower($query))[0]; //poichè nel postback dai numeri di pagina genera il limit, lo tolgo
         $this->_db->setQuery($query);
         $rows=(int)$this->_db->loadResult();
