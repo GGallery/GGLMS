@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="modifiche videoslide">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/controllers/api.php" afterPath="$PROJECT_DIR$/site/controllers/api.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/models/report.php" afterPath="$PROJECT_DIR$/site/models/report.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/views/report/tmpl/default.php" afterPath="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -58,15 +56,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="api.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="api.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="180" column="32" lean-forward="false" selection-start-line="180" selection-start-column="32" selection-end-line="180" selection-end-column="32" />
+            <state relative-caret-position="391">
+              <caret line="195" column="40" lean-forward="true" selection-start-line="195" selection-start-column="40" selection-end-line="195" selection-end-column="40" />
               <folding>
-                <marker date="1512125929241" expanded="true" signature="6958:6979" ph="select count... ${$query[count($query)-1]}" />
-                <marker date="1512125929241" expanded="true" signature="7074:7183" ph="SELECT count... ${$query[count($query)-1]}" />
-                <marker date="1512125929241" expanded="true" signature="7298:7440" ph="SELECT count... ${$query[count($query)-2]}" />
+                <marker date="1512137254837" expanded="true" signature="8406:8421" ph="select count... ${$query[count($query)-1]}" />
+                <marker date="1512137254837" expanded="true" signature="8406:8422" ph="select count... ${$newquery}" />
+                <marker date="1512137254837" expanded="true" signature="8523:8626" ph="SELECT count... ${$query[count($query)-1]}" />
+                <marker date="1512137254837" expanded="true" signature="8523:8627" ph="SELECT count... ${$newquery}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="default.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="261" column="104" lean-forward="false" selection-start-line="261" selection-start-column="104" selection-end-line="261" selection-end-column="104" />
+              <folding>
+                <marker date="1512137669107" expanded="true" signature="8847:8875" ph="..." />
               </folding>
             </state>
           </provider>
@@ -75,7 +86,7 @@
       <file leaf-file-name="report.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
+            <state relative-caret-position="-1547">
               <caret line="91" column="45" lean-forward="true" selection-start-line="91" selection-start-column="45" selection-end-line="91" selection-end-column="45" />
               <folding>
                 <element signature="n#store_report_users#0;n#gglmsControllerReport#0;n#!!top" expanded="false" />
@@ -162,8 +173,8 @@
         <option value="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" />
         <option value="$PROJECT_DIR$/site/controller.php" />
         <option value="$PROJECT_DIR$/site/models/report.php" />
-        <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
         <option value="$PROJECT_DIR$/site/controllers/api.php" />
+        <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
       </list>
     </option>
   </component>
@@ -214,12 +225,6 @@
               <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="controllers" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
-              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="models" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
@@ -299,7 +304,7 @@
       <workItem from="1511856397742" duration="24912000" />
       <workItem from="1511942982089" duration="25938000" />
       <workItem from="1512031379625" duration="21131000" />
-      <workItem from="1512113752505" duration="6983000" />
+      <workItem from="1512113752505" duration="16707000" />
     </task>
     <task id="LOCAL-00001" summary="consuntivo modifiche">
       <created>1509988927038</created>
@@ -354,7 +359,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="211396000" />
+    <option name="totallyTimeSpent" value="221120000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -369,7 +374,7 @@
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23499268" sideWeight="0.40522876" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23499268" sideWeight="0.40522876" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="WINDOWED" visible="false" show_stripe_button="true" weight="0.21303074" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="0" y="22" width="1366" height="706" />
@@ -695,6 +700,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -734,6 +740,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="397">
           <caret line="41" column="50" lean-forward="true" selection-start-line="41" selection-start-column="50" selection-end-line="41" selection-end-column="50" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -766,6 +773,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="41" column="21" lean-forward="false" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="21" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -773,6 +781,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="561">
           <caret line="74" column="37" lean-forward="true" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -788,13 +797,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
           <caret line="256" column="0" lean-forward="false" selection-start-line="256" selection-start-column="0" selection-end-line="256" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="99" column="71" lean-forward="false" selection-start-line="99" selection-start-column="71" selection-end-line="99" selection-end-column="71" />
           <folding />
         </state>
       </provider>
@@ -809,7 +811,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
+        <state relative-caret-position="-1547">
           <caret line="91" column="45" lean-forward="true" selection-start-line="91" selection-start-column="45" selection-end-line="91" selection-end-column="45" />
           <folding>
             <element signature="n#store_report_users#0;n#gglmsControllerReport#0;n#!!top" expanded="false" />
@@ -821,12 +823,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="180" column="32" lean-forward="false" selection-start-line="180" selection-start-column="32" selection-end-line="180" selection-end-column="32" />
+        <state relative-caret-position="391">
+          <caret line="195" column="40" lean-forward="true" selection-start-line="195" selection-start-column="40" selection-end-line="195" selection-end-column="40" />
           <folding>
-            <marker date="1512125929241" expanded="true" signature="6958:6979" ph="select count... ${$query[count($query)-1]}" />
-            <marker date="1512125929241" expanded="true" signature="7074:7183" ph="SELECT count... ${$query[count($query)-1]}" />
-            <marker date="1512125929241" expanded="true" signature="7298:7440" ph="SELECT count... ${$query[count($query)-2]}" />
+            <marker date="1512137254837" expanded="true" signature="8406:8421" ph="select count... ${$query[count($query)-1]}" />
+            <marker date="1512137254837" expanded="true" signature="8406:8422" ph="select count... ${$newquery}" />
+            <marker date="1512137254837" expanded="true" signature="8523:8626" ph="SELECT count... ${$query[count($query)-1]}" />
+            <marker date="1512137254837" expanded="true" signature="8523:8627" ph="SELECT count... ${$newquery}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="261" column="104" lean-forward="false" selection-start-line="261" selection-start-column="104" selection-end-line="261" selection-end-column="104" />
+          <folding>
+            <marker date="1512137669107" expanded="true" signature="8847:8875" ph="..." />
           </folding>
         </state>
       </provider>

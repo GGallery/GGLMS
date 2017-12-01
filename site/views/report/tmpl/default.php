@@ -49,12 +49,12 @@ JHtml::_('bootstrap.modal');
         </div>
 
         <div class="form-group">
-            <label for="startdate">Dal</label><br>
+            <label for="startdate">Completato dal:</label><br>
             <?php echo JHTML::calendar('','startdate','startdate','%Y-%m-%d'); ?>
         </div>
 
         <div class="form-group">
-            <label for="finishdate">Al</label><br>
+            <label for="finishdate">Completato al:</label><br>
             <?php echo JHTML::_( 'calendar','','finishdate','finishdate','%Y-%m-%d'); ?>
 
 
@@ -68,10 +68,10 @@ JHtml::_('bootstrap.modal');
         <input type="hidden" id="option" name="option" value="com_gglms">
         <input type="hidden" id="task" name="task" value="api.get_csv">
         <div class="form-group">
-            <button type="submit" id="get_csv" class="btn btn-success btn-lg">SCARICA CSV</button>
-
-
-            <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">SINCRONIZZA</button>
+            <button type="submit" id="get_csv" class="btn btn-success btn-lg">SCARICA REPORT CSV</button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">SINCRONIZZA TABELLA REPORT</button>
         </div>
 
     </form>
@@ -92,14 +92,14 @@ JHtml::_('bootstrap.modal');
             <table id="grid-basic" class="table table-condensed table-hover table-striped ">
                 <thead>
                 <tr>
-                    <th data-column-id="cognome" data-order="asc" >Cognome</th>
-                    <th data-column-id="nome"  >Nome</th>
-                    <th data-column-id="stato" data-formatter="stato"  >Stato</th>
-                    <th data-column-id="hainiziato">Iniziato il:</th>
-                    <th data-column-id="hacompletato">Completato il:</th>
-                    <th data-column-id="alert" data-formatter="alert">In scadenza</th>
-                    <th data-column-id="fields" data-visible="false">Campi</th>
-                    <th data-column-id="id_utente" data-visible="false" >Id</th>
+                    <th data-column-id="cognome" data-sortable="false">Cognome</th>
+                    <th data-column-id="nome"  data-sortable="false">Nome</th>
+                    <th data-column-id="stato" data-formatter="stato"  data-sortable="false">Stato</th>
+                    <th data-column-id="hainiziato" data-sortable="false">Iniziato il:</th>
+                    <th data-column-id="hacompletato" data-sortable="false">Completato il:</th>
+                    <th data-column-id="alert" data-formatter="alert" data-sortable="false">In scadenza</th>
+                    <th data-column-id="fields" data-visible="false" data-sortable="false">Campi</th>
+                    <th data-column-id="id_utente" data-visible="false" data-sortable="false">Id</th>
                     <th data-column-id="commands" data-formatter="commands" data-sortable="false">Dettagli</th>
 <!--                    <th data-column-id="dettaglicorso" data-formatter="dettaglicorso" data-sortable="false">Dettagli Corso</th>-->
                 </tr>
@@ -259,7 +259,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 {
                     if(row.alert == 1) {
 
-                        return '<span class="glyphicon glyphicon-alert" aria-hidden="true"></span>';
+                        return '<span class="glyphicon glyphicon-alert" style="color:gold; font-size: 23px;" aria-hidden="true"></span>';
                     }
                     else {
 
