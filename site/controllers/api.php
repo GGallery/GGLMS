@@ -62,8 +62,16 @@ class gglmsControllerApi extends JControllerLegacy
 
         try {
             $query = $this->_db->getQuery(true);
-            //CAMPI COMUNI A TUTTE LE QUERY
+            $countquery= $this->_db->getQuery(true);
+            //CAMPI COMUNI A TUTTE LE QUERY DI POPOLAMENTO TABELLA
             $query->select('r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
+
+            //SELECT COUNT PER LA COUNTQUERY
+            if($this->_filterparam->filterstato==1) {
+                $countquery = 'select count(*) ';
+            }else{
+                $countquery = 'SELECT count(DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome, anagrafica.fields,users.email) ';
+            }
 
             //DISTINZIONE PER DEFINIZIONE VALORE DI STATO
             if($this->_filterparam->filterstato==1) {
@@ -142,8 +150,13 @@ class gglmsControllerApi extends JControllerLegacy
             $this->_db->setQuery($query);
             $this->_db->execute();
             $total=null;
-            $total=$this->getNumRows($query,$this->_filterparam->filterstato)[0];//risultato della query
-            $totalquery=$this->getNumRows($query,$this->_filterparam->filterstato)[1];
+            $countquery=$countquery.$query->from;
+            $countquery=$countquery.(is_array($query->join)?implode($query->join):$query->join);
+            $countquery=$countquery.(is_array($query->where)?implode($query->where):$query->where);
+            //echo $query." $$$ ".$countquery;
+
+            //$total=$this->getNumRows($query,$this->_filterparam->filterstato)[0];//risultato della query
+            //$totalquery=$this->getNumRows($query,$this->_filterparam->filterstato)[1];
 
             if ($this->_filterparam->sort && $this->_filterparam->filterstato == 1) {
                 foreach ($this->_filterparam->sort as $key => $value)
@@ -152,6 +165,8 @@ class gglmsControllerApi extends JControllerLegacy
             }
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
+            $this->_db->setQuery($countquery);
+            $total=$this->_db->LoadResult();
 
         }catch (Exception $e){
 
@@ -164,7 +179,7 @@ class gglmsControllerApi extends JControllerLegacy
         $result['rowCount']=10;
         $result['rows']=$rows;
         $result['total']=$total;
-        $result['totalquery']=$totalquery;
+        $result['totalquery']=$countquery;
         return $result;
     }
 

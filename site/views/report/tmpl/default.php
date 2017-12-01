@@ -48,12 +48,12 @@ JHtml::_('bootstrap.modal');
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="calendar_startdate_div">
             <label for="startdate">Completato dal:</label><br>
             <?php echo JHTML::calendar('','startdate','startdate','%Y-%m-%d'); ?>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="calendar_finishdate_div">
             <label for="finishdate">Completato al:</label><br>
             <?php echo JHTML::_( 'calendar','','finishdate','finishdate','%Y-%m-%d'); ?>
 
@@ -214,6 +214,19 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             notcompleted = 0;
             completed = 0;
             $("#grid-basic").bootgrid("reload");
+        });
+
+        $("#filterstato").change(function(){
+            console.log(("#filterstato")[0].value);
+
+            if($("#filterstato option:selected").val()==1 || $("#filterstato option:selected").val()==2){
+                $("#calendar_startdate_div").show();
+                $("#calendar_finishdate_div").show();
+            }else{
+                $("#calendar_startdate_div").hide();
+                $("#calendar_finishdate_div").hide();
+            };
+
         });
 
         $("#startdate").bind('change',function(){
