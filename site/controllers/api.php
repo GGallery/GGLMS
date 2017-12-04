@@ -63,9 +63,13 @@ class gglmsControllerApi extends JControllerLegacy
         try {
             $query = $this->_db->getQuery(true);
             $countquery= $this->_db->getQuery(true);
-            //CAMPI COMUNI A TUTTE LE QUERY DI POPOLAMENTO TABELLA
-            $query->select('r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
 
+            if($this->_filterparam->filterstato==1) {
+                $query->select('r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
+
+            }else{
+                $query->select('DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
+            }
             //SELECT COUNT PER LA COUNTQUERY
             if($this->_filterparam->filterstato==1) {
                 $countquery = 'select count(*) ';
@@ -145,6 +149,8 @@ class gglmsControllerApi extends JControllerLegacy
             if($this->_filterparam->task != 'get_csv' ) {
                 $offset = $this->_filterparam->rowCount * $this->_filterparam->current - $this->_filterparam->rowCount;
                 $query->setLimit($this->_filterparam->rowCount, $offset);
+            }else{
+                $query->setLimit($this->_filterparam->rowCount);
             }
 
             $this->_db->setQuery($query);
@@ -220,6 +226,8 @@ class gglmsControllerApi extends JControllerLegacy
         $data = $this->get_data();
 
         $rows = $data['rows'];
+//echo $data['query'];
+//die;
 
         if (!empty($rows)) {
             $comma = ';';

@@ -217,7 +217,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         });
 
         $("#filterstato").change(function(){
-            console.log(("#filterstato")[0].value);
+
 
             if($("#filterstato option:selected").val()==1 || $("#filterstato option:selected").val()==2){
                 $("#calendar_startdate_div").show();
@@ -237,7 +237,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         });
 
         $("#finishdate").change(function(){
-            console.log('finishdate');
+
             notcompleted = 0;
             completed = 0;
             $("#grid-basic").bootgrid("reload");
