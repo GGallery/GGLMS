@@ -10,6 +10,7 @@ defined('_JEXEC') or die;
 
 JHtml::_('bootstrap.modal');
 
+
 ?>
 <div id="barrafiltri" class="span2">
 
@@ -68,7 +69,7 @@ JHtml::_('bootstrap.modal');
         <input type="hidden" id="option" name="option" value="com_gglms">
         <input type="hidden" id="task" name="task" value="api.get_csv">
         <div class="form-group">
-            <button type="submit" id="get_csv" class="btn btn-success btn-lg">SCARICA REPORT CSV</button>
+            <button type="button" id="get_csv" class="btn btn-success btn-lg" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
         <div>
             <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">SINCRONIZZA TABELLA REPORT</button>
@@ -164,7 +165,29 @@ JHtml::_('bootstrap.modal');
     </div>
 </div>
 
+<!-- Modal Dettagli Caricamento CSV-->
+<div id="detailsCaricamentoCSV" class="modal fade " role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Dettagli del caricamento CSV</h4>
+            </div>
+            <div class="modal-body">
+                <table id="details_table_caricamento_csv" class="table table-condensed table-hover table-striped ">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 
 <?php
@@ -356,6 +379,71 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
     function reload() {
         jQuery("#grid-basic").bootgrid("reload");
+    }
+
+    function loadCsv() {
+        var total;
+        var id_chiamata=Math.floor(Math.random()*100000);
+        var id_corso= jQuery('#corso_id')[0]['value'];
+        var usergroups= jQuery('#usergroups')[0]['value'];
+        var filterstato= jQuery('#filterstato')[0]['value'];
+        var startdate= jQuery("#startdate")[0]['value'];
+        var finishdate= jQuery("#finishdate")[0]['value'];
+
+//console.log(id_corso+" "+usergroups+" "+filterstato+" "+startdate+" "+finishdate);
+        jQuery('#details_table_caricamento_csv').empty();
+        jQuery('#details_table_caricamento_csv').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti inviatiamo ad attendere...</td></tr>');
+        jQuery("#detailsCaricamentoCSV").modal('show');
+        jQuery.when(jQuery.get("index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&filterstato="+filterstato+
+                                "&startdate="+startdate+"&finishdate="+finishdate+"&csvlimit=0$csvoffset=0&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv"))
+            .done(function(data){
+
+
+
+
+            }).then(function (data) {
+
+            data=JSON.parse(data);
+            total=data['total'];
+            jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento di '+total+' records, attendere il completamento della procedura...</td></tr>');
+            var csvoffset=100;
+            var csvlimit=100;
+
+            $datafromquery=LoadDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata);
+
+
+
+        }).fail(function(data) {
+
+        });
+
+    }
+
+    function LoadDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata) {
+        console.log(csvlimit);
+        
+        var jqxhr=jQuery.get("index.php?corso_id=" + id_corso + "&usergroups=" + usergroups +
+            "&filterstato=" + filterstato +"&startdate=" + startdate + "&finishdate=" + finishdate + "&csvlimit="
+            + csvlimit +"&csvoffset="+csvoffset+"&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv", function (data) {
+
+            data=JSON.parse(data);
+        })
+            .done(function (data) {
+                jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento fino a record n° '+csvlimit+'</td></tr>');
+                
+                if(csvlimit<parseInt(total)){
+                    csvlimit=csvlimit+csvoffset;
+                    LoadDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata)
+                }else {
+                    jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento completato</td></tr>');
+                    location.href='index.php?option=com_gglms&id_chiamata='+id_chiamata+'&corso_id="'+id_corso.substr(0,id_corso.indexOf('|'))+'"&task=api.createCSV';
+
+                }
+            }).fail(function (data) {
+                jQuery('#details_table_caricamento_csv').append('<tr><td>ERROR\! nel caricamento fino a record n° '+csvlimit+'</td></tr>');
+            });
+
+        jqxhr=null;
     }
 
 </script>

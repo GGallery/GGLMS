@@ -40,6 +40,9 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->usergroups = JRequest::getVar('usergroups');
         $this->_filterparam->sort = JRequest::getVar('sort');
         $this->_filterparam->searchPhrase = JRequest::getVar('searchPhrase');
+        $this->_filterparam->csvlimit = JRequest::getVar('csvlimit');
+        $this->_filterparam->csvoffset=JRequest::getVar('csvoffset');
+        $this->_filterparam->id_chiamata=JRequest::getVar('id_chiamata');
 
 
     }
@@ -53,7 +56,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
 
-    private function get_data() {
+    private function get_data($offsetforcsv=null) {
 
         $this->_filterparam->task = JRequest::getVar('task');
         //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
@@ -146,11 +149,19 @@ class gglmsControllerApi extends JControllerLegacy
                 $query->where('concat(nome,cognome,fields) like "%'. $this->_filterparam->searchPhrase .'%"');
 
             $offset=0;
+            $csvoffset=$this->_filterparam->csvoffset;
+            $csvlimit=$this->_filterparam->csvlimit;
             if($this->_filterparam->task != 'get_csv' ) {
                 $offset = $this->_filterparam->rowCount * $this->_filterparam->current - $this->_filterparam->rowCount;
                 $query->setLimit($this->_filterparam->rowCount, $offset);
-            }else{
-                $query->setLimit($this->_filterparam->rowCount);
+            }else {
+                if ($csvlimit==0){
+                    $query->setLimit(1);
+                }else
+                {
+                    $query->setLimit($csvoffset, $csvlimit - $csvoffset);
+                }
+
             }
 
             $this->_db->setQuery($query);
@@ -159,16 +170,13 @@ class gglmsControllerApi extends JControllerLegacy
             $countquery=$countquery.$query->from;
             $countquery=$countquery.(is_array($query->join)?implode($query->join):$query->join);
             $countquery=$countquery.(is_array($query->where)?implode($query->where):$query->where);
-            //echo $query." $$$ ".$countquery;
-
-            //$total=$this->getNumRows($query,$this->_filterparam->filterstato)[0];//risultato della query
-            //$totalquery=$this->getNumRows($query,$this->_filterparam->filterstato)[1];
 
             if ($this->_filterparam->sort && $this->_filterparam->filterstato == 1) {
                 foreach ($this->_filterparam->sort as $key => $value)
                     $query->order($key . " " . $value);
 
             }
+
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
             $this->_db->setQuery($countquery);
@@ -221,71 +229,123 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function get_csv()
     {
-
+        ini_set('max_execution_time', 600);
         $this->_japp = JFactory::getApplication();
-        $data = $this->get_data();
+        $csvlimit=$this->_filterparam->csvlimit;
+        $id_chiamata=$this->_filterparam->id_chiamata;
+        $data=$this->get_data($csvlimit);
 
-        $rows = $data['rows'];
-//echo $data['query'];
-//die;
+        if($csvlimit>0) {
+            foreach ($data['rows'] as $row) {
 
-        if (!empty($rows)) {
-            $comma = ';';
-            $quote = '"';
-            $CR = "\015\012";
-            // Make csv rows for field name
-            $i=0;
-            $fields = $rows[0];
-            $cnt_fields = count($fields);
-            $csv_fields = '';
+                try {
 
-            foreach($fields as $name=>$val) {
-                $i++;
-                if ($cnt_fields<=$i) $comma = '';
-                $csv_fields .= $quote.$name.$quote.$comma;
+                    $insertquery = "INSERT INTO un_gg_csv_report VALUES (";
+                    $insertquery = $insertquery . $id_chiamata . ",";
+                    $insertquery = $insertquery . $row['id_utente'] . ",";
+                    $insertquery = $insertquery . "'" . addslashes($row['nome']) . "',";
+                    $insertquery = $insertquery . "'" . addslashes($row['cognome']) . "',";
+                    $insertquery = $insertquery . "'" . addslashes($row['fields']) . "',";
+                    $insertquery = $insertquery . "'" . $row['email'] . "',";
+                    $insertquery = $insertquery . $row['stato'] . ",";
+                    $insertquery = $insertquery . "'" . $row['hainiziato'] . "',";
+                    $insertquery = $insertquery . "'" . $row['hacompletato'] . "',";
+                    $insertquery = $insertquery . $row['alert'] . ")";
 
-            }
-            // Make csv rows for data
-            $csv_values = '';
-            foreach($rows as $row) {
-                $i=0;
-                $comma = ';';
-                foreach($row as $name=>$val) {
-                    $i++;
-                    if ($cnt_fields<=$i) $comma = '';
-                    $csv_values .= $quote.$val.$quote.$comma;
+
+                    $this->_db->setQuery($insertquery);
+                    $this->_db->execute();
+                }catch (Exception $exception){
+                    echo $exception->getMessage();
                 }
-                $csv_values .= $CR;
+
             }
-            $csv_save = $csv_fields.$CR.$csv_values;
+
         }
-        echo $csv_save;
 
-
-        $filename = $this->get_CourseName();
-        $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
-        $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
-        $filename = strtolower($filename);
-        $filename = trim($filename, '_');
-        $filename = preg_replace('~[^-\w]+~', '', $filename);
-        $filename .= "-".date("d/m/Y");
-        $filename=$filename.".csv";
-
-
-        header("Content-Type: text/plain");
-        header("Content-disposition: attachment; filename=$filename");
-        header("Content-Transfer-Encoding: binary");
-        header("Pragma: no-cache");
-        header("Expires: 0");
+        echo  json_encode($data);
 
         $this->_japp->close();
     }
 
-    private  function get_CourseName(){
+    public function createCSV(){
+
+
+
+        //$this->_japp = JFactory::getApplication();
+        $id_chiamata=$this->_filterparam->id_chiamata;
+        $corso_id=$this->_filterparam->corso_id;
+        $query="Select id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato, alert from un_gg_csv_report where id_chiamata=".$id_chiamata;
+        $this->_db->setQuery($query);
+        $rows = $this->_db->loadAssocList();
+//var_dump($rows);
+
+try {
+    if (!empty($rows)) {
+        $comma = ';';
+        $quote = '"';
+        $CR = "\015\012";
+        // Make csv rows for field name
+        $i = 0;
+        $fields = $rows[0];
+
+        $cnt_fields = count($fields);
+        $csv_fields = '';
+
+        foreach ($fields as $name => $val) {
+            $i++;
+            if ($cnt_fields <= $i) $comma = '';
+            $csv_fields .= $quote . $name . $quote . $comma;
+
+
+        }
+
+        // Make csv rows for data
+        $csv_values = '';
+        foreach ($rows as $row) {
+            $i = 0;
+            $comma = ';';
+            foreach ($row as $name => $val) {
+                $i++;
+                if ($cnt_fields <= $i) $comma = '';
+                $csv_values .= $quote . $val . $quote . $comma;
+            }
+            $csv_values .= $CR;
+        }
+
+        //echo ($csv_values);
+
+        $csv_save = $csv_fields . $CR . $csv_values;
+    }
+    echo $csv_save;
+
+
+    $filename = $this->get_CourseName($corso_id);
+    $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
+    $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
+    $filename = strtolower($filename);
+    $filename = trim($filename, '_');
+    $filename = preg_replace('~[^-\w]+~', '', $filename);
+    $filename .= "-" . date("d/m/Y");
+    $filename = $filename . ".csv";
+
+
+    header("Content-Type: text/plain");
+    header("Content-disposition: attachment; filename=$filename");
+    header("Content-Transfer-Encoding: binary");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+}catch (exceptions $exception){
+    echo $exception->getMessage();
+}
+        $this->_japp->close();
+    }
+
+    private  function get_CourseName($corso_id){
         $query = $this->_db->getQuery(true);
         $query->select('titolo');
         $query->from('#__gg_unit as u');
-        $query->where('u.id= ' .explode('|', $this->_filterparam->corso_id)[0]);
+        $query->where('u.id= '.$corso_id);
         $this->_db->setQuery($query);
         $titolo = $this->_db->loadResult();
 
