@@ -43,6 +43,9 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->csvlimit = JRequest::getVar('csvlimit');
         $this->_filterparam->csvoffset=JRequest::getVar('csvoffset');
         $this->_filterparam->id_chiamata=JRequest::getVar('id_chiamata');
+        $this->_filterparam->to=JRequest::getVar('to');
+        $this->_filterparam->oggettomail=JRequest::getVar('oggettomail');
+        $this->_filterparam->testomail=JRequest::getVar('testomail');
 
 
     }
@@ -91,8 +94,8 @@ class gglmsControllerApi extends JControllerLegacy
             // SUBQUERY COMUNI A TUTTE E LE QUERY
             $query->select('(select r1.data from #__gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '.$id_corso.' 
                 ORDER BY r1.data  limit 1) as hainiziato,
-                                (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '. $id_contenuto. ' and stato = 1 
-                ORDER BY r2.data limit 1) as hacompletato');
+                                (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and 
+                                id_contenuto= '. $id_contenuto. ' and stato = 1 ORDER BY r2.data limit 1) as hacompletato');
 
             //DISTINZIONE PER DEFINIZIONE VALORE DI ALERT
             if($this->_filterparam->filterstato==1){
@@ -272,7 +275,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
 
-        //$this->_japp = JFactory::getApplication();
+
         $id_chiamata=$this->_filterparam->id_chiamata;
         $corso_id=$this->_filterparam->corso_id;
         $query="Select id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato, alert from un_gg_csv_report where id_chiamata=".$id_chiamata;
@@ -370,6 +373,91 @@ try {
         $result = $this->_db->loadAssocList();
         echo  json_encode($result);
         $this->_japp->close();
+    }
+
+    public function sendMail(){
+        try {
+        $to=(string)$this->_filterparam->to;
+
+        //$to="a.petruzzella71@gmail.com";
+        $oggettomail=$this->_filterparam->oggettomail;
+        $testomail=$this->_filterparam->testomail;
+        $recipients=array();
+        array_push($recipients,$to);
+        $mailer = JFactory::getMailer();
+        $config = JFactory::getConfig();
+        $sender = array(
+            $config->get( 'mailfrom' ),
+            $config->get( 'fromname' )
+        );
+
+        $mailer->setSender($sender);
+
+        $mailer->addRecipient($recipients);
+        $mailer->setSubject($oggettomail);
+        $mailer->setBody($testomail);
+
+        $send = $mailer->Send();
+
+        echo json_encode($send);
+       }catch (exceptions $exception){
+           echo $exception->getMessage();
+
+       }
+        $this->_japp->close();
+    }
+
+    public function sendAllMail(){
+    try{
+        $id_corso=explode('|', $this->_filterparam->corso_id)[0];
+        $id_contenuto=explode('|', $this->_filterparam->corso_id)[1];
+        $group_id=$this->_filterparam->usergroups;
+        $query = $this->_db->getQuery(true);
+        $query->select('DISTINCT users.email');
+        $query->from('#__gg_report as r');
+        $query->join('inner','#__gg_report_users as anagrafica ON anagrafica.id = r.id_anagrafica');
+        $query->join('inner','#__users as users on r.id_utente=users.id');
+        $query->join('inner','#__gg_unit as un on r.id_corso=un.id');
+        $query->join('inner','#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
+        $query->where('id_corso='.$id_corso);
+        $query->where('group_id='.$group_id);
+        $query->where('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -7 DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente 
+                                and id_contenuto='.$id_contenuto.' and stato = 1 limit 1),0,1),0)=1');
+        $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM un_gg_report as r INNER JOIN  #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
+                               WHERE r.id_corso = '.$id_corso.' AND r.stato = 1 and  r.id_contenuto='.$id_contenuto.' AND group_id = '.$group_id.')');
+
+
+
+        $this->_db->setQuery($query);
+        $rows = $this->_db->loadAssocList();
+
+        $oggettomail=$this->_filterparam->oggettomail;
+        $testomail=$this->_filterparam->testomail;
+        $recipients=array_column($rows,'email');
+
+
+        $mailer = JFactory::getMailer();
+        $config = JFactory::getConfig();
+        $sender = array(
+            $config->get( 'mailfrom' ),
+            $config->get( 'fromname' )
+        );
+
+        $mailer->setSender($sender);
+
+        $mailer->addRecipient($recipients);
+        $mailer->setSubject($oggettomail);
+        $mailer->setBody($testomail);
+
+        //$send = $mailer->Send();  ATTENZIONE IL VERO INVIO E' DISABILITATO IN PROVA
+
+        //echo $send;
+    }catch (exceptions $exception){
+echo $exception->getMessage();
+
+}
+$this->_japp->close();
+
     }
 
 //	INUTILIZZATO

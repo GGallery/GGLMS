@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="modifiche videoslide">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" afterPath="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/controllers/api.php" afterPath="$PROJECT_DIR$/site/controllers/api.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/views/report/tmpl/default.php" afterPath="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
     </list>
@@ -60,28 +61,18 @@
       <file leaf-file-name="api.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="319" column="3" lean-forward="false" selection-start-line="319" selection-start-column="3" selection-end-line="319" selection-end-column="3" />
+            <state relative-caret-position="102">
+              <caret line="403" column="41" lean-forward="true" selection-start-line="403" selection-start-column="41" selection-end-line="403" selection-end-column="41" />
               <folding>
                 <element signature="n#getNumRows#0;n#gglmsControllerApi#0;n#!!top" expanded="false" />
-                <marker date="1512492222165" expanded="true" signature="9670:9685" ph="select count... ${$query[count($query)-1]}" />
-                <marker date="1512492222165" expanded="true" signature="9670:9686" ph="select count... ${$newquery}" />
-                <marker date="1512492222165" expanded="true" signature="9787:9890" ph="SELECT count... ${$query[count($query)-1]}" />
-                <marker date="1512492222165" expanded="true" signature="9787:9891" ph="SELECT count... ${$newquery}" />
-                <marker date="1512492222165" expanded="true" signature="10696:10733" ph="INSERT INTO un_gg_csv_report... " />
-                <marker date="1512492222165" expanded="true" signature="10696:10881" ph="INSERT INTO un_gg_csv_report... " />
-                <marker date="1512492222165" expanded="true" signature="12067:12197" ph="Select * fro... un_gg_csv_report" />
+                <marker date="1512575124601" expanded="true" signature="9886:9901" ph="select count... ${$query[count($query)-1]}" />
+                <marker date="1512575124601" expanded="true" signature="9886:9902" ph="select count... ${$newquery}" />
+                <marker date="1512575124601" expanded="true" signature="10003:10106" ph="SELECT count... ${$query[count($query)-1]}" />
+                <marker date="1512575124601" expanded="true" signature="10003:10107" ph="SELECT count... ${$newquery}" />
+                <marker date="1512575124601" expanded="true" signature="10912:10949" ph="INSERT INTO un_gg_csv_report... " />
+                <marker date="1512575124601" expanded="true" signature="10912:11097" ph="INSERT INTO un_gg_csv_report... " />
+                <marker date="1512575124601" expanded="true" signature="12231:12361" ph="Select * fro... un_gg_csv_report" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="configuration.php" pinned="false" current-in-tab="false">
-        <entry file="file://C:/xampp/htdocs/unico/configuration.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="22" column="32" lean-forward="false" selection-start-line="22" selection-start-column="32" selection-end-line="22" selection-end-column="32" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -89,10 +80,22 @@
       <file leaf-file-name="default.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="439" column="0" lean-forward="true" selection-start-line="439" selection-start-column="0" selection-end-line="439" selection-end-column="0" />
+            <state relative-caret-position="258">
+              <caret line="377" column="54" lean-forward="false" selection-start-line="377" selection-start-column="54" selection-end-line="377" selection-end-column="54" />
               <folding>
-                <marker date="1512493305965" expanded="true" signature="10171:10199" ph="..." />
+                <element signature="n#div#1;n#!!top" expanded="false" />
+                <element signature="n#div#2;n#!!top" expanded="false" />
+                <element signature="n#div#3;n#!!top" expanded="false" />
+                <element signature="n#div#4;n#!!top" expanded="false" />
+                <element signature="n#style#0;n#textarea#0;n#div#2;n#div#0;n#div#0;n#div#5;n#!!top" expanded="true" />
+                <element signature="e#16510#16680#0#HTML" expanded="false" />
+                <element signature="e#16704#16761#0#HTML" expanded="false" />
+                <element signature="e#18412#19731#0#HTML" expanded="false" />
+                <marker date="1512576272524" expanded="true" signature="11868:11896" ph="..." />
+                <marker date="1512576272524" expanded="true" signature="11987:12015" ph="..." />
+                <marker date="1512576272524" expanded="true" signature="11987:12036" ph="..." />
+                <marker date="1512576272524" expanded="true" signature="11987:12056" ph="..." />
+                <marker date="1512576272524" expanded="true" signature="12232:12258" ph="..." />
               </folding>
             </state>
           </provider>
@@ -135,6 +138,7 @@
       <find>csv</find>
       <find>console</find>
       <find>ii</find>
+      <find>selected</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -174,10 +178,10 @@
         <option value="$PROJECT_DIR$/site/views/report/view.html.php" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/site/controllers/report.php" />
-        <option value="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" />
         <option value="$PROJECT_DIR$/site/controller.php" />
         <option value="$PROJECT_DIR$/site/models/report.php" />
         <option value="C:/xampp/htdocs/unico/configuration.php" />
+        <option value="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" />
         <option value="$PROJECT_DIR$/site/controllers/api.php" />
         <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
       </list>
@@ -191,7 +195,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="10" />
     <option name="y" value="20" />
     <option name="width" value="1346" />
@@ -212,7 +216,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -228,6 +231,61 @@
             <path>
               <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
               <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="models" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="models" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="fields" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="models" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="forms" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="sql" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="sql" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="repository" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="sql" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="update" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="sql" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="updates" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="sql" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="updates" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="mysql" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
@@ -235,6 +293,12 @@
               <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="controllers" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
+              <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="models" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
@@ -262,6 +326,7 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -316,7 +381,9 @@
       <workItem from="1512031379625" duration="21131000" />
       <workItem from="1512113752505" duration="26995000" />
       <workItem from="1512374740850" duration="23223000" />
-      <workItem from="1512460436013" duration="29692000" />
+      <workItem from="1512460436013" duration="29770000" />
+      <workItem from="1512547102530" duration="2218000" />
+      <workItem from="1512550435051" duration="19259000" />
     </task>
     <task id="LOCAL-00001" summary="consuntivo modifiche">
       <created>1509988927038</created>
@@ -371,7 +438,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="284323000" />
+    <option name="totallyTimeSpent" value="305878000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -383,16 +450,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="7" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23426062" sideWeight="0.60556465" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27232796" sideWeight="0.6091954" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32733223" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="WINDOWED" visible="false" show_stripe_button="true" weight="0.21303074" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="0" y="22" width="1366" height="706" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23426062" sideWeight="0.39443535" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27232796" sideWeight="0.3908046" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38666666" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -463,20 +530,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/site/views/coupon/tmpl/default.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="31" column="0" lean-forward="true" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/coupon.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="36" column="34" lean-forward="true" selection-start-line="36" selection-start-column="34" selection-end-line="36" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gglmsupdate.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -512,7 +565,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="714">
           <caret line="119" column="8" lean-forward="true" selection-start-line="119" selection-start-column="8" selection-end-line="121" selection-end-column="74" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -648,7 +700,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -656,7 +707,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-119">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -664,9 +714,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <marker date="1511272659208" expanded="true" signature="834:1092" ph="UPDATE `##__e... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -681,13 +728,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="54" column="58" lean-forward="false" selection-start-line="54" selection-start-column="58" selection-end-line="54" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="15" lean-forward="false" selection-start-line="0" selection-start-column="15" selection-end-line="0" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -709,18 +749,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="41" column="21" lean-forward="false" selection-start-line="41" selection-start-column="21" selection-end-line="41" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/site/controller.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="561">
           <caret line="74" column="37" lean-forward="true" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -728,14 +760,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
           <caret line="29" column="20" lean-forward="false" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/report.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="256" column="0" lean-forward="false" selection-start-line="256" selection-start-column="0" selection-end-line="256" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -743,7 +767,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-119">
           <caret line="290" column="20" lean-forward="false" selection-start-line="290" selection-start-column="20" selection-end-line="290" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -751,7 +774,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="194">
           <caret line="996" column="9" lean-forward="false" selection-start-line="996" selection-start-column="9" selection-end-line="996" selection-end-column="9" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -780,7 +802,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
           <caret line="41" column="0" lean-forward="true" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -802,7 +823,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
           <caret line="41" column="50" lean-forward="true" selection-start-line="41" selection-start-column="50" selection-end-line="41" selection-end-column="50" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -814,17 +834,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="49" column="79" lean-forward="true" selection-start-line="49" selection-start-column="11" selection-end-line="49" selection-end-column="79" />
-          <folding>
-            <marker date="1511946646970" expanded="true" signature="6267:6584" ph="INSERT INTO ##__gg_report... " />
-            <marker date="1511946646970" expanded="true" signature="10686:10870" ph="INSERT INTO ##__gg_report_users... " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/xampp/htdocs/unico/configuration.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
@@ -833,29 +842,94 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="1" lean-forward="false" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-170">
+          <caret line="87" column="20" lean-forward="false" selection-start-line="87" selection-start-column="20" selection-end-line="87" selection-end-column="20" />
+          <folding>
+            <marker date="1511342072139" expanded="true" signature="5852:6169" ph="INSERT INTO ##__gg_report... " />
+            <marker date="1511342072139" expanded="true" signature="10245:10429" ph="INSERT INTO ##__gg_report_users... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/models/fields/listaquizdeluxe.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="45" column="45" lean-forward="true" selection-start-line="44" selection-start-column="12" selection-end-line="45" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/models/forms/unita.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="172" column="7" lean-forward="true" selection-start-line="172" selection-start-column="7" selection-end-line="172" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/site/models/report.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1210">
+          <caret line="256" column="0" lean-forward="false" selection-start-line="256" selection-start-column="0" selection-end-line="256" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="92" column="29" lean-forward="false" selection-start-line="92" selection-start-column="17" selection-end-line="92" selection-end-column="29" />
+          <folding>
+            <marker date="1511946646970" expanded="true" signature="6267:6584" ph="INSERT INTO ##__gg_report... " />
+            <marker date="1511946646970" expanded="true" signature="10686:10870" ph="INSERT INTO ##__gg_report_users... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="319" column="3" lean-forward="false" selection-start-line="319" selection-start-column="3" selection-end-line="319" selection-end-column="3" />
+        <state relative-caret-position="102">
+          <caret line="403" column="41" lean-forward="true" selection-start-line="403" selection-start-column="41" selection-end-line="403" selection-end-column="41" />
           <folding>
             <element signature="n#getNumRows#0;n#gglmsControllerApi#0;n#!!top" expanded="false" />
-            <marker date="1512492222165" expanded="true" signature="9670:9685" ph="select count... ${$query[count($query)-1]}" />
-            <marker date="1512492222165" expanded="true" signature="9670:9686" ph="select count... ${$newquery}" />
-            <marker date="1512492222165" expanded="true" signature="9787:9890" ph="SELECT count... ${$query[count($query)-1]}" />
-            <marker date="1512492222165" expanded="true" signature="9787:9891" ph="SELECT count... ${$newquery}" />
-            <marker date="1512492222165" expanded="true" signature="10696:10733" ph="INSERT INTO un_gg_csv_report... " />
-            <marker date="1512492222165" expanded="true" signature="10696:10881" ph="INSERT INTO un_gg_csv_report... " />
-            <marker date="1512492222165" expanded="true" signature="12067:12197" ph="Select * fro... un_gg_csv_report" />
+            <marker date="1512575124601" expanded="true" signature="9886:9901" ph="select count... ${$query[count($query)-1]}" />
+            <marker date="1512575124601" expanded="true" signature="9886:9902" ph="select count... ${$newquery}" />
+            <marker date="1512575124601" expanded="true" signature="10003:10106" ph="SELECT count... ${$query[count($query)-1]}" />
+            <marker date="1512575124601" expanded="true" signature="10003:10107" ph="SELECT count... ${$newquery}" />
+            <marker date="1512575124601" expanded="true" signature="10912:10949" ph="INSERT INTO un_gg_csv_report... " />
+            <marker date="1512575124601" expanded="true" signature="10912:11097" ph="INSERT INTO un_gg_csv_report... " />
+            <marker date="1512575124601" expanded="true" signature="12231:12361" ph="Select * fro... un_gg_csv_report" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="439" column="0" lean-forward="true" selection-start-line="439" selection-start-column="0" selection-end-line="439" selection-end-column="0" />
+        <state relative-caret-position="258">
+          <caret line="377" column="54" lean-forward="false" selection-start-line="377" selection-start-column="54" selection-end-line="377" selection-end-column="54" />
           <folding>
-            <marker date="1512493305965" expanded="true" signature="10171:10199" ph="..." />
+            <element signature="n#div#1;n#!!top" expanded="false" />
+            <element signature="n#div#2;n#!!top" expanded="false" />
+            <element signature="n#div#3;n#!!top" expanded="false" />
+            <element signature="n#div#4;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#textarea#0;n#div#2;n#div#0;n#div#0;n#div#5;n#!!top" expanded="true" />
+            <element signature="e#16510#16680#0#HTML" expanded="false" />
+            <element signature="e#16704#16761#0#HTML" expanded="false" />
+            <element signature="e#18412#19731#0#HTML" expanded="false" />
+            <marker date="1512576272524" expanded="true" signature="11868:11896" ph="..." />
+            <marker date="1512576272524" expanded="true" signature="11987:12015" ph="..." />
+            <marker date="1512576272524" expanded="true" signature="11987:12036" ph="..." />
+            <marker date="1512576272524" expanded="true" signature="11987:12056" ph="..." />
+            <marker date="1512576272524" expanded="true" signature="12232:12258" ph="..." />
           </folding>
         </state>
       </provider>
