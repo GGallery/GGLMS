@@ -160,7 +160,7 @@
 
 		<field
 				name="id_contenuto_completamento"
-				type="listaquizdeluxe"
+				type="listacontenuti"
 				class="inputbox"
 				default=""
 				label="Contenuto superamento unita"
