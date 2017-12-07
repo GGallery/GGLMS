@@ -67,6 +67,8 @@
                 </div>
             </div>
 
+            <a href="https://github.com/GGallery/GGLMS/raw/master/documentazioneGGLMS.docx"><button class="btn">SCARICA DOCUMENTAZIONE GGLMS</button></a>
+
         </div>
     </div>
 </div>
