@@ -39,7 +39,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     }
 
     //INGRESSO
-    public function  sync(){
+/*    public function  sync(){
 
         $ora = date('Y-m-d h:i:s', time());
         $lastsync = $this->params->get('data_sync');
@@ -63,78 +63,65 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
     }
 
-
-    private function updateconfig(){
+*/
+    public function updateconfig(){
 
         try{
             $query = $this->_db->getQuery(true)
                 ->update('#__gg_configs	')
                 ->set('config_value = now()')
                 ->where('config_key = "data_sync"');
-
             $this->_db->setQuery($query);
             $this->_db->execute();
-
             utilityHelper::setComponentParam('data_sync', date('Y-m-d G:i:s'));
-
             return "1";
         }
         catch (Exception $e){
-            DEBUGG::log($e, 'updateconfig',1);
+            DEBUGG::log($e, 'updateconfig',1,1);
         }
     }
 
     //REPORT TRACCIAMENTO
     public function sync_report(){
-
         try {
             $scormvar_list = $this->_getScormvarsVariation();
             $quizdeluxe_list = $this->_getQuizDeluxeVariation();
-
             $list = array_merge($scormvar_list, $quizdeluxe_list);
 
             foreach ($list as $item) {
                 $data = new Stdclass();
-
                 $data->id_utente = $item->id_utente;
-
                 $data->id_contenuto = $item->id_contenuto;
-
                 $modelcontenuto = new gglmsModelContenuto();
                 $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
-
                 $stato = $contenuto->getStato($data->id_utente);
-
                 $data->data = $stato->data;
                 $data->stato = $stato->completato;
                 $data->visualizzazioni = $stato->visualizzazioni;
+                $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
 
-                $data->id_unita = $contenuto->getUnitPadre();
+                if (isset($data->id_unita)) {
+                    $modelunita = new gglmsModelUnita();
+                    $unita = $modelunita->getUnita($data->id_unita);
+                    $corso = $unita->find_corso($data->id_unita, false);
+                    $data->id_corso = $corso->id;
+                    $data->id_event_booking = $corso->id_event_booking;
+                    $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
-                $modelunita = new gglmsModelUnita();
-
-                $unita = $modelunita->getUnita($data->id_unita);
-                $corso = $unita->find_corso($data->id_unita);
-
-                $data->id_corso = $corso->id;
-                $data->id_event_booking = $corso->id_event_booking;
-
-                $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
-
-//                DEBUGG::log($data, 'Data to store_report' );
-
-                $this->store_report($data);
+                    DEBUGG::log($data, 'Data to store_report' );
+                    $this->store_report($data);
+                    unset($modelunita);
+                    unset($unita);
+                    unset($data);
+                }
+                unset($modelcontenuto);
+                unset($contenuto);
             }
-            unset($modelcontenuto);
-            unset($contenuto);
-            unset($modelunita);
-            unset($unita);
-            unset($data);
-
             return true;
         }
         catch (Exception $e) {
-            DEBUGG::error($e, 'error' , 1);
+            //echo $e->getMessage();
+            DEBUGG::log($e->getMessage(), 'error in sync_report' , 1,1);
         }
     }
 
@@ -150,11 +137,11 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
-
             return $data;
         }
         catch (Exception $e) {
-            DEBUGG::error($e, 'error', '_getScormvarsVariation');
+           // echo "_getScormvars ".$e->getMessage();
+            DEBUGG::log($e->getMessage(), 'error in getScormVars',1,1);
             DEBUGG::query($query, '_getScormvarsVariation', 1);
         }
     }
@@ -170,13 +157,14 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             if($this->params->get('data_sync'))
                 $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
 
+
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
-
-
             return $data;
         }
         catch (Exception $e) {
+            //echo "_quizdeluxe ".$e->getMessage();
+            DEBUGG::log($e->getMessage(), 'error in getQuizDeLuxe',1,1);
             DEBUGG::query($query, '_getScormvarsVariation', 1);
         }
     }
@@ -188,16 +176,14 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $query->select('id');
             $query->from('#__gg_report_users as ru');
             $query->where('ru.id_user = '. $user_id);
-            $query->where('ru.id_event_booking = '. $event_id);
+            if($event_id){$query->where('ru.id_event_booking = '. $event_id);}
             $query->limit('1');
-
             $this->_db->setQuery($query);
             $res = $this->_db->loadResult();
-
             return $res ? $res : 0 ;
 
         }catch (Exception $e){
-            DEBUGG::error($e, 'error get Anagrafica',1);
+            DEBUGG::log($e->getMessage(), 'error get Anagrafica',0,1);
         }
 
     }
@@ -211,29 +197,31 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     VALUES ($data->id_corso, $data->id_event_booking, $data->id_unita,$data->id_contenuto,$data->id_utente,$data->id_anagrafica,$data->stato, $data->visualizzazioni, '$data->data')";
             $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data'  ";
 
-//            DEBUGG::log($query, 'query');
-
             $this->_db->setQuery($query);
             $this->_db->execute();
 
         }catch (Exception $e){
-            DEBUGG::error($e, 'error store report', 1);
+            //echo "storereport ".$e->getMessage();
+            DEBUGG::log($e->getMessage(), 'error store report', 1,1);
         }
     }
 
     //REPORT UTENTI
     public function sync_report_users() {
 
+
         try {
+
             $users = $this->get_users_id($this->params->get('data_sync'));
 
-            foreach ($users as $user) {
 
+            foreach ($users as $user) {
                 $modelUser = new gglmsModelUsers();
+
                 if (!$user->event_id)
                     $user->event_id = 0;
 
-                $tmpuser = $modelUser->get_user($user->id, $user->event_id);
+               $tmpuser = $modelUser->get_user($user->id, $user->event_id);
 
                 $tmp = new stdClass();
                 $tmp->id = $user->id;
@@ -242,37 +230,34 @@ class gglmsModelSyncdatareport extends JModelLegacy {
                 $tmp->nome = $this->_db->quote($tmpuser->nome);
                 $tmp->cognome = $this->_db->quote($tmpuser->cognome);
                 $tmp->fields = $this->_db->quote(json_encode($tmpuser));
-
-
-
                 $this->store_report_users($tmp);
+
             }
 
             return true;
         }catch (Exception $e){
-            DEBUGG::log($e, 'error sync_report_users', 1);
+            echo $e->getMessage();
+            die;
+            DEBUGG::log($e->getMessage(), 'error sync_report_users', 1,1);
+            return false;
         }
     }
 
     public function get_users_id($from_date = null )
     {
-
-
         switch ($this->params->get('integrazione')) {
             case 'cb':
                 $data =  $this->get_users_cb($from_date);
                 break;
-
             case 'eb':
                 $data =  $this->get_users_eb($from_date);
                 break;
-
             default:
                 $data =  $this->get_users_joomla($from_date);
                 break;
         }
 
-//        DEBUGG::log($data, 'data get_user_id: '. $this->params->get('integrazione'));
+
         return $data;
     }
 
@@ -284,8 +269,6 @@ class gglmsModelSyncdatareport extends JModelLegacy {
                 ->from('#__comprofiler as r')
                 ->join('inner', '#__users as u on u.id = r.id');
 
-
-
             if ($from_date) {
                 $query->where('u.registerDate > ' . $this->_db->quote($from_date).
                     ' OR '.' r.lastupdatedate > ' . $this->_db->quote($from_date));
@@ -293,12 +276,10 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
             $this->_db->setQuery($query);
             $registrants = $this->_db->loadObjectList();
-
-
             return $registrants;
         }catch (Exception $e){
 
-            DEBUGG::error($e, 'error get user cb', 1);
+            DEBUGG::log($e->getMessage(), 'error get user cb', 1,1);
         }
 
     }
@@ -309,21 +290,17 @@ class gglmsModelSyncdatareport extends JModelLegacy {
                 ->select('distinct user_id as id, event_id')
                 ->from('#__eb_registrants as r');
 
-
             if($from_date) {
                 $query->Where('r.register_date > ' . $this->_db->quote($from_date));
             }
 
             $query->where('user_id != "" ' );
-
             $this->_db->setQuery($query);
             $registrants = $this->_db->loadObjectList();
-
             return $registrants;
         }catch (Exception $e){
             DEBUGG::query($query, 'query_ error_ in_ get_users_eb');
-            DEBUGG::error($e, 'error in get user eb', 1);
-
+            DEBUGG::log($e->getMessage(), 'error in get user eb', 1,1);
         }
     }
 
@@ -339,31 +316,29 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
             $this->_db->setQuery($query);
             $registrants = $this->_db->loadObjectList();
-
             return $registrants;
         }catch (Exception $e){
             DEBUGG::query($query, 'query error in get_users_joomla');
-            DEBUGG::error($e, 'error in get_users_joomla', 1);
-
+            DEBUGG::log($e->getMessage(), 'error in get_users_joomla', 1,1);
         }
     }
 
-    private function    store_report_users($data){
+    private function store_report_users($data){
+
+
 
         try {
             $query = "
             INSERT INTO #__gg_report_users (id_event_booking,id_user, nome, cognome, fields) 
             VALUES ($data->id_event_booking, $data->id_user, $data->nome,$data->cognome,$data->fields)";
             $query .= " ON DUPLICATE KEY UPDATE fields = $data->fields";
-
             $this->_db->setQuery($query);
             $this->_db->execute();
 
         }catch (Exception $e){
-            DEBUGG::error($e, 'error store report', 1);
+
+            DEBUGG::log($e, 'error store users  report', 1,1);
         }
-
-
     }
 
 

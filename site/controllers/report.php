@@ -9,9 +9,10 @@
 
 defined('_JEXEC') or die;
 
-require_once JPATH_COMPONENT . '/models/contenuto.php';
-require_once JPATH_COMPONENT . '/models/unita.php';
-require_once JPATH_COMPONENT . '/models/users.php';
+//require_once JPATH_COMPONENT . '/models/contenuto.php';
+//require_once JPATH_COMPONENT . '/models/unita.php';
+//require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 
 /**
  * Controller for single contact view
@@ -31,36 +32,46 @@ class gglmsControllerReport extends JControllerLegacy
         $this->params = $this->_app->getParams();
         $this->_db = JFactory::getDbo();
 
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
+       JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
 
 
     }
 
     //INGRESSO
     public function  sync(){
+        try {
 
-        $ora = date('Y-m-d h:i:s', time());
-        $lastsync = $this->params->get('data_sync');
-        $lastsync = strtotime($lastsync);
-        $ora  = strtotime($ora);
-        $secondi_ultima_syncro = $ora - $lastsync;
 
-        if($secondi_ultima_syncro > 14000 ) {
+            $ora = date('Y-m-d h:i:s', time());
+            $lastsync = $this->params->get('data_sync');
+            $lastsync = strtotime($lastsync);
+            $ora = strtotime($ora);
+            $secondi_ultima_syncro = $ora - $lastsync;
+            $syncdatareport = new gglmsModelSyncdatareport();
 
-            ini_set('max_execution_time', 6000);//PORTA IL TIMEOUT DI PHP A 300
+            //if ($secondi_ultima_syncro > 14000) {
 
-            if ($this->sync_report_users()) {
+                ini_set('max_execution_time', 6000);//PORTA IL TIMEOUT DI PHP A 300
 
-                if ($this->sync_report()) {
-                    $this->updateconfig();
+                if ($syncdatareport->sync_report_users()) {
+
+                    if ($syncdatareport->sync_report()) {
+                        $syncdatareport->updateconfig();
+                    }
                 }
-            }
-            ini_set('max_execution_time', 30);//RIPORTA IL TIMEOUT DI PHP A 30
-            $this->_app->close();
+                ini_set('max_execution_time', 30);//RIPORTA IL TIMEOUT DI PHP A 30
+                $this->_app->close();
+            //}
+
+
+        }catch (exceptions $ex){
+
+               DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
         }
     }
 
-
+/*
     private function updateconfig(){
 
         try{
@@ -325,5 +336,5 @@ class gglmsControllerReport extends JControllerLegacy
         }
     }
 
-
+*/
 }

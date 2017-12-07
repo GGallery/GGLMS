@@ -67,6 +67,7 @@ class gglmsControllerApi extends JControllerLegacy
         $id_contenuto=explode('|', $this->_filterparam->corso_id)[1];
 
         try {
+
             $query = $this->_db->getQuery(true);
             $countquery= $this->_db->getQuery(true);
 
@@ -187,7 +188,8 @@ class gglmsControllerApi extends JControllerLegacy
 
         }catch (Exception $e){
 
-            DEBUGG::error($e, 'error', 1);
+            DEBUGG::log('ERRORE DA GETDATA','ERRORE DA GET DATA',1,1);
+            //DEBUGG::error($e, 'error', 1);
         }
 
         $result['query']=(string)$query;
