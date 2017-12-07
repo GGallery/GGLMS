@@ -3,6 +3,17 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+3.8.12
+  - F: aggiunta vista dettagli corso
+       aggiunto alert scadenza
+       aggiunto pulsante mail individuale
+       aggiunto pulsante mail complessiva
+  - B: aggiornata logica popolamento report
+       aggiornata logica popolamento csv
+       agganciata logica ricerca per data a data di completamento
+  - D: aggiunta tabella #__gg_csv_report
+       aggiunte due colonne alla #__gg_unit      
+       
 
 3.8.11
    - F: Aggiunto auto sync report
