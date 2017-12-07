@@ -534,4 +534,4 @@
 /joomla.xml
 /*.txt
 /robots.txt.dist
-/.idea/workspace.xml
+/.idea/*
