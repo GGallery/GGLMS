@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+    <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="ignore workspace">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/admin/views/configs/tmpl/generale.php" afterPath="$PROJECT_DIR$/admin/views/configs/tmpl/generale.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -54,7 +55,30 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="generale.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/admin/views/configs/tmpl/generale.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="584">
+              <caret line="76" column="127" lean-forward="false" selection-start-line="76" selection-start-column="127" selection-end-line="76" selection-end-column="127" />
+              <folding>
+                <element signature="n#style#0;n#span#0;n#div#11;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="587">
+              <caret line="536" column="20" lean-forward="false" selection-start-line="536" selection-start-column="20" selection-end-line="536" selection-end-column="20" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -121,7 +145,6 @@
         <option value="$PROJECT_DIR$/site/views/contenuto/view.html.php" />
         <option value="$PROJECT_DIR$/site/views/unita/view.html.php" />
         <option value="$PROJECT_DIR$/admin/models/forms/configs.xml" />
-        <option value="$PROJECT_DIR$/admin/views/configs/tmpl/generale.php" />
         <option value="$PROJECT_DIR$/site/models/users.php" />
         <option value="$PROJECT_DIR$/site/models/syncdatareport.php" />
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/30da0af2-99ae-46a3-8797-f25ece5ff315/console_1.sql" />
@@ -143,6 +166,7 @@
         <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
         <option value="C:/www/www.unicollege.it/home/configuration.php" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/admin/views/configs/tmpl/generale.php" />
       </list>
     </option>
   </component>
@@ -181,6 +205,32 @@
             <path>
               <item name="COM_GGLMS" type="b2602c69:ProjectViewProjectNode" />
               <item name="COM_GGLMS" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="COM_GGLMS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="COM_GGLMS" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="COM_GGLMS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="COM_GGLMS" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="views" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="COM_GGLMS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="COM_GGLMS" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="views" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="configs" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="COM_GGLMS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="COM_GGLMS" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="views" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="configs" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="tmpl" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="COM_GGLMS" type="b2602c69:ProjectViewProjectNode" />
@@ -253,7 +303,7 @@
       <workItem from="1512460436013" duration="29770000" />
       <workItem from="1512547102530" duration="2218000" />
       <workItem from="1512550435051" duration="19259000" />
-      <workItem from="1512654663764" duration="1580000" />
+      <workItem from="1512654663764" duration="2451000" />
     </task>
     <task id="LOCAL-00001" summary="consuntivo modifiche">
       <created>1509988927038</created>
@@ -311,11 +361,25 @@
       <option name="project" value="LOCAL" />
       <updated>1512663576494</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="ignore workspace">
+      <created>1512663821626</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1512663821626</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Link Documentazione">
+      <created>1512664015832</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1512664015832</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="307273000" />
+    <option name="totallyTimeSpent" value="308144000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -410,7 +474,8 @@
     <MESSAGE value="tolto bordino video" />
     <MESSAGE value="modifiche videoslide" />
     <MESSAGE value="ignore workspace" />
-    <option name="LAST_COMMIT_MESSAGE" value="ignore workspace" />
+    <MESSAGE value="Link Documentazione" />
+    <option name="LAST_COMMIT_MESSAGE" value="Link Documentazione" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -553,13 +618,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/admin/views/configs/tmpl/generale.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/admin/models/forms/configs.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="40">
@@ -688,9 +746,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="516" column="23" lean-forward="true" selection-start-line="516" selection-start-column="23" selection-end-line="516" selection-end-column="23" />
+        <state relative-caret-position="587">
+          <caret line="536" column="20" lean-forward="false" selection-start-line="536" selection-start-column="20" selection-end-line="536" selection-end-column="20" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/views/configs/tmpl/generale.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="584">
+          <caret line="76" column="127" lean-forward="false" selection-start-line="76" selection-start-column="127" selection-end-line="76" selection-end-column="127" />
+          <folding>
+            <element signature="n#style#0;n#span#0;n#div#11;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
