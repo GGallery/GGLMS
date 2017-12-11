@@ -67,6 +67,22 @@
                 </div>
             </div>
 
+            <div class="alert-info alert">
+                <span class="icon-info-2" style="position: relative; float: left; font-size: 40px; margin-right: 35px; margin-top: 11px;">  </span>
+                <h4 class="alert-heading">DOCUMENTAZIONE</h4>
+                <div class="alert-message">
+                    Scarica la documentazione del componente:
+
+
+                    <a href="https://github.com/GGallery/GGLMS/raw/master/documentazioneGGLMS.docx" target="_blank">Download .docx</a>
+
+
+
+                </div>
+            </div>
+
+
+
         </div>
     </div>
 </div>
