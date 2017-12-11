@@ -8,7 +8,9 @@ F:Frontend, B:Backend, D:Database, G:Generale
        aggiunto alert scadenza
        aggiunto pulsante mail individuale
        aggiunto pulsante mail complessiva
+       aggiunto pulsante caricameto tabella report
   - B: aggiornata logica popolamento report
+       introduzione Jquery.Get per popolamento tabella report
        aggiornata logica popolamento csv
        agganciata logica ricerca per data a data di completamento
   - D: aggiunta tabella #__gg_csv_report

@@ -66,6 +66,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 */
     public function updateconfig(){
 
+        DEBUGG::log('inizio updateconfig','inizio updateconfig',0,1);
         try{
             $query = $this->_db->getQuery(true)
                 ->update('#__gg_configs	')
@@ -82,58 +83,84 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     }
 
     //REPORT TRACCIAMENTO
-    public function sync_report(){
+    public function sync_report($limit,$offset){
+        ini_set('max_execution_time', 6000);
         try {
-            $scormvar_list = $this->_getScormvarsVariation();
-            $quizdeluxe_list = $this->_getQuizDeluxeVariation();
+            $scormvar_list = $this->_getScormvarsVariation($limit,$offset);
+            $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit,$offset);
             $list = array_merge($scormvar_list, $quizdeluxe_list);
 
-            foreach ($list as $item) {
-                $data = new Stdclass();
-                $data->id_utente = $item->id_utente;
-                $data->id_contenuto = $item->id_contenuto;
-                $modelcontenuto = new gglmsModelContenuto();
-                $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
-                $stato = $contenuto->getStato($data->id_utente);
-                $data->data = $stato->data;
-                $data->stato = $stato->completato;
-                $data->visualizzazioni = $stato->visualizzazioni;
-                $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
+            // if($limit==200){$list=null;} //SIMULAZIONE DI FINE
 
-                if (isset($data->id_unita)) {
-                    $modelunita = new gglmsModelUnita();
-                    $unita = $modelunita->getUnita($data->id_unita);
-                    $corso = $unita->find_corso($data->id_unita, false);
-                    $data->id_corso = $corso->id;
-                    $data->id_event_booking = $corso->id_event_booking;
-                    $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+            if(count($list)>0) {
+                foreach ($list as $item) {
+                    $data = new Stdclass();
+                    $data->id_utente = $item->id_utente;
+                    $data->id_contenuto = $item->id_contenuto;
+                    $modelcontenuto = new gglmsModelContenuto();
+                    $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
+                    $stato = $contenuto->getStato($data->id_utente);
+                    $data->data = $stato->data;
+                    $data->stato = $stato->completato;
+                    $data->visualizzazioni = $stato->visualizzazioni;
+                    $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
 
-                    DEBUGG::log($data, 'Data to store_report' );
-                    $this->store_report($data);
-                    unset($modelunita);
-                    unset($unita);
-                    unset($data);
+                    if (isset($data->id_unita)) {
+                        $modelunita = new gglmsModelUnita();
+                        $unita = $modelunita->getUnita($data->id_unita);
+                        $corso = $unita->find_corso($data->id_unita, false);
+                        $data->id_corso = $corso->id;
+                        $data->id_event_booking = $corso->id_event_booking;
+                        $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
+                        // DEBUGG::log($data, 'Data to store_report' );
+
+                        $this->store_report($data);
+                        unset($modelunita);
+                        unset($unita);
+                        unset($data);
+                    }
+                    //var_dump($data);
+                    unset($modelcontenuto);
+                    unset($contenuto);
                 }
-                unset($modelcontenuto);
-                unset($contenuto);
+                return true;
+            }else{
+                return false;
             }
-            return true;
         }
         catch (Exception $e) {
             //echo $e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error in sync_report' , 1,1);
+            DEBUGG::log($e->getMessage(), 'error in sync_report' , 0,1);
         }
     }
 
-    private function _getScormvarsVariation(){
+    public function sync_report_count(){
+
+        try {
+            $scormvar_list = $this->_getScormvarsVariation(0,0);
+            $quizdeluxe_list = $this->_getQuizDeluxeVariation(0,0);
+            $list = array_merge($scormvar_list, $quizdeluxe_list);
+            return count($list);
+        }
+        catch (Exception $e) {
+                //echo $e->getMessage();
+                DEBUGG::log($e->getMessage(), 'error in sync_report' , 0,1);
+            }
+
+    }
+
+    private function _getScormvarsVariation($limit,$offset){
 
         try {
             $query = $this->_db->getQuery(true)
                 ->select('DISTINCT s.scoid as id_contenuto, s.userid as id_utente')
-                ->from('#__gg_scormvars as s');
+                ->from('#__gg_scormvars as s')
 
-            if($this->params->get('data_sync'))
-                $query->where('timestamp > "' . $this->params->get('data_sync').'"');
+        //    if($this->params->get('data_sync'))
+        //        $query->where('timestamp > "' . $this->params->get('data_sync').'"');
+
+                ->setLimit($offset,$limit);
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
@@ -146,17 +173,18 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }
     }
 
-    private function _getQuizDeluxeVariation(){
+    private function _getQuizDeluxeVariation($limit,$offset){
 
         try {
             $query = $this->_db->getQuery(true)
                 ->select('DISTINCT  c.id as id_contenuto, q.c_student_id as id_utente')
                 ->from('#__quiz_r_student_quiz as q')
-                ->join('inner','#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe');
+                ->join('inner','#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe')
 
-            if($this->params->get('data_sync'))
-                $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
+        //    if($this->params->get('data_sync'))
+        //        $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
 
+            ->setLimit($offset,$limit);
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
@@ -201,8 +229,8 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $this->_db->execute();
 
         }catch (Exception $e){
-            //echo "storereport ".$e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error store report', 1,1);
+            echo "storereport ".$e->getMessage();
+            DEBUGG::log($e->getMessage(), 'error store report', 0,1);
         }
     }
 
@@ -324,8 +352,6 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     }
 
     private function store_report_users($data){
-
-
 
         try {
             $query = "

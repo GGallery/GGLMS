@@ -96,7 +96,7 @@ class gglmsModelContenuto extends JModelLegacy {
 
 			if (empty($data))
 			{
-				DEBUGG::query($query, 'query get contenuto' ,1 );
+				DEBUGG::query($query, 'query get contenuto' ,0 );
 			}
 		}
 		catch (Exception $e)

@@ -24,6 +24,7 @@ class gglmsControllerReport extends JControllerLegacy
     protected $_db;
     private $_app;
     private $params;
+    private $_filterparam;
 
     public function __construct($config = array())
     {
@@ -31,6 +32,9 @@ class gglmsControllerReport extends JControllerLegacy
         $this->_app = JFactory::getApplication();
         $this->params = $this->_app->getParams();
         $this->_db = JFactory::getDbo();
+        $this->_filterparam = new stdClass();
+        $this->_filterparam->limit=JRequest::getVar('limit');
+        $this->_filterparam->offset=JRequest::getVar('offset');
 
        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
 
@@ -38,7 +42,7 @@ class gglmsControllerReport extends JControllerLegacy
     }
 
     //INGRESSO
-    public function  sync(){
+  /*  public function  sync(){
         try {
 
 
@@ -69,6 +73,84 @@ class gglmsControllerReport extends JControllerLegacy
                DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
 
         }
+    }
+
+ */
+
+    public function sync_report_users(){
+
+
+        try {
+            $syncdatareport = new gglmsModelSyncdatareport();
+            $result=$syncdatareport->sync_report_users();
+            if($result){
+                echo json_encode('true');
+            }else{
+                echo json_encode('false');
+            }
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+    }
+
+    public function sync_report_count(){
+
+
+        try {
+            $syncdatareport = new gglmsModelSyncdatareport();
+            $result=$syncdatareport->sync_report_count();
+            echo json_encode($result);
+
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+    }
+
+    public function sync_report(){
+
+        $limit=$this->_filterparam->limit;
+        $offset=$this->_filterparam->offset;
+        try {
+            $syncdatareport = new gglmsModelSyncdatareport();
+            $result = $syncdatareport->sync_report($limit,$offset);
+            //echo $result;
+            if ($result==true) {
+                echo json_encode('true');
+            } else {
+                echo json_encode('false');
+            }
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+
+    }
+
+    public function updateconfig(){
+
+        try {
+            $syncdatareport = new gglmsModelSyncdatareport();
+            $result = $syncdatareport->updateconfig();
+            if ($result) {
+                echo json_encode('true');
+            } else {
+                echo json_encode('false');
+            }
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+
     }
 
 /*

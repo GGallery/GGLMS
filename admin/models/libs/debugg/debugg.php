@@ -11,7 +11,7 @@ class DEBUGG
 
     public static function log($object, $label = "", $die = 0, $insert_in_gg_error_log = 0){
 
-    /*    if($insert_in_gg_error_log==1){
+        if($insert_in_gg_error_log==1){
 
             try {
                 $db = JFactory::getDbo();
@@ -24,7 +24,7 @@ class DEBUGG
                 echo 'errore generico nel caricamento della tabella #__gg_error_log';
             }
         }
-*/
+
         if(is_object($object))
             return  DEBUGG::object($object, $label , $die);
 

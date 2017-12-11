@@ -75,7 +75,7 @@ JHtml::_('bootstrap.modal');
             <button type="button" id="get_csv" class="btn btn-success btn-lg" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
         <div>
-            <button type="button" class="btn btn-success btn-lg" onclick="dataSync()">SINCRONIZZA TABELLA REPORT</button>
+            <button type="button" class="btn btn-success btn-lg" onclick="dataSyncUsers(loadreportlimit,loadreportoffset)">SINCRONIZZA TABELLA REPORT</button>
         </div>
 
     </form>
@@ -192,6 +192,30 @@ JHtml::_('bootstrap.modal');
     </div>
 </div>
 
+<!-- Modal Dettagli Caricamento Tabella Report-->
+<div id="detailsCaricamentoReport" class="modal fade " role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Dettagli del caricamento Tabella Report</h4>
+            </div>
+            <div class="modal-body">
+                <table id="details_table_caricamento_report" class="table table-condensed table-hover table-striped ">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <!-- Modal Dettagli invio mail -->
 <div id="detailsInvioMail" class="modal fade " role="dialog">
     <div class="modal-dialog">
@@ -231,6 +255,8 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
 //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
 var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso ';
+var loadreportlimit;
+var loadreportoffset;
 
     jQuery( document ).ready(function($) {
 
@@ -355,8 +381,6 @@ var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scad
             myChart.data.datasets[0].data[0] = completed;
             myChart.data.datasets[0].data[1] = notcompleted;
             myChart.update();
-
-            /* Executes after data is loaded and rendered */
             grid.find(".command-edit").on("click", function(e)
             {
                 scelta = $(this).data("row-id");
@@ -426,13 +450,75 @@ var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scad
     });
 
 
-    function dataSync() {
-        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync"))
+    function dataSyncUsers(loadreportlimit,loadreportoffset) {
+        jQuery("#detailsCaricamentoReport").modal('show');
+        jQuery('#details_table_caricamento_report').empty();
+        jQuery('#details_table_caricamento_report').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
+        loadreportlimit=0
+        loadreportoffset=100;
+        console.log('dataSyncUsers');
+        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_users"))
+            .done(function (data) {
+
+            })
+            .fail(function (data) {
+
+            })
+            .then(function (data) {
+                dataSyncReportCount(loadreportlimit,loadreportoffset);
+
+            });
+
+    }
+
+    function dataSyncReportCount(loadreportlimit,loadreportoffset) {
+
+        console.log('dataSyncReportCount');
+        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_count"))
+            .done(function (data) {
+                data=JSON.parse(data);
+                jQuery('#details_table_caricamento_report').append('<tr><td>Caricamento totale di  '+data+' records</td></tr>');
+
+            })
+            .fail(function (data) {
+
+            })
+            .then(function (data) {
+                dataSyncReport(loadreportlimit,loadreportoffset);
+            });
+
+    }
+    function dataSyncReport(loadreportlimit,loadreportoffset) {
+        console.log('dataSyncReport');
+
+        jQuery.when(jQuery.get("index.php?limit="+loadreportlimit+"&offset="+loadreportoffset+"&option=com_gglms&task=report.sync_report"))
             .done(function(data){
-
+                data=JSON.parse(data);
+                loadreportlimit+=loadreportoffset;
+                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento fino a record n° '+loadreportlimit+'</td></tr>');
+                console.log('data:'+data+' loadreportlimit a:'+loadreportlimit);
+                if(data=='true') {
+                    dataSyncReport(loadreportlimit, loadreportoffset);
+                }else{
+                    dataUpdateConfig();
+                }
             }).fail(function(data){
+        })
+            .then(function (data) {
 
-        });
+            });
+    }
+
+    function dataUpdateConfig() {
+        console.log('dataUpdateConfig');
+        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.updateconfig"))
+            .done(function (data) {
+                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento completato</td></tr>');
+
+            })
+            .fail(function (data) {
+
+            });
     }
 
     function reload() {
@@ -461,14 +547,14 @@ var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scad
             jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento di '+total+' records, attendere il completamento della procedura...</td></tr>');
             var csvoffset=100;
             var csvlimit=100;
-            $datafromquery=LoadDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata);
+            $datafromquery=LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata);
         }).fail(function(data) {
 
         });
 
     }
 
-    function LoadDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata) {
+    function LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata) {
 
         var jqxhr=jQuery.get("index.php?corso_id=" + id_corso + "&usergroups=" + usergroups +
             "&filterstato=" + filterstato +"&startdate=" + startdate + "&finishdate=" + finishdate + "&csvlimit="
@@ -479,7 +565,7 @@ var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scad
                 jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento fino a record n° '+csvlimit+'</td></tr>');
                 if(csvlimit<parseInt(total)){
                     csvlimit=csvlimit+csvoffset;
-                    LoadDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata)
+                    LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata)
                 }else {
                     jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento completato</td></tr>');
                     location.href='index.php?option=com_gglms&id_chiamata='+id_chiamata+'&corso_id="'+id_corso.substr(0,id_corso.indexOf('|'))+'"&task=api.createCSV';
@@ -494,15 +580,15 @@ var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scad
 
         oggettomail=jQuery('#oggettomail').val();
         testomail=jQuery('#testomail').val();
-       // to=jQuery('#to').html();
+       // to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
         to="a.petruzzella71@gmail.com";
        jQuery.when(jQuery.get("index.php?to="+to+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendMail"))
+
             .done(function(data){
 
                 result=JSON.parse(data);
 
                 if(result==true){
-
                     jQuery('#sendmailbutton').hide();
                     jQuery('#div_send_mail_textarea').hide();
                     jQuery('#details_table_invio_mail tbody').append('<tr><td>email inviata con successo, puoi chiudere questa finestra</td><tr>');
@@ -522,9 +608,8 @@ var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scad
         var id_corso= jQuery('#corso_id')[0]['value'];
         var usergroups= jQuery('#usergroups')[0]['value'];
         jQuery.when(jQuery.get("index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendAllMail"))
+
             .done(function(data){
-
-
 
             }).fail(function(data){
 

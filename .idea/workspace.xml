@@ -5,9 +5,10 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/admin/models/libs/debugg/debugg.php" afterPath="$PROJECT_DIR$/admin/models/libs/debugg/debugg.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/controllers/api.php" afterPath="$PROJECT_DIR$/site/controllers/api.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/controllers/report.php" afterPath="$PROJECT_DIR$/site/controllers/report.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/models/contenuto.php" afterPath="$PROJECT_DIR$/site/models/contenuto.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/models/syncdatareport.php" afterPath="$PROJECT_DIR$/site/models/syncdatareport.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/site/views/report/tmpl/default.php" afterPath="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -59,73 +60,7 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="syncdatareport.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="163" column="9" lean-forward="true" selection-start-line="163" selection-start-column="9" selection-end-line="163" selection-end-column="9" />
-              <folding>
-                <element signature="e#952#1533#0#PHP" expanded="false" />
-                <marker date="1512654227425" expanded="true" signature="6295:6612" ph="INSERT INTO ##__gg_report... " />
-                <marker date="1512654227425" expanded="true" signature="10743:10927" ph="INSERT INTO ##__gg_report_users... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="55" column="50" lean-forward="false" selection-start-line="55" selection-start-column="50" selection-end-line="55" selection-end-column="50" />
-              <folding>
-                <marker date="1512653651185" expanded="true" signature="6627:6944" ph="INSERT INTO ##__gg_report... " />
-                <marker date="1512653651185" expanded="true" signature="11046:11230" ph="INSERT INTO ##__gg_report_users... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="api.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="56" column="30" lean-forward="false" selection-start-line="56" selection-start-column="7" selection-end-line="56" selection-end-column="30" />
-              <folding>
-                <element signature="n#getNumRows#0;n#gglmsControllerApi#0;n#!!top" expanded="false" />
-                <marker date="1512644063996" expanded="true" signature="9960:9975" ph="select count... ${$query[count($query)-1]}" />
-                <marker date="1512644063996" expanded="true" signature="9960:9976" ph="select count... ${$newquery}" />
-                <marker date="1512644063996" expanded="true" signature="10077:10180" ph="SELECT count... ${$query[count($query)-1]}" />
-                <marker date="1512644063996" expanded="true" signature="10077:10181" ph="SELECT count... ${$newquery}" />
-                <marker date="1512644063996" expanded="true" signature="10986:11023" ph="INSERT INTO un_gg_csv_report... " />
-                <marker date="1512644063996" expanded="true" signature="10986:11171" ph="INSERT INTO un_gg_csv_report... " />
-                <marker date="1512644063996" expanded="true" signature="12305:12435" ph="Select * fro... un_gg_csv_report" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="debugg.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/admin/models/libs/debugg/debugg.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="26" column="2" lean-forward="false" selection-start-line="26" selection-start-column="2" selection-end-line="26" selection-end-column="2" />
-              <folding>
-                <marker date="1512654611604" expanded="true" signature="463:521" ph="INSERT INTO ##__gg_error_log... " />
-                <marker date="1512654611604" expanded="true" signature="463:523" ph="INSERT INTO ##__gg_error_log... " />
-                <marker date="1512654611604" expanded="true" signature="463:542" ph="INSERT INTO ##__gg_error_log... " />
-                <marker date="1512654611604" expanded="true" signature="463:549" ph="INSERT INTO ##__gg_error_log... " />
-                <marker date="1512654611604" expanded="true" signature="989:1040" ph="..." />
-                <marker date="1512654611604" expanded="true" signature="1280:1338" ph="..." />
-                <marker date="1512654611604" expanded="true" signature="1678:1727" ph="..." />
-                <marker date="1512654611604" expanded="true" signature="2021:2095" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -194,7 +129,6 @@
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/30da0af2-99ae-46a3-8797-f25ece5ff315/console_3.sql" />
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/30da0af2-99ae-46a3-8797-f25ece5ff315/console_4.sql" />
         <option value="$PROJECT_DIR$/site/models/unita.php" />
-        <option value="$PROJECT_DIR$/site/models/contenuto.php" />
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/30da0af2-99ae-46a3-8797-f25ece5ff315/console_5.sql" />
         <option value="$APPLICATION_CONFIG_DIR$/consoles/db/30da0af2-99ae-46a3-8797-f25ece5ff315/console.sql" />
         <option value="$PROJECT_DIR$/site/models/stato.php" />
@@ -202,14 +136,15 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/site/controller.php" />
         <option value="$PROJECT_DIR$/site/models/report.php" />
-        <option value="C:/xampp/htdocs/unico/configuration.php" />
         <option value="$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql" />
-        <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/site/controllers/api.php" />
-        <option value="$PROJECT_DIR$/site/controllers/report.php" />
-        <option value="$PROJECT_DIR$/site/models/syncdatareport.php" />
+        <option value="C:/xampp/htdocs/unico/configuration.php" />
         <option value="$PROJECT_DIR$/admin/models/libs/debugg/debugg.php" />
+        <option value="$PROJECT_DIR$/site/models/contenuto.php" />
+        <option value="$PROJECT_DIR$/site/controllers/report.php" />
+        <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
+        <option value="$PROJECT_DIR$/site/models/syncdatareport.php" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -252,13 +187,13 @@
             <path>
               <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
               <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="com_gglms" type="b2602c69:ProjectViewProjectNode" />
               <item name="com_gglms" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="site" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="models" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="admin" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="controllers" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
           </expand>
           <select />
@@ -324,7 +259,8 @@
       <workItem from="1512547102530" duration="2218000" />
       <workItem from="1512550435051" duration="22300000" />
       <workItem from="1512634514748" duration="474000" />
-      <workItem from="1512635836751" duration="15638000" />
+      <workItem from="1512635836751" duration="25590000" />
+      <workItem from="1512979006111" duration="12163000" />
     </task>
     <task id="LOCAL-00001" summary="consuntivo modifiche">
       <created>1509988927038</created>
@@ -379,7 +315,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="325031000" />
+    <option name="totallyTimeSpent" value="347146000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -392,15 +328,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27232796" sideWeight="0.58456486" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27232796" sideWeight="0.7766831" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32733223" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="WINDOWED" visible="false" show_stripe_button="true" weight="0.21303074" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="0" y="22" width="1366" height="706" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32840723" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27232796" sideWeight="0.41543514" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2035139" sideWeight="0.22331691" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38666666" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -471,13 +406,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/site/router.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="415">
-          <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/site/views/contenuto/view.html.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="578">
@@ -660,13 +588,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/contenuto.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-119">
-          <caret line="290" column="20" lean-forward="false" selection-start-line="290" selection-start-column="20" selection-end-line="290" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard/standard_1.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="194">
@@ -692,13 +613,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="40">
           <caret line="34" column="33" lean-forward="false" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/unita.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="41" column="0" lean-forward="true" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -730,13 +644,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/xampp/htdocs/unico/configuration.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="32" lean-forward="false" selection-start-line="22" selection-start-column="32" selection-end-line="22" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/admin/models/fields/listaquizdeluxe.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
@@ -751,27 +658,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="615">
-          <caret line="377" column="54" lean-forward="false" selection-start-line="377" selection-start-column="54" selection-end-line="377" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/admin/sql/updates/mysql/3.8.12.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="15" column="1" lean-forward="false" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="204">
-            <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
         </state>
       </provider>
     </entry>
@@ -786,7 +676,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
           <caret line="91" column="4" lean-forward="false" selection-start-line="91" selection-start-column="4" selection-end-line="91" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -798,10 +687,49 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/site/models/report.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="88" column="46" lean-forward="false" selection-start-line="88" selection-start-column="46" selection-end-line="88" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/xampp/htdocs/unico/configuration.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="32" lean-forward="false" selection-start-line="22" selection-start-column="32" selection-end-line="22" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/site/models/users.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="143">
+          <caret line="29" column="23" lean-forward="false" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/models/libs/debugg/debugg.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+          <folding>
+            <marker date="1512655929723" expanded="true" signature="461:519" ph="INSERT INTO ##__gg_error_log... " />
+            <marker date="1512655929723" expanded="true" signature="461:521" ph="INSERT INTO ##__gg_error_log... " />
+            <marker date="1512655929723" expanded="true" signature="461:540" ph="INSERT INTO ##__gg_error_log... " />
+            <marker date="1512655929723" expanded="true" signature="461:547" ph="INSERT INTO ##__gg_error_log... " />
+            <marker date="1512655929723" expanded="true" signature="985:1036" ph="..." />
+            <marker date="1512655929723" expanded="true" signature="1276:1334" ph="..." />
+            <marker date="1512655929723" expanded="true" signature="1674:1723" ph="..." />
+            <marker date="1512655929723" expanded="true" signature="2017:2091" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="56" column="30" lean-forward="false" selection-start-line="56" selection-start-column="7" selection-end-line="56" selection-end-column="30" />
+        <state relative-caret-position="-1173">
+          <caret line="22" column="26" lean-forward="false" selection-start-line="22" selection-start-column="4" selection-end-line="22" selection-end-column="26" />
           <folding>
             <element signature="n#getNumRows#0;n#gglmsControllerApi#0;n#!!top" expanded="false" />
             <marker date="1512644063996" expanded="true" signature="9960:9975" ph="select count... ${$query[count($query)-1]}" />
@@ -815,59 +743,81 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/users.php">
+    <entry file="file://$PROJECT_DIR$/site/models/unita.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="29" column="24" lean-forward="false" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+        <state relative-caret-position="143">
+          <caret line="67" column="24" lean-forward="false" selection-start-line="67" selection-start-column="24" selection-end-line="67" selection-end-column="24" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/report.php">
+    <entry file="file://$PROJECT_DIR$/site/models/contenuto.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="88" column="46" lean-forward="false" selection-start-line="88" selection-start-column="46" selection-end-line="88" selection-end-column="46" />
+        <state relative-caret-position="-4046">
+          <caret line="31" column="20" lean-forward="false" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="55" column="50" lean-forward="false" selection-start-line="55" selection-start-column="50" selection-end-line="55" selection-end-column="50" />
+        <state relative-caret-position="425">
+          <caret line="106" column="33" lean-forward="false" selection-start-line="106" selection-start-column="33" selection-end-line="106" selection-end-column="33" />
           <folding>
-            <marker date="1512653651185" expanded="true" signature="6627:6944" ph="INSERT INTO ##__gg_report... " />
-            <marker date="1512653651185" expanded="true" signature="11046:11230" ph="INSERT INTO ##__gg_report_users... " />
+            <element signature="e#1223#2196#0#PHP" expanded="false" />
+            <element signature="e#4133#13666#0#PHP" expanded="false" />
+            <marker date="1512990961985" expanded="true" signature="8768:9085" ph="INSERT INTO ##__gg_report... " />
+            <marker date="1512990961985" expanded="true" signature="13187:13371" ph="INSERT INTO ##__gg_report_users... " />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="163" column="9" lean-forward="true" selection-start-line="163" selection-start-column="9" selection-end-line="163" selection-end-column="9" />
+        <state relative-caret-position="119">
+          <caret line="142" column="66" lean-forward="false" selection-start-line="142" selection-start-column="66" selection-end-line="142" selection-end-column="66" />
           <folding>
             <element signature="e#952#1533#0#PHP" expanded="false" />
-            <marker date="1512654227425" expanded="true" signature="6295:6612" ph="INSERT INTO ##__gg_report... " />
-            <marker date="1512654227425" expanded="true" signature="10743:10927" ph="INSERT INTO ##__gg_report_users... " />
+            <marker date="1512991285639" expanded="true" signature="7359:7676" ph="INSERT INTO ##__gg_report... " />
+            <marker date="1512991285639" expanded="true" signature="11803:11987" ph="INSERT INTO ##__gg_report_users... " />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/admin/models/libs/debugg/debugg.php">
+    <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="26" column="2" lean-forward="false" selection-start-line="26" selection-start-column="2" selection-end-line="26" selection-end-column="2" />
+        <state relative-caret-position="7871">
+          <caret line="468" column="0" lean-forward="false" selection-start-line="468" selection-start-column="0" selection-end-line="468" selection-end-column="0" />
           <folding>
-            <marker date="1512654611604" expanded="true" signature="463:521" ph="INSERT INTO ##__gg_error_log... " />
-            <marker date="1512654611604" expanded="true" signature="463:523" ph="INSERT INTO ##__gg_error_log... " />
-            <marker date="1512654611604" expanded="true" signature="463:542" ph="INSERT INTO ##__gg_error_log... " />
-            <marker date="1512654611604" expanded="true" signature="463:549" ph="INSERT INTO ##__gg_error_log... " />
-            <marker date="1512654611604" expanded="true" signature="989:1040" ph="..." />
-            <marker date="1512654611604" expanded="true" signature="1280:1338" ph="..." />
-            <marker date="1512654611604" expanded="true" signature="1678:1727" ph="..." />
-            <marker date="1512654611604" expanded="true" signature="2021:2095" ph="..." />
+            <marker date="1512991285624" expanded="true" signature="12847:12875" ph="..." />
+            <marker date="1512991285624" expanded="true" signature="12966:13035" ph="..." />
+            <marker date="1512991285624" expanded="true" signature="13211:13237" ph="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/admin/helpers/gglms.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1511272658580" expanded="true" signature="2928:2974" ph="DELETE FROM " />
+            <marker date="1511272658580" expanded="true" signature="4102:4149" ph="DELETE FROM " />
+            <marker date="1511272658580" expanded="true" signature="6197:6249" ph="DELETE FROM " />
+            <marker date="1511272658580" expanded="true" signature="6860:6907" ph="DELETE FROM " />
+            <marker date="1511272658580" expanded="true" signature="8766:8814" ph="DELETE FROM " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="204">
+            <caret line="12" column="61" lean-forward="false" selection-start-line="12" selection-start-column="61" selection-end-line="12" selection-end-column="61" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
