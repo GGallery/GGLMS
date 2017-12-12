@@ -75,7 +75,7 @@ JHtml::_('bootstrap.modal');
             <button type="button" id="get_csv" class="btn btn-success btn-lg" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
         <div>
-            <button type="button" class="btn btn-success btn-lg" onclick="dataSyncUsers(loadreportlimit,loadreportoffset)">SINCRONIZZA TABELLA REPORT</button>
+            <button type="button" class="btn btn-success btn-lg" onclick="checkSeconds()">SINCRONIZZA TABELLA REPORT</button>
         </div>
 
     </form>
@@ -449,11 +449,35 @@ var loadreportoffset;
         });
     });
 
+function checkSeconds() {
+    jQuery("#detailsCaricamentoReport").modal('show');
+    jQuery('#details_table_caricamento_report').empty();
+    jQuery('#details_table_caricamento_report').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
 
-    function dataSyncUsers(loadreportlimit,loadreportoffset) {
-        jQuery("#detailsCaricamentoReport").modal('show');
-        jQuery('#details_table_caricamento_report').empty();
-        jQuery('#details_table_caricamento_report').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
+
+    jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.checkSeconds"))
+        .done(function (data) {
+            data=JSON.parse(data);
+            if(data=='true'){
+                dataSyncUsers(loadreportlimit,loadreportoffset);
+            }else{
+                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento stoppato!</td></tr><tr><td>non è stato superato il limite di tempo necessario per un nuovo caricamento</td></tr>');
+
+            }
+
+        })
+        .fail(function (data) {
+
+        })
+        .then(function (data) {
+
+
+        });
+
+}
+    function dataSyncUsers(loadreportlimit,loadreportoffset) {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
+
+
         loadreportlimit=0
         loadreportoffset=100;
         console.log('dataSyncUsers');
@@ -616,4 +640,6 @@ var loadreportoffset;
         });
 
     }
+
+
 </script>

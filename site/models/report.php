@@ -241,11 +241,13 @@ class gglmsModelReport extends JModelLegacy {
 	}
 
 	public function getUserGroups(){
+        $usergroupsfromparams=$this->params->get('id_gruppi_visibili');
 
 		$query = $this->_db->getQuery(true);
 
 		$query->select('id, title');
 		$query->from('#__usergroups AS u');
+        $query->where('u.id in ('.$usergroupsfromparams.') ');
 
 		$this->_db->setQuery($query);
 

@@ -53,6 +53,7 @@
 				default="Unita"
 		/>
 
+
 		<field
 				name="data_sync"
 				type="text"
@@ -62,7 +63,22 @@
 				readonly="true"
 				default="0000-00-00"
 		/>
-
+		<field
+				name="data_sync_seconds_limit"
+				class="inputbox"
+				label="secondi necessariamente trascorsi per avviare aggiornamento report"
+				type="text"
+				size="6"
+				default="14000"
+		/>
+        <field
+                name="alert_days_before"
+                class="inputbox"
+                label="Giorni da cui parte l'avviso per mancato completamento corso"
+                type="text"
+                size="2"
+                default="7"
+        />
 
 		<field
 				name="sync_automatico"

@@ -56,6 +56,7 @@ class gglmsModelUnita extends JModelLegacy {
         $offset = $app->input->getUInt('limitstart');
         $this->setState('list.offset', $offset);
 
+
         // Load the parameters.
         $params = $app->getParams();
         $this->setState('params', $params);

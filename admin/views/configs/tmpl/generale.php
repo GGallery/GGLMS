@@ -17,6 +17,14 @@
             </div>
 
             <div class="row-fluid">
+                <?php echo $this->form->renderField('alert_days_before'); ?>
+            </div>
+
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('data_sync_seconds_limit'); ?>
+            </div>
+
+            <div class="row-fluid">
                 <?php echo $this->form->renderField('sync_automatico'); ?>
             </div>
 

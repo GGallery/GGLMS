@@ -65,6 +65,8 @@ class gglmsControllerApi extends JControllerLegacy
         //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
         $id_corso=explode('|', $this->_filterparam->corso_id)[0];
         $id_contenuto=explode('|', $this->_filterparam->corso_id)[1];
+        $alert_days_before=$this->_params->get('alert_days_before');
+
 
         try {
 
@@ -88,7 +90,7 @@ class gglmsControllerApi extends JControllerLegacy
             if($this->_filterparam->filterstato==1) {
                 $query->select('1 as stato');
             }else{
-                $query->select('COALESCE((select r2.stato from un_gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '.$id_contenuto.' and stato = 1 limit 1),0) 
+                $query->select('COALESCE((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= '.$id_contenuto.' and stato = 1 limit 1),0) 
                                 as stato');
             }
 
@@ -102,7 +104,7 @@ class gglmsControllerApi extends JControllerLegacy
             if($this->_filterparam->filterstato==1){
                 $query->select('0 as alert');
             }else{
-                $query->select('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -7 DAY),	IF((select r2.stato from un_gg_report as r2 where r2.id_utente = r.id_utente 
+                $query->select('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -'.$alert_days_before.' DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente 
                                 and id_contenuto='.$id_contenuto.' and stato = 1 limit 1),0,1),0) as alert');
             }
 
@@ -132,7 +134,7 @@ class gglmsControllerApi extends JControllerLegacy
                 $query->where('r.stato = ' . $this->_filterparam->filterstato . ' and  r.id_contenuto='.$id_contenuto);
 
             if($this->_filterparam->filterstato == 3)
-                $query->where('date(now())>DATE_ADD(un.data_fine, INTERVAL -7 DAY)');
+                $query->where('date(now())>DATE_ADD(un.data_fine, INTERVAL -'.$alert_days_before.' DAY)');
             //SOLO NON COMPLETATI O IN SCADENZA
             if ($this->_filterparam->filterstato == 0 || $this->_filterparam->filterstato == 3)
                 $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r 
@@ -202,39 +204,10 @@ class gglmsControllerApi extends JControllerLegacy
         return $result;
     }
 
-    public function getNumRows($query,$filtestate){
-
-
-        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-
-        //spacchetta in base ai from
-        $query=explode("from",strtolower($query));
-        $newquery=null;
-
-        //DECIDO DA QUALE POSIZIONE DELL'ARRAY DEVO PARTIRE PER TOGLIERE TUTTE LE SUBQUERY CHE NON MI SERVONO
-        //QUANDO COSTRUISCO LA QUERY PER I COMPLETI HO DUE FROM IN MENO QUINDI PARTO DA 3. NEGLI ALTRI CASI DA 5
-        $startfromposition=($filtestate==1?3:5);
-
-        //QUESTO CICLO PRENDE TUTTI I PEZZI DI QUERY DOPO UN FROM E LI UNISCE FINO ALLA FINE DELLA QUERY ORIGINALE
-        for ($i=$startfromposition; $i<=count($query)-1;$i++){
-            $newquery=$newquery.' from'.$query[$i];
-        }
-        //METTO IN TESTA UNA DELLE DUE SELECT ASSECONDA DEI CASI
-        if($filtestate==1) {
-            $newquery = 'select count(*) ' . $newquery;//[count($query) - (1+$filtri_data_presenti)];
-        }else{
-            $newquery = 'SELECT count(DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome, anagrafica.fields,users.email) '. $newquery;// . $query[count($query) - (1+$filtri_data_presenti)];
-        }
-        $lastlimit=explode('limit',strtolower($newquery))[count(explode('limit',strtolower($newquery)))-1];
-        $newquery=substr($newquery,0,strlen($newquery)-(strlen($lastlimit)+5));
-        $this->_db->setQuery($newquery);
-        $rows=(int)$this->_db->loadResult();
-        return [$rows, $newquery];
-    }
 
     public function get_csv()
     {
-        ini_set('max_execution_time', 600);
+        //ini_set('max_execution_time', 600);
         $this->_japp = JFactory::getApplication();
         $csvlimit=$this->_filterparam->csvlimit;
         $id_chiamata=$this->_filterparam->id_chiamata;
@@ -245,7 +218,7 @@ class gglmsControllerApi extends JControllerLegacy
 
                 try {
 
-                    $insertquery = "INSERT INTO un_gg_csv_report VALUES (";
+                    $insertquery = "INSERT INTO #__gg_csv_report VALUES (";
                     $insertquery = $insertquery . $id_chiamata . ",";
                     $insertquery = $insertquery . $row['id_utente'] . ",";
                     $insertquery = $insertquery . "'" . addslashes($row['nome']) . "',";
@@ -275,15 +248,15 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function createCSV(){
 
-
-
-
         $id_chiamata=$this->_filterparam->id_chiamata;
         $corso_id=$this->_filterparam->corso_id;
-        $query="Select id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato, alert from un_gg_csv_report where id_chiamata=".$id_chiamata;
+        $query = $this->_db->getQuery(true);
+        $query->select('id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato, alert');
+        $query->from('#__gg_csv_report');
+        $query->where('id_chiamata='.$id_chiamata);
         $this->_db->setQuery($query);
         $rows = $this->_db->loadAssocList();
-//var_dump($rows);
+
 
 try {
     if (!empty($rows)) {
@@ -414,6 +387,7 @@ try {
         $id_corso=explode('|', $this->_filterparam->corso_id)[0];
         $id_contenuto=explode('|', $this->_filterparam->corso_id)[1];
         $group_id=$this->_filterparam->usergroups;
+        $alert_days_before=$this->_params->get('alert_days_before');
         $query = $this->_db->getQuery(true);
         $query->select('DISTINCT users.email');
         $query->from('#__gg_report as r');
@@ -423,9 +397,9 @@ try {
         $query->join('inner','#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
         $query->where('id_corso='.$id_corso);
         $query->where('group_id='.$group_id);
-        $query->where('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -7 DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente 
+        $query->where('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -'.$alert_days_before.' DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente 
                                 and id_contenuto='.$id_contenuto.' and stato = 1 limit 1),0,1),0)=1');
-        $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM un_gg_report as r INNER JOIN  #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
+        $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r INNER JOIN  #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
                                WHERE r.id_corso = '.$id_corso.' AND r.stato = 1 and  r.id_contenuto='.$id_contenuto.' AND group_id = '.$group_id.')');
 
 

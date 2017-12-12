@@ -153,6 +153,30 @@ class gglmsControllerReport extends JControllerLegacy
 
     }
 
+    public function checkSeconds(){
+
+    try {
+        $ora = date('Y-m-d h:i:s', time());
+        $lastsync = $this->params->get('data_sync');
+        $lastsync = strtotime($lastsync);
+        $ora = strtotime($ora);
+        $secondi_ultima_syncro = $ora - $lastsync;
+        $data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
+        if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
+
+            echo json_encode('true');
+        } else {
+
+            echo json_encode('false');
+        }
+        $this->_app->close();
+    }catch (Exception $ex){
+
+        DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
+        }
+
+    }
+
 /*
     private function updateconfig(){
 

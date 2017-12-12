@@ -66,7 +66,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 */
     public function updateconfig(){
 
-        DEBUGG::log('inizio updateconfig','inizio updateconfig',0,1);
+        //DEBUGG::log('inizio updateconfig','inizio updateconfig',0,1);
         try{
             $query = $this->_db->getQuery(true)
                 ->update('#__gg_configs	')
@@ -84,13 +84,14 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
     //REPORT TRACCIAMENTO
     public function sync_report($limit,$offset){
-        ini_set('max_execution_time', 6000);
+        //DEBUGG::log('inizio sync_report','inizio sync_report',0,1);
+        //ini_set('max_execution_time', 6000);
         try {
             $scormvar_list = $this->_getScormvarsVariation($limit,$offset);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit,$offset);
             $list = array_merge($scormvar_list, $quizdeluxe_list);
 
-            // if($limit==200){$list=null;} //SIMULAZIONE DI FINE
+             if($limit==200){$list=null;} //SIMULAZIONE DI FINE
 
             if(count($list)>0) {
                 foreach ($list as $item) {
@@ -155,10 +156,10 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         try {
             $query = $this->_db->getQuery(true)
                 ->select('DISTINCT s.scoid as id_contenuto, s.userid as id_utente')
-                ->from('#__gg_scormvars as s')
+                ->from('#__gg_scormvars as s');
 
-        //    if($this->params->get('data_sync'))
-        //        $query->where('timestamp > "' . $this->params->get('data_sync').'"');
+            if($this->params->get('data_sync'))
+                $query->where('timestamp > "' . $this->params->get('data_sync').'"')
 
                 ->setLimit($offset,$limit);
 
@@ -179,10 +180,10 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $query = $this->_db->getQuery(true)
                 ->select('DISTINCT  c.id as id_contenuto, q.c_student_id as id_utente')
                 ->from('#__quiz_r_student_quiz as q')
-                ->join('inner','#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe')
+                ->join('inner','#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe');
 
-        //    if($this->params->get('data_sync'))
-        //        $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
+            if($this->params->get('data_sync'))
+                $query->where('c_date_time > "' . $this->params->get('data_sync').'"')
 
             ->setLimit($offset,$limit);
 
@@ -236,7 +237,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
     //REPORT UTENTI
     public function sync_report_users() {
-
+        //DEBUGG::log('inizio sync_report_users','inizio sync_report_users',0,1);
 
         try {
 
