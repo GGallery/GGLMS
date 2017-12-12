@@ -9,10 +9,12 @@ F:Frontend, B:Backend, D:Database, G:Generale
        aggiunto pulsante mail individuale
        aggiunto pulsante mail complessiva
        aggiunto pulsante caricameto tabella report
+       filtro effettivo su gruppi utenti scelti da admin
   - B: aggiornata logica popolamento report
        introduzione Jquery.Get per popolamento tabella report
        aggiornata logica popolamento csv
        agganciata logica ricerca per data a data di completamento
+       inseriti per admin giorni alter e secondi minimi per caricamento report
   - D: aggiunta tabella #__gg_csv_report
        aggiunte due colonne alla #__gg_unit      
        
