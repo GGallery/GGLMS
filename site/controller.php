@@ -64,8 +64,11 @@ class gglmsController extends JControllerLegacy {
             $this->_japp->redirect(JRoute::_($url), $msg);
         }
 
-        //$this->sync(); QUESTA E' LA RIGA CHE SCOMMENTATA FA PARTIRE IN AUTOMATICO LA SINCRONIZZAZIONE
 
+        if ($this->_params->get('sync_automatico')=='1') {
+            //$this->sync(); //QUESTA E' LA RIGA CHE SCOMMENTATA FA PARTIRE IN AUTOMATICO LA SINCRONIZZAZIONE
+
+        }
         $this->registerTask('returnfromjoomlaquiz', 'returnfromjoomlaquiz');
         $this->registerTask('attestato', 'attestato');
     }

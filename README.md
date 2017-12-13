@@ -3,6 +3,8 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+3.8.13
+  - B: reso default gruppo registered su configurazione administator
 3.8.12
   - F: aggiunta vista dettagli corso
        aggiunto alert scadenza

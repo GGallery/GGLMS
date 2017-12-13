@@ -39,8 +39,9 @@
 				required=""
 				multiple="multiple"
 				size="10"
-				default="2,7,8"
+				default="2"
 		>
+
 		</field>
 
 

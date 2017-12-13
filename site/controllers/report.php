@@ -42,40 +42,9 @@ class gglmsControllerReport extends JControllerLegacy
     }
 
     //INGRESSO
-  /*  public function  sync(){
-        try {
 
 
-            $ora = date('Y-m-d h:i:s', time());
-            $lastsync = $this->params->get('data_sync');
-            $lastsync = strtotime($lastsync);
-            $ora = strtotime($ora);
-            $secondi_ultima_syncro = $ora - $lastsync;
-            $syncdatareport = new gglmsModelSyncdatareport();
 
-            //if ($secondi_ultima_syncro > 14000) {
-
-                ini_set('max_execution_time', 6000);//PORTA IL TIMEOUT DI PHP A 300
-
-                if ($syncdatareport->sync_report_users()) {
-
-                    if ($syncdatareport->sync_report()) {
-                        $syncdatareport->updateconfig();
-                    }
-                }
-                ini_set('max_execution_time', 30);//RIPORTA IL TIMEOUT DI PHP A 30
-                $this->_app->close();
-            //}
-
-
-        }catch (exceptions $ex){
-
-               DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
-
-        }
-    }
-
- */
 
     public function sync_report_users(){
 
