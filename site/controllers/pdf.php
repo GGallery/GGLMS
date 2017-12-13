@@ -40,7 +40,7 @@ class gglmsControllerPdf extends JControllerLegacy
         define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT.'/libraries/smarty/extras/');
 
     }
- 
+
     public function generateAttestato() {
 
         try {
@@ -63,8 +63,8 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $attestato = $db->loadObject('gglmsModelContenuto');
 
-            
-            
+
+
 
             if (!$attestato->path)
                 JFactory::getApplication()->enqueueMessage('Non hai impostato l\'id del contenuto di riferimento per l\'attestato ', 'error');
@@ -82,7 +82,6 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $contenuto_verifica = $db->loadObject('gglmsModelContenuto');
 
-
             //UNITA PADRE
             $query = $db->getQuery(true)
                 ->select('*')
@@ -97,17 +96,25 @@ class gglmsControllerPdf extends JControllerLegacy
             $user = $model_user->get_user($this->_user->get('id'), $unita->id_event_booking);
 
             if($this->_params->get('verifica_cf')) {
+                switch ($this->_params->get('integrazione')){
+                    case 'eb':
+                        $integrazione= 'eb';
+                        $cf = $this->_params->get('campo_event_booking_controllo_cf');
+                        break;
 
-                if($this->_params->get('integrazione')=='eb')
-                    $cf = $user->fields[$this->_params->get('campo_event_booking_controllo_cf')];    
-                elseif($this->_params->get('integrazione')=='cb'){
-                    $cf = $user->$this->_params->get('campo_event_booking_controllo_cf');
+                    case 'cf':
+                        $integrazione= 'cb';
+                        $cf = $this->_params->get('campo_community_builder_controllo_cf');
+                        break;
+
+                    default:
+                        echo "Componente di integrazione non specificato in GGLMS oppure non gestito";
+                        die();
                 }
-                else {echo "Componente di integrazione non specificato in GGLMS oppure non gestito"; die();}
 
                 $conformita = utilityHelper::conformita_cf($cf);
                 if(!$conformita['valido']) {
-                    $data_change['integration']="eb";
+                    $data_change['integration']=$integrazione;
                     $data_change['registrant_id'] = $user->id;
                     $data_change['field_id']= $this->_params->get('campo_event_booking_controllo_cf');
                     $data_change['codicefiscale'] = $cf;
@@ -117,10 +124,10 @@ class gglmsControllerPdf extends JControllerLegacy
                     $app->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=mcf&data='.$data_change));
                 }
             }
-            
+
             $model = $this->getModel('pdf');
             $model->_generate_pdf($user, $attestato, $contenuto_verifica);
-            
+
         }catch (Exception $e){
 
             DEBUGG::log($e, 'Exception in generateAttestato ', 1);
