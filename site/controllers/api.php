@@ -171,6 +171,7 @@ class gglmsControllerApi extends JControllerLegacy
             }
 
             $this->_db->setQuery($query);
+
             $this->_db->execute();
             $total=null;
             $countquery=$countquery.$query->from;

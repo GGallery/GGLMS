@@ -240,22 +240,28 @@ class gglmsModelReport extends JModelLegacy {
 		return $summarize;
 	}
 
-	public function getUserGroups(){
-        $usergroupsfromparams=$this->params->get('id_gruppi_visibili');
+	public function getUserGroups()
+    {
 
-		$query = $this->_db->getQuery(true);
+        try {
+            $usergroupsfromparams = $this->params->get('id_gruppi_visibili');
 
-		$query->select('id, title');
-		$query->from('#__usergroups AS u');
-        $query->where('u.id in ('.$usergroupsfromparams.') ');
+            $query = $this->_db->getQuery(true);
 
-		$this->_db->setQuery($query);
+            $query->select('id, title');
+            $query->from('#__usergroups AS u');
+            $query->where('u.id in (' . $usergroupsfromparams . ') ');
 
-		$usergroups = $this->_db->loadObjectList();
+            $this->_db->setQuery($query);
 
-		return $usergroups;
-	}
+            $usergroups = $this->_db->loadObjectList();
 
+            return $usergroups;
+        }catch (exceptions $e){
+
+            DEBUGG::error($e, 'errore get Conteuti unita', 1);
+        }
+    }
 
 }
 

@@ -74,8 +74,8 @@ class gglmsModelUnita extends JModelLegacy {
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_unit as u')
-                ->where('u.id = ' . (int) $pk)
-                ->where('u.pubblicato = 1');
+                ->where('u.id = ' . (int) $pk);
+                //->where('u.pubblicato = 1');
 
 
             $this->_db->setQuery($query);
@@ -185,6 +185,11 @@ class gglmsModelUnita extends JModelLegacy {
             ;
             $this->_db->setQuery($query);
             $data = $this->_db->loadObject();
+
+            if($data->pubblicato==0){ //APPENA UNA UNITA' SUPERIORE NON E' PUBBLICATA, ESCI
+                return $data;
+            }
+
 
             if($data->id == 1 && !$data->is_corso) {
                 $this->_app->enqueueMessage('L\'Unita alla quale hai tentato di accedere e nessuna di quelle dei livelli superiori sono impostate come UNITA-CORSO. Finchè non sarà definito il corso padre non potrai accedere a questa unità', 'Error');

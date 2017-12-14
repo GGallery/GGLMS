@@ -70,8 +70,8 @@ JHtml::_('formbehavior.chosen', 'select');
 
                 <div class="row-fluid">
                     <?php
-                    if($this->item->id)
-                        echo $this->form->renderField('id_contenuto_completamento'); ?>
+
+                    echo $this->form->renderField('id_contenuto_completamento');?>
                 </div>
 
 
