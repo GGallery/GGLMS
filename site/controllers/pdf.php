@@ -10,7 +10,7 @@
 defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/models/contenuto.php';
-
+require_once JPATH_COMPONENT . '/models/libretto.php';
 
 /**
  * Controller for single contact view
@@ -135,6 +135,24 @@ class gglmsControllerPdf extends JControllerLegacy
             $model = $this->getModel('pdf');
             $model->_generate_pdf($user, $attestato, $contenuto_verifica);
 
+        }catch (Exception $e){
+
+            DEBUGG::log($e, 'Exception in generateAttestato ', 1);
+        }
+        $this->_japp->close();
+    }
+
+    public function generate_libretto(){
+        try{
+            $user_id = JRequest::getVar('user_id');
+            if($user_id) {
+
+                $model = $this->getModel('pdf');
+                $modelLibretto=new gglmsModelLibretto();
+                $data=$modelLibretto->get_data($user_id);
+                $user=$modelLibretto->get_user($user_id);
+                $model->_generate_libretto_pdf($data['rows'],$user);
+            }
         }catch (Exception $e){
 
             DEBUGG::log($e, 'Exception in generateAttestato ', 1);

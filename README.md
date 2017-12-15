@@ -3,6 +3,9 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+
+3.8.15
+  - B: aggiunta vista Libretto Formativo, ottenibile anche da report, con relativo pdf.  
 3.8.14
   - B: non vengono più caricati a report i corsi non pubblicati
 3.8.13
