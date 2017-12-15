@@ -96,15 +96,20 @@ class gglmsControllerPdf extends JControllerLegacy
             $user = $model_user->get_user($this->_user->get('id'), $unita->id_event_booking);
 
             if($this->_params->get('verifica_cf')) {
+
+
+
                 switch ($this->_params->get('integrazione')){
                     case 'eb':
                         $integrazione= 'eb';
-                        $cf = $this->_params->get('campo_event_booking_controllo_cf');
+                        $campo_integrazione = $this->_params->get('campo_event_booking_controllo_cf');
+                        $cf = $user->fields[$campo_integrazione];
                         break;
 
-                    case 'cf':
+                    case 'cb':
                         $integrazione= 'cb';
-                        $cf = $this->_params->get('campo_community_builder_controllo_cf');
+                        $campo_integrazione = $this->_params->get('campo_community_builder_controllo_cf');
+                        $cf = $user->$campo_integrazione;
                         break;
 
                     default:
@@ -112,11 +117,13 @@ class gglmsControllerPdf extends JControllerLegacy
                         die();
                 }
 
+//                DEBUGG::error($cf, 'cf', 1);
+
                 $conformita = utilityHelper::conformita_cf($cf);
                 if(!$conformita['valido']) {
                     $data_change['integration']=$integrazione;
                     $data_change['registrant_id'] = $user->id;
-                    $data_change['field_id']= $this->_params->get('campo_event_booking_controllo_cf');
+                    $data_change['field_id']= $campo_integrazione;
                     $data_change['codicefiscale'] = $cf;
                     $data_change['return'] = $attestato->alias;
                     $data_change=base64_encode(json_encode($data_change));
