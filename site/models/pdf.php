@@ -65,5 +65,40 @@ class gglmsModelPdf extends JModelLegacy {
         return 0;
     }
 
+    public function _generate_libretto_pdf($data, $user){
+
+        try{
+            require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
+            $pdf = new certificatePDF();
+
+
+
+            $template = "file:".$_SERVER['DOCUMENT_ROOT']."/unico/components/com_gglms/models/template/libretto_cicli.tpl";
+
+            $data_array=array();
+            $data_array['rows']=$data;
+            $pdf->add_data($user);
+            $pdf->add_data($data_array);
+
+
+            $nomefile = "libretto_" . $user['cognome'] . "_.pdf";
+
+
+
+            $pdf->fetch_pdf_template($template);
+
+            $pdf->Output($nomefile, 'D');
+
+            return 1;
+        }catch (Exception $e) {
+            // FB::log($e);
+            DEBUGG::error($e, 'error generate_pdf');
+        }
+
+
+        return 0;
+
+    }
+
 
 }

@@ -136,6 +136,8 @@ JHtml::_('bootstrap.modal');
                 </table>
             </div>
             <div class="modal-footer">
+                <button type="button" class="tn btn-success btn-lg" onclick="loadLibretto()" style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo</button>
+
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -367,7 +369,9 @@ var loadreportoffset;
                 "commands": function(column, row)
                 {
                     fields[row.id_utente]=row.fields;
-                    return '<button type="button" title="anagrafica" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>'+'<button type="button" title="dettagli corso" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>';
+                    return '<button type="button" title="anagrafica" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>'+
+                        '<button type="button" title="dettagli corso" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>'+
+                        '<a href=\"/unico/libretto.html?user_id='+row.id_utente+'\" class="btn btn-xs btn-default" \><span class="glyphicon glyphicon-book" aria-hidden="true"></span></a>';
                 },
                 "dettaglicorso": function(column, row)
                 {
@@ -391,6 +395,7 @@ var loadreportoffset;
                     $('#details_table tbody').append(eachrow);
 
                 });
+                $("#details").append('<input id=modal_id_utente type=hidden value='+scelta+'>');
                 $("#details").modal('show');
 
             }).end();
@@ -638,6 +643,16 @@ function checkSeconds() {
             }).fail(function(data){
 
         });
+
+    }
+
+    function loadLibretto() {
+
+        var user_id=jQuery('#modal_id_utente').val();
+
+        //location.href="index.php?option=com_gglms&view=libretto&user_id="+user_id;
+        location.href="/unico/libretto.html?user_id="+user_id
+
 
     }
 
