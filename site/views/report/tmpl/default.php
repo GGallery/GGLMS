@@ -371,7 +371,7 @@ var loadreportoffset;
                     fields[row.id_utente]=row.fields;
                     return '<button type="button" title="anagrafica" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>'+
                         '<button type="button" title="dettagli corso" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>'+
-                        '<a href=\"/unico/libretto.html?user_id='+row.id_utente+'\" class="btn btn-xs btn-default" \><span class="glyphicon glyphicon-book" aria-hidden="true"></span></a>';
+                        '<a href='+window.location+'../../libretto.html?user_id='+row.id_utente+' title="libretto formativo" class="btn btn-xs btn-default" \><span class="glyphicon glyphicon-book" aria-hidden="true"></span></a>';
                 },
                 "dettaglicorso": function(column, row)
                 {
@@ -650,8 +650,8 @@ function checkSeconds() {
 
         var user_id=jQuery('#modal_id_utente').val();
 
-        //location.href="index.php?option=com_gglms&view=libretto&user_id="+user_id;
-        location.href="/unico/libretto.html?user_id="+user_id
+
+        location.href=window.location+'../../libretto.html?user_id='+user_id
 
 
     }

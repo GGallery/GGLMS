@@ -121,7 +121,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit,$offset);
             $list = array_merge($scormvar_list, $quizdeluxe_list);
 
-            if($limit==200){$list=null;} //SIMULAZIONE DI FINE
+            //if($limit==200){$list=null;} //SIMULAZIONE DI FINE
 
             if(count($list)>0) {
                 foreach ($list as $item) {

@@ -73,7 +73,7 @@ class gglmsModelPdf extends JModelLegacy {
 
 
 
-            $template = "file:".$_SERVER['DOCUMENT_ROOT']."/unico/components/com_gglms/models/template/libretto_cicli.tpl";
+            $template = JPATH_COMPONENT . '/models/template/libretto_cicli.tpl';
 
             $data_array=array();
             $data_array['rows']=$data;
