@@ -21,10 +21,7 @@
             </td>
 
             <td>
-                <a href="<?php echo JRoute::_('index.php?option=com_gglms&task=unita.edit&id=' . $item->id); ?>">
                     <?php echo $item->username; ?>
-                </a>
-
             </td>
 
             <td>
