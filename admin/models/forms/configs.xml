@@ -81,6 +81,17 @@
                 default="7"
         />
 
+
+		<field
+				name="alert_mail_text"
+				class="inputbox"
+				label="testo base della mail di avviso"
+				type="textarea"
+				cols="25"
+				rows="3"
+				default="Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso"
+		/>
+
 		<field
 				name="sync_automatico"
 				type="radio"
@@ -92,7 +103,6 @@
 			<option value="0">OFF</option>
 			<option value="1">ON</option>
 		</field>
-
 
 
 

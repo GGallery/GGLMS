@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.16
+  - F: inserito tooltip per libretto in report
+  - B: corretto bug blocco caricamento a 400
 3.8.15
   - B: aggiunta vista Libretto Formativo, ottenibile anche da report, con relativo pdf.  
 3.8.14

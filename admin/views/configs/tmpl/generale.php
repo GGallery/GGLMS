@@ -13,22 +13,6 @@
         <div class="row-fluid">
 
             <div class="row-fluid">
-                <?php echo $this->form->renderField('data_sync'); ?>
-            </div>
-
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('alert_days_before'); ?>
-            </div>
-
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('data_sync_seconds_limit'); ?>
-            </div>
-
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('sync_automatico'); ?>
-            </div>
-
-            <div class="row-fluid">
                 <?php echo $this->form->renderField('integrazione'); ?>
             </div>
 
@@ -55,6 +39,8 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('id_gruppi_visibili'); ?>
             </div>
+
+
 
             <div class="alert alert-warning">
                 <span class="icon-info-2" style="position: relative; float: left; font-size: 40px; margin-right: 35px; margin-top: 11px;">  </span>

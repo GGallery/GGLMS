@@ -256,7 +256,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
 
 //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
-var testo_base_mail='Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso ';
+var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
 var loadreportlimit;
 var loadreportoffset;
 
@@ -415,7 +415,7 @@ var loadreportoffset;
 
                     $('#details_table_invio_mail tbody').append(eachrow);
                     nome_corso=$('#corso_id option:selected').text();
-                    $('#testomail').append(testo_base_mail+nome_corso);
+                    $('#testomail').append(testo_base_mail+" "+nome_corso);
 
 
                 $("#detailsInvioMail").modal('show');

@@ -44,6 +44,10 @@ JHtml::_('formbehavior.chosen', 'select');
             include(dirname(__FILE__).DS.'attestato.php');
             echo JHtml::_('bootstrap.endTab');
 
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'Report', JText::_('Report', true));
+            include(dirname(__FILE__).DS.'report.php');
+            echo JHtml::_('bootstrap.endTab');
+
 //            echo JHtml::_('bootstrap.addTab', 'myTab', 'Contenuto', JText::_('Contenuto', true));
 //            include(dirname(__FILE__).DS.'contenuto.php');
 //            echo JHtml::_('bootstrap.endTab');
