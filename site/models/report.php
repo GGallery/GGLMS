@@ -263,5 +263,44 @@ class gglmsModelReport extends JModelLegacy {
         }
     }
 
+    public function insertUserLog($id_utente,$id_contenuto,$supporto=null,$ip_address,$uniqid){
+
+        try {
+            $insertquery = 'INSERT INTO #__gg_log (id_utente, id_contenuto,data_accesso, supporto, ip_address, uniqid, permanenza) VALUES(';
+            $insertquery = $insertquery . $id_utente . ',';
+            $insertquery = $insertquery . $id_contenuto . ',';
+            $insertquery = $insertquery . 'NOW(),';
+            $insertquery = $insertquery . $supporto . ',\'';
+            $insertquery = $insertquery . $ip_address . '\',';
+            $insertquery = $insertquery . $uniqid . ',';
+            $insertquery = $insertquery .'0)';
+            //echo $insertquery; die;
+            $this->_db->setQuery($insertquery);
+            $this->_db->execute();
+
+            return true;
+        }catch (exceptions $ex)
+        {
+            return false;
+        }
+
+    }
+
+    public function updateUserLog($uniquid){
+
+	    try{
+
+	        $updatequery='UPDATE #__gg_log set permanenza=TIME_TO_SEC(TIMEDIFF(NOW(),data_accesso)) where uniqid='.$uniquid;
+
+	        $this->_db->setQuery($updatequery);
+            $this->_db->execute();
+	        return true;
+        }catch (exceptions $ex){
+
+	        return false;
+        }
+
+    }
+
 }
 

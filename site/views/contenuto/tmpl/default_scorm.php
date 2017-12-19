@@ -10,7 +10,11 @@ else
     $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/index_lms_html5.html';
 
 ?>
+<script type="text/javascript">
+    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$id_utente.','.$this->contenuto->id.', null);' ?>
 
+
+</script>
 <p style="text-align:center; margin: 100px;">
     <button id="start">
         <img   src="components/com_gglms/libraries/images/avviatest.jpg">

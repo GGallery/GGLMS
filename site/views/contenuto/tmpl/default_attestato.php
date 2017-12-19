@@ -7,7 +7,7 @@ if($this->contenuto->_params->get('abilita_breadcrumbs',1))
 
 ?>
 
- 
+
 <div class="g-grid">
     <div class="g-block size-50">
         <h2> Congratulazioni! </h2>

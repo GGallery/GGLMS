@@ -58,6 +58,9 @@
             </div>
 
             <div class="row-fluid">
+                <?php echo $this->form->renderField('log_utente'); ?>
+            </div>
+            <div class="row-fluid">
                 <?php echo $this->form->renderField('sync_automatico'); ?>
             </div>
             <div class="row-fluid">

@@ -25,7 +25,7 @@ class gglmsViewContenuto extends JViewLegacy {
 
     function display($tpl = null)
     {
-        
+        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js');
         $this->contenuto = $this->get('Contenuto');
         
         $this->contenuto->setStato();

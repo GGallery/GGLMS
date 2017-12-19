@@ -39,6 +39,7 @@ class gglmsViewReport extends JViewLegacy {
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.fa.min.js');
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
 
+
         $modelReport  = $this->getModel('report');
         $this->header  = $modelReport->getSottoUnita($this->state->get('id_corso'));
 //

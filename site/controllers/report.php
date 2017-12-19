@@ -13,6 +13,7 @@ defined('_JEXEC') or die;
 //require_once JPATH_COMPONENT . '/models/unita.php';
 //require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
+require_once JPATH_COMPONENT . '/models/report.php';
 
 /**
  * Controller for single contact view
@@ -144,6 +145,48 @@ class gglmsControllerReport extends JControllerLegacy
         DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
         }
 
+    }
+
+    public function insertUserLog(){
+
+        try {
+
+            $id_utente = $this->_filterparam->id_utente = JRequest::getVar('id_utente');
+            $id_contenuto = $this->_filterparam->id_contenuto = JRequest::getVar('id_contenuto');
+            $supporto = $this->_filterparam->supporto = JRequest::getVar('supporto');
+            $uniqid = $this->_filterparam->uniqid = JRequest::getVar('uniqid');
+            $ipaddress = JFactory::getApplication()->input->server->get('REMOTE_ADDR', '', '');
+            $report = new gglmsModelReport();
+            if ($report->insertUserLog($id_utente, $id_contenuto, $supporto, $ipaddress, $uniqid) == true) {
+
+                echo json_encode('true');
+            } else {
+
+                echo json_encode('false');
+            }
+            $this->_app->close();
+
+        }catch (exceptions $ex){
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
+        }
+    }
+
+    public function updateUserLog(){
+
+        try {
+
+            $uniquid = $this->_filterparam->uniqid = JRequest::getVar('uniqid');
+            $report = new gglmsModelReport();
+            if ($report->updateUserLog($uniquid) == true) {
+
+                echo json_encode('true');
+            } else {
+                echo json_encode('false');
+            }
+            $this->_app->close();
+        }catch (exceptions $ex){
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
+        }
     }
 
 
