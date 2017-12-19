@@ -226,8 +226,9 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }
         catch (Exception $e) {
             //echo "_quizdeluxe ".$e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error in getQuizDeLuxe',1,1);
-            DEBUGG::query($query, '_getScormvarsVariation', 1);
+            DEBUGG::log($e->getMessage(), 'error in getQuizDeLuxe',0,1);
+            DEBUGG::query($query, '_getScormvarsVariation', 0);
+            return null;
         }
     }
 

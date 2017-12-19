@@ -42,6 +42,33 @@
 				cols="50" rows="5"
 
 		/>
+		<field name="data_inizio"
+			   type="calendar"
+			   default="NOW"
+			   label="Seleziona data inizio corso"
+			   description=""
+			   class="input-small"
+			   required="true"
+			   filter="user_utc"
+			   showtime="false"
+			   todaybutton="true"
+			   filltable="false"
+			   translateformat="true" />
+
+		<field name="data_fine"
+			   type="calendar"
+			   default="NOW"
+			   label="Seleziona data fine corso"
+			   description=""
+			   class="input-small"
+			   required="true"
+			   filter="user_utc"
+			   showtime="false"
+			   todaybutton="true"
+			   filltable="false"
+			   translateformat="true" />
+
+
 
 		<!--<field-->
 

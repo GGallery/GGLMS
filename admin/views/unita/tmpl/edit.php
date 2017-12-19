@@ -88,6 +88,16 @@ JHtml::_('formbehavior.chosen', 'select');
                         echo $this->form->renderField('id_event_booking'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('data_inizio'); ?>
+                </div>
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('data_fine'); ?>
+                </div>
 
                 <div class="row-fluid">
                     <?php

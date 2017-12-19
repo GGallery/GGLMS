@@ -110,7 +110,7 @@
 				class="btn-group"
 				label="Attiva il tracciamento Log degli utenti"
 				labelclass="control-label"
-				default="1"
+				default="0"
 		>
 			<option value="0">OFF</option>
 			<option value="1">ON</option>

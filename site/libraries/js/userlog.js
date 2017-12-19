@@ -2,7 +2,7 @@ function UserLog(id_utente,id_contenuto,supporto){
 
 var _this=this;
    console.log("Userlog "+id_utente+" - "+id_contenuto);
-   var uniqid=Math.floor(Math.random()*100000);
+   var uniqid=Math.floor(Math.random()*10000000);
 
 
     jQuery.when(jQuery.get("index.php?option=com_gglms&id_utente="+id_utente+"&id_contenuto="+id_contenuto+"&supporto="+supporto+"&uniqid="+uniqid+"&task=report.insertUserLog"))

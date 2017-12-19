@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.17
+  - B: inserita registrazione log utente, con gestione admin
+       inserita possibilità assenza modulo quiz-deluxe    
 3.8.16
   - F: inserito tooltip per libretto in report
   - B: corretto bug blocco caricamento a 400
