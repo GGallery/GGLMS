@@ -47,5 +47,51 @@ class gglmsModelReport extends JModelList {
         return $result;
     }
 
+    public function allinea_tabella($tabella,$modalita=null){
 
+        $db= JFactory::getDBO();
+        $query = $db->getQuery(true);
+        if($tabella=='scormvars')
+            $query=$this->query_scormvars($query,$modalita);
+        if($tabella=='unit_map')
+            $query=$this->query_unit_map($query,$modalita);
+        $db->setQuery($query);
+        if($modalita=='delete') {
+            $result = $db->execute();
+
+        }else{
+            $result = $db->loadResult();
+
+        }
+
+        return $result;
+
+    }
+
+    private function query_scormvars($query,$modalita=null){
+
+        if($modalita=='delete') {
+            $query->delete('#__gg_scormvars');
+        }else{
+            $query->select('count(*)');
+            $query->from('#__gg_scormvars');
+        }
+        $query->where ('scoid not in (select id from #__gg_contenuti)');
+
+               return $query;
+
+    }
+
+    private function query_unit_map($query,$modalita=null){
+
+        if($modalita=='delete') {
+            $query->delete('#__gg_unit_map');
+        }else{
+            $query->select('count(*)');
+            $query->from('#__gg_unit_map');
+        }
+        $query->where ('idunita not in (select id from #__gg_unit)');
+
+        return $query;
+    }
 }

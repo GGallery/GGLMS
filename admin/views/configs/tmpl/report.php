@@ -64,23 +64,56 @@
                 <?php echo $this->form->renderField('sync_automatico'); ?>
             </div>
             <div class="row-fluid">
-                <a id="empty_tables" class="btn active btn-success" onclick="empty_tables()">Svuota tutte le tabelle di Report</a>
+                <a id="empty_tables" class="btn active btn-success" onclick="prepare_db()">Svuota tutte le tabelle di Report</a>
             </div>
         </div>
     </div>
 </div>
 <script type="text/javascript">
 
+    var i,tabelle;
+
+    function prepare_db() {
+
+        Joomla.renderMessages({"success":["Attendi, caricamento dei dati in corso..."]});
+        console.log('prepare');
+        i = 0;
+        tabelle=['scormvars','unit_map'];
+        allinea_tabella(tabelle[i],'count');
+    }
+
+    function allinea_tabella(tabella,modalita) {
+        Joomla.renderMessages({"success":["Attendi, caricamento dei dati in corso..."]});
+        console.log(tabella+' '+modalita);
+        jQuery.when(jQuery.get("index.php?option=com_gglms&tabella="+tabella+"&modalita="+modalita+"&task=report.allinea_tabella"))
+            .done(function(data){
+                result=JSON.parse(data);
+                if(modalita=='delete'){
+                    if(result==true){
+                            i++;
+                            if(i<tabelle.length){
+                                allinea_tabella(tabelle[i],'count');
+                            }else{
+                                empty_tables();
+                            }
+                    }
+               }else{
+                    if(confirm('attenzione stai rimuovendo da '+tabella+' '+result+' record')){
+                       allinea_tabella(tabella,'delete');
+                    }
+                }
+            }).fail(function(data){
+        });
+    }
+
     function empty_tables() {
 
+        console.log('empty')
         var ok=confirm('Attenzione: stai svuotando tutte le tabelle di report: dopo questa operazione sarà necessario ricaricarle');
         if(ok==true){
 
             location.href='index.php?option=com_gglms&task=report.empty_tables';
-
-
         }
-
     }
 
 

@@ -24,6 +24,7 @@ class gglmsControllerReport extends JControllerAdmin
 {
     public function empty_tables()
     {
+
         $model = new gglmsModelReport();
 
         if ($model->empty_tables()==true){
@@ -34,6 +35,21 @@ class gglmsControllerReport extends JControllerAdmin
         }else{
 
             $this->setRedirect('index.php?option=com_gglms&view=configs&extension=com_gglms',JFactory::getApplication()->enqueueMessage(JText::_('SOME_ERROR_OCCURRED'), 'error'));
+        }
+    }
+
+    public function allinea_tabella(){
+
+        try {
+
+            $tabella = JRequest::getVar('tabella');
+            $modalita = JRequest::getVar('modalita');
+            $model = new gglmsModelReport();
+            echo json_encode($model->allinea_tabella($tabella, $modalita));
+            JFactory::getApplication()->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log('ERRORE DA ALLINEA TABELLA'.$tabella.' in '.$modalita,'ERRORE DA ALLINEA TABELLA'.$tabella.' in '.$modalita,0,1);
         }
     }
 }

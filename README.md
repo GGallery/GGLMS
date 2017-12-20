@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.18
+  - B aggiunte nel pulsante di scaricamento tabelle report funzione pulizia tabelle scormvars e unit_map
 3.8.17
   - B: inserita registrazione log utente, con gestione admin
        inserita possibilità assenza modulo quiz-deluxe    

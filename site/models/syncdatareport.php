@@ -119,7 +119,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         try {
             $scormvar_list = $this->_getScormvarsVariation($limit,$offset);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit,$offset);
-            $list = array_merge($scormvar_list, $quizdeluxe_list);
+            if($quizdeluxe_list!=null){$list = array_merge($scormvar_list, $quizdeluxe_list);}else{$list = $scormvar_list;}
 
             //if($limit==200){$list=null;} //SIMULAZIONE DI FINE
 
@@ -174,7 +174,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         try {
             $scormvar_list = $this->_getScormvarsVariation(0,0);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation(0,0);
-            $list = array_merge($scormvar_list, $quizdeluxe_list);
+            if($quizdeluxe_list!=null){$list = array_merge($scormvar_list, $quizdeluxe_list);}else{$list = $scormvar_list;}
             return count($list);
         }
         catch (Exception $e) {
@@ -191,7 +191,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
                 ->select('DISTINCT s.scoid as id_contenuto, s.userid as id_utente')
                 ->from('#__gg_scormvars as s');
 
-            if($this->params->get('data_sync'))
+            if($this->params->get('data_sync')>'1900-01-01')
                 $query->where('timestamp > "' . $this->params->get('data_sync').'"')
 
                     ->setLimit($offset,$limit);
@@ -226,8 +226,8 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }
         catch (Exception $e) {
             //echo "_quizdeluxe ".$e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error in getQuizDeLuxe',0,1);
-            DEBUGG::query($query, '_getScormvarsVariation', 0);
+            //DEBUGG::log($e->getMessage(), 'error in getQuizDeLuxe',0,1);
+            //DEBUGG::query($query, '_getScormvarsVariation', 0);
             return null;
         }
     }
