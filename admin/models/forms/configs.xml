@@ -212,6 +212,42 @@
 				  default=""
 		/>
 
+		<field 	name="campo_community_builder_nome"
+				  type="listafieldcb"
+				  label="Campo CB Nome"
+				  description="Campo Community Builder Nome"
+				  showon="integrazione:cb"
+				  class="inputbox"
+				  default=""
+		/>
+
+		<field 	name="campo_community_builder_cognome"
+				  type="listafieldcb"
+				  label="Campo CB controllo Cognome"
+				  description="Campo Community Builder Cognome"
+				  showon="integrazione:cb"
+				  class="inputbox"
+				  default=""
+		/>
+
+		<field 	name="campo_event_booking_nome"
+				  type="listafieldeb"
+				  label="Campo EB Nome"
+				  description="Campo Evento Booking Nome"
+				  showon="integrazione:eb"
+				  class="inputbox"
+				  default=""
+		/>
+
+		<field 	name="campo_event_booking_cognome"
+				  type="listafieldeb"
+				  label="Campo EB controllo Cognome"
+				  description="Campo Evento Booking Cognome"
+				  showon="integrazione:eb"
+				  class="inputbox"
+				  default=""
+		/>
+
 		<field
 				name="larghezza_box_contenuti"
 				type="radio"

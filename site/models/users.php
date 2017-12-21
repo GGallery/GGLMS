@@ -73,10 +73,13 @@ class gglmsModelUsers  extends JModelLegacy {
         
     private function get_user_cb($id){
 
+        $colonna_nome=$this->_app->getParams()->get('campo_community_builder_nome');
+        $colonna_cognome=$this->_app->getParams()->get('campo_community_builder_cognome');
+
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('*, firstname as nome, lastname as cognome ')
+                ->select('*, '.$colonna_nome.' as nome, '.$colonna_cognome.' as cognome ')
                 ->from('#__comprofiler as r')
                 ->join('inner', '#__users as u on u.id = r.id')
                 ->where('r.user_id = ' . $id);
@@ -94,6 +97,10 @@ class gglmsModelUsers  extends JModelLegacy {
     }
 
     private function get_user_eb($id, $id_eb){
+
+        $colonna_nome=$this->_app->getParams()->get('campo_event_booking_nome');
+        $colonna_cognome=$this->_app->getParams()->get('campo_event_booking_cognome');
+
         try {
             $query = $this->_db->getQuery(true)
                 ->select('*')
@@ -106,8 +113,8 @@ class gglmsModelUsers  extends JModelLegacy {
             $registrants = $this->_db->loadAssoc();
 
             if($registrants['id']) {
-                $registrants['nome'] = $registrants['first_name'];
-                $registrants['cognome'] = $registrants['last_name'];
+                $registrants['nome'] = $registrants[$colonna_nome];
+                $registrants['cognome'] = $registrants[$colonna_cognome];
 
                 $extrafieldfields = $this->get_user_field_eb($registrants['id']);
 

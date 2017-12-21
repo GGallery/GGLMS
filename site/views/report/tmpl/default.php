@@ -524,9 +524,10 @@ function checkSeconds() {
             .done(function(data){
                 data=JSON.parse(data);
                 loadreportlimit+=loadreportoffset;
-                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento fino a record n° '+loadreportlimit+'</td></tr>');
+
                 console.log('data:'+data+' loadreportlimit a:'+loadreportlimit);
                 if(data=='true') {
+                    jQuery('#details_table_caricamento_report').append('<tr><td>caricamento fino a record n° '+loadreportlimit+'</td></tr>');
                     dataSyncReport(loadreportlimit, loadreportoffset);
                 }else{
                     dataUpdateConfig();

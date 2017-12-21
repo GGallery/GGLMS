@@ -56,6 +56,18 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('data_sync_seconds_limit'); ?>
             </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_community_builder_nome'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_community_builder_cognome'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_event_booking_nome'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_event_booking_cognome'); ?>
+            </div>
 
             <div class="row-fluid">
                 <?php echo $this->form->renderField('log_utente'); ?>
