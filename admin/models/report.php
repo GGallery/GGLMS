@@ -27,7 +27,11 @@ class gglmsModelReport extends JModelList {
 
             if($this->empty_table('#__gg_report')==true){
 
+                if($this->azzera_data_sync()){
                 return true;
+                }else{
+                    return false;
+                }
             }else{
                 return false;
             }
@@ -45,6 +49,17 @@ class gglmsModelReport extends JModelList {
         $db->setQuery($query);
         $result=$db->execute();
         return $result;
+    }
+
+    private function azzera_data_sync(){
+
+        $db= JFactory::getDBO();
+        $query = 'UPDATE #__gg_configs SET config_value=null WHERE config_key=\'data_sync\'';
+
+        $db->setQuery($query);
+        $result=$db->execute();
+        return $result;
+
     }
 
     public function allinea_tabella($tabella,$modalita=null){

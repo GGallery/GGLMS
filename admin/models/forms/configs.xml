@@ -213,7 +213,7 @@
 		/>
 
 		<field 	name="campo_community_builder_nome"
-				  type="listafieldcb"
+				  type="listafieldcbxrep"
 				  label="Campo CB Nome"
 				  description="Campo Community Builder Nome"
 				  showon="integrazione:cb"
@@ -222,7 +222,7 @@
 		/>
 
 		<field 	name="campo_community_builder_cognome"
-				  type="listafieldcb"
+				  type="listafieldcbxrep"
 				  label="Campo CB controllo Cognome"
 				  description="Campo Community Builder Cognome"
 				  showon="integrazione:cb"
@@ -231,7 +231,7 @@
 		/>
 
 		<field 	name="campo_event_booking_nome"
-				  type="listafieldeb"
+				  type="listafieldebxrep"
 				  label="Campo EB Nome"
 				  description="Campo Evento Booking Nome"
 				  showon="integrazione:eb"
@@ -240,7 +240,7 @@
 		/>
 
 		<field 	name="campo_event_booking_cognome"
-				  type="listafieldeb"
+				  type="listafieldebxrep"
 				  label="Campo EB controllo Cognome"
 				  description="Campo Evento Booking Cognome"
 				  showon="integrazione:eb"

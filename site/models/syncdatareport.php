@@ -301,7 +301,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return true;
         }catch (Exception $e){
             echo $e->getMessage();
-            die;
+
             DEBUGG::log($e->getMessage(), 'error sync_report_users', 1,1);
             return false;
         }
@@ -395,6 +395,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             VALUES ($data->id_event_booking, $data->id_user, $data->nome,$data->cognome,$data->fields)";
             $query .= " ON DUPLICATE KEY UPDATE fields = $data->fields";
             $this->_db->setQuery($query);
+
             $this->_db->execute();
 
         }catch (Exception $e){

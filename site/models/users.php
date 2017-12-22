@@ -76,6 +76,7 @@ class gglmsModelUsers  extends JModelLegacy {
         $colonna_nome=$this->_app->getParams()->get('campo_community_builder_nome');
         $colonna_cognome=$this->_app->getParams()->get('campo_community_builder_cognome');
 
+
         try {
 
             $query = $this->_db->getQuery(true)
@@ -100,6 +101,7 @@ class gglmsModelUsers  extends JModelLegacy {
 
         $colonna_nome=$this->_app->getParams()->get('campo_event_booking_nome');
         $colonna_cognome=$this->_app->getParams()->get('campo_event_booking_cognome');
+
 
         try {
             $query = $this->_db->getQuery(true)
