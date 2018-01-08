@@ -128,6 +128,7 @@ class gglmsModelconfigs extends JModelAdmin {
             $row->id           = 0;
             $row->config_key   = $key;
             $row->config_value = $value;
+
             $row->store();
 
             //necessario per salvare i parametri nel campo params del componente.

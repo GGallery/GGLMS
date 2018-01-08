@@ -303,6 +303,23 @@
 				  default="1,2"
 		/>
 
+		<!-- I N I Z I O ATTESTATO-->
+
+
+		<field
+				name="testo_invito_scaricare_attestato"
+				class="inputbox"
+				buttons = "false"
+				label=""
+				type="editor"
+				validate=""
+				required=""
+				size="100"
+				default="Congratulazioni!  Ora puoi scaricare l'attestato del corso cliccando sull'icona qui a fianco."
+				filter="safehtml"
+		/>
+
+		<!-- F I N E     ATTESTATO-->
 
 		<!-- I N I Z I O BREADCRUMB-->
 

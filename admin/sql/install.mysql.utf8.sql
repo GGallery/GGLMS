@@ -49,7 +49,7 @@ INSERT INTO `#__gg_configs` VALUES ('17', 'visibilita_durata', '1,2');
 INSERT INTO `#__gg_configs` VALUES ('18', 'larghezza_box_unita', 'size-25');
 INSERT INTO `#__gg_configs` VALUES ('19', 'larghezza_box_contenuti', 'size-25');
 INSERT INTO `#__gg_configs` VALUES ('20', 'id_gruppi_visibili', '2,7,8');
-
+INSERT INTO `#__gg_configs` VALUES ('21', 'testo_invito_scaricare_attestato', '<h2>Congratulazioni!</h2>  Ora puoi scaricare l''attestato del corso cliccando sull''icona qui a fianco.<br>');
 
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
@@ -189,7 +189,7 @@ CREATE TABLE `#__gg_log` (
   `uniqid` varchar(30) DEFAULT NULL,
   `permanenza` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=187993 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_log
@@ -231,6 +231,9 @@ CREATE TABLE `#__gg_unit` (
   `accesso` text,
   `is_corso` int(10) DEFAULT NULL,
   `id_contenuto_completamento` int(10) DEFAULT NULL,
+  `data_inizio` date NULL AFTER `is_corso`,
+  `data_fine` date NULL AFTER `data_inizio`,
+
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=MyISAM AUTO_INCREMENT=132 DEFAULT CHARSET=utf8;
@@ -266,14 +269,7 @@ CREATE TABLE `#__gg_usergroup_map` (
   PRIMARY KEY (`idunita`,`idgruppo`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- --------------------------------
--- Alter Table of #__gg_unit
--- ---------------------------------
 
-
-ALTER TABLE `#__gg_unit`
-ADD COLUMN `data_inizio` date NULL AFTER `is_corso`,
-ADD COLUMN `data_fine` date NULL AFTER `data_inizio`;
 
 -- ----------------------------------
 -- Table of #__gg_csv_report

@@ -20,7 +20,9 @@ class gglmsControllerConfigs extends JControllerForm
         $app = JFactory::getApplication();
         $postData = $app->input->post;
 
-        $data = $postData->get('jform', 'defaultvalue', 'filter');
+
+        $data = $postData->get('jform', null, 'RAW');
+
 
 
         $model = $this->getModel();
