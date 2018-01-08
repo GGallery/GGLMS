@@ -14,3 +14,5 @@ CREATE TABLE `#__gg_csv_report`  (
   `hacompletato` date NULL DEFAULT NULL,
   `alert` int(255) NULL DEFAULT NULL
 )
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8;

@@ -266,4 +266,49 @@ CREATE TABLE `#__gg_usergroup_map` (
   PRIMARY KEY (`idunita`,`idgruppo`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+-- --------------------------------
+-- Alter Table of #__gg_unit
+-- ---------------------------------
 
+
+ALTER TABLE `#__gg_unit`
+ADD COLUMN `data_inizio` date NULL AFTER `is_corso`,
+ADD COLUMN `data_fine` date NULL AFTER `data_inizio`;
+
+-- ----------------------------------
+-- Table of #__gg_csv_report
+-- ----------------------------------
+
+DROP TABLE IF EXISTS `#__gg_csv_report`;
+CREATE TABLE `#__gg_csv_report`  (
+  `id_chiamata` int(255) NOT NULL,
+  `id_utente` int(255) NOT NULL,
+  `nome` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `cognome` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `fields` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
+  `email` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `stato` int(255) NULL DEFAULT NULL,
+  `hainiziato` date NULL DEFAULT NULL,
+  `hacompletato` date NULL DEFAULT NULL,
+  `alert` int(255) NULL DEFAULT NULL
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8;
+-- ----------------------------------
+-- Table of #__gg_log
+-- ----------------------------------
+
+DROP TABLE IF EXISTS `#__gg_log`;
+CREATE TABLE `#__gg_log` (
+`id`  int(10) NOT NULL AUTO_INCREMENT ,
+`id_utente`  int(10) NULL DEFAULT NULL ,
+`id_contenuto`  int(10) NULL DEFAULT NULL ,
+`data_accesso`  datetime NULL DEFAULT NULL ,
+`supporto`  tinytext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`ip_address`  varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`uniqid`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`permanenza`  int(11) NULL DEFAULT NULL ,
+PRIMARY KEY (`id`)
+)
+ENGINE=MyISAM
+DEFAULT CHARACTER SET=utf8;
