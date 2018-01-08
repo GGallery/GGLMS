@@ -231,9 +231,8 @@ CREATE TABLE `#__gg_unit` (
   `accesso` text,
   `is_corso` int(10) DEFAULT NULL,
   `id_contenuto_completamento` int(10) DEFAULT NULL,
-  `data_inizio` date NULL AFTER `is_corso`,
-  `data_fine` date NULL AFTER `data_inizio`,
-
+  `data_inizio` date NULL,
+  `data_fine` date NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=MyISAM AUTO_INCREMENT=132 DEFAULT CHARSET=utf8;
