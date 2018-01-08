@@ -21,6 +21,7 @@ class gglmsControllerContenuto extends JControllerLegacy
 
 		$japp = JFactory::getApplication();
 
+
 		$secondi = JRequest::getVar('secondi');
 		$stato = JRequest::getVar('stato');
 		$id_elemento = JRequest::getVar('id_elemento');
