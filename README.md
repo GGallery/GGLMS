@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.20
+  -F tolto commento da pubblicato=1 dl model di unita
 3.8.19
   - B inserita in modalità admin scelta colonna nome e cognome per le diverse configurazioni anagrafiche, corretto bug limit su symc_report
 3.8.18

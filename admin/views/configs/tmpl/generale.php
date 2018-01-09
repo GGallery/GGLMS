@@ -46,7 +46,7 @@
                 <span class="icon-info-2" style="position: relative; float: left; font-size: 40px; margin-right: 35px; margin-top: 11px;">  </span>
                 <h4 class="alert-heading">CUSTOM CSS</h4>
                 <div class="alert-message">
-                    E' possibile personalizzare il css nel frontend utilizzando il file <b>ggslm_custom.css</b> posizionato nella
+                    E' possibile personalizzare il css nel frontend utilizzando il file <b>gglms_custom.css</b> posizionato nella
                     root dell'installazione di joomla (es. httpdocs/home/gglms_custom.css). Se non è presente crealo,
                     non verrà comunque sovrascritto da aggiornamenti di GGlms.
                 </div>
