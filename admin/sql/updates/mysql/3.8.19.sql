@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `#__gg_unit_log`;
 CREATE TABLE `#__gg_log` (
 `id`  int(10) NOT NULL AUTO_INCREMENT ,
 `id_utente`  int(10) NULL DEFAULT NULL ,
