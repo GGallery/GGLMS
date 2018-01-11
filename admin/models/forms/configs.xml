@@ -232,7 +232,7 @@
 
 		<field 	name="campo_event_booking_nome"
 				  type="listafieldebxrep"
-				  label="Campo EB Nome"
+				  label="Campo EB controllo Nome"
 				  description="Campo Evento Booking Nome"
 				  showon="integrazione:eb"
 				  class="inputbox"
@@ -301,6 +301,27 @@
 				  label="Durata visibile per le tipologie"
 				  description="Durata visibile per le tipologie(1-videoslide, 2-solovideo, 3-allegati, 4-scorm, 5-attestato, 6-testuale, 7-quizdeluxe)"
 				  default="1,2"
+		/>
+
+		<field 	name="campo_community_builder_campi_csv"
+				  type="listafieldcbxcsv"
+				  label="Ulteriori campi CB per CSV"
+				  description="Campi Community Builder per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
+				  showon="integrazione:cb"
+				  class="inputbox"
+				  multiple="multiple"
+				  default="1"
+		/>
+
+		<field 	name="campo_event_booking_campi_csv"
+				  type="listafieldebxcsv"
+				  label="Ulteriori campi EB per CSV"
+				  description="Campi Event Booking per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
+				  showon="integrazione:eb"
+				  class="inputbox"
+				  multiple="multiple"
+				  id="csvselect"
+				  default="1"
 		/>
 
 		<!-- I N I Z I O ATTESTATO-->

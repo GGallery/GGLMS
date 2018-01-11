@@ -48,11 +48,13 @@ class gglmsModelconfigs extends JModelAdmin {
 
                 $data->$key = $value;
 
-                if($key=='id_gruppi_visibili')
+                if($key=='id_gruppi_visibili' || $key=='campo_event_booking_campi_csv' || $key=='campo_community_builder_campi_csv')
                     $data->$key = explode(",", $value);
+
 
             }
         }
+
         return $data;
 
 
@@ -141,7 +143,7 @@ class gglmsModelconfigs extends JModelAdmin {
         $table = JTable::getInstance('extension');
         $table->load($componentid);
         $table->bind(array('params' => $params->toString()));
-        
+
         if (!$table->check()) {
             $this->setError('lastcreatedate: check: ' . $table->getError());
             return false;

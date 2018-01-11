@@ -249,15 +249,37 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function createCSV(){
 
+
         $id_chiamata=$this->_filterparam->id_chiamata;
         $corso_id=$this->_filterparam->corso_id;
         $query = $this->_db->getQuery(true);
-        $query->select('id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato, alert');
+        $query->select('id_chiamata, id_utente, nome, cognome,email,fields, stato,hainiziato, hacompletato, alert');
         $query->from('#__gg_csv_report');
         $query->where('id_chiamata='.$id_chiamata);
         $this->_db->setQuery($query);
         $rows = $this->_db->loadAssocList();
+        if($this->_params->get('campo_event_booking_campi_csv')!=null) {
+            $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_event_booking_campi_csv'));
+        }else if($this->_params->get('campo_community_builder_campi_csv')!=null) {
+            $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_community_builder_campi_csv'));
+        }else{
+            $elenco_campi_per_csv_da_back_end=[];
+        }
+        if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
+            $added_colums_rows = [];
+            var_dump($elenco_campi_per_csv_da_back_end);
+            foreach ($rows as $row) {
+                $rowfields = (array)json_decode($row['fields']);
 
+                foreach ($elenco_campi_per_csv_da_back_end as $nuovacolonna => $nuovovalore) {
+
+                    $row[$nuovovalore]=$rowfields[$nuovovalore] ;
+                }
+                array_push($added_colums_rows, $row);
+            }
+            $rows = $added_colums_rows;
+        }
+       
 
 try {
     if (!empty($rows)) {

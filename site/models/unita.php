@@ -307,7 +307,8 @@ class gglmsModelUnita extends JModelLegacy {
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
-
+//echo($query);
+//var_dump($data);die;
 
             if ($data == 0)
                 return false;

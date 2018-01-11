@@ -39,7 +39,18 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('id_gruppi_visibili'); ?>
             </div>
-
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_community_builder_nome'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_community_builder_cognome'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_event_booking_nome'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campo_event_booking_cognome'); ?>
+            </div>
 
 
             <div class="alert alert-warning">

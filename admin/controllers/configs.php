@@ -21,7 +21,7 @@ class gglmsControllerConfigs extends JControllerForm
         $postData = $app->input->post;
 
 
-        $data = $postData->get('jform', null, 'RAW');
+        $data = $postData->get('jform', null, 'RAW'); //RAW  necessario per portare formattazione html testo presentazione attestato
 
 
 

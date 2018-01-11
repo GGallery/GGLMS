@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.21
+  - B inserito nel back end la possibilità di scegliere quali colonne aggiungere alla creazione del csv da report
 3.8.20
   -F tolto commento da pubblicato=1 dl model di unita
 3.8.19

@@ -56,17 +56,12 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('data_sync_seconds_limit'); ?>
             </div>
+
             <div class="row-fluid">
-                <?php echo $this->form->renderField('campo_community_builder_nome'); ?>
+                <?php echo $this->form->renderField('campo_community_builder_campi_csv'); ?>
             </div>
             <div class="row-fluid">
-                <?php echo $this->form->renderField('campo_community_builder_cognome'); ?>
-            </div>
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('campo_event_booking_nome'); ?>
-            </div>
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('campo_event_booking_cognome'); ?>
+                <?php echo $this->form->renderField('campo_event_booking_campi_csv'); ?>
             </div>
 
             <div class="row-fluid">
@@ -126,6 +121,14 @@
 
             location.href='index.php?option=com_gglms&task=report.empty_tables';
         }
+    }
+
+    jform_csvselect.onchange= function () {
+        var e=document.getElementById('jform_csvselect');
+        if(e.options[e.selectedIndex]==null){
+            alert('attenzione inserire un campo nella scelta dei campi per csv');
+        }
+        
     }
 
 

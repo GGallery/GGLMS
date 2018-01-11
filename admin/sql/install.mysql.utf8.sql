@@ -307,3 +307,47 @@ PRIMARY KEY (`id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8;
+
+-- ----------------------------------
+-- Table of #__gg_report
+-- ----------------------------------
+
+DROP TABLE IF EXISTS `#__gg_report`;
+CREATE TABLE `un_gg_report` (
+`id_corso`  int(10) NOT NULL ,
+`id_event_booking`  int(10) NULL DEFAULT NULL ,
+`id_unita`  int(10) NOT NULL ,
+`id_contenuto`  int(10) NOT NULL ,
+`id_utente`  int(10) NOT NULL ,
+`id_anagrafica`  int(10) NULL DEFAULT NULL ,
+`stato`  int(10) NULL DEFAULT NULL ,
+`data`  date NULL DEFAULT NULL ,
+`visualizzazioni`  int(10) NULL DEFAULT NULL ,
+`timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+PRIMARY KEY (`id_contenuto`, `id_utente`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+
+;
+
+-- ----------------------------
+-- Table of `#__gg_report_users`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_report_users`;
+CREATE TABLE `#__gg_report_users` (
+`id`  int(10) NOT NULL AUTO_INCREMENT ,
+`id_event_booking`  int(10) NULL DEFAULT NULL ,
+`id_user`  int(10) NULL DEFAULT NULL ,
+`nome`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`cognome`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+`fields`  longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+`timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+PRIMARY KEY (`id`),
+UNIQUE INDEX `unico` (`id_event_booking`, `id_user`) USING BTREE
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
+AUTO_INCREMENT=3955
+
+;
