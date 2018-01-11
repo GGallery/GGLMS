@@ -149,9 +149,6 @@ class gglmsModelUnita extends JModelLegacy {
                 ->where('c.pubblicato = 1')
                 ->order('m.ordinamento');
 
-//			echo (string)$query;
-//			die();
-
 
             $this->_db->setQuery($query);
             $contenuti = $this->_db->loadObjectList('', 'gglmsModelContenuto');
