@@ -59,6 +59,8 @@ class gglmsModelunitas extends JModelList {
         //     $query->where("id_congresso REGEXP '[[:<:]]". $id_congresso ."[[:>:]]'");
         // }
 
+        // Filter company
+
 
         return $query;
     }

@@ -20,6 +20,11 @@ JFormHelper::addFieldPath(JPATH_COMPONENT . '/models/fields');
 //$congressi = JFormHelper::loadFieldType('congressi', false);
 //$congressiOptions = $congressi->getOptions();
 
+$this->corsi = $this->get('Corsi');
+//$temp=$this->get('Unitas');
+//$this->unitas=$temp[0];
+//$this->contenuti=$temp[1];
+//var_dump($this->contenuti);
 ?>
 
 <div id="j-sidebar-container" class="span2">
@@ -33,17 +38,39 @@ JFormHelper::addFieldPath(JPATH_COMPONENT . '/models/fields');
                 <div class="clearfix">
                     <div class="js-stools-container-bar">
                         <div class="js-stools-container-bar">
-                            <label class="element-invisible" for="filter_search"> <?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?></label>
+                            <label class="element-invisible" for="filter_search">
+                                <?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?></label>
+
+                            <div class=""js-stools-container-bar">
+
+                                <select id="corsi" name="corsi">
+
+                                     <?php echo '<option value=null> - filtra per corso - </option>';
+                                          foreach ($this->corsi as $corso){
+                                         $selected=null;
+                                         //var_dump( JFactory::getApplication()->input->get('corsi','',''));die;
+                                         if( $corso->id==JFactory::getApplication()->input->get('corsi','','')){
+                                             $selected='selected="selected"';
+                                         }
+                                        echo '<option value="'.$corso->id.'"'.$selected.'>'.$corso->titolo."</option>";
+                                     }?>
+                                </select>
+
+                            </div>
                             <div class="btn-wrapper input-append">
 
                                 <input type="text" name="filter_search" id="filter_search" value="<?php echo $this->escape($this->searchterms); ?>" title="<?php echo JText::_('COM_GGLMS_SELEZIONATITOLODESCRIZIONEETC'); ?>" />
+
                                 <button type="submit" class="btn hasTooltip">
                                     <?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>
                                 </button>
                                 <button type="button" class="btn hasTooltip" onclick="document.id('filter_search').value='';this.form.submit();">
                                     <?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>
                                 </button>
+
                             </div>
+
+
 
 
 <!--                            <select name="filter_categoria" class="chzn-done" onchange="this.form.submit()">-->
@@ -70,3 +97,13 @@ JFormHelper::addFieldPath(JPATH_COMPONENT . '/models/fields');
     </form>
 </div>
 </div>
+<script type="text/javascript">
+    corsi.onchange= function () {
+        this.form.submit();
+
+    }
+    unita.onchange= function () {
+        this.form.submit();
+
+    }
+</script>

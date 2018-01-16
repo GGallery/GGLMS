@@ -15,12 +15,21 @@ class gglmsModelContents extends JModelList {
 
     //Add this handy array with database fields to search in
     protected $searchInFields = array( 'a.titolo', 'descrizione');
+    private $unitas=array();
+    private $contenuti=array();
 
 //Override construct to allow filtering and ordering on our fields
     public function __construct($config = array()) {
         $config['filter_fields'] = array_merge($this->searchInFields, array('a.categoria'));
-
+        $config['filter_fields'] = array_merge($this->searchInFields, array('u.id'));
         parent::__construct($config);
+    }
+
+    public function getForm($data = array(), $loadData = true) {
+        // Get the form.
+        $form = $this->loadForm('com_gglms.contents', 'contents', array('control' => 'jform', 'load_data' => $loadData));
+
+        return $form;
     }
 
     protected function getListQuery() {
@@ -52,7 +61,63 @@ class gglmsModelContents extends JModelList {
         }
 
 
+
+        if ($this->getState('corsi')!='null') {
+
+            $contenuti_str=null;
+            $contenuti=$this->getContenutiList($this->getState('corsi'));
+            foreach ($contenuti as $contenuto){
+
+                $contenuti_str=$contenuti_str.'-'.$contenuto;
+            }
+            $contenuti_str=substr($contenuti_str,1);
+            $contenuti_str=str_replace("-",",",$contenuti_str);
+            $query->where("id in (".$contenuti_str.")");
+        }
+
+       // echo $query;
+
         return $query;
+    }
+
+    public function getSottoUnita($pk = null)
+    {
+
+        try
+        {
+            $query = $this->_db->getQuery(true)
+                ->select('id')
+                ->from('#__gg_unit as u')
+                ->where('u.unitapadre  = ' . $pk)
+
+            ;
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadAssocList();
+
+        }
+        catch (Exception $e)
+        {
+            DEBUGG::log($e, 'getSottoUnita');
+        }
+
+//
+        return $data;
+    }
+
+    public function getAllContenuti($pk)
+    {
+        $sottunita = $this->getSottoUnita($pk);
+
+        $contenuti= array();
+        foreach ($sottunita as $unitafiglio){
+            $sottounita=$unitafiglio->getSottoUnita($pk);
+            $sottocontenuti = $unitafiglio->getContenuti();
+            $contenuti=array_merge($contenuti, $sottocontenuti);
+        }
+
+//		DEBUGG::log($contenuti, 'contenuti', 1);
+
+        return $contenuti;
     }
 
     /**
@@ -83,6 +148,108 @@ class gglmsModelContents extends JModelList {
         $state = $this->getUserStateFromRequest($this->context . '.filter.congresso', 'filter_congresso', '', 'string');
         $this->setState('filter.congresso', $state);
         parent::populateState('a.congresso', 'asc');
+
+        //$state = $this->getUserStateFromRequest($this->context . '.campo_lista_corsi', 'campo_lista_corsi', '', 'string');
+        $state =$app->input->get('corsi','','');
+       // var_dump($app->input->get('corsi','',''));
+        $this->setState('corsi', $state);
+
+
+
+        parent::populateState('corsi', 'asc');
     }
+
+    public function getCorsi(){
+
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__gg_unit AS a');
+        $query->where("is_corso=1 ");
+
+        $db->setQuery($query);
+
+        $corsi = $db->loadObjectList();
+
+
+        return $corsi;
+
+    }
+
+    public function getContenutiList($id_corso)
+    {
+
+            return $this->getSottoUnitas($id_corso);
+
+    }
+    public function getSottoUnitas($pk=null){
+
+
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__gg_unit AS a');
+
+        if($pk!=null)
+            $query->where("unitapadre=".$pk);
+
+        //echo $query.'<br>';
+        $db->setQuery($query);
+        $result=$db->loadObjectList();
+
+        if($result!=null) {
+            if ($this->unitas == null) {
+                $this->unitas = $result;
+            } else {
+                array_push($this->unitas, $result);
+
+            }
+        }
+
+
+            foreach ($result as $unita) {
+
+                $this->getContenuti($unita->id);
+                $this->getSottoUnitas($unita->id);
+
+
+        }
+        //echo count($this->unitas).'<br>';
+        //var_dump($this->contenuti);
+
+        return $this->contenuti;
+    }
+
+    public function getContenuti($pk=null){
+
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('id');
+        $query->from('#__gg_contenuti AS a');
+        $query->join('inner','#__gg_unit_map as u on a.id = u.idcontenuto');
+
+
+        if($pk!=999)
+            $query->where("idunita=".$pk);
+
+        //echo $query.'<br>';
+
+        $db->setQuery($query);
+        $result=$db->loadAssocList();
+
+        foreach ($result as $res) {
+
+            array_push($this->contenuti, $res['id']);
+
+        }
+        //var_dump($this->contenuti);
+        //return $this->contenuti;
+        //
+
+    }
+
 
 }

@@ -11,6 +11,7 @@
 defined('_JEXEC') or die;
 
 ?>
+
 <tr>
 	<th width="5">
 		<?php echo JText::_('COM_GGLMS_ID'); ?>

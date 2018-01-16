@@ -15,6 +15,9 @@ class gglmsViewContents extends JViewLegacy {
 
     function display($tpl = null) {
 
+        $form = $this->get('Form');
+        $this->form = $form;
+
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
@@ -43,6 +46,7 @@ class gglmsViewContents extends JViewLegacy {
     protected function setDocument() {
         $document = JFactory::getDocument();
         $document->setTitle(JText::_('COM_GGLMS_ADMINISTRATION'));
+        $document->addStyleSheet("/unico/media/jui/css/jquery.searchtools.css?748d04e1ef9639d6e79290609751cf67");
     }
 
 }
