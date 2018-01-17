@@ -9,6 +9,9 @@ if($this->unita->_params->get('abilita_breadcrumbs' , 1))
 
 echo "<h1>".$this->unita->titolo."</h1>";
 
+echo "<h5>".$this->unita->descrizione."</h5>";
+
+
 if($this->sottounita) {
 
     if ($this->unita->_params->get('titolo_unita_visibile')) {

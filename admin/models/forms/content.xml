@@ -145,7 +145,7 @@
 				class="inputbox"
 				required=""
 				showon="tipologia:5"
-				default="1"
+				default=""
 		>
 			<option value="">Nessun Prerequisito</option>
 		</field>
