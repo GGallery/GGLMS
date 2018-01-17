@@ -285,7 +285,10 @@ CREATE TABLE `#__gg_csv_report`  (
   `stato` int(255) NULL DEFAULT NULL,
   `hainiziato` date NULL DEFAULT NULL,
   `hacompletato` date NULL DEFAULT NULL,
+  `tempo_lavorativo` TIME DEFAULT NULL,
+  `tempo_straordinario` TIME DEFAULT NULL,
   `alert` int(255) NULL DEFAULT NULL
+
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8;

@@ -100,6 +100,21 @@ class gglmsControllerApi extends JControllerLegacy
                                 (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_corso = '.$id_corso.' and 
                                 id_contenuto= '. $id_contenuto. ' and stato = 1 ORDER BY r2.data limit 1) as hacompletato');
 
+
+            //SUBQUERY PER SOMME TEMPI DI COMPLETAMENTO
+            //$param_colonne_somme=$this->_params->get('colonne_somme_tempi';
+            $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
+            if($param_colonne_somme) {
+
+                $query->select($this->buildSelectColonneTempi($id_corso));
+
+
+            }
+
+
+
+
+
             //DISTINZIONE PER DEFINIZIONE VALORE DI ALERT
             if($this->_filterparam->filterstato==1){
                 $query->select('0 as alert');
@@ -170,9 +185,9 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
-            $this->_db->setQuery($query);
+            //$this->_db->setQuery($query);
 
-            $this->_db->execute();
+            //$this->_db->execute();
             $total=null;
             $countquery=$countquery.$query->from;
             $countquery=$countquery.(is_array($query->join)?implode($query->join):$query->join);
@@ -183,7 +198,7 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->order($key . " " . $value);
 
             }
-
+            //echo $query;
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
             $this->_db->setQuery($countquery);
@@ -213,7 +228,8 @@ class gglmsControllerApi extends JControllerLegacy
         $csvlimit=$this->_filterparam->csvlimit;
         $id_chiamata=$this->_filterparam->id_chiamata;
         $data=$this->get_data($csvlimit);
-
+        //$param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+        $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
         if($csvlimit>0) {
             foreach ($data['rows'] as $row) {
 
@@ -229,7 +245,18 @@ class gglmsControllerApi extends JControllerLegacy
                     $insertquery = $insertquery . $row['stato'] . ",";
                     $insertquery = $insertquery . "'" . $row['hainiziato'] . "',";
                     $insertquery = $insertquery . "'" . $row['hacompletato'] . "',";
+
+
+                    if($param_colonne_somme) {
+                        $insertquery = $insertquery . "'" . $row['tempo_lavorativo'] . "',";
+                        $insertquery = $insertquery . "'" . $row['tempo_straordinario'] . "',";
+                    }else{
+                        $insertquery = $insertquery . "null,";
+                        $insertquery = $insertquery . "null,";
+
+                    }
                     $insertquery = $insertquery . $row['alert'] . ")";
+
 
 
                     $this->_db->setQuery($insertquery);
@@ -249,11 +276,15 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function createCSV(){
 
-
+        //$param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+        $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
         $id_chiamata=$this->_filterparam->id_chiamata;
         $corso_id=$this->_filterparam->corso_id;
         $query = $this->_db->getQuery(true);
-        $query->select('id_chiamata, id_utente, nome, cognome,email,fields, stato,hainiziato, hacompletato, alert');
+        $colonne_somme=($param_colonne_somme)?',tempo_lavorativo,tempo_straordinario':'';
+        $query_csv_str='id_chiamata, id_utente, nome, cognome,email,fields, stato,hainiziato, hacompletato'.$colonne_somme.', alert';
+
+        $query->select($query_csv_str);
         $query->from('#__gg_csv_report');
         $query->where('id_chiamata='.$id_chiamata);
         $this->_db->setQuery($query);
@@ -267,7 +298,7 @@ class gglmsControllerApi extends JControllerLegacy
         }
         if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
             $added_colums_rows = [];
-            var_dump($elenco_campi_per_csv_da_back_end);
+            //var_dump($elenco_campi_per_csv_da_back_end);
             foreach ($rows as $row) {
                 $rowfields = (array)json_decode($row['fields']);
 
@@ -459,6 +490,47 @@ $this->_japp->close();
 
     }
 
+    private function buildSelectColonneTempi($id_corso){
+
+        $orario_inizio='09:00:00';
+        $orario_fine='17:00:00';
+        $select_somma_log_fascia_int='(select SEC_TO_TIME((select IFNULL(sum(permanenza),0) from un_gg_log as l where l.id_utente=r.id_utente and  l.id_contenuto in (select id_contenuto from un_gg_report where id_utente=l.id_utente and id_corso=' . $id_corso . ') and TIME(l.data_accesso)>\''.$orario_inizio.'\' and TIME(l.data_accesso)<\''.$orario_fine.'\')';
+        $select_somma_log_fascia_est='(select SEC_TO_TIME((select IFNULL(sum(permanenza),0) from un_gg_log as l where l.id_utente=r.id_utente and  l.id_contenuto in (select id_contenuto from un_gg_report where id_utente=l.id_utente and id_corso=' . $id_corso . ') and (TIME(l.data_accesso)<\''.$orario_inizio.'\' or TIME(l.data_accesso)>\''.$orario_fine.'\')';
+
+
+        $sub_query = 'select distinct c.id_quizdeluxe from #__gg_contenuti as c inner join #__gg_report as r on c.id=r.id_contenuto where id_corso=' . $id_corso;
+        $this->_db->setQuery($sub_query);
+        $id_quizzes = $this->_db->loadAssocList();
+
+        $in_quizzes = '';
+        if (count($id_quizzes) > 0){
+
+            foreach ($id_quizzes as $id_quiz){
+
+                $in_quizzes = $in_quizzes . ',' . $id_quiz['id_quizdeluxe'];
+            }
+
+            $in_quizzes = substr($in_quizzes, 1);
+            //echo $in_quizzes;
+            $select_somma_quiz_fascia_int='(select ifnull(sum(c_total_time),0) from un_quiz_r_student_quiz where c_quiz_id in (' . $in_quizzes . ') and c_student_id=r.id_utente and TIME(c_date_time) > \''.$orario_inizio.'\' and TIME(c_date_time) < \''.$orario_fine.'\')))';
+            $select_somma_quiz_fascia_est='(select ifnull(sum(c_total_time),0) from un_quiz_r_student_quiz where c_quiz_id in (' . $in_quizzes . ') and c_student_id=r.id_utente and (TIME(c_date_time) < \''.$orario_inizio.'\' or TIME(c_date_time) > \''.$orario_fine.'\')))))';
+
+            $select_result=$select_somma_log_fascia_int.' + '.$select_somma_quiz_fascia_int.'as tempo_lavorativo, '.$select_somma_log_fascia_est.'+'.$select_somma_quiz_fascia_est.' as tempo_straordinario';
+        }else{
+
+            $select_result=$select_somma_log_fascia_int.'))as tempo_lavorativo,'.$select_somma_log_fascia_est.'))) as tempo_straordinario';
+
+        }
+
+    return $select_result;
+
+
+
+
+
+
+
+}
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);
