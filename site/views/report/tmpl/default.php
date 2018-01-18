@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 JHtml::_('bootstrap.modal');
 
 
+
 ?>
 <div id="barrafiltri" class="span2">
 
@@ -102,8 +103,9 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="hainiziato" data-sortable="false">Iniziato il:</th>
                     <th data-column-id="hacompletato" data-sortable="false">Completato il:</th>
                     <?php
-                    //$param_colonne_somme=$this->_params->get('colonne_somme_tempi';
-                    $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
+
+                    $param_colonne_somme=JFactory::getApplication()->getParams()->get('colonne_somme_tempi');
+
                     if($param_colonne_somme){
                      echo
                     '<th data-column-id="tempo_lavorativo" data-sortable="false">Tempo Lav.</th>

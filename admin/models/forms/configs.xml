@@ -116,7 +116,17 @@
 			<option value="1">ON</option>
 		</field>
 
-
+		<field
+				name="colonne_somme_tempi"
+				type="radio"
+				class="btn-group"
+				label="Attiva sul report le colonne dei tempi impiegati"
+				labelclass="control-label"
+				default="0"
+		>
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
 
 		<field
 				name="nomenclatura_moduli"

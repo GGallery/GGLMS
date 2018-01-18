@@ -102,8 +102,8 @@ class gglmsControllerApi extends JControllerLegacy
 
 
             //SUBQUERY PER SOMME TEMPI DI COMPLETAMENTO
-            //$param_colonne_somme=$this->_params->get('colonne_somme_tempi';
-            $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
+            $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+
             if($param_colonne_somme) {
 
                 $query->select($this->buildSelectColonneTempi($id_corso));
@@ -228,8 +228,8 @@ class gglmsControllerApi extends JControllerLegacy
         $csvlimit=$this->_filterparam->csvlimit;
         $id_chiamata=$this->_filterparam->id_chiamata;
         $data=$this->get_data($csvlimit);
-        //$param_colonne_somme=$this->_params->get('colonne_somme_tempi');
-        $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
+        $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+
         if($csvlimit>0) {
             foreach ($data['rows'] as $row) {
 
@@ -276,8 +276,8 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function createCSV(){
 
-        //$param_colonne_somme=$this->_params->get('colonne_somme_tempi');
-        $param_colonne_somme=false; //DA SWITCHARE CON IL COMMENTO SOPRA
+       $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+
         $id_chiamata=$this->_filterparam->id_chiamata;
         $corso_id=$this->_filterparam->corso_id;
         $query = $this->_db->getQuery(true);
