@@ -43,10 +43,7 @@ class JFormFieldlistaContenuti extends JFormFieldList {
         $query->order("c.id");
 
 
-/*        $query='select * from un_gg_contenuti as c where id in (
-	select idcontenuto from un_gg_unit_map as m where m.idunita in (
-	select u.id from un_gg_unit as u where u.unitapadre='.$id.') or m.idunita='.$id.')';
-*/
+
         $db->setQuery($query);
 
         $options = $db->loadObjectList();
