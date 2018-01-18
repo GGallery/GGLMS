@@ -12,3 +12,14 @@ PRIMARY KEY (`id`)
 )
 ENGINE=MyISAM
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Table of `#__gg_error_log`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_error_log`;
+CREATE TABLE `#__gg_error_log` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `messaggio` varchar(250) DEFAULT NULL,
+  `timestamp` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;

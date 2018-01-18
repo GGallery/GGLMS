@@ -105,15 +105,8 @@ class gglmsControllerApi extends JControllerLegacy
             $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
 
             if($param_colonne_somme) {
-
                 $query->select($this->buildSelectColonneTempi($id_corso));
-
-
             }
-
-
-
-
 
             //DISTINZIONE PER DEFINIZIONE VALORE DI ALERT
             if($this->_filterparam->filterstato==1){
@@ -185,9 +178,6 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
-            //$this->_db->setQuery($query);
-
-            //$this->_db->execute();
             $total=null;
             $countquery=$countquery.$query->from;
             $countquery=$countquery.(is_array($query->join)?implode($query->join):$query->join);
@@ -204,9 +194,11 @@ class gglmsControllerApi extends JControllerLegacy
             $this->_db->setQuery($countquery);
             $total=$this->_db->LoadResult();
 
+
+
         }catch (Exception $e){
 
-            DEBUGG::log('ERRORE DA GETDATA','ERRORE DA GET DATA',1,1);
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()),'ERRORE DA GET DATA',1,1);
             //DEBUGG::error($e, 'error', 1);
         }
 
@@ -498,18 +490,16 @@ $this->_japp->close();
         $select_somma_log_fascia_est='(select SEC_TO_TIME((select IFNULL(sum(permanenza),0) from #__gg_log as l where l.id_utente=r.id_utente and  l.id_contenuto in (select id_contenuto from #__gg_report where id_utente=l.id_utente and id_corso=' . $id_corso . ') and (TIME(l.data_accesso)<\''.$orario_inizio.'\' or TIME(l.data_accesso)>\''.$orario_fine.'\')';
 
 
-        $sub_query = 'select distinct c.id_quizdeluxe from #__gg_contenuti as c inner join #__gg_report as r on c.id=r.id_contenuto where id_corso=' . $id_corso;
+        $sub_query = 'select distinct c.id_quizdeluxe from #__gg_contenuti as c inner join #__gg_report as r on c.id=r.id_contenuto where c.tipologia = 7 AND id_corso=' . $id_corso;
         $this->_db->setQuery($sub_query);
         $id_quizzes = $this->_db->loadAssocList();
 
         $in_quizzes = '';
         if (count($id_quizzes) > 0){
-
             foreach ($id_quizzes as $id_quiz){
 
                 $in_quizzes = $in_quizzes . ',' . $id_quiz['id_quizdeluxe'];
             }
-
             $in_quizzes = substr($in_quizzes, 1);
             //echo $in_quizzes;
             $select_somma_quiz_fascia_int='(select ifnull(sum(c_total_time),0) from #__quiz_r_student_quiz where c_quiz_id in (' . $in_quizzes . ') and c_student_id=r.id_utente and TIME(c_date_time) > \''.$orario_inizio.'\' and TIME(c_date_time) < \''.$orario_fine.'\')))';

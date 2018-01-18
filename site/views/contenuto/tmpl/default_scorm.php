@@ -1,20 +1,22 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 
+//BREADCRUMBS
 if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
+//BOOTSTRAP SCORM FILE
 if($this->contenuto->path)
     $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/'.$this->contenuto->path;
 else
     $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/index_lms_html5.html';
 
+
 ?>
-<script type="text/javascript">
-    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+<!--<script type="text/javascript">-->
+<!--    --><?php //if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+<!--</script>-->
 
-
-</script>
 <p style="text-align:center; margin: 100px;">
     <button id="start">
         <img   src="components/com_gglms/libraries/images/avviatest.jpg">
@@ -43,7 +45,9 @@ else
 
         var id_utente = '<?php echo $this->contenuto->_userid; ?>';
 
-        var url = '../../../../scorm/rte.php?SCOInstanceID=' + SCOInstanceID + '&pathscorm=' + pathscorm + '&id_utente=' + id_utente;
+        var log_status = '<?php echo JFactory::getApplication()->getParams()->get("log_utente")?>';
+
+        var url = '../../../../scorm/rte.php?SCOInstanceID=' + SCOInstanceID + '&pathscorm=' + pathscorm + '&id_utente=' + id_utente + '&log_status='+log_status;
 
         window.open(url, "", stile);
     });

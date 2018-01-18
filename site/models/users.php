@@ -29,9 +29,6 @@ class gglmsModelUsers  extends JModelLegacy {
 
     public function get_user($id = null, $integration_element_id = null  )
     {
-
-
-
         switch ($this->_params->get('integrazione')) {
             case 'cb':
                 $data =  $this->get_user_cb($id);
@@ -42,7 +39,7 @@ class gglmsModelUsers  extends JModelLegacy {
                 break;
 
             default:
-                $data =  null;
+                $data =  $this->get_user_joomla($id);
                 break;
         }
 
