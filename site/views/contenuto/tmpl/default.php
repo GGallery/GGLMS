@@ -1,13 +1,8 @@
 <?php
 // no direct access
-
-
 defined('_JEXEC') or die('Restricted access');
 
-
 $id_contenuto=$this->getContenuto();
-
-
 
 echo "<h1>Vista standard contenuto</h1>";
 ?>
