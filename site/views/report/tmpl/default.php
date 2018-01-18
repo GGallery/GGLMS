@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 JHtml::_('bootstrap.modal');
 
 
+
 ?>
 <div id="barrafiltri" class="span2">
 
@@ -101,6 +102,16 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="stato" data-formatter="stato"  data-sortable="false">Stato</th>
                     <th data-column-id="hainiziato" data-sortable="false">Iniziato il:</th>
                     <th data-column-id="hacompletato" data-sortable="false">Completato il:</th>
+                    <?php
+
+                    $param_colonne_somme=JFactory::getApplication()->getParams()->get('colonne_somme_tempi');
+
+                    if($param_colonne_somme){
+                     echo
+                    '<th data-column-id="tempo_lavorativo" data-sortable="false">Tempo Lav.</th>
+                     <th data-column-id="tempo_straordinario" data-sortable="false">Tempo Str.</th>';
+                    }
+                    ?>
                     <th data-column-id="alert" data-formatter="alert" data-sortable="false">In scadenza</th>
                     <th data-column-id="fields" data-visible="false" data-sortable="false">Campi</th>
                     <th data-column-id="id_utente" data-visible="false" data-sortable="false">Id</th>
@@ -564,7 +575,7 @@ function checkSeconds() {
         var startdate= jQuery("#startdate")[0]['value'];
         var finishdate= jQuery("#finishdate")[0]['value'];
         jQuery('#details_table_caricamento_csv').empty();
-        jQuery('#details_table_caricamento_csv').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti inviatiamo ad attendere...</td></tr>');
+        jQuery('#details_table_caricamento_csv').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
         jQuery("#detailsCaricamentoCSV").modal('show');
         jQuery.when(jQuery.get("index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&filterstato="+filterstato+
                                 "&startdate="+startdate+"&finishdate="+finishdate+"&csvlimit=0$csvoffset=0&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv"))

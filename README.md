@@ -4,6 +4,10 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.22
+  - D: aggiunte le colonne dei tempi nella tabella csv_report
+  - B: creata nel tab report la gestione da background della visibilità nel report delle colonne tempi
+  - F: inserite nel report le due colonne dei tempi impiegati, riprodotte anche nel CSV
 3.8.21
   - B inserito nel back end la possibilità di scegliere quali colonne aggiungere alla creazione del csv da report
 3.8.20

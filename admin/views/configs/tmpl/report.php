@@ -71,6 +71,9 @@
                 <?php echo $this->form->renderField('sync_automatico'); ?>
             </div>
             <div class="row-fluid">
+                <?php echo $this->form->renderField('colonne_somme_tempi'); ?>
+            </div>
+            <div class="row-fluid">
                 <a id="empty_tables" class="btn active btn-success" onclick="prepare_db()">Svuota tutte le tabelle di Report</a>
             </div>
         </div>
