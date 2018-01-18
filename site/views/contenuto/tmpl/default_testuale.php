@@ -7,7 +7,7 @@ $files= $this->contenuto->getFiles();
 echo "<h1>".$this->contenuto->titolo."</h1>";
 ?>
 <script type="text/javascript">
-    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$id_utente.','.$this->contenuto->id.', null);' ?>
+    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
 
 
 </script>

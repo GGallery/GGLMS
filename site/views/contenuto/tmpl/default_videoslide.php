@@ -5,8 +5,7 @@ if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
 $files= $this->contenuto->getFiles();
-$user = JFactory::getUser();
-$id_utente = $user->get('id');
+
 echo "<h1>".$this->contenuto->titolo."</h1>";
 
 ?>
@@ -17,7 +16,7 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
     jQuery(document).ready(function ($) {
 
-    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$id_utente.','.$this->contenuto->id.', null);' ?>
+    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
 
 
         var hasPlayed = false;
