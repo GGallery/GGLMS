@@ -316,7 +316,7 @@ DEFAULT CHARACTER SET=utf8;
 -- ----------------------------------
 
 DROP TABLE IF EXISTS `#__gg_report`;
-CREATE TABLE `un_gg_report` (
+CREATE TABLE `#__gg_report` (
 `id_corso`  int(10) NOT NULL ,
 `id_event_booking`  int(10) NULL DEFAULT NULL ,
 `id_unita`  int(10) NOT NULL ,

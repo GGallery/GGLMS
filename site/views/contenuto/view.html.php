@@ -31,7 +31,10 @@ class gglmsViewContenuto extends JViewLegacy {
         $this->contenuto->setStato();
 
         $this->_params = $this->contenuto->_params; //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb
-        
+
+        $user = JFactory::getUser();
+        $this->id_utente = $user->get('id');
+
         switch ($this->contenuto->tipologia_contenuto){
             case 'videoslide':
                 $this->jumper = $this->contenuto->getJumperXML();

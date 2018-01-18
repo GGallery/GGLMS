@@ -14,6 +14,8 @@ jimport('joomla.application.component.view');
 class gglmsViewConfigs extends JViewLegacy {
 
     public function display($tpl = null) {
+
+
         $form = $this->get('Form');
         $item = $this->get('Item');
 
