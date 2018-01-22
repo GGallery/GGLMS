@@ -20,8 +20,8 @@ class gglmsModelContents extends JModelList {
 
 //Override construct to allow filtering and ordering on our fields
     public function __construct($config = array()) {
-        $config['filter_fields'] = array_merge($this->searchInFields, array('a.categoria'));
-        $config['filter_fields'] = array_merge($this->searchInFields, array('u.id'));
+        $config['filter_fields'] = array_merge($this->searchInFields, array('a.id'));
+        //$config['filter_fields'] = array_merge($this->searchInFields, array('u.id'));
         parent::__construct($config);
     }
 
@@ -38,11 +38,13 @@ class gglmsModelContents extends JModelList {
         $query = $db->getQuery(true);
 
         // Select some fields
-        $query->select('*')
+        $query->select('a.*')
                 ->from('#__gg_contenuti as a')
-                ->order('id desc')
-//                ->order($db->escape($this->getState('list.ordering', 'pa.id')) . ' ' .
-//                        $db->escape($this->getState('list.direction', 'desc')))
+                ->join('inner','#__gg_unit_map as m on a.id=m.idcontenuto')
+                //->order('id desc')
+               // ->order($db->escape($this->getState('list.ordering', 'c.ordinamento')) . ' ' .
+                ->order(' m.ordinamento ' . ' ' .
+                        $db->escape($this->getState('list.direction', 'desc')))
         ;
 
         
@@ -65,7 +67,7 @@ class gglmsModelContents extends JModelList {
         if ($this->getState('corsi')!='null') {
 
             $contenuti_str=null;
-            $contenuti=$this->getContenutiList($this->getState('corsi'));
+            $contenuti=$this->getContenutiList($this->getState('corsi'));//CONTENUTI FILTRATI IN BASE AL CORSO
             foreach ($contenuti as $contenuto){
 
                 $contenuti_str=$contenuti_str.'-'.$contenuto;
@@ -77,47 +79,8 @@ class gglmsModelContents extends JModelList {
 
        // echo $query;
 
+
         return $query;
-    }
-
-    public function getSottoUnita($pk = null)
-    {
-
-        try
-        {
-            $query = $this->_db->getQuery(true)
-                ->select('id')
-                ->from('#__gg_unit as u')
-                ->where('u.unitapadre  = ' . $pk)
-
-            ;
-            $this->_db->setQuery($query);
-            $data = $this->_db->loadAssocList();
-
-        }
-        catch (Exception $e)
-        {
-            DEBUGG::log($e, 'getSottoUnita');
-        }
-
-//
-        return $data;
-    }
-
-    public function getAllContenuti($pk)
-    {
-        $sottunita = $this->getSottoUnita($pk);
-
-        $contenuti= array();
-        foreach ($sottunita as $unitafiglio){
-            $sottounita=$unitafiglio->getSottoUnita($pk);
-            $sottocontenuti = $unitafiglio->getContenuti();
-            $contenuti=array_merge($contenuti, $sottocontenuti);
-        }
-
-//		DEBUGG::log($contenuti, 'contenuti', 1);
-
-        return $contenuti;
     }
 
     /**
@@ -156,7 +119,7 @@ class gglmsModelContents extends JModelList {
 
 
 
-        parent::populateState('corsi', 'asc');
+        parent::populateState('c.ordinamento', 'asc');
     }
 
     public function getCorsi(){
@@ -180,7 +143,7 @@ class gglmsModelContents extends JModelList {
     public function getContenutiList($id_corso)
     {
 
-            return $this->getSottoUnitas($id_corso);
+            return $this->getSottoUnitas($id_corso);//CHIAMATA ALLA FUNZIONE RICORSIVA
 
     }
     public function getSottoUnitas($pk=null){
@@ -219,7 +182,7 @@ class gglmsModelContents extends JModelList {
         //echo count($this->unitas).'<br>';
         //var_dump($this->contenuti);
 
-        return $this->contenuti;
+        return $this->contenuti; //SE SEI ARRIVATO QUI HAI FINITO IL CICLO DELLE CHIAMATE RICORSIVE
     }
 
     public function getContenuti($pk=null){
@@ -232,7 +195,7 @@ class gglmsModelContents extends JModelList {
         $query->join('inner','#__gg_unit_map as u on a.id = u.idcontenuto');
 
 
-        if($pk!=999)
+        if($pk!=null)
             $query->where("idunita=".$pk);
 
         //echo $query.'<br>';
@@ -242,12 +205,42 @@ class gglmsModelContents extends JModelList {
 
         foreach ($result as $res) {
 
-            array_push($this->contenuti, $res['id']);
+            array_push($this->contenuti, $res['id']); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
 
         }
         //var_dump($this->contenuti);
         //return $this->contenuti;
         //
+
+    }
+
+    public function updateOrderValue($pk,$i){
+
+
+
+        try {
+
+            $db = JFactory::getDBO();
+            $query='update #__gg_unit_map set ordinamento='.((int)$i+1).' where idcontenuto='.$pk;
+            $db->setQuery($query);
+            $result=$db->execute();
+            echo $query.'<br>';
+
+            return $result;
+        }catch (exceptions $e){
+
+            DEBUGG::log('errore '.$e->getMessage(),"errore in UpdateOrderValue",0,1);
+        }
+
+    }
+
+    public function getOldTable(){
+
+        $db = JFactory::getDBO();
+        $query='SELECT idcontenuto, ordinamento from #__gg_unit_map';
+        $db->setQuery($query);
+        $result=$db->loadAssocList('ordinamento');
+        return $result;
 
     }
 

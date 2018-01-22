@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.23
+  - B: creata la gestione drag&drop dell'ordinamento dei contenuti da backend
 3.8.22
   - D: aggiunte le colonne dei tempi nella tabella csv_report
   - B: creata nel tab report la gestione da background della visibilità nel report delle colonne tempi
