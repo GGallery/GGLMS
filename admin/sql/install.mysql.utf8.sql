@@ -205,6 +205,7 @@ CREATE TABLE `#__gg_scormvars` (
   `userid` int(11) NOT NULL DEFAULT '0',
   `varName` varchar(255) NOT NULL DEFAULT '',
   `varValue` text,
+  `timestamp` TIMESTAMP,
   PRIMARY KEY (`scoid`,`userid`,`varName`),
   KEY `SCOInstanceID` (`scoid`),
   KEY `varName` (`varName`)
