@@ -1119,9 +1119,25 @@ class UploadHandler
             $this->set_additional_file_properties($file);
         }
         //return json_encode(array($file));
+        //var_dump($file_path);
 
+        if($file->type=='application/x-zip-compressed') {
+            $zip = new ZipArchive;
+            $res = $zip->open($file_path);
+            //var_dump($res);
 
+            if ($res === TRUE) {
+                $extract_path=substr($file_path, 0, strrpos($file_path,'/')).'/';
+                //var_dump($extract_path);
 
+                $zip->extractTo($extract_path);
+                $zip->close();
+                unlink($file_path);
+
+            } else {
+
+            }
+        }
         return $file;
     }
 
@@ -1330,6 +1346,8 @@ class UploadHandler
             preg_split('/[^0-9]+/', $this->get_server_var('HTTP_CONTENT_RANGE')) : null;
         $size =  $content_range ? $content_range[3] : null;
         $files = array();
+
+
 
 
 

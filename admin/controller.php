@@ -38,7 +38,7 @@ class gglmsController extends JControllerLegacy {
         parent::display($cachable);
     }
 
-    function fileupload() {
+  /*  function fileupload() {
 
 
         die("errore upload");
@@ -169,7 +169,7 @@ class gglmsController extends JControllerLegacy {
             // success, exit with code 0 for Mac users, otherwise they receive an IO Error
             exit(0);
         }
-    }
+    }*/
 
     function exerciseupload() {
 //import joomlas filesystem functions, we will do all the filewriting with joomlas functions,
