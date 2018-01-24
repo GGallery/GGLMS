@@ -15,6 +15,20 @@ class gglmsViewContents extends JViewLegacy {
 
     function display($tpl = null) {
 
+
+        $app = JFactory::getApplication();
+
+
+        $this->state = $this->get('State');
+
+// Initial state for sorting and ordering
+        $this->filter_order = 'm.ordinamento';
+        $this->filter_order_Dir = $app->getUserStateFromRequest('filter_order_Dir', 'filter_order_Dir', 'desc', 'cmd');
+
+
+
+
+
         $form = $this->get('Form');
         $this->form = $form;
 

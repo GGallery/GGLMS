@@ -48,7 +48,7 @@
 			   label="Seleziona data inizio corso"
 			   description=""
 			   class="input-small"
-
+			   showon="is_corso:1"
 			   filter="user_utc"
 			   showtime="false"
 			   todaybutton="true"
@@ -61,7 +61,7 @@
 			   label="Seleziona data fine corso"
 			   description=""
 			   class="input-small"
-
+			   showon="is_corso:1"
 			   filter="user_utc"
 			   showtime="false"
 			   todaybutton="true"

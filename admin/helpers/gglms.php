@@ -105,6 +105,8 @@ class gglmsHelper {
     }
 
     public static function SetMappaContenutoUnita($item){
+
+
         $db = JFactory::getDBO();
 
         $contentid=$item['id'];
@@ -113,12 +115,12 @@ class gglmsHelper {
         if(!$contentid)
             return false;
 
-        $query = "DELETE FROM #__gg_unit_map WHERE idcontenuto= $contentid";
-        $db->setQuery((string) $query);
-        $db->execute();
+//        $query = "DELETE FROM #__gg_unit_map WHERE idcontenuto= $contentid";
+//        $db->setQuery((string) $query);
+//        $db->execute();
 
         foreach ($categorie as $value) {
-            $query = "INSERT IGNORE INTO #__gg_unit_map (idcontenuto, idunita) values ($contentid,$value)";
+            $query = "INSERT INTO #__gg_unit_map (idcontenuto, idunita) values ($contentid,$value) ON DUPLICATE KEY UPDATE idunita=".$value;
             $db->setQuery((string) $query);
             $db->execute();
         }

@@ -9,12 +9,19 @@
 
 // No direct access to this file
 defined('_JEXEC') or die;
+$listOrder = $this->escape($this->filter_order);
+$listDirn = $this->escape($this->filter_order_Dir);
 
 ?>
 
 <tr>
+    <th width="1%" class="nowrap center hidden-phone">
+        <?php //echo JHtml::_('searchtools.sort', '', 'm.ordinamento', $listDirn, $listOrder, null, 'asc', 'JGRID_HEADING_ORDERING', 'icon-menu-2','adminForm'); ?>
+          <?php echo JHtml::_('grid.sort', '', 'm.ordinamento', $listDirn, $listOrder); ?>
+    </th>
 	<th width="5">
-		<?php echo JText::_('COM_GGLMS_ID'); ?>
+      <?php echo JText::_('COM_GGLMS_ID'); ?>
+
 	</th>
 	<th width="1%" class="center">
 		<?php echo JHtml::_('grid.checkall'); ?>
