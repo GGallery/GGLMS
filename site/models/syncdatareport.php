@@ -77,10 +77,10 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
             if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
 
-                if (sync_report_users()) {
+                if ($this->sync_report_users()) {
 
-                    if (sync_report(0,0)) {
-                        updateconfig();
+                    if ($this->sync_report(0,0)) {
+                        $this->updateconfig();
                     }
                 }
 

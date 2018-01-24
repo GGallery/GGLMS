@@ -154,6 +154,7 @@ class gglmsModelContenuto extends JModelLegacy {
 		switch($this->tipologia){
 
 			case 1: //videoslide
+            case 2: //videoslide
 			case 3: //allegati
 			case 4: //Scorm
 			case 5:	//attestato
@@ -305,6 +306,7 @@ class gglmsModelContenuto extends JModelLegacy {
 				break;
 
 			case 1: //videoslide
+            case 2: //solovideo
 			case 4: //scorm
 			case 6: //testuale
 				$data = $this->getStato_scorm();
