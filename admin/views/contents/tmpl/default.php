@@ -24,7 +24,13 @@ $this->corsi = $this->get('Corsi');
 //$temp=$this->get('Unitas');
 //$this->unitas=$temp[0];
 //$this->contenuti=$temp[1];
-//var_dump($this->contenuti);
+//var_dump(JFactory::getApplication()->input->get('jform'));
+$listOrder = $this->escape($this->filter_order);
+$listDirn = $this->escape($this->filter_order_Dir);
+$saveOrderingUrl = 'index.php?option=com_gglms&task=contents.saveOrderAjax&tmpl=component';
+//il modulo che consente il d&d è caricato solo se non sono presenti filtri di ricerca
+if ($this->state->get('filter.search')==null)
+    JHtml::_('sortablelist.sortable', 'itemList', 'adminForm', strtolower($listDirn), $saveOrderingUrl)
 ?>
 
 <div id="j-sidebar-container" class="span2">
@@ -41,47 +47,25 @@ $this->corsi = $this->get('Corsi');
                             <label class="element-invisible" for="filter_search">
                                 <?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?></label>
 
-                            <div class=""js-stools-container-bar">
 
-                                <select id="corsi" name="corsi">
+                                    <div class="btn-wrapper input-append">
 
-                                     <?php echo '<option value=null> - filtra per corso - </option>';
-                                          foreach ($this->corsi as $corso){
-                                         $selected=null;
-                                         //var_dump( JFactory::getApplication()->input->get('corsi','',''));die;
-                                         if( $corso->id==JFactory::getApplication()->input->get('corsi','','')){
-                                             $selected='selected="selected"';
-                                         }
-                                        echo '<option value="'.$corso->id.'"'.$selected.'>'.$corso->titolo."</option>";
-                                     }?>
-                                </select>
+                                        <?php  echo $this->form->renderField('categoria'); ?>
+                                            <input type="text" name="filter_search" id="filter_search" value="<?php echo $this->escape($this->searchterms); ?>" title="<?php echo JText::_('COM_GGLMS_SELEZIONATITOLODESCRIZIONEETC'); ?>" />
 
-                            </div>
-                            <div class="btn-wrapper input-append">
+                                            <button type="submit" class="btn hasTooltip">
+                                                <?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>
+                                            </button>
+                                            <button type="button" class="btn hasTooltip" onclick="document.id('filter_search').value='';this.form.submit();">
+                                                <?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>
+                                            </button>
 
-                                <input type="text" name="filter_search" id="filter_search" value="<?php echo $this->escape($this->searchterms); ?>" title="<?php echo JText::_('COM_GGLMS_SELEZIONATITOLODESCRIZIONEETC'); ?>" />
-
-                                <button type="submit" class="btn hasTooltip">
-                                    <?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>
-                                </button>
-                                <button type="button" class="btn hasTooltip" onclick="document.id('filter_search').value='';this.form.submit();">
-                                    <?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>
-                                </button>
-
-                            </div>
-
-
-
-
-<!--                            <select name="filter_categoria" class="chzn-done" onchange="this.form.submit()">-->
-<!--                                <option value=""> - --><?php //echo JText::_('COM_GGLMS_SELEZIONAAREATEMATICA'); ?><!-- - </option>-->
-<!--                                --><?php //echo JHtml::_('select.options', $categorieOptions, 'value', 'text', $this->state->get('filter.categoria')); ?>
-<!--                            </select>-->
+                                    </div>
 
                         </div>
                     </div>
                 </div>
-                <table class="table table-striped">
+                <table class="table table-striped" id="itemList" name="itemList">
                     <thead><?php echo $this->loadTemplate('head'); ?></thead>
                     <tfoot><?php echo $this->loadTemplate('foot'); ?></tfoot>
                     <tbody><?php echo $this->loadTemplate('body'); ?></tbody>
@@ -96,14 +80,21 @@ $this->corsi = $this->get('Corsi');
             </div>
     </form>
 </div>
-</div>
+
+
+
 <script type="text/javascript">
-    corsi.onchange= function () {
+
+    jQuery(document).ready(function ($) {
+
+        $("#jform_categoria").val(<?php echo JFactory::getApplication()->input->get('jform')[0]; ?>);
+        console.log('<?php echo JFactory::getApplication()->input->get('jform')[0];?>');
+
+        }
+    );
+    jform_categoria.onchange= function () {
         this.form.submit();
 
-    }
-    unita.onchange= function () {
-        this.form.submit();
+    };
 
-    }
 </script>
