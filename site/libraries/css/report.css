@@ -34,3 +34,7 @@ input{
     border-radius: 0px !important;
     box-shadow: none ;
 }
+
+.width100 {
+    width: 250px;
+}

@@ -205,6 +205,7 @@ CREATE TABLE `#__gg_scormvars` (
   `userid` int(11) NOT NULL DEFAULT '0',
   `varName` varchar(255) NOT NULL DEFAULT '',
   `varValue` text,
+  `timestamp` TIMESTAMP,
   PRIMARY KEY (`scoid`,`userid`,`varName`),
   KEY `SCOInstanceID` (`scoid`),
   KEY `varName` (`varName`)
@@ -247,12 +248,12 @@ INSERT INTO `#__gg_unit` VALUES ('1', 'Corsi', 'corsi', '', '0', '1', '101', '0'
 -- ----------------------------
 DROP TABLE IF EXISTS `#__gg_unit_map`;
 CREATE TABLE `#__gg_unit_map` (
-  `idlink` int(11) NOT NULL AUTO_INCREMENT,
+
   `idcontenuto` int(11) unsigned NOT NULL,
   `idunita` int(11) unsigned NOT NULL,
   `ordinamento` int(11) DEFAULT '99',
-  `data` date DEFAULT NULL,
-  PRIMARY KEY (`idlink`)
+
+  PRIMARY KEY (`idcontenuto`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1481 DEFAULT CHARSET=utf8;
 
 

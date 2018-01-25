@@ -1,0 +1,92 @@
+<?php 
+
+/*
+
+VS SCORM 1.2 RTE - index.html
+Rev 2009-11-30-01
+Copyright (C) 2009, Addison Robson LLC
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+Boston, MA	02110-1301, USA.
+
+*/
+
+?>
+<html>
+<head>
+	<title>VS SCORM Test System</title>
+	<style type="text/css">
+	p,td,li,body,input,select,textarea {
+		font-family: verdana, sans-serif;
+		font-size: 10pt;
+	}
+	h1 {
+		font-weight: bold;
+		font-size: 12pt;
+	}
+	a:link, a:active, a:visited {
+		color: blue;
+		text-decoration: none;
+	}
+	a:hover {
+		color: blue;
+		text-decoration: underline;
+	}
+	</style>
+	<script language="JavaScript">
+
+		// opens window and runs this SCOInstance
+		function runSCO() {
+			var SCOInstanceID = document.dataForm.SCOInst.value;
+			SCOwin = window.open("./rte.php?SCOInstanceID="+SCOInstanceID,"SCOwin");
+			SCOwin.focus();
+		}
+
+		// clear database for this SCOInstance
+		function clearDB() {
+			var SCOInstanceID = document.dataForm.SCOInst.value;
+			document.monitor.location.href = "./utils/cleardb.php?SCOInstanceID="+SCOInstanceID;
+		}
+
+
+		// show database contents for this SCOInstance
+		function showDB() {
+			var SCOInstanceID = document.dataForm.SCOInst.value;
+			document.monitor.location.href = "./utils/showdb.php?SCOInstanceID="+SCOInstanceID;
+		}
+
+	</script>
+</head>
+<body bgcolor="#ffffff">
+
+<table width=100%>
+<tr>
+	<td align=left valign=top>
+		<form method="post" action="" name="dataForm">
+			<h1>VS SCORM Test System</h1>
+			<p>SCOInstanceID = <input type="text" name="SCOInst" value="1" size="4" maxlength="255">
+			<p><a href="javascript:clearDB();">Clear Data</a>
+			<br><a href="javascript:showDB();">Show Data</a>
+			<p><a href="javascript:runSCO();">Run SCO</a>
+		</form>
+	</td>
+	<td align=right valign=top>
+		<iframe name="monitor" src="" height=400 width=600></iframe>
+	</td>
+</tr>
+</table>
+
+</body>
+</html>

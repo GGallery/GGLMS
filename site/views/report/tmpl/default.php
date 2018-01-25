@@ -62,21 +62,20 @@ JHtml::_('bootstrap.modal');
 
         </div>
 
-
-        <div class="form-group">
-            <button type="button" id="update" class="btn btn-success btn-lg" onclick="reload()">AGGIORNA DATI</button>
-        </div>
-        <HR>
         <input type="hidden" id="option" name="option" value="com_gglms">
         <input type="hidden" id="task" name="task" value="api.get_csv">
+
         <div class="form-group">
-            <button type="button" id="get_csv" class="btn btn-success btn-lg" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
+            <button type="button" id="update" class="btn btn-success btn-lg width100" onclick="reload()">AGGIORNA DATI</button>
         </div>
         <div class="form-group">
-            <button type="button" id="get_csv" class="btn btn-success btn-lg" onclick="loadCsv()">SCARICA REPORT CSV</button>
+            <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
+        </div>
+        <div class="form-group">
+            <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
         <div>
-            <button type="button" class="btn btn-success btn-lg" onclick="checkSeconds()">SINCRONIZZA TABELLA REPORT</button>
+            <button type="button" class="btn btn-info btn-lg width100" onclick="checkSeconds()">SINCRONIZZA TABELLA REPORT</button>
         </div>
 
     </form>

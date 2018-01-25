@@ -27,8 +27,8 @@ class gglmsViewContenuto extends JViewLegacy {
     {
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js');
         $this->contenuto = $this->get('Contenuto');
-        
-        $this->contenuto->setStato();
+
+            $this->contenuto->setStato();
 
         $this->_params = $this->contenuto->_params; //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb
 
@@ -39,6 +39,10 @@ class gglmsViewContenuto extends JViewLegacy {
             case 'videoslide':
                 $this->jumper = $this->contenuto->getJumperXML();
                 $this->contenuto->createVTT_slide($this->jumper);
+                break;
+
+            case 'solovideo':
+                $this->jumper = [];
                 break;
         }
 

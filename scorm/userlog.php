@@ -12,7 +12,7 @@ $log_status = $_GET['log_status'];
 
 
 ?>
-<!--<script type="application/javascript" src="js/jquery-3.2.1.min"></script>-->
+<script type="application/javascript" src="js/jquery-3.2.1.min.js"></script>
 <script type="application/javascript" src="js/userlog.js"></script>
 <script type="text/javascript">
 

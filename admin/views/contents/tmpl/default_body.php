@@ -7,14 +7,39 @@
  */
 // No direct access to this file
 defined('_JEXEC') or die;
+$listOrder = $this->escape($this->filter_order);
+$listDirn = $this->escape($this->filter_order_Dir);
+$saveOrder = $listOrder == 'm.ordinamento';
+
 ?>
-<?php foreach ($this->items as $i => $item): ?>
+
+<?php if($this->items!=false):?>
+
+    <?php foreach ($this->items as $i => $item): ?>
+
     <tr class="row<?php echo $i % 2; ?>">
+        <td class="order nowrap center hidden-phone">
+
+                <?php
+                $iconClass = '';
+                if (!$saveOrder || $this->state->get('filter.search')!=null) {//la seconda condizione rende attiva l'icona d&d solo se il campo cerca è vuoto
+                    $iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
+                }
+                ?>
+                <span class="sortable-handler <?php echo $iconClass ?>">
+                     <span class="icon-menu"></span>
+                 </span>
+                <?php if ($saveOrder) : ?>
+                    <input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->id; ?>" class="width-20 text-area-order " />
+                <?php endif; ?>
+
+        </td>
         <td>
             <?php echo $item->id; ?>
         </td>
         <td>
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
+
         </td>
         <td>
             <a href="<?php echo JRoute::_('index.php?option=com_gglms&task=content.edit&id=' . $item->id); ?>">
@@ -45,3 +70,10 @@ defined('_JEXEC') or die;
 
     </tr>
 <?php endforeach; ?>
+<?php else:?>
+non ci sono contenuti che soddisfano i filtri immessi
+<?php endif;?>
+<input type="hidden" name="filter_order" value="<?php echo $listOrder; ?>" />
+<input type="hidden" name="filter_order_Dir" value="<?php echo $listDirn; ?>" />
+
+

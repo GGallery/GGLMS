@@ -56,7 +56,6 @@ class gglmsModelUsers  extends JModelLegacy {
                 ->from('#__users as u')
                 ->where('u.id = ' . $id);
 
-
             $this->_db->setQuery($query);
             $registrants = $this->_db->loadObject();
 
