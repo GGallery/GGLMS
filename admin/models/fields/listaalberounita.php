@@ -34,6 +34,8 @@ class JFormFieldlistaalberounita extends JFormFieldList {
     protected function getOptions() {
         // Initialise variables.
 
+
+
         $options = $this->getUnitTree();
 
         // Merge any additional options in the XML definition.

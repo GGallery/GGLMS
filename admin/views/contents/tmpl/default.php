@@ -25,12 +25,6 @@ $this->corsi = $this->get('Corsi');
 //$this->unitas=$temp[0];
 //$this->contenuti=$temp[1];
 //var_dump($this->contenuti);
-$listOrder = $this->escape($this->filter_order);
-$listDirn = $this->escape($this->filter_order_Dir);
-$saveOrderingUrl = 'index.php?option=com_gglms&task=contents.saveOrderAjax&tmpl=component';
-//il modulo che consente il d&d è caricato solo se non sono presenti filtri di ricerca
-if ($this->state->get('filter.search')==null)
-    JHtml::_('sortablelist.sortable', 'itemList', 'adminForm', strtolower($listDirn), $saveOrderingUrl)
 ?>
 
 <div id="j-sidebar-container" class="span2">
@@ -87,7 +81,7 @@ if ($this->state->get('filter.search')==null)
                         </div>
                     </div>
                 </div>
-                <table class="table table-striped" id="itemList" name="itemList">
+                <table class="table table-striped">
                     <thead><?php echo $this->loadTemplate('head'); ?></thead>
                     <tfoot><?php echo $this->loadTemplate('foot'); ?></tfoot>
                     <tbody><?php echo $this->loadTemplate('body'); ?></tbody>
@@ -103,8 +97,6 @@ if ($this->state->get('filter.search')==null)
     </form>
 </div>
 </div>
-
-
 <script type="text/javascript">
     corsi.onchange= function () {
         this.form.submit();

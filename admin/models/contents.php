@@ -57,14 +57,29 @@ class gglmsModelContents extends JModelList {
         }
 
         // Filter company
-        $id_categoria = $db->escape($this->getState('filter.categoria'));
+        /*$id_categoria = $db->escape($this->getState('filter.categoria'));
         if (!empty($id_categoria)) {
             $query->where("categoria REGEXP '[[:<:]]". $id_categoria ."[[:>:]]'");
+        }*/
+
+       // var_dump(JFactory::getApplication()->getUserStateFromRequest('jform','jform')['categoria']);
+
+        $jorm=JFactory::getApplication()->getUserStateFromRequest('jform','jform');
+        $id_categoria=$jorm['categoria'];
+        if($id_categoria!=null) {
+
+            switch ($id_categoria) {
+                case "1":
+                    break;
+                default:
+                    $query->where('m.idunita='.$id_categoria);
+                    break;
+            }
         }
 
 
 
-        if ($this->getState('corsi')!='null') {
+        /*if ($this->getState('corsi')!='null') {
 
             $contenuti_str=null;
             $contenuti=$this->getContenutiList($this->getState('corsi'));//CONTENUTI FILTRATI IN BASE AL CORSO
@@ -75,7 +90,7 @@ class gglmsModelContents extends JModelList {
             $contenuti_str=substr($contenuti_str,1);
             $contenuti_str=str_replace("-",",",$contenuti_str);
             $query->where("id in (".$contenuti_str.")");
-        }
+        }*/
 
        // echo $query;
 
