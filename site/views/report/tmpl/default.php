@@ -75,7 +75,7 @@ JHtml::_('bootstrap.modal');
             <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
         <div>
-            <button type="button" class="btn btn-info btn-lg width100" onclick="checkSeconds()">SINCRONIZZA TABELLA REPORT</button>
+            <button type="button" class="btn btn-info btn-lg width100" onclick="dataSyncUsers()">SINCRONIZZA TABELLA REPORT</button>
         </div>
 
     </form>
@@ -99,7 +99,7 @@ JHtml::_('bootstrap.modal');
                     <th data-column-id="cognome" data-sortable="false">Cognome</th>
                     <th data-column-id="nome"  data-sortable="false">Nome</th>
                     <th data-column-id="stato" data-formatter="stato"  data-sortable="false">Stato</th>
-                    <th data-column-id="hainiziato" data-sortable="false">Iniziato il:</th>
+                    <th data-column-id="hainiziato"  data-formatter="data_inizio" data-sortable="false">Iniziato il:</th>
                     <th data-column-id="hacompletato" data-sortable="false">Completato il:</th>
                     <?php
 
@@ -267,8 +267,8 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
 //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
 var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
-var loadreportlimit;
-var loadreportoffset;
+var loadreportlimit=0;
+var loadreportoffset=100;
 
     jQuery( document ).ready(function($) {
 
@@ -387,6 +387,14 @@ var loadreportoffset;
                 {
                     //fields[row.id_utente]=row.fields;
                     //return '<button type="button" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>';
+                },
+                "data_inizio": function(column, row)
+                {
+                    if (row.hainiziato == '0000-00-00') {
+                        return "";
+                    }else{
+                        return row.hainiziato;
+                    }
                 }
             }
 
@@ -464,10 +472,9 @@ var loadreportoffset;
         });
     });
 
-function checkSeconds() {
-    jQuery("#detailsCaricamentoReport").modal('show');
-    jQuery('#details_table_caricamento_report').empty();
-    jQuery('#details_table_caricamento_report').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
+//FUNZIONE NON UTILIZZATA
+/*    function checkSeconds() {
+
 
 
     jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.checkSeconds"))
@@ -489,13 +496,14 @@ function checkSeconds() {
 
         });
 
-}
-    function dataSyncUsers(loadreportlimit,loadreportoffset) {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
+}*/
 
+    function dataSyncUsers() {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
 
-        loadreportlimit=0
-        loadreportoffset=100;
         console.log('dataSyncUsers');
+        jQuery("#detailsCaricamentoReport").modal('show');
+        jQuery('#details_table_caricamento_report').empty();
+        jQuery('#details_table_caricamento_report').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
         jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_users"))
             .done(function (data) {
 
@@ -540,7 +548,7 @@ function checkSeconds() {
                     jQuery('#details_table_caricamento_report').append('<tr><td>caricamento fino a record n° '+loadreportlimit+'</td></tr>');
                     dataSyncReport(loadreportlimit, loadreportoffset);
                 }else{
-                    dataUpdateConfig();
+                    dataSyncReportComplete();
                 }
             }).fail(function(data){
         })
@@ -549,17 +557,32 @@ function checkSeconds() {
             });
     }
 
-    function dataUpdateConfig() {
-        console.log('dataUpdateConfig');
-        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.updateconfig"))
-            .done(function (data) {
-                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento completato</td></tr>');
+    function dataSyncReportComplete() {
+        console.log('dataSyncReportComplete');
+        jQuery('#details_table_caricamento_report').append('<tr><td>caricamento record utenti che non hanno iniziato</td></tr>');
+        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_complete"))
+            .done(function(data){
 
-            })
-            .fail(function (data) {
+                dataUpdateConfig();
+
+            }).fail(function(data){
+        })
+            .then(function (data) {
 
             });
     }
+
+    function dataUpdateConfig() {
+            console.log('dataUpdateConfig');
+            jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.updateconfig"))
+                .done(function (data) {
+                    jQuery('#details_table_caricamento_report').append('<tr><td>caricamento completato</td></tr>');
+
+                })
+                .fail(function (data) {
+
+                });
+        }
 
     function reload() {
         jQuery("#grid-basic").bootgrid("reload");

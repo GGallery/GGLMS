@@ -3,7 +3,10 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
-
+3.8.24
+  - F: tolto il check sul tempo per l'aggiornamento della tabella Report
+  - B: inserita nel caricamento della tabella report la procedura di caricamento degli iscritti al corso ma privi di azioni
+       reso effetivo e funzionante  il caricamento nella tabella error_log dei log (non errori) durante la procedura di caricamento della tabella report
 3.8.23
   - B: creata la gestione drag&drop dell'ordinamento dei contenuti da backend
 3.8.22

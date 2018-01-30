@@ -123,7 +123,28 @@ class gglmsControllerReport extends JControllerLegacy
 
     }
 
+    public function sync_report_complete(){
+
+        try {
+            $syncdatareport = new gglmsModelSyncdatareport();
+            $result = $syncdatareport->sync_report_complete();
+            if ($result) {
+                echo json_encode('true');
+            } else {
+                echo json_encode('false');
+            }
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+
+    }
     public function checkSeconds(){
+
+        echo json_encode('true');
+        $this->_app->close();
 
     try {
         $ora = date('Y-m-d h:i:s', time());
