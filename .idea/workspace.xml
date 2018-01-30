@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list id="ae3575b0-d5b0-4c5b-9f3a-0b3f893be3b3" name="inserito tracciamento log dell'utente," comment="" />
-    <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="fix merging bugs">
+    <list default="true" id="b495b3a9-89b6-4f4f-8a4f-a698cbe08ca4" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change beforePath="$PROJECT_DIR$/admin/models/libs/debugg/debugg.php" afterPath="$PROJECT_DIR$/admin/models/libs/debugg/debugg.php" />
-      <change beforePath="$PROJECT_DIR$/gglms.xml" afterPath="$PROJECT_DIR$/gglms.xml" />
-      <change beforePath="$PROJECT_DIR$/gglmsupdate.xml" afterPath="$PROJECT_DIR$/gglmsupdate.xml" />
-      <change beforePath="$PROJECT_DIR$/site/controllers/api.php" afterPath="$PROJECT_DIR$/site/controllers/api.php" />
-      <change beforePath="$PROJECT_DIR$/site/controllers/report.php" afterPath="$PROJECT_DIR$/site/controllers/report.php" />
       <change beforePath="$PROJECT_DIR$/site/models/syncdatareport.php" afterPath="$PROJECT_DIR$/site/models/syncdatareport.php" />
-      <change beforePath="$PROJECT_DIR$/site/views/report/tmpl/default.php" afterPath="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
     </list>
     <ignored path="C:\DEV\COM_GGLMS\.idea\shelf/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -65,100 +58,17 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="syncdatareport.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="syncdatareport.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-506">
-              <caret line="129" column="49" lean-forward="true" selection-start-line="129" selection-start-column="49" selection-end-line="129" selection-end-column="49" />
+            <state relative-caret-position="306">
+              <caret line="123" column="14" lean-forward="false" selection-start-line="123" selection-start-column="14" selection-end-line="123" selection-end-column="14" />
               <folding>
-                <marker date="1517303812456" expanded="true" signature="8728:9045" ph="INSERT INTO ##__gg_report... " />
-                <marker date="1517303812456" expanded="true" signature="13282:13466" ph="INSERT INTO ##__gg_report_users... " />
-                <marker date="1517303812456" expanded="true" signature="13865:14271" ph="select (sele... " />
-                <marker date="1517303812456" expanded="true" signature="13866:13957" ph="select disti... un_gg_unit" />
-                <marker date="1517303812456" expanded="true" signature="13997:14078" ph="select disti... un_gg_report" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="gglms.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gglms.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="gglmsupdate.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gglmsupdate.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="23" lean-forward="false" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="306">
-                <caret line="18" column="53" lean-forward="true" selection-start-line="18" selection-start-column="53" selection-end-line="18" selection-end-column="53" />
-                <folding />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="api.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="344">
-              <caret line="484" column="21" lean-forward="false" selection-start-line="484" selection-start-column="21" selection-end-line="484" selection-end-column="21" />
-              <folding>
-                <marker date="1517308273914" expanded="true" signature="10011:10048" ph="INSERT INTO ##__gg_csv_report... " />
-                <marker date="1517308273914" expanded="true" signature="20277:20422" ph="select disti... ##__gg_contenuti" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="debugg.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/admin/models/libs/debugg/debugg.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="25" column="9" lean-forward="true" selection-start-line="25" selection-start-column="9" selection-end-line="25" selection-end-column="9" />
-              <folding>
-                <marker date="1517301612705" expanded="true" signature="480:566" ph="INSERT INTO ##__gg_error_log... " />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1169">
-              <caret line="141" column="0" lean-forward="false" selection-start-line="141" selection-start-column="0" selection-end-line="141" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="default.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1802">
-              <caret line="393" column="33" lean-forward="false" selection-start-line="393" selection-start-column="33" selection-end-line="393" selection-end-column="33" />
-              <folding>
-                <element signature="e#18709#19333#0#HTML" expanded="false" />
-                <marker date="1517304833243" expanded="true" signature="13493:13521" ph="..." />
-                <marker date="1517304833243" expanded="true" signature="13612:13681" ph="..." />
-                <marker date="1517304833243" expanded="true" signature="13857:13883" ph="..." />
+                <marker date="1517309653809" expanded="true" signature="8730:9047" ph="INSERT INTO ##__gg_report... " />
+                <marker date="1517309653809" expanded="true" signature="13284:13468" ph="INSERT INTO ##__gg_report_users... " />
+                <marker date="1517309653809" expanded="true" signature="13867:14273" ph="select (sele... " />
+                <marker date="1517309653809" expanded="true" signature="13868:13959" ph="select disti... un_gg_unit" />
+                <marker date="1517309653809" expanded="true" signature="13999:14080" ph="select disti... un_gg_report" />
               </folding>
             </state>
           </provider>
@@ -266,12 +176,12 @@
         <option value="$USER_HOME$/Google Drive/appunti_informatica/GGallery/completa.php" />
         <option value="$PROJECT_DIR$/site/controllers/report.php" />
         <option value="$PROJECT_DIR$/admin/models/libs/debugg/debugg.php" />
-        <option value="$PROJECT_DIR$/site/models/syncdatareport.php" />
         <option value="$PROJECT_DIR$/site/views/report/tmpl/default.php" />
         <option value="$PROJECT_DIR$/site/controllers/api.php" />
         <option value="$PROJECT_DIR$/gglms.xml" />
         <option value="$PROJECT_DIR$/gglmsupdate.xml" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/site/models/syncdatareport.php" />
       </list>
     </option>
   </component>
@@ -310,8 +220,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -361,6 +269,8 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -445,7 +355,8 @@
       <workItem from="1516189668764" duration="6617000" />
       <workItem from="1516974732303" duration="692000" />
       <workItem from="1517225017817" duration="10122000" />
-      <workItem from="1517299701098" duration="8217000" />
+      <workItem from="1517299701098" duration="8280000" />
+      <workItem from="1517309599167" duration="54000" />
     </task>
     <task id="LOCAL-00001" summary="consuntivo modifiche">
       <created>1509988927038</created>
@@ -636,11 +547,18 @@
       <option name="project" value="LOCAL" />
       <updated>1516875001059</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary=" inserita nel caricamento della tabella report la procedura di caricamento degli iscritti al corso ma privi di azioni">
+      <created>1517309397659</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1517309397659</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="551613000" />
+    <option name="totallyTimeSpent" value="551730000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -655,14 +573,14 @@
     <frame x="1358" y="-8" width="1936" height="1216" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20104167" sideWeight="0.506013" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20104167" sideWeight="0.50231266" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32843137" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32676518" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="WINDOWED" visible="false" show_stripe_button="true" weight="0.21303074" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" x="0" y="22" width="1366" height="706" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39777982" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20104167" sideWeight="0.49398705" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20104167" sideWeight="0.49768734" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38666666" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -763,7 +681,8 @@
     <MESSAGE value="fix per path scorm default null&#10;aggiunto campo descrizione in frontend per unita" />
     <MESSAGE value="secondo push modifiche backend contents" />
     <MESSAGE value="fix merging bugs" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix merging bugs" />
+    <MESSAGE value=" inserita nel caricamento della tabella report la procedura di caricamento degli iscritti al corso ma privi di azioni" />
+    <option name="LAST_COMMIT_MESSAGE" value=" inserita nel caricamento della tabella report la procedura di caricamento degli iscritti al corso ma privi di azioni" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1021,7 +940,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1035,7 +953,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/report.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1169">
+        <state relative-caret-position="2295">
           <caret line="141" column="0" lean-forward="false" selection-start-line="141" selection-start-column="0" selection-end-line="141" selection-end-column="0" />
           <folding />
         </state>
@@ -1043,10 +961,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/site/views/report/tmpl/default.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1802">
+        <state relative-caret-position="6596">
           <caret line="393" column="33" lean-forward="false" selection-start-line="393" selection-start-column="33" selection-end-line="393" selection-end-column="33" />
           <folding>
-            <element signature="e#18709#19333#0#HTML" expanded="false" />
             <marker date="1517304833243" expanded="true" signature="13493:13521" ph="..." />
             <marker date="1517304833243" expanded="true" signature="13612:13681" ph="..." />
             <marker date="1517304833243" expanded="true" signature="13857:13883" ph="..." />
@@ -1056,8 +973,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/admin/models/libs/debugg/debugg.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="25" column="9" lean-forward="true" selection-start-line="25" selection-start-column="9" selection-end-line="25" selection-end-column="9" />
+        <state relative-caret-position="425">
+          <caret line="25" column="9" lean-forward="false" selection-start-line="25" selection-start-column="9" selection-end-line="25" selection-end-column="9" />
           <folding>
             <marker date="1517301612705" expanded="true" signature="480:566" ph="INSERT INTO ##__gg_error_log... " />
           </folding>
@@ -1066,7 +983,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/site/controllers/api.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="344">
+        <state relative-caret-position="8126">
           <caret line="484" column="21" lean-forward="false" selection-start-line="484" selection-start-column="21" selection-end-line="484" selection-end-column="21" />
           <folding>
             <marker date="1517308273914" expanded="true" signature="10011:10048" ph="INSERT INTO ##__gg_csv_report... " />
@@ -1075,25 +992,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-506">
-          <caret line="129" column="49" lean-forward="true" selection-start-line="129" selection-start-column="49" selection-end-line="129" selection-end-column="49" />
-          <folding>
-            <marker date="1517303812456" expanded="true" signature="8728:9045" ph="INSERT INTO ##__gg_report... " />
-            <marker date="1517303812456" expanded="true" signature="13282:13466" ph="INSERT INTO ##__gg_report_users... " />
-            <marker date="1517303812456" expanded="true" signature="13865:14271" ph="select (sele... " />
-            <marker date="1517303812456" expanded="true" signature="13866:13957" ph="select disti... un_gg_unit" />
-            <marker date="1517303812456" expanded="true" signature="13997:14078" ph="select disti... un_gg_report" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gglms.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
-          <folding />
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="17">
+            <caret line="18" column="53" lean-forward="false" selection-start-line="18" selection-start-column="53" selection-end-line="18" selection-end-column="53" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
@@ -1105,14 +1011,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="306">
-            <caret line="18" column="53" lean-forward="true" selection-start-line="18" selection-start-column="53" selection-end-line="18" selection-end-column="53" />
-            <folding />
-          </first_editor>
-          <second_editor />
+    <entry file="file://$PROJECT_DIR$/gglms.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/site/models/syncdatareport.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="123" column="14" lean-forward="false" selection-start-line="123" selection-start-column="14" selection-end-line="123" selection-end-column="14" />
+          <folding>
+            <marker date="1517309653809" expanded="true" signature="8730:9047" ph="INSERT INTO ##__gg_report... " />
+            <marker date="1517309653809" expanded="true" signature="13284:13468" ph="INSERT INTO ##__gg_report_users... " />
+            <marker date="1517309653809" expanded="true" signature="13867:14273" ph="select (sele... " />
+            <marker date="1517309653809" expanded="true" signature="13868:13959" ph="select disti... un_gg_unit" />
+            <marker date="1517309653809" expanded="true" signature="13999:14080" ph="select disti... un_gg_report" />
+          </folding>
         </state>
       </provider>
     </entry>
