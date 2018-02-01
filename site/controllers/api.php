@@ -96,7 +96,7 @@ class gglmsControllerApi extends JControllerLegacy
 
             // SUBQUERY COMUNI A TUTTE E LE QUERY
             $query->select('(select r1.data from #__gg_report as r1 where r1.id_utente = r.id_utente and id_corso = '.$id_corso.' 
-                ORDER BY r1.data  limit 1) as hainiziato,
+               and r1.data<>\'0000-00-00\' ORDER BY r1.data  limit 1) as hainiziato,
                                 (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_corso = '.$id_corso.' and 
                                 id_contenuto= '. $id_contenuto. ' and stato = 1 ORDER BY r2.data limit 1) as hacompletato');
 

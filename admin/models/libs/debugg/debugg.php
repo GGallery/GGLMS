@@ -9,7 +9,7 @@
 class DEBUGG
 {
 
-    public static function log($object, $label = "", $die = 0, $insert_in_gg_error_log = 0){
+    public static function log($object, $label = "", $die = 0, $insert_in_gg_error_log = 0, $debug_with_eco=1){
 
         if($insert_in_gg_error_log==1){
 
@@ -28,17 +28,18 @@ class DEBUGG
         if(is_object($object))
             return  DEBUGG::object($object, $label , $die);
 
-        echo "<div class='debugg'>";
-        if($label)
-            echo "<label>". $label ."</label>";
+        if($debug_with_eco==1) {
+            echo "<div class='debugg'>";
+            if ($label)
+                echo "<label>" . $label . "</label>";
 
 
-        echo "<pre>";
+            echo "<pre>";
 
-        print_r($object);
+            print_r($object);
 
-        echo "</pre>";
-
+            echo "</pre>";
+        }
 
         if($die)
             die();

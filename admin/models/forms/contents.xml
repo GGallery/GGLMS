@@ -13,6 +13,17 @@
 
 
 		/>
+		<field
+				name="categoria"
+				type="listaalberounita"
+				class="inputbox"
+				default=""
+				label=""
+				description=""
+				required=""
 
+
+
+		/>
 	</fieldset>
 </form>

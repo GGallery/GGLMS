@@ -56,28 +56,22 @@ class gglmsModelContents extends JModelList {
             $query->where('(' . implode($regex . ' OR ', $this->searchInFields) . $regex . ')');
         }
 
-        // Filter company
-        $id_categoria = $db->escape($this->getState('filter.categoria'));
-        if (!empty($id_categoria)) {
-            $query->where("categoria REGEXP '[[:<:]]". $id_categoria ."[[:>:]]'");
-        }
 
 
+        $jorm=JFactory::getApplication()->getUserStateFromRequest('jform','jform');
+        $id_categoria=$jorm['categoria'];
+        if($id_categoria!=null) {
 
-        if ($this->getState('corsi')!='null') {
-
-            $contenuti_str=null;
-            $contenuti=$this->getContenutiList($this->getState('corsi'));//CONTENUTI FILTRATI IN BASE AL CORSO
-            foreach ($contenuti as $contenuto){
-
-                $contenuti_str=$contenuti_str.'-'.$contenuto;
+            switch ($id_categoria) {
+                case "1":
+                    break;
+                default:
+                    $query->where('m.idunita='.$id_categoria);
+                    break;
             }
-            $contenuti_str=substr($contenuti_str,1);
-            $contenuti_str=str_replace("-",",",$contenuti_str);
-            $query->where("id in (".$contenuti_str.")");
         }
 
-       // echo $query;
+
 
 
         return $query;
@@ -179,8 +173,7 @@ class gglmsModelContents extends JModelList {
 
 
         }
-        //echo count($this->unitas).'<br>';
-        //var_dump($this->contenuti);
+
 
         return $this->contenuti; //SE SEI ARRIVATO QUI HAI FINITO IL CICLO DELLE CHIAMATE RICORSIVE
     }
@@ -208,9 +201,7 @@ class gglmsModelContents extends JModelList {
             array_push($this->contenuti, $res['id']); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
 
         }
-        //var_dump($this->contenuti);
-        //return $this->contenuti;
-        //
+
 
     }
 
