@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 /* 
 
@@ -42,8 +42,8 @@ $lessonstatus = readElement('cmi.core.lesson_status');
 
 // if it's 'not attempted', change it to 'completed'
 if ($lessonstatus == 'not attempted') {
-    writeElement('cmi.core.lesson_status','completed');
-
+	writeElement('cmi.core.lesson_status','completed');
+	
 }
 
 
@@ -54,17 +54,17 @@ $masteryscore *= 1;
 
 if ($masteryscore) {
 
-    // yes - so read the score
-    $rawscore = readElement('cmi.core.score.raw');
-    $rawscore *= 1;
+	// yes - so read the score
+	$rawscore = readElement('cmi.core.score.raw');
+	$rawscore *= 1;
 
-    // set cmi.core.lesson_status to passed/failed
-    if ($rawscore >= $masteryscore) {
-        writeElement('cmi.core.lesson_status','passed');
-    }
-    else {
-        writeElement('cmi.core.lesson_status','failed');
-    }
+	// set cmi.core.lesson_status to passed/failed
+	if ($rawscore >= $masteryscore) {
+		writeElement('cmi.core.lesson_status','passed');
+	}
+	else {
+		writeElement('cmi.core.lesson_status','failed');
+	}
 
 }
 
@@ -77,10 +77,10 @@ writeElement('cmi.core.entry','');
 // new entry value depends on exit value
 $exit = readElement('cmi.core.exit');
 if ($exit == 'suspend') {
-    writeElement('cmi.core.entry','resume');
+	writeElement('cmi.core.entry','resume');
 }
 else {
-    writeElement('cmi.core.entry','');
+	writeElement('cmi.core.entry','');
 }
 
 // ------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ $sessiontime = readElement('cmi.core.session_time');
 
 // no session time set by SCO - set to zero
 if (! $sessiontime) {
-    $sessiontime = "00:00:00";
+	$sessiontime = "00:00:00";
 }
 
 // convert session time to seconds

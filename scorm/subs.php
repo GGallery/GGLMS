@@ -234,5 +234,3 @@ function getFromLMS($varname) {
 
 }
 
-
-?>

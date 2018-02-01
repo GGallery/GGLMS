@@ -1,5 +1,5 @@
 <?php
-
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 
 require_once "config.php";
 
@@ -14,9 +14,12 @@ $initializeCache = initializeSCO();
 ?>
 <html>
 <head>
+
     <title></title>
     <script language="javascript">
 
+
+        console.log("APIOBJECT");
         // ------------------------------------------
         //   Status Flags
         // ------------------------------------------
@@ -45,11 +48,6 @@ $initializeCache = initializeSCO();
 
         }
 
-        function hello(){
-
-            console.log("funziona");
-            return "true";
-        }
         // ------------------------------------------
         //   SCORM RTE Functions - Getting and Setting Values
         // ------------------------------------------
@@ -173,7 +171,7 @@ $initializeCache = initializeSCO();
             params += "&data[cmi.interactions."+ currentInteraction + ".weighting]="+urlencode(cache['cmi.interactions.'+ currentInteraction + '.weighting']);
             params += "&data[cmi.interactions."+ currentInteraction + ".objectives_0.id]="+urlencode(cache['cmi.interactions.'+ currentInteraction + '.objectives_0.id']);
             params += "&data[cmi.interactions."+ currentInteraction + ".time]="+urlencode(cache['cmi.interactions.'+ currentInteraction + '.time']);
-*/
+    */
 
 
             // totalInteractions =  parseInt(totalInteractions)+1;

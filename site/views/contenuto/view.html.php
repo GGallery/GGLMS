@@ -28,7 +28,7 @@ class gglmsViewContenuto extends JViewLegacy {
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js');
         $this->contenuto = $this->get('Contenuto');
 
-            $this->contenuto->setStato();
+        $this->contenuto->setStato(); //  D A R I A B I L I T A R E -----------------------------------------------------------------------------------------------------------------------------
 
         $this->_params = $this->contenuto->_params; //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb
 

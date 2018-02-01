@@ -47,7 +47,7 @@ else
 
         var log_status = '<?php echo JFactory::getApplication()->getParams()->get("log_utente")?>';
 
-        var url = '../../../../scorm/rte.php?SCOInstanceID=' + SCOInstanceID + '&pathscorm=' + pathscorm + '&id_utente=' + id_utente + '&log_status='+log_status;
+        var url = '../../../../scorm/rte.php?SCOInstanceID=' + SCOInstanceID + '&pathscorm=' + pathscorm + '&id_utente=' + id_utente + '&log_status='+ log_status;
 
         window.open(url, "", stile);
     });
