@@ -39,15 +39,13 @@ class gglmsModelContents extends JModelList {
 
         // Select some fields
         $query->select('a.*')
-                ->from('#__gg_contenuti as a')
-                ->join('inner','#__gg_unit_map as m on a.id=m.idcontenuto')
-                //->order('id desc')
-               // ->order($db->escape($this->getState('list.ordering', 'c.ordinamento')) . ' ' .
-                ->order(' m.ordinamento ' . ' ' .
-                        $db->escape($this->getState('list.direction', 'desc')))
+            ->from('#__gg_contenuti as a')
+            ->join('inner','#__gg_unit_map as m on a.id=m.idcontenuto')
+            ->order(' m.ordinamento ' . ' ' .
+                $db->escape($this->getState('list.direction', 'desc')))
         ;
 
-        
+
 
         // Filter search // Extra: Search more than one fields and for multiple words
         $regex = str_replace(' ', '|', $this->getState('filter.search'));
@@ -55,8 +53,6 @@ class gglmsModelContents extends JModelList {
             $regex = ' REGEXP ' . $db->quote($regex);
             $query->where('(' . implode($regex . ' OR ', $this->searchInFields) . $regex . ')');
         }
-
-
 
         $jorm=JFactory::getApplication()->getUserStateFromRequest('jform','jform');
         $id_categoria=$jorm['categoria'];
@@ -70,10 +66,6 @@ class gglmsModelContents extends JModelList {
                     break;
             }
         }
-
-
-
-
         return $query;
     }
 
@@ -93,25 +85,19 @@ class gglmsModelContents extends JModelList {
         //Omit double (white-)spaces and set state
         $this->setState('filter.search', preg_replace('/\s+/', ' ', $search));
 
-//        //Filter (dropdown) state
-//        $state = $this->getUserStateFromRequest($this->context . '.filter.state', 'filter_state', '', 'string');
-//        $this->setState('filter.state', $state);
-        //Filter (dropdown) company
         $state = $this->getUserStateFromRequest($this->context . '.filter.categoria', 'filter_categoria', '', 'string');
         $this->setState('filter.categoria', $state);
         //Takes care of states: list. limit / start / ordering / direction
         parent::populateState('a.categoria', 'asc');
-        
+
         $state = $this->getUserStateFromRequest($this->context . '.filter.congresso', 'filter_congresso', '', 'string');
         $this->setState('filter.congresso', $state);
         parent::populateState('a.congresso', 'asc');
 
         //$state = $this->getUserStateFromRequest($this->context . '.campo_lista_corsi', 'campo_lista_corsi', '', 'string');
         $state =$app->input->get('corsi','','');
-       // var_dump($app->input->get('corsi','',''));
+        // var_dump($app->input->get('corsi','',''));
         $this->setState('corsi', $state);
-
-
 
         parent::populateState('c.ordinamento', 'asc');
     }
@@ -136,10 +122,9 @@ class gglmsModelContents extends JModelList {
 
     public function getContenutiList($id_corso)
     {
-
-            return $this->getSottoUnitas($id_corso);//CHIAMATA ALLA FUNZIONE RICORSIVA
-
+        return $this->getSottoUnitas($id_corso);//CHIAMATA ALLA FUNZIONE RICORSIVA
     }
+
     public function getSottoUnitas($pk=null){
 
 
@@ -161,19 +146,13 @@ class gglmsModelContents extends JModelList {
                 $this->unitas = $result;
             } else {
                 array_push($this->unitas, $result);
-
             }
         }
 
-
-            foreach ($result as $unita) {
-
-                $this->getContenuti($unita->id);
-                $this->getSottoUnitas($unita->id);
-
-
+        foreach ($result as $unita) {
+            $this->getContenuti($unita->id);
+            $this->getSottoUnitas($unita->id);
         }
-
 
         return $this->contenuti; //SE SEI ARRIVATO QUI HAI FINITO IL CICLO DELLE CHIAMATE RICORSIVE
     }
@@ -187,28 +166,18 @@ class gglmsModelContents extends JModelList {
         $query->from('#__gg_contenuti AS a');
         $query->join('inner','#__gg_unit_map as u on a.id = u.idcontenuto');
 
-
         if($pk!=null)
             $query->where("idunita=".$pk);
-
-        //echo $query.'<br>';
 
         $db->setQuery($query);
         $result=$db->loadAssocList();
 
         foreach ($result as $res) {
-
             array_push($this->contenuti, $res['id']); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
-
         }
-
-
     }
 
     public function updateOrderValue($pk,$i){
-
-
-
         try {
 
             $db = JFactory::getDBO();

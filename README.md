@@ -3,37 +3,53 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+
+3.8.25
+  - F: Ottimizzato integrazione SCORM
+  - B: aggiunta ricerca su campo id utente
+
 3.8.24
   - F: tolto il check sul tempo per l'aggiornamento della tabella Report
   - B: inserita nel caricamento della tabella report la procedura di caricamento degli iscritti al corso ma privi di azioni
        reso effetivo e funzionante  il caricamento nella tabella error_log dei log (non errori) durante la procedura di caricamento della tabella report
+
 3.8.23
   - B: creata la gestione drag&drop dell'ordinamento dei contenuti da backend
+
 3.8.22
   - D: aggiunte le colonne dei tempi nella tabella csv_report
   - B: creata nel tab report la gestione da background della visibilità nel report delle colonne tempi
   - F: inserite nel report le due colonne dei tempi impiegati, riprodotte anche nel CSV
 3.8.21
   - B inserito nel back end la possibilità di scegliere quali colonne aggiungere alla creazione del csv da report
+
 3.8.20
   -F tolto commento da pubblicato=1 dl model di unita
+
 3.8.19
   - B inserita in modalità admin scelta colonna nome e cognome per le diverse configurazioni anagrafiche, corretto bug limit su symc_report
+
 3.8.18
   - B aggiunte nel pulsante di scaricamento tabelle report funzione pulizia tabelle scormvars e unit_map
+
 3.8.17
   - D: creata la tabella gg_log
   - B: inserita registrazione log utente, con gestione admin
        inserita possibilità assenza modulo quiz-deluxe    
+
 3.8.16
   - F: inserito tooltip per libretto in report
   - B: corretto bug blocco caricamento a 400
+
 3.8.15
   - B: aggiunta vista Libretto Formativo, ottenibile anche da report, con relativo pdf.  
+
 3.8.14
   - B: non vengono più caricati a report i corsi non pubblicati
+
 3.8.13
   - B: reso default gruppo registered su configurazione administrator
+  
 3.8.12
   - F: aggiunta vista dettagli corso
        aggiunto alert scadenza

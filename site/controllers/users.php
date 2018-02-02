@@ -126,8 +126,6 @@ class gglmsControllerUsers extends JControllerLegacy
 
     }
 
-
-
     public function sendMail($destinatari, $oggetto, $body ){
 
         $mailer = JFactory::getMailer();
@@ -155,6 +153,26 @@ class gglmsControllerUsers extends JControllerLegacy
         else
             return 'Mail inviata';
 
+    }
+
+    public function sso()
+    {
+        $app = JFactory::getApplication();
+        $busta = $_REQUEST['busta'];
+
+        echo "-----------------------------<br>";
+
+        if ($busta) {
+            echo "Busta : ". $busta . "<br>";
+            echo "Busta BASE64DECODED: " . base64_decode($busta) . "<br>";
+        }
+        else{
+            echo "Busta non fornita<br>";
+        }
+
+        echo "-----------------------------<br>";
+
+        $app->close();
     }
 
 }
