@@ -110,7 +110,7 @@ $initializeCache = initializeSCO();
             //verifico se è una interaction
 
             var varExplode = varname.split('.');
-            console.log('varExplode' + varExplode);
+            // console.log('varExplode' + varExplode);
             // if(varExplode[1]=='interactions' && varExplode[2]!='_count'&& varExplode[2]!='_children' ) {
             //     var newcount= parseInt(varExplode[2]) + 1;
             //     console.log('aggiorno la cache count con valore dal varExplode'+ newcount);
@@ -126,7 +126,7 @@ $initializeCache = initializeSCO();
         //   SCORM RTE Functions - Saving the Cache to the Database
         // ------------------------------------------
         function LMSCommit(dummyString) {
-            console.log("LMSCommit: " + dummyString);
+            // console.log("LMSCommit " + dummyString);
             // not initialized or already finished
             if ((! flagInitialized) || (flagFinished)) { return "false"; }
 
@@ -282,7 +282,7 @@ $initializeCache = initializeSCO();
         //   URL Encoding
         // ------------------------------------------
         function urlencode( str ) {
-            console.log("urlencode");
+            // console.log("urlencode");
             //
             // Ref: http://kevin.vanzonneveld.net/techblog/article/javascript_equivalent_for_phps_urlencode/
             //
@@ -380,8 +380,5 @@ $initializeCache = initializeSCO();
 
 </head>
 <body>
-
-<p>&nbsp;
-
 </body>
 </html>

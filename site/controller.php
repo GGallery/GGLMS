@@ -31,7 +31,7 @@ class gglmsController extends JControllerLegacy {
         define('PATH_CONTENUTI', '../mediagg/contenuti/');
 
         JHtml::_('jquery.framework');
-        
+
 
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');

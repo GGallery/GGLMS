@@ -1,7 +1,7 @@
 function UserLog(id_utente,id_contenuto,supporto){
 
 var _this=this;
-   console.log("Userlog "+id_utente+" - "+id_contenuto);
+   console.log("USER_LOG: "+id_utente+" - "+id_contenuto);
    var uniqid=Math.floor(Math.random()*10000000);
 
 

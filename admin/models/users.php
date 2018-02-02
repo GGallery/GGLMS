@@ -14,7 +14,7 @@ jimport('joomla.application.component.modellist');
 class gglmsModelUsers extends JModelList {
 
     //Add this handy array with database fields to search in
-    protected $searchInFields = array( 'username', 'name' , 'email');
+    protected $searchInFields = array('id', 'username', 'name' , 'email');
 
 //Override construct to allow filtering and ordering on our fields
     public function __construct($config = array()) {
