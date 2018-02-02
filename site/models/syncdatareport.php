@@ -65,27 +65,31 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
     */
 
-    public function  sync(){
+    public function  sync($limit=0, $offset=0){
         try {
 
 
-            $ora = date('Y-m-d h:i:s', time());
-            $lastsync = $this->params->get('data_sync');
-            $lastsync = strtotime($lastsync);
-            $ora = strtotime($ora);
-            $secondi_ultima_syncro = $ora - $lastsync;
-            $data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
-            if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
+            //$ora = date('Y-m-d h:i:s', time());
+            //$lastsync = $this->params->get('data_sync');
+            //$lastsync = strtotime($lastsync);
+            //$ora = strtotime($ora);
+            //$secondi_ultima_syncro = $ora - $lastsync;
+            //$data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
+            //if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
 
                 if ($this->sync_report_users()) {
 
-                    if ($this->sync_report(0,0)) {
-                        $this->updateconfig();
+                    if ($this->sync_report($limit,$offset)) {
+
+                        if($this->sync_report_complete()) {
+
+                            $this->updateconfig();
+                        }
                     }
                 }
 
                 $this->_app->close();
-            }
+            //}
 
 
         }catch (exceptions $ex){
@@ -116,7 +120,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     //REPORT TRACCIAMENTO
     public function sync_report($limit,$offset){
         DEBUGG::log('inizio sync_report','inizio sync_report limit:'.$limit.' offset:'.$offset,0,1,0);
-        ini_set('max_execution_time', 6000);
+        //ini_set('max_execution_time', 6000);
         try {
             $scormvar_list = $this->_getScormvarsVariation($limit,$offset);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit,$offset);
