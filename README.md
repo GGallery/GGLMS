@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.26
+  - B: Abilitato il metodo sync() in modo da poter utilizzare il cron
+
 3.8.25
   - F: Ottimizzato integrazione SCORM
   - B: aggiunta ricerca su campo id utente
