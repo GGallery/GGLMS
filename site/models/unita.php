@@ -27,6 +27,8 @@ class gglmsModelUnita extends JModelLegacy {
     private $_userid;
     public $_params;
     protected  $_db;
+    private $unitas=array();
+    private $contenuti=array();
 
 
     public function __construct($config = array()) {
@@ -122,20 +124,7 @@ class gglmsModelUnita extends JModelLegacy {
         return $data;
     }
 
-    public function getAllContenuti()
-    {
-        $sottunita = $this->getSottoUnita();
 
-        $contenuti= array();
-        foreach ($sottunita as $unitafiglio){
-            $sottocontenuti = $unitafiglio->getContenuti();
-            $contenuti=array_merge($contenuti, $sottocontenuti);
-        }
-
-//		DEBUGG::log($contenuti, 'contenuti', 1);
-
-        return $contenuti;
-    }
 
     public function getContenuti()
     {
@@ -162,6 +151,53 @@ class gglmsModelUnita extends JModelLegacy {
         return $contenuti;
     }
 
+
+
+    public function isUnitaCompleta($pk=null){
+
+        $pk = (!empty($pk)) ? $pk : (int) $this->getState('unita.id');
+        $this->getSottoUnitaRic($pk);//CHIAMATA ALLA FUNZIONE RICORSIVA
+        $result=$this->getContenuti($pk);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
+        if($result) {
+
+            foreach ($result as $res) {
+                array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
+            }
+        }
+        foreach ($this->contenuti as $contenuto){   //ANALISI DI OGNI CONTENUTO: APPENA NE TROVI UNO NON COMPLETO, ESCI FALSE
+
+            $contenutoObj=new gglmsModelContenuto();
+            $obj=$contenutoObj->getContenuto($contenuto->id);
+            if($obj->getStato()->completato==0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function getSottoUnitaRic($pk=null){
+
+        $result=$this->getSottoUnita($pk);
+        if($result!=null) {
+            if ($this->unitas == null) {
+                $this->unitas = $result;
+            } else {
+                array_push($this->unitas, $result);
+            }
+        }
+
+
+        foreach ($result as $unita) {
+
+            $result=$this->getContenuti($unita->id);
+            foreach ($result as $res) {
+
+                array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
+            }
+            $this->getSottoUnitaRic($unita->id);
+        }
+        return;
+    }
 
     public function access(){
 

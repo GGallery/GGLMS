@@ -27,15 +27,29 @@ if($this->sottounita) {
         }
         else{
             $count++;
+
+            //var_dump($this->unita->isUnitacompleta());
+
             ?>
             <div class="g-block <?php echo $this->unita->_params->get('larghezza_box_unita') ?> ">
                 <div class="g-block interno">
+
+
+
 
                     <?php
                     if (file_exists('../mediagg/images/unit/'. $unita->id . '.jpg'))
                         $img =  '../mediagg/images/unit/' . $unita->id . '.jpg';
                     else
                         $img =  'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+
+                    $unitaObj=new gglmsModelUnita();
+                    if(  $unitaObj->isUnitacompleta($unita->id))
+
+                        echo '<div class="corner corner_green"></div>';
+                    else
+                        echo '<div class="corner corner_yellow"></div>';
+
                     ?>
 
                     <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias='.$unita->alias )?>">
