@@ -64,14 +64,7 @@
 				readonly="true"
 				default="0000-00-00"
 		/>
-		<field
-				name="data_sync_seconds_limit"
-				class="inputbox"
-				label="secondi necessariamente trascorsi per avviare aggiornamento report"
-				type="text"
-				size="6"
-				default="14000"
-		/>
+
         <field
                 name="alert_days_before"
                 class="inputbox"
@@ -92,17 +85,7 @@
 				default="Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso"
 		/>
 
-		<field
-				name="sync_automatico"
-				type="radio"
-				class="btn-group"
-				label="Attiva sync-report automatico"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
+
 
 		<field
 				name="log_utente"

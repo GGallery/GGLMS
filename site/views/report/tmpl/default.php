@@ -472,31 +472,7 @@ var loadreportoffset=100;
         });
     });
 
-//FUNZIONE NON UTILIZZATA
-/*    function checkSeconds() {
 
-
-
-    jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.checkSeconds"))
-        .done(function (data) {
-            data=JSON.parse(data);
-            if(data=='true'){
-                dataSyncUsers(loadreportlimit,loadreportoffset);
-            }else{
-                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento stoppato!</td></tr><tr><td>non è stato superato il limite di tempo necessario per un nuovo caricamento</td></tr>');
-
-            }
-
-        })
-        .fail(function (data) {
-
-        })
-        .then(function (data) {
-
-
-        });
-
-}*/
 
     function dataSyncUsers() {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
 

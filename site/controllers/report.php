@@ -45,7 +45,23 @@ class gglmsControllerReport extends JControllerLegacy
     //INGRESSO
 
 
+    public function sync(){
 
+        try {
+            $syncdatareport = new gglmsModelSyncdatareport();
+            $result=$syncdatareport->sync();
+            if($result){
+                echo json_encode('true');
+            }else{
+                echo json_encode('false');
+            }
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+    }
 
     public function sync_report_users(){
 
@@ -61,7 +77,7 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_app->close();
         }catch (exceptions $ex){
 
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC_REPORT_USERS',1,1);
 
         }
     }
@@ -77,7 +93,7 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_app->close();
         }catch (exceptions $ex){
 
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC_REPORT_COUNT',1,1);
 
         }
     }
@@ -98,7 +114,7 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_app->close();
         }catch (exceptions $ex){
 
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC_REPORT',1,1);
 
         }
 
@@ -117,7 +133,7 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_app->close();
         }catch (exceptions $ex){
 
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.UPDATE_CONFIG',1,1);
 
         }
 
@@ -136,37 +152,12 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_app->close();
         }catch (exceptions $ex){
 
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC_REPORT_COMPLETE',1,1);
 
         }
 
     }
-    public function checkSeconds(){
 
-        echo json_encode('true');
-        $this->_app->close();
-
-    try {
-        $ora = date('Y-m-d h:i:s', time());
-        $lastsync = $this->params->get('data_sync');
-        $lastsync = strtotime($lastsync);
-        $ora = strtotime($ora);
-        $secondi_ultima_syncro = $ora - $lastsync;
-        $data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
-        if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
-
-            echo json_encode('true');
-        } else {
-
-            echo json_encode('false');
-        }
-        $this->_app->close();
-    }catch (Exception $ex){
-
-        DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
-        }
-
-    }
 
     public function insertUserLog(){
 
@@ -188,7 +179,7 @@ class gglmsControllerReport extends JControllerLegacy
             $this->_app->close();
 
         }catch (exceptions $ex){
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.INSERTUSERLOG',1,1);
         }
     }
 
@@ -206,7 +197,7 @@ class gglmsControllerReport extends JControllerLegacy
             }
             $this->_app->close();
         }catch (exceptions $ex){
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.CHECKSECONDS',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.UPDATEUSERLOG',1,1);
         }
     }
 

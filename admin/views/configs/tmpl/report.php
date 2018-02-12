@@ -53,11 +53,7 @@
                 <?php echo $this->form->renderField('alert_mail_text'); ?>
             </div>
 
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('data_sync_seconds_limit'); ?>
-            </div>
-
-            <div class="row-fluid">
+           <div class="row-fluid">
                 <?php echo $this->form->renderField('campo_community_builder_campi_csv'); ?>
             </div>
             <div class="row-fluid">
@@ -67,9 +63,7 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('log_utente'); ?>
             </div>
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('sync_automatico'); ?>
-            </div>
+
             <div class="row-fluid">
                 <?php echo $this->form->renderField('colonne_somme_tempi'); ?>
             </div>

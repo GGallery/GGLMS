@@ -38,69 +38,38 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
     }
 
-    //INGRESSO
-    /*    public function  sync(){
-
-            $ora = date('Y-m-d h:i:s', time());
-            $lastsync = $this->params->get('data_sync');
-
-            $lastsync = strtotime($lastsync);
-            $ora  = strtotime($ora);
-
-            $secondi_ultima_syncro = $ora - $lastsync;
-
-            if($secondi_ultima_syncro > 14000 ) {
-                if ($this->sync_report_users()) {
-
-    //            echo "sync_report_users completato <br>";
-                    if ($this->sync_report()) {
-                        $this->updateconfig();
-                    }
-                }
-
-                $this->_app->close();
-            }
-
-        }
-
-    */
 
     public function  sync($limit=0, $offset=0){
         try {
 
 
-            //$ora = date('Y-m-d h:i:s', time());
-            //$lastsync = $this->params->get('data_sync');
-            //$lastsync = strtotime($lastsync);
-            //$ora = strtotime($ora);
-            //$secondi_ultima_syncro = $ora - $lastsync;
-            //$data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
-            //if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
-
                 if ($this->sync_report_users()) {
 
-                    if ($this->sync_report($limit,$offset)) {
+                    if ($this->sync_report_count()) {
 
-                        if($this->sync_report_complete()) {
+                        if ($this->sync_report($limit, $offset)) {
 
-                            $this->updateconfig();
+                            if ($this->sync_report_complete()) {
+
+                                    $this->updateconfig();
+                            }
                         }
                     }
                 }
 
                 $this->_app->close();
-            //}
+
 
 
         }catch (exceptions $ex){
 
-            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1, 0);
 
         }
     }
     public function updateconfig(){
 
-        //DEBUGG::log('inizio updateconfig','inizio updateconfig',0,1);
+
         try{
             $query = $this->_db->getQuery(true)
                 ->update('#__gg_configs	')
@@ -113,7 +82,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return "1";
         }
         catch (Exception $e){
-            DEBUGG::log($e, 'updateconfig',1,1);
+            DEBUGG::log($e, 'updateconfig',1,1,0);
         }
     }
 
@@ -169,7 +138,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }
         catch (Exception $e) {
             //echo $e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error in sync_report' , 0,1);
+            DEBUGG::log($e->getMessage(), 'error in sync_report' , 0,1,0);
         }
     }
 
@@ -184,7 +153,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }
         catch (Exception $e) {
             //echo $e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error in sync_report_count' , 0,1);
+            DEBUGG::log($e->getMessage(), 'error in sync_report_count' , 0,1,0);
         }
 
     }
@@ -207,7 +176,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }
         catch (Exception $e) {
             // echo "_getScormvars ".$e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error in getScormVars',1,1);
+            DEBUGG::log($e->getMessage(), 'error in getScormVars',1,1, 0);
             DEBUGG::query($query, '_getScormvarsVariation', 1);
         }
     }
@@ -253,7 +222,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return $res ? $res : 0 ;
 
         }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error get Anagrafica',0,1);
+            DEBUGG::log($e->getMessage(), 'error get Anagrafica',0,1,0);
         }
 
     }
@@ -272,7 +241,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
         }catch (Exception $e){
             echo "storereport ".$e->getMessage();
-            DEBUGG::log($e->getMessage(), 'error store report', 0,1);
+            DEBUGG::log($e->getMessage(), 'error store report', 0,1,0);
         }
     }
 
@@ -308,7 +277,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }catch (Exception $e){
             echo $e->getMessage();
 
-            DEBUGG::log($e->getMessage(), 'error sync_report_users', 1,1);
+            DEBUGG::log($e->getMessage(), 'error sync_report_users', 1,1,0);
             return false;
         }
     }
@@ -349,7 +318,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return $registrants;
         }catch (Exception $e){
 
-            DEBUGG::log($e->getMessage(), 'error get user cb', 1,1);
+            DEBUGG::log($e->getMessage(), 'error get user cb', 1,1,0);
         }
 
     }
@@ -370,7 +339,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return $registrants;
         }catch (Exception $e){
             DEBUGG::query($query, 'query_ error_ in_ get_users_eb');
-            DEBUGG::log($e->getMessage(), 'error in get user eb', 1,1);
+            DEBUGG::log($e->getMessage(), 'error in get user eb', 1,1,0);
         }
     }
 
@@ -389,7 +358,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return $registrants;
         }catch (Exception $e){
             DEBUGG::query($query, 'query error in get_users_joomla');
-            DEBUGG::log($e->getMessage(), 'error in get_users_joomla', 1,1);
+            DEBUGG::log($e->getMessage(), 'error in get_users_joomla', 1,1,0);
         }
     }
 
@@ -406,7 +375,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
         }catch (Exception $e){
 
-            DEBUGG::log($e, 'error store users  report', 1,1);
+            DEBUGG::log($e, 'error store users  report', 1,1,0);
         }
     }
 
@@ -434,7 +403,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         }catch (Exception $e){
             echo $e->getMessage();
 
-            DEBUGG::log($e->getMessage(), 'error sync_report_complete', 1,1);
+            DEBUGG::log($e->getMessage(), 'error sync_report_complete', 1,1,0);
             return false;
         }
 
