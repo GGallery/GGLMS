@@ -5,8 +5,12 @@ if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
 $files= $this->contenuto->getFiles();
+$stato = $this->contenuto->getStato();
 
 echo "<h1>".$this->contenuto->titolo."</h1>";
+
+
+
 
 ?>
 
@@ -16,15 +20,16 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
     jQuery(document).ready(function ($) {
 
-    <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+        <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
 
 
         var hasPlayed = false;
         var player;
         var old_tempo;
+        var bookmark=<?php echo $stato->bookmark; ?>;
 
         var id_elemento = <?php echo $this->contenuto->id; ?>;
-        var stato = <?php echo $this->contenuto->getStato()->completato; ?>;
+        var stato = <?php echo $stato->completato; ?>;
         var features = null;
 
         if (stato) {
@@ -59,20 +64,17 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 old_tempo = null;
 
                 mediaElement.addEventListener('timeupdate', function (e) {
-                    time = mediaElement.currentTime.toFixed(0);
-                    sliding(time);
+                    tview = mediaElement.currentTime.toFixed(0);
+                    sliding(tview);
 
                 }, false);
 
+                mediaElement.addEventListener('loadedmetadata', function(e){
+                    console.log("setcurrentetime" + bookmark);
+                    mediaElement.setCurrentTime(bookmark);
+                });
 
                 if(!stato){
-                    mediaElement.addEventListener('loadedmetadata', function(e){
-                        if (!hasPlayed){
-                            mediaElement.setCurrentTime(tview);
-                            hasPlayed = true;
-                        }
-                    });
-
                     mediaElement.addEventListener('ended', function(e) {
                         stato = 1;
                         jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
@@ -100,6 +102,14 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
             alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
         });
 
+        //Aggiorno il bookmark quando chiudo la pagina
+        jQuery(window).on('beforeunload',function() {
+            console.log("bookmark->" + tview);
+            jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
+                time: tview,
+                id_elemento: id_elemento
+            });
+        });
 
         function sliding(tempo) {
             if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
@@ -127,11 +137,6 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
             }
         }
 
-// //////////////////////
-
-// DA MIGLIORARE !!!!! //
-
-// //////////////////////
 
 //INIZIO COMPARSA JUMPER
         jQuery("#jumper").click(function () {
@@ -154,7 +159,6 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
             }
         });
 // FINE COMPARSA JUMPER
-
 
     });
 

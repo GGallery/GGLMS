@@ -5,6 +5,7 @@ if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
 $files= $this->contenuto->getFiles();
+$stato = $this->contenuto->getStato();
 
 echo "<h1>".$this->contenuto->titolo."</h1>";
 
@@ -14,15 +15,16 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
 <script type="text/javascript">
 
+
+
     jQuery(document).ready(function ($) {
 
         <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
 
-
         var hasPlayed = false;
         var player;
         var old_tempo;
-        var tview= 0;
+        var bookmark=<?php echo $stato->bookmark; ?>;
 
         var id_elemento = <?php echo $this->contenuto->id; ?>;
         var stato = <?php echo $this->contenuto->getStato()->completato; ?>;
@@ -60,20 +62,16 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 old_tempo = null;
 
                 mediaElement.addEventListener('timeupdate', function (e) {
-                    time = mediaElement.currentTime.toFixed(0);
+                    tview = mediaElement.currentTime.toFixed(0);
                     // sliding(time);
-
                 }, false);
 
+                mediaElement.addEventListener('loadedmetadata', function(e){
+                    console.log("setcurrentetime" + bookmark);
+                    mediaElement.setCurrentTime(bookmark);
+                });
 
                 if(!stato){
-                    mediaElement.addEventListener('loadedmetadata', function(e){
-                        if (!hasPlayed){
-                            mediaElement.setCurrentTime(tview);
-                            hasPlayed = true;
-                        }
-                    });
-
                     mediaElement.addEventListener('ended', function(e) {
                         stato = 1;
                         jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
@@ -101,6 +99,14 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
             alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
         });
 
+        //Aggiorno il bookmark quando chiudo la pagina
+        jQuery(window).on('beforeunload',function() {
+            console.log("bookmark->" + tview);
+            jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
+                time: tview,
+                id_elemento: id_elemento
+            });
+        });
 
         function sliding(tempo) {
             if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
@@ -128,11 +134,6 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
             }
         }
 
-// //////////////////////
-
-// DA MIGLIORARE !!!!! //
-
-// //////////////////////
 
 //INIZIO COMPARSA JUMPER
         jQuery("#jumper").click(function () {
@@ -170,44 +171,44 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
         <video  style="width:100%; height:100%; display: inline-block" height="100%" controls="controls" preload="auto" class="img-thumbnail">
             <source type="video/mp4" src="<?php echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.mp4'; ?>" />
-<!--            <source type="video/webm" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.webm'; ?><!--" />-->
-<!--            <source type="video/ogg" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.ogv'; ?><!--" />-->
-<!--            <track kind="slides" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'; ?><!--vtt_slide.vtt" />-->
+            <!--            <source type="video/webm" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.webm'; ?><!--" />-->
+            <!--            <source type="video/ogg" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.ogv'; ?><!--" />-->
+            <!--            <track kind="slides" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'; ?><!--vtt_slide.vtt" />-->
         </video>
 
-<!--        <div id= "panel_jumper" class="sidepanel  ">-->
-<!--            --><?php
-//            $i = 0;
-//            foreach ($this->jumper as $var) {
-//                $_titolo = $var['titolo'];
-//                $_tstart = $var['tstart'];
-//
-//                //Genero il minutaggio del Jumper
-//                $h = floor($_tstart / 3600);
-//                $m = floor(($_tstart % 3600) / 60);
-//                $s = ($_tstart % 3600) % 60;
-//                $_durata = sprintf('%02d:%02d:%02d', $h, $m, $s);
-//
-//                //DIV ID del jumper che serve poi impostare il colore di background
-//                $_jumper_div_id = $i;
-//
-//                //Anteprima Jumper
-//                $_id_contenuto = JRequest::getInt('id', 0);
-//
-//                $_img_contenuto = $this->contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
-//                $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";
-////            $class = ($this->elemento['track']['cmi.core.lesson_status'] == 'completed') ? 'enabled' : 'disabled';
-//                $class = ($this->contenuto->getStato()->completato)  ? 'enabled' : 'disabled';
-//
-//                $jumper = '<div class="jumper ' . $class . '" id="' . $_jumper_div_id . '" rel="' . $_tstart . '">';
-//                // $jumper.='<div class="anteprima_jumper" style="' . $_background . '"></div>';
-//                $jumper.=$_durata . "<br>" . $_titolo;
-//                $jumper.='</div>';
-//                echo $jumper;
-//                $i++;
-//            }
-//            ?>
-<!--        </div>-->
+        <!--        <div id= "panel_jumper" class="sidepanel  ">-->
+        <!--            --><?php
+        //            $i = 0;
+        //            foreach ($this->jumper as $var) {
+        //                $_titolo = $var['titolo'];
+        //                $_tstart = $var['tstart'];
+        //
+        //                //Genero il minutaggio del Jumper
+        //                $h = floor($_tstart / 3600);
+        //                $m = floor(($_tstart % 3600) / 60);
+        //                $s = ($_tstart % 3600) % 60;
+        //                $_durata = sprintf('%02d:%02d:%02d', $h, $m, $s);
+        //
+        //                //DIV ID del jumper che serve poi impostare il colore di background
+        //                $_jumper_div_id = $i;
+        //
+        //                //Anteprima Jumper
+        //                $_id_contenuto = JRequest::getInt('id', 0);
+        //
+        //                $_img_contenuto = $this->contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
+        //                $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";
+        ////            $class = ($this->elemento['track']['cmi.core.lesson_status'] == 'completed') ? 'enabled' : 'disabled';
+        //                $class = ($this->contenuto->getStato()->completato)  ? 'enabled' : 'disabled';
+        //
+        //                $jumper = '<div class="jumper ' . $class . '" id="' . $_jumper_div_id . '" rel="' . $_tstart . '">';
+        //                // $jumper.='<div class="anteprima_jumper" style="' . $_background . '"></div>';
+        //                $jumper.=$_durata . "<br>" . $_titolo;
+        //                $jumper.='</div>';
+        //                echo $jumper;
+        //                $i++;
+        //            }
+        //            ?>
+        <!--        </div>-->
 
 
     </div>
@@ -221,7 +222,6 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
 <div class="g-grid">
     <div class="g-block size-50">
-
 
         <!--        <div id="jumper" class="pulsante"><img  width="30px" src="components/com_gglms/libraries/images/tab_navigazione.png"/></div>-->
     </div>

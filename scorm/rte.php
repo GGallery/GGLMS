@@ -1,9 +1,9 @@
 <?php
 
-$id_elemento = $_GET['SCOInstanceID'] ;
-$scorm_path = $_GET['pathscorm'];
-$id_utente= $_GET['id_utente'];
-$log_status= $_GET['log_status'];
+$id_elemento =$_GET['SCOInstanceID'] ;
+$scorm_path =$_GET['pathscorm'];
+$id_utente=$_GET['id_utente'];
+$log_status=$_GET['log_status'];
 
 ?>
 <html>
@@ -21,7 +21,7 @@ $log_status= $_GET['log_status'];
 
         <?php if($log_status==1) {
             echo 'UserLog(' . $id_utente . ',' . $id_elemento . ', null)';
-            }
+        }
         ?>
 
         function APILoaded() {
@@ -33,7 +33,7 @@ $log_status= $_GET['log_status'];
 </head>
 
 <iframe src="" name="course" id="framecourse" noresize="" width="100%" height="100%" style="framewrap: 0 !important;"></iframe>
-<iframe src="api.php?SCOInstanceID=<?php echo $id_elemento; ?>&UserID=<?php echo $id_utente;?>" name="API" id="frameapi" noresize  width="200" height="200" onload="APILoaded(this)"></iframe>
+<iframe src="api.php?SCOInstanceID=<?php echo $id_elemento; ?>&UserID=<?php echo $id_utente;?>" name="API" id="frameapi" noresize  width="0" height="0" onload="APILoaded(this)"></iframe>
 
 </html>
 

@@ -33,9 +33,7 @@ require "config.php";
 
 $db = JFactory::getDBO();
 
-
 // read SCOInstanceID
-
 
 $SCOInstanceID = $_REQUEST['SCOInstanceID'] * 1;
 $UserID = $_REQUEST['UserID'];

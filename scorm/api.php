@@ -91,6 +91,9 @@ $initializeCache = initializeSCO();
             // }
 
 
+            if(!cache[varname])
+                return "null";
+
             return cache[varname];
         }
 
@@ -98,8 +101,9 @@ $initializeCache = initializeSCO();
 
             // not initialized or already finished
             if ((! flagInitialized) || (flagFinished)) {
-                console.log("LMSSetValue: " + varname + " -> "+varvalue + "  l'esito e: NON E' STATO INIZIALIZATO!");
-                return "false"; }
+                console.log("LMSSetValue: " + varname + " -> "+ varvalue + "  l'esito e: NON E' STATO INIZIALIZZATO!");
+                return "false";
+            }
 
             // otherwise, set the requested data, and return success value
 
@@ -149,7 +153,7 @@ $initializeCache = initializeSCO();
 
             for(var index in cache) {
                 console.log( index + " : " + cache[index] );
-                params += "&data["+index+"]="+urlencode(cache[index]);
+                params += "&data["+urlencode(index)+"]="+urlencode(cache[index]);
             }
 
 
@@ -187,7 +191,8 @@ $initializeCache = initializeSCO();
 
             // process returned data - error condition
             if (req.status != 200) {
-                alert('Problem with AJAX Request in LMSCommit()');
+                // alert('Problem with AJAX Request in LMSCommit()');
+                console.log(params);
                 return "false";
             }
 
