@@ -51,8 +51,6 @@ function writeElement($VarName,$VarValue) {
 
     $interaction = strpos($VarName, 'cmi.interactions');
 
-
-
     if(!$interaction) {
         $query = "INSERT INTO #__gg_scormvars (scoid, userid, VarName, varValue) VALUES($SCOInstanceID, $UserID, '$safeVarName', '$safeVarValue') ON DUPLICATE KEY UPDATE varValue='$safeVarValue'";
 
@@ -60,17 +58,15 @@ function writeElement($VarName,$VarValue) {
         $db->execute();
     }
 
-    if($VarValue == "completed"){
-        $oggi ="'".date('d-m-Y')."'";
-        writeElement('cmi.core.completed_date', $oggi);
-    }
+//    if($VarValue == "completed"){
+//        $oggi ="'".date('d-m-Y')."'";
+//        writeElement('cmi.core.completed_date', $oggi);
+//    }
 
     return;
 }
 
 function initializeElement($VarName,$VarValue) {
-
-
 
     global $db;
     global $SCOInstanceID;
@@ -114,6 +110,8 @@ function initializeSCO() {
     global $db;
     global $SCOInstanceID;
     global $UserID;
+
+
 
 
     $query = $db->getQuery(true)
@@ -233,4 +231,5 @@ function getFromLMS($varname) {
     return $varvalue;
 
 }
+
 

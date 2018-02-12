@@ -471,6 +471,9 @@ class gglmsModelContenuto extends JModelLegacy {
 
     public function setStato(){
 
+        if($this->tipologia == 4)
+            return;
+
         $stato_attuale= $this->getStato();
 
         $stato = new gglmsModelStatoContenuto();
@@ -484,11 +487,17 @@ class gglmsModelContenuto extends JModelLegacy {
         $tmp->varValue = date('Y-m-d');
         $stato->setStato($tmp);
 
-
         //contatore
         $tmp->varName = 'cmi.core.count_views';
         $tmp->varValue= (int)$stato_attuale->visualizzazioni+1;
         $stato->setStato($tmp);
+
+        //bookmark
+        if(!$stato_attuale->bookmark) {
+            $tmp->varName = 'bookmark';
+            $tmp->varValue = 0;
+            $stato->setStato($tmp);
+        }
 
         //stato
         if(!$stato_attuale->completato) {

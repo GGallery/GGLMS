@@ -23,6 +23,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
             $this->data = '0000-00-00';
             $this->descrizione = 'Non superato';
             $this->permanenza = 0;
+            $this->bookmark = 0;
             $this->visualizzazioni = 0;
         }
         else {
@@ -50,32 +51,30 @@ class gglmsModelStatoContenuto extends JModelLegacy {
 
     public function format_scorm($data){
 
-
         if($data && isset($data['cmi.core.lesson_status'])) {
             if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish') {
                 $this->completato = 1;
                 $this->descrizione = 'Completato';
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
+                $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             } else {
                 $this->completato = 0;
                 $this->descrizione = 'Non completato';
                 $this->data =  isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';//$data['cmi.core.last_visit_date']->varValue;
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
+                $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             }
-        }else
-        {
+        }else {
             $this->completato = 0;
             $this->descrizione = 'Non completato';
             $this->data = '0000-00-00';
             $this->permanenza = '0';
+            $this->bookmark = 0;
             $this->visualizzazioni = 0;
         }
-
-
-
 
         return $this;
     }
@@ -88,12 +87,14 @@ class gglmsModelStatoContenuto extends JModelLegacy {
                 $this->descrizione = 'Scaricato';
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '';
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
+                $this->bookmark = 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             } else {
                 $this->completato = 0;
                 $this->descrizione = 'Non scaricato';
                 $this->data = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
+                $this->bookmark = 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             }
         }else
@@ -102,6 +103,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
             $this->descrizione = 'Non scaricato';
             $this->data = '0000-00-00';
             $this->permanenza = '0';
+            $this->bookmark = 0;
             $this->visualizzazioni = 0;
         }
         return $this;
@@ -115,12 +117,14 @@ class gglmsModelStatoContenuto extends JModelLegacy {
                 $this->descrizione = 'Documento visionato';
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';
                 $this->permanenza = '0';
+                $this->bookmark = 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             } else {
                 $this->completato = 0;
                 $this->descrizione = 'Non visionato';
                 $this->data = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->permanenza = '0';
+                $this->bookmark = 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
             }
         }else
@@ -129,6 +133,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
             $this->descrizione = 'Non visionato';
             $this->data = '0000-00-00';
             $this->permanenza = '0';
+            $this->bookmark = 0;
             $this->visualizzazioni = 0;
         }
  
@@ -142,6 +147,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
         $this->descrizione = 'Accessibile';
         $this->data = '0000-00-00';
         $this->permanenza = '0';
+        $this->bookmark = 0;
         $this->visualizzazioni = 0;
         
         return $this;

@@ -6,6 +6,7 @@ F:Frontend, B:Backend, D:Database, G:Generale
 
 3.8.26
   - B: Abilitato il metodo sync() in modo da poter utilizzare il cron
+  - F: Abilitato BookMark per contenuti solo video e videoslide
 
 3.8.25
   - F: Ottimizzato integrazione SCORM
