@@ -65,27 +65,31 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
     */
 
-    public function  sync(){
+    public function  sync($limit=0, $offset=0){
         try {
 
 
-            $ora = date('Y-m-d h:i:s', time());
-            $lastsync = $this->params->get('data_sync');
-            $lastsync = strtotime($lastsync);
-            $ora = strtotime($ora);
-            $secondi_ultima_syncro = $ora - $lastsync;
-            $data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
-            if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
+            //$ora = date('Y-m-d h:i:s', time());
+            //$lastsync = $this->params->get('data_sync');
+            //$lastsync = strtotime($lastsync);
+            //$ora = strtotime($ora);
+            //$secondi_ultima_syncro = $ora - $lastsync;
+            //$data_sync_seconds_limit=$this->params->get('data_sync_seconds_limit');
+            //if ($secondi_ultima_syncro >$data_sync_seconds_limit ) {
 
                 if ($this->sync_report_users()) {
 
-                    if ($this->sync_report(0,0)) {
-                        $this->updateconfig();
+                    if ($this->sync_report($limit,$offset)) {
+
+                        if($this->sync_report_complete()) {
+
+                            $this->updateconfig();
+                        }
                     }
                 }
 
                 $this->_app->close();
-            }
+            //}
 
 
         }catch (exceptions $ex){
@@ -116,7 +120,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     //REPORT TRACCIAMENTO
     public function sync_report($limit,$offset){
         DEBUGG::log('inizio sync_report','inizio sync_report limit:'.$limit.' offset:'.$offset,0,1,0);
-//        ini_set('max_execution_time', 6000);
+        //ini_set('max_execution_time', 6000);
         try {
             $scormvar_list = $this->_getScormvarsVariation($limit,$offset);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit,$offset);
@@ -164,6 +168,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             }
         }
         catch (Exception $e) {
+            //echo $e->getMessage();
             DEBUGG::log($e->getMessage(), 'error in sync_report' , 0,1);
         }
     }
@@ -181,6 +186,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             //echo $e->getMessage();
             DEBUGG::log($e->getMessage(), 'error in sync_report_count' , 0,1);
         }
+
     }
 
     private function _getScormvarsVariation($limit,$offset){
@@ -224,7 +230,11 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return $data;
         }
         catch (Exception $e) {
+            //$data=array(array(id_contenuto=>'',id_utente=>''));
             $data=array();
+            //echo "_quizdeluxe ".$e->getMessage();
+            //DEBUGG::log($e->getMessage(), 'error in getQuizDeLuxe',0,1);
+            //DEBUGG::query($query, '_getScormvarsVariation', 0);
             return $data;
         }
     }
@@ -253,24 +263,10 @@ class gglmsModelSyncdatareport extends JModelLegacy {
         try {
 
             $query = "
-    INSERT INTO #__gg_report (id_corso, 
-    id_event_booking,
-    id_unita, 
-    id_contenuto,  
-    id_utente, 
-    id_anagrafica, 
-    stato, 
-    visualizzazioni, 
-    data) 
-    VALUES ($data->id_corso, 
-    $data->id_event_booking, 
-    $data->id_unita,$data->id_contenuto,
-    $data->id_utente,$data->id_anagrafica,
-    $data->stato, 
-    $data->visualizzazioni, 
-    '$data->data')";
+    INSERT INTO #__gg_report (id_corso, id_event_booking,id_unita, id_contenuto,  id_utente , id_anagrafica, stato, visualizzazioni, data ) 
+    VALUES ($data->id_corso, $data->id_event_booking, $data->id_unita,$data->id_contenuto,$data->id_utente,$data->id_anagrafica,$data->stato, $data->visualizzazioni, '$data->data')";
             $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data'  ";
-
+//echo $query;die;
             $this->_db->setQuery($query);
             $this->_db->execute();
 
@@ -283,8 +279,11 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     //REPORT UTENTI
     public function sync_report_users() {
 
+
         try {
+
             $users = $this->get_users_id($this->params->get('data_sync'));
+
 
             foreach ($users as $user) {
                 $modelUser = new gglmsModelUsers();
@@ -308,6 +307,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return true;
         }catch (Exception $e){
             echo $e->getMessage();
+
             DEBUGG::log($e->getMessage(), 'error sync_report_users', 1,1);
             return false;
         }
@@ -437,7 +437,10 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             DEBUGG::log($e->getMessage(), 'error sync_report_complete', 1,1);
             return false;
         }
+
     }
+
+
 }
 
 
