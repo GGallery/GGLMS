@@ -153,7 +153,7 @@ class gglmsModelUnita extends JModelLegacy {
 
 
 
-    public function isUnitaCompleta($pk=null){
+    public function isUnitaCompleta($pk=null,$userid=null){
 
         $pk = (!empty($pk)) ? $pk : (int) $this->getState('unita.id');
         $this->getSottoUnitaRic($pk);//CHIAMATA ALLA FUNZIONE RICORSIVA
@@ -168,7 +168,7 @@ class gglmsModelUnita extends JModelLegacy {
 
             $contenutoObj=new gglmsModelContenuto();
             $obj=$contenutoObj->getContenuto($contenuto->id);
-            if($obj->getStato()->completato==0) {
+            if($obj->getStato($userid)->completato==0) {
                 return false;
             }
         }
@@ -189,7 +189,7 @@ class gglmsModelUnita extends JModelLegacy {
 
         foreach ($result as $unita) {
 
-            $result=$this->getContenuti($unita->id);
+            $result=$this->getContenuti();
             foreach ($result as $res) {
 
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA

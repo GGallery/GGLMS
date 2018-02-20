@@ -39,7 +39,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     }
 
 
-    public function  sync($limit=0, $offset=0){
+    public function  sync(){
         try {
 
 
@@ -47,11 +47,12 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
                     if ($this->sync_report_count()) {
 
-                        if ($this->sync_report($limit, $offset)) {
+                        if ($this->sync_report(null, null)) {
 
                             if ($this->sync_report_complete()) {
 
-                                    $this->updateconfig();
+                                    if($this->updateconfig())
+                                                return 1;
                             }
                         }
                     }
@@ -240,7 +241,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $this->_db->execute();
 
         }catch (Exception $e){
-            echo "storereport ".$e->getMessage();
+           // echo "storereport ".$e->getMessage();
             DEBUGG::log($e->getMessage(), 'error store report', 0,1,0);
         }
     }
@@ -275,7 +276,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             DEBUGG::log('sync_report_users','sync_report_users, caricati: '.count($users).' utenti',0,1,0);
             return true;
         }catch (Exception $e){
-            echo $e->getMessage();
+            //echo $e->getMessage();
 
             DEBUGG::log($e->getMessage(), 'error sync_report_users', 1,1,0);
             return false;
@@ -382,26 +383,31 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     public function sync_report_complete(){
 
         try {
-
+/*
             $query=$this->_db->getQuery(true)
-                ->select('(select distinct id from #__gg_unit where id_event_booking=u.id_event_booking and is_corso=1) as id_corso,
-                        (select distinct r.id_event_booking from #__gg_report as r where id_user=u.id_user ) as id_event_booking,
-                        0 as id_unita,0 as id_contenuto,u.id_user as id_utente,u.id as id_anagrafica,0 as stato,null as \'data\',0 as visualizzazioni, NOW() as timestamp')
+                ->select('(select distinct id from #__gg_unit where id_event_booking=u.id_event_booking and is_corso=1)as id_corso, u.id as id_anagrafica, u.id_user as id_utente, now() as timestamp, u.id_event_booking as id_event_booking')
                 ->from('#__gg_report_users as u')
                 ->where ('u.id_user not in (select  r.id_utente from #__gg_report as r) and (select distinct id from #__gg_unit where id_event_booking=u.id_event_booking and is_corso=1) is not null');
             $this->_db->setQuery($query);
+            //echo $query;
 
             $data = $this->_db->loadObjectList();
 
             foreach ($data as $dato){
 
+                $dato->id_unita=0;
+                $dato->id_contenuto=0;
+                $dato->stato=0;
+                $dato->data=null;
+                $dato->visualizzazioni=0;
                 $this->store_report($dato);
             }
 
             DEBUGG::log('sync_report_complete','inseriti '.count($data).' records',0,1,0);
+*/
             return true;
         }catch (Exception $e){
-            echo $e->getMessage();
+           // echo $e->getMessage();
 
             DEBUGG::log($e->getMessage(), 'error sync_report_complete', 1,1,0);
             return false;

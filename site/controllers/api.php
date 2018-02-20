@@ -59,7 +59,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
 
-    private function get_data($offsetforcsv=null) {
+    private function  get_data($offsetforcsv=null) {
 
         $this->_filterparam->task = JRequest::getVar('task');
         //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
@@ -222,7 +222,7 @@ class gglmsControllerApi extends JControllerLegacy
         $data=$this->get_data($csvlimit);
         $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
 
-        if($csvlimit>0) {
+        if($csvlimit>0) { //COSI' LA PRIMA CHIAMATA, PER IL TOTALE, NON GENERA RECORD
             foreach ($data['rows'] as $row) {
 
                 try {
