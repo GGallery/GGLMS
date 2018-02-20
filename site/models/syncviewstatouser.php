@@ -147,7 +147,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                 if($obj->isUnitaCompleta($record->id_unita, $record->id_utente)!=null)
                     $completed=1;
 
-                $query = 'INSERT into un_gg_view_stato_user_unita (id_anagrafica, id_unita, id_corso, stato, timestamp) VALUES (';
+                $query = 'INSERT into #__gg_view_stato_user_unita (id_anagrafica, id_unita, id_corso, stato, timestamp) VALUES (';
                 $query=$query. $record->id_anagrafica . ',' . $record->id_unita . ',' . $record->id_corso . ',' . $completed . ',NOW()) ON DUPLICATE KEY UPDATE stato=' . $completed;
                 //echo $query;
                 $this->_db->setQuery($query);
@@ -191,7 +191,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                     $completed=1;
 
 
-                $query = 'INSERT into un_gg_view_stato_user_corso (id_anagrafica, id_corso, stato, timestamp) VALUES (';
+                $query = 'INSERT into #__gg_view_stato_user_corso (id_anagrafica, id_corso, stato, timestamp) VALUES (';
                 $query=$query. $record->id_anagrafica . ',' . $record->id_corso . ',' . $completed . ',NOW()) ON DUPLICATE KEY UPDATE stato=' . $completed;
                 $this->_db->setQuery($query);
                 $this->_db->execute();
