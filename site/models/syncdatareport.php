@@ -172,6 +172,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $query->setLimit($offset,$limit);
 
             $this->_db->setQuery($query);
+
             $data = $this->_db->loadObjectList();
             return $data;
         }
