@@ -23,6 +23,8 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
         var hasPlayed = false;
         var player;
+        var duration = 0;
+        var tview = 0;
         var old_tempo;
         var bookmark=<?php echo $stato->bookmark; ?>;
 
@@ -63,22 +65,23 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
                 mediaElement.addEventListener('timeupdate', function (e) {
                     tview = mediaElement.currentTime.toFixed(0);
+                    if(!stato) {
+                        if (duration && duration - tview < 20)
+                            finish(tview);
+                    }
+
                     // sliding(time);
                 }, false);
 
                 mediaElement.addEventListener('loadedmetadata', function(e){
                     console.log("setcurrentetime" + bookmark);
                     mediaElement.setCurrentTime(bookmark);
+                    duration = mediaElement.duration;
                 });
 
                 if(!stato){
                     mediaElement.addEventListener('ended', function(e) {
-                        stato = 1;
-                        jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
-                            secondi:mediaElement.duration.toFixed(0),
-                            stato:1,
-                            id_elemento:id_elemento
-                        });
+                        finish(mediaElement.duration.toFixed(0));
                     }, false);
                 }
 
@@ -87,6 +90,8 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 console.log('Errore');
             }
         });
+
+
 
         player.play();
         jQuery('.jumper.enabled').click(function () {
@@ -132,6 +137,15 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                     jQuery('#' + i).css('background-color', '#E4E4E4');
                 }
             }
+        }
+
+        function finish(tempo){
+            stato = 1;
+            jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
+                secondi:tempo,
+                stato:1,
+                id_elemento:id_elemento
+            });
         }
 
 

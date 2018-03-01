@@ -191,7 +191,7 @@ $initializeCache = initializeSCO();
 
             // process returned data - error condition
             if (req.status != 200) {
-                // alert('Problem with AJAX Request in LMSCommit()');
+                alert('Problema con la connessione alla piattaforma. Chiudere questa finestra e riprovare. Se il problema persiste contattare l\'amministratore della piattaforma');
                 console.log(params);
                 return "false";
             }
