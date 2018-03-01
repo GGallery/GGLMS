@@ -66,12 +66,8 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 mediaElement.addEventListener('timeupdate', function (e) {
                     tview = mediaElement.currentTime.toFixed(0);
                     if(!stato) {
-                        if (duration && duration - tview < 20) {
-                            console.log("FINITO!! duration: " + duration + " tview: " + tview);
+                        if (duration && duration - tview < 20)
                             finish(tview);
-                        } else {
-                            console.log("NON FINITO duration: " + duration + " tview: " + tview);
-                        }
                     }
 
                     // sliding(time);
