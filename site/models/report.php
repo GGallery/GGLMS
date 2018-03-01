@@ -185,6 +185,47 @@ class gglmsModelReport extends JModelLegacy {
 		return $tree;
 	}
 
+    public function getSottoUnitaArrayList($item = 0) {
+        $tree = array();
+
+        $query = $this->_db->getQuery(true);
+
+        $query->select('a.id, a.titolo');
+        $query->from('#__gg_unit AS a');
+        $query->where("unitapadre=" . $item);
+
+        $this->_db->setQuery($query);
+
+        $tmptree = $this->_db->loadAssocList();
+        foreach ($tmptree as $item) {
+            array_push($tree, $item);
+            foreach ($this->getSottoUnitaArrayList($item['id']) as $item2) {
+                //$item2['titolo'] = $item2['titolo'];
+                array_push($tree, $item2);
+            }
+
+        }
+        unset($tmptree);
+        return $tree;
+    }
+
+    public function getContenutiArrayList($item=0){
+	    $contenuti=array();
+	    foreach ($this->getContenutiUnitaArrayList($item) as $contenuto) {
+            array_push($contenuti, $contenuto);
+        }
+
+	    $unitas=$this->getSottoUnitaArrayList($item);
+
+	    foreach ($unitas as $unita){
+
+            foreach ($this->getContenutiUnitaArrayList($unita['id']) as $contenuto) {
+                array_push($contenuti, $contenuto);
+            }
+        }
+	    return $contenuti;
+    }
+
 	public function getContenutiUnita($item) {
 
 		try {
@@ -207,6 +248,29 @@ class gglmsModelReport extends JModelLegacy {
 
 		}
 	}
+
+    public function getContenutiUnitaArrayList($item) {
+
+        try {
+            $query = $this->_db->getQuery(true);
+
+            $query->select('c.id as id, c.titolo as titolo');
+            $query->from('#__gg_unit_map AS a');
+            $query->join('inner', '#__gg_contenuti AS c on c.id = a.idcontenuto');
+            $query->where("idunita=" . $item);
+            $query->order('a.ordinamento');
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadAssocList();
+
+            return $data;
+        }catch (Exception $e){
+
+            DEBUGG::query($query, 'query contenuti unita');
+            DEBUGG::error($e, 'errore get Conteuti unita', 1);
+
+        }
+    }
 
 	public function getCorsi(){
 
@@ -301,6 +365,7 @@ class gglmsModelReport extends JModelLegacy {
         }
 
     }
+
 
 }
 
