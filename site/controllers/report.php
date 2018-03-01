@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 //require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/report.php';
+require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 
 /**
  * Controller for single contact view
@@ -50,10 +51,14 @@ class gglmsControllerReport extends JControllerLegacy
         try {
             $syncdatareport = new gglmsModelSyncdatareport();
             $result=$syncdatareport->sync();
-            if($result){
-                echo json_encode('true');
-            }else{
-                echo json_encode('false');
+            if($result) {
+                $syncviewstatouser = new gglmsModelSyncViewStatoUser();
+                $result = $syncviewstatouser->syncViewStatoUser(null, null, null, 'task');
+                if ($result) {
+                    echo json_encode('true');
+                } else {
+                    echo json_encode('false');
+                }
             }
             $this->_app->close();
         }catch (exceptions $ex){

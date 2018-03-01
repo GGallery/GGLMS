@@ -619,7 +619,7 @@ var loadreportoffset=100;
 
         oggettomail=jQuery('#oggettomail').val();
         testomail=jQuery('#testomail').val();
-       // to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
+       //to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
         to="a.petruzzella71@gmail.com";
        jQuery.when(jQuery.get("index.php?to="+to+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendMail"))
 

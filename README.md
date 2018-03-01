@@ -4,6 +4,12 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.28
+  - B: aggiunte le colonne data_inizio e data_fine alle due nuove viste 
+3.8.27
+  - B: implementata la coppia controller/model syncviewstatouser per la creazione delle viste per il stato di completamento unità e corso da parte dell'utente
+       E' prevista l'esecuzione tramite task e tramite script
+
 3.8.26
   - B: Abilitato il metodo sync() in modo da poter utilizzare il cron
   - F: Abilitato BookMark per contenuti solo video e videoslide
