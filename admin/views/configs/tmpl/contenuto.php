@@ -16,4 +16,11 @@
 
     </div>
 </div>
+<div class="row-fluid">
+    <div>
+        <?php echo $this->form->renderField('testo_invito_scaricare_pdfsingolo'); ?>
+    </div>
+
+</div>
+
 

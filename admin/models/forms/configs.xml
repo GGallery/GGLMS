@@ -317,6 +317,31 @@
 				  default="1"
 		/>
 
+
+
+		<!-- I N I Z I O CONTENUTO -->
+
+
+		<field
+				name="testo_invito_scaricare_pdfsingolo"
+				class="inputbox"
+				buttons = "false"
+				label="Testo da far comparire per scaricare il file PDF"
+				type="editor"
+				validate=""
+				required=""
+				size="100"
+				default="Apri il file PDF qui a fianco."
+				filter="safehtml"
+		/>
+
+		<!-- F I N E     CONTENUTO-->
+
+
+
+
+
+
 		<!-- I N I Z I O ATTESTATO-->
 
 
@@ -324,7 +349,7 @@
 				name="testo_invito_scaricare_attestato"
 				class="inputbox"
 				buttons = "false"
-				label=""
+				label="Testo base per scaricare attestato"
 				type="editor"
 				validate=""
 				required=""

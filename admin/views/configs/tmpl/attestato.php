@@ -25,7 +25,7 @@
 </div>
 
 <div class="row-fluid">
-    testo base per scaricare attestato
+
    <div>
         <?php echo $this->form->renderField('testo_invito_scaricare_attestato'); ?>
    </div>
