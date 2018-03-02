@@ -46,18 +46,260 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->to=JRequest::getVar('to');
         $this->_filterparam->oggettomail=JRequest::getVar('oggettomail');
         $this->_filterparam->testomail=JRequest::getVar('testomail');
-
+        $this->_filterparam->tipo_report=JRequest::getVar('tipo_report');
+        $this->_filterparam->limit=JRequest::getVar('limit');
+        $this->_filterparam->offset=JRequest::getVar('offset');
 
     }
 
     public function get_report(){
 
-        $data = $this->get_data();
+        $data = $this->new_get_data();
+        //$data = $this->get_data();
         echo  json_encode($data);
         $this->_japp->close();
     }
 
+    private function  new_get_data($offsetforcsv=null) {
 
+        //$this->_filterparam->task = JRequest::getVar('task');
+        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
+        $id_corso=explode('|', $this->_filterparam->corso_id)[0];
+        $id_contenuto=explode('|', $this->_filterparam->corso_id)[1];
+        $alert_days_before=$this->_params->get('alert_days_before');
+        $tipo_report=$this->_filterparam->tipo_report;
+        $offset=$this->_filterparam->offset;
+        $limit=$this->_filterparam->limit;
+        $filters=array('startdate'=>$this->_filterparam->startdate,'finishdate'=>$this->_filterparam->finishdate,'filterstato'=>$this->_filterparam->filterstato,'searchPhrase'=>$this->_filterparam->searchPhrase,'usergroups'=>$this->_filterparam->usergroups);
+
+        try {
+
+
+            $columns=array();
+            switch ($tipo_report){
+
+                case 0: //PER CORSO
+                    $query="select  vista.id_anagrafica as id_anagrafica, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0) as scadenza
+                            from #__gg_view_stato_user_corso  as vista  where id_corso=".$id_corso;
+
+                    switch ($filters['filterstato']){
+
+                        case 0: //qualsiasi stato
+                            $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$filters['searchPhrase'],$filters['usergroups']);
+                            $users=$arrayresult[0];
+                            $count=$arrayresult[1];
+                            $queryGeneralCube=$arrayresult[2];
+                            $queryGeneralCubeCount=$arrayresult[3];
+                            $datas=$this->buildPrimaryDataCube($query);
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "stato");
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_inizio");
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_fine");
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "scadenza");
+                            $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza');
+                            $rows=$users;
+                            break;
+
+                        case 1:
+                        case 2:
+                        case 3:
+                            if ($filters['filterstato']==1)
+                                $query=$query." and vista.stato=1";
+                            if ($filters['filterstato']==2)
+                                $query=$query." and vista.stato=0";
+                            if($filters['filterstato']==3)
+                                $query=$query." and vista.stato=0 and IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0)=1";
+
+                            $query_filter_startdate=($filters['startdate']!=null)?" and vista.data_fine>'".$filters['startdate']."'":"";
+                            $query_filter_finishdate=($filters['finishdate']!=null)?" and vista.data_fine<'".$filters['finishdate']."'":"";
+                            $query=$query.$query_filter_startdate.$query_filter_finishdate;
+                            $datas=$this->buildPrimaryDataCube($query);
+                            $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$filters['searchPhrase'],$filters['usergroups'],implode(",",(array_column($datas,"id_anagrafica"))));
+                            $users=$arrayresult[0];
+                            $count=$arrayresult[1];
+                            $queryGeneralCube=$arrayresult[2];
+                            $queryGeneralCubeCount=$arrayresult[3];
+                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "id_anagrafica");
+                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "nome");
+                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "cognome");
+                            $rows=$datas;
+                            $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza');
+
+                            break;
+
+
+                    }
+
+
+
+                    break;
+
+
+
+                case 1: //PER UNITA'
+                    $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$filters['searchPhrase'],$filters['usergroups']);
+                    $users=$arrayresult[0];
+                    $count=$arrayresult[1];
+                    $queryGeneralCube=$arrayresult[2];
+                    $queryGeneralCubeCount=$arrayresult[3];
+                    $query="select  vista.id_anagrafica as id_anagrafica, u.id as id_unita,u.titolo as titolo_unita, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine from #__gg_view_stato_user_unita  as vista INNER JOIN #__gg_unit as u on vista.id_unita=u.id where id_corso=".$id_corso;
+                    $datas=$this->buildPrimaryDataCube($query);
+                    $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_unita", "stato");
+                    $columns=$this->buildColumnsforUnitaView($id_corso);
+                    $rows=$users;
+                    break;
+                case 2:
+                    $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$filters['searchPhrase'],$filters['usergroups']);
+                    $users=$arrayresult[0];
+                    $count=$arrayresult[1];
+                    $queryGeneralCube=$arrayresult[2];
+                    $queryGeneralCubeCount=$arrayresult[3];
+                    $query="select  vista.id_anagrafica as id_anagrafica, c.id as id_contenuto,c.titolo as titolo_contenuto, vista.stato as stato from #__gg_report  as vista INNER JOIN #__gg_contenuti as c on vista.id_contenuto=c.id where id_corso=".$id_corso;
+                    $datas=$this->buildPrimaryDataCube($query);
+                    $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_contenuto", "stato");
+                    $columns=$this->buildColumnsforContenutiView($id_corso);
+                    $rows=$users;
+                    break;
+
+
+            }
+
+
+
+            $rows=$this->buildPivot($rows,$columns,"");
+
+
+        }catch (Exception $e){
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()),'ERRORE DA GET DATA',1,1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+
+        $result['queryGeneralCube']=(string)$queryGeneralCube;
+        $result['secondaryCubeQuery']=$query;
+        //$result['offset']=$offset;
+        //$result['current']=$this->_filterparam->current;
+        $result['columns']=$columns;
+        $result['rowCount']=$count;
+        $result['rows']=$rows;
+        //$result['total']=$total;
+        $result['totalquery']=(string)$queryGeneralCubeCount;
+        //echo json_encode($result);
+        return $result;
+    }
+
+    private function buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$searchPrase,$usergroups,$anagrafica_filter=null)
+    {
+        try {
+            $query = $this->_db->getQuery(true);
+            $countquery = $this->_db->getQuery(true);
+            $query->select("anagrafica.id as id_anagrafica, anagrafica.cognome as cognome, anagrafica.nome as nome");
+            $countquery->select("count(*)");
+            $query->from("#__gg_report_users as anagrafica");
+            $query->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
+            if($usergroups!=null)
+                $query->join('inner','#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
+            $query->where('u.id=' . $id_corso);
+            //$query->where('anagrafica.id=11497');
+            if($searchPrase!=null)
+                $query->where('anagrafica.cognome LIKE \'%'.$searchPrase.'%\'');
+            if($usergroups!=null)
+                $query->where('um.group_id='.$usergroups);
+
+            $countquery->from("#__gg_report_users as anagrafica");
+            $countquery->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
+            $countquery->where('u.id=' . $id_corso);
+
+            if($anagrafica_filter!=null)
+                $query->where('anagrafica.id in('.$anagrafica_filter.')');
+
+            $query->order('anagrafica.cognome', 'asc');
+            $query->setlimit($offset, $limit);
+            $this->_db->setQuery($query);
+            $rows = $this->_db->loadAssocList();
+            $this->_db->setQuery($countquery);
+            $count = $this->_db->loadResult();
+            return[$rows,$count,$query,$countquery];
+        } catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+    }
+
+
+    private function buildPrimaryDataCube($query){
+        try {
+            $this->_db->setQuery($query);
+            $datas = $this->_db->loadAssocList();
+            return $datas;
+        }catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+    }
+
+    private  function buildColumnsforUnitaView($id_corso){
+
+        $reportObj=new gglmsModelReport();
+        $unitas=$reportObj->getSottoUnitaArrayList($id_corso);
+        $columns=['id_anagrafica','cognome','nome'];
+        foreach ($unitas as $unita) {
+            array_push($columns, $unita['titolo']);
+        }
+        return $columns;
+    }
+
+    private  function buildColumnsforContenutiView($id_corso){
+
+        $reportObj=new gglmsModelReport();
+        $contenuti=$reportObj->getContenutiArrayList($id_corso);
+
+        $columns=['id_anagrafica','cognome','nome'];
+        foreach ($contenuti as $contenuto) {
+            array_push($columns, $contenuto['titolo']);
+        }
+        return $columns;
+    }
+    private function buildPivot($basearray,$columns,$nullvalue){
+
+        $table=array();
+        foreach ($basearray as $item){
+
+            foreach ($columns as $column){
+
+
+                if(isset($item[$column])) {
+                    $row{$column} = $item[$column];
+                }else{
+                    $row{$column} =$nullvalue;
+                }
+            }
+            array_push($table,$row);
+
+        }
+        return $table;
+    }
+    private function addColumn($basearray,$arraytoadd,$key, $newcolumname, $columnvalue){
+
+        foreach ($arraytoadd as $newitem){
+
+            foreach ($basearray as &$item){
+
+                if($newitem[$key]==$item[$key]) {
+
+                    if ($newcolumname!=null){
+                        $item{$newitem[$newcolumname]} = $newitem[$columnvalue];
+                    }else{
+                        $item{$columnvalue} = $newitem[$columnvalue];
+
+                    }
+               }
+                 unset($item);
+            }
+        }
+    return $basearray;
+    }
 
     private function  get_data($offsetforcsv=null) {
 

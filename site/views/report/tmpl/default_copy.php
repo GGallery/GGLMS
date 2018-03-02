@@ -13,19 +13,6 @@ JHtml::_('bootstrap.modal');
 
 
 ?>
-
-<style>
-.rotated{
-    transform: rotate(90deg);
-    width: 20px;
-    top:0;
-    font-size: 8px;
-
-
-}
-
-
-</style>
 <div id="barrafiltri" class="span2">
 
     <form id="theform" class="form-inline" action="index.php">
@@ -46,38 +33,22 @@ JHtml::_('bootstrap.modal');
 
         </div>
 
-        <h2>Tipo Report</h2>
-        <div class="form-group">
-
-            <select id="tipo_report" name="tipo_report" class="refresh">
-                <option value="0">per Corso</option>
-                <option value="1">per Unità</option>
-                <option value="2">per Contenuto</option>
-            </select>
-
-        </div>
-
         <h2>Filtri</h2>
 
         <div class="form-group">
             <label for="usergroups">Gruppo utenti</label>
             <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2 , 'refresh'); ?>
         </div>
-        <div class="form-group" id="searchPhrase_div">
-            <label for="searchPhrase">Cerca Cognome:</label><br>
-            <input type="text" id="searchPhrase">
-        </div>
 
-        <div class="form-group" id="filterstatodiv">
+        <div class="form-group">
             <label for="filterstato">Stato corso</label>
             <select id="filterstato" name="filterstato" class="refresh">
-                <option value="0">Qualisiasi stato</option>
+                <option value="2">Qualisiasi stato</option>
                 <option value="1">Solo completati</option>
-                <option value="2">Solo NON compleati</option>
+                <option value="0">Solo NON compleati</option>
                 <option value="3">In scadenza</option>
             </select>
         </div>
-
 
         <div class="form-group" id="calendar_startdate_div">
             <label for="startdate">Completato dal:</label><br>
@@ -123,31 +94,34 @@ JHtml::_('bootstrap.modal');
         <div class="span12">
 
             <table id="grid-basic" class="table table-condensed table-hover table-striped ">
+                <thead>
+                <tr>
+                    <th data-column-id="cognome" data-sortable="false">Cognome</th>
+                    <th data-column-id="nome"  data-sortable="false">Nome</th>
+                    <th data-column-id="stato" data-formatter="stato"  data-sortable="false">Stato</th>
+                    <th data-column-id="hainiziato"  data-formatter="data_inizio" data-sortable="false">Iniziato il:</th>
+                    <th data-column-id="hacompletato" data-sortable="false">Completato il:</th>
+                    <?php
 
+                    $param_colonne_somme=JFactory::getApplication()->getParams()->get('colonne_somme_tempi');
+
+                    if($param_colonne_somme){
+                     echo
+                    '<th data-column-id="tempo_lavorativo" data-sortable="false">Tempo Lav.</th>
+                     <th data-column-id="tempo_straordinario" data-sortable="false">Tempo Str.</th>';
+                    }
+                    ?>
+                    <th data-column-id="alert" data-formatter="alert" data-sortable="false">In scadenza</th>
+                    <th data-column-id="fields" data-visible="false" data-sortable="false">Campi</th>
+                    <th data-column-id="id_utente" data-visible="false" data-sortable="false">Id</th>
+                    <th data-column-id="commands" data-formatter="commands" data-sortable="false">Dettagli</th>
+<!--                    <th data-column-id="dettaglicorso" data-formatter="dettaglicorso" data-sortable="false">Dettagli Corso</th>-->
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
             </table>
-
-            <div class="col-sm-6">
-                <ul class="pagination">
-                    <li class="first" aria-disabled="true">
-                        <a data-page="first" class="button">«</a></li>
-                    <li class="prev" aria-disabled="true">
-                        <a data-page="prev" class="button">&lt;</a></li>
-                    <li class="page-1" aria-disabled="false" aria-selected="false">
-                        <a data-page="1" class="button">1</a></li>
-                    <li class="page-2" aria-disabled="false" aria-selected="false">
-                        <a data-page="2" class="button">2</a></li>
-                    <li class="page-3" aria-disabled="false" aria-selected="false">
-                        <a data-page="3" class="button">3</a></li>
-                    <li class="page-4" aria-disabled="false" aria-selected="false">
-                        <a data-page="4" class="button">4</a></li>
-                    <li class="page-5" aria-disabled="false" aria-selected="false">
-                        <a data-page="5" class="button">5</a></li>
-                    <li class="next" aria-disabled="false">
-                        <a data-page="next" class="button">&gt;</a></li>
-                    <li class="last" aria-disabled="false">
-                        <a data-page="last" class="button">»</a></li>
-                </ul>
-            </div>
 
         </div>
     </div>
@@ -254,22 +228,6 @@ JHtml::_('bootstrap.modal');
     </div>
 </div>
 
-<!-- Modal Dettagli Aggiornamento Report-->
-<div id="aggiornamentoReport" class="modal fade " role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-
-            <div class="modal-body">
-               caricamento dati...
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
 <!-- Modal Dettagli invio mail -->
 <div id="detailsInvioMail" class="modal fade " role="dialog">
     <div class="modal-dialog">
@@ -310,16 +268,9 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
 var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
 var loadreportlimit=0;
-var loadreportoffset=10;
-var actualminpage=1;
-var maxNofpages;
+var loadreportoffset=100;
 
     jQuery( document ).ready(function($) {
-
-        jQuery('#filterstatodiv').show();
-        jQuery('#calendar_startdate_div').hide();
-        jQuery('#calendar_finishdate_div').hide();
-        loadData();
 
 //        TORTA
         var ctx = document.getElementById("myChart").getContext('2d');
@@ -357,22 +308,7 @@ var maxNofpages;
 
             notcompleted = 0;
             completed = 0;
-            loadData();
-            //$("#grid-basic").bootgrid("reload");
-        });
-
-        $("#tipo_report").change(function(){
-
-            if ($("#tipo_report option:selected").val() == 0) {
-                $("#filterstatodiv").show();
-                $("#calendar_startdate_div").show();
-                $("#calendar_finishdate_div").show();
-            } else {
-                $("#filterstatodiv").hide();
-                $("#calendar_startdate_div").hide();
-                $("#calendar_finishdate_div").hide();
-            }
-
+            $("#grid-basic").bootgrid("reload");
         });
 
         $("#filterstato").change(function(){
@@ -392,19 +328,17 @@ var maxNofpages;
 
             notcompleted = 0;
             completed = 0;
-            loadData();
-            //$("#grid-basic").bootgrid("reload");
+            $("#grid-basic").bootgrid("reload");
         });
 
         $("#finishdate").change(function(){
 
             notcompleted = 0;
             completed = 0;
-            loadData();
-            //$("#grid-basic").bootgrid("reload");
+            $("#grid-basic").bootgrid("reload");
         });
 
-       /*var grid = $("#grid-basic").bootgrid({
+        var grid = $("#grid-basic").bootgrid({
             ajax: true,
             multiSort: true,
             requestHandler: function (request) {
@@ -417,7 +351,6 @@ var maxNofpages;
                 return request;
             },
             url: "index.php?option=com_gglms&task=api.get_report",
-
             formatters: {
                 "stato": function(column, row)
                 {
@@ -470,7 +403,6 @@ var maxNofpages;
             myChart.data.datasets[0].data[0] = completed;
             myChart.data.datasets[0].data[1] = notcompleted;
             myChart.update();
-
             grid.find(".command-edit").on("click", function(e)
             {
                 scelta = $(this).data("row-id");
@@ -537,203 +469,10 @@ var maxNofpages;
 
 
             }).end();
-        });*/
+        });
     });
 
-    jQuery('.button').click(function () {
 
-        switch (jQuery(this).attr('data-page')) {
-
-            case 'first':
-                jQuery("a[data-page='1']").html('1');
-                jQuery("a[data-page='2']").html('2');
-                jQuery("a[data-page='3']").html('3');
-                jQuery("a[data-page='4']").html('4');
-                jQuery("a[data-page='5']").html('5');
-                actualminpage=1;
-                break;
-
-            case 'prev':
-                if(actualminpage>1) {
-                    jQuery("a[data-page='1']").html(parseInt(jQuery("a[data-page='1']").html()) - 1);
-                    jQuery("a[data-page='2']").html(parseInt(jQuery("a[data-page='2']").html()) - 1);
-                    jQuery("a[data-page='3']").html(parseInt(jQuery("a[data-page='3']").html()) - 1);
-                    jQuery("a[data-page='4']").html(parseInt(jQuery("a[data-page='4']").html()) - 1);
-                    jQuery("a[data-page='5']").html(parseInt(jQuery("a[data-page='5']").html()) - 1);
-                    actualminpage--;
-                }
-                break;
-
-            case 'next':
-
-                //console.log(jQuery("a[data-page='1']").html());
-
-                jQuery("a[data-page='1']").html(parseInt(jQuery("a[data-page='1']").html()) + 1);
-                jQuery("a[data-page='2']").html(parseInt(jQuery("a[data-page='2']").html()) + 1);
-                jQuery("a[data-page='3']").html(parseInt(jQuery("a[data-page='3']").html()) + 1);
-                jQuery("a[data-page='4']").html(parseInt(jQuery("a[data-page='4']").html()) + 1);
-                jQuery("a[data-page='5']").html(parseInt(jQuery("a[data-page='5']").html()) + 1);
-                actualminpage++;
-                break;
-
-            case 'last':
-console.log(maxNofpages);
-                jQuery("a[data-page='1']").html(maxNofpages-4);
-                jQuery("a[data-page='2']").html(maxNofpages-3);
-                jQuery("a[data-page='3']").html(maxNofpages-2);
-                jQuery("a[data-page='4']").html(maxNofpages-1);
-                jQuery("a[data-page='5']").html(maxNofpages);
-                actualminpage=maxNofpages-4
-                break;
-
-            default:
-            loadreportlimit= (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
-            loadData();
-        }
-    });
-
-    function loadData(){
-
-
-        var url="index.php?option=com_gglms&task=api.get_report&corso_id="+jQuery("#corso_id").val();
-        url=url+"&startdate="+jQuery("#startdate").val();
-        url=url+"&finishdate="+jQuery("#finishdate").val();
-        url=url+"&filterstato="+jQuery("#filterstato").val();
-        url=url+"&usergroups="+jQuery("#usergroups").val();
-        url=url+"&tipo_report="+jQuery("#tipo_report").val();
-        url=url+"&searchPhrase="+jQuery("#searchPhrase").val();
-        url=url+"&limit="+loadreportlimit;
-        url=url+"&offset="+loadreportoffset;
-        jQuery("#aggiornamentoReport").modal('show');
-        jQuery.when(jQuery.get(url))
-            .done(function (data) {
-
-            })
-            .fail(function (data) {
-
-            })
-            .then(function (data) {
-
-               data=JSON.parse(data);
-               jQuery('#grid-basic').empty();
-                maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
-                jQuery("#aggiornamentoReport").modal('hide');
-               data['columns'].forEach(addColumn);
-               for(i=0; i<data['rows'].length; i++){
-
-                    jQuery('#grid-basic').append('<tr>');
-                    var row=data['rows'][i];
-                    for(ii=0; ii<data['columns'].length;ii++) {
-
-                       // jQuery('#grid-basic tr:last').append('<td>'+row[data['columns'][ii]]+'</td>');
-                       addRowElement(jQuery('#grid-basic tr:last'),row[data['columns'][ii]],ii, jQuery("#tipo_report").val(),data['columns'])
-                    }
-                    jQuery('#grid-basic').append('</tr>');
-                }
-
-            });
-
-        /*jQuery.ajax(
-            {
-                xhr: function()
-                {
-                    var xhr = new window.XMLHttpRequest();
-                    //Upload progress
-                    xhr.upload.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with upload progress
-                            console.log(percentComplete);
-                        }
-                    }, false);
-                    //Download progress
-                    xhr.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with download progress
-                            console.log(percentComplete);
-                        }
-                    }, false);
-                    return xhr;
-                },
-                type: 'GET',
-                url: url,
-                data: data,
-                success: function(data){
-                    data=JSON.parse(data);
-                    jQuery('#grid-basic').empty();
-                    maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
-
-                    data['columns'].forEach(addColumn);
-                    for(i=0; i<=10; i++){
-
-                        jQuery('#grid-basic').append('<tr>');
-                        var row=data['rows'][i];
-                        for(ii=0; ii<data['columns'].length;ii++) {
-
-                            jQuery('#grid-basic tr:last').append('<td>'+row[data['columns'][ii]]+'</td>');
-                        }
-                        jQuery('#grid-basic').append('</tr>');
-                    }
-                }
-            });*/
-
-
-    }
-
-    function addRowElement(table,rowCellData,columIndex,viewType,dataColumns) {
-
-        //SET OF RULES
-
-        if(dataColumns[columIndex]==="stato" && rowCellData==1){
-
-            rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
-        }
-
-        if(dataColumns[columIndex]==="scadenza" && rowCellData==1){
-
-            rowCellData="<span class='glyphicon glyphicon-alert' style='color:yellow; font-size: 12px;'></span>"
-        }
-
-        if(dataColumns[columIndex]==="scadenza" && rowCellData==0){
-
-            rowCellData=""
-        }
-
-        switch (viewType){
-
-            case '0':
-                break;
-            case '1':
-            case '2':
-
-                if(rowCellData==1){
-
-                    rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
-                }
-
-                //rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
-                break;
-        }
-
-        table.append('<td>'+rowCellData+'</td>');
-    }
-    
-    function addColumn(item, index) {
-
-        switch ( jQuery("#tipo_report").val()){
-
-            case '2':
-
-                classtouse="class=rotated";
-                break;
-            default:
-                classtouse="";
-                break;
-        }
-
-        jQuery('#grid-basic').append('<th '+classtouse+'>'+item.toString()+'</th>');
-    }
 
     function dataSyncUsers() {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
 
@@ -822,9 +561,7 @@ console.log(maxNofpages);
         }
 
     function reload() {
-
-        loadData();
-        //jQuery("#grid-basic").bootgrid("reload");
+        jQuery("#grid-basic").bootgrid("reload");
     }
 
     function loadCsv() {
