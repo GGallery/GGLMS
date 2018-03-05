@@ -378,7 +378,7 @@ var maxNofpages;
         $("#filterstato").change(function(){
 
 
-            if($("#filterstato option:selected").val()==1 || $("#filterstato option:selected").val()==2){
+            if($("#filterstato option:selected").val()==1){
                 $("#calendar_startdate_div").show();
                 $("#calendar_finishdate_div").show();
             }else{
@@ -690,7 +690,12 @@ console.log(maxNofpages);
             rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
         }
 
-        if(dataColumns[columIndex]==="scadenza" && rowCellData==1){
+        if(dataColumns[columIndex]==="stato" && rowCellData==0){
+
+            rowCellData="<span class='glyphicon glyphicon-pause' style='color:blue; font-size: 12px;'></span>"
+        }
+
+        if(dataColumns[columIndex]==="scadenza" ){//&& rowCellData==1){
 
             rowCellData="<span class='glyphicon glyphicon-alert' style='color:yellow; font-size: 12px;'></span>"
         }
@@ -699,7 +704,7 @@ console.log(maxNofpages);
 
             rowCellData=""
         }
-
+        stile='';
         switch (viewType){
 
             case '0':
@@ -711,12 +716,12 @@ console.log(maxNofpages);
 
                     rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
                 }
-
+                stile='border-left: 1px solid #ddd';
                 //rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
                 break;
         }
 
-        table.append('<td>'+rowCellData+'</td>');
+        table.append("<td style='border-left: 1px solid #ddd'>"+rowCellData+"</td>");
     }
     
     function addColumn(item, index) {
@@ -725,7 +730,7 @@ console.log(maxNofpages);
 
             case '2':
 
-                classtouse="class=rotated";
+                //classtouse="class=rotated";
                 break;
             default:
                 classtouse="";

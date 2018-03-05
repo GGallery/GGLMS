@@ -79,9 +79,10 @@ class gglmsControllerApi extends JControllerLegacy
             switch ($tipo_report){
 
                 case 0: //PER CORSO
-                    $query="select  vista.id_anagrafica as id_anagrafica, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0) as scadenza
-                            from #__gg_view_stato_user_corso  as vista  where id_corso=".$id_corso;
-
+                    $query = $this->_db->getQuery(true);
+                    $query->select('vista.id_anagrafica as id_anagrafica, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0) as scadenza');
+                    $query->from('#__gg_view_stato_user_corso  as vista');
+                    $query->where('id_corso='.$id_corso);
                     switch ($filters['filterstato']){
 
                         case 0: //qualsiasi stato
@@ -90,11 +91,12 @@ class gglmsControllerApi extends JControllerLegacy
                             $count=$arrayresult[1];
                             $queryGeneralCube=$arrayresult[2];
                             $queryGeneralCubeCount=$arrayresult[3];
+
                             $datas=$this->buildPrimaryDataCube($query);
-                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "stato");
-                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_inizio");
-                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_fine");
-                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "scadenza");
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "stato",'outer');
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_inizio",'outer');
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_fine",'outer');
+                            $users=$this->addColumn($users,$datas,"id_anagrafica",null, "scadenza",'outer');
                             $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza');
                             $rows=$users;
                             break;
@@ -103,25 +105,35 @@ class gglmsControllerApi extends JControllerLegacy
                         case 2:
                         case 3:
                             if ($filters['filterstato']==1)
-                                $query=$query." and vista.stato=1";
+                                $query->where("vista.stato=1");
                             if ($filters['filterstato']==2)
-                                $query=$query." and vista.stato=0";
+                                $query->where("vista.stato=0");
                             if($filters['filterstato']==3)
-                                $query=$query." and vista.stato=0 and IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0)=1";
+                                $query->where("vista.stato=0 and IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0)=1");
 
-                            $query_filter_startdate=($filters['startdate']!=null)?" and vista.data_fine>'".$filters['startdate']."'":"";
-                            $query_filter_finishdate=($filters['finishdate']!=null)?" and vista.data_fine<'".$filters['finishdate']."'":"";
-                            $query=$query.$query_filter_startdate.$query_filter_finishdate;
-                            $datas=$this->buildPrimaryDataCube($query);
-                            $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$filters['searchPhrase'],$filters['usergroups'],implode(",",(array_column($datas,"id_anagrafica"))));
+
+                            if($filters['startdate']!=null)
+                                $query->where("vista.data_fine>'".$filters['startdate']."'");
+                            if ($filters['finishdate']!=null)
+                                $query->where("vista.data_fine<'".$filters['finishdate']."'");
+
+                            if($filters['searchPhrase']!=null) {
+                                $query->where('id_anagrafica in (select anagrafica.id from #__gg_report_users as anagrafica where anagrafica.cognome LIKE \'%' . $filters['searchPhrase'] . '%\')');
+
+                            }
+                            $count=$this->countPrimaryDataCube($query);
+                            $datas=$this->buildPrimaryDataCube($query,$offset,$limit);
+
+                            $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,null,null,$filters['searchPhrase'],$filters['usergroups'],implode(",",(array_column($datas,"id_anagrafica"))));
                             $users=$arrayresult[0];
-                            $count=$arrayresult[1];
+
                             $queryGeneralCube=$arrayresult[2];
                             $queryGeneralCubeCount=$arrayresult[3];
-                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "id_anagrafica");
-                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "nome");
-                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "cognome");
+                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "nome",'inner');
+                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "cognome",'inner');
+
                             $rows=$datas;
+
                             $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza');
 
                             break;
@@ -141,21 +153,32 @@ class gglmsControllerApi extends JControllerLegacy
                     $count=$arrayresult[1];
                     $queryGeneralCube=$arrayresult[2];
                     $queryGeneralCubeCount=$arrayresult[3];
-                    $query="select  vista.id_anagrafica as id_anagrafica, u.id as id_unita,u.titolo as titolo_unita, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine from #__gg_view_stato_user_unita  as vista INNER JOIN #__gg_unit as u on vista.id_unita=u.id where id_corso=".$id_corso;
+                    $query = $this->_db->getQuery(true);
+                    $query->select('vista.id_anagrafica as id_anagrafica, u.id as id_unita,u.titolo as titolo_unita, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine');
+                    $query->from('#__gg_view_stato_user_unita  as vista');
+                    $query->join('inner','#__gg_unit as u on vista.id_unita=u.id');
+                    $query->where('id_corso='.$id_corso);
+
                     $datas=$this->buildPrimaryDataCube($query);
-                    $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_unita", "stato");
+                    $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_unita", "stato",'outer');
                     $columns=$this->buildColumnsforUnitaView($id_corso);
                     $rows=$users;
                     break;
-                case 2:
+                case 2://PER CONTENUTO
                     $arrayresult=$this->buildGeneralDataCubeUtentiInCorso($id_corso,$offset,$limit,$filters['searchPhrase'],$filters['usergroups']);
                     $users=$arrayresult[0];
                     $count=$arrayresult[1];
                     $queryGeneralCube=$arrayresult[2];
                     $queryGeneralCubeCount=$arrayresult[3];
-                    $query="select  vista.id_anagrafica as id_anagrafica, c.id as id_contenuto,c.titolo as titolo_contenuto, vista.stato as stato from #__gg_report  as vista INNER JOIN #__gg_contenuti as c on vista.id_contenuto=c.id where id_corso=".$id_corso;
+
+                    $query = $this->_db->getQuery(true);
+                    $query->select('vista.id_anagrafica as id_anagrafica, c.id as id_contenuto,c.titolo as titolo_contenuto, vista.stato as stato');
+                    $query->from('#__gg_report  as vista ');
+                    $query->join('inner','#__gg_contenuti as c on vista.id_contenuto=c.id');
+                    $query->where('id_corso='.$id_corso);
+
                     $datas=$this->buildPrimaryDataCube($query);
-                    $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_contenuto", "stato");
+                    $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_contenuto", "stato",'outer');
                     $columns=$this->buildColumnsforContenutiView($id_corso);
                     $rows=$users;
                     break;
@@ -227,16 +250,37 @@ class gglmsControllerApi extends JControllerLegacy
     }
 
 
-    private function buildPrimaryDataCube($query){
+    private function buildPrimaryDataCube($query,$offset=null,$limit=null){
         try {
+
+
             $this->_db->setQuery($query);
+
+            $query->setLimit($offset, $limit);
+
             $datas = $this->_db->loadAssocList();
             return $datas;
+
         }catch (Exception $e) {
 
             DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
             //DEBUGG::error($e, 'error', 1);
         }
+    }
+
+    private function countPrimaryDataCube($query){
+        try {
+
+            $this->_db->setQuery($query);
+            $datas = $this->_db->loadAssocList();
+            return count($datas);
+
+        }catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+
     }
 
     private  function buildColumnsforUnitaView($id_corso){
@@ -280,8 +324,9 @@ class gglmsControllerApi extends JControllerLegacy
         }
         return $table;
     }
-    private function addColumn($basearray,$arraytoadd,$key, $newcolumname, $columnvalue){
+    private function addColumn($basearray,$arraytoadd,$key, $newcolumname, $columnvalue, $typeofjoin){
 
+        $innerjoinedarray=array();
         foreach ($arraytoadd as $newitem){
 
             foreach ($basearray as &$item){
@@ -290,15 +335,24 @@ class gglmsControllerApi extends JControllerLegacy
 
                     if ($newcolumname!=null){
                         $item{$newitem[$newcolumname]} = $newitem[$columnvalue];
+                        array_push($innerjoinedarray,$item);
                     }else{
                         $item{$columnvalue} = $newitem[$columnvalue];
+                        array_push($innerjoinedarray,$item);
 
                     }
                }
                  unset($item);
             }
         }
-    return $basearray;
+        if($typeofjoin=='inner') {
+
+            return $innerjoinedarray;
+        }else{
+
+            return $basearray;
+
+        }
     }
 
     private function  get_data($offsetforcsv=null) {
