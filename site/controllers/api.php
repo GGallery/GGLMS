@@ -80,7 +80,7 @@ class gglmsControllerApi extends JControllerLegacy
 
                 case 0: //PER CORSO
                     $query = $this->_db->getQuery(true);
-                    $query->select('vista.id_anagrafica as id_anagrafica, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0) as scadenza');
+                    $query->select('vista.id_anagrafica as id_anagrafica, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id='.$id_corso.'), INTERVAL -'.$alert_days_before.' DAY), IF(stato=0,1,0),0) as scadenza');
                     $query->from('#__gg_view_stato_user_corso  as vista');
                     $query->where('id_corso='.$id_corso);
                     switch ($filters['filterstato']){
@@ -91,7 +91,7 @@ class gglmsControllerApi extends JControllerLegacy
                             $count=$arrayresult[1];
                             $queryGeneralCube=$arrayresult[2];
                             $queryGeneralCubeCount=$arrayresult[3];
-
+                            $result['secondaryCubeQuery']=(string)$query;
                             $datas=$this->buildPrimaryDataCube($query);
                             $users=$this->addColumn($users,$datas,"id_anagrafica",null, "stato",'outer');
                             $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_inizio",'outer');
@@ -109,7 +109,7 @@ class gglmsControllerApi extends JControllerLegacy
                             if ($filters['filterstato']==2)
                                 $query->where("vista.stato=0");
                             if($filters['filterstato']==3)
-                                $query->where("vista.stato=0 and IF(date(now())>DATE_ADD((select data_fine from un_gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0)=1");
+                                $query->where("vista.stato=0 and IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=".$id_corso."), INTERVAL -".$alert_days_before." DAY), IF(stato=0,1,0),0)=1");
 
 
                             if($filters['startdate']!=null)
@@ -121,6 +121,7 @@ class gglmsControllerApi extends JControllerLegacy
                                 $query->where('id_anagrafica in (select anagrafica.id from #__gg_report_users as anagrafica where anagrafica.cognome LIKE \'%' . $filters['searchPhrase'] . '%\')');
 
                             }
+                            $result['secondaryCubeQuery']=(string)$query;
                             $count=$this->countPrimaryDataCube($query);
                             $datas=$this->buildPrimaryDataCube($query,$offset,$limit);
 
@@ -141,9 +142,7 @@ class gglmsControllerApi extends JControllerLegacy
 
                     }
 
-
-
-                    break;
+                   break;
 
 
 
@@ -158,7 +157,7 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->from('#__gg_view_stato_user_unita  as vista');
                     $query->join('inner','#__gg_unit as u on vista.id_unita=u.id');
                     $query->where('id_corso='.$id_corso);
-
+                    $result['secondaryCubeQuery']=(string)$query;
                     $datas=$this->buildPrimaryDataCube($query);
                     $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_unita", "stato",'outer');
                     $columns=$this->buildColumnsforUnitaView($id_corso);
@@ -176,7 +175,7 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->from('#__gg_report  as vista ');
                     $query->join('inner','#__gg_contenuti as c on vista.id_contenuto=c.id');
                     $query->where('id_corso='.$id_corso);
-
+                    $result['secondaryCubeQuery']=(string)$query;
                     $datas=$this->buildPrimaryDataCube($query);
                     $users=$this->addColumn($users,$datas,"id_anagrafica","titolo_contenuto", "stato",'outer');
                     $columns=$this->buildColumnsforContenutiView($id_corso);
@@ -198,7 +197,7 @@ class gglmsControllerApi extends JControllerLegacy
         }
 
         $result['queryGeneralCube']=(string)$queryGeneralCube;
-        $result['secondaryCubeQuery']=$query;
+
         //$result['offset']=$offset;
         //$result['current']=$this->_filterparam->current;
         $result['columns']=$columns;

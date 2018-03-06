@@ -64,7 +64,7 @@ JHtml::_('bootstrap.modal');
             <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2 , 'refresh'); ?>
         </div>
         <div class="form-group" id="searchPhrase_div">
-            <label for="searchPhrase">Cerca Cognome:</label><br>
+            <label for="searchPhrase">Cerca:</label><br>
             <input type="text" id="searchPhrase">
         </div>
 
@@ -97,6 +97,7 @@ JHtml::_('bootstrap.modal');
         <div class="form-group">
             <button type="button" id="update" class="btn btn-success btn-lg width100" onclick="reload()">AGGIORNA DATI</button>
         </div>
+        <!--
         <div class="form-group">
             <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
         </div>
@@ -106,13 +107,13 @@ JHtml::_('bootstrap.modal');
         <div>
             <button type="button" class="btn btn-info btn-lg width100" onclick="dataSyncUsers()">SINCRONIZZA TABELLA REPORT</button>
         </div>
-
+-->
     </form>
 
     <hr>
 
 
-    <canvas id="myChart" width="100" height="100"></canvas>
+    <canvas id="myChart" width="100" height="100" style="visibility: hidden"></canvas>
 
 
 
@@ -310,9 +311,11 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
 var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
 var loadreportlimit=0;
-var loadreportoffset=10;
+var loadreportoffset=15;
 var actualminpage=1;
 var maxNofpages;
+var columnfilter = ['id_anagrafica','scadenza'];
+var viewReportColumns=new Array();
 
     jQuery( document ).ready(function($) {
 
@@ -616,17 +619,18 @@ console.log(maxNofpages);
 
                data=JSON.parse(data);
                jQuery('#grid-basic').empty();
+                viewReportColumns=[];
                 maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
                 jQuery("#aggiornamentoReport").modal('hide');
                data['columns'].forEach(addColumn);
                for(i=0; i<data['rows'].length; i++){
 
-                    jQuery('#grid-basic').append('<tr>');
                     var row=data['rows'][i];
-                    for(ii=0; ii<data['columns'].length;ii++) {
+                    jQuery('#grid-basic').append('<tr class=\''+defineRowBootClass(row)+'\'>');
 
-                       // jQuery('#grid-basic tr:last').append('<td>'+row[data['columns'][ii]]+'</td>');
-                       addRowElement(jQuery('#grid-basic tr:last'),row[data['columns'][ii]],ii, jQuery("#tipo_report").val(),data['columns'])
+                    for(ii=0; ii<viewReportColumns.length;ii++) {
+
+                       addRowElement(jQuery('#grid-basic tr:last'),row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]],ii, jQuery("#tipo_report").val(),viewReportColumns)
                     }
                     jQuery('#grid-basic').append('</tr>');
                 }
@@ -681,30 +685,44 @@ console.log(maxNofpages);
 
     }
 
+    function defineRowBootClass(row) {
+
+        if(row['scadenza']==1){
+
+            return 'warning';
+        }
+        if(row['stato']==1){
+
+            return 'success';
+        }
+
+    }
     function addRowElement(table,rowCellData,columIndex,viewType,dataColumns) {
 
+        stiletd='border-left: 1px solid #ddd;';
+        stiletdcenter=" text-align:center;"
         //SET OF RULES
 
-        if(dataColumns[columIndex]==="stato" && rowCellData==1){
+        if(dataColumns[columIndex]==="stato" && rowCellData=='1'){
 
-            rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
+            rowCellData="<span class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>"
+            stiletd=stiletd+stiletdcenter;
         }
 
-        if(dataColumns[columIndex]==="stato" && rowCellData==0){
+        if(dataColumns[columIndex]==="stato" && rowCellData=='0'){
 
-            rowCellData="<span class='glyphicon glyphicon-pause' style='color:blue; font-size: 12px;'></span>"
+            rowCellData="<span class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>"
+            stiletd=stiletd+stiletdcenter;
         }
 
-        if(dataColumns[columIndex]==="scadenza" ){//&& rowCellData==1){
 
-            rowCellData="<span class='glyphicon glyphicon-alert' style='color:yellow; font-size: 12px;'></span>"
-        }
 
-        if(dataColumns[columIndex]==="scadenza" && rowCellData==0){
+        if(rowCellData=='0000-00-00'){
 
             rowCellData=""
         }
-        stile='';
+
+
         switch (viewType){
 
             case '0':
@@ -712,34 +730,44 @@ console.log(maxNofpages);
             case '1':
             case '2':
 
-                if(rowCellData==1){
+                if(rowCellData=='1'){
 
-                    rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
+                    rowCellData="<span class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>"
+                    stiletd=stiletd+stiletdcenter;
                 }
-                stile='border-left: 1px solid #ddd';
+                if(rowCellData=='0'){
+
+                    rowCellData="<span class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>"
+                    stiletd=stiletd+stiletdcenter;
+                }
+
                 //rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
                 break;
         }
 
-        table.append("<td style='border-left: 1px solid #ddd'>"+rowCellData+"</td>");
+        table.append("<td style='"+stiletd+"'>"+rowCellData+"</td>");
     }
     
     function addColumn(item, index) {
 
-        switch ( jQuery("#tipo_report").val()){
 
-            case '2':
+        if (columnfilter.indexOf(item) == -1) {
 
-                //classtouse="class=rotated";
-                break;
-            default:
-                classtouse="";
-                break;
+            switch (jQuery("#tipo_report").val()) {
+
+                case '2':
+
+                    //classtouse="class=rotated";
+                    break;
+                default:
+                    classtouse = "";
+                    break;
+            }
+
+            jQuery('#grid-basic').append('<th ' + classtouse + '>' + item.toString().toUpperCase() + '</th>');
+            viewReportColumns.push(item);
         }
-
-        jQuery('#grid-basic').append('<th '+classtouse+'>'+item.toString()+'</th>');
     }
-
     function dataSyncUsers() {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
 
         console.log('dataSyncUsers');

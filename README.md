@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.29
+  - F: implemenato il nuovo report appoggiato al modello viste precaricate
 3.8.28
   - B: aggiunte le colonne data_inizio e data_fine alle due nuove viste 
 3.8.27

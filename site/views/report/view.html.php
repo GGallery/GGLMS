@@ -30,7 +30,7 @@ class gglmsViewReport extends JViewLegacy {
 
         $this->summarize = $this->get('SummarizeCourse');
         
-        JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
         JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
 
         //GRAFICO TORTA
