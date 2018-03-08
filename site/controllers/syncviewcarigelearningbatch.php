@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 
 //require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
-require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/syncviewcarigelearningbatch.php';
 
 
 /**
@@ -19,13 +19,13 @@ require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
  *
  * @since  1.5.19
  */
-class gglmsControllerSyncViewStatoUser extends JControllerLegacy
+class gglmsControllerSyncViewCarigeLearningBatch extends JControllerLegacy
 {
     protected $_db;
     private $_app;
     private $params;
     private $_filterparam;
-    private $syncviewstatouserModel;
+    private $syncviewcarigelearningbatchModel;
 
     //private $unitas=array();
     //private $contenuti=array();
@@ -41,30 +41,53 @@ class gglmsControllerSyncViewStatoUser extends JControllerLegacy
         $this->_filterparam->limit=JRequest::getVar('limit');
         $this->_filterparam->offset=JRequest::getVar('offset');
         $this->_filterparam->maxts=JRequest::getVar('maxts');
-        $this->syncviewstatouserModel=new gglmsModelSyncViewStatoUser();
+        $this->syncviewcarigelearningbatchModel=new gglmsModelSyncViewCarigeLearningBatch();
 
        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
 
 
     }
 
+    public function sync(){
+
+        try {
+
+
+                $syncviewcarigelearningbatchModel = new gglmsModelSyncViewCarigeLearningBatch();
+                $result = $syncviewcarigelearningbatchModel->syncViewCarigeLearningBatch(null, null, null, 'task');
+                if ($result) {
+                    echo json_encode('true');
+                } else {
+                    echo json_encode('false');
+                }
+
+            $this->_app->close();
+        }catch (exceptions $ex){
+
+            DEBUGG::log($ex->getMessage(),'ERRORE DA REPORT.SYNC',1,1);
+
+        }
+    }
+
     public  function GetMaxTimeStampforSession(){
 
-        echo $this->syncviewstatouserModel->MaxTimeStampforSession();
+        echo $this->syncviewcarigelearningbatchModel->MaxTimeStampforSession();
         $this->_app->close();
     }
 
 
-    public function syncViewStatoUser()
-    {
+    public function syncViewCarigeLearningBatch(){
+
+        DEBUGG::log('INIZIO PROCEDURA CARIGE BATCH', ' ',0,1,0);
         $typeofcall=$this->_filterparam->typeofcall;
         $offset=$this->_filterparam->offset;
         $limit=$this->_filterparam->limit;
         $maxts=$this->_filterparam->maxts;
         $maxts=substr($maxts,0,4)."-".substr($maxts,4,2)."-".substr($maxts,6,2)." ".substr($maxts,8,2).":".substr($maxts,10,4).":".substr($maxts,12,2);
-        $result= $this->syncviewstatouserModel->syncViewStatoUser($offset,$limit,$maxts,$typeofcall);
-        DEBUGG::log('FINE PROCEDURA ', ' ',0,1,0);
+        $result= $this->syncviewcarigelearningbatchModel->syncViewCarigeLearningBatch($offset,$limit,$maxts,$typeofcall);
         echo $result;
+        DEBUGG::log('FINE PROCEDURA CARIGE BATCH', ' ',0,1,0);
+
         $this->_app->close();
     }
 

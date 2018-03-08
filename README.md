@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.30
+   - B_ sviluppati model e controller per il caricamento della vista necessaria al csv quotidiano 
+   - D: creata la tabella  carige_batch per la vista necessaria al csv quotidiano 
 3.8.29
   - F: implemenato il nuovo report appoggiato al modello viste precaricate
 3.8.28
@@ -11,6 +14,7 @@ F:Frontend, B:Backend, D:Database, G:Generale
 3.8.27
   - B: implementata la coppia controller/model syncviewstatouser per la creazione delle viste per il stato di completamento unità e corso da parte dell'utente
        E' prevista l'esecuzione tramite task e tramite script
+  - D: create le due tabelle di vista per stato corso  unità dell'utente     
 
 3.8.26
   - B: Abilitato il metodo sync() in modo da poter utilizzare il cron

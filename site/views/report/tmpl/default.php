@@ -147,7 +147,10 @@ JHtml::_('bootstrap.modal');
                         <a data-page="next" class="button">&gt;</a></li>
                     <li class="last" aria-disabled="false">
                         <a data-page="last" class="button">»</a></li>
+                    <li class="last" aria-disabled="false">
+                        <span  id="totalcount"></span></li>
                 </ul>
+
             </div>
 
         </div>
@@ -322,7 +325,7 @@ var viewReportColumns=new Array();
         jQuery('#filterstatodiv').show();
         jQuery('#calendar_startdate_div').hide();
         jQuery('#calendar_finishdate_div').hide();
-        loadData();
+        loadData(null);
 
 //        TORTA
         var ctx = document.getElementById("myChart").getContext('2d');
@@ -360,7 +363,7 @@ var viewReportColumns=new Array();
 
             notcompleted = 0;
             completed = 0;
-            loadData();
+            loadData(null);
             //$("#grid-basic").bootgrid("reload");
         });
 
@@ -395,7 +398,7 @@ var viewReportColumns=new Array();
 
             notcompleted = 0;
             completed = 0;
-            loadData();
+            loadData(null);
             //$("#grid-basic").bootgrid("reload");
         });
 
@@ -403,7 +406,7 @@ var viewReportColumns=new Array();
 
             notcompleted = 0;
             completed = 0;
-            loadData();
+            loadData(null);
             //$("#grid-basic").bootgrid("reload");
         });
 
@@ -580,7 +583,7 @@ var viewReportColumns=new Array();
                 break;
 
             case 'last':
-console.log(maxNofpages);
+
                 jQuery("a[data-page='1']").html(maxNofpages-4);
                 jQuery("a[data-page='2']").html(maxNofpages-3);
                 jQuery("a[data-page='3']").html(maxNofpages-2);
@@ -591,11 +594,11 @@ console.log(maxNofpages);
 
             default:
             loadreportlimit= (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
-            loadData();
+            loadData("pagination");
         }
     });
 
-    function loadData(){
+    function loadData(sender){
 
 
         var url="index.php?option=com_gglms&task=api.get_report&corso_id="+jQuery("#corso_id").val();
@@ -605,7 +608,19 @@ console.log(maxNofpages);
         url=url+"&usergroups="+jQuery("#usergroups").val();
         url=url+"&tipo_report="+jQuery("#tipo_report").val();
         url=url+"&searchPhrase="+jQuery("#searchPhrase").val();
-        url=url+"&limit="+loadreportlimit;
+
+        if (sender!='pagination'){
+            jQuery("a[data-page='1']").html('1');
+            jQuery("a[data-page='2']").html('2');
+            jQuery("a[data-page='3']").html('3');
+            jQuery("a[data-page='4']").html('4');
+            jQuery("a[data-page='5']").html('5');
+            actualminpage=1;
+            url=url+"&limit=0";
+        }else{
+            url=url+"&limit="+loadreportlimit;
+        }
+
         url=url+"&offset="+loadreportoffset;
         jQuery("#aggiornamentoReport").modal('show');
         jQuery.when(jQuery.get(url))
@@ -619,7 +634,10 @@ console.log(maxNofpages);
 
                data=JSON.parse(data);
                jQuery('#grid-basic').empty();
+                jQuery('#totalcount').empty();
+                jQuery('#totalcount').html('record totali:'+data['rowCount']);
                 viewReportColumns=[];
+
                 maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
                 jQuery("#aggiornamentoReport").modal('hide');
                data['columns'].forEach(addColumn);
@@ -856,7 +874,7 @@ console.log(maxNofpages);
 
     function reload() {
 
-        loadData();
+        loadData(null);
         //jQuery("#grid-basic").bootgrid("reload");
     }
 

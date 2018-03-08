@@ -217,23 +217,29 @@ class gglmsControllerApi extends JControllerLegacy
             $query->select("anagrafica.id as id_anagrafica, anagrafica.cognome as cognome, anagrafica.nome as nome");
             $countquery->select("count(*)");
             $query->from("#__gg_report_users as anagrafica");
-            $query->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
-            if($usergroups!=null)
-                $query->join('inner','#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
-            $query->where('u.id=' . $id_corso);
-            //$query->where('anagrafica.id=11497');
-            if($searchPrase!=null)
-                $query->where('anagrafica.cognome LIKE \'%'.$searchPrase.'%\'');
-            if($usergroups!=null)
-                $query->where('um.group_id='.$usergroups);
-
             $countquery->from("#__gg_report_users as anagrafica");
+            $query->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
             $countquery->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
+            if($usergroups!=null) {
+                $query->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
+                $countquery->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
+            }
+            $query->where('u.id=' . $id_corso);
             $countquery->where('u.id=' . $id_corso);
+            //$query->where('anagrafica.id=11497');
+            if($searchPrase!=null) {
+                $query->where('anagrafica.cognome LIKE \'%' . $searchPrase . '%\'');
+                $countquery->where('anagrafica.cognome LIKE \'%' . $searchPrase . '%\'');
+            }
+            if($usergroups!=null) {
+                $query->where('um.group_id=' . $usergroups);
+                $countquery->where('um.group_id=' . $usergroups);
+            }
 
-            if($anagrafica_filter!=null)
-                $query->where('anagrafica.id in('.$anagrafica_filter.')');
-
+            if($anagrafica_filter!=null) {
+                $query->where('anagrafica.id in(' . $anagrafica_filter . ')');
+                $countquery->where('anagrafica.id in(' . $anagrafica_filter . ')');
+            }
             $query->order('anagrafica.cognome', 'asc');
             $query->setlimit($offset, $limit);
             $this->_db->setQuery($query);
