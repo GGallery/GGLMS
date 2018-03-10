@@ -97,7 +97,7 @@ class gglmsControllerApi extends JControllerLegacy
                             $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_inizio",'outer');
                             $users=$this->addColumn($users,$datas,"id_anagrafica",null, "data_fine",'outer');
                             $users=$this->addColumn($users,$datas,"id_anagrafica",null, "scadenza",'outer');
-                            $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza');
+                            $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza','fields');
                             $rows=$users;
                             break;
 
@@ -132,10 +132,10 @@ class gglmsControllerApi extends JControllerLegacy
                             $queryGeneralCubeCount=$arrayresult[3];
                             $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "nome",'inner');
                             $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "cognome",'inner');
-
+                            $datas=$this->addColumn($datas,$users,"id_anagrafica",null, "fields",'inner');
                             $rows=$datas;
 
-                            $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza');
+                            $columns=array('id_anagrafica','cognome','nome','stato','data_inizio','data_fine','scadenza','fields');
 
                             break;
 
@@ -214,7 +214,7 @@ class gglmsControllerApi extends JControllerLegacy
         try {
             $query = $this->_db->getQuery(true);
             $countquery = $this->_db->getQuery(true);
-            $query->select("anagrafica.id as id_anagrafica, anagrafica.cognome as cognome, anagrafica.nome as nome");
+            $query->select("anagrafica.id as id_anagrafica, anagrafica.cognome as cognome, anagrafica.nome as nome, anagrafica.fields as fields");
             $countquery->select("count(*)");
             $query->from("#__gg_report_users as anagrafica");
             $countquery->from("#__gg_report_users as anagrafica");
@@ -292,7 +292,7 @@ class gglmsControllerApi extends JControllerLegacy
 
         $reportObj=new gglmsModelReport();
         $unitas=$reportObj->getSottoUnitaArrayList($id_corso);
-        $columns=['id_anagrafica','cognome','nome'];
+        $columns=['id_anagrafica','cognome','nome','fields'];
         foreach ($unitas as $unita) {
             array_push($columns, $unita['titolo']);
         }
@@ -304,7 +304,7 @@ class gglmsControllerApi extends JControllerLegacy
         $reportObj=new gglmsModelReport();
         $contenuti=$reportObj->getContenutiArrayList($id_corso);
 
-        $columns=['id_anagrafica','cognome','nome'];
+        $columns=['id_anagrafica','cognome','nome','fields'];
         foreach ($contenuti as $contenuto) {
             array_push($columns, $contenuto['titolo']);
         }

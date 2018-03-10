@@ -36,7 +36,7 @@ class gglmsViewReport extends JViewLegacy {
         //GRAFICO TORTA
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/Chart.bundle.min.js');
 
-        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.fa.min.js');
+        //JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.fa.min.js');
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
 
 

@@ -317,8 +317,14 @@ var loadreportlimit=0;
 var loadreportoffset=15;
 var actualminpage=1;
 var maxNofpages;
-var columnfilter = ['id_anagrafica','scadenza'];
-var viewReportColumns=new Array();
+var columnfilter = ['id_anagrafica','scadenza','fields'];
+var buttonscolumn=['fields'];
+var buttonscolumnname='DETTAGLI';
+var buttonkeyidfield='id_anagrafica';
+var viewReportColumns;
+var fields=[];
+
+
 
     jQuery( document ).ready(function($) {
 
@@ -331,8 +337,6 @@ var viewReportColumns=new Array();
         var ctx = document.getElementById("myChart").getContext('2d');
         var notcompleted = 0;
         var completed = 0;
-        var fields = new Array();
-
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: {
@@ -598,6 +602,22 @@ var viewReportColumns=new Array();
         }
     });
 
+   /* jQuery(document).on('click',function (event) {
+
+        if(event.target.id==='columnbutton') {
+            console.log(event.target.getAttribute('data-row'));
+            /*data= JSON.parse(event.target.getAttribute("data-row").replace("\'","\""));
+            $('#details_table tbody').empty();
+            $.each(data, function (key, value) {
+                var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
+                $('#details_table tbody').append(eachrow);
+
+            });
+            $("#details").append('<input id=modal_id_utente type=hidden value='+scelta+'>');
+            $("#details").modal('show');
+        }
+    });
+*/
     function loadData(sender){
 
 
@@ -633,24 +653,32 @@ var viewReportColumns=new Array();
             .then(function (data) {
 
                data=JSON.parse(data);
-               jQuery('#grid-basic').empty();
-                jQuery('#totalcount').empty();
-                jQuery('#totalcount').html('record totali:'+data['rowCount']);
-                viewReportColumns=[];
 
-                maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
-                jQuery("#aggiornamentoReport").modal('hide');
+               jQuery('#grid-basic').empty();
+               jQuery('#totalcount').empty();
+               jQuery('#totalcount').html('record totali:'+data['rowCount']);
+               viewReportColumns=[];
+                fields=data;
+               maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
+               jQuery("#aggiornamentoReport").modal('hide');
                data['columns'].forEach(addColumn);
+                if(buttonscolumn.length>0){
+
+                    jQuery('#grid-basic').append('<th>'+buttonscolumnname+'</th>');
+                    viewReportColumns.push(buttonscolumnname);
+                }
                for(i=0; i<data['rows'].length; i++){
 
-                    var row=data['rows'][i];
+                   var row=data['rows'][i];
+                  //fields[row['id_anagrafica']]=JSON.parse(row['fields']);
+
                     jQuery('#grid-basic').append('<tr class=\''+defineRowBootClass(row)+'\'>');
 
                     for(ii=0; ii<viewReportColumns.length;ii++) {
 
-                       addRowElement(jQuery('#grid-basic tr:last'),row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]],ii, jQuery("#tipo_report").val(),viewReportColumns)
+                       addCell(jQuery('#grid-basic tr:last'),row,row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]],i,ii, jQuery("#tipo_report").val(),viewReportColumns)
                     }
-                    jQuery('#grid-basic').append('</tr>');
+
                 }
 
             });
@@ -715,31 +743,33 @@ var viewReportColumns=new Array();
         }
 
     }
-    function addRowElement(table,rowCellData,columIndex,viewType,dataColumns) {
+    function addCell(table,row,rowCellData,rowindex,columIndex,viewType,dataColumns) {
 
         stiletd='border-left: 1px solid #ddd;';
         stiletdcenter=" text-align:center;"
         //SET OF RULES
 
-        if(dataColumns[columIndex]==="stato" && rowCellData=='1'){
+        if(rowCellData=='1'){
 
-            rowCellData="<span class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>"
+            rowCellData="<span title='completato' class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>"
             stiletd=stiletd+stiletdcenter;
         }
 
-        if(dataColumns[columIndex]==="stato" && rowCellData=='0'){
+        if(rowCellData=='0'){
 
-            rowCellData="<span class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>"
+            rowCellData="<span title='iniziato' class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>"
             stiletd=stiletd+stiletdcenter;
         }
-
-
 
         if(rowCellData=='0000-00-00'){
 
             rowCellData=""
         }
 
+        if(dataColumns[columIndex]==buttonscolumnname){
+
+           rowCellData=addButtonsCell(row);
+        }
 
         switch (viewType){
 
@@ -748,22 +778,11 @@ var viewReportColumns=new Array();
             case '1':
             case '2':
 
-                if(rowCellData=='1'){
 
-                    rowCellData="<span class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>"
-                    stiletd=stiletd+stiletdcenter;
-                }
-                if(rowCellData=='0'){
-
-                    rowCellData="<span class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>"
-                    stiletd=stiletd+stiletdcenter;
-                }
-
-                //rowCellData="<span class='glyphicon glyphicon-check' style='color:green; font-size: 12px;'></span>"
                 break;
         }
 
-        table.append("<td style='"+stiletd+"'>"+rowCellData+"</td>");
+        table.append("<td  style='"+stiletd+"'>"+rowCellData+"</td>");
     }
     
     function addColumn(item, index) {
@@ -785,6 +804,39 @@ var viewReportColumns=new Array();
             jQuery('#grid-basic').append('<th ' + classtouse + '>' + item.toString().toUpperCase() + '</th>');
             viewReportColumns.push(item);
         }
+    }
+    function addButtonsCell(row) {
+
+        rowCellData='';
+
+        for (var i=0;i<buttonscolumn.length;i++) {
+
+            rowCellData = rowCellData+"<button id='columnbutton'";
+            rowCellData = rowCellData+" type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
+            //rowCellData = rowCellData+rowindex;
+            rowCellData = rowCellData+"\" onclick=playbutton("+row[buttonkeyidfield]+",'"+buttonscolumn[i]+"') ><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\" title='"+buttonscolumn[i].toString()+"'></span></button>";
+
+            //jQuery(rowCellData).append("<span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span>");
+        }
+        return rowCellData;
+    }
+    function playbutton(searchkey,field) {
+
+        for (var i=0; i<fields['rows'].length;i++) {
+
+           if(fields['rows'][i][buttonkeyidfield]==searchkey) {
+               console.log(fields['rows'][i][field]);
+               jQuery('#details_table tbody').empty();
+               jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
+                   var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
+                   jQuery('#details_table tbody').append(eachrow);
+
+               });
+               //jQuery("#details").append('<input id=modal_id_utente type=hidden value='+value+'>');
+               jQuery("#details").modal('show');
+           }
+        }
+
     }
     function dataSyncUsers() {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
 
