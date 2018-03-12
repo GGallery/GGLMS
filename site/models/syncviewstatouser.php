@@ -291,8 +291,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
             $query = $this->_db->getQuery(true)
                 ->select('r.stato as stato, r.data as data')
                 ->from('#__gg_report as r')
-                ->join('inner','#__gg_unit as u on r.id_contenuto=u.id_contenuto_completamento')
-                ->where("r.id_utente=".$userid." and id_corso=".$pk);
+                ->where("r.stato=1 and r.id_utente=".$userid." and id_corso=".$pk." and id_contenuto = (select u.id_contenuto_completamento from #__gg_unit as u where id=".$pk.")");
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadAssocList();
