@@ -4,8 +4,10 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.31
+   - B: modificata la procedura di identificazione del corso completato, con ritorno al contenuto di completamento
 3.8.30
-   - B_ sviluppati model e controller per il caricamento della vista necessaria al csv quotidiano 
+   - B: sviluppati model e controller per il caricamento della vista necessaria al csv quotidiano 
    - D: creata la tabella  carige_batch per la vista necessaria al csv quotidiano 
 3.8.29
   - F: implemenato il nuovo report appoggiato al modello viste precaricate

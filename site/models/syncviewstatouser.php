@@ -201,11 +201,11 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                     $datainizio='null';
 
                 $completed=0;
-
-                if($this->isUnitaCompleta($record->id_corso, $record->id_utente)==1){
+                $isCorsoCompletoArray=$this->isCorsoCompleto($record->id_corso, $record->id_utente);
+                if($isCorsoCompletoArray['isCorsoCompleto']==1){
 
                     $completed=1;
-                    $datafine=$dateiniziofine[1];
+                    $datafine=$isCorsoCompletoArray['data'];
                 }
 
 
@@ -283,6 +283,31 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
         {
             DEBUGG::log($e, ' isUnitaCompleta',0,1,1);
         }
+    }
+    private function isCorsoCompleto($pk,$userid){
+
+        try
+        {
+            $query = $this->_db->getQuery(true)
+                ->select('r.stato as stato, r.data as data')
+                ->from('#__gg_report as r')
+                ->join('inner','#__gg_unit as u on r.id_contenuto=u.id_contenuto_completamento')
+                ->where("r.id_utente=".$userid." and id_corso=".$pk);
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadAssocList();
+            if (count($data)>0) {
+
+                return ['isCorsoCompleto' => 1, 'data' => $data[0]['data']];
+            }else{
+                return ['isCorsoCompleto' => 0, 'data' => null];
+            }
+        }
+        catch (Exception $e)
+        {
+            DEBUGG::log($e->getMessage(), 'IsCorso',0,1,0);
+        }
+
     }
 
 }
