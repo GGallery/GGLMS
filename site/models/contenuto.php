@@ -427,7 +427,7 @@ class gglmsModelContenuto extends JModelLegacy {
         }
 
         $query = $this->_db->getQuery(true)
-            ->select('varName, varValue')
+            ->select('varName, varValue,DATE(timestamp) as TimeStamp')
             ->from('#__gg_scormvars as s')
             ->where('scoid = ' . $this->id)
             ->where('s.userid = ' . $this->_userid)
