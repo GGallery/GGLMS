@@ -65,6 +65,19 @@
 				default="0000-00-00"
 		/>
 
+		<field 	name="alert_lista_corsi"
+				  type="listacorsi"
+				  label="scegli i corsi su cui abilitare l'avviso"
+				  description=""
+				  class="inputbox"
+				  id="select_lista_corsi_alert"
+				  multiple="multiple"
+				  size="10"
+				  default=""
+
+
+		/>
+
         <field
                 name="alert_days_before"
                 class="inputbox"
@@ -78,11 +91,21 @@
 		<field
 				name="alert_mail_text"
 				class="inputbox"
-				label="testo base della mail di avviso"
+				label="testo della mail di avviso"
 				type="textarea"
 				cols="25"
 				rows="3"
 				default="Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso"
+		/>
+
+		<field
+				name="alert_mail_object"
+				class="inputbox"
+				label="Oggetto della mail di avviso"
+				type="textarea"
+				cols="25"
+				rows="2"
+				default="Avviso scadenza corso Carige Learning"
 		/>
 
 

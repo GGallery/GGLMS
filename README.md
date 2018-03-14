@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.33
+  - B: inserito controller per invio mail di alert
 3.8.32
    - B: modificata la data di attribuzione del contenuto completato allo timestamp
 3.8.31

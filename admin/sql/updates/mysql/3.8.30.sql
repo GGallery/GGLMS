@@ -4,8 +4,8 @@ CREATE TABLE `#__gg_view_carige_learning_batch` (
 `data_primo_accesso`  date NULL ,
 `data_ultimo_accesso`  date NULL ,
 `data_completamento_edizione`  date NULL ,
-`percentuale_completamento`  float(4,2) NULL ,
-`timestamp`  time NULL ,
+`percentuale_completamento`  float(5,2) NULL ,
+`timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (`id_corso`, `id_user`)
 )
 ;

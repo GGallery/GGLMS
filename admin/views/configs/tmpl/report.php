@@ -44,11 +44,15 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('data_sync'); ?>
             </div>
-
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('alert_lista_corsi'); ?>
+            </div>
             <div class="row-fluid">
                 <?php echo $this->form->renderField('alert_days_before'); ?>
             </div>
-
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('alert_mail_object'); ?>
+            </div>
             <div class="row-fluid">
                 <?php echo $this->form->renderField('alert_mail_text'); ?>
             </div>

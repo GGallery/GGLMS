@@ -414,140 +414,7 @@ var fields=[];
             //$("#grid-basic").bootgrid("reload");
         });
 
-       /*var grid = $("#grid-basic").bootgrid({
-            ajax: true,
-            multiSort: true,
-            requestHandler: function (request) {
-                //Add your id property or anything else
-                request.corso_id = $("#corso_id").val();
-                request.startdate = $("#startdate").val();
-                request.finishdate = $("#finishdate").val();
-                request.filterstato = $("#filterstato").val();
-                request.usergroups = $("#usergroups").val();
-                return request;
-            },
-            url: "index.php?option=com_gglms&task=api.get_report",
 
-            formatters: {
-                "stato": function(column, row)
-                {
-                    if(row.stato == 1) {
-                        completed++;
-                        return "Completato";
-                    }
-                    else {
-                        notcompleted++;
-                        return "Non Completato";
-                    }
-                },
-                "alert": function (column, row)
-                {
-                    if(row.alert == 1) {
-                        fields[row.id_utente]=row.fields;
-                        return '<span class="glyphicon glyphicon-alert" style="color:gold; font-size: 23px;" aria-hidden="true"></span>' +
-
-                            '<button type="button" style="color:gold; font-size: 23px;    margin-left: 10px; margin-top: -10px;" title="email" class="btn btn-xs btn-default command-edit-sendMail" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-envelope" aria-hidden="true" style="color:red; font-size:16px;"></span></button>';
-                    }
-                    else {
-
-                        return null;//'<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>';
-                    }
-                },
-                "commands": function(column, row)
-                {
-                    fields[row.id_utente]=row.fields;
-                    return '<button type="button" title="anagrafica" class="btn btn-xs btn-default command-edit" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>'+
-                        '<button type="button" title="dettagli corso" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>'+
-                        '<a href='+window.location+'../../libretto.html?user_id='+row.id_utente+' title="libretto formativo" class="btn btn-xs btn-default" \><span class="glyphicon glyphicon-book" aria-hidden="true"></span></a>';
-                },
-                "dettaglicorso": function(column, row)
-                {
-                    //fields[row.id_utente]=row.fields;
-                    //return '<button type="button" class="btn btn-xs btn-default command-edit-dettagli" data-row-id=\"' + row.id_utente + '\"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></button>';
-                },
-                "data_inizio": function(column, row)
-                {
-                    if (row.hainiziato == '0000-00-00') {
-                        return "";
-                    }else{
-                        return row.hainiziato;
-                    }
-                }
-            }
-
-        }).on("loaded.rs.jquery.bootgrid", function(e)
-        {
-            myChart.data.datasets[0].data[0] = completed;
-            myChart.data.datasets[0].data[1] = notcompleted;
-            myChart.update();
-
-            grid.find(".command-edit").on("click", function(e)
-            {
-                scelta = $(this).data("row-id");
-                data= JSON.parse(fields[scelta]);
-                $('#details_table tbody').empty();
-                $.each(data, function (key, value) {
-                    var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
-                    $('#details_table tbody').append(eachrow);
-
-                });
-                $("#details").append('<input id=modal_id_utente type=hidden value='+scelta+'>');
-                $("#details").modal('show');
-
-            }).end();
-
-            grid.find(".command-edit-sendMail").on("click", function(e)
-            {
-                $('#testomail').empty();
-                jQuery('#sendmailbutton').show();
-                jQuery('#div_send_mail_textarea').show();
-                scelta = $(this).data("row-id");
-                data= JSON.parse(fields[scelta]);
-                $('#details_table_invio_mail tbody').empty();
-
-                    var eachrow = "<tr>" + "<td>Nome</td>" + "<td>" +  data['nome'] + "</td>" + "</tr>";
-                    eachrow += "<tr>" + "<td>Cognome</td>" + "<td>" +  data['cognome'] + "</td>" + "</tr>";
-                    eachrow += "<tr>" + "<td>Email</td>" + "<td id='to'>" +  data['email'] + "</td>" + "</tr>";
-
-                    $('#details_table_invio_mail tbody').append(eachrow);
-                    nome_corso=$('#corso_id option:selected').text();
-                    $('#testomail').append(testo_base_mail+" "+nome_corso);
-
-
-                $("#detailsInvioMail").modal('show');
-
-            }).end();
-
-            grid.find(".command-edit-dettagli").on("click", function(e)
-            {
-                scelta = $(this).data("row-id");
-                var id_utente=scelta;
-                var id_corso=$('#corso_id')[0]['value'].split('|')[0];
-
-                jQuery.when(jQuery.get("index.php?option=com_gglms&task=api.buildDettaglioCorso&id_corso="+id_corso+"&id_utente="+id_utente))
-                    .done(function(data){
-                        data=JSON.parse(data);
-                        $('#details_table_corso tbody').empty();
-                        var eachrow;
-                        $.each(data, function (key,value) {
-
-                            eachrow=eachrow+"<tr><td>"+value['titolo unità']+"</td>"+
-                                "<td>"+value['titolo contenuto']+"</td>"+
-                                "<td>"+value['stato']+"</td>"+
-                                "<td>"+value['data']+"</td></tr>";
-                        });
-
-                        $('#details_table_corso tbody').append(eachrow);
-                        $("#detailsCorso").modal('show');
-
-                    }).fail(function(data){
-
-                });
-
-
-
-            }).end();
-        });*/
     });
 
     jQuery('.button').click(function () {
@@ -602,22 +469,7 @@ var fields=[];
         }
     });
 
-   /* jQuery(document).on('click',function (event) {
 
-        if(event.target.id==='columnbutton') {
-            console.log(event.target.getAttribute('data-row'));
-            /*data= JSON.parse(event.target.getAttribute("data-row").replace("\'","\""));
-            $('#details_table tbody').empty();
-            $.each(data, function (key, value) {
-                var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
-                $('#details_table tbody').append(eachrow);
-
-            });
-            $("#details").append('<input id=modal_id_utente type=hidden value='+scelta+'>');
-            $("#details").modal('show');
-        }
-    });
-*/
     function loadData(sender){
 
 
@@ -682,52 +534,6 @@ var fields=[];
                 }
 
             });
-
-        /*jQuery.ajax(
-            {
-                xhr: function()
-                {
-                    var xhr = new window.XMLHttpRequest();
-                    //Upload progress
-                    xhr.upload.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with upload progress
-                            console.log(percentComplete);
-                        }
-                    }, false);
-                    //Download progress
-                    xhr.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with download progress
-                            console.log(percentComplete);
-                        }
-                    }, false);
-                    return xhr;
-                },
-                type: 'GET',
-                url: url,
-                data: data,
-                success: function(data){
-                    data=JSON.parse(data);
-                    jQuery('#grid-basic').empty();
-                    maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
-
-                    data['columns'].forEach(addColumn);
-                    for(i=0; i<=10; i++){
-
-                        jQuery('#grid-basic').append('<tr>');
-                        var row=data['rows'][i];
-                        for(ii=0; ii<data['columns'].length;ii++) {
-
-                            jQuery('#grid-basic tr:last').append('<td>'+row[data['columns'][ii]]+'</td>');
-                        }
-                        jQuery('#grid-basic').append('</tr>');
-                    }
-                }
-            });*/
-
 
     }
 

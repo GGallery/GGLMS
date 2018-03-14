@@ -206,7 +206,7 @@ CREATE TABLE `#__gg_scormvars` (
   `userid` int(11) NOT NULL DEFAULT '0',
   `varName` varchar(255) NOT NULL DEFAULT '',
   `varValue` text,
-  `timestamp` TIMESTAMP,
+  `timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   PRIMARY KEY (`scoid`,`userid`,`varName`),
   KEY `SCOInstanceID` (`scoid`),
   KEY `varName` (`varName`)
@@ -368,7 +368,7 @@ CREATE TABLE `#__gg_view_stato_user_corso` (
 `stato`  int(10) NOT NULL ,
 `data_inizio`  date NULL,
 `data_fine`  date NULL,
-`timestamp`  timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP ,
+`timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (`id_anagrafica`, `id_corso`)
 )
 ENGINE=InnoDB
@@ -387,7 +387,7 @@ CREATE TABLE `#__gg_view_stato_user_unita` (
 `stato`  int(10) NULL DEFAULT NULL ,
 `data_inizio`  date NULL,
 `data_fine`  date NULL,
-`timestamp`  timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP ,
+`timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (`id_anagrafica`, `id_unita`, `id_corso`)
 )
 ENGINE=InnoDB
@@ -406,8 +406,8 @@ CREATE TABLE `#__gg_view_carige_learning_batch` (
 `data_primo_accesso`  date NULL ,
 `data_ultimo_accesso`  date NULL ,
 `data_completamento_edizione`  date NULL ,
-`percentuale_completamento`  float(4,2) NULL ,
-`timestamp`  time NULL ,
+`percentuale_completamento`  float(5,2) NULL ,
+`timestamp`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 PRIMARY KEY (`id_corso`, `id_user`)
 )
 ;

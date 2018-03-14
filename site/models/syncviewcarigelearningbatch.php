@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/models/unita.php';
 //require_once JPATH_COMPONENT . '/models/users.php';
 //require_once JPATH_COMPONENT . '/models/syncdatareport.php';
-//require_once JPATH_COMPONENT . '/models/report.php';
+require_once JPATH_COMPONENT . '/models/report.php';
 //require_once JPATH_COMPONENT . '/models/contenuto.php';
 
 
@@ -154,7 +154,7 @@ class gglmsModelSyncViewCarigeLearningBatch extends JModelLegacy
                 $query=$query. $record->id_corso . ',' . $record->id_utente . ',\'' . $datainizio .'\',\'' . $dataultimoaccesso. '\',\'' . $datafine. '\','.$percentualecompletamento.', NOW()) 
                 ON DUPLICATE KEY UPDATE data_primo_accesso=\''.$datainizio.'\', data_ultimo_accesso=\''.$dataultimoaccesso.'\', data_completamento_edizione=\''.$datafine.'\', percentuale_completamento='.$percentualecompletamento;
 
-                //DEBUGG::log('inserisco '.$query, 'insertData',0,1,0);
+               // DEBUGG::log('inserisco '.$query, 'insertData',0,1,0);
                 $this->_db->setQuery($query);
                 $this->_db->execute();
 
@@ -169,7 +169,7 @@ class gglmsModelSyncViewCarigeLearningBatch extends JModelLegacy
         }
         catch (Exception $e)
         {
-            DEBUGG::log($e, 'CARIGE BATCH insert syncUserCorso',0,1,0);
+            DEBUGG::log($e->getMessage(), 'CARIGE BATCH insert syncUserCorso',0,1,0);
         }
 
 
@@ -213,11 +213,13 @@ class gglmsModelSyncViewCarigeLearningBatch extends JModelLegacy
 
     private function percentualeCompletamento($id_corso,$id_anagrafica){
         try {
-            $query = "select (select count(*) from #__gg_report where id_corso=".$id_corso." and id_anagrafica=".$id_anagrafica." and stato=1)/
-                        count(*)*100 as 'perc' from #__gg_report where id_corso=".$id_corso." and id_anagrafica=".$id_anagrafica;
+            $reportModel=new gglmsModelReport();
+            $numerocontenuti=count($reportModel->getContenutiArrayList($id_corso));
+            $query = "select count(*) from #__gg_report where id_corso=".$id_corso." and stato=1 and id_anagrafica=".$id_anagrafica;
             $this->_db->setQuery($query);
             $result = $this->_db->loadResult();
-            return $result;
+
+            return ($result/$numerocontenuti)*100;
 
         }catch (Exception $e)
         {
