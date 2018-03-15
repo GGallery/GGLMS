@@ -524,11 +524,15 @@ class gglmsControllerApi extends JControllerLegacy
     {
         //ini_set('max_execution_time', 600);
         $this->_japp = JFactory::getApplication();
-        $csvlimit=$this->_filterparam->csvlimit;
+        //$csvlimit=$this->_filterparam->csvlimit;
+        $csvlimit=1;
         $id_chiamata=$this->_filterparam->id_chiamata;
-        $data=$this->get_data($csvlimit);
-        $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+        $data=$this->new_get_data();
+        $this->createCSV($data['rows'],$id_corso=explode('|', $this->_filterparam->corso_id)[0]);
 
+
+
+        /*
         if($csvlimit>0) { //COSI' LA PRIMA CHIAMATA, PER IL TOTALE, NON GENERA RECORD
             foreach ($data['rows'] as $row) {
 
@@ -569,47 +573,52 @@ class gglmsControllerApi extends JControllerLegacy
         }
 
         echo  json_encode($data);
-
-        $this->_japp->close();
+*/
+        //$this->_japp->close();
     }
 
-    public function createCSV(){
+    public function createCSV($rows, $corso_id){
+        /*     //
+            $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
 
-       $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
+             //$id_chiamata=$this->_filterparam->id_chiamata;
+             $id_chiamata=97486;
+             $corso_id=122;
+             $query = $this->_db->getQuery(true);
+             $colonne_somme=($param_colonne_somme)?',tempo_lavorativo,tempo_straordinario':'';
+             $query_csv_str='id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato'.$colonne_somme.', alert';
 
-        $id_chiamata=$this->_filterparam->id_chiamata;
-        $corso_id=$this->_filterparam->corso_id;
-        $query = $this->_db->getQuery(true);
-        $colonne_somme=($param_colonne_somme)?',tempo_lavorativo,tempo_straordinario':'';
-        $query_csv_str='id_chiamata, id_utente, nome, cognome,email,fields, stato,hainiziato, hacompletato'.$colonne_somme.', alert';
+             $query->select($query_csv_str);
+             $query->from('#__gg_csv_report');
+             $query->where('id_chiamata='.$id_chiamata);
 
-        $query->select($query_csv_str);
-        $query->from('#__gg_csv_report');
-        $query->where('id_chiamata='.$id_chiamata);
-        $this->_db->setQuery($query);
-        $rows = $this->_db->loadAssocList();
-        if($this->_params->get('campo_event_booking_campi_csv')!=null) {
-            $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_event_booking_campi_csv'));
-        }else if($this->_params->get('campo_community_builder_campi_csv')!=null) {
-            $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_community_builder_campi_csv'));
-        }else{
-            $elenco_campi_per_csv_da_back_end=[];
-        }
-        if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
-            $added_colums_rows = [];
-            //var_dump($elenco_campi_per_csv_da_back_end);
-            foreach ($rows as $row) {
-                $rowfields = (array)json_decode($row['fields']);
+             $this->_db->setQuery($query);
+             $rows = $this->_db->loadAssocList();
 
-                foreach ($elenco_campi_per_csv_da_back_end as $nuovacolonna => $nuovovalore) {
+ */
 
-                    $row[$nuovovalore]=$rowfields[$nuovovalore] ;
-                }
-                array_push($added_colums_rows, $row);
-            }
-            $rows = $added_colums_rows;
-        }
-       
+             if($this->_params->get('campo_event_booking_campi_csv')!=null) {
+                 $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_event_booking_campi_csv'));
+             }else if($this->_params->get('campo_community_builder_campi_csv')!=null) {
+                 $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_community_builder_campi_csv'));
+             }else{
+                 $elenco_campi_per_csv_da_back_end=['no_column'];
+             }
+             if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
+                 $added_colums_rows = [];
+                 //var_dump($elenco_campi_per_csv_da_back_end);
+                 foreach ($rows as $row) {
+                     $rowfields = (array)json_decode($row['fields']);
+
+                     foreach ($elenco_campi_per_csv_da_back_end as $nuovacolonna => $nuovovalore) {
+
+                         $row[$nuovovalore]=$rowfields[$nuovovalore] ;
+                     }
+                     array_push($added_colums_rows, $row);
+                 }
+                 $rows = $added_colums_rows;
+             }
+
 
 try {
     if (!empty($rows)) {
@@ -652,6 +661,7 @@ try {
 
 
     $filename = $this->get_CourseName($corso_id);
+
     $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
     $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
     $filename = strtolower($filename);
@@ -659,6 +669,8 @@ try {
     $filename = preg_replace('~[^-\w]+~', '', $filename);
     $filename .= "-" . date("d/m/Y");
     $filename = $filename . ".csv";
+
+    //var_dump($filename);die;
 
 
     header("Content-Type: text/plain");

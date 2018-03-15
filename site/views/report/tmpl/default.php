@@ -107,7 +107,7 @@ JHtml::_('bootstrap.modal');
         </div>
 -->
         <div class="form-group">
-            <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="newLoadCsv()">SCARICA REPORT CSV</button>
+            <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
     </form>
 
@@ -746,50 +746,13 @@ var fields=[];
         var filterstato= jQuery('#filterstato')[0]['value'];
         var startdate= jQuery("#startdate")[0]['value'];
         var finishdate= jQuery("#finishdate")[0]['value'];
-        jQuery('#details_table_caricamento_csv').empty();
-        jQuery('#details_table_caricamento_csv').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
-        jQuery("#detailsCaricamentoCSV").modal('show');
-        jQuery.when(jQuery.get("index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&filterstato="+filterstato+
-                                "&startdate="+startdate+"&finishdate="+finishdate+"&csvlimit=0$csvoffset=0&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv"))
-            .done(function(data){
 
-            }).then(function (data) {
-
-            data=JSON.parse(data);
-            total=data['total'];
-            jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento di '+total+' records, attendere il completamento della procedura...</td></tr>');
-            var csvoffset=100;
-            var csvlimit=100;
-            $datafromquery=LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata);
-        }).fail(function(data) {
-
-        });
+        location.href="index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&filterstato="+filterstato+
+            "&startdate="+startdate+"&finishdate="+finishdate+"&csvlimit=0$csvoffset=0&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv";
 
     }
 
-    function newLoadCsv() {
-        rows=fields['rows']
-        console.log(rows);
-        /*var json = rows
-        var fields = Object.keys(json[0])
-        var replacer = function(key, value) { return value === null ? '' : value }
-        var csv = json.map(function(row){
-            return fields.map(function(fieldName){
-                return JSON.stringify(row[fieldName], replacer)
-            }).join(',')
-        })
-        csv.unshift(fields.join(',')) // add header column
 
-        console.log(csv.join('\r\n'))*/
-        //var encodedUri = encodeURI(csvContent);
-        //var link = document.createElement("a");
-        //link.setAttribute("href", encodedUri);
-        //link.setAttribute("download", "my_data.csv");
-        //document.body.appendChild(link); // Required for FF
-
-        //link.click();
-
-    }
 
     function LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata) {
 

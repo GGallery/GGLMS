@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.35
+  - F: implementata e di nuovo attivo il pulsante di scaricamento report in CSV, con le funzioni precedeni di selezione colonne da BE
 3.8.34
   - F: inserita vista per stato corso personale, con scaricamento attestato, con relativo controller e model 
 3.8.33
