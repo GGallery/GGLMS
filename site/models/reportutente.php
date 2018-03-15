@@ -97,7 +97,6 @@ class gglmsModelReportUtente extends JModelLegacy {
         }
 
     }
-
     public function get_user($userid){
 
         try {
@@ -108,36 +107,27 @@ class gglmsModelReportUtente extends JModelLegacy {
             $query->where('u.id_user=' . $userid);
             $this->_db->setQuery($query);
             $result = $this->_db->loadAssocList();
-
             return $result[0];
         }catch (exceptions $e){
-
             DEBUGG::log('ERRORE DA GETUSER','ERRORE DA GET USER',1,1);
         }
     }
 
     public function _generate_pdf($user, $unita_id,$datetest) {
 
-
         try {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
             $pdf = new certificatePDF();
-
             $info['data_superamento']=$datetest;
             $info['path_id'] = $unita_id;
             $info['path'] = $_SERVER['DOCUMENT_ROOT'].'/mediagg/image/unit/';
             $info['content_path'] = $info['path'] . $info['path_id'];
-
             $template = "file:" . $_SERVER['DOCUMENT_ROOT'].'/mediagg/image/unit/'. $unita_id . "/" . $unita_id . ".tpl";
-
             $pdf->add_data($user);
             $pdf->add_data($info);
-
             $nomefile = "attestato_" . $user['nome'] . "_" . $user['cognome'] . ".pdf";
-
             $pdf->fetch_pdf_template($template, null, true, false, 0);
             $pdf->Output($nomefile, 'D');
-
             return 1;
         } catch (Exception $e) {
             // FB::log($e);
@@ -145,9 +135,6 @@ class gglmsModelReportUtente extends JModelLegacy {
         }
         return 0;
     }
-
-
-
 
 }
 

@@ -53,19 +53,12 @@ class gglmsControllerReportUtente extends JControllerLegacy
 
     public function get_report_utente(){
 
-
-
         try {
 
             $model=$this->getModel('reportutente');
-
-
             return $model->get_data($this->get_user());
-
-
         }catch (exceptions $ex){
             DEBUGG::log('ERRORE DA get_libretto','gglmsControllerLibretto',1,1);
-
         }
 
     }
@@ -87,7 +80,6 @@ class gglmsControllerReportUtente extends JControllerLegacy
              }
              $model=$this->getModel('reportutente');
              $user= $model->get_user($user_id);
-
              return $user;
 
          }catch (exceptions $ex){
@@ -102,48 +94,8 @@ class gglmsControllerReportUtente extends JControllerLegacy
            $unita_id=$this->_filterparam->unita_id;
            $datetest=$this->_filterparam->datetest;
            $user = $this->get_user();
-
-           /* if($this->_params->get('verifica_cf')) {
-
-
-
-                switch ($this->_params->get('integrazione')){
-                    case 'eb':
-                        $integrazione= 'eb';
-                        $campo_integrazione = $this->_params->get('campo_event_booking_controllo_cf');
-                        $cf = $user->fields[$campo_integrazione];
-                        break;
-
-                    case 'cb':
-                        $integrazione= 'cb';
-                        $campo_integrazione = $this->_params->get('campo_community_builder_controllo_cf');
-                        $cf = $user->$campo_integrazione;
-                        break;
-
-                    default:
-                        echo "Componente di integrazione non specificato in GGLMS oppure non gestito";
-                        die();
-                }
-
-//                DEBUGG::error($cf, 'cf', 1);
-
-                $conformita = utilityHelper::conformita_cf($cf);
-                if(!$conformita['valido']) {
-                    $data_change['integration']=$integrazione;
-                    $data_change['registrant_id'] = $user->id;
-                    $data_change['field_id']= $campo_integrazione;
-                    $data_change['codicefiscale'] = $cf;
-                    $data_change['return'] = $attestato->alias;
-                    $data_change=base64_encode(json_encode($data_change));
-                    $app = JFactory::getApplication();
-                    $app->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=mcf&data='.$data_change));
-                }
-            }*/
-
-            $model = $this->getModel('reportutente');
-
-
-            $model->_generate_pdf($user, $unita_id,$datetest);
+           $model = $this->getModel('reportutente');
+           $model->_generate_pdf($user, $unita_id,$datetest);
 
         }catch (Exception $e){
 
