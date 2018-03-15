@@ -244,6 +244,12 @@ class gglmsControllerApi extends JControllerLegacy
             $query->setlimit($offset, $limit);
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
+            foreach ($rows as &$row){
+                $row['fields']=json_decode($row['fields']);
+
+                unset($row['fields']->password);
+                $row['fields']=json_encode($row['fields']);
+            }
             $this->_db->setQuery($countquery);
             $count = $this->_db->loadResult();
             return[$rows,$count,$query,$countquery];

@@ -635,6 +635,7 @@ var fields=[];
                console.log(fields['rows'][i][field]);
                jQuery('#details_table tbody').empty();
                jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
+
                    var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
                    jQuery('#details_table tbody').append(eachrow);
 

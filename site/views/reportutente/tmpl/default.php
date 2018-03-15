@@ -51,6 +51,10 @@ $this->_filterparam->user_id = JRequest::getVar('user_id');
             </div>
         </div>
     <?php } ?>
+    <div>
+        DATI AGGIORNATI A: <?php echo $this->_params->get('data_sync')?>
+    </div>
+
 </div>
 
 
