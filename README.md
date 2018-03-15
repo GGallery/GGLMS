@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.34
+  - F: inserita vista per stato corso personale, con scaricamento attestato, con relativo controller e model 
 3.8.33
   - B: inserito controller per invio mail di alert
 3.8.32

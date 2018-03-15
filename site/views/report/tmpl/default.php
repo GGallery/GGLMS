@@ -101,13 +101,14 @@ JHtml::_('bootstrap.modal');
         <div class="form-group">
             <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
         </div>
-        <div class="form-group">
-            <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
-        </div>
+
         <div>
             <button type="button" class="btn btn-info btn-lg width100" onclick="dataSyncUsers()">SINCRONIZZA TABELLA REPORT</button>
         </div>
 -->
+        <div class="form-group">
+            <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="newLoadCsv()">SCARICA REPORT CSV</button>
+        </div>
     </form>
 
     <hr>
@@ -762,6 +763,30 @@ var fields=[];
         }).fail(function(data) {
 
         });
+
+    }
+
+    function newLoadCsv() {
+        rows=fields['rows']
+        console.log(rows);
+        /*var json = rows
+        var fields = Object.keys(json[0])
+        var replacer = function(key, value) { return value === null ? '' : value }
+        var csv = json.map(function(row){
+            return fields.map(function(fieldName){
+                return JSON.stringify(row[fieldName], replacer)
+            }).join(',')
+        })
+        csv.unshift(fields.join(',')) // add header column
+
+        console.log(csv.join('\r\n'))*/
+        //var encodedUri = encodeURI(csvContent);
+        //var link = document.createElement("a");
+        //link.setAttribute("href", encodedUri);
+        //link.setAttribute("download", "my_data.csv");
+        //document.body.appendChild(link); // Required for FF
+
+        //link.click();
 
     }
 

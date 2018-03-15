@@ -14,7 +14,7 @@ require_once JPATH_COMPONENT . '/models/unita.php';
 //require_once JPATH_COMPONENT . '/models/users.php';
 //require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/report.php';
-//require_once JPATH_COMPONENT . '/models/contenuto.php';
+require_once JPATH_COMPONENT . '/models/contenuto.php';
 
 
 /**
@@ -211,7 +211,7 @@ class gglmsModelSyncViewCarigeLearningBatch extends JModelLegacy
 
     }
 
-    private function percentualeCompletamento($id_corso,$id_anagrafica){
+    public function percentualeCompletamento($id_corso,$id_anagrafica){
         try {
             $reportModel=new gglmsModelReport();
             $numerocontenuti=count($reportModel->getContenutiArrayList($id_corso));
