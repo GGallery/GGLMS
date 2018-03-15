@@ -739,16 +739,15 @@ var fields=[];
     }
 
     function loadCsv() {
-        var total;
-        var id_chiamata=Math.floor(Math.random()*100000);
-        var id_corso= jQuery('#corso_id')[0]['value'];
-        var usergroups= jQuery('#usergroups')[0]['value'];
-        var filterstato= jQuery('#filterstato')[0]['value'];
-        var startdate= jQuery("#startdate")[0]['value'];
-        var finishdate= jQuery("#finishdate")[0]['value'];
+        var url="index.php?option=com_gglms&task=api.get_csv&corso_id="+jQuery("#corso_id").val();
+        url=url+"&startdate="+jQuery("#startdate").val();
+        url=url+"&finishdate="+jQuery("#finishdate").val();
+        url=url+"&filterstato="+jQuery("#filterstato").val();
+        url=url+"&usergroups="+jQuery("#usergroups").val();
+        url=url+"&tipo_report="+jQuery("#tipo_report").val();
+        url=url+"&searchPhrase="+jQuery("#searchPhrase").val();
 
-        location.href="index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&filterstato="+filterstato+
-            "&startdate="+startdate+"&finishdate="+finishdate+"&csvlimit=0$csvoffset=0&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv";
+        location.href=url;
 
     }
 
