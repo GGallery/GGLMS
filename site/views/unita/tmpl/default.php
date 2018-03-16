@@ -61,6 +61,9 @@ if($this->sottounita) {
                     <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias='.$unita->alias )?>">
                         <div class="title boxinfo_unita "><b><?php echo $unita->titolo; ?></b></div>
                     </a>
+                    <div style="padding-left: 5px;">
+                        durata: <?php echo $unita->get_durata_unita($unita->id); ?></b>
+                    </div>
 
                 </div>
             </div>

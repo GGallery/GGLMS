@@ -12,6 +12,7 @@ jimport('joomla.application.component.model');
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/coupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
+require_once JPATH_COMPONENT . '/models/report.php';
 //require_once JPATH_COMPONENT . '/models/unita.php';
 
 /**
@@ -383,6 +384,35 @@ class gglmsModelUnita extends JModelLegacy {
             DEBUGG::log($e, 'check_iscrizione_gruppo', 1);
 
         }
+    }
+
+    public function get_durata_unita($pk=null){
+
+        $pk = (!empty($pk)) ? $pk : (int) $this->getState('unita.id');
+        $repotObj=new gglmsModelReport();
+        $contenuti=$repotObj->getContenutiArrayList($pk);
+
+        $contenuti=implode(',',array_column($contenuti,'id'));
+        $query = $this->_db->getQuery(true)
+            ->select('SUM(durata)')
+            ->from('#__gg_contenuti AS c')
+            ->where('c.id in ('.$contenuti.')')
+
+        ;
+
+        $this->_db->setQuery($query);
+        $data = $this->_db->loadResult();
+        if ($data<60){
+
+            return $data." minuti";
+        }
+
+        if($data>60){
+
+            return ((int)($data/60)).'h '.($data-((int)($data/60)*60)).'m ';
+        }
+
+
     }
 
 
