@@ -1,23 +1,5 @@
 <?php
-/**
- * @package		Joomla.Tutorials
- * @subpackage	Component
- * @copyright	Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
- * @license		License GNU General Public License version 2 or later; see LICENSE.txt
- */
-// No direct access to this file
-defined('_JEXEC') or die;
-require_once JPATH_COMPONENT . '/controllers/reportutente.php';
 JHtml::_('bootstrap.modal');
-//$user = JFactory::getUser();
-//var_dump($user);
-$this->_japp = JFactory::getApplication();
-$this->_params = $this->_japp->getParams();
-$report=new gglmsControllerReportUtente();
-$data=$report->get_report_utente();
-$utente=$report->get_user();
-$this->_filterparam = new stdClass();
-$this->_filterparam->user_id = JRequest::getVar('user_id');
 ?>
 <style>
     .stato1{

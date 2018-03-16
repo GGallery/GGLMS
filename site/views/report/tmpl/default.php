@@ -1,31 +1,6 @@
 <?php
-/**
- * @package		Joomla.Tutorials
- * @subpackage	Component
- * @copyright	Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
- * @license		License GNU General Public License version 2 or later; see LICENSE.txt
- */
-// No direct access to this file
 defined('_JEXEC') or die;
-
-JHtml::_('bootstrap.modal');
-
-
-
 ?>
-
-<style>
-.rotated{
-    transform: rotate(90deg);
-    width: 20px;
-    top:0;
-    font-size: 8px;
-
-
-}
-
-
-</style>
 <div id="barrafiltri" class="span2">
 
     <form id="theform" class="form-inline" action="index.php">
@@ -267,7 +242,7 @@ JHtml::_('bootstrap.modal');
         <div class="modal-content">
 
             <div class="modal-body">
-               caricamento dati...
+                caricamento dati...
             </div>
 
         </div>
@@ -312,18 +287,18 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 <script type="text/javascript">
 
 
-//MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
-var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
-var loadreportlimit=0;
-var loadreportoffset=15;
-var actualminpage=1;
-var maxNofpages;
-var columnfilter = ['id_anagrafica','scadenza','fields'];
-var buttonscolumn=['fields'];
-var buttonscolumnname='DETTAGLI';
-var buttonkeyidfield='id_anagrafica';
-var viewReportColumns;
-var fields=[];
+    //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
+    var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
+    var loadreportlimit=0;
+    var loadreportoffset=15;
+    var actualminpage=1;
+    var maxNofpages;
+    var columnfilter = ['id_anagrafica','scadenza','fields'];
+    var buttonscolumn=['fields'];
+    var buttonscolumnname='DETTAGLI';
+    var buttonkeyidfield='id_anagrafica';
+    var viewReportColumns;
+    var fields=[];
 
 
 
@@ -465,8 +440,8 @@ var fields=[];
                 break;
 
             default:
-            loadreportlimit= (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
-            loadData("pagination");
+                loadreportlimit= (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
+                loadData("pagination");
         }
     });
 
@@ -505,31 +480,31 @@ var fields=[];
             })
             .then(function (data) {
 
-               data=JSON.parse(data);
+                data=JSON.parse(data);
 
-               jQuery('#grid-basic').empty();
-               jQuery('#totalcount').empty();
-               jQuery('#totalcount').html('record totali:'+data['rowCount']);
-               viewReportColumns=[];
+                jQuery('#grid-basic').empty();
+                jQuery('#totalcount').empty();
+                jQuery('#totalcount').html('record totali:'+data['rowCount']);
+                viewReportColumns=[];
                 fields=data;
-               maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
-               jQuery("#aggiornamentoReport").modal('hide');
-               data['columns'].forEach(addColumn);
+                maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
+                jQuery("#aggiornamentoReport").modal('hide');
+                data['columns'].forEach(addColumn);
                 if(buttonscolumn.length>0){
 
                     jQuery('#grid-basic').append('<th>'+buttonscolumnname+'</th>');
                     viewReportColumns.push(buttonscolumnname);
                 }
-               for(i=0; i<data['rows'].length; i++){
+                for(i=0; i<data['rows'].length; i++){
 
-                   var row=data['rows'][i];
-                  //fields[row['id_anagrafica']]=JSON.parse(row['fields']);
+                    var row=data['rows'][i];
+                    //fields[row['id_anagrafica']]=JSON.parse(row['fields']);
 
                     jQuery('#grid-basic').append('<tr class=\''+defineRowBootClass(row)+'\'>');
 
                     for(ii=0; ii<viewReportColumns.length;ii++) {
 
-                       addCell(jQuery('#grid-basic tr:last'),row,row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]],i,ii, jQuery("#tipo_report").val(),viewReportColumns)
+                        addCell(jQuery('#grid-basic tr:last'),row,row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]],i,ii, jQuery("#tipo_report").val(),viewReportColumns)
                     }
 
                 }
@@ -575,7 +550,7 @@ var fields=[];
 
         if(dataColumns[columIndex]==buttonscolumnname){
 
-           rowCellData=addButtonsCell(row);
+            rowCellData=addButtonsCell(row);
         }
 
         switch (viewType){
@@ -591,7 +566,7 @@ var fields=[];
 
         table.append("<td  style='"+stiletd+"'>"+rowCellData+"</td>");
     }
-    
+
     function addColumn(item, index) {
 
 
@@ -631,18 +606,18 @@ var fields=[];
 
         for (var i=0; i<fields['rows'].length;i++) {
 
-           if(fields['rows'][i][buttonkeyidfield]==searchkey) {
-               console.log(fields['rows'][i][field]);
-               jQuery('#details_table tbody').empty();
-               jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
+            if(fields['rows'][i][buttonkeyidfield]==searchkey) {
+                console.log(fields['rows'][i][field]);
+                jQuery('#details_table tbody').empty();
+                jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
 
-                   var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
-                   jQuery('#details_table tbody').append(eachrow);
+                    var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
+                    jQuery('#details_table tbody').append(eachrow);
 
-               });
-               //jQuery("#details").append('<input id=modal_id_utente type=hidden value='+value+'>');
-               jQuery("#details").modal('show');
-           }
+                });
+                //jQuery("#details").append('<input id=modal_id_utente type=hidden value='+value+'>');
+                jQuery("#details").modal('show');
+            }
         }
 
     }
@@ -721,16 +696,16 @@ var fields=[];
     }
 
     function dataUpdateConfig() {
-            console.log('dataUpdateConfig');
-            jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.updateconfig"))
-                .done(function (data) {
-                    jQuery('#details_table_caricamento_report').append('<tr><td>caricamento completato</td></tr>');
+        console.log('dataUpdateConfig');
+        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.updateconfig"))
+            .done(function (data) {
+                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento completato</td></tr>');
 
-                })
-                .fail(function (data) {
+            })
+            .fail(function (data) {
 
-                });
-        }
+            });
+    }
 
     function reload() {
 
@@ -779,9 +754,9 @@ var fields=[];
 
         oggettomail=jQuery('#oggettomail').val();
         testomail=jQuery('#testomail').val();
-       //to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
+        //to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
         to="a.petruzzella71@gmail.com";
-       jQuery.when(jQuery.get("index.php?to="+to+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendMail"))
+        jQuery.when(jQuery.get("index.php?to="+to+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendMail"))
 
             .done(function(data){
 

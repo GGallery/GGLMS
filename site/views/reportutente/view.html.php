@@ -11,11 +11,8 @@
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
-
+require_once JPATH_COMPONENT . '/controllers/reportutente.php';
 jimport('joomla.application.component.view');
-
-
-
 
 class gglmsViewReportUtente extends JViewLegacy {
 
@@ -23,25 +20,19 @@ class gglmsViewReportUtente extends JViewLegacy {
 
     function display($tpl = null)
     {
-        try {
 
+        $this->_japp = JFactory::getApplication();
+        $this->_params = $this->_japp->getParams();
 
-            JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
-            JHtml::_('stylesheet','https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css');
-            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
+        $report=new gglmsControllerReportUtente();
+        $this->data=$report->get_report_utente();
 
+        $this->utente=$report->get_user();
 
-            JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.fa.min.js');
-            JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
+        $this->_filterparam = new stdClass();
+        $this->_filterparam->user_id = JRequest::getVar('user_id');
 
-
-            parent::display($tpl);
-
-
-        }catch (exceptions $e){
-            //var_dump($e);
-           // die;
-        }
+        parent::display($tpl);
 
     }
 
