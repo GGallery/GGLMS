@@ -21,6 +21,8 @@ class gglmsViewReportUtente extends JViewLegacy {
     function display($tpl = null)
     {
 
+
+        JHtml::_('stylesheet','https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css');
         $this->_japp = JFactory::getApplication();
         $this->_params = $this->_japp->getParams();
 

@@ -186,53 +186,6 @@ defined('_JEXEC') or die;
     </div>
 </div>
 
-<!-- Modal Dettagli Caricamento CSV-->
-<div id="detailsCaricamentoCSV" class="modal fade " role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Dettagli del caricamento CSV</h4>
-            </div>
-            <div class="modal-body">
-                <table id="details_table_caricamento_csv" class="table table-condensed table-hover table-striped ">
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- Modal Dettagli Caricamento Tabella Report-->
-<div id="detailsCaricamentoReport" class="modal fade " role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Dettagli del caricamento Tabella Report</h4>
-            </div>
-            <div class="modal-body">
-                <table id="details_table_caricamento_report" class="table table-condensed table-hover table-striped ">
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
 
 <!-- Modal Dettagli Aggiornamento Report-->
 <div id="aggiornamentoReport" class="modal fade " role="dialog">
@@ -621,91 +574,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         }
 
     }
-    function dataSyncUsers() {//E' LA FUNZIONE CHE INIZIA LA PROCEDURA DI CARICAMENTO TABELLA REPORT
 
-        console.log('dataSyncUsers');
-        jQuery("#detailsCaricamentoReport").modal('show');
-        jQuery('#details_table_caricamento_report').empty();
-        jQuery('#details_table_caricamento_report').append('<tr><td>inizio caricamento</td></tr><tr><td>stiamo caricando i tuoi dati ti invitiamo ad attendere...</td></tr>');
-        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_users"))
-            .done(function (data) {
-
-            })
-            .fail(function (data) {
-
-            })
-            .then(function (data) {
-                dataSyncReportCount(loadreportlimit,loadreportoffset);
-
-            });
-
-    }
-
-    function dataSyncReportCount(loadreportlimit,loadreportoffset) {
-
-        console.log('dataSyncReportCount');
-        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_count"))
-            .done(function (data) {
-                data=JSON.parse(data);
-                jQuery('#details_table_caricamento_report').append('<tr><td>Caricamento totale di  '+data+' records</td></tr>');
-
-            })
-            .fail(function (data) {
-
-            })
-            .then(function (data) {
-                dataSyncReport(loadreportlimit,loadreportoffset);
-            });
-
-    }
-    function dataSyncReport(loadreportlimit,loadreportoffset) {
-        console.log('dataSyncReport');
-
-        jQuery.when(jQuery.get("index.php?limit="+loadreportlimit+"&offset="+loadreportoffset+"&option=com_gglms&task=report.sync_report"))
-            .done(function(data){
-                data=JSON.parse(data);
-                loadreportlimit+=loadreportoffset;
-
-                console.log('data:'+data+' loadreportlimit a:'+loadreportlimit);
-                if(data=='true') {
-                    jQuery('#details_table_caricamento_report').append('<tr><td>caricamento fino a record n° '+loadreportlimit+'</td></tr>');
-                    dataSyncReport(loadreportlimit, loadreportoffset);
-                }else{
-                    dataSyncReportComplete();
-                }
-            }).fail(function(data){
-        })
-            .then(function (data) {
-
-            });
-    }
-
-    function dataSyncReportComplete() {
-        console.log('dataSyncReportComplete');
-        jQuery('#details_table_caricamento_report').append('<tr><td>caricamento record utenti che non hanno iniziato</td></tr>');
-        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.sync_report_complete"))
-            .done(function(data){
-
-                dataUpdateConfig();
-
-            }).fail(function(data){
-        })
-            .then(function (data) {
-
-            });
-    }
-
-    function dataUpdateConfig() {
-        console.log('dataUpdateConfig');
-        jQuery.when(jQuery.get("index.php?option=com_gglms&task=report.updateconfig"))
-            .done(function (data) {
-                jQuery('#details_table_caricamento_report').append('<tr><td>caricamento completato</td></tr>');
-
-            })
-            .fail(function (data) {
-
-            });
-    }
 
     function reload() {
 
@@ -727,28 +596,6 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
     }
 
 
-
-    function LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata) {
-
-        var jqxhr=jQuery.get("index.php?corso_id=" + id_corso + "&usergroups=" + usergroups +
-            "&filterstato=" + filterstato +"&startdate=" + startdate + "&finishdate=" + finishdate + "&csvlimit="
-            + csvlimit +"&csvoffset="+csvoffset+"&id_chiamata="+id_chiamata+"&option=com_gglms&task=api.get_csv", function (data) {
-            data=JSON.parse(data);
-        })
-            .done(function (data) {
-                jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento fino a record n° '+csvlimit+'</td></tr>');
-                if(csvlimit<parseInt(total)){
-                    csvlimit=csvlimit+csvoffset;
-                    LoadCSVDataFromJquery(id_corso,usergroups,filterstato,startdate,finishdate,csvoffset,csvlimit,total,id_chiamata)
-                }else {
-                    jQuery('#details_table_caricamento_csv').append('<tr><td>caricamento completato</td></tr>');
-                    location.href='index.php?option=com_gglms&id_chiamata='+id_chiamata+'&corso_id="'+id_corso.substr(0,id_corso.indexOf('|'))+'"&task=api.createCSV';
-                }
-            }).fail(function (data) {
-                jQuery('#details_table_caricamento_csv').append('<tr><td>ERROR\! nel caricamento fino a record n° '+csvlimit+'</td></tr>');
-            });
-        jqxhr=null;
-    }
 
     function sendMail() {
 

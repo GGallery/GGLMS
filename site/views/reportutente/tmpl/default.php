@@ -10,11 +10,11 @@ JHtml::_('bootstrap.modal');
 
     <div class="row">
         <div class="span12"><h4>REPORT FORMATIVO DI:
-                <span style="color: black; font-weight: bold"><?php echo $utente['nome']?> <?php echo $utente['cognome']?></span>
+                <span style="color: black; font-weight: bold"><?php echo $this->utente['nome']?> <?php echo $this->utente['cognome']?></span>
             </h4>
         </div>
     </div>
-    <?php foreach ($data['rows'] as $row) {?>
+    <?php foreach ( $this->data['rows'] as $row) {?>
         <div class="card text" style="margin-top: 10px;">
             <div class="card-header">
             </div>
