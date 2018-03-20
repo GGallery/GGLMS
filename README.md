@@ -5,24 +5,36 @@ CHANGELOG
 F:Frontend, B:Backend, D:Database, G:Generale
 
 3.8.36
+  - G: aggiunto switch per attivare/disattivare la label durata su box unita
+
+3.8.36
   - B: implementata nel back-end la funzione di duplicazione di un corso
+  
 3.8.35
   - F: implementata e di nuovo attivo il pulsante di scaricamento report in CSV, con le funzioni precedeni di selezione colonne da BE
+
 3.8.34
   - F: inserita vista per stato corso personale, con scaricamento attestato, con relativo controller e model 
+
 3.8.33
   - B: inserito controller per invio mail di alert
+
 3.8.32
    - B: modificata la data di attribuzione del contenuto completato allo timestamp
+
 3.8.31
    - B: modificata la procedura di identificazione del corso completato, con ritorno al contenuto di completamento
+
 3.8.30
    - B: sviluppati model e controller per il caricamento della vista necessaria al csv quotidiano 
    - D: creata la tabella  carige_batch per la vista necessaria al csv quotidiano 
+
 3.8.29
   - F: implemenato il nuovo report appoggiato al modello viste precaricate
+
 3.8.28
   - B: aggiunte le colonne data_inizio e data_fine alle due nuove viste 
+
 3.8.27
   - B: implementata la coppia controller/model syncviewstatouser per la creazione delle viste per il stato di completamento unità e corso da parte dell'utente
        E' prevista l'esecuzione tramite task e tramite script
