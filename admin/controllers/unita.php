@@ -10,9 +10,37 @@
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.controllerform');
+require_once JPATH_COMPONENT . '/models/report.php';
 
-class gglmsControllerUnita extends JControllerForm {
+class gglmsControllerUnita extends JControllerForm
+{
+
+    public function clonaCorso()
+    {
+
+        try {
+
+            $app = JFactory::getApplication();
 
 
+            $id = JRequest::getVar('corso_id');
+            $unitaModel = $this->getModel('unita');
+            $jinput = $app->input;
+            $id = $jinput->get('cid')[0];
+            if ($id == null) {
+
+                $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage('non hai selezionato alcun corso', 'Warning'));
+                return null;
+            }
+            $result = $unitaModel->clonaCorso($id);
+            $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($result));
+
+
+        } catch (exception $exception) {
+            $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($exception->getMessage(), 'Error'));
+
+        }
+
+    }
 
 }

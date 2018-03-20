@@ -840,6 +840,14 @@ $this->_japp->close();
 
 
 }
+    public function  getContenuti(){//CONTROLLER CHE SERVE A VEDERSI STAMPARE L'ELENCO DI TUTTI I CONTENUTI DI UNA UNITA E SOTTO UNITA'. NON VIENE USATO IN ALCUNA VISTA
+
+        $id = JRequest::getVar('corso_id');
+        $reportModel = new gglmsModelReport();
+        $contenuti=$reportModel->getContenutiArrayList($id);
+        echo implode('<br>',array_column($contenuti,'titolo'));
+        echo '<br> '.count($contenuti);
+    }
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);

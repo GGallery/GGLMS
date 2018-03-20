@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 require_once 'models/libs/getid3/getid3.php';
 require_once 'models/libs/debugg/debugg.php';
 
+//require_once JPATH_COMPONENT.DS.'models'.DS.'libs'.DS.'debugg'.DS.'debugg.php';
 jimport('joomla.application.component.controller');
 
 class gglmsController extends JControllerLegacy {
