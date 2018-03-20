@@ -262,7 +262,7 @@ class gglmsModelunita extends JModelAdmin {
                 if ($corrispondenza['vecchioid'] == $pk) {
                     $nuovoidcorso = $corrispondenza['nuovoid'];
                     if ($this->newid_completamento != null && $nuovoidcorso != null) {
-                        $query = 'update #__gg_unit set id_contenuto_completamento=' . $this->newid_completamento . ',titolo=CONCAT(titolo,\'_copy\')  where id=' . $nuovoidcorso;
+                        $query = 'update #__gg_unit set id_contenuto_completamento=' . $this->newid_completamento . ',titolo=CONCAT(titolo,\'_copy\'),pubblicato=0  where id=' . $nuovoidcorso;
                         $db->setQuery($query);
 
                         $db->execute();
