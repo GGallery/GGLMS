@@ -314,10 +314,23 @@
 
 		<field 	name="visibilita_durata"
 				  type="text"
-				  label="Durata visibile per le tipologie"
+				  label="Durata contenuti visibile per le tipologie"
 				  description="Durata visibile per le tipologie(1-videoslide, 2-solovideo, 3-allegati, 4-scorm, 5-attestato, 6-testuale, 7-quizdeluxe)"
 				  default="1,2"
 		/>
+
+		<field
+				name="visibilita_durata_unita"
+				type="radio"
+				class="btn-group"
+				label="Durata visibile per le unita"
+				labelclass="control-label"
+				default="1"
+		>
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
 
 		<field 	name="campo_community_builder_campi_csv"
 				  type="listafieldcbxcsv"

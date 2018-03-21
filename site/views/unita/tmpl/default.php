@@ -34,9 +34,6 @@ if($this->sottounita) {
             <div class="g-block <?php echo $this->unita->_params->get('larghezza_box_unita') ?> ">
                 <div class="g-block interno">
 
-
-
-
                     <?php
                     if (file_exists('../mediagg/images/unit/'. $unita->id . '.jpg'))
                         $img =  '../mediagg/images/unit/' . $unita->id . '.jpg';
@@ -61,9 +58,18 @@ if($this->sottounita) {
                     <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias='.$unita->alias )?>">
                         <div class="title boxinfo_unita "><b><?php echo $unita->titolo; ?></b></div>
                     </a>
-                    <div style="padding-left: 5px;">
-                        durata: <?php echo $unita->get_durata_unita($unita->id); ?></b>
-                    </div>
+
+
+                    <?php
+                    if ($this->unita->_params->get('visibilita_durata_unita'))
+                    {
+                        ?>
+                        <div class='g-grid'>
+                            <div class="g-box size-50">Durata: <?php $unita->get_durata_unita($unita->id); ?></div>
+                        </div>
+                        <?php
+                    }
+                    ?>
 
                 </div>
             </div>
@@ -73,8 +79,6 @@ if($this->sottounita) {
     echo "</div>";
     echo "<hr>";
 }
-
-
 
 if($this->contenuti) {
     if ($this->unita->_params->get('titolo_moduli_visibile')) {
@@ -102,8 +106,6 @@ if($this->contenuti) {
                         echo '<div class="corner corner_green"></div>';
                     else
                         echo '<div class="corner corner_yellow"></div>';
-
-
                     ?>
 
                     <a <?php echo $contenuto->getUrlLink(); ?>/>
@@ -171,9 +173,6 @@ if($this->contenuti) {
         <?php
     }
     echo "</div>";
-
-
-
 }
 
 if(!$count)
