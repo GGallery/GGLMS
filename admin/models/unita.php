@@ -18,6 +18,7 @@ class gglmsModelunita extends JModelAdmin {
     private $contenuti_inseriti=0;
     private $unita_inserite=0;
     private $array_corrispondenze=[];
+    private $array_corrispondenze_contenuti=[];
     private $id_completamento;
     private $newid_completamento;
     private $oldcontentid;
@@ -81,6 +82,7 @@ class gglmsModelunita extends JModelAdmin {
              $this->id_completamento = $this->getIdCompletamento($pk);
              $this->clonaUnita($pk);
              $this->updateUnita($pk);
+             $this->updateContenuti();
              return "unita inserite: " . $this->unita_inserite . " contenuti inseriti: " . $this->contenuti_inseriti;
          }catch (Exception $e){
 
@@ -135,6 +137,11 @@ class gglmsModelunita extends JModelAdmin {
                 $db->setQuery($query);
                 $db->execute();
                 $this->contenuti_inseriti++;
+                $query = "select max(id) from #__gg_contenuti";
+                $db->setQuery($query);
+                $newid_contenuto = $db->loadResult();
+                array_push($this->array_corrispondenze_contenuti,['vecchioid'=>$contenuto['idcontenuto'],'nuovoid'=>$newid_contenuto]);
+
 
                 $query = 'select ordinamento from #__gg_unit_map where idcontenuto=' . $contenuto['idcontenuto'] . ' limit 1';
                 $db->setQuery($query);
@@ -301,5 +308,42 @@ class gglmsModelunita extends JModelAdmin {
 
         return $text;
     }
+
+    private function updateContenuti(){
+
+        try {
+            $db = JFactory::getDBO();
+
+            foreach ($this->array_corrispondenze_contenuti as $contenuto) {
+
+                $query = 'select prerequisiti from #__gg_contenuti where id=' . $contenuto['nuovoid'];
+                $db->setQuery($query);
+                $prerequisiti = $db->loadResult();
+                $nuovi_prerequisiti = [];
+                $array_prerequisiti = explode(',', $prerequisiti);
+                foreach ($array_prerequisiti as $prerequisito) {
+
+                    foreach ($this->array_corrispondenze_contenuti as $contenuto_) {
+
+                        if ($prerequisito == $contenuto_['vecchioid'])
+                            array_push($nuovi_prerequisiti, $contenuto_['nuovoid']);
+
+                    }
+
+
+                }
+                $query = 'update #__gg_contenuti set prerequisiti =\'' . implode(',', $nuovi_prerequisiti) . '\' where id=' . $contenuto['nuovoid'];
+
+                $db->setQuery($query);
+                $db->execute();
+
+            }
+        }catch(Exception $e){
+
+            DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
+        }
+
+    }
+
 
 }

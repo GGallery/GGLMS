@@ -228,8 +228,8 @@ class gglmsControllerApi extends JControllerLegacy
             $countquery->where('u.id=' . $id_corso);
             //$query->where('anagrafica.id=11497');
             if($searchPrase!=null) {
-                $query->where('anagrafica.cognome LIKE \'%' . $searchPrase . '%\'');
-                $countquery->where('anagrafica.cognome LIKE \'%' . $searchPrase . '%\'');
+                $query->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');
+                $countquery->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');
             }
             if($usergroups!=null) {
                 $query->where('um.group_id=' . $usergroups);
