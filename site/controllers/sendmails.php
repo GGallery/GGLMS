@@ -8,7 +8,7 @@
  */
 
 defined('_JEXEC') or die;
-//require_once JPATH_COMPONENT . '/models/report.php';
+require_once JPATH_COMPONENT . '/models/report.php';
 
 /**
  * Controller for single contact view
@@ -35,34 +35,22 @@ class gglmsControllerSendMails extends JControllerLegacy
     public function sendMails(){
 
         try {
-
-
             $corsimail=$this->_params->get('alert_lista_corsi');
-            $alert_days_before=$this->_params->get('alert_days_before');
             $oggettomail=$this->_params->get('alert_mail_object');
             $testomail = $this->_params->get('alert_mail_text');
             $corsiarray=explode(',',$corsimail);
             foreach ($corsiarray as $id_corso) {
 
-                $query = $this->_db->getQuery(true);
-                $query->select('u.email , anagrafica.cognome as cognome, (select u.titolo from #__gg_unit as u where id='.$id_corso.') as titolo')
-                    ->from('#__gg_view_stato_user_corso as uc')
-                    ->join('inner', '#__gg_report_users as anagrafica on uc.id_anagrafica=anagrafica.id')
-                    ->join('inner', '#__users as u on anagrafica.id_user=u.id')
-                    ->where('id_corso=' . $id_corso . ' and IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -'.$alert_days_before.' DAY), IF(stato=0,1,0),0)=1')
-                   ;
-
-                $this->_db->setQuery($query);
-                $rows = $this->_db->loadAssocList();
+                $reportObj=new gglmsModelReport();
+                $result=$reportObj->getUtentiInScadenzaCorso($id_corso);
+                $i=0;
+                if($result['rows']!=null) {
 
 
-                if($rows!=null) {
+                    foreach ($result['rows'] as $row) {
 
-                    foreach ($rows as $row) {
-
-                        //$to = $row['email'];
+                        //$to = $row->email;
                         $to = ['a.petruzzella71@gmail.com'];
-
                         $mailer = JFactory::getMailer();
                         $config = JFactory::getConfig();
                         $sender = array(
@@ -71,19 +59,30 @@ class gglmsControllerSendMails extends JControllerLegacy
                         );
 
                         $mailer->setSender($sender);
-
                         $mailer->addRecipient($to);
-                        $mailer->setSubject($oggettomail . " " . $row['titolo']);
-                        $mailer->setBody('Gentile ' . $row['cognome'] ." " . $testomail);
+                        $mailer->setSubject($oggettomail . " " . $result['titolo']);
+                        $mailer->setBody('Gentile ' . $row->cognome ." " . $testomail);
+                        if ($i>5)
+                            break;
+                        if (isset(json_decode($row->fields)->sendmail)){
+                            if(json_decode($row->fields)->sendmail==1){
+                                $send = $mailer->Send();
+                            }
+                        }else{
 
-                        $send = $mailer->Send();  //ATTENZIONE IL VERO INVIO E' DISABILITATO IN PROVA
+                            $send = $mailer->Send();
+                        }
 
-                        echo $send;
 
 
+                        DEBUGG::log('corso:'.$result['titolo'].' a:'.json_decode($row->fields)->email.' cognome:'.$row->cognome, 'INVIO MAIL', 0, 1,0);
+                        $i++;
                     }
+
                 }
+                echo 'corso:'.$result['titolo'].' mail inviate: '.$i.'<BR>';
             }
+
         $this->_japp->close();
         } catch (exceptions $ex) {
 

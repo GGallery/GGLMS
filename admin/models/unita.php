@@ -289,25 +289,7 @@ class gglmsModelunita extends JModelAdmin {
             DEBUGG::log($e->getMessage(), 'update unita',0,1,0);
         }
     }
-    function setAlias($text) {
 
-
-        $text = preg_replace('~[^\\pL\d]+~u', '_', $text);
-
-        // transliterate
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
-
-        // lowercase
-        $text = strtolower($text);
-
-        // remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
-
-        // trim
-        $text = trim($text, '_');
-
-        return $text;
-    }
 
     private function updateContenuti(){
 
