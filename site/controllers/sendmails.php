@@ -64,17 +64,7 @@ class gglmsControllerSendMails extends JControllerLegacy
                         $mailer->setBody('Gentile ' . $row->cognome ." " . $testomail);
                         if ($i>5)
                             break;
-                        if (isset(json_decode($row->fields)->sendmail)){
-                            if(json_decode($row->fields)->sendmail==1){
-                                $send = $mailer->Send();
-                            }
-                        }else{
-
-                            $send = $mailer->Send();
-                        }
-
-
-
+                        $send = $mailer->Send();
                         DEBUGG::log('corso:'.$result['titolo'].' a:'.json_decode($row->fields)->email.' cognome:'.$row->cognome, 'INVIO MAIL', 0, 1,0);
                         $i++;
                     }
