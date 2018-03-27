@@ -332,21 +332,10 @@
 		</field>
 
 
-		<field 	name="campo_community_builder_campi_csv"
-				  type="listafieldcbxcsv"
-				  label="Ulteriori campi CB per CSV"
-				  description="Campi Community Builder per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
-				  showon="integrazione:cb"
-				  class="inputbox"
-				  multiple="multiple"
-				  default="1"
-		/>
-
-		<field 	name="campo_event_booking_campi_csv"
-				  type="listafieldebxcsv"
-				  label="Ulteriori campi EB per CSV"
-				  description="Campi Event Booking per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
-				  showon="integrazione:eb"
+		<field 	name="campi_csv"
+				  type="listafieldxcsv"
+				  label="Ulteriori campi per CSV"
+				  description="Campi per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
 				  class="inputbox"
 				  multiple="multiple"
 				  id="csvselect"

@@ -597,22 +597,16 @@ class gglmsControllerApi extends JControllerLegacy
 
  */
 
-             if($this->_params->get('campo_event_booking_campi_csv')!=null) {
-                 $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_event_booking_campi_csv'));
-             }else if($this->_params->get('campo_community_builder_campi_csv')!=null) {
-                 $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campo_community_builder_campi_csv'));
-             }else{
-                 $elenco_campi_per_csv_da_back_end=['no_column'];
-             }
-             if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
+                $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
+                if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
                  $added_colums_rows = [];
                  //var_dump($elenco_campi_per_csv_da_back_end);
                  foreach ($rows as $row) {
                      $rowfields = (array)json_decode($row['fields']);
 
                      foreach ($elenco_campi_per_csv_da_back_end as $nuovacolonna => $nuovovalore) {
-
-                         $row[$nuovovalore]=$rowfields[$nuovovalore] ;
+                         if(array_key_exists($nuovovalore,$rowfields))
+                             $row[$nuovovalore]=$rowfields[$nuovovalore] ;
                      }
                      array_push($added_colums_rows, $row);
                  }
