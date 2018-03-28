@@ -244,9 +244,8 @@ class gglmsControllerApi extends JControllerLegacy
             $query->setlimit($offset, $limit);
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
-            foreach ($rows as &$row){
+            foreach ($rows as &$row){//FILTRO PER CAMPI DI FIELDS
                 $row['fields']=json_decode($row['fields']);
-
                 unset($row['fields']->password);
                 $row['fields']=json_encode($row['fields']);
             }
@@ -259,8 +258,6 @@ class gglmsControllerApi extends JControllerLegacy
             //DEBUGG::error($e, 'error', 1);
         }
     }
-
-
     private function buildPrimaryDataCube($query,$offset=null,$limit=null){
         try {
 
@@ -278,7 +275,6 @@ class gglmsControllerApi extends JControllerLegacy
             //DEBUGG::error($e, 'error', 1);
         }
     }
-
     private function countPrimaryDataCube($query){
         try {
 
@@ -293,7 +289,6 @@ class gglmsControllerApi extends JControllerLegacy
         }
 
     }
-
     private  function buildColumnsforUnitaView($id_corso){
 
         $reportObj=new gglmsModelReport();
@@ -304,7 +299,6 @@ class gglmsControllerApi extends JControllerLegacy
         }
         return $columns;
     }
-
     private  function buildColumnsforContenutiView($id_corso){
 
         $reportObj=new gglmsModelReport();
@@ -365,7 +359,6 @@ class gglmsControllerApi extends JControllerLegacy
 
         }
     }
-
     private function  get_data($offsetforcsv=null) {
 
         $this->_filterparam->task = JRequest::getVar('task');
@@ -518,8 +511,6 @@ class gglmsControllerApi extends JControllerLegacy
         $result['totalquery']=$countquery;
         return $result;
     }
-
-
     public function get_csv()
     {
         //ini_set('max_execution_time', 600);
@@ -576,105 +567,91 @@ class gglmsControllerApi extends JControllerLegacy
 */
         //$this->_japp->close();
     }
-
     public function createCSV($rows, $corso_id){
-        /*     //
-            $param_colonne_somme=$this->_params->get('colonne_somme_tempi');
 
-             //$id_chiamata=$this->_filterparam->id_chiamata;
-             $id_chiamata=97486;
-             $corso_id=122;
-             $query = $this->_db->getQuery(true);
-             $colonne_somme=($param_colonne_somme)?',tempo_lavorativo,tempo_straordinario':'';
-             $query_csv_str='id_chiamata, id_utente, nome, cognome,email, stato,hainiziato, hacompletato'.$colonne_somme.', alert';
+        $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
+        if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
+            $added_colums_rows = [];
+            //var_dump($elenco_campi_per_csv_da_back_end);
+            foreach ($rows as $row) {
+                $rowfields = (array)json_decode($row['fields']);
 
-             $query->select($query_csv_str);
-             $query->from('#__gg_csv_report');
-             $query->where('id_chiamata='.$id_chiamata);
-
-             $this->_db->setQuery($query);
-             $rows = $this->_db->loadAssocList();
-
- */
-
-                $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
-                if($elenco_campi_per_csv_da_back_end[0]!='no_column') {
-                 $added_colums_rows = [];
-                 //var_dump($elenco_campi_per_csv_da_back_end);
-                 foreach ($rows as $row) {
-                     $rowfields = (array)json_decode($row['fields']);
-
-                     foreach ($elenco_campi_per_csv_da_back_end as $nuovacolonna => $nuovovalore) {
-                         if(array_key_exists($nuovovalore,$rowfields))
-                             $row[$nuovovalore]=$rowfields[$nuovovalore] ;
-                     }
-                     array_push($added_colums_rows, $row);
-                 }
-                 $rows = $added_colums_rows;
-             }
-
-
-try {
-    if (!empty($rows)) {
-        $comma = ';';
-        $quote = '"';
-        $CR = "\015\012";
-        // Make csv rows for field name
-        $i = 0;
-        $fields = $rows[0];
-
-        $cnt_fields = count($fields);
-        $csv_fields = '';
-
-        foreach ($fields as $name => $val) {
-            $i++;
-            if ($cnt_fields <= $i) $comma = '';
-            $csv_fields .= $quote . $name . $quote . $comma;
-
-
-        }
-
-        // Make csv rows for data
-        $csv_values = '';
-        foreach ($rows as $row) {
-            $i = 0;
-            $comma = ';';
-            foreach ($row as $name => $val) {
-                $i++;
-                if ($cnt_fields <= $i) $comma = '';
-                $csv_values .= $quote . $val . $quote . $comma;
+                foreach ($elenco_campi_per_csv_da_back_end as $nuovacolonna => $nuovovalore) {
+                    if(array_key_exists($nuovovalore,$rowfields))
+                        $row[$nuovovalore]=$rowfields[$nuovovalore] ;
+                }
+                array_push($added_colums_rows, $row);
             }
-            $csv_values .= $CR;
+            $rows = $added_colums_rows;
         }
 
-        //echo ($csv_values);
+        $csv_row_filters=['fields'];//CAMPI DA NON MOSTRARE NEL CSV
+       foreach ($rows as &$row) {
+            foreach ($csv_row_filters as $csv_row_filter){
+                unset($row[$csv_row_filter]);
+            }
+        }
+        try {
+            if (!empty($rows)) {
+                $comma = ';';
+                $quote = '"';
+                $CR = "\015\012";
+                // Make csv rows for field name
+                $i = 0;
+                $fields = $rows[0];
 
-        $csv_save = $csv_fields . $CR . $csv_values;
-    }
-    echo $csv_save;
+                $cnt_fields = count($fields);
+                $csv_fields = '';
+
+                foreach ($fields as $name => $val) {
+                    $i++;
+                    if ($cnt_fields <= $i) $comma = '';
+                    $csv_fields .= $quote . $name . $quote . $comma;
 
 
-    $filename = $this->get_CourseName($corso_id);
+                }
 
-    $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
-    $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
-    $filename = strtolower($filename);
-    $filename = trim($filename, '_');
-    $filename = preg_replace('~[^-\w]+~', '', $filename);
-    $filename .= "-" . date("d/m/Y");
-    $filename = $filename . ".csv";
+                // Make csv rows for data
+                $csv_values = '';
+                foreach ($rows as $row) {
+                    $i = 0;
+                    $comma = ';';
+                    foreach ($row as $name => $val) {
+                        $i++;
+                        if ($cnt_fields <= $i) $comma = '';
+                        $csv_values .= $quote . $val . $quote . $comma;
+                    }
+                    $csv_values .= $CR;
+                }
 
-    //var_dump($filename);die;
+                //echo ($csv_values);
+
+                $csv_save = $csv_fields . $CR . $csv_values;
+            }
+            echo $csv_save;
 
 
-    header("Content-Type: text/plain");
-    header("Content-disposition: attachment; filename=$filename");
-    header("Content-Transfer-Encoding: binary");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-}catch (exceptions $exception){
-    echo $exception->getMessage();
-}
+            $filename = $this->get_CourseName($corso_id);
+
+            $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
+            $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
+            $filename = strtolower($filename);
+            $filename = trim($filename, '_');
+            $filename = preg_replace('~[^-\w]+~', '', $filename);
+            $filename .= "-" . date("d/m/Y");
+            $filename = $filename . ".csv";
+
+            //var_dump($filename);die;
+
+
+            header("Content-Type: text/plain");
+            header("Content-disposition: attachment; filename=$filename");
+            header("Content-Transfer-Encoding: binary");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+        }catch (exceptions $exception){
+            echo $exception->getMessage();
+        }
         $this->_japp->close();
     }
 

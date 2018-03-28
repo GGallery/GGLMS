@@ -95,6 +95,7 @@ class gglmsModelContenuto extends JModelLegacy {
             if (empty($data))
             {
                 DEBUGG::log('contenuto non trovato', 'error in getContenuto' , 0,1,0);
+                return null;
             }
         }
         catch (Exception $e)
