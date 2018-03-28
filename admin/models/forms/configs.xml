@@ -331,6 +331,17 @@
 			<option value="1">ON</option>
 		</field>
 
+		<field
+				name="filtro_date_corsi"
+				type="radio"
+				class="btn-group"
+				label="Applicazione filtro date per corsi"
+				labelclass="control-label"
+				default="0"
+		>
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
 
 		<field 	name="campi_csv"
 				  type="listafieldxcsv"

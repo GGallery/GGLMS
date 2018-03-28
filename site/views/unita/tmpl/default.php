@@ -26,7 +26,7 @@ if($this->sottounita) {
         if($this->unita->_params->get('visualizza_solo_mieicorsi') && !$unita->access()){
 //            echo "non puoi vedere". $unita->titolo;
         }
-        elseif(($unita->data_inizio<=date("Y-m-d") && $unita->data_fine>=date("Y-m-d"))||$unita->is_corso!=1){
+        elseif(($unita->data_inizio<=date("Y-m-d") && $unita->data_fine>=date("Y-m-d"))||$unita->is_corso!=1 || $this->unita->_params->get('filtro_date_corsi')==0){
 
             try {
                 $count++;
