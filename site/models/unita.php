@@ -407,7 +407,7 @@ class gglmsModelUnita extends JModelLegacy {
             return $data." minuti";
         }
 
-        if($data>60){
+        if($data>=60){
 
             return ((int)($data/60)).'h '.($data-((int)($data/60)*60)).'m ';
         }
