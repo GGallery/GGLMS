@@ -327,5 +327,40 @@ class gglmsModelunita extends JModelAdmin {
 
     }
 
+    public function verify_id_completamento_corso($pk){
+
+        try{
+            $db = JFactory::getDBO();
+            $query=$db->getQuery(true);
+            $query->select('is_corso, id_contenuto_completamento');
+            $query->from('#__gg_unit');
+            $query->where('id='.$pk);
+            $db->setQuery($query);
+            $idcontenuto=$db->loadObjectList();
+            if($idcontenuto[0]->is_corso==0){
+                return true;
+            }elseif($idcontenuto[0]->id_contenuto_completamento){
+                $query=$db->getQuery(true);
+                $query->select('count(*)');
+                $query->from('#__gg_contenuti');
+                $query->where('id='.$idcontenuto[0]->id_contenuto_completamento);
+                $db->setQuery($query);
+                $count=$db->loadResult();
+                if($count>0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+
+
+        }catch(Exception $e){
+            DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
+        }
+
+    }
+
 
 }

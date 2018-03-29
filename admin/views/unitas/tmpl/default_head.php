@@ -24,7 +24,9 @@ defined('_JEXEC') or die;
 	<th>
 		<?php echo JText::_('COM_GGLMS_NOMEUNITA')?>
 	</th>
-
+    <th>
+        Contenuto compl.
+    </th>
 	<th>
 		Corso
 	</th>

@@ -11,19 +11,22 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modellist');
 
-class gglmsModelunitas extends JModelList {
+class gglmsModelunitas extends JModelList
+{
 
     //Add this handy array with database fields to search in
-    protected $searchInFields = array( 'titolo', 'alias');
+    protected $searchInFields = array('titolo', 'alias');
 
 //Override construct to allow filtering and ordering on our fields
-    public function __construct($config = array()) {
+    public function __construct($config = array())
+    {
         $config['filter_fields'] = array_merge($this->searchInFields, array('a.categoria'));
         $config['filter_fields'] = array_merge($this->searchInFields, array('a.idcongresso'));
         parent::__construct($config);
     }
 
-    protected function getListQuery() {
+    protected function getListQuery()
+    {
         // Create a new query object.
         $db = JFactory::getDBO();
         $query = $db->getQuery(true);
@@ -36,7 +39,6 @@ class gglmsModelunitas extends JModelList {
 //                ->order($db->escape($this->getState('list.ordering', 'pa.id')) . ' ' .
 //                        $db->escape($this->getState('list.direction', 'desc')))
         ;
-
 
 
         // Filter search // Extra: Search more than one fields and for multiple words
@@ -73,8 +75,6 @@ class gglmsModelunitas extends JModelList {
     }
 
 
-
-
     /**
      * Method to auto-populate the model state.
      *
@@ -82,7 +82,8 @@ class gglmsModelunitas extends JModelList {
      *
      * @since       1.6
      */
-    protected function populateState($ordering = null, $direction = null) {
+    protected function populateState($ordering = null, $direction = null)
+    {
         // Initialise variables.
         $app = JFactory::getApplication('administrator');
 
@@ -104,5 +105,5 @@ class gglmsModelunitas extends JModelList {
         $this->setState('filter.congresso', $state);
         parent::populateState('a.congresso', 'asc');
     }
-
 }
+
