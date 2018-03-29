@@ -366,6 +366,60 @@ class gglmsModelReport extends JModelLegacy {
 
     }
 
+    public function getUtentiInScadenzaCorso($corso_id){
+
+        try {
+            $result=null;
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true);
+            $query->select('id,accesso,id_event_booking, titolo');
+            $query->from('#__gg_unit');
+            $query->where('is_corso=1 and IF(date(now())>DATE_ADD(data_fine, INTERVAL -30 DAY),1,0)=1 and id='.$corso_id );
+            $db->setQuery($query);
+            $corso=$db->loadObjectList();
+            if($corso) {
+                $corso = $corso[0];
+
+                switch ($corso->accesso) {
+
+                    case 'iscrizioneeb':
+                        $query = $db->getQuery(true);
+                        $query->select('*');
+                        $query->from('#__gg_report_users');
+                        $query->where('id_event_booking=' . $corso->id_event_booking . ' and id not in (select id_anagrafica from #__gg_view_stato_user_corso where id_corso=' . $corso->id . ' and stato=1)');
+
+                        $db->setQuery($query);
+                        $result['titolo'] = $corso->titolo;
+                        $result['rows'] = $db->loadObjectList();
+
+                        break;
+                    case 'gruppo':
+                        $query = $db->getQuery(true);
+                        $query->select('anagrafica.*');
+                        $query->from('#__gg_report_users as anagrafica');
+                        $query->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
+                        $query->join('inner', '#__gg_usergroup_map as m on m.idgruppo=um.group_id');
+                        $query->where('m.idunita=' . $corso->id . ' and anagrafica.id not in ( select id_anagrafica from #__gg_view_stato_user_corso where id_corso=' . $corso->id . ' and stato=1)');
+
+                        $db->setQuery($query);
+                        $result['titolo'] = $corso->titolo;
+                        $result['rows'] = $db->loadObjectList();
+
+
+
+                        break;
+                }
+
+            }
+            return $result;
+        }catch (Exception $e){
+
+            echo $e->getMessage();
+        }
+
+
+    }
+
 
 }
 

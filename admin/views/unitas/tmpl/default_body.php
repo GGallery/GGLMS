@@ -7,6 +7,7 @@
  */
 // No direct access to this file
 defined('_JEXEC') or die;
+$obj=new gglmsModelunita();
 ?>
 <?php foreach ($this->items as $i => $item): ?>
     <tr class="row<?php echo $i % 2; ?>">
@@ -32,6 +33,12 @@ defined('_JEXEC') or die;
                 <?php echo $item->titolo; ?>
             </a>
 
+        </td>
+        <td>
+            <?php
+            if(!$obj->verify_id_completamento_corso($item->id))
+                echo '<span class="icon-question-sign" style="font-size:24px; color:red;padding-left: 45px;"> </span>';
+            ?>
         </td>
         <td>
             <?php

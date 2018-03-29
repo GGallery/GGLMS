@@ -1,4 +1,4 @@
-<?php
+  <?php
 
 /**
  * @package		Joomla.Tutorials
@@ -48,7 +48,7 @@ class gglmsModelconfigs extends JModelAdmin {
 
                 $data->$key = $value;
 
-                if($key=='id_gruppi_visibili' || $key=='campo_event_booking_campi_csv' || $key=='campo_community_builder_campi_csv'|| $key=='alert_lista_corsi')
+                if($key=='id_gruppi_visibili' || $key=='alert_lista_corsi' || $key=='campi_csv')
                     $data->$key = explode(",", $value);
 
 
@@ -116,6 +116,8 @@ class gglmsModelconfigs extends JModelAdmin {
 
     public function store($data)
     {
+
+
         $db = $this->getDbo();
         $db->truncateTable('#__gg_configs');
         $row = $this->getTable('Configs');

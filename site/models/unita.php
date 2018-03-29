@@ -21,18 +21,20 @@ require_once JPATH_COMPONENT . '/models/report.php';
  * @package    Joomla.Components
  * @subpackage WebTV
  */
-class gglmsModelUnita extends JModelLegacy {
+class gglmsModelUnita extends JModelLegacy
+{
 
     private $_dbg;
     private $_app;
     private $_userid;
     public $_params;
-    protected  $_db;
-    private $unitas=array();
-    public $contenuti=array();
+    protected $_db;
+    private $unitas = array();
+    public $contenuti = array();
 
 
-    public function __construct($config = array()) {
+    public function __construct($config = array())
+    {
         parent::__construct($config);
 
         $user = JFactory::getUser();
@@ -45,7 +47,6 @@ class gglmsModelUnita extends JModelLegacy {
 
 
     }
-
 
 
     protected function populateState()
@@ -65,32 +66,27 @@ class gglmsModelUnita extends JModelLegacy {
         $this->setState('params', $params);
 
 
-
         $this->setState('filter.language', JLanguageMultilang::isEnabled());
     }
 
     public function getUnita($pk = null)
     {
-        $pk = (!empty($pk)) ? $pk : (int) $this->getState('unita.id');
-        try
-        {
+        $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
+        try {
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_unit as u')
-                ->where('u.id = ' . (int) $pk)
+                ->where('u.id = ' . (int)$pk)
                 ->where('u.pubblicato = 1');
 
 
             $this->_db->setQuery($query);
             $unit = $this->_db->loadObject('gglmsModelUnita');
 
-            if (empty($unit))
-            {
-                return JError::raiseError(404, JText::_('Unita non disponibile -->').(string)$query);
+            if (empty($unit)) {
+                return JError::raiseError(404, JText::_('Unita non disponibile -->') . (string)$query);
             }
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::log($e, 'getUnita');
         }
 
@@ -100,24 +96,20 @@ class gglmsModelUnita extends JModelLegacy {
 
     public function getSottoUnita($pk = null)
     {
-        if($pk)
+        if ($pk)
             $this->id = $pk;
 
-        try
-        {
+        try {
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_unit as u')
                 ->where('u.unitapadre  = ' . $this->id)
                 ->where('u.pubblicato = 1')
-                ->order('ordinamento')
-            ;
+                ->order('ordinamento');
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('', 'gglmsModelUnita');
 
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::log($e, 'getSottoUnita');
         }
 
@@ -126,11 +118,9 @@ class gglmsModelUnita extends JModelLegacy {
     }
 
 
-
     public function getContenuti()
     {
-        try
-        {
+        try {
             $query = $this->_db->getQuery(true)
                 ->select('c.*')
                 ->from('#__gg_unit_map as m')
@@ -143,9 +133,7 @@ class gglmsModelUnita extends JModelLegacy {
             $this->_db->setQuery($query);
             $contenuti = $this->_db->loadObjectList('', 'gglmsModelContenuto');
 
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::log($e, 'getContenuti');
 
         }
@@ -153,33 +141,34 @@ class gglmsModelUnita extends JModelLegacy {
     }
 
 
+    public function isUnitaCompleta($pk = null, $userid = null)
+    {
 
-    public function isUnitaCompleta($pk=null,$userid=null){
-
-        $pk = (!empty($pk)) ? $pk : (int) $this->getState('unita.id');
+        $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
         $this->getSottoUnitaRic($pk);//CHIAMATA ALLA FUNZIONE RICORSIVA
-        $result=$this->getContenuti($pk);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
-        if($result) {
+        $result = $this->getContenuti($pk);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
+        if ($result) {
 
             foreach ($result as $res) {
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
             }
         }
-        foreach ($this->contenuti as $contenuto){   //ANALISI DI OGNI CONTENUTO: APPENA NE TROVI UNO NON COMPLETO, ESCI FALSE
+        foreach ($this->contenuti as $contenuto) {   //ANALISI DI OGNI CONTENUTO: APPENA NE TROVI UNO NON COMPLETO, ESCI FALSE
 
-            $contenutoObj=new gglmsModelContenuto();
-            $obj=$contenutoObj->getContenuto($contenuto->id);
-            if($obj->getStato($userid)->completato==0) {
+            $contenutoObj = new gglmsModelContenuto();
+            $obj = $contenutoObj->getContenuto($contenuto->id);
+            if ($obj->getStato($userid)->completato == 0) {
                 return false;
             }
         }
         return true;
     }
 
-    public function getSottoUnitaRic($pk=null){
+    public function getSottoUnitaRic($pk = null)
+    {
 
-        $result=$this->getSottoUnita($pk);
-        if($result!=null) {
+        $result = $this->getSottoUnita($pk);
+        if ($result != null) {
             if ($this->unitas == null) {
                 $this->unitas = $result;
             } else {
@@ -190,7 +179,7 @@ class gglmsModelUnita extends JModelLegacy {
 
         foreach ($result as $unita) {
 
-            $result=$this->getContenuti();
+            $result = $this->getContenuti();
             foreach ($result as $res) {
 
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
@@ -200,51 +189,49 @@ class gglmsModelUnita extends JModelLegacy {
         return;
     }
 
-    public function access(){
+    public function access()
+    {
 
-        if($this->is_corso || $this->id == 1)
+        if ($this->is_corso || $this->id == 1)
             return $this->access_tipology($this);
         else
             return $this->access_tipology($this->find_corso($this->unitapadre));
 
     }
 
-    public function find_corso($check){
-        try
-        {
+    public function find_corso($check)
+    {
+        try {
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_unit as u')
-                ->where('u.id  = ' . $check)
-            ;
+                ->where('u.id  = ' . $check);
             $this->_db->setQuery($query);
             $data = $this->_db->loadObject();
 
-            if($data->pubblicato==0){ //APPENA UNA UNITA' SUPERIORE NON E' PUBBLICATA, ESCI
+            if ($data->pubblicato == 0) { //APPENA UNA UNITA' SUPERIORE NON E' PUBBLICATA, ESCI
                 return $data;
             }
 
 
-            if($data->id == 1 && !$data->is_corso) {
+            if ($data->id == 1 && !$data->is_corso) {
                 $this->_app->enqueueMessage('L\'Unita alla quale hai tentato di accedere e nessuna di quelle dei livelli superiori sono impostate come UNITA-CORSO. Finchè non sarà definito il corso padre non potrai accedere a questa unità', 'Error');
                 $this->_app->redirect('index.php');
 
             }
             return ($data->is_corso) ? $data : $this->find_corso($data->unitapadre);
 
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $this->setError($e);
         }
     }
 
     public function access_tipology($corso)
     {
-        $access_list = explode(",",$corso->accesso);
+        $access_list = explode(",", $corso->accesso);
 
-        if($corso->accesso) {
-            foreach ($access_list as $metodo ) {
+        if ($corso->accesso) {
+            foreach ($access_list as $metodo) {
                 switch ($metodo) {
                     case 'coupon':
                         return $this->check_Standard_Coupon($corso);
@@ -283,13 +270,11 @@ class gglmsModelUnita extends JModelLegacy {
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
 
-            if ($data == 0)
-            {
+            if ($data == 0) {
                 $message = "Inserire il coupon per accedere a questa unita";
                 $url = JRoute::_('index.php?option=com_gglms&view=coupon');
                 $this->_app->redirect($url, $message);
-            }
-            else
+            } else
                 return true;
 
         } catch (Exception $e) {
@@ -305,13 +290,12 @@ class gglmsModelUnita extends JModelLegacy {
                 ->from('#__gg_coupon as c')
                 ->join('inner', '#__eb_field_values as v on c.coupon = v.field_value')
                 ->join('inner', '#__eb_registrants as r on v.registrant_id = r.id')
-                ->where('v.field_id = '. $this->_params->get('campo_event_booking_auto_abilitazione_coupon'))
+                ->where('v.field_id = ' . $this->_params->get('campo_event_booking_auto_abilitazione_coupon'))
                 ->where('r.user_id= ' . $this->_userid)
                 ->where('r.published = 1 ')
                 ->where('r.event_id = ' . $corso->id_event_booking)
                 ->where('abilitato = 1')
-                ->where('FIND_IN_SET('.$corso->id .', corsi_abilitati)')
-            ;
+                ->where('FIND_IN_SET(' . $corso->id . ', corsi_abilitati)');
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
@@ -320,9 +304,7 @@ class gglmsModelUnita extends JModelLegacy {
                 return false;
             else
                 return true;
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $this->setError($e);
         }
     }
@@ -334,10 +316,9 @@ class gglmsModelUnita extends JModelLegacy {
             $query = $this->_db->getQuery(true)
                 ->select('count(id)')
                 ->from('#__eb_registrants as r')
-                ->where('r.event_id = '. $corso->id_event_booking)//parametrizzare con campo EB
+                ->where('r.event_id = ' . $corso->id_event_booking)//parametrizzare con campo EB
                 ->where('r.user_id= ' . $this->_userid)
-                ->where('r.published = 1 ')
-            ;
+                ->where('r.published = 1 ');
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
@@ -348,9 +329,7 @@ class gglmsModelUnita extends JModelLegacy {
                 return false;
             else
                 return true;
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::query($query);
             DEBUGG::log($e, 'check_iscrizione_eb', 1);
 
@@ -365,10 +344,9 @@ class gglmsModelUnita extends JModelLegacy {
             $query = $this->_db->getQuery(true)
                 ->select('count(idunita)')
                 ->from('#__gg_usergroup_map AS ug')
-                ->join('inner','#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
-                ->where('ug.idunita = '. $corso->id)//parametrizzare con campo EB
-                ->where('uj.user_id= ' . $this->_userid)
-            ;
+                ->join('inner', '#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
+                ->where('ug.idunita = ' . $corso->id)//parametrizzare con campo EB
+                ->where('uj.user_id= ' . $this->_userid);
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
@@ -377,44 +355,37 @@ class gglmsModelUnita extends JModelLegacy {
                 return false;
             else
                 return true;
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::query($query);
             DEBUGG::log($e, 'check_iscrizione_gruppo', 1);
 
         }
     }
 
-    public function get_durata_unita($pk=null){
+    public function get_durata_unita($pk = null)
+    {
 
-        $pk = (!empty($pk)) ? $pk : (int) $this->getState('unita.id');
-        $repotObj=new gglmsModelReport();
-        $contenuti=$repotObj->getContenutiArrayList($pk);
+        $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
+        $repotObj = new gglmsModelReport();
+        $contenuti = $repotObj->getContenutiArrayList($pk);
 
-        $contenuti=implode(',',array_column($contenuti,'id'));
+        $contenuti = implode(',', array_column($contenuti, 'id'));
         $query = $this->_db->getQuery(true)
             ->select('SUM(durata)')
             ->from('#__gg_contenuti AS c')
-            ->where('c.id in ('.$contenuti.')')
-
-        ;
+            ->where('c.id in (' . $contenuti . ')');
 
         $this->_db->setQuery($query);
         $data = $this->_db->loadResult();
-        if ($data<60){
-
-            return $data." minuti";
-        }
-
-        if($data>60){
-
-            return ((int)($data/60)).'h '.($data-((int)($data/60)*60)).'m ';
-        }
-
-
+        return self::convertiDurata($data*60);
     }
 
-
+    public static function convertiDurata($durata)
+    {
+        $m = floor(($durata % 3600) / 60);
+        $s = ($durata % 3600) % 60;
+        $result = sprintf('%02d:%02d', $m, $s);
+        return $result;
+    }
 }
 

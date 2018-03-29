@@ -94,13 +94,14 @@ class gglmsModelContenuto extends JModelLegacy {
 
             if (empty($data))
             {
-                DEBUGG::query($query, 'query get contenuto' ,0 );
+                DEBUGG::log('contenuto non trovato', 'error in getContenuto' , 0,1,0);
+                return null;
             }
         }
         catch (Exception $e)
         {
             DEBUGG::query($query, 'query get contenuto');
-            DEBUGG::log($e, 'exception');
+            DEBUGG::log($e->getMessage(), 'error in getContenuto' , 0,1,0);
         }
         return $data;
 
@@ -283,164 +284,178 @@ class gglmsModelContenuto extends JModelLegacy {
 
             return $data;
         }catch (Exception $e){
-            DEBUGG::log($e, 'getUnitPadre', 1);
+            DEBUGG::log($e->getMessage(), 'error in getUnitPAdre' , 0,1,0);
         }
     }
 
     public function getStato($user_id = null){
 
+        try {
 
-        //Se passo come parametro lo user_id, invece che avere lo stato per l'utente corrente lo avrò per quell'id. Mi serve per i report
-        if($user_id)
-            $this->_userid = $user_id;
-
+            //Se passo come parametro lo user_id, invece che avere lo stato per l'utente corrente lo avrò per quell'id. Mi serve per i report
+            if ($user_id)
+                $this->_userid = $user_id;
 
 
 //		RESTITUISCO UN OGGETTO STATO
-        switch($this->tipologia){
-            case 3: //allegati
-                $data = $this->getStato_allegati();
-                return $data;
-                break;
+            switch ($this->tipologia) {
+                case 3: //allegati
+                    $data = $this->getStato_allegati();
+                    return $data;
+                    break;
 
-            case 1: //videoslide
-            case 2: //solovideo
-            case 4: //scorm
-            case 6: //testuale
-            case 9: //pdfsingolo
-                $data = $this->getStato_scorm();
-                return $data;
-                break;
+                case 1: //videoslide
+                case 2: //solovideo
+                case 4: //scorm
+                case 6: //testuale
+                case 9: //pdfsingolo
+                    $data = $this->getStato_scorm();
+                    return $data;
+                    break;
 
-            case 5:	//attestato
-                $data = $this->getStato_attestato();
-                return $data;
-                break;
+                case 5:    //attestato
+                    $data = $this->getStato_attestato();
+                    return $data;
+                    break;
 
-            case 7: //quizdeluxe
-                $data = $this->getStato_quiz_deluxe();
+                case 7: //quizdeluxe
+                    $data = $this->getStato_quiz_deluxe();
 
-                return $data;
-                break;
+                    return $data;
+                    break;
 
-            case 8:  //ss0
-                return $this->getStato_SSO();
-                break;
+                case 8:  //ss0
+                    return $this->getStato_SSO();
+                    break;
 
+            }
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getStato' , 0,1,0);
         }
     }
 
     private function getStato_SSO(){
-
-        $stato = new gglmsModelStatoContenuto();
-        return $stato->format_sso();
-
+        try {
+            $stato = new gglmsModelStatoContenuto();
+            return $stato->format_sso();
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in geStato_SSO' , 0,1,0);
+        }
     }
 
     private function getStato_attestato(){
 
-        if($this->_userid == null) {
-            JFactory::getApplication()->enqueueMessage('Impossibile visualizzare il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
-            return 0;
+        try {
+            if ($this->_userid == null) {
+                JFactory::getApplication()->enqueueMessage('Impossibile visualizzare il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                return 0;
+            }
+
+            $query = $this->_db->getQuery(true)
+                ->select('varName, varValue')
+                ->from('#__gg_scormvars as s')
+                ->where('scoid = ' . $this->id)
+                ->where('s.userid = ' . $this->_userid);
+
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadObjectList('varName');
+
+            $stato = new gglmsModelStatoContenuto();
+
+            return $stato->format_attestato($data);
+
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getStato_attestato' , 0,1,0);
         }
-
-        $query = $this->_db->getQuery(true)
-            ->select('varName, varValue')
-            ->from('#__gg_scormvars as s')
-            ->where('scoid = ' . $this->id)
-            ->where('s.userid = ' . $this->_userid)
-        ;
-
-
-        $this->_db->setQuery($query);
-        $data = $this->_db->loadObjectList('varName');
-
-        $stato = new gglmsModelStatoContenuto();
-
-        return $stato->format_attestato($data);
-
-
     }
 
     private function getStato_quiz_deluxe(){
 
-        if($this->id_quizdeluxe == null) {
-            JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo.'""', 'error');
-            return 0;
+        try {
+            if ($this->id_quizdeluxe == null) {
+                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '""', 'error');
+                return 0;
+            }
+
+            if ($this->_userid == null) {
+                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                return 0;
+            }
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__quiz_r_student_quiz as q')
+                ->where('q.c_quiz_id = ' . (int)$this->id_quizdeluxe)
+                ->where('q.c_student_id = ' . $this->_userid)
+                ->order('q.c_passed desc')
+                ->order('c_date_time')
+                ->setLimit(1);
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadObject();
+
+            $stato = new gglmsModelStatoContenuto();
+
+            return $stato->format_quiz_deluxe($data);
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getStato_quiz_deluxe' , 0,1,0);
         }
-
-        if($this->_userid == null) {
-            JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
-            return 0;
-        }
-
-        $query = $this->_db->getQuery(true)
-            ->select('*')
-            ->from('#__quiz_r_student_quiz as q')
-            ->where('q.c_quiz_id = ' . (int) $this->id_quizdeluxe)
-            ->where('q.c_student_id = ' . $this->_userid)
-            ->order('q.c_passed desc')
-            ->order('c_date_time')
-            ->setLimit(1);
-
-        $this->_db->setQuery($query);
-        $data = $this->_db->loadObject();
-
-        $stato = new gglmsModelStatoContenuto();
-
-        return $stato->format_quiz_deluxe($data);
-
     }
 
     private function getStato_allegati(){
 
-        if($this->_userid == null) {
+        try {
+            if ($this->_userid == null) {
 //			COMMENTATO IN FASE DI SVIL☺PO
-            JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
-            return 0;
-        }
+                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                return 0;
+            }
 
-        $query = $this->_db->getQuery(true)
-            ->select('varName, varValue')
-            ->from('#__gg_scormvars as s')
-            ->where('scoid = ' . $this->id)
-            ->where('s.userid = ' . $this->_userid)
-        ;
+            $query = $this->_db->getQuery(true)
+                ->select('varName, varValue')
+                ->from('#__gg_scormvars as s')
+                ->where('scoid = ' . $this->id)
+                ->where('s.userid = ' . $this->_userid);
 
 
-        $this->_db->setQuery($query);
-        $data = $this->_db->loadObjectList('varName');
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadObjectList('varName');
 
 //		DEBUGG::log($data, 'data getStato_allegati');
 
-        $stato = new gglmsModelStatoContenuto();
+            $stato = new gglmsModelStatoContenuto();
 
-        return $stato->format_allegati($data);
-
+            return $stato->format_allegati($data);
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getStato_allegati' , 0,1,0);
+        }
     }
 
     private function getStato_scorm(){
 
-        if($this->_userid == null) {
-            JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
-            return 0;
+        try {
+            if ($this->_userid == null) {
+                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                return 0;
+            }
+
+            $query = $this->_db->getQuery(true)
+                ->select('varName, varValue,DATE(timestamp) as TimeStamp')
+                ->from('#__gg_scormvars as s')
+                ->where('scoid = ' . $this->id)
+                ->where('s.userid = ' . $this->_userid);
+
+            //echo $query;
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadObjectList('varName');
+            $stato = new gglmsModelStatoContenuto();
+
+            return $stato->format_scorm($data);
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getStato_scorm' , 0,1,0);
         }
-
-        $query = $this->_db->getQuery(true)
-            ->select('varName, varValue,DATE(timestamp) as TimeStamp')
-            ->from('#__gg_scormvars as s')
-            ->where('scoid = ' . $this->id)
-            ->where('s.userid = ' . $this->_userid)
-        ;
-
-        //echo $query;
-
-        $this->_db->setQuery($query);
-        $data = $this->_db->loadObjectList('varName');
-        $stato = new gglmsModelStatoContenuto();
-
-        return $stato->format_scorm($data);
-
     }
 
     public function getFiles(){
@@ -473,44 +488,48 @@ class gglmsModelContenuto extends JModelLegacy {
 
     public function setStato(){
 
-        if($this->tipologia == 4)
-            return;
+        try {
+            if ($this->tipologia == 4)
+                return;
 
-        $stato_attuale= $this->getStato();
+            $stato_attuale = $this->getStato();
 
-        $stato = new gglmsModelStatoContenuto();
-        $tmp = new stdClass();
+            $stato = new gglmsModelStatoContenuto();
+            $tmp = new stdClass();
 
-        $tmp->scoid = $this->id;
-        $tmp->userid = $this->_userid;
+            $tmp->scoid = $this->id;
+            $tmp->userid = $this->_userid;
 
-        //ultima visualizzazione
-        $tmp->varName = 'cmi.core.last_visit_date';
-        $tmp->varValue = date('Y-m-d');
-        $stato->setStato($tmp);
-
-        //contatore
-        $tmp->varName = 'cmi.core.count_views';
-        $tmp->varValue= (int)$stato_attuale->visualizzazioni+1;
-        $stato->setStato($tmp);
-
-        //bookmark
-        if(!$stato_attuale->bookmark) {
-            $tmp->varName = 'bookmark';
-            $tmp->varValue = 0;
+            //ultima visualizzazione
+            $tmp->varName = 'cmi.core.last_visit_date';
+            $tmp->varValue = date('Y-m-d');
             $stato->setStato($tmp);
-        }
 
-        //stato
-        if(!$stato_attuale->completato) {
-            $tmp->varName = 'cmi.core.lesson_status';
-
-            if ($this->mod_track == 1)
-                $tmp->varValue = 'completed';
-            else
-                $tmp->varValue = 'init';
-
+            //contatore
+            $tmp->varName = 'cmi.core.count_views';
+            $tmp->varValue = (int)$stato_attuale->visualizzazioni + 1;
             $stato->setStato($tmp);
+
+            //bookmark
+            if (!$stato_attuale->bookmark) {
+                $tmp->varName = 'bookmark';
+                $tmp->varValue = 0;
+                $stato->setStato($tmp);
+            }
+
+            //stato
+            if (!$stato_attuale->completato) {
+                $tmp->varName = 'cmi.core.lesson_status';
+
+                if ($this->mod_track == 1)
+                    $tmp->varValue = 'completed';
+                else
+                    $tmp->varValue = 'init';
+
+                $stato->setStato($tmp);
+            }
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in setStato' , 0,1,0);
         }
     }
 

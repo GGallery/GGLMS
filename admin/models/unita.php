@@ -18,6 +18,7 @@ class gglmsModelunita extends JModelAdmin {
     private $contenuti_inseriti=0;
     private $unita_inserite=0;
     private $array_corrispondenze=[];
+    private $array_corrispondenze_contenuti=[];
     private $id_completamento;
     private $newid_completamento;
     private $oldcontentid;
@@ -81,6 +82,7 @@ class gglmsModelunita extends JModelAdmin {
              $this->id_completamento = $this->getIdCompletamento($pk);
              $this->clonaUnita($pk);
              $this->updateUnita($pk);
+             $this->updateContenuti();
              return "unita inserite: " . $this->unita_inserite . " contenuti inseriti: " . $this->contenuti_inseriti;
          }catch (Exception $e){
 
@@ -135,6 +137,11 @@ class gglmsModelunita extends JModelAdmin {
                 $db->setQuery($query);
                 $db->execute();
                 $this->contenuti_inseriti++;
+                $query = "select max(id) from #__gg_contenuti";
+                $db->setQuery($query);
+                $newid_contenuto = $db->loadResult();
+                array_push($this->array_corrispondenze_contenuti,['vecchioid'=>$contenuto['idcontenuto'],'nuovoid'=>$newid_contenuto]);
+
 
                 $query = 'select ordinamento from #__gg_unit_map where idcontenuto=' . $contenuto['idcontenuto'] . ' limit 1';
                 $db->setQuery($query);
@@ -282,24 +289,78 @@ class gglmsModelunita extends JModelAdmin {
             DEBUGG::log($e->getMessage(), 'update unita',0,1,0);
         }
     }
-    function setAlias($text) {
 
 
-        $text = preg_replace('~[^\\pL\d]+~u', '_', $text);
+    private function updateContenuti(){
 
-        // transliterate
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        try {
+            $db = JFactory::getDBO();
 
-        // lowercase
-        $text = strtolower($text);
+            foreach ($this->array_corrispondenze_contenuti as $contenuto) {
 
-        // remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
+                $query = 'select prerequisiti from #__gg_contenuti where id=' . $contenuto['nuovoid'];
+                $db->setQuery($query);
+                $prerequisiti = $db->loadResult();
+                $nuovi_prerequisiti = [];
+                $array_prerequisiti = explode(',', $prerequisiti);
+                foreach ($array_prerequisiti as $prerequisito) {
 
-        // trim
-        $text = trim($text, '_');
+                    foreach ($this->array_corrispondenze_contenuti as $contenuto_) {
 
-        return $text;
+                        if ($prerequisito == $contenuto_['vecchioid'])
+                            array_push($nuovi_prerequisiti, $contenuto_['nuovoid']);
+
+                    }
+
+
+                }
+                $query = 'update #__gg_contenuti set prerequisiti =\'' . implode(',', $nuovi_prerequisiti) . '\' where id=' . $contenuto['nuovoid'];
+
+                $db->setQuery($query);
+                $db->execute();
+
+            }
+        }catch(Exception $e){
+
+            DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
+        }
+
     }
+
+    public function verify_id_completamento_corso($pk){
+
+        try{
+            $db = JFactory::getDBO();
+            $query=$db->getQuery(true);
+            $query->select('is_corso, id_contenuto_completamento');
+            $query->from('#__gg_unit');
+            $query->where('id='.$pk);
+            $db->setQuery($query);
+            $idcontenuto=$db->loadObjectList();
+            if($idcontenuto[0]->is_corso==0){
+                return true;
+            }elseif($idcontenuto[0]->id_contenuto_completamento){
+                $query=$db->getQuery(true);
+                $query->select('count(*)');
+                $query->from('#__gg_contenuti');
+                $query->where('id='.$idcontenuto[0]->id_contenuto_completamento);
+                $db->setQuery($query);
+                $count=$db->loadResult();
+                if($count>0){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+
+
+        }catch(Exception $e){
+            DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
+        }
+
+    }
+
 
 }

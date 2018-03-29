@@ -22,58 +22,63 @@ if($this->sottounita) {
 
     foreach ($this->sottounita as $unita) {
 
+
         if($this->unita->_params->get('visualizza_solo_mieicorsi') && !$unita->access()){
 //            echo "non puoi vedere". $unita->titolo;
         }
-        else{
-            $count++;
+        elseif(($unita->data_inizio<=date("Y-m-d") && $unita->data_fine>=date("Y-m-d"))||$unita->is_corso!=1 || $this->unita->_params->get('filtro_date_corsi')==0){
 
-            //var_dump($this->unita->isUnitacompleta());
+            try {
+                $count++;
 
-            ?>
-            <div class="g-block <?php echo $this->unita->_params->get('larghezza_box_unita') ?> ">
-                <div class="g-block interno">
+                //var_dump($this->unita->isUnitacompleta());
 
-                    <?php
-                    if (file_exists('../mediagg/images/unit/'. $unita->id . '.jpg'))
-                        $img =  '../mediagg/images/unit/' . $unita->id . '.jpg';
-                    else
-                        $img =  'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+                ?>
+                <div class="g-block <?php echo $this->unita->_params->get('larghezza_box_unita') ?> ">
+                    <div class="g-block interno">
 
-                    $unitaObj=new gglmsModelUnita();
-                    if(  $unitaObj->isUnitacompleta($unita->id))
-
-                        echo '<div class="corner corner_green"></div>';
-                    else
-                        echo '<div class="corner corner_yellow"></div>';
-
-                    ?>
-
-                    <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias='.$unita->alias )?>">
-                        <div class="rt-image" style="background-image:url(<?php  echo $img; ?>)">
-                        </div>
-                    </a>
-
-
-                    <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias='.$unita->alias )?>">
-                        <div class="title boxinfo_unita "><b><?php echo $unita->titolo; ?></b></div>
-                    </a>
-
-
-                    <?php
-                    if ($this->unita->_params->get('visibilita_durata_unita'))
-                    {
-                        ?>
-                        <div class='g-grid'>
-                            <div class="g-box size-50">Durata: <?php $unita->get_durata_unita($unita->id); ?></div>
-                        </div>
                         <?php
-                    }
-                    ?>
+                        if (file_exists('../mediagg/images/unit/' . $unita->id . '.jpg'))
+                            $img = '../mediagg/images/unit/' . $unita->id . '.jpg';
+                        else
+                            $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
+                        $unitaObj = new gglmsModelUnita();
+                        if ($unitaObj->isUnitacompleta($unita->id))
+
+                            echo '<div class="corner corner_green"></div>';
+                        else
+                            echo '<div class="corner corner_yellow"></div>';
+
+                        ?>
+
+                        <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
+                            <div class="rt-image" style="background-image:url(<?php echo $img; ?>)">
+                            </div>
+                        </a>
+
+
+                        <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
+                            <div class="title boxinfo_unita "><b><?php echo $unita->titolo; ?></b></div>
+                        </a>
+
+
+                        <?php
+                        if ($this->unita->_params->get('visibilita_durata_unita')) {
+                            ?>
+                            <div class='g-grid'>
+                                <div class="g-box size-50">Durata: <?php echo $unita->get_durata_unita($unita->id); ?></div>
+                            </div>
+                            <?php
+                        }
+                        ?>
+
+                    </div>
                 </div>
-            </div>
-            <?php
+                <?php
+            }catch(Exception $ex){
+                echo $ex->getMessage();
+            }
         }
     }
     echo "</div>";

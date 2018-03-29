@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
+require_once (JPATH_COMPONENT_ADMINISTRATOR.'/models/unita.php');
 
 class gglmsViewunitas extends JViewLegacy {
 

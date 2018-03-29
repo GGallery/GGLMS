@@ -240,16 +240,19 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 <script type="text/javascript">
 
 
-    //MODIFICARE QUI QUANDO CI SARA' IL PARAMETRO
+    //CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI
     var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
     var loadreportlimit=0;
     var loadreportoffset=15;
     var actualminpage=1;
+    var columnfilter = ['id_anagrafica','scadenza','fields'];//CAMPI DA NON MOSTRARE IN TABELLA
+    var columnmappingname=[{name:'data_inizio',alias:'data inizio'},
+                           {name: 'data_fine',alias: 'data fine'}];
+    var buttonscolumn=['fields'];//CAMPO CHE SI TRASFORMA IN PULSANTE
+    var buttonscolumnname='DETTAGLI';//CAMPO CHE DA IL NOME AL PULSANTE
+    var buttonkeyidfield='id_anagrafica';//CHIAVE DI ASSOCIAZIONE AL PULSANTE
+
     var maxNofpages;
-    var columnfilter = ['id_anagrafica','scadenza','fields'];
-    var buttonscolumn=['fields'];
-    var buttonscolumnname='DETTAGLI';
-    var buttonkeyidfield='id_anagrafica';
     var viewReportColumns;
     var fields=[];
 
@@ -535,8 +538,14 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                     classtouse = "";
                     break;
             }
+           if(columnmappingname.filter(c=>c.name==item).length>0){
+                columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
 
-            jQuery('#grid-basic').append('<th ' + classtouse + '>' + item.toString().toUpperCase() + '</th>');
+           }else {
+                columnname = item.toString();
+           }
+
+            jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
             viewReportColumns.push(item);
         }
     }

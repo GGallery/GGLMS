@@ -104,6 +104,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
                     $modelcontenuto = new gglmsModelContenuto();
 
                     $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
+                    if ($contenuto==null) continue;
                     $stato = $contenuto->getStato($data->id_utente);
                     $data->data = $stato->data;
                     $data->stato = $stato->completato;
