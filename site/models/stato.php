@@ -52,7 +52,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
     public function format_scorm($data){
 
         if($data && isset($data['cmi.core.lesson_status'])) {
-            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish') {
+            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish' || $data['cmi.core.lesson_status']->varValue == 'passed') {
                 $this->completato = 1;
                 $this->descrizione = 'Completato';
                 $this->data = ($data['cmi.core.last_visit_date']->varValue!=null && strtotime($data['cmi.core.last_visit_date']->varValue)!=false) ? $data['cmi.core.last_visit_date']->varValue : $data['cmi.core.lesson_status']->TimeStamp;
@@ -82,7 +82,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
     public function format_attestato($data){
 
         if($data) {
-            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish') {
+            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish'  || $data['cmi.core.lesson_status']->varValue == 'passed') {
                 $this->completato = 1;
                 $this->descrizione = 'Scaricato';
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '';
@@ -112,7 +112,7 @@ class gglmsModelStatoContenuto extends JModelLegacy {
     public function format_allegati($data){
 
         if($data) {
-            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish') {
+            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish'  || $data['cmi.core.lesson_status']->varValue == 'passed') {
                 $this->completato = 1;
                 $this->descrizione = 'Documento visionato';
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';
