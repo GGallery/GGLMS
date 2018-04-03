@@ -166,7 +166,7 @@
 		<field
 				name="durata"
 				type="text"
-				label="Durata"
+				label="Durata in secondi:"
 				description="Durata del contenuto in secondi"
 				size="30"
 				class="inputbox"

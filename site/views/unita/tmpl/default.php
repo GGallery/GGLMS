@@ -129,7 +129,7 @@ if($this->contenuti) {
                         {
                             ?>
                             <div class='g-grid'>
-                                <div class="g-box size-50">Durata: <?php echo $contenuto->durata; ?></div>
+                                <div class="g-box size-100">Durata: <?php echo  $this->unita->convertiDurata($contenuto->durata); ?></div>
                             </div>
                             <?php
                         }
@@ -159,7 +159,7 @@ if($this->contenuti) {
                         {
                             ?>
                             <div class='g-grid'>
-                                <div class="g-box size-50">Durata: <?php echo $contenuto->durata; ?></div>
+                                <div class="g-box size-100">Durata: <?php echo  $this->unita->convertiDurata($contenuto->durata); ?></div>
                             </div>
                             <?php
                         }

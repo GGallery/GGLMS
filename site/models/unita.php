@@ -377,14 +377,15 @@ class gglmsModelUnita extends JModelLegacy
 
         $this->_db->setQuery($query);
         $data = $this->_db->loadResult();
-        return self::convertiDurata($data*60);
+        return self::convertiDurata($data);
     }
 
     public static function convertiDurata($durata)
     {
+        $h = floor($durata/3600);
         $m = floor(($durata % 3600) / 60);
         $s = ($durata % 3600) % 60;
-        $result = sprintf('%02d:%02d', $m, $s);
+        $result = sprintf('h:%02d m:%02d s:%02d', $h,$m, $s);
         return $result;
     }
 }

@@ -56,8 +56,10 @@ class gglmsControllerSyncViewCarigeLearningBatch extends JControllerLegacy
                 $syncviewcarigelearningbatchModel = new gglmsModelSyncViewCarigeLearningBatch();
                 $result = $syncviewcarigelearningbatchModel->syncViewCarigeLearningBatch(null, null, null, 'task');
                 if ($result) {
+                    DEBUGG::log('VIEWCARIGELEARNINGBATCH.SYNC CONCLUSA SENZA ERRORI','VIEWCARIGELEARNINGBATCH.SYNC',0,1);
                     echo json_encode('true');
                 } else {
+                    DEBUGG::log('!!! VIEWCARIGELEARNINGBATCH.SYNC CONCLUSA CON ERRORI !!!','VIEWCARIGELEARNINGBATCH.SYNC',0,1);
                     echo json_encode('false');
                 }
 
