@@ -260,6 +260,8 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
     jQuery( document ).ready(function($) {
 
+        window.console.log('document ready');
+
         jQuery('#filterstatodiv').show();
         jQuery('#calendar_startdate_div').hide();
         jQuery('#calendar_finishdate_div').hide();
@@ -375,7 +377,6 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
             case 'next':
 
-                //console.log(jQuery("a[data-page='1']").html());
 
                 jQuery("a[data-page='1']").html(parseInt(jQuery("a[data-page='1']").html()) + 1);
                 jQuery("a[data-page='2']").html(parseInt(jQuery("a[data-page='2']").html()) + 1);
@@ -435,6 +436,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
             })
             .then(function (data) {
+
 
                 data=JSON.parse(data);
 
@@ -538,12 +540,19 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                     classtouse = "";
                     break;
             }
-           if(columnmappingname.filter(c=>c.name==item).length>0){
-                columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
+            columnname = item.toString();
+            for(var i=0; i<columnmappingname.length;i++){
 
-           }else {
-                columnname = item.toString();
-           }
+                if(columnmappingname[i]['name']==item){
+                    columnname=columnmappingname[i]['alias'];
+                }
+            }
+           //if(columnmappingname.filter(c=>c.name==item).length>0){
+           //     columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
+
+           //}else {
+
+           //}
 
             jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
             viewReportColumns.push(item);
@@ -569,7 +578,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         for (var i=0; i<fields['rows'].length;i++) {
 
             if(fields['rows'][i][buttonkeyidfield]==searchkey) {
-                console.log(fields['rows'][i][field]);
+
                 jQuery('#details_table tbody').empty();
                 jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
 
