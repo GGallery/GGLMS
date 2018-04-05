@@ -46,7 +46,7 @@ class gglmsViewunitas extends JViewLegacy {
     protected function addToolBar() {
 
         JToolBarHelper::title(JText::_('COM_GGLMS_MANAGER_UNITAS'), 'unitas');
-        JToolBarHelper::deleteList(JText::_('COM_GGLMS__FILES_SICUROELIMINARE'), 'unita.delete');
+        JToolBarHelper::deleteList(JText::_('COM_GGLMS_FILES_SICUROELIMINARE'), 'unita.delete');
         JToolBarHelper::editList('unita.edit');
         JToolBarHelper::addNew('unita.clonaCorso','duplica corso');
         JToolBarHelper::addNew('unita.add');

@@ -411,3 +411,13 @@ CREATE TABLE `#__gg_view_carige_learning_batch` (
 PRIMARY KEY (`id_corso`, `id_user`)
 )
 ;
+-- ----------------------------
+-- Table structure for `#__gg_error_log`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_error_log`;
+CREATE TABLE `#__gg_error_log` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `messaggio` varchar(250) DEFAULT NULL,
+  `timestamp` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=13482 DEFAULT CHARSET=utf8;

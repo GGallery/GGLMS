@@ -21,9 +21,6 @@ class gglmsControllerUnita extends JControllerForm
         try {
 
             $app = JFactory::getApplication();
-
-
-            $id = JRequest::getVar('corso_id');
             $unitaModel = $this->getModel('unita');
             $jinput = $app->input;
             $id = $jinput->get('cid')[0];
@@ -34,13 +31,23 @@ class gglmsControllerUnita extends JControllerForm
             }
             $result = $unitaModel->clonaCorso($id);
             $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($result));
-
-
         } catch (exception $exception) {
-            $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($exception->getMessage(), 'Error'));
 
+            $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($exception->getMessage(), 'Error'));
         }
 
+    }
+
+    public function delete(){
+        try {
+            $app = JFactory::getApplication();
+            $unitaModel = $this->getModel('unita');
+            $result=$unitaModel->deleteUnita($app->input->get('cid')[0]);
+            $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($result));
+        }catch (exception $exception) {
+
+            $app->redirect(JRoute::_('index.php?option=com_gglms&view=unitas', false), $app->enqueueMessage($exception->getMessage(), 'Error'));
+        }
     }
 
 }

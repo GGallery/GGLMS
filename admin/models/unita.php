@@ -355,12 +355,37 @@ class gglmsModelunita extends JModelAdmin {
                 return false;
             }
 
-
         }catch(Exception $e){
             DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
         }
 
     }
 
+    public function deleteUnita($pk){
 
+        try {
+            $db = JFactory::getDBO();
+            $query = 'delete from #__gg_unit where id=' . $pk;
+            $db->setQuery($query);
+            $db->execute();
+            $query = "delete c.* from #__gg_contenuti as c inner join #__gg_unit_map as m on c.id=m.idcontenuto where m.idunita=" . $pk;
+            $db->setQuery($query);
+            $db->execute();
+            $query = "delete from #__gg_unit_map where idunita=" . $pk;
+            $db->setQuery($query);
+            $db->execute();
+            $query = "select id from #__gg_unit where unitapadre=" . $pk;
+            $db->setQuery($query);
+            $sotto_unita = $db->loadAssocList();
+            foreach ($sotto_unita as $unita) {
+
+                $this->deleteUnita($unita['id']);
+            }
+        return "operazione conclusa";
+        }catch (Exception $e){
+
+            DEBUGG::log($e->getMessage(), 'delete unita',0,1,0);
+            return "operazione fallita: ".$e->getMessage();
+        }
+    }
 }
