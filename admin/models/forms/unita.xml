@@ -115,6 +115,7 @@
 				validate=""
 				required=""
 				default=""
+				readonly="true"
 		/>
 
 
