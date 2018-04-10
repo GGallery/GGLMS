@@ -27,7 +27,8 @@ JHtml::_('bootstrap.modal');
 
                 <?php if ($row['stato']==1){?><span class="card-text">
                     scarica il relativo attestato cliccando sull'icona qui a fianco
-                    <a href="index.php?option=com_gglms&task=reportutente.generateAttestato&unita_id=<?php echo $row['id_corso'] ?>&user_id=<?php echo $this->_filterparam->user_id ?>&datetest=<?php echo $row['data_fine'] ?>">
+                    <a href="index.php?option=com_gglms&task=reportutente.generateAttestato&unita_id=<?php echo $row['id_corso'] ?>&user_id=<?php echo $this->_filterparam->user_id ?>&data_superamento=<?php echo $row['data_superamento'] ?>">-
+
                     <img style="width: 40px;" src="components/com_gglms/libraries/images/icona_pdf.png"></a></span>
                 <?php }?>
             </div>

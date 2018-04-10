@@ -56,7 +56,7 @@ class gglmsModelReportUtente extends JModelLegacy {
             $carigemodel=new gglmsModelSyncViewCarigeLearningBatch();
             $userid=$user['id_user'];
             $query = $this->_db->getQuery(true);
-            $query->select('v.id_corso,v.id_anagrafica as id_anagrafica, u.titolo as corso, v.stato as stato, DATE_FORMAT(u.data_fine,\'%d/%m/%Y\') as data_fine');
+            $query->select('v.id_corso,v.id_anagrafica as id_anagrafica, u.titolo as corso, v.stato as stato, DATE_FORMAT(u.data_fine,\'%d/%m/%Y\') as data_fine, DATE_FORMAT(v.data_fine,\'%Y/%m/%d\') as data_superamento');
             $query->from('#__gg_view_stato_user_corso as v');
             $query->join('inner', '#__gg_unit as u on v.id_corso=u.id');
             $query->join('inner', '#__gg_report_users as anagrafica on v.id_anagrafica=anagrafica.id');
@@ -102,7 +102,7 @@ class gglmsModelReportUtente extends JModelLegacy {
         try {
 
             $query = $this->_db->getQuery(true);
-            $query->select('nome, cognome, id_user');
+            $query->select('nome, cognome, id_user, fields');
             $query->from('#__gg_report_users as u');
             $query->where('u.id_user=' . $userid);
             $this->_db->setQuery($query);
@@ -113,16 +113,25 @@ class gglmsModelReportUtente extends JModelLegacy {
         }
     }
 
-    public function _generate_pdf($user, $unita_id,$datetest) {
+    public function _generate_pdf($user_, $unita_id,$data_superamento) {
+
+
 
         try {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
             $pdf = new certificatePDF();
-            $info['data_superamento']=$datetest;
+            $info['data_superamento']=$data_superamento;
             $info['path_id'] = $unita_id;
-            $info['path'] = $_SERVER['DOCUMENT_ROOT'].'/mediagg/image/unit/';
+            $info['path'] = $_SERVER['DOCUMENT_ROOT'].'/mediagg/images/unit/';
             $info['content_path'] = $info['path'] . $info['path_id'];
-            $template = "file:" . $_SERVER['DOCUMENT_ROOT'].'/mediagg/image/unit/'. $unita_id . "/" . $unita_id . ".tpl";
+            $template = "file:" . $_SERVER['DOCUMENT_ROOT'].'/mediagg/images/unit/'. $unita_id . "/" . $unita_id . ".tpl";
+            //$user['Luogodinascita']='Trocopinzo';
+            //$user['Datadinascita']='01/02/2016';
+            $user['nome']=$user_['nome'];
+            $user['cognome']=$user_['cognome'] ;
+
+            $user['Luogodinascita']=json_decode($user_['fields'])->Luogodinascita;
+            $user['Datadinascita']=json_decode($user_['fields'])->Datadinascita;
             $pdf->add_data($user);
             $pdf->add_data($info);
             $nomefile = "attestato_" . $user['nome'] . "_" . $user['cognome'] . ".pdf";
