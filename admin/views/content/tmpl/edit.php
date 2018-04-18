@@ -4,6 +4,11 @@
 
     }
 
+    .override-inputbox{
+
+        width: 700px;
+    }
+
 </style>
 
 
@@ -109,24 +114,6 @@ $fieldsets = $this->form->getFieldsets();
             </div>
 
 
-            <div class="span4">
-
-                <div class="row-fluid">
-                    <?php
-                    if($this->item->id)
-                        echo $this->form->renderField('prerequisiti'); ?>
-                </div>
-
-
-                <div class="row-fluid">
-                    <?php
-                    if($this->item->id)
-                        echo $this->form->renderField('files'); ?>
-                </div>
-
-
-
-            </div>
 
 
         </div>
@@ -137,7 +124,30 @@ $fieldsets = $this->form->getFieldsets();
     </div>
 <?php echo JHtml::_('bootstrap.endTab'); ?>
 
-<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'advanced', JText::_('Descrizione/Abstract', true)); ?>
+<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'advanced', JText::_('Prerequisiti/Files', true)); ?>
+    <div class="span4" style="width: 100%;">
+
+        <div class="row-fluid">
+            <?php
+            if($this->item->id)
+                echo $this->form->renderField('prerequisiti'); ?>
+        </div>
+
+
+        <div class="row-fluid">
+            <?php
+            if($this->item->id)
+                echo $this->form->renderField('files'); ?>
+        </div>
+
+
+
+    </div>
+
+<?php echo JHtml::_('bootstrap.endTab'); ?>
+
+
+<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'details', JText::_('Descrizione/Abstract', true)); ?>
     <div class="row-fluid">
         <div class="span12">
 

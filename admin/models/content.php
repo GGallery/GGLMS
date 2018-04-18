@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modeladmin');
 require_once 'libs/getid3/getid3.php';
+require_once 'unita.php';
 
 class gglmsModelContent extends JModelAdmin {
 
@@ -61,12 +62,29 @@ class gglmsModelContent extends JModelAdmin {
             $item->files= gglmsHelper::GetMappaContenutoFiles($item);
 
             $item->prerequisiti= explode(',', $item->prerequisiti);
+            
 
 //          $item->articletext = trim($item->fulltext) != '' ? $item->introtext . "<hr id=\"system-readmore\" />" . $item->fulltext : $item->introtext;
         }
 
 
         return $item;
+    }
+
+    public function clonaContenuto($pk){
+
+        $db = JFactory::getDBO();
+        $query = "insert into #__gg_contenuti (titolo,alias,pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data)
+                select titolo,CONCAT(alias,concat('_',convert(floor(RAND()*1000),CHAR(25)))),pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data from #__gg_contenuti where id=" . $pk;
+        $db->setQuery($query);
+        $db->execute();
+        $query = "select max(id) from #__gg_contenuti";
+        $db->setQuery($query);
+        $newid_contenuto = $db->loadResult();
+        $modelUnita=new gglmsModelUnita();
+        $modelUnita->duplicate_folder($pk,$newid_contenuto);
+
+
     }
 
 

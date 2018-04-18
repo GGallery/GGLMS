@@ -133,7 +133,7 @@ class gglmsModelunita extends JModelAdmin {
 
 
                 $query = "insert into #__gg_contenuti (titolo,alias,pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data)
-                select titolo,alias,pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data from #__gg_contenuti where id=" . $contenuto['idcontenuto'];
+                select titolo,CONCAT(alias,concat('_',convert(floor(RAND()*1000),CHAR(25)))),pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data from #__gg_contenuti where id=" . $contenuto['idcontenuto'];
                 $db->setQuery($query);
                 $db->execute();
                 $this->contenuti_inseriti++;
@@ -175,7 +175,7 @@ class gglmsModelunita extends JModelAdmin {
         }
     }
 
-    private function duplicate_folder($oldcontentid,$newcontentid){
+    public function duplicate_folder($oldcontentid,$newcontentid){
 
         try {
 

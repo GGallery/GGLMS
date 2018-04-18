@@ -40,7 +40,7 @@ class gglmsModelContents extends JModelList {
         // Select some fields
         $query->select('a.*')
             ->from('#__gg_contenuti as a')
-            ->join('inner','#__gg_unit_map as m on a.id=m.idcontenuto')
+            ->join('left','#__gg_unit_map as m on a.id=m.idcontenuto')
             ->order(' m.ordinamento ' . ' ' .
                 $db->escape($this->getState('list.direction', 'desc')))
         ;

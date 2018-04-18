@@ -44,15 +44,13 @@
 				label="Unita"
 				description="Use Ctrl per selezionare più categorie"
 				required=""
-
 				size="20"
-
 		/>
 
 		<field
 				name="prerequisiti"
 				type="listaprerequisiti"
-				class="inputbox"
+				class="override-inputbox"
 				default=""
 				label="Prerequisiti"
 				description="Use Ctrl per selezionare più Contenuti"
@@ -66,7 +64,7 @@
 		<field
 				name="files"
 				type="listaFiles"
-				class="inputbox"
+				class="override-inputbox"
 				default="1"
 				label="Files"
 				description="Use Ctrl per selezionare più files"
@@ -90,9 +88,6 @@
 				default=""
 				readonly="true"
 		/>
-
-
-
 
 
 		<field
@@ -147,6 +142,7 @@
 				required=""
 				showon="tipologia:5"
 				default=""
+				size="1"
 		>
 			<option value="">Nessun Prerequisito</option>
 		</field>

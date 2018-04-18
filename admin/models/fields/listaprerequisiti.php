@@ -38,10 +38,11 @@ class JFormFieldlistaprerequisiti extends JFormFieldList {
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select('a.id AS value,  a.titolo  AS text');
+        $query->select('a.id AS value,  CONCAT(a.id,\' [\',coalesce(u.titolo,\'nessuna\'),\'] \', a.titolo)  AS text');
         $query->from('#__gg_contenuti AS a');
         $query->join('left', '#__gg_unit_map AS m ON m.idcontenuto= a.id');
         $query->join('left', '#__gg_unit AS u ON u.id= m.idunita');
+        $query->where('a.id is not null');
         $query->order("u.id, m.ordinamento");
 
         $db->setQuery($query);
