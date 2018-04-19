@@ -364,19 +364,26 @@ class gglmsModelUnita extends JModelLegacy
 
     public function get_durata_unita($pk = null)
     {
+        try {
+            $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
+            $repotObj = new gglmsModelReport();
+            $contenuti = $repotObj->getContenutiArrayList($pk);
 
-        $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
-        $repotObj = new gglmsModelReport();
-        $contenuti = $repotObj->getContenutiArrayList($pk);
+            if(sizeof($contenuti)== 0)
+                return self::convertiDurata(0);
 
-        $contenuti = implode(',', array_column($contenuti, 'id'));
-        $query = $this->_db->getQuery(true)
-            ->select('SUM(durata)')
-            ->from('#__gg_contenuti AS c')
-            ->where('c.id in (' . $contenuti . ')');
+            $contenuti = implode(',', array_column($contenuti, 'id'));
+            $query = $this->_db->getQuery(true)
+                ->select('SUM(durata)')
+                ->from('#__gg_contenuti AS c')
+                ->where('c.id in (' . $contenuti . ')');
 
-        $this->_db->setQuery($query);
-        $data = $this->_db->loadResult();
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadResult();
+
+        }catch (Exception $e){
+
+        }
         return self::convertiDurata($data);
     }
 

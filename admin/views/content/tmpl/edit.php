@@ -1,14 +1,11 @@
 <style>
     .progress-bar {
         background-color: green;
-
     }
 
     .override-inputbox{
-
         width: 700px;
     }
-
 </style>
 
 
@@ -36,8 +33,8 @@ $fieldsets = $this->form->getFieldsets();
 
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'general', JText::_('COM_GGLMS_CONTENT_PANEL', true)); ?>
     <div class="row-fluid">
-        <div class="span12">
-            <div class="span4">
+
+            <div class="span6">
                 <div class="row-fluid">
                     <?php echo $this->form->renderField('id'); ?>
                 </div>
@@ -55,7 +52,7 @@ $fieldsets = $this->form->getFieldsets();
 
             </div>
 
-            <div class="span4">
+            <div class="span6">
 
                 <div class="row-fluid">
                     <?php
@@ -117,7 +114,6 @@ $fieldsets = $this->form->getFieldsets();
 
 
         </div>
-    </div>
     <div>
         <input type="hidden" name="task" value="" />
         <?php echo JHtml::_('form.token'); ?>

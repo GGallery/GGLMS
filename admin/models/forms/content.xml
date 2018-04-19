@@ -39,7 +39,7 @@
 		<field
 				name="categoria"
 				type="listaalberounita"
-				class="inputbox"
+				class="inputbox override-inputbox"
 				default=""
 				label="Unita"
 				description="Use Ctrl per selezionare più categorie"
