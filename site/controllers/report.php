@@ -55,10 +55,10 @@ class gglmsControllerReport extends JControllerLegacy
                 $syncviewstatouser = new gglmsModelSyncViewStatoUser();
                 $result = $syncviewstatouser->syncViewStatoUser(null, null, null, 'task');
                 if ($result) {
-                    DEBUGG::log('REPORT.SYNC CONCLUSA SENZA ERRORI','REPORT.SYNC',0,1);
+                   // DEBUGG::log('REPORT.SYNC CONCLUSA SENZA ERRORI','REPORT.SYNC',0,1);
                     echo json_encode('true');
                 } else {
-                    DEBUGG::log('!!!! REPORT.SYNC CONCLUSA CON ERRORI !!!!','REPORT.SYNC',0,1);
+                   // DEBUGG::log('!!!! REPORT.SYNC CONCLUSA CON ERRORI !!!!','REPORT.SYNC',0,1);
                     echo json_encode('false');
                 }
             }
