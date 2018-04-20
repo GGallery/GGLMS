@@ -6,8 +6,10 @@ F:Frontend, B:Backend, D:Database, G:Generale
 
 3.8.40
   - G FIX bug durata unita
+  
 3.8.39
   - B implementata funzione duplica contenuto
+  
 3.8.36
   - G: aggiunto switch per attivare/disattivare la label durata su box unita
 
