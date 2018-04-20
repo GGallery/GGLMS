@@ -6,10 +6,13 @@ if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
 //BOOTSTRAP SCORM FILE
-if($this->contenuto->path)
-    $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/'.$this->contenuto->path;
-else
-    $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/index_lms_html5.html';
+//if($this->contenuto->path)
+//    $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/'.$this->contenuto->path;
+//else
+//    $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/index_lms_html5.html';
+
+
+$pathscorm = 'C:/WAMP64/www/www.carigelearning.it/mediagg/contenuti/'.$this->contenuto->id.'/';
 
 
 ?>
