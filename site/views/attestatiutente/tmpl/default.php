@@ -14,12 +14,16 @@ JHtml::_('bootstrap.modal');
             </h4>
         </div>
     </div>
-    <?php foreach ($this->attestati as $attestato) {?>
-    <div>
-        <?php echo $attestato; ?>
-    </div>
+    <?php
+    if(count($this->attestati)>0) {
+        foreach ($this->attestati as $attestato) { ?>
+            <div>
+                <?php echo $attestato; ?>
+            </div>
 
-    <?php }?>
+        <?php }
+    }else{echo "non sono presenti attestati";}
+    ?>
 
     <div>
         DATI AGGIORNATI A: <?php echo $this->_params->get('data_sync')?>
