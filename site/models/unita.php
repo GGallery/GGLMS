@@ -270,10 +270,22 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
 
-            if ($data == 0) {
-                $message = "Inserire il coupon per accedere a questa unita";
-                $url = JRoute::_('index.php?option=com_gglms&view=coupon');
-                $this->_app->redirect($url, $message);
+            if ($data == 0)
+            {
+                $query_ = $this->_db->getQuery(true)
+                    ->select('count(coupon)')
+                    ->from('#__gg_coupon as u')
+                    ->where("u.id_utente = $this->_userid");
+
+
+//echo $query;
+                $this->_db->setQuery($query_);
+                $data_ = $this->_db->loadResult();
+                if($data_==0) {
+                    $message = "Inserire il coupon per accedere a questa unita";
+                    $url = JRoute::_('index.php?option=com_gglms&view=coupon');
+                    $this->_app->redirect($url, $message);
+                }
             } else
                 return true;
 
