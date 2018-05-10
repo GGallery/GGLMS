@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.42
+
+  - F: inseriti filtri speciali sulla visibilità dei corsi in report
 3.8.41
 
   - F inserita vista attestati residenziali utente

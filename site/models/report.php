@@ -274,13 +274,20 @@ class gglmsModelReport extends JModelLegacy {
 
 	public function getCorsi(){
 
+	    $corsi_ammessi_utente=$this->get_report_view_permessi();
+
 		$query = $this->_db->getQuery(true);
 
 		$query->select('*');
 		$query->from('#__gg_unit AS a');
-		$query->where("is_corso=1 ");
-
+		if($corsi_ammessi_utente!=null){
+            $query->where("is_corso=1 and id in (".$corsi_ammessi_utente.")");
+        }else {
+            $query->where("is_corso=1 ");
+        }
 		$this->_db->setQuery($query);
+
+		//echo $query;die;
 
 		$corsi = $this->_db->loadObjectList();
 
@@ -315,14 +322,17 @@ class gglmsModelReport extends JModelLegacy {
 
             $this->_db->setQuery($query);
             $usergroupsfromparams= $this->_db->loadResult();
-            //var_dump($usergroupsfromparams);die;
-            //$usergroupsfromparams = $this->params->get('id_gruppi_visibili');
+
+            $usergroupsfrompermessi=$this->get_report_view_permessi_gruppi();
 
             $query = $this->_db->getQuery(true);
             $query->select('id, title');
             $query->from('#__usergroups AS u');
-            $query->where('u.id in (' . $usergroupsfromparams . ') ');
-           // $query->where('u.id in (select config_value from crg_gg_configs where config_key=\'id_gruppi_visibili\') ');
+            if($usergroupsfrompermessi!=null){
+                $query->where('u.id in (' . $usergroupsfrompermessi . ') ');
+            }else {
+                $query->where('u.id in (' . $usergroupsfromparams . ') ');
+            }
 
             $this->_db->setQuery($query);
 
@@ -428,6 +438,28 @@ class gglmsModelReport extends JModelLegacy {
 
     }
 
+    private function get_report_view_permessi(){
 
+        $db = JFactory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('id_corsi');
+        $query->from('#__gg_report_view_permessi');
+        $query->where('id_utente='.$this->_userid);
+        $db->setQuery($query);
+        return $db->loadResult();
+
+    }
+
+    private function get_report_view_permessi_gruppi(){
+
+        $db = JFactory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('id_gruppi');
+        $query->from('#__gg_report_view_permessi_gruppi');
+        $query->where('id_utente='.$this->_userid);
+        $db->setQuery($query);
+        return $db->loadResult();
+
+    }
 }
 
