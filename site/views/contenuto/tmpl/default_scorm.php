@@ -12,6 +12,9 @@ else
     $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/index_lms_html5.html';
 
 
+//$pathscorm = 'C:/WAMP64/www/www.carigelearning.it/mediagg/contenuti/'.$this->contenuto->id.'/';
+
+
 ?>
 <!--<script type="text/javascript">-->
 <!--    --><?php //if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
