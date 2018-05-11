@@ -1,9 +1,12 @@
 <?php
 
-function logger($data, $label = null){
+function logger($data, $label = null, $stringfy= false){
     echo $label;
     echo "<pre>";
-    print_r($data);
+    if($stringfy)
+        echo (string)$data;
+    else
+        print_r($data);
     echo "</pre>";
 }
 
@@ -14,14 +17,13 @@ function readElement($VarName) {
     global $db;
 
     $query = $db->getQuery(true)
-        ->select("VarValue")
+        ->select("varValue")
         ->from("#__gg_scormvars")
         ->where("scoid=$SCOInstanceID")
         ->where("userid=$UserID")
-        ->where("VarName= '". $VarName."'");
+        ->where("varName= '". $VarName."'");
 
     $db->setQuery($query);
-
 
     $value = $db->loadResult();
 
@@ -34,11 +36,8 @@ function writeElement($VarName,$VarValue) {
     global $SCOInstanceID;
     global $UserID;
 
-
-    $safeVarName = ($VarName);
-    $safeVarValue = ($VarValue);
-
-
+    $safeVarName = $db->escape($VarName);
+    $safeVarValue = $db->escape($VarValue);
 
     //INIZIO MODIFICA TONY
     if($VarName == 'cmi.core.lesson_status' ){
@@ -48,20 +47,12 @@ function writeElement($VarName,$VarValue) {
     }
     //FINE MODIFICA TONY
 
+    $query = "INSERT INTO #__gg_scormvars (scoid, userid, varName, varValue) VALUES($SCOInstanceID, $UserID, '$safeVarName', '$safeVarValue') ON DUPLICATE KEY UPDATE varValue='$safeVarValue'";
 
-    $interaction = strpos($VarName, 'cmi.interactions');
-
-    if(!$interaction) {
-        $query = "INSERT INTO #__gg_scormvars (scoid, userid, VarName, varValue) VALUES($SCOInstanceID, $UserID, '$safeVarName', '$safeVarValue') ON DUPLICATE KEY UPDATE varValue='$safeVarValue'";
-
-        $db->setQuery($query);
-        $db->execute();
-    }
-
-//    if($VarValue == "completed"){
-//        $oggi ="'".date('d-m-Y')."'";
-//        writeElement('cmi.core.completed_date', $oggi);
+    $db->setQuery($query);
+    $db->execute();
 //    }
+
 
     return;
 }
@@ -74,34 +65,44 @@ function initializeElement($VarName,$VarValue) {
 
     // look for pre-existing values
 
-    $interaction = strpos($VarName, 'cmi.interactions');
-    if(!$interaction) {
-        $query = $db->getQuery(true)
-            ->select("VarValue")
-            ->from("#__gg_scormvars")
-            ->where("scoid=$SCOInstanceID")
-            ->where("userid=$UserID")
-            ->where("varName = '" . $VarName . "'");
 
-        $db->setQuery($query);
-        $result = $db->loadResult();
 
-        if (!$result && $result != 0) {
-            try {
-                $new_sco = new stdClass();
-                $new_sco->scoid = $SCOInstanceID;
-                $new_sco->userid = $UserID;
-                $new_sco->VarName = "$VarName";
-                $new_sco->VarValue = $VarValue;
-                $db->insertObject('#__gg_scormvars', $new_sco);
-            } catch (Exception $e) {
-                logger((string)$query);
-                logger($result);
-                logger('inizialize');
-                logger($e);
-            }
+//    $interaction = strpos($VarName, 'cmi.interactions');
+//    if(!$interaction) {
+    $query = $db->getQuery(true)
+        ->select("VarValue")
+        ->from("#__gg_scormvars")
+        ->where("scoid=$SCOInstanceID")
+        ->where("userid=$UserID")
+        ->where("varName = '" . $VarName . "'");
+
+    $db->setQuery($query);
+    $result = $db->loadResult();
+
+    echo "Initializing: ".$VarName.$VarValue."|| ";
+    logger($result, 'result read');
+    logger($query, 'query read' , 1);
+
+
+    if (!$result) {
+        try {
+            $new_sco = new stdClass();
+            $new_sco->scoid = $SCOInstanceID;
+            $new_sco->userid = $UserID;
+            $new_sco->varName = "$VarName";
+            $new_sco->varValue = $VarValue;
+            $db->insertObject('#__gg_scormvars', $new_sco);
+        } catch (Exception $e) {
+            logger((string)$query);
+            logger($result);
+            logger('inizialize');
+            logger($e);
         }
+        logger($result, 'result insert');
+        logger($query, 'query read' , 1);
+
     }
+//}
 
 }
 
@@ -110,9 +111,6 @@ function initializeSCO() {
     global $db;
     global $SCOInstanceID;
     global $UserID;
-
-
-
 
     $query = $db->getQuery(true)
         ->select("count(VarName)")
@@ -123,8 +121,8 @@ function initializeSCO() {
     $db->setQuery($query);
     $count = $db->loadResult();
 
-    if (! $count) {
-
+    if (!$count)
+    {
         // elements that tell the SCO which other elements are supported by this API
         initializeElement('cmi.core._children','student_id,student_name,lesson_location,credit,lesson_status,entry,score,total_time,exit,session_time');
         initializeElement('cmi.core.score._children','raw');
@@ -157,9 +155,8 @@ function initializeSCO() {
 
     }
 
-    $totalInteraction = getFromLMS('cmi.interactions._count');
     initializeElement('cmi.interactions._children', 'id,objectives,time,type,correct_responses,weighting,student_response,result,latency, RO');
-    initializeElement('cmi.interactions._count', $totalInteraction);
+    initializeElement('cmi.interactions._count', 0);
 
     // new session so clear pre-existing session time
     writeElement('cmi.core.session_time','');
@@ -175,7 +172,6 @@ function initializeSCO() {
     $db->setQuery($query);
 
     $result = $db->loadObjectList();
-
 
     foreach ($result as $item){
         $jvarvalue = addslashes($item->VarValue);
@@ -200,35 +196,17 @@ function getFromLMS($varname) {
     global $SCOInstanceID;
     global $UserID;
 
-    switch ($varname) {
+    $query = $db->getQuery(true)
+        ->select('varValue')
+        ->from("#__gg_scormvars")
+        ->where("scoid=$SCOInstanceID")
+        ->where("userid=$UserID")
+        ->where("varName like ('".$varname."')");
 
+    $db->setQuery($query);
+    $res = $db->loadResult();
 
-        // case 'cmi.launch_data':
-        // 	$varvalue = "";
-        // 	break;
-
-
-        case 'cmi.interactions._count':
-
-            $query = $db->getQuery(true)
-                ->select("count(scoid) as count")
-                ->from("#__gg_scormvars")
-                ->where("scoid=$SCOInstanceID")
-                ->where("userid=$UserID")
-                ->where("varName like ('cmi.interaction%.result')");
-
-            $db->setQuery($query);
-            $count = $db->loadResult();
-
-            return $count;
-            break;
-
-        default:
-            $varvalue = '';
-
-    }
-
-    return $varvalue;
+    return $res;
 
 }
 

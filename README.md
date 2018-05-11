@@ -4,6 +4,8 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.42
+  - G Tracciamento risposte in modalità SCORM (bisogna riscaricare e sostituire cartella scorm) 
 
 3.8.42
   - B gestione pacchetti multiscorm

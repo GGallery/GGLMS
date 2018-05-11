@@ -36,7 +36,7 @@ function upgrade() {
 	global $link;
 
 	$valori= array(0,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4);
-	$users_id= mysql_query("SELECT DISTINCT UserID FROM lok9d_gg_scormvars WHERE SCOInstanceID = 137 and UserID > 4208 Order by UserId ",$link )or die ("Query fail: " . mysqli_error());
+	$users_id= mysql_query("SELECT DISTINCT UserID FROM #__gg_scormvars WHERE SCOInstanceID = 137 and UserID > 4208 Order by UserId ",$link )or die ("Query fail: " . mysqli_error());
 	$new_element= array();
 
 	while($row_user_id = mysql_fetch_assoc($users_id)) {
