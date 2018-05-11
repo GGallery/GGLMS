@@ -44,7 +44,7 @@
 				label="Unita"
 				description="Use Ctrl per selezionare più categorie"
 				required=""
-				size="20"
+				size="30"
 		/>
 
 		<field

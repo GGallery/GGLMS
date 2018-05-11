@@ -35,7 +35,7 @@ class gglmsModelContenuto extends JModelLegacy {
         $user = JFactory::getUser();
         $this->_userid = $user->get('id');
 
-        $this->_db = $this->getDbo();
+        $this->_db = JFactory::getDBO();
 
         $this->_app = JFactory::getApplication('site');
         $this->_params = $this->_app->getParams();
@@ -532,6 +532,14 @@ class gglmsModelContenuto extends JModelLegacy {
             DEBUGG::log($e->getMessage(), 'error in setStato' , 0,1,0);
         }
     }
+
+    public function testscorm(){
+
+        echo "opk";
+
+
+    }
+
 
 }
 
