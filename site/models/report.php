@@ -308,13 +308,21 @@ class gglmsModelReport extends JModelLegacy {
     {
 
         try {
-            $usergroupsfromparams = $this->params->get('id_gruppi_visibili');
+            $query = $this->_db->getQuery(true);
+            $query->select('config_value');
+            $query->from('#__gg_configs') ;
+            $query->where('config_key=\'id_gruppi_visibili\'');
+
+            $this->_db->setQuery($query);
+            $usergroupsfromparams= $this->_db->loadResult();
+            //var_dump($usergroupsfromparams);die;
+            //$usergroupsfromparams = $this->params->get('id_gruppi_visibili');
 
             $query = $this->_db->getQuery(true);
-
             $query->select('id, title');
             $query->from('#__usergroups AS u');
             $query->where('u.id in (' . $usergroupsfromparams . ') ');
+           // $query->where('u.id in (select config_value from crg_gg_configs where config_key=\'id_gruppi_visibili\') ');
 
             $this->_db->setQuery($query);
 
