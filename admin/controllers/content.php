@@ -48,9 +48,10 @@ class gglmsControllerContent extends JControllerForm {
     public function parsescorm() {
 
         try {
-            $manifestfile = 'C:/WAMP64/www/www.carigelearning.it/mediagg/contenuti/226/imsmanifest.xml';
-            $array_manifest_element = ($this->readIMSManifestFile($manifestfile));
             $current_id = $this->input->get('id', null, 'int');
+            $manifestfile = "../../mediagg/contenuti/". $current_id ."/imsmanifest.xml";
+            $array_manifest_element = ($this->readIMSManifestFile($manifestfile));
+
             $current_item = $this->getContent($current_id);
             $current_unit = $this->getUnitPadre($current_id);
 

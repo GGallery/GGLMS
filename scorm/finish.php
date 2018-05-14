@@ -129,5 +129,3 @@ writeElement('cmi.core.session_time','');
 // return value to the calling program
 print "true";
 die;
-
-?>

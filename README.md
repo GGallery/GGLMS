@@ -4,6 +4,13 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.42
+  - G Tracciamento risposte in modalità SCORM (bisogna riscaricare e sostituire cartella scorm) 
+
+3.8.42
+  - F inseriti filtri speciali sulla visibilità dei corsi in report
+  - F inseriti filtri speciali sulla visibilità dei corsi in report 3.8.41
+  - F inserita vista attestati residenziali utente 3.8.40
 
 3.8.42
   - F inseriti filtri speciali sulla visibilità dei corsi in report

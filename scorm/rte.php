@@ -25,7 +25,7 @@ $log_status=$_GET['log_status'];
         ?>
 
         function APILoaded() {
-            console.log("API_LOADED: ");
+            console.log("API_LOADED!");
             document.getElementById('framecourse').src="<?php echo $scorm_path;?>"
         };
     </script>
