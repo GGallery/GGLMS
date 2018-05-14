@@ -613,10 +613,10 @@ class gglmsControllerApi extends JControllerLegacy
 
                 // Make csv rows for data
                 $csv_values = '';
-                foreach ($rows as $row) {
+                foreach ($rows as $row_) {
                     $i = 0;
                     $comma = ';';
-                    foreach ($row as $name => $val) {
+                    foreach ($row_ as $name => $val) {
                         $i++;
                         if ($cnt_fields <= $i) $comma = '';
                         $csv_values .= $quote . $val . $quote . $comma;
