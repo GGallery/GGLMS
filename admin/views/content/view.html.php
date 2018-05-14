@@ -50,6 +50,7 @@ class gglmsViewContent extends JViewLegacy {
         JToolBarHelper::save('content.save');
         JToolBarHelper::apply('content.apply');
         JToolBarHelper::cancel('content.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
+        JToolBarHelper::save('content.parsescorm','ElaboraMultiScorm');
 
     }
 }
