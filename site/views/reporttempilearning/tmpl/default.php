@@ -9,7 +9,7 @@ JHtml::_('bootstrap.modal');
 <div id="contenitoreprincipale" style="width: 100%">
 
     <div class="row">
-        <div class="span12" style="padding-left:28px"><h4>TEMPI LEARNING DI:
+        <div class="span12" style="padding-left:28px"><h4>HOME LEARNING DI:
                 <span style="color: black; font-weight: bold"><?php echo $this->utente?></span>
             </h4>
         </div>
@@ -23,7 +23,7 @@ JHtml::_('bootstrap.modal');
 
                     <?php
                     if(count($this->tempi)>0) {
-                        echo '<TR><TH>MESE</TH><TH>TOTALE TEMPI</TH></TR>';
+                        echo '<TR><TH>MESE</TH><TH>TEMPO ACCUMULATO</TH></TR>';
                         foreach ($this->tempi as $row) { ?>
                             <TR>
                                 <?php echo '<TD>'.$row->mese." ".$row->anno."</TD><TD>".$row->totale.'</TD>';?>
