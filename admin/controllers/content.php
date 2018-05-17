@@ -65,6 +65,7 @@ class gglmsControllerContent extends JControllerForm {
                 $object->pubblicato = $current_item->pubblicato;
                 $object->tipologia = $current_item->tipologia;
                 $object->mod_track = $current_item->mod_track;
+                $object->abstract = "DERIVATO DA ID: ".$current_item->id;
                 $object->path =  "../".$current_id."/".$item['href'];
                 $newElementId = $this->saveNewContent($object);
                 $log .= "Creato contenuto <b>". $object->titolo . "</b> (id ".$newElementId.")";
