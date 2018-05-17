@@ -66,6 +66,7 @@ class gglmsModelContents extends JModelList {
                     break;
             }
         }
+
         return $query;
     }
 
