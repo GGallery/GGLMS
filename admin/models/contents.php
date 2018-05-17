@@ -14,7 +14,7 @@ jimport('joomla.application.component.modellist');
 class gglmsModelContents extends JModelList {
 
     //Add this handy array with database fields to search in
-    protected $searchInFields = array( 'a.titolo', 'descrizione');
+    protected $searchInFields = array( 'a.titolo', 'descrizione', 'id', 'alias');
     private $unitas=array();
     private $contenuti=array();
 
@@ -66,6 +66,7 @@ class gglmsModelContents extends JModelList {
                     break;
             }
         }
+
         return $query;
     }
 
