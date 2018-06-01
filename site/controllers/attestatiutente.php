@@ -80,7 +80,8 @@ class gglmsControllerAttestatiUtente extends JControllerLegacy
                 $id_utente=explode("_",$attestato)[0];
                 if($id_utente==$user_id) {
                     $attestato_to_return=substr($attestato, strlen($id_utente) + 1);
-                    $attestato_to_return="<a href=../mediagg/attestati/".$attestato.">".$attestato_to_return."</a>";
+                    $attestato_to_return_label=str_replace('_',' ',$attestato_to_return);
+                    $attestato_to_return="<a href=../mediagg/attestati/".$attestato.">".$attestato_to_return_label."</a>";
                     array_push($attestati_to_return, $attestato_to_return);
                 }
             }
