@@ -213,19 +213,42 @@ class gglmsControllerApi extends JControllerLegacy
     {
         try {
             $query = $this->_db->getQuery(true);
+            $query->select("accesso");
+            $query->from("#__gg_unit as u");
+            $query->where('u.id=' . $id_corso);
+            $this->_db->setQuery($query);
+            $accesso = $this->_db->loadResult();
+
+            $query = $this->_db->getQuery(true);
             $countquery = $this->_db->getQuery(true);
             $query->select("anagrafica.id as id_anagrafica, anagrafica.cognome as cognome, anagrafica.nome as nome, anagrafica.fields as fields");
             $countquery->select("count(*)");
             $query->from("#__gg_report_users as anagrafica");
             $countquery->from("#__gg_report_users as anagrafica");
-            $query->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
-            $countquery->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
+
+            //INNER E CONDIZIONI SULLA BASE DELL'ACCESSO
+            switch ($accesso) {
+
+                case 'coupon':
+                    $query->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
+                    $countquery->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
+                    $query->where('c.corsi_abilitati like '. $id_corso);
+                    $countquery->where('c.corsi_abilitati like '. $id_corso);
+                    break;
+
+                default:
+                    $query->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
+                    $countquery->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
+                    $query->where('u.id=' . $id_corso);
+                    $countquery->where('u.id=' . $id_corso);
+                    break;
+            }
+
             if($usergroups!=null) {
                 $query->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
                 $countquery->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
             }
-            $query->where('u.id=' . $id_corso);
-            $countquery->where('u.id=' . $id_corso);
+
             //$query->where('anagrafica.id=11497');
             if($searchPrase!=null) {
                 $query->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');

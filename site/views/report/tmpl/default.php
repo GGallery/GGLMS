@@ -574,7 +574,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         return rowCellData;
     }
     function playbutton(searchkey,field) {
-
+    var id;
         for (var i=0; i<fields['rows'].length;i++) {
 
             if(fields['rows'][i][buttonkeyidfield]==searchkey) {
@@ -583,10 +583,13 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
 
                     var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
+
+                    if(key=="id"){ id=value;}
                     jQuery('#details_table tbody').append(eachrow);
 
                 });
-                //jQuery("#details").append('<input id=modal_id_utente type=hidden value='+value+'>');
+
+                jQuery("#details").append('<input id=modal_id_utente type=hidden value='+id+'>');
                 jQuery("#details").modal('show');
             }
         }
