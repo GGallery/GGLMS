@@ -134,6 +134,19 @@
 		/>
 
 		<field
+				name="orientamento"
+				type="radio"
+				label="Orientamento"
+				description="Orienamento dell'attestato"
+				class="btn-group"
+				default="P"
+				showon="tipologia:5"
+		>
+			<option value="L">Landscape</option>
+			<option value="P">Portrait</option>
+		</field>
+
+		<field
 				name="path"
 				type="text"
 				label="Contenuto riferimento/Percorso entryfile"
