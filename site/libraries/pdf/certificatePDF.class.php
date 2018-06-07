@@ -11,7 +11,7 @@ class certificatePDF extends TCPDF {
 
     private $_data;
 
-    public function __construct($orientation = 'P', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8', $diskcache = false, $pdfa = false) {
+    public function __construct($orientation = 'L', $unit = 'mm', $format = 'A4', $unicode = true, $encoding = 'UTF-8', $diskcache = false, $pdfa = false) {
         parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache, $pdfa);
         $this->SetCreator('COM_GGLMS');
         $this->setImageScale(PDF_IMAGE_SCALE_RATIO);
@@ -56,10 +56,13 @@ class certificatePDF extends TCPDF {
     public function fetch_pdf_template($template, $cache_id = null, $check = true, $cache = false, $lifetime = 120) {
         $this->AddPage();
         $smarty = new EasySmarty();
+
         $smarty->assign('data', $this->_data);
+
         //FB::log($this->_data);
         $html = $smarty->fetch_template($template, $cache_id, $check, $cache, $lifetime);
         //FB::log($html);
+
         $this->writeHTML($html, true, true, true, false, '');
         $this->lastPage();
     }

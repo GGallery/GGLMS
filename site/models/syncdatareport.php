@@ -83,7 +83,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return "1";
         }
         catch (Exception $e){
-            DEBUGG::log($e, 'updateconfig',1,1,0);
+            DEBUGG::log($e->getMessage(), 'updateconfig',1,1,0);
         }
     }
 

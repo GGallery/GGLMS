@@ -61,12 +61,17 @@ class gglmsModelReportUtente extends JModelLegacy {
             $query->join('inner', '#__gg_unit as u on v.id_corso=u.id');
             $query->join('inner', '#__gg_report_users as anagrafica on v.id_anagrafica=anagrafica.id');
             $query->where('anagrafica.id_user=' . $userid);
-            //var_dump((string)$query);die;
+
+
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
 
             foreach ($rows as &$row){
                 $row['percentuale_completamento']=number_format($carigemodel->percentualeCompletamento($row['id_corso'],$row['id_anagrafica']),2);
+                $query = $this->_db->getQuery(true);
+                $query->select("id from un_gg_contenuti where path=(select id_contenuto_completamento from un_gg_unit where id=".$row['id_corso'].")");
+                $this->_db->setQuery($query);
+                $row['attestato_id']=$this->_db->loadResult();
             }
 
             $result['query'] =(string)$query;
@@ -113,13 +118,14 @@ class gglmsModelReportUtente extends JModelLegacy {
         }
     }
 
-    public function _generate_pdf($user_, $unita_id,$data_superamento) {
+    public function _generate_pdf($user_,$orientamento, $unita_id,$data_superamento) {
 
 
 
         try {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
-            $pdf = new certificatePDF();
+            $orientation=$orientamento;
+            $pdf = new certificatePDF($orientation);
             $info['data_superamento']=$data_superamento;
             $info['path_id'] = $unita_id;
             $info['path'] = $_SERVER['DOCUMENT_ROOT'].'/mediagg/images/unit/';
@@ -134,6 +140,7 @@ class gglmsModelReportUtente extends JModelLegacy {
             $user['Datadinascita']=json_decode($user_['fields'])->Datadinascita;
             $pdf->add_data($user);
             $pdf->add_data($info);
+
             $nomefile = "attestato_" . $user['nome'] . "_" . $user['cognome'] . ".pdf";
             $pdf->fetch_pdf_template($template, null, true, false, 0);
             $pdf->Output($nomefile, 'D');
