@@ -76,6 +76,21 @@ class gglmsModelReportUtente extends JModelLegacy {
 
             $result['query'] =(string)$query;
             $result['rows'] = $rows;
+            $contenuti_id=array_column($rows,'attestato_id');
+
+            $query = $this->_db->getQuery(true);
+            $query->select('id,titolo');
+            $query->from('#__gg_contenuti');
+            $query->where('tipologia=5 and id not in ('.implode(',',$contenuti_id).')');
+            $this->_db->setQuery($query);
+            $attestati = $this->_db->loadAssocList();
+            $result['attestati_intermedi']=[];
+            foreach ($attestati as $attestato){
+
+                if($this->getPropedeuticita($attestato['id'])){
+                    array_push($result['attestati_intermedi'],$attestato);
+                }
+            }
 
             return $result;
         }catch (exceptions $e){
@@ -150,6 +165,26 @@ class gglmsModelReportUtente extends JModelLegacy {
             DEBUGG::error($e, 'error generate_pdf');
         }
         return 0;
+    }
+
+    private function getPropedeuticita($id_attestato){
+
+        $query = $this->_db->getQuery(true);
+        $query->select('prerequisiti');
+        $query->from('#__gg_contenuti');
+        $query->where('id='.$id_attestato);
+        $this->_db->setQuery($query);
+        $prerequisiti = $this->_db->loadResult();
+
+        if($prerequisiti) {
+            foreach (explode(",", $prerequisiti) as $idprerequisito) {
+                $model_prerequisito = new gglmsModelContenuto();
+                $prerequisito = $model_prerequisito->getContenuto($idprerequisito);
+                if (!$prerequisito->getStato()->completato)
+                    return  false;
+            }
+        }
+        return true;
     }
 
 }

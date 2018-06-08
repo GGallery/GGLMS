@@ -35,6 +35,21 @@ JHtml::_('bootstrap.modal');
             </div>
         </div>
     <?php } ?>
+    <h6 class="card-title">ULTERIORI ATTESTATI</h6>
+    <?php foreach ( $this->data['attestati_intermedi'] as $row) {?>
+        <div class="card text" style="margin-top: 10px;">
+            <div class="card-header">
+                <?php echo $row['titolo']; ?>
+            </div>
+            <div class="card-block">
+
+             <span class="card-text">scarica il relativo attestato cliccando sull'icona qui a fianco
+                     <a href="index.php?option=com_gglms&task=pdf.generateAttestato&content=<?php echo $row['id']; ?>"><img src="components/com_gglms/libraries/images/icona_pdf.png"></a>
+
+
+            </div>
+        </div>
+    <?php } ?>
     <div>
         DATI AGGIORNATI A: <?php echo $this->_params->get('data_sync')?>
     </div>
