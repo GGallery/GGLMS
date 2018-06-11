@@ -34,6 +34,7 @@ class gglmsViewReportUtente extends JViewLegacy {
         $this->_filterparam = new stdClass();
         $this->_filterparam->user_id = JRequest::getVar('user_id');
 
+
         parent::display($tpl);
 
     }

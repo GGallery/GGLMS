@@ -76,6 +76,12 @@ $fieldsets = $this->form->getFieldsets();
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                        echo $this->form->renderField('orientamento'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                     echo $this->form->renderField('path'); ?>
                 </div>
 

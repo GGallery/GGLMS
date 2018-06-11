@@ -34,10 +34,11 @@ class gglmsModelPdf extends JModelLegacy {
     }
 
 
-    public function _generate_pdf($user, $attestato, $contenuto_verifica) {
+    public function _generate_pdf($user, $orientamento,$attestato, $contenuto_verifica) {
         try {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
-            $pdf = new certificatePDF();
+            $orientation=$orientamento;
+            $pdf = new certificatePDF($orientation);
 
             if (null === ($datetest = $contenuto_verifica->getStato()->data))
                 throw new RuntimeException('L\'utente non ha superato l\'esame o lo ha fatto in data ignota', E_USER_ERROR);
