@@ -66,33 +66,39 @@ class gglmsModelReportUtente extends JModelLegacy {
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
 
-            foreach ($rows as &$row){
-                $row['percentuale_completamento']=number_format($carigemodel->percentualeCompletamento($row['id_corso'],$row['id_anagrafica']),2);
-                $query = $this->_db->getQuery(true);
-                $query->select("id from un_gg_contenuti where path=(select id_contenuto_completamento from un_gg_unit where id=".$row['id_corso'].")");
-                $this->_db->setQuery($query);
-                $row['attestato_id']=$this->_db->loadResult();
-            }
-
-            $result['query'] =(string)$query;
-            $result['rows'] = $rows;
-            $contenuti_id=array_column($rows,'attestato_id');
-
-            $query = $this->_db->getQuery(true);
-            $query->select('id,titolo');
-            $query->from('#__gg_contenuti');
-            $query->where('tipologia=5 and id not in ('.implode(',',$contenuti_id).')');
-            $this->_db->setQuery($query);
-            $attestati = $this->_db->loadAssocList();
-            $result['attestati_intermedi']=[];
-            foreach ($attestati as $attestato){
-
-                if($this->getPropedeuticita($attestato['id'])){
-                    array_push($result['attestati_intermedi'],$attestato);
+            if($rows){
+                foreach ($rows as &$row){
+                    $row['percentuale_completamento']=number_format($carigemodel->percentualeCompletamento($row['id_corso'],$row['id_anagrafica']),2);
+                    $query = $this->_db->getQuery(true);
+                    $query->select("id from un_gg_contenuti where path=(select id_contenuto_completamento from un_gg_unit where id=".$row['id_corso'].")");
+                    $this->_db->setQuery($query);
+                    $row['attestato_id']=$this->_db->loadResult();
                 }
+
+                $result['query'] =(string)$query;
+                $result['rows'] = $rows;
+                $contenuti_id=array_column($rows,'attestato_id');
+
+                $query = $this->_db->getQuery(true);
+                $query->select('id,titolo');
+                $query->from('#__gg_contenuti');
+                $query->where('tipologia=5 and id not in ('.implode(',',$contenuti_id).')');
+                $this->_db->setQuery($query);
+                $attestati = $this->_db->loadAssocList();
+                $result['attestati_intermedi']=[];
+                foreach ($attestati as $attestato){
+
+                    if($this->getPropedeuticita($attestato['id'])){
+                        array_push($result['attestati_intermedi'],$attestato);
+                    }
+                }
+                return $result;
+            }else{
+                return null;
+
             }
 
-            return $result;
+
         }catch (exceptions $e){
 
             DEBUGG::log('ERRORE DA GETDATA','ERRORE DA GET DATA',1,1);
