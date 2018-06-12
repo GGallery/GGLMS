@@ -55,7 +55,7 @@ class gglmsModelAttestatiUtente extends JModelLegacy {
 
             $query = $this->_db->getQuery(true);
             $query->select('name');
-            $query->from('crg_users');
+            $query->from('#__users');
             $query->where('id=' . $userid);
             $this->_db->setQuery($query);
 
