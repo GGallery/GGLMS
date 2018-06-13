@@ -84,7 +84,11 @@ $fieldsets = $this->form->getFieldsets();
                     if($this->item->id)
                     echo $this->form->renderField('path'); ?>
                 </div>
-
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('attestato_path'); ?>
+                </div>
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)

@@ -149,31 +149,38 @@
 		<field
 				name="path"
 				type="text"
-				label="Contenuto riferimento/Percorso entryfile"
-				description="E' contenuto (solitamente un quiz) per il quale viene presa la data da apporre sull'attestato"
+				label="Percorso entryfile"
+				description="Percorso entryfile dello scorm"
 				class="inputbox"
 				required=""
-				showon="tipologia:5[OR]tipologia:4"
+				showon="tipologia:4"
 				default=""
 				size="1"
 		>
 			<option value="">Nessun Prerequisito</option>
 		</field>
 
-		<!--<field-->
-				<!--name="path"-->
-				<!--type="listaprerequisiti"-->
-				<!--label="Contenuto riferimento/Percorso entryfile"-->
-				<!--description="E' contenuto (solitamente un quiz) per il quale viene presa la data da apporre sull'attestato"-->
-				<!--class="inputbox"-->
-				<!--required=""-->
-				<!--showon="tipologia:5 || tipologia:4"-->
-				<!--default=""-->
-				<!--size="1"-->
-		<!--&gt;-->
-			<!--<option value="">Nessun Prerequisito</option>-->
-		<!--</field>-->
+		<field
+				name="attestato_path"
+				type="sql"
+				label="contenuto riferimento"
+				description="E' contenuto (solitamente un quiz) per il quale viene presa la data da apporre sull'attestato"
+				class="inputbox"
+				query=" SELECT
+						u.id AS value,
+						u.titolo AS titolo
+						FROM #__gg_contenuti as u
 
+						ORDER BY u.id ASC
+						"
+				showon="tipologia:5"
+				default=""
+				key_field="value"
+				value_field="titolo"
+
+		>
+			<option value="">Nessun Prerequisito</option>
+		</field>
 
 		<field
 				name="id_quizdeluxe"

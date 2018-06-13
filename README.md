@@ -4,7 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
-
+3.8.33
+  - D: aggiunta colonna attestato_path in gg_contenuti
+  - B: gestione path-scorm vs path-attestato
 3.8.43
 
   - D: aggiunta colonna orientamento in contenuti
