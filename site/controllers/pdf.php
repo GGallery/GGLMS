@@ -66,7 +66,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
 
 
-            if (!$attestato->path)
+            if (!$attestato->attestato_path)
                 JFactory::getApplication()->enqueueMessage('Non hai impostato l\'id del contenuto di riferimento per l\'attestato ', 'error');
 
 
@@ -77,7 +77,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 )
                 ->from('#__gg_contenuti as c')
                 ->leftJoin('#__gg_contenuti_tipology as t on t.id=c.tipologia')
-                ->where('c.id = ' . $attestato->path);
+                ->where('c.id = ' . $attestato->attestato_path);
             $db->setQuery($query);
 
             $contenuto_verifica = $db->loadObject('gglmsModelContenuto');
