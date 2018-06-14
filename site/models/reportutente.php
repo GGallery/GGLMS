@@ -70,7 +70,7 @@ class gglmsModelReportUtente extends JModelLegacy {
                 foreach ($rows as &$row){
                     $row['percentuale_completamento']=number_format($carigemodel->percentualeCompletamento($row['id_corso'],$row['id_anagrafica']),2);
                     $query = $this->_db->getQuery(true);
-                    $query->select("id from un_gg_contenuti where path=(select id_contenuto_completamento from un_gg_unit where id=".$row['id_corso'].")");
+                    $query->select("id from un_gg_contenuti where attestato_path=(select id_contenuto_completamento from un_gg_unit where id=".$row['id_corso'].")");
                     $this->_db->setQuery($query);
                     $row['attestato_id']=$this->_db->loadResult();
                 }
@@ -83,8 +83,10 @@ class gglmsModelReportUtente extends JModelLegacy {
                 $query->select('id,titolo');
                 $query->from('#__gg_contenuti');
                 $query->where('tipologia=5 and id not in ('.implode(',',$contenuti_id).')');
+
                 $this->_db->setQuery($query);
                 $attestati = $this->_db->loadAssocList();
+
                 $result['attestati_intermedi']=[];
                 foreach ($attestati as $attestato){
 
@@ -92,6 +94,7 @@ class gglmsModelReportUtente extends JModelLegacy {
                         array_push($result['attestati_intermedi'],$attestato);
                     }
                 }
+
                 return $result;
             }else{
                 return null;
