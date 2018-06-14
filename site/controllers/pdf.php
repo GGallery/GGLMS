@@ -135,6 +135,7 @@ class gglmsControllerPdf extends JControllerLegacy
             $model = $this->getModel('pdf');
 
             $orientamento =  ($attestato->orientamento!=null? $attestato->orientamento:null);
+
             $model->_generate_pdf($user, $orientamento,$attestato, $contenuto_verifica);
 
         }catch (Exception $e){
