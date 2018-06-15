@@ -64,7 +64,15 @@ class gglmsControllerSyncViewStatoUser extends JControllerLegacy
         $maxts=substr($maxts,0,4)."-".substr($maxts,4,2)."-".substr($maxts,6,2)." ".substr($maxts,8,2).":".substr($maxts,10,4).":".substr($maxts,12,2);
         $result= $this->syncviewstatouserModel->syncViewStatoUser($offset,$limit,$maxts,$typeofcall);
         DEBUGG::log('FINE PROCEDURA ', ' ',0,1,0);
-        echo $result;
+        switch ($result){
+
+            case true:
+                echo '1';
+            break;
+            case false:
+                echo "0";
+        }
+
         $this->_app->close();
     }
 
