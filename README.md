@@ -4,7 +4,11 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
-3.8.33
+3.8.45
+
+  - D: aggiunta della colonna timestamp in quiz_deluxe_student_quiz
+  - F: implementazione dell'uso del timestamp come riferimento per la data di aggiornamento report 
+3.8.44
   - D: aggiunta colonna attestato_path in gg_contenuti
   - B: gestione path-scorm vs path-attestato
 3.8.43

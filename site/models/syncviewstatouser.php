@@ -93,12 +93,12 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
         if(count($datauserunit)>0){
             $this->insertViewUnita($datauserunit);
             $this->insertViewCorso($datauserunit);
-            $result= '0';
-
+            $result = true;
+            DEBUGG::log('FINE PROCEDURA CON TRUE', ' ',0,1,0);
 
         }else{
-            $result='1';
-            DEBUGG::log('FINE PROCEDURA ', ' ',0,1,0);
+            $result= false;
+            DEBUGG::log('FINE PROCEDURA CON FALSE', ' ',0,1,0);
         }
         return $result;
 
@@ -161,27 +161,20 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                 //echo $query;
                 $this->_db->setQuery($query);
                 $this->_db->execute();
+          }
 
+            DEBUGG::log('inseriti '.count($datauserunit).' record per INSERT VIEW UNITA ', 'insertData',0,1,0);
 
-
-            }
-
-            DEBUGG::log('inseriti '.count($datauserunit).' record per syncUser', 'insertData',0,1,0);
-
-            return;
-
-
-
+            return true;
 
         }
         catch (Exception $e)
         {
             DEBUGG::log($e, 'insert syncUserUnita',0,1,1);
+
+            return false;
         }
-
-
-
-    }
+   }
 
     private function insertViewCorso($datausercorsi){
 
@@ -206,6 +199,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
                     $completed=1;
                     $datafine=$isCorsoCompletoArray['data'];
+
                 }
 
 
@@ -215,19 +209,22 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                 //DEBUGG::log('inserisco '.$query, 'insertData',0,1,0);
                 $this->_db->setQuery($query);
                 $this->_db->execute();
+                if($completed==1)
+                    DEBUGG::log('anagrafica '.$record->id_anagrafica.' ha completato corso '.$record->id_corso, '',0,1,0);
 
 
 
             }
 
-            DEBUGG::log('elaborati '.count($datausercorsi).' record per syncUserCorso', 'insertData',0,1,0);
+            DEBUGG::log('elaborati '.count($datausercorsi).' record per INSERT VIEW CORSO', '',0,1,0);
 
-            return;
+            return true;
 
         }
         catch (Exception $e)
         {
             DEBUGG::log($e, 'insert syncUserCorso',0,1,0);
+            return false;
         }
 
 
