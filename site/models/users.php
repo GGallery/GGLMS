@@ -52,7 +52,7 @@ class gglmsModelUsers  extends JModelLegacy {
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('*, name as nome, name as cognome ')
+                ->select('*, SUBSTRING_INDEX(name,\' \',1) as nome, SUBSTRING_INDEX(name,\' \',-1) as cognome ')
                 ->from('#__users as u')
                 ->where('u.id = ' . $id);
 
