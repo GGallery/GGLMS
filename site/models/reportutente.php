@@ -70,31 +70,43 @@ class gglmsModelReportUtente extends JModelLegacy {
                 foreach ($rows as &$row){
                     $row['percentuale_completamento']=number_format($carigemodel->percentualeCompletamento($row['id_corso'],$row['id_anagrafica']),2);
                     $query = $this->_db->getQuery(true);
-                    $query->select("id from un_gg_contenuti where attestato_path=(select id_contenuto_completamento from un_gg_unit where id=".$row['id_corso'].")");
+                    $query->select("id from #__gg_contenuti where attestato_path=(select id_contenuto_completamento from #__gg_unit where id=".$row['id_corso'].")");
                     $this->_db->setQuery($query);
                     $row['attestato_id']=$this->_db->loadResult();
                 }
 
                 $result['query'] =(string)$query;
-                $result['rows'] = $rows;
                 $contenuti_id=array_column($rows,'attestato_id');
 
-                $query = $this->_db->getQuery(true);
-                $query->select('id,titolo');
-                $query->from('#__gg_contenuti');
-                $query->where('tipologia=5 and id not in ('.implode(',',$contenuti_id).')');
+                foreach ($contenuti_id as $key=>&$contenuto_id){
 
-                $this->_db->setQuery($query);
-                $attestati = $this->_db->loadAssocList();
-
+                    if($contenuto_id==null)
+                        //       var_dump($contenuto_id);
+                        unset($contenuti_id[$key]);
+                }
                 $result['attestati_intermedi']=[];
-                foreach ($attestati as $attestato){
+                if(count($contenuti_id)>0) {
 
-                    if($this->getPropedeuticita($attestato['id'])){
-                        array_push($result['attestati_intermedi'],$attestato);
+                    $query = $this->_db->getQuery(true);
+                    $query->select('id,titolo');
+                    $query->from('#__gg_contenuti');
+                    $query->where('tipologia=5 and id not in (' . implode(',', $contenuti_id) . ')');
+
+                    // echo $query;
+                    //die;
+
+                    $this->_db->setQuery($query);
+                    $attestati = $this->_db->loadAssocList();
+
+
+                    foreach ($attestati as $attestato) {
+
+                        if ($this->getPropedeuticita($attestato['id'])) {
+                            array_push($result['attestati_intermedi'], $attestato);
+                        }
                     }
                 }
-
+                $result['rows'] = $rows;
                 return $result;
             }else{
                 return null;
