@@ -74,8 +74,7 @@ CREATE TABLE `#__gg_contenuti` (
   `mod_track` int(255) DEFAULT '1',
   `prerequisiti` varchar(255) DEFAULT NULL,
   `id_completed_data` int(10) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  FULLTEXT KEY `titolo` (`titolo`,`abstract`,`descrizione`,`meta_tag`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
