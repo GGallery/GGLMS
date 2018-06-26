@@ -9,10 +9,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
-require_once JPATH_COMPONENT . '/models/contenuto.php';
-require_once JPATH_COMPONENT . '/models/unita.php';
-require_once JPATH_COMPONENT . '/models/coupon.php';
-require_once JPATH_COMPONENT . '/models/users.php';
+
 
 
 /**
@@ -21,8 +18,8 @@ require_once JPATH_COMPONENT . '/models/users.php';
  * @package    Joomla.Components
  * @subpackage WebTV
  */
-require_once JPATH_COMPONENT . '/models/syncviewcarigelearningbatch.php';
-class gglmsModelAttestatiUtente extends JModelLegacy {
+
+class gglmsModelReportTempiLearning extends JModelLegacy {
 
 	private $_dbg;
 	private $_app;
@@ -33,17 +30,8 @@ class gglmsModelAttestatiUtente extends JModelLegacy {
 
 	public function __construct($config = array()) {
 		parent::__construct($config);
-
-		//$user = JFactory::getUser();
-		//$this->_userid = $user->get('id');
-
 		$this->_db = JFactory::getDbo();
-
 		$this->_app = JFactory::getApplication('site');
-		//$this->params = $this->_app->getParams();
-
-
-		//$this->populateState();
 	}
 
 	public function __destruct() {
@@ -58,14 +46,32 @@ class gglmsModelAttestatiUtente extends JModelLegacy {
             $query->from('#__users');
             $query->where('id=' . $userid);
             $this->_db->setQuery($query);
-
             $result = $this->_db->loadResult();
-
             return $result;
         }catch (exceptions $e){
             DEBUGG::log('ERRORE DA GETUSER','ERRORE DA GET USER',1,1);
         }
     }
+
+    public function get_tempi($userid){
+
+        try {
+
+            $query = $this->_db->getQuery(true);
+            $query->select('month(data) as mese, year(data) as anno, sum(totale) as totale');
+            $query->from('#__ggif_cartellini');
+            $query->where('user_id=' . $userid);
+            $query->group('month(data), year(data)');
+            $query->order('year(data),month(data) asc');
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadObjectList();
+            return $result;
+        }catch (exceptions $e){
+            DEBUGG::log('ERRORE DA GET_TEMPI','ERRORE DA GET TEMPI',1,1);
+        }
+    }
+
+
 
 
 }

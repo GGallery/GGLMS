@@ -57,6 +57,7 @@ class gglmsControllerReportUtente extends JControllerLegacy
         try {
 
             $model=$this->getModel('reportutente');
+
             return $model->get_data($this->get_user());
         }catch (exceptions $ex){
             DEBUGG::log('ERRORE DA get_libretto','gglmsControllerLibretto',1,1);

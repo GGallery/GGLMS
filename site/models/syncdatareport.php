@@ -45,19 +45,20 @@ class gglmsModelSyncdatareport extends JModelLegacy {
 
                 if ($this->sync_report_users()) {
 
-                    if ($this->sync_report_count()) {
+                    if ($this->sync_report_count()!=-1) {
 
                         if ($this->sync_report(null, null)) {
 
                             if ($this->sync_report_complete()) {
 
                                     if($this->updateconfig())
-                                                return 1;
+                                        DEBUGG::log('FINE DELLA PROCEDURA','FINE DELLA PROCEDURA',0,1,0);
+                                        return true;
                             }
                         }
                     }
                 }
-
+                return false;
                 $this->_app->close();
 
 
@@ -83,7 +84,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             return "1";
         }
         catch (Exception $e){
-            DEBUGG::log($e, 'updateconfig',1,1,0);
+            DEBUGG::log($e->getMessage(), 'updateconfig',1,1,0);
         }
     }
 
@@ -150,12 +151,13 @@ class gglmsModelSyncdatareport extends JModelLegacy {
             $scormvar_list = $this->_getScormvarsVariation(0,0);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation(0,0);
             $list =($quizdeluxe_list==null)? $scormvar_list: array_merge($scormvar_list, $quizdeluxe_list);
-            DEBUGG::log('sync_report_count','sync_report_count, procedura per caricare: '.count($list).' records',0,1,0);
+            DEBUGG::log('sync_report_count','procedura per caricare: '.count($list).' records:'.count($scormvar_list).' scorm; '.count($quizdeluxe_list).' quiz',0,1,0);
             return count($list);
         }
         catch (Exception $e) {
             //echo $e->getMessage();
             DEBUGG::log($e->getMessage(), 'error in sync_report_count' , 0,1,0);
+            return -1;
         }
 
     }
@@ -193,7 +195,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
                 ->join('inner','#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe');
 
             if($this->params->get('data_sync'))
-                $query->where('c_date_time > "' . $this->params->get('data_sync').'"');
+                $query->where('q.timestamp > "' . $this->params->get('data_sync').'"');
 
             $query->setLimit($offset,$limit);
 

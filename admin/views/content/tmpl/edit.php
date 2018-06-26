@@ -76,9 +76,19 @@ $fieldsets = $this->form->getFieldsets();
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
-                    echo $this->form->renderField('path'); ?>
+                        echo $this->form->renderField('orientamento'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                    echo $this->form->renderField('path'); ?>
+                </div>
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('attestato_path'); ?>
+                </div>
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)

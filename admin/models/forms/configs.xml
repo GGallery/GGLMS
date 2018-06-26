@@ -123,6 +123,18 @@
 		</field>
 
 		<field
+				name="ulteriori_attestati"
+				type="radio"
+				class="btn-group"
+				label="Attiva la visione degli attestati intermedi"
+				labelclass="control-label"
+				default="0"
+		>
+			<option value="0">OFF</option>
+			<option value="1">ON</option>
+		</field>
+
+		<field
 				name="colonne_somme_tempi"
 				type="radio"
 				class="btn-group"
