@@ -64,11 +64,9 @@ function initializeElement($VarName,$VarValue) {
     global $UserID;
 
     // look for pre-existing values
+    // $interaction = strpos($VarName, 'cmi.interactions');
+    // if(!$interaction) {
 
-
-
-//    $interaction = strpos($VarName, 'cmi.interactions');
-//    if(!$interaction) {
     $query = $db->getQuery(true)
         ->select("VarValue")
         ->from("#__gg_scormvars")
@@ -83,8 +81,7 @@ function initializeElement($VarName,$VarValue) {
     logger($result, 'result read');
     logger($query, 'query read' , 1);
 
-
-    if (!$result) {
+    if (!$result && $result != 0 ) {
         try {
             $new_sco = new stdClass();
             $new_sco->scoid = $SCOInstanceID;
@@ -127,6 +124,10 @@ function initializeSCO() {
         initializeElement('cmi.core._children','student_id,student_name,lesson_location,credit,lesson_status,entry,score,total_time,exit,session_time');
         initializeElement('cmi.core.score._children','raw');
 
+        //NewInsert
+//        initializeElement('cmi.core.lesson_mode','');
+
+
         // student information
         initializeElement('cmi.core.student_name',getFromLMS('cmi.core.student_name'));
         initializeElement('cmi.core.student_id',getFromLMS('cmi.core.student_id'));
@@ -159,7 +160,7 @@ function initializeSCO() {
     initializeElement('cmi.interactions._count', 0);
 
     // new session so clear pre-existing session time
-    writeElement('cmi.core.session_time','');
+//    writeElement('cmi.core.session_time','');
 
     // create the javascript code that will be used to set up the javascript cache,
     $initializeCache = "var cache = new Object();\n";
@@ -191,7 +192,7 @@ function setInLMS($varname,$varvalue) {
     return "OK";
 }
 
-function getFromLMS($varname) {
+function    getFromLMS($varname) {
     global $db;
     global $SCOInstanceID;
     global $UserID;

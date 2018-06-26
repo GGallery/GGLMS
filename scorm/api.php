@@ -26,6 +26,24 @@ $initializeCache = initializeSCO();
         var flagFinished = false;
         var flagInitialized = false;
 
+
+        // ------------------------------------------
+        //   Error array map
+        // ------------------------------------------
+        var errorMessages = new Object();
+        errorMessages['0'] = 'No Error';
+        errorMessages['101'] = 'General Exception';
+        errorMessages['201'] = 'Invalid Argument';
+        errorMessages['202'] = 'Element Cannot Have Children';
+        errorMessages['203'] = 'Element Not an Array - Cannot Have Children';
+        errorMessages['301'] = 'API Not Initialized';
+        errorMessages['401'] = 'Data Model Element Not Implemented';
+        errorMessages['402'] = 'Invalid Set Value - Element is a Keyword';
+        errorMessages['403'] = 'Invalid Set Value - Element is Read Only';
+        errorMessages['404'] = 'Invalid Get Value - Element is Write Only';
+        errorMessages['405'] = 'Invalid Set Value - Incorrect Data Type';
+
+
         // ------------------------------------------
         //   SCO Data Cache - Initialization
         // ------------------------------------------
@@ -52,7 +70,7 @@ $initializeCache = initializeSCO();
         //   SCORM RTE Functions - Getting and Setting Values
         // ------------------------------------------
         function LMSGetValue(varname) {
-            console.log("LMSGetValue: " + varname + " -> " + cache[varname]);
+            console.log("LMS-GetValue: " + varname + " -> " + cache[varname]);
             // not initialized or already finished
             if ((! flagInitialized) || (flagFinished)) { return "false"; }
 
@@ -67,7 +85,7 @@ $initializeCache = initializeSCO();
         }
 
         function LMSSetValue(varname,varvalue) {
-
+            console.log("LMS-SetValue: " + varname + " -> " + cache[varname]);
             // not initialized or already finished
             if ((! flagInitialized) || (flagFinished)) {
                 return "false";
@@ -171,17 +189,20 @@ $initializeCache = initializeSCO();
         // ------------------------------------------
         function LMSGetLastError() {
             console.log("LMSGetLastError");
-            return 0;
+            return '';
         }
 
         function LMSGetDiagnostic(errorCode) {
             console.log("LMSGetDiagnostic");
-            return "diagnostic string";
+            return errorMessages[errorCode];
+            // return errorCode;
+
         }
 
         function LMSGetErrorString(errorCode) {
             console.log("LMSGetErrorString");
-            return "error string";
+            return errorMessages[errorCode];
+            // return errorCode;
         }
 
         // ------------------------------------------
@@ -284,6 +305,9 @@ $initializeCache = initializeSCO();
                 return "%"+m2.toUpperCase();
             });
         }
+
+
+
 
     </script>
 
