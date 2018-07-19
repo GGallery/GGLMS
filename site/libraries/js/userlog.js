@@ -1,14 +1,14 @@
 function UserLog(id_utente,id_contenuto,supporto){
 
     var _this=this;
-    console.log("Userlog "+id_utente+" - "+id_contenuto);
+    //console.log("Userlog "+id_utente+" - "+id_contenuto);
     var uniqid=Math.floor(Math.random()*10000000);
-
+    jQuery.ajaxSetup({ cache: false });
     jQuery.when(jQuery.get("index.php?option=com_gglms&id_utente="+id_utente+"&id_contenuto="+id_contenuto+"&supporto="+supporto+"&uniqid="+uniqid+"&task=report.insertUserLog"))
         .done(function(data){
-            console.log(data);
+      //      console.log(data);
             data=JSON.parse(data);
-            console.log(data);
+        //    console.log(data);
             if(data=='true') {
                 setInterval(function(){_this.updateUserLog(uniqid);},10000);
 
@@ -23,7 +23,8 @@ function UserLog(id_utente,id_contenuto,supporto){
 }
 
 function updateUserLog(uniqid) {
-    console.log(uniqid);
+    //console.log(uniqid);
+    jQuery.ajaxSetup({ cache: false });
     jQuery.when(jQuery.get("index.php?option=com_gglms&uniqid="+uniqid+"&task=report.updateUserLog"))
         .done(function(data){
             data=JSON.parse(data);

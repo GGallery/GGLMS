@@ -39,7 +39,7 @@ class gglmsModelSyncdatareport extends JModelLegacy {
     }
 
 
-    public function  sync(){
+    public function     sync(){
         try {
 
 
