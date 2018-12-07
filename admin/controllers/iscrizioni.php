@@ -16,43 +16,79 @@ require_once JPATH_COMPONENT . '/models/report.php';
 class gglmsControllerIscrizioni extends JControllerForm
 {
 
-        public function addUserToGroup()
-        {
-            $app = JFactory::getApplication();
+    public function addUserToGroup()
+    {
+        $app = JFactory::getApplication();
 
-            $jinput = $app->input;
-            $user_id = $jinput->get('user_id');
-            $group_id = $jinput->get('group_id');
+        $jinput = $app->input;
+        $user_id = $jinput->get('user_id');
+        $group_id = $jinput->get('group_id');
 
-            JUserHelper::addUserToGroup($user_id, $group_id);
+        JUserHelper::addUserToGroup($user_id, $group_id);
 
+        $this->sendEmail();
 
-            $app->redirect(JRoute::_('index.php?option=com_gglms&view=iscrizioni', false));
+        $app->redirect(JRoute::_('index.php?option=com_gglms&view=iscrizioni', false));
 
-        }
+    }
 
-        public function sendEmail()
-        {
-            $mailer = JFactory::getMailer();
-            $config = JFactory::getConfig();
-            $app = JFactory::getApplication();
-            $jinput = $app->input;
-            $mailer->setSender($config->get('mailfrom'));
+    public function sendEmail()
+    {
+        $mailer = JFactory::getMailer();
+        $config = JFactory::getConfig();
+        $app = JFactory::getApplication();
+        $jinput = $app->input;
+        $mailer->setSender($config->get('mailfrom'));
 
-            $recipient = array($jinput->get('email'));
-            $mailer->addRecipient($recipient);
+        $recipient = array($jinput->get('email', '', 'String'));
+        $mailer->addRecipient($recipient);
+        $mailer->setSubject('Iscrizione al corso completata - ' . $config->get('sitename'));
+        $mailer->isHTML(true);
 
-            $mailer->setSubject('Iscrizione al corso' . $config->get('sitename'));
-            $mailer->isHTML(true);
+        $body = 'Gentile utente, <br> 
+                la tua iscrizione al corso è stata completata correttamente.  <br><br>'.
+            'Ora puoi identificarti sulla piattaforma con le credenziali scelte al momento della registrazione ed accedere al corso' .$jinput->get('course_name');
 
-            $body = 'Gentile utente, <br> 
-                la tua iscrizione al corso è stata completata correttamente.  <br>'.
-                'Ora puoi identificarti sulla piattaforma con le credenziali scelte al momento della registrazione ed accedere al corso' .$jinput->get('course_name');
+        $body .= '<br><br>';
 
-            $mailer->setBody($body);
+        $body .= 'Lo staff di '. $config->get('sitename');
 
-            if (!$mailer->Send())
-                throw new RuntimeException('Error sending mail', E_USER_ERROR);
-        }
+        $mailer->setBody($body);
 
+        if (!$mailer->Send())
+            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+    }
+
+//    public function sendEmail2()
+//    {
+//
+//        $sender = 'info@imotraining.it';
+//        $email = 'tony@bslt.it';
+//        $sitename = 'imotraining.it';
+//        $body = 'hai superato il corso';
+//
+//
+//        $mailer = JFactory::getMailer();
+//        $config = JFactory::getConfig();
+//        $app = JFactory::getApplication();
+//        $jinput = $app->input;
+//        $mailer->setSender($sender);
+//
+//        $recipient = array($email);
+//        $mailer->addRecipient($recipient);
+//
+//        $mailer->setSubject('Iscrizione al corso' . $sitename);
+//        $mailer->isHTML(true);
+//
+//        $body = 'Gentile utente, <br>
+//                la tua iscrizione al corso è stata completata correttamente.  <br>'.
+//            'Ora puoi identificarti sulla piattaforma con le credenziali scelte al momento della registrazione ed accedere al corso' .$body;
+//
+//        echo $body
+//
+//        $mailer->setBody($body);
+//
+//        if (!$mailer->Send())
+//            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+//    }
 }
