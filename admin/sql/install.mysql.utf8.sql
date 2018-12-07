@@ -255,7 +255,7 @@ CREATE TABLE `#__gg_unit_map` (
   `ordinamento` int(11) DEFAULT '99',
 
   PRIMARY KEY (`idcontenuto`,`idunita`)
-) ENGINE=MyISAM AUTO_INCREMENT=1481 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
