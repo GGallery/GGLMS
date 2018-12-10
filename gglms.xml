@@ -10,7 +10,7 @@
 	<copyright>Copyright Info</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>3.8.45</version>
+	<version>3.8.46</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>GGLMS component</description>
 
@@ -46,12 +46,12 @@
 	</files>
 
 	<administration>
-		<menu link='index.php?option=com_gglms'>GGlms!</menu>
+			<menu link='index.php?option=com_gglms'>GGlms!</menu>
 
-		<files folder="admin">
-			<filename>index.html</filename>
-			<filename>gglms.php</filename>
-			<filename>controller.php</filename>
+			<files folder="admin">
+				<filename>index.html</filename>
+				<filename>gglms.php</filename>
+				<filename>controller.php</filename>
 
 			<folder>controllers</folder>
 			<folder>helpers</folder>
