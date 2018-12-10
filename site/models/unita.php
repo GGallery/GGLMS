@@ -270,7 +270,7 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
 
-            if ($data === 0)
+            if ($data == 0)
                 return false;
 
 //            if ($data == 0)
