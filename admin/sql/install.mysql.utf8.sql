@@ -74,8 +74,9 @@ CREATE TABLE `#__gg_contenuti` (
   `mod_track` int(255) DEFAULT '1',
   `prerequisiti` varchar(255) DEFAULT NULL,
   `id_completed_data` int(10) DEFAULT NULL,
-  `attestato_path`  varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `attestato_path`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `path`
+  PRIMARY KEY (`id`),
+  FULLTEXT KEY `titolo` (`titolo`,`abstract`,`descrizione`,`meta_tag`)
 ) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
@@ -254,8 +255,8 @@ CREATE TABLE `#__gg_unit_map` (
   `idunita` int(11) unsigned NOT NULL,
   `ordinamento` int(11) DEFAULT '99',
 
-  PRIMARY KEY (`idcontenuto`,`idunita`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`idcontenuto`)
+) ENGINE=MyISAM AUTO_INCREMENT=1481 DEFAULT CHARSET=utf8;
 
 
 

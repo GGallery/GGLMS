@@ -54,12 +54,6 @@ class gglmsHelper {
             $submenu == 'generacoupon'
         );
 
-        JHtmlSidebar::addEntry(
-            '<i class="icon-users  "></i>' . JText::_('Iscrizioni'),
-            'index.php?option=com_gglms&view=iscrizioni',
-            $submenu == 'iscrizioni'
-        );
-
 
         $document = JFactory::getDocument();
 
@@ -81,10 +75,6 @@ class gglmsHelper {
 
         if ($submenu == 'users') {
             $document->setTitle("Utenti");
-        }
-
-        if ($submenu == 'iscrizioni') {
-            $document->setTitle("Iscrizioni");
         }
 
 
