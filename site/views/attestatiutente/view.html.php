@@ -34,6 +34,7 @@ class gglmsViewAttestatiUtente extends JViewLegacy {
 
         $this->utente=$obj->get_user_name();
         $this->attestati=$obj->get_attestati();
+        $this->attestatiesma=$obj->get_attestati_esma();
 
         parent::display($tpl);
 

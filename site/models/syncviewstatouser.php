@@ -98,7 +98,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
         }else{
             $result= false;
-            DEBUGG::log('FINE PROCEDURA CON FALSE', ' ',0,1,0);
+            DEBUGG::log('FINE PROCEDURA CON 0 dati da inserire', ' ',0,1,0);
         }
         return $result;
 
@@ -209,8 +209,8 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                 //DEBUGG::log('inserisco '.$query, 'insertData',0,1,0);
                 $this->_db->setQuery($query);
                 $this->_db->execute();
-                if($completed==1)
-                    DEBUGG::log('anagrafica '.$record->id_anagrafica.' ha completato corso '.$record->id_corso, '',0,1,0);
+                //if($completed==1)
+                   // DEBUGG::log('anagrafica '.$record->id_anagrafica.' ha completato corso '.$record->id_corso, '',0,1,0);
 
 
 
