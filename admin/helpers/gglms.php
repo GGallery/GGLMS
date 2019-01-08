@@ -54,6 +54,12 @@ class gglmsHelper {
             $submenu == 'generacoupon'
         );
 
+        JHtmlSidebar::addEntry(
+            '<i class="icon-users  "></i>' . JText::_('Logs'),
+            'index.php?option=com_gglms&view=logs',
+            $submenu == 'generacoupon'
+        );
+
 
         $document = JFactory::getDocument();
 
@@ -77,6 +83,9 @@ class gglmsHelper {
             $document->setTitle("Utenti");
         }
 
+        if ($submenu == 'logs') {
+            $document->setTitle("Logs");
+        }
 
 
 

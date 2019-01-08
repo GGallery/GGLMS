@@ -55,7 +55,9 @@ class gglmsModelStatoContenuto extends JModelLegacy {
             if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish' || $data['cmi.core.lesson_status']->varValue == 'passed') {
                 $this->completato = 1;
                 $this->descrizione = 'Completato';
-                $this->data = ($data['cmi.core.last_visit_date']->varValue!=null && strtotime($data['cmi.core.last_visit_date']->varValue)!=false) ? $data['cmi.core.last_visit_date']->varValue : $data['cmi.core.lesson_status']->TimeStamp;
+                $this->data = (isset($data['cmi.core.last_visit_date']->varValue)!=null && strtotime(isset($data['cmi.core.last_visit_date']->varValue))!=false)
+                    ? $data['cmi.core.last_visit_date']->varValue
+                    : $data['cmi.core.lesson_status']->TimeStamp;
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
