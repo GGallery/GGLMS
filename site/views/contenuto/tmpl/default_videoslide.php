@@ -20,7 +20,11 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
     jQuery(document).ready(function ($) {
 
-        <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+        <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) { ?>
+        var uniqid=Math.floor(Math.random()*100000);
+        StartLog(<?php echo $id_utente; ?> , <?php echo $id_elemento; ?>, null,uniqid);
+
+        <?php } ?>
 
 
         var hasPlayed = false;
