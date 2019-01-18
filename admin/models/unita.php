@@ -142,6 +142,7 @@ class gglmsModelunita extends JModelAdmin {
                 $db->setQuery($query);
                 $newid_contenuto = $db->loadResult();
                 array_push($this->array_corrispondenze_contenuti,['vecchioid'=>$contenuto['idcontenuto'],'nuovoid'=>$newid_contenuto]);
+
                 //NUOVA PROCEDURA TRACCIAMENTO DUPLICAZIONI CONTENUTI
                 $query="insert into #__gg_traccia_duplicazione_contenuti  values (".$this->id_corso.",".$contenuto['idcontenuto'].",".$newid_contenuto.",now())";
 
