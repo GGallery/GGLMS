@@ -42,7 +42,7 @@ class gglmsModellogs extends JModelList
 
 
         $query->select("anagrafica.id_user,anagrafica.nome, anagrafica.cognome, u.id, u.titolo, 
-if((select stato from crg_gg_view_stato_user_corso as v where v.id_anagrafica=anagrafica.id and v.id_corso=u.id)=1,'completato','non completato') as stato, 
+if((select stato from crg_gg_view_stato_user_corso as v where v.id_anagrafica=anagrafica.id and v.id_corso=u.id)=1,'completato',if((select date_format(v.data_inizio,'%d/%m/%Y') from crg_gg_view_stato_user_corso as v where v.id_anagrafica=anagrafica.id and v.id_corso=u.id) is null OR (select date_format(v.data_inizio,'%d/%m/%Y') from crg_gg_view_stato_user_corso as v where v.id_anagrafica=anagrafica.id and v.id_corso=u.id)='00/00/0000','non iniziato','non completato')) as stato, 
 (select date_format(v.data_inizio,'%d/%m/%Y') from crg_gg_view_stato_user_corso as v where v.id_anagrafica=anagrafica.id and v.id_corso=u.id)as 'data_inizio',
 (select date_format(v.data_fine,'%d/%m/%Y') from crg_gg_view_stato_user_corso as v where v.id_anagrafica=anagrafica.id and v.id_corso=u.id)as 'data_fine'
 ")
