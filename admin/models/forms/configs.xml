@@ -31,6 +31,28 @@
 
 
 		<field
+				name="id_gruppo_societa"
+				type="listagruppi"
+				class="inputbox"
+				label="Gruppo padre per lista societa"
+				description="Use Ctrl per selezionare più gruppi"
+				required=""
+		>
+		</field>
+
+		<field
+				name="id_gruppo_corsi"
+				type="listagruppi"
+				class="inputbox"
+				label="Gruppo padre per lista gruppi acceosso corsi"
+				description="Use Ctrl per selezionare più gruppi"
+				required=""
+		>
+		</field>
+
+
+
+		<field
 				name="id_gruppi_visibili"
 				type="listagruppi"
 				class="inputbox"

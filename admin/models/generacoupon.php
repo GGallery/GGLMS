@@ -62,10 +62,10 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
             for ($i = 0; $i < $_REQUEST['quantita']; $i++) {
                 $prefisso = $_REQUEST['prefisso'];
                 $coupons[$i] = $this->_generate_coupon($prefisso);
-                $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['transition_id'], $_REQUEST['attestato'], $user_id, "1", 1, $_REQUEST['durata'], 'now()');
+                $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['transition_id'], $_REQUEST['attestato'], $user_id, "1", 1, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
             }
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, corsi_abilitati, gruppo, id_iscrizione, attestato, id_societa, abilitato, trial, durata, data_abilitazione) VALUES ' . join(',', $values);
+            $query = 'INSERT INTO #__gg_coupon (coupon, corsi_abilitati, gruppo, id_iscrizione, attestato, id_societa, abilitato, trial, durata, data_abilitazione, id_gruppi) VALUES ' . join(',', $values);
 
             echo $query;
             $db->setQuery($query);
@@ -107,7 +107,49 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
         return $return;
     }
 
+    public function getGruppiSocieta(){
+        try {
+            $db = JFactory::getDbo();
+            $db->setQuery("SELECT  config_value FROM #__gg_configs WHERE config_key= 'id_gruppo_societa'");
+            $gruppo_societa = $db->loadResult();
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__usergroups AS ug')
+                ->where('parent_id = '.$gruppo_societa);
+
+            $db->setQuery($query);
+            $data = $db->loadObjectList();
+
+            return $data;
+
+        } catch (Exception $e) {
+
+        }
+
+    }
 
 
+    public function getGruppiCorsi(){
+        try {
+            $db = JFactory::getDbo();
+            $db->setQuery("SELECT  config_value FROM #__gg_configs WHERE config_key= 'id_gruppo_corsi'");
+            $gruppo_corsi = $db->loadResult();
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__usergroups AS ug')
+                ->where('parent_id = '.$gruppo_corsi);
+
+            $db->setQuery($query);
+            $data = $db->loadObjectList();
+
+            return $data;
+
+        } catch (Exception $e) {
+
+        }
+
+    }
 
 }

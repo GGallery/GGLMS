@@ -4,12 +4,13 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.47
+  - G: Aggiunta modalita coupon to group per accesso al corso - da migliorare
+  
 3.8.46
-
   - F: Tolto redirect automatico alla pagina per corsi con accesso a coupon. 
 
 3.8.45
-
   - D: aggiunta della colonna timestamp in quiz_deluxe_student_quiz
   - F: implementazione dell'uso del timestamp come riferimento per la data di aggiornamento report 
 

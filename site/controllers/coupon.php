@@ -17,7 +17,7 @@ defined('_JEXEC') or die;
 class gglmsControllerCoupon extends JControllerLegacy
 {
 
-	public function check_coupon() {
+    public function check_coupon() {
 
         $japp = JFactory::getApplication();
 
@@ -34,16 +34,22 @@ class gglmsControllerCoupon extends JControllerLegacy
                 $results['valido'] = 0;
             } else {
                 $model->assegnaCoupon($coupon);
-                $corsi_abilitati = $model->corsi_abilitati($coupon);
+
+                if($dettagli_coupon['id_gruppi'])
+                    $model->setUsergroupUserGroup($dettagli_coupon['id_gruppi']);
 
                 $results['valido'] = 1;
                 $results['report'] = "<p> Coupon valido. (COD.04)</p>";
-                $results['report'] .= $model->get_listaCorsiFast($corsi_abilitati);
+
+                if($dettagli_coupon['corsi_abilitati'])
+                    $results['report'] .= $model->get_listaCorsiFast($dettagli_coupon['corsi_abilitati']);
+                else
+                    $results['report'] = "Inserimento effettuato con successo. Torna all'area formativa per accedere ai nuovi corsi.";
             }
         }
 
         echo json_encode($results);
         $japp->close();
-	}
-	
+    }
+
 }

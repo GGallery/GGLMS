@@ -141,4 +141,24 @@ class gglmsModelcoupon extends JModelLegacy {
         return $report;
     }
 
+    public function setUsergroupUserGroup($ids){
+
+        try {
+            $list = explode(',', $ids);
+
+            foreach ($list as $id_gruppo) {
+                if($id_gruppo) {
+                    $query = "INSERT IGNORE INTO #__user_usergroup_map VALUE($this->_userid , $id_gruppo)";
+                    $this->_db->setQuery($query);
+                    $this->_db->execute();
+                }
+            }
+
+
+        } catch (Exception $e) {
+            throw new BadMethodCallException('Errore nella procedura setUsergroupUserMap', E_USER_ERROR);
+        }
+
+    }
+
 }

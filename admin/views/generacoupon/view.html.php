@@ -18,6 +18,12 @@ class gglmsViewGeneracoupon extends JViewLegacy {
 
 //        $this->form = $form;
 
+
+        $this->gruppisocieta    = $this->get('GruppiSocieta');
+        $this->gruppicorsi      = $this->get('GruppiCorsi');
+//        $usergroup = $this->get('UserGroup');
+//        print_r($usergroup);
+
         $this->addToolBar();
 
         jimport('joomla.environment.uri');
@@ -26,17 +32,19 @@ class gglmsViewGeneracoupon extends JViewLegacy {
         $this->setDocument();
 
 
+
+
         // Display the template
         parent::display($tpl);
         // Set the document
     }
 
     protected function addToolBar() {
-        JFactory::getApplication()->input->get('hidemainmenu', true);//RS JRequest::setVar('hidemainmenu', true);
+        JFactory::getApplication()->input->get('hidemainmenu', true);
         JToolBarHelper::title("Generazione di fenomeni", 'generacoupon');
         JToolBarHelper::save('generacoupon.save','Genera coupon');
         JToolBarHelper::cancel('generacoupon.cancel',  'JTOOLBAR_CANCEL' );
-       
+
     }
 
     /**
@@ -48,5 +56,8 @@ class gglmsViewGeneracoupon extends JViewLegacy {
         $document = JFactory::getDocument();
         $document->setTitle("Generazione di fenomeni");
     }
+
+
+
 
 }
