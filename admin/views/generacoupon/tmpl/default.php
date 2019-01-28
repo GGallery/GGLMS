@@ -36,10 +36,10 @@ JHtml::_('formbehavior.chosen', 'select');
             <div class="row-fluid">
                 <div class="control-group">
                     <div class="control-label">
-                        <label>Quantita</label>
+                        <label>Quantità</label>
                     </div>
                     <div class="controls">
-                        <input type="text" class="form-group" id="quantita" name="quantita">
+                        <input type="number" class="form-group" id="quantita" name="quantita">
                     </div>
                 </div>
             </div>
@@ -48,6 +48,7 @@ JHtml::_('formbehavior.chosen', 'select');
                 <div class="control-group">
                     <div class="control-label">
                         <label>Prefisso</label>
+                        <small>opzionale ma consigliato</small>
                     </div>
                     <div class="controls">
                         <input type="text" class="form-group" id="prefisso" name="prefisso">
@@ -58,10 +59,45 @@ JHtml::_('formbehavior.chosen', 'select');
             <div class="row-fluid">
                 <div class="control-group">
                     <div class="control-label">
-                        <label>Unita da abilitare</label>
+                        <label>Unita da abilitare </label>
+                        <small>(accesso al corso in base al coupon)</small>
                     </div>
                     <div class="controls">
                         <input type="text" class="form-group" id="course_id" name="course_id">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div class="control-group">
+                    <div class="control-label">
+                        <label>Gruppi a cui iscriverlo (accesso al corso in base a iscrizione gruppo)</label>
+                    </div>
+                    <select class="form-group" id="id_gruppi" name="id_gruppi" multiple="true">
+                        <?php
+                        foreach ($this->gruppicorsi as $group) {
+                            echo "<option value='$group->id'>$group->title</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div class="control-group">
+                    <div class="control-label">
+                        <label>Società a cui afferiscono questi coupon</label>
+                    </div>
+                    <div class="controls">
+
+                        <select class="form-group" id="id_societa" name="id_societa" multiple="true">
+                            <?php
+                            foreach ($this->gruppisocieta as $group) {
+                                echo "<option value='$group->id'>$group->title</option>";
+                            }
+                            ?>
+                        </select>
+
                     </div>
                 </div>
             </div>
@@ -70,10 +106,10 @@ JHtml::_('formbehavior.chosen', 'select');
             <div class="row-fluid">
                 <div class="control-group">
                     <div class="control-label">
-                        <label>Descrizione</label>
+                        <label>Brevissima descrizione</label>
                     </div>
                     <div class="controls">
-                        <input type="text" class="form-group" id="transition_id" name="transition_id">
+                        <input type="text" class="form-group" id="transition_id" name="id_iscrizione">
                     </div>
                 </div>
             </div>
@@ -84,7 +120,7 @@ JHtml::_('formbehavior.chosen', 'select');
                         <label>Attestato</label>
                     </div>
                     <div class="controls">
-<!--                        <input type="text" class="form-group" id="attestato" name="attestato">-->
+                        <!--                        <input type="text" class="form-group" id="attestato" name="attestato">-->
                         <select class="form-group" id="attestato" name="attestato">
                             <option value="0">NO</option>
                             <option value="1">SI</option>

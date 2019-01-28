@@ -141,6 +141,7 @@ CREATE TABLE `#__gg_coupon` (
   `attestato` tinyint(1) unsigned DEFAULT NULL,
   `trial` tinyint(1) unsigned DEFAULT '0',
   `id_societa` int(11) DEFAULT NULL,
+  `id_gruppi` int(11) DEFAULT NULL,
   PRIMARY KEY (`coupon`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
