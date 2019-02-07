@@ -37,6 +37,8 @@
         <?php echo $this->form->renderField('visibilita_durata_unita'); ?>
     </div>
 
+
+
     <div class="row-fluid">
         <?php echo $this->form->renderField('filtro_date_corsi'); ?>
     </div>

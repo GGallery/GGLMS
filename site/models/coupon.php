@@ -16,35 +16,41 @@ jimport('joomla.application.component.model');
  * @package    Joomla.Components
  * @subpackage WebTV
  */
-class gglmsModelcoupon extends JModelLegacy {
+class gglmsModelcoupon extends JModelLegacy
+{
 
     private $_japp;
     private $_coupon;
     protected $_db;
     private $_userid;
     private $_user;
+    public $_params;
 
-    public function __construct($config = array()) {
+    public function __construct($config = array())
+    {
         parent::__construct($config);
         $this->_dbg = JRequest::getBool('dbg', 0);
-        $this->_japp =  JFactory::getApplication();
-        $this->_db =  JFactory::getDbo();
+        $this->_japp = JFactory::getApplication();
+        $this->_db = JFactory::getDbo();
         $this->_user = JFactory::getUser();
         $this->_userid = $this->_user->get('id');
+        $this->_params = $this->_japp->getParams();
 
     }
 
-    public function __destruct() {
+    public function __destruct()
+    {
 
     }
 
-    public function corsi_abilitati($coupon) {
+    public function corsi_abilitati($coupon)
+    {
         try {
 
             $query = $this->_db->getQuery(true)
                 ->select('corsi_abilitati')
                 ->from('#__gg_coupon as c')
-                ->where('c.coupon = "' .$coupon .'"');
+                ->where('c.coupon = "' . $coupon . '"');
 
 
             $this->_db->setQuery($query);
@@ -61,12 +67,13 @@ class gglmsModelcoupon extends JModelLegacy {
         return $corsi_abilitati;
     }
 
-    public function check_Coupon($coupon) {
+    public function check_Coupon($coupon)
+    {
         try {
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_coupon as c')
-                ->where('c.coupon="'.($coupon).'"')
+                ->where('c.coupon="' . ($coupon) . '"')
                 ->where('c.id_utente IS NULL')
                 ->where('c.data_abilitazione < NOW()');
 
@@ -85,7 +92,8 @@ class gglmsModelcoupon extends JModelLegacy {
      * Aggiorno la tabella coupon inserendo l'id dell'utente che sta utilizzando quel coupon
      */
 
-    public function assegnaCoupon($coupon) {
+    public function assegnaCoupon($coupon)
+    {
 
         try {
             $query = '
@@ -112,7 +120,8 @@ class gglmsModelcoupon extends JModelLegacy {
      *
      */
 
-    public function get_listaCorsiFast($id_corsi) {
+    public function get_listaCorsiFast($id_corsi)
+    {
 
         $id_corsi_array = explode(",", $id_corsi);
         if (count($id_corsi_array) > 1)
@@ -136,18 +145,19 @@ class gglmsModelcoupon extends JModelLegacy {
             } catch (Exception $e) {
                 DEBUGG::error($e);
             }
-            $report.='<p><a href="index.php?option=com_gglms&view=unita&id=' . $unita['id'] . '">' . $unita['titolo'] . '</a></p>';
+            $report .= '<p><a href="index.php?option=com_gglms&view=unita&id=' . $unita['id'] . '">' . $unita['titolo'] . '</a></p>';
         }
         return $report;
     }
 
-    public function setUsergroupUserGroup($ids){
+    public function setUsergroupUserGroup($ids)
+    {
 
         try {
             $list = explode(',', $ids);
 
             foreach ($list as $id_gruppo) {
-                if($id_gruppo) {
+                if ($id_gruppo) {
                     $query = "INSERT IGNORE INTO #__user_usergroup_map VALUE($this->_userid , $id_gruppo)";
                     $this->_db->setQuery($query);
                     $this->_db->execute();
