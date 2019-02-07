@@ -52,6 +52,10 @@ JHtml::_('formbehavior.chosen', 'select');
             include(dirname(__FILE__).DS.'contenuto.php');
             echo JHtml::_('bootstrap.endTab');
 
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'Coupon', JText::_('Coupon', true));
+            include(dirname(__FILE__).DS.'coupon.php');
+            echo JHtml::_('bootstrap.endTab');
+
 
             ?>
 

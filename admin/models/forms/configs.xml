@@ -1,104 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addrulepath="/administrator/components/com_gglms/models/rules">
 
-	<fieldset addfieldpath="/administrator/components/com_gglms/models/fields" >
+    <fieldset addfieldpath="/administrator/components/com_gglms/models/fields">
 
-		<field
-				name="visualizza_solo_mieicorsi"
-				type="radio"
-				class="btn-group"
-				label="Visualizza solo miei corsi"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-
-		<field
-				name="jumper_normalmente_aperti"
-				type="radio"
-				class="btn-group"
-				label="Box jumper aperto"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-			<option value="1">ON</option>
-		</field>
+        <field
+                name="visualizza_solo_mieicorsi"
+                type="radio"
+                class="btn-group"
+                label="Visualizza solo miei corsi"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
 
-		<field
-				name="id_gruppo_societa"
-				type="listagruppi"
-				class="inputbox"
-				label="Gruppo padre per lista societa"
-				description="Use Ctrl per selezionare più gruppi"
-				required=""
-		>
-		</field>
-
-		<field
-				name="id_gruppo_corsi"
-				type="listagruppi"
-				class="inputbox"
-				label="Gruppo padre per lista gruppi acceosso corsi"
-				description="Use Ctrl per selezionare più gruppi"
-				required=""
-		>
-		</field>
+        <field
+                name="jumper_normalmente_aperti"
+                type="radio"
+                class="btn-group"
+                label="Box jumper aperto"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+            <option value="1">ON</option>
+        </field>
 
 
+        <field
+                name="id_gruppo_societa"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo padre per lista societa"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+        >
+        </field>
 
-		<field
-				name="id_gruppi_visibili"
-				type="listagruppi"
-				class="inputbox"
-				label="Gruppi visibili per accesso corso e report"
-				description="Use Ctrl per selezionare più gruppi"
-				required=""
-				multiple="multiple"
-				size="10"
-				default="2"
-		>
-
-		</field>
-
-
-		<field
-				name="nomenclatura_unita"
-				type="text"
-				class=""
-				label="Nomenclatura unita"
-				labelclass="control-label"
-				default="Unita"
-		/>
+        <field
+                name="id_gruppo_corsi"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo padre per lista gruppi accesso corsi"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+        >
+        </field>
 
 
-		<field
-				name="data_sync"
-				type="text"
-				class=""
-				label="Data ultima sync report"
-				labelclass="control-label"
-				readonly="true"
-				default="0000-00-00"
-		/>
+        <field
+                name="id_gruppi_visibili"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppi visibili per accesso corso e report"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+                multiple="multiple"
+                size="10"
+                default="2"
+        >
 
-		<field 	name="alert_lista_corsi"
-				  type="listacorsi"
-				  label="scegli i corsi su cui abilitare l'avviso"
-				  description=""
-				  class="inputbox"
-				  id="select_lista_corsi_alert"
-				  multiple="multiple"
-				  size="10"
-				  default=""
+        </field>
 
 
-		/>
+        <field
+                name="nomenclatura_unita"
+                type="text"
+                class=""
+                label="Nomenclatura unita"
+                labelclass="control-label"
+                default="Unita"
+        />
+
+
+        <field
+                name="data_sync"
+                type="text"
+                class=""
+                label="Data ultima sync report"
+                labelclass="control-label"
+                readonly="true"
+                default="0000-00-00"
+        />
+
+        <field name="alert_lista_corsi"
+               type="listacorsi"
+               label="scegli i corsi su cui abilitare l'avviso"
+               description=""
+               class="inputbox"
+               id="select_lista_corsi_alert"
+               multiple="multiple"
+               size="10"
+               default=""
+
+
+        />
 
         <field
                 name="alert_days_before"
@@ -110,396 +109,456 @@
         />
 
 
-		<field
-				name="alert_mail_text"
-				class="inputbox"
-				label="testo della mail di avviso"
-				type="textarea"
-				cols="25"
-				rows="3"
-				default="Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso"
-		/>
+        <field
+                name="alert_mail_text"
+                class="inputbox"
+                label="testo della mail di avviso"
+                type="textarea"
+                cols="25"
+                rows="3"
+                default="Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso"
+        />
 
-		<field
-				name="alert_mail_object"
-				class="inputbox"
-				label="Oggetto della mail di avviso"
-				type="textarea"
-				cols="25"
-				rows="2"
-				default="Avviso scadenza corso Carige Learning"
-		/>
-
-
-
-		<field
-				name="log_utente"
-				type="radio"
-				class="btn-group"
-				label="Attiva il tracciamento Log degli utenti"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="ulteriori_attestati"
-				type="radio"
-				class="btn-group"
-				label="Attiva la visione degli attestati intermedi"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="colonne_somme_tempi"
-				type="radio"
-				class="btn-group"
-				label="Attiva sul report le colonne dei tempi impiegati"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="nomenclatura_moduli"
-				type="text"
-				class=""
-				label="Nomenclatura moduli"
-				labelclass="control-label"
-				default="Moduli"
-		/>
-
-		<field
-				name="titolo_unita_visibile"
-				type="radio"
-				class="btn-group"
-				label="Titolo unita visibile"
-				labelclass="control-label"
-				default="1">
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
+        <field
+                name="alert_mail_object"
+                class="inputbox"
+                label="Oggetto della mail di avviso"
+                type="textarea"
+                cols="25"
+                rows="2"
+                default="Avviso scadenza corso Carige Learning"
+        />
 
 
-		<field
-				name="titolo_moduli_visibile"
-				type="radio"
-				class="btn-group"
-				label="Titolo moduli visibile"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
+        <field
+                name="log_utente"
+                type="radio"
+                class="btn-group"
+                label="Attiva il tracciamento Log degli utenti"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="ulteriori_attestati"
+                type="radio"
+                class="btn-group"
+                label="Attiva la visione degli attestati intermedi"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="colonne_somme_tempi"
+                type="radio"
+                class="btn-group"
+                label="Attiva sul report le colonne dei tempi impiegati"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="nomenclatura_moduli"
+                type="text"
+                class=""
+                label="Nomenclatura moduli"
+                labelclass="control-label"
+                default="Moduli"
+        />
+
+        <field
+                name="titolo_unita_visibile"
+                type="radio"
+                class="btn-group"
+                label="Titolo unita visibile"
+                labelclass="control-label"
+                default="1">
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
 
-		<field
-				name="integrazione"
-				type="radio"
-				class="btn-group"
-				label="Integrazione componente"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="">Nessuno</option>
-			<option value="cb">Community builder</option>
-			<option value="eb">Event booking</option>
-		</field>
-
-		<field 	name="campo_event_booking_auto_abilitazione_coupon"
-				  type="listafieldeb"
-				  label="Campo EB autoabilitazioneCoupon"
-				  class="inputbox"
-				  description="Campo EventBooking autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
-				  showon="integrazione:eb"
-		/>
-
-		<field 	name="campo_community_builder_auto_abilitazione_coupon"
-				  type="listafieldcb"
-				  label="Campo CB autoabilitazioneCoupon"
-				  class="inputbox"
-				  description="Campo CommunityBuilder autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
-				  showon="integrazione:cb"
-		/>
+        <field
+                name="titolo_moduli_visibile"
+                type="radio"
+                class="btn-group"
+                label="Titolo moduli visibile"
+                labelclass="control-label"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
 
-		<field
-				name="verifica_cf"
-				type="radio"
-				class="btn-group"
-				label="Verifica Codice fiscale su anagrafica"
-				showon="integrazione:eb[OR]integrazione:cb"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
+        <field
+                name="integrazione"
+                type="radio"
+                class="btn-group"
+                label="Integrazione componente"
+                labelclass="control-label"
+                default="1"
+        >
+            <option value="">Nessuno</option>
+            <option value="cb">Community builder</option>
+            <option value="eb">Event booking</option>
+        </field>
 
-		<field 	name="campo_event_booking_controllo_cf"
-				  type="listafieldebxcf"
-				  label="Campo EventBooking controllo Codice fiscale"
-				  description="Campo EventBooking controllo CF"
-				  showon="verifica_cf:1[AND]integrazione:eb"
-				  class="inputbox"
-		/>
+        <field name="campo_event_booking_auto_abilitazione_coupon"
+               type="listafieldeb"
+               label="Campo EB autoabilitazioneCoupon"
+               class="inputbox"
+               description="Campo EventBooking autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
+               showon="integrazione:eb"
+        />
 
-		<field 	name="campo_community_builder_controllo_cf"
-				  type="listafieldcbxcf"
-				  label="Campo CB controllo Codice fiscale"
-				  description="Campo Community Builder controllo CF"
-				  showon="verifica_cf:1[AND]integrazione:cb"
-				  class="inputbox"
-				  default=""
-		/>
-
-		<field 	name="campo_community_builder_nome"
-				  type="listafieldcbxrep"
-				  label="Campo CB Nome"
-				  description="Campo Community Builder Nome"
-				  showon="integrazione:cb"
-				  class="inputbox"
-				  default=""
-		/>
-
-		<field 	name="campo_community_builder_cognome"
-				  type="listafieldcbxrep"
-				  label="Campo CB controllo Cognome"
-				  description="Campo Community Builder Cognome"
-				  showon="integrazione:cb"
-				  class="inputbox"
-				  default=""
-		/>
-
-		<field 	name="campo_event_booking_nome"
-				  type="listafieldebxrep"
-				  label="Campo EB controllo Nome"
-				  description="Campo Evento Booking Nome"
-				  showon="integrazione:eb"
-				  class="inputbox"
-				  default=""
-		/>
-
-		<field 	name="campo_event_booking_cognome"
-				  type="listafieldebxrep"
-				  label="Campo EB controllo Cognome"
-				  description="Campo Evento Booking Cognome"
-				  showon="integrazione:eb"
-				  class="inputbox"
-				  default=""
-		/>
-
-		<field
-				name="larghezza_box_contenuti"
-				type="radio"
-				class="btn-group"
-				label="Larghezza singolo box contenuti"
-				labelclass="control-label"
-				default="size-30">
-			<option value="size-15">15%</option>
-			<option value="size-20">20%</option>
-			<option value="size-25">25%</option>
-			<option value="size-30">30%</option>
-			<option value="size-33">33%</option>
-			<option value="size-40">40%</option>
-			<option value="size-50">50%</option>
-			<option value="size-60">60%</option>
-			<option value="size-66">66%</option>
-			<option value="size-70">70%</option>
-			<option value="size-75">75%</option>
-			<option value="size-80">80%</option>
-			<option value="size-85">85%</option>
-			<option value="size-90">90%</option>
-		</field>
+        <field name="campo_community_builder_auto_abilitazione_coupon"
+               type="listafieldcb"
+               label="Campo CB autoabilitazioneCoupon"
+               class="inputbox"
+               description="Campo CommunityBuilder autoabilitazioneCoupon sempre che sia una modalità di accesso scelta per l'unità"
+               showon="integrazione:cb"
+        />
 
 
-		<field
-				name="larghezza_box_unita"
-				type="radio"
-				class="btn-group"
-				label="Larghezza singolo box unita"
-				labelclass="control-label"
-				default="size-30">
-			<option value="size-15">15%</option>
-			<option value="size-20">20%</option>
-			<option value="size-25">25%</option>
-			<option value="size-30">30%</option>
-			<option value="size-33">33%</option>
-			<option value="size-40">40%</option>
-			<option value="size-50">50%</option>
-			<option value="size-60">60%</option>
-			<option value="size-66">66%</option>
-			<option value="size-70">70%</option>
-			<option value="size-75">75%</option>
-			<option value="size-80">80%</option>
-			<option value="size-85">85%</option>
-			<option value="size-90">90%</option>
-		</field>
+        <field
+                name="verifica_cf"
+                type="radio"
+                class="btn-group"
+                label="Verifica Codice fiscale su anagrafica"
+                showon="integrazione:eb[OR]integrazione:cb"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field name="campo_event_booking_controllo_cf"
+               type="listafieldebxcf"
+               label="Campo EventBooking controllo Codice fiscale"
+               description="Campo EventBooking controllo CF"
+               showon="verifica_cf:1[AND]integrazione:eb"
+               class="inputbox"
+        />
+
+        <field name="campo_community_builder_controllo_cf"
+               type="listafieldcbxcf"
+               label="Campo CB controllo Codice fiscale"
+               description="Campo Community Builder controllo CF"
+               showon="verifica_cf:1[AND]integrazione:cb"
+               class="inputbox"
+               default=""
+        />
+
+        <field name="campo_community_builder_nome"
+               type="listafieldcbxrep"
+               label="Campo CB Nome"
+               description="Campo Community Builder Nome"
+               showon="integrazione:cb"
+               class="inputbox"
+               default=""
+        />
+
+        <field name="campo_community_builder_cognome"
+               type="listafieldcbxrep"
+               label="Campo CB controllo Cognome"
+               description="Campo Community Builder Cognome"
+               showon="integrazione:cb"
+               class="inputbox"
+               default=""
+        />
+
+        <field name="campo_event_booking_nome"
+               type="listafieldebxrep"
+               label="Campo EB controllo Nome"
+               description="Campo Evento Booking Nome"
+               showon="integrazione:eb"
+               class="inputbox"
+               default=""
+        />
+
+        <field name="campo_event_booking_cognome"
+               type="listafieldebxrep"
+               label="Campo EB controllo Cognome"
+               description="Campo Evento Booking Cognome"
+               showon="integrazione:eb"
+               class="inputbox"
+               default=""
+        />
+
+        <field
+                name="larghezza_box_contenuti"
+                type="radio"
+                class="btn-group"
+                label="Larghezza singolo box contenuti"
+                labelclass="control-label"
+                default="size-30">
+            <option value="size-15">15%</option>
+            <option value="size-20">20%</option>
+            <option value="size-25">25%</option>
+            <option value="size-30">30%</option>
+            <option value="size-33">33%</option>
+            <option value="size-40">40%</option>
+            <option value="size-50">50%</option>
+            <option value="size-60">60%</option>
+            <option value="size-66">66%</option>
+            <option value="size-70">70%</option>
+            <option value="size-75">75%</option>
+            <option value="size-80">80%</option>
+            <option value="size-85">85%</option>
+            <option value="size-90">90%</option>
+        </field>
 
 
-		<field 	name="visibilita_durata"
-				  type="text"
-				  label="Durata contenuti visibile per le tipologie"
-				  description="Durata visibile per le tipologie(1-videoslide, 2-solovideo, 3-allegati, 4-scorm, 5-attestato, 6-testuale, 7-quizdeluxe)"
-				  default="1,2"
-		/>
-
-		<field
-				name="visibilita_durata_unita"
-				type="radio"
-				class="btn-group"
-				label="Durata visibile per le unita"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="filtro_date_corsi"
-				type="radio"
-				class="btn-group"
-				label="Applicazione filtro date per corsi"
-				labelclass="control-label"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field 	name="campi_csv"
-				  type="listafieldxcsv"
-				  label="Ulteriori campi per CSV"
-				  description="Campi per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
-				  class="inputbox"
-				  multiple="multiple"
-				  id="csvselect"
-				  default="1"
-		/>
+        <field
+                name="larghezza_box_unita"
+                type="radio"
+                class="btn-group"
+                label="Larghezza singolo box unita"
+                labelclass="control-label"
+                default="size-30">
+            <option value="size-15">15%</option>
+            <option value="size-20">20%</option>
+            <option value="size-25">25%</option>
+            <option value="size-30">30%</option>
+            <option value="size-33">33%</option>
+            <option value="size-40">40%</option>
+            <option value="size-50">50%</option>
+            <option value="size-60">60%</option>
+            <option value="size-66">66%</option>
+            <option value="size-70">70%</option>
+            <option value="size-75">75%</option>
+            <option value="size-80">80%</option>
+            <option value="size-85">85%</option>
+            <option value="size-90">90%</option>
+        </field>
 
 
+        <field name="visibilita_durata"
+               type="text"
+               label="Durata contenuti visibile per le tipologie"
+               description="Durata visibile per le tipologie(1-videoslide, 2-solovideo, 3-allegati, 4-scorm, 5-attestato, 6-testuale, 7-quizdeluxe)"
+               default="1,2"
+        />
 
-		<!-- I N I Z I O CONTENUTO -->
+        <field
+                name="visibilita_durata_unita"
+                type="radio"
+                class="btn-group"
+                label="Durata visibile per le unita"
+                labelclass="control-label"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
+        <field
+                name="filtro_date_corsi"
+                type="radio"
+                class="btn-group"
+                label="Applicazione filtro date per corsi"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
-		<field
-				name="testo_invito_scaricare_pdfsingolo"
-				class="inputbox"
-				buttons = "false"
-				label="Testo da far comparire per scaricare il file PDF"
-				type="editor"
-				validate=""
-				required=""
-				size="100"
-				default="Apri il file PDF qui a fianco."
-				filter="safehtml"
-		/>
-
-		<!-- F I N E     CONTENUTO-->
-
-
-
-
-
-
-		<!-- I N I Z I O ATTESTATO-->
-
-
-		<field
-				name="testo_invito_scaricare_attestato"
-				class="inputbox"
-				buttons = "false"
-				label="Testo base per scaricare attestato"
-				type="editor"
-				validate=""
-				required=""
-				size="100"
-				default="Congratulazioni!  Ora puoi scaricare l'attestato del corso cliccando sull'icona qui a fianco."
-				filter="safehtml"
-		/>
-
-		<!-- F I N E     ATTESTATO-->
-
-		<!-- I N I Z I O BREADCRUMB-->
-
-		<field
-				name="abilita_breadcrumbs"
-				type="radio"
-				class="btn-group"
-				label="Attiva breadcrumbs componente"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="visualizza_ultimo"
-				type="radio"
-				class="btn-group"
-				label="Visualizza ultima voce"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="visualizza_primo_item"
-				type="radio"
-				class="btn-group"
-				label="Visualizza prima voce"
-				labelclass="control-label"
-				default="1"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field
-				name="customizza_primo_item"
-				type="radio"
-				class="btn-group"
-				label="Personalizza prima voce"
-				labelclass="control-label"
-				showon="visualizza_primo_item:1"
-				default="0"
-		>
-			<option value="0">OFF</option>
-			<option value="1">ON</option>
-		</field>
-
-		<field 	name="customizza_testo_primo_item"
-				  type="text"
-				  label="Testo prima voce"
-				  description="Imposta il testo visualizzato nella prima breadcrumb"
-				  default="Corsi"
-				  showon="customizza_primo_item:1"
-		/>
-
-		<field 	name="customizza_link_primo_item"
-				  type="text"
-				  label="Testo prima voce"
-				  description="Imposta il link visualizzato nella prima breadcrumb"
-				  default="index.php?option=com_gglms"
-				  showon="customizza_primo_item:1"
-		/>
-
-		<!--F I N E BREADCRUMB -->
+        <field name="campi_csv"
+               type="listafieldxcsv"
+               label="Ulteriori campi per CSV"
+               description="Campi per CSV, usa CTRL per selezionare più campi. Non è necessario aggiungere i campi già visibili nella tabella report"
+               class="inputbox"
+               multiple="multiple"
+               id="csvselect"
+               default="1"
+        />
 
 
+        <!-- I N I Z I O CONTENUTO -->
 
-	</fieldset>
+
+        <field
+                name="testo_invito_scaricare_pdfsingolo"
+                class="inputbox"
+                buttons="false"
+                label="Testo da far comparire per scaricare il file PDF"
+                type="editor"
+                validate=""
+                required=""
+                size="100"
+                default="Apri il file PDF qui a fianco."
+                filter="safehtml"
+        />
+
+        <!-- F I N E     CONTENUTO-->
+
+
+        <!-- I N I Z I O ATTESTATO-->
+
+
+        <field
+                name="testo_invito_scaricare_attestato"
+                class="inputbox"
+                buttons="false"
+                label="Testo base per scaricare attestato"
+                type="editor"
+                validate=""
+                required=""
+                size="100"
+                default="Congratulazioni!  Ora puoi scaricare l'attestato del corso cliccando sull'icona qui a fianco."
+                filter="safehtml"
+        />
+
+        <!-- F I N E     ATTESTATO-->
+
+        <!-- I N I Z I O BREADCRUMB-->
+
+        <field
+                name="abilita_breadcrumbs"
+                type="radio"
+                class="btn-group"
+                label="Attiva breadcrumbs componente"
+                labelclass="control-label"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="visualizza_ultimo"
+                type="radio"
+                class="btn-group"
+                label="Visualizza ultima voce"
+                labelclass="control-label"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="visualizza_primo_item"
+                type="radio"
+                class="btn-group"
+                label="Visualizza prima voce"
+                labelclass="control-label"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="customizza_primo_item"
+                type="radio"
+                class="btn-group"
+                label="Personalizza prima voce"
+                labelclass="control-label"
+                showon="visualizza_primo_item:1"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field name="customizza_testo_primo_item"
+               type="text"
+               label="Testo prima voce"
+               description="Imposta il testo visualizzato nella prima breadcrumb"
+               default="Corsi"
+               showon="customizza_primo_item:1"
+        />
+
+        <field name="customizza_link_primo_item"
+               type="text"
+               label="Testo prima voce"
+               description="Imposta il link visualizzato nella prima breadcrumb"
+               default="index.php?option=com_gglms"
+               showon="customizza_primo_item:1"
+        />
+
+        <!--F I N E BREADCRUMB -->
+
+        <field
+                name="url_redirect_on_access_deny"
+                type="text"
+                class=""
+                label="URL redirect se accesso non consentito"
+                labelclass="control-label"
+                default=""
+                description="Lasciando bianco si ritorna alla pagina di provenienza. Usa questo url per reindirizzare all'inserimento coupon: index.php?option=com_gglms&amp;view=coupon"
+        />
+
+        <field
+                name="testo_pagina_coupon"
+                type="text"
+                class=""
+                label="Testo/titolo pagina coupon"
+                labelclass="control-label"
+                default="Inserisci qui il tuo codice coupon"
+                description=""
+        />
+
+        <field
+                name="descrizione_pagina_coupon"
+                type="textarea"
+                cols="25"
+                rows="3"
+                class=""
+                label="Descrizione utilizzo coupon (opzionale)"
+                labelclass="control-label"
+                default="E' sufficiente inserire il coupon solo al primo accesso"
+                description=""
+        />
+
+        <field
+                name="messaggio_inserimento_success"
+                type="text"
+                class=""
+                label="Messaggio inserimento avvenuto con successo"
+                labelclass="control-label"
+                default="Inserimento effettuato con successo. Torna all'area formativa per accedere ai nuovi corsi."
+                description=""
+        />
+
+
+        <field
+                name="messaggio_inserimento_wrong"
+                type="text"
+                class=""
+                label="Messaggio inserimento non valido"
+                labelclass="control-label"
+                default="In coupon non è valido o è scaduto"
+                description=""
+        />
+
+
+
+        <field
+                name="messaggio_inserimento_pending"
+                type="text"
+                class=""
+                label="Messaggio inserimento in attesa di abilitazione"
+                labelclass="control-label"
+                default="Il coupon è in attesa di abilitazione. (COD. 03)"
+                description=""
+        />
+
+
+
+
+    </fieldset>
 </form>

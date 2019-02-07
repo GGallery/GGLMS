@@ -62,7 +62,7 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
             for ($i = 0; $i < $_REQUEST['quantita']; $i++) {
                 $prefisso = $_REQUEST['prefisso'];
                 $coupons[$i] = $this->_generate_coupon($prefisso);
-                $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['transition_id'], $_REQUEST['attestato'], $user_id, "1", 1, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+                $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['transition_id'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 1, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
             }
             // li inserisco nel DB
             $query = 'INSERT INTO #__gg_coupon (coupon, corsi_abilitati, gruppo, id_iscrizione, attestato, id_societa, abilitato, trial, durata, data_abilitazione, id_gruppi) VALUES ' . join(',', $values);

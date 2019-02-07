@@ -23,7 +23,12 @@ class gglmsViewCoupon extends JViewLegacy {
 
     function display($tpl = null)
     {
-  
+
+
+        $this->coupon = new gglmsModelcoupon();
+
+        $this->_params = $this->coupon->_params;
+
 
         parent::display($tpl);
     }

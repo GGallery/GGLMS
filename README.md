@@ -4,6 +4,10 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+3.8.48
+  - B: Aggiornato pannello generazione coupon
+  - G: Aggiunta parametrizzazione schermate coupon
+
 3.8.47
   - G: Aggiunta modalita coupon to group per accesso al corso - da migliorare
   

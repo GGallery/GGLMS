@@ -197,5 +197,15 @@
 				required=""
 		/>
 
+		<field
+				name="url_redirect_on_access_deny"
+				type="text"
+				class=""
+				label="URL redirect se accesso non consentito"
+				labelclass="control-label"
+				default=""
+				description="Lasciando bianco si ritorna alla pagina di provenienza"
+		/>
+
 	</fieldset>
 </form>
