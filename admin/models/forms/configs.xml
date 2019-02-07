@@ -503,7 +503,7 @@
         />
 
         <field
-                name="testo_pagina_coupon"
+                name="titolo_pagina_coupon"
                 type="text"
                 class=""
                 label="Testo/titolo pagina coupon"
