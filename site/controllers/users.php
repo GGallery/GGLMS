@@ -49,7 +49,7 @@ class gglmsControllerUsers extends JControllerLegacy
             $app->enqueueMessage("Credenziali errate", 'danger');
         }
 
-        $app->redirect(JRoute::_('index.php'));
+        $app->redirect('/');
     }
 
     public function reset(){
