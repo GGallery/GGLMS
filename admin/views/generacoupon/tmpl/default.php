@@ -17,6 +17,13 @@ JHtml::_('behavior.formvalidator');
 JHtml::_('formbehavior.chosen', 'select');
 
 ?>
+<style>
+    .generazioneautomatica{
+        display: none;
+    }
+</style>
+
+
 <div id="j-sidebar-container" class="span2">
     <?php echo $this->sidebar; ?>
 </div>
@@ -34,6 +41,21 @@ JHtml::_('formbehavior.chosen', 'select');
             <input type="hidden" name="task" value="generacoupon" />
 
             <div class="row-fluid">
+                <label>Scegli la modalità di generazione dei coupon</label>
+            <fieldset id="fsmodocoupon" class="btn-group radio">
+                <!--<input type="radio" id="modocouponautomatico" name="modocoupon" value="aut">-->
+                <label id="automatica" class="btn">AUTOMATICA</label>
+                <!--<input type="radio" id="modocouponmanuale" name="modocoupon" value="man" checked="checked">-->
+                <label id="manuale" class="btn active btn-success">MANUALE</label>
+                <input type="hidden" id="modocoupon"  name="modocoupon" value="manuale">
+            </fieldset>
+            </div>
+
+            <br>
+
+
+
+            <div class="row-fluid generazioneautomatica">
                 <div class="control-group">
                     <div class="control-label">
                         <label>Quantità</label>
@@ -44,7 +66,7 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
             </div>
 
-            <div class="row-fluid">
+            <div class="row-fluid generazioneautomatica">
                 <div class="control-group">
                     <div class="control-label">
                         <label>Prefisso</label>
@@ -56,10 +78,22 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
             </div>
 
+            <div class="row-fluid generazionemanuale">
+                <div class="control-group">
+                    <div class="control-label">
+                        <label>Codice Coupon</label>
+                        <small></small>
+                    </div>
+                    <div class="controls">
+                        <textarea type="text" class="form-group" id="coupon" name="coupon[]" cols="16" rows="30"></textarea>
+                    </div>
+                </div>
+            </div>
+
             <div class="row-fluid">
                 <div class="control-group">
                     <div class="control-label">
-                        <label>Unita da abilitare </label>
+                        <label>Unita da abilitare - In disuso</label>
                         <small>(accesso al corso in base al coupon)</small>
                     </div>
                     <div class="controls">
@@ -73,7 +107,7 @@ JHtml::_('formbehavior.chosen', 'select');
                     <div class="control-label">
                         <label>Gruppi a cui iscriverlo (accesso al corso in base a iscrizione gruppo)</label>
                     </div>
-                    <select class="form-group" id="id_gruppi" name="id_gruppi" multiple="true">
+                    <select class="form-group" id="id_gruppi" name="id_gruppi[]" multiple="true">
                         <?php
                         foreach ($this->gruppicorsi as $group) {
                             echo "<option value='$group->id'>$group->title</option>";
@@ -109,7 +143,7 @@ JHtml::_('formbehavior.chosen', 'select');
                         <label>Brevissima descrizione</label>
                     </div>
                     <div class="controls">
-                        <input type="text" class="form-group" id="transition_id" name="id_iscrizione">
+                        <input type="text" class="form-group" id="id_iscrizione" name="id_iscrizione">
                     </div>
                 </div>
             </div>
@@ -158,3 +192,26 @@ JHtml::_('formbehavior.chosen', 'select');
 
         </form>
     </div>
+    <script type="text/javascript">
+
+        jQuery(".btn").click(function(){
+
+            console.log(this);
+            jQuery(this).addClass('active btn-success');
+            if(jQuery(this).attr("id")==="manuale"){
+                jQuery(".generazioneautomatica").hide();
+                jQuery(".generazionemanuale").show();
+                jQuery("#modocoupon").val('manuale')
+                jQuery("#automatica").removeClass('active btn-success');
+            }
+            if(jQuery(this).attr("id")==="automatica"){
+                jQuery(".generazioneautomatica").show();
+                jQuery(".generazionemanuale").hide();
+                jQuery("#modocoupon").val('automatica')
+                jQuery("#manuale").removeClass('active btn-success');
+
+            }
+
+        });
+
+    </script>
