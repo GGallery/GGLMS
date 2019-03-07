@@ -67,7 +67,7 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
                 for ($i = 0; $i < $_REQUEST['quantita']; $i++) {
                     $prefisso = $_REQUEST['prefisso'];
                     $coupons[$i] = $this->_generate_coupon($prefisso);
-                    $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 1, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+                    $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 0, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
 
                 }
             }else{
@@ -75,7 +75,7 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
                 $coupons = explode("\n", str_replace("\r", "",$_REQUEST['coupon'][0]));
                 foreach ($coupons as $coupon){
                     if(strlen($coupon)>0)
-                        $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupon, $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 1, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+                        $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupon, $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 0, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
 
                 }
 
