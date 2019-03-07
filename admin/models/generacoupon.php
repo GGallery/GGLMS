@@ -47,6 +47,9 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
     public function generate() {
         try {
 
+            if(is_array($_REQUEST['id_gruppi']))
+                $_REQUEST['id_gruppi']="'".implode(",", $_REQUEST['id_gruppi'])."'";
+
             $config = JFactory::getConfig();
             $user = JFactory::getUser();
             $user_id = $user->get('id');
@@ -59,13 +62,27 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
             // creo i coupon
             $coupons = array();
             $values = array();
-            for ($i = 0; $i < $_REQUEST['quantita']; $i++) {
-                $prefisso = $_REQUEST['prefisso'];
-                $coupons[$i] = $this->_generate_coupon($prefisso);
-                $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['transition_id'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 1, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+            if($_REQUEST['modocoupon']=='automatica') {
+
+                for ($i = 0; $i < $_REQUEST['quantita']; $i++) {
+                    $prefisso = $_REQUEST['prefisso'];
+                    $coupons[$i] = $this->_generate_coupon($prefisso);
+                    $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 0, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+
+                }
+            }else{
+                //var_dump($_REQUEST['coupon']);die;
+                $coupons = explode("\n", str_replace("\r", "",$_REQUEST['coupon'][0]));
+                foreach ($coupons as $coupon){
+                    if(strlen($coupon)>0)
+                        $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupon, $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 0, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+
+                }
+
             }
+
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, corsi_abilitati, gruppo, id_iscrizione, attestato, id_societa, abilitato, trial, durata, data_abilitazione, id_gruppi) VALUES ' . join(',', $values);
+            $query = 'INSERT INTO #__gg_coupon (coupon, corsi_abilitati, gruppo, id_iscrizione, attestato, id_societa, abilitato, trial, durata, data_abilitazione, id_gruppi) VALUES ' . join(',', $values).' ON DUPLICATE KEY UPDATE data_utilizzo=NOW(), id_gruppi='.$_REQUEST['id_gruppi'];
 
             echo $query;
             $db->setQuery($query);
@@ -88,7 +105,7 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
 
 
             $body= '<h2>Elenco dei coupon generati</h2>';
-            $body.= 'QUANTITA: '.count($coupons).'</br></br>';
+            $body.= 'QUANTITA: '.count($coupons).'<br><br>';
 
             foreach ($coupons as $coupon) {
                 $body .= $coupon . '<br>';

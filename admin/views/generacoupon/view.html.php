@@ -16,7 +16,7 @@ class gglmsViewGeneracoupon extends JViewLegacy {
     public function display($tpl = null) {
 //        $form = $this->get('Form');
 
-//        $this->form = $form;
+ //       $this->form = $form;
 
 
         $this->gruppisocieta    = $this->get('GruppiSocieta');
