@@ -60,6 +60,7 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
             $group_id=1; //a caso standard
 
             // creo i coupon
+            $countcoupon=0;
             $coupons = array();
             $values = array();
             if($_REQUEST['modocoupon']=='automatica') {
@@ -68,14 +69,17 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
                     $prefisso = $_REQUEST['prefisso'];
                     $coupons[$i] = $this->_generate_coupon($prefisso);
                     $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupons[$i], $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 0, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
-
+                    $countcoupon=$_REQUEST['quantita'];
                 }
             }else{
                 //var_dump($_REQUEST['coupon']);die;
                 $coupons = explode("\n", str_replace("\r", "",$_REQUEST['coupon'][0]));
+
                 foreach ($coupons as $coupon){
-                    if(strlen($coupon)>0)
+                    if(strlen($coupon)>0) {
                         $values[] = sprintf("('%s', '%s', %d, '%s', %d, %d, %d, %d, %d, %s, %s)", $coupon, $_REQUEST['course_id'], $group_id, $_REQUEST['id_iscrizione'], $_REQUEST['attestato'], $_REQUEST['id_societa'], "1", 0, $_REQUEST['durata'], 'now()', $_REQUEST['id_gruppi']);
+                        $countcoupon++;
+                    }
 
                 }
 
@@ -105,7 +109,7 @@ class gglmsModelGeneraCoupon extends JModelAdmin {
 
 
             $body= '<h2>Elenco dei coupon generati</h2>';
-            $body.= 'QUANTITA: '.count($coupons).'<br><br>';
+            $body.= 'QUANTITA: '.$countcoupon.'<br><br>';
 
             foreach ($coupons as $coupon) {
                 $body .= $coupon . '<br>';
