@@ -15,7 +15,7 @@
     </div>
 
     <div class="row-fluid">
-        <?php echo $this->form->renderField('testo_pagina_coupon'); ?>
+        <?php echo $this->form->renderField('titolo_pagina_coupon'); ?>
     </div>
 
     <div class="row-fluid">
