@@ -48,6 +48,8 @@ class gglmsControllerCoupon extends JControllerLegacy
 
                 if ($dettagli_coupon['id_gruppi'])
                     $model->setUsergroupUserGroup($dettagli_coupon['id_gruppi']);
+                if ($dettagli_coupon['id_societa'])
+                    $model->setUsergroupUserGroup($dettagli_coupon['id_societa']);
 
                 $results['valido'] = 1;
                 $results['report'] = "<p> Coupon valido. (COD.04)</p>";
