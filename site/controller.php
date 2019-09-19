@@ -55,7 +55,7 @@ class gglmsController extends JControllerLegacy {
 
 
 
-        if ($this->_user->guest  ) {
+        if ($this->_user->guest && strpos(JUri::getInstance()->toString(),'catalogo')===false ) {
             $msg = "Per accedere al corso è necessario loggarsi";
             $uri      = JUri::getInstance();
             $return      = $uri->toString();

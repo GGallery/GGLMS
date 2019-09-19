@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="Vista Unita" option="com_gglms">
+		<message>Visualizza un'unità</message>
+	</layout>
+	<fields name="request">
+		<fieldset name="request">
+			<field 	name="id"
+					  type="sql"
+					  label="Seleziona Unita"
+					  description="Seleziona unita"
+					  query="SELECT titolo AS id, id AS value FROM #__gg_unit"
+			/>
+		</fieldset>
+	</fields>
+
+</metadata>
+
+
+
