@@ -3,8 +3,10 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+
 3.8.50
-    - F: gestita iscrizione tramite coupon non solo al gruppo-corso, ma anche al gruppo-azienda
+  - F: gestita iscrizione tramite coupon non solo al gruppo-corso, ma anche al gruppo-azienda
+
 3.8.48
   - B: Aggiornato pannello generazione coupon
   - G: Aggiunta parametrizzazione schermate coupon
