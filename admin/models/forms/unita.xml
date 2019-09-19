@@ -198,6 +198,17 @@
 		/>
 
 		<field
+				name="id_box"
+				type="listabox"
+				class="inputbox"
+				default=""
+				label="Box appartenenza corso"
+				description="Seleziona un box di appartenenza del corso"
+				showon="is_corso:1"
+				required=""
+		/>
+
+		<field
 				name="url_redirect_on_access_deny"
 				type="text"
 				class=""

@@ -26,17 +26,9 @@ class gglmsViewCatalogo extends JViewLegacy
     function display($tpl = null)
     {
         $box = JRequest::getVar('box');
-        //$DOMINIO="UICuneoFAD.it";
-        $DOMINIO="http://www.Assolombardaservizifad.it";
-        //$DOMINIO=dirname(juri::base());
-        $DOMINIO=explode("//",$DOMINIO)[1];
-        $DOMINIO=str_replace("www.","",$DOMINIO);
         $this->catalogoModel = new gglmsModelCatalogo();
-        $this->catalogo=$this->catalogoModel->getCatalogo($DOMINIO,$box);
-       
-
+        $this->catalogo = $this->catalogoModel->getCatalogo(DOMINIO, $box);
 
         parent::display($tpl);
     }
 }
-    

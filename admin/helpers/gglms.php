@@ -340,6 +340,30 @@ class gglmsHelper {
 
     }
 
+    public static function GetMappaAccessoGruppi($item){
+        $db = JFactory::getDBO();
+
+        $res = array();
+        if(!$item->id)
+            return $res;
+
+        try{
+            $query = $db->getQuery(true);
+            $query->select('idgruppo');
+            $query->from('#__gg_usergroup_map');
+            $query->where('idunita=' . $item->id);
+
+            $db->setQuery((string) $query);
+            $res = $db->loadColumn();
+
+        }
+        catch(Exception $e)
+        {
+            print_r($e);
+            die("Errore GetMappaAccessoGruppi");
+        }
+        return $res;
+    }
 
     public static function SetMappaAccessoGruppi($item){
 
@@ -370,7 +394,7 @@ class gglmsHelper {
         return $res;
     }
 
-    public static function GetMappaAccessoGruppi($item){
+    public static function GetBoxId($item){
         $db = JFactory::getDBO();
 
         $res = array();
@@ -379,9 +403,9 @@ class gglmsHelper {
 
         try{
             $query = $db->getQuery(true);
-            $query->select('idgruppo');
-            $query->from('#__gg_usergroup_map');
-            $query->where('idunita=' . $item->id);
+            $query->select('box');
+            $query->from('#__gg_box_unit_map');
+            $query->where('id_unita=' . $item->id);
 
             $db->setQuery((string) $query);
             $res = $db->loadColumn();
@@ -390,12 +414,37 @@ class gglmsHelper {
         catch(Exception $e)
         {
             print_r($e);
-            die("Errore GetMappaAccessoGruppi");
+            die("Errore GetBoxId");
         }
         return $res;
     }
 
+    public static function SetBoxId($item){
 
+        try{
+            $db = JFactory::getDBO();
+
+            $unitid=$item['id'];
+            $id_box = $item['id_box'];
+
+            $query_del = "DELETE FROM #__gg_box_unit_map WHERE id_unita = $unitid";
+            $query = "INSERT IGNORE INTO #__gg_box_unit_map (box, id_unita) values ($id_box, $unitid)";
+            $db->setQuery((string) $query_del);
+            $db->execute();
+
+
+            $db->setQuery((string) $query);
+                $res = $db->execute();
+
+        }catch (Exception $e){
+            echo "<pre>";
+            print_r($e);
+            echo "</pre>";
+            die("SetBoxId");
+        }
+
+        return $res;
+    }
 
 
 }

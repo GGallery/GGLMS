@@ -69,6 +69,7 @@ class gglmsModelunita extends JModelAdmin {
         if ($item = parent::getItem($pk)) {
 
             $item->id_gruppi_abilitati= gglmsHelper::GetMappaAccessoGruppi($item);
+            $item->id_box=gglmsHelper::GetBoxId($item);
 
         }
 

@@ -32,6 +32,7 @@ class gglmsTableunita extends JTable {
                 $array['id_gruppi_abilitati'] = implode(',', $array['id_gruppi_abilitati']);
 
             gglmsHelper::SetMappaAccessoGruppi($array);
+            gglmsHelper::SetBoxId($array);
 
         }
 
