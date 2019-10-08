@@ -1,17 +1,19 @@
 <?php
 
 /**
- * @package		Joomla.Tutorials
- * @subpackage	Components
- * @copyright	Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
- * @license		License GNU General Public License version 2 or later; see LICENSE.txt
+ * @package        Joomla.Tutorials
+ * @subpackage    Components
+ * @copyright    Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
+ * @license        License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
 defined('_JEXEC') or die;
 
-class gglmsHelper {
+class gglmsHelper
+{
 
-    public static function addSubmenu($submenu) {
+    public static function addSubmenu($submenu)
+    {
 
 
 //      LINK ICONE JOOMLA
@@ -88,12 +90,11 @@ class gglmsHelper {
         }
 
 
-
-
     }
 
 
-    public static function setAlias($text){
+    public static function setAlias($text)
+    {
 
 
         $text = preg_replace('~[^\\pL\d]+~u', '_', $text);
@@ -114,15 +115,16 @@ class gglmsHelper {
 
     }
 
-    public static function SetMappaContenutoUnita($item){
+    public static function SetMappaContenutoUnita($item)
+    {
 
 
         $db = JFactory::getDBO();
 
-        $contentid=$item['id'];
-        $categorie = explode("," , $item['categoria']);
+        $contentid = $item['id'];
+        $categorie = explode(",", $item['categoria']);
 
-        if(!$contentid)
+        if (!$contentid)
             return false;
 
 //        $query = "DELETE FROM #__gg_unit_map WHERE idcontenuto= $contentid";
@@ -130,8 +132,8 @@ class gglmsHelper {
 //        $db->execute();
 
         foreach ($categorie as $value) {
-            $query = "INSERT INTO #__gg_unit_map (idcontenuto, idunita) values ($contentid,$value) ON DUPLICATE KEY UPDATE idunita=".$value;
-            $db->setQuery((string) $query);
+            $query = "INSERT INTO #__gg_unit_map (idcontenuto, idunita) values ($contentid,$value) ON DUPLICATE KEY UPDATE idunita=" . $value;
+            $db->setQuery((string)$query);
             $db->execute();
         }
 
@@ -139,14 +141,14 @@ class gglmsHelper {
     }
 
 
+    public static function GetMappaContenutoUnita($item)
+    {
 
-    public static function GetMappaContenutoUnita($item){
-
-        $res= array();
-        if(!$item->id)
+        $res = array();
+        if (!$item->id)
             return $res;
 
-        try{
+        try {
             $db = JFactory::getDBO();
 
             $query = $db->getQuery(true);
@@ -154,39 +156,38 @@ class gglmsHelper {
             $query->from('#__gg_unit_map');
             $query->where('idcontenuto=' . $item->id);
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadColumn();
 
             return $res;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             print_r($e);
         }
 
 
     }
 
-    public static function SetMappaContenutoFiles($item){
+    public static function SetMappaContenutoFiles($item)
+    {
 
-        try{
+        try {
             $db = JFactory::getDBO();
 
-            $contentid=$item['id'];
-            $files = explode(",",$item['files']);
+            $contentid = $item['id'];
+            $files = explode(",", $item['files']);
 
             $query_del = "DELETE FROM #__gg_files_map WHERE idcontenuto= $contentid";
-            $db->setQuery((string) $query_del);
+            $db->setQuery((string)$query_del);
             $db->execute();
 
             foreach ($files as $value) {
                 $query = "INSERT IGNORE INTO #__gg_files_map (idcontenuto, idfile ) values ($contentid,$value)";
 
-                $db->setQuery((string) $query);
+                $db->setQuery((string)$query);
                 $res = $db->execute();
 
             }
-        }catch (Exception $e){
+        } catch (Exception $e) {
             echo "<pre>";
             print_r($e);
             echo "</pre>";
@@ -196,195 +197,194 @@ class gglmsHelper {
         return $res;
     }
 
-    public static function GetMappaContenutoFiles($item){
+    public static function GetMappaContenutoFiles($item)
+    {
         $db = JFactory::getDBO();
 
         $res = array();
-        if(!$item->id)
+        if (!$item->id)
             return $res;
 
-        try{
+        try {
             $query = $db->getQuery(true);
             $query->select('idfile');
             $query->from('#__gg_files_map');
             $query->where('idcontenuto=' . $item->id);
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadColumn();
 
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             print_r($e);
             die("Errore getMappaContenutofile");
         }
         return $res;
     }
 
-    public static function GetMappaContenutoAcl($item){
+    public static function GetMappaContenutoAcl($item)
+    {
         FB::info($item, "->GetMappaContenutoAcl");
         $db = JFactory::getDBO();
 
         $res = array();
-        if(!$item->id)
+        if (!$item->id)
             return $res;
 
-        try{
+        try {
             $query = $db->getQuery(true);
             $query->select('id_group');
             $query->from('#__gg_contenuti_acl');
             $query->where('id_contenuto=' . $item->id);
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadColumn();
 
             FB::log((string)$query, "GetMappaContenutoAcl");
 
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             FB::error($e);
         }
         return $res;
     }
 
-    public static function SetMappaContenutoAcl($item){
-        FB::info($item."->SetMappaContenutoAcl");
+    public static function SetMappaContenutoAcl($item)
+    {
+        FB::info($item . "->SetMappaContenutoAcl");
         $db = JFactory::getDBO();
 
-        $contentid=$item['id'];
-        $acl = explode(",",$item['acl']);
+        $contentid = $item['id'];
+        $acl = explode(",", $item['acl']);
 
         $query = "DELETE FROM #__gg_contenuti_acl WHERE id_contenuto= $contentid";
-        $db->setQuery((string) $query);
+        $db->setQuery((string)$query);
         $res = $db->loadResult();
 
 
         foreach ($acl as $value) {
             $query = "INSERT IGNORE INTO #__gg_contenuti_acl (id_contenuto, id_group ) values ($contentid,$value)";
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadResult();
         }
         return $res;
     }
 
 
-    public static function SetMappaContenutoParams($item){
-        FB::info($item."->SetmappaContenutoParams");
+    public static function SetMappaContenutoParams($item)
+    {
+        FB::info($item . "->SetmappaContenutoParams");
         $db = JFactory::getDBO();
 
-        $contentid=$item['id'];
-        $params = explode(",",$item['parametri']);
+        $contentid = $item['id'];
+        $params = explode(",", $item['parametri']);
 
         $query = "DELETE FROM #__gg_param_map WHERE idcontenuto= $contentid";
-        $db->setQuery((string) $query);
+        $db->setQuery((string)$query);
         $res = $db->loadResult();
 
 
         foreach ($params as $value) {
             $query = "INSERT IGNORE INTO #__gg_param_map (idcontenuto, idparametro ) values ($contentid,$value)";
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadResult();
         }
         return $res;
     }
 
 
-    public static function GetMappaContenutoParams($item){
+    public static function GetMappaContenutoParams($item)
+    {
         FB::info($item, "->GetMappaContenutoParams");
         $db = JFactory::getDBO();
 
         $res = array();
-        if(!$item->id)
+        if (!$item->id)
             return $res;
 
-        try{
+        try {
             $query = $db->getQuery(true);
             $query->select('idparametro');
             $query->from('#__gg_param_map');
             $query->where('idcontenuto=' . $item->id);
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadColumn();
 
             FB::log($res, "GetMappaContenutoParams");
 
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             FB::error($e);
         }
         return $res;
     }
 
-    public static function getUserGroupName($user_id, $return_text = false){
+    public static function getUserGroupName($user_id, $return_text = false)
+    {
 
 
-        $db     = JFactory::getDBO();
+        $db = JFactory::getDBO();
         $groups = JAccess::getGroupsByUser($user_id);
-        $groupid_list      = '(' . implode(',', $groups) . ')';
-        $query  = $db->getQuery(true);
+        $groupid_list = '(' . implode(',', $groups) . ')';
+        $query = $db->getQuery(true);
         $query->select('title');
         $query->from('#__usergroups');
-        $query->where('id IN ' .$groupid_list);
+        $query->where('id IN ' . $groupid_list);
         $db->setQuery($query);
-        $rows   = $db->loadColumn();
+        $rows = $db->loadColumn();
 
-        if($return_text){
-            return implode(', <br>',$rows);
-        }
-        else
+        if ($return_text) {
+            return implode(', <br>', $rows);
+        } else
             return $rows;
 
     }
 
-    public static function GetMappaAccessoGruppi($item){
+    public static function GetMappaAccessoGruppi($item)
+    {
         $db = JFactory::getDBO();
 
         $res = array();
-        if(!$item->id)
+        if (!$item->id)
             return $res;
 
-        try{
+        try {
             $query = $db->getQuery(true);
             $query->select('idgruppo');
             $query->from('#__gg_usergroup_map');
             $query->where('idunita=' . $item->id);
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadColumn();
 
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             print_r($e);
             die("Errore GetMappaAccessoGruppi");
         }
         return $res;
     }
 
-    public static function SetMappaAccessoGruppi($item){
+    public static function SetMappaAccessoGruppi($item)
+    {
 
-        try{
+        try {
             $db = JFactory::getDBO();
 
-            $unitid=$item['id'];
-            $files = explode(",",$item['id_gruppi_abilitati']);
+            $unitid = $item['id'];
+            $files = explode(",", $item['id_gruppi_abilitati']);
 
             $query_del = "DELETE FROM #__gg_usergroup_map WHERE idunita = $unitid";
-            $db->setQuery((string) $query_del);
+            $db->setQuery((string)$query_del);
             $db->execute();
 
             foreach ($files as $value) {
                 $query = "INSERT IGNORE INTO #__gg_usergroup_map (idunita, idgruppo) values ($unitid,$value)";
 
-                $db->setQuery((string) $query);
+                $db->setQuery((string)$query);
                 $res = $db->execute();
 
             }
-        }catch (Exception $e){
+        } catch (Exception $e) {
             echo "<pre>";
             print_r($e);
             echo "</pre>";
@@ -394,53 +394,112 @@ class gglmsHelper {
         return $res;
     }
 
-    public static function GetBoxId($item){
+    public static function GetBoxId($item)
+    {
         $db = JFactory::getDBO();
 
         $res = array();
-        if(!$item->id)
+        if (!$item->id)
             return $res;
 
-        try{
+        try {
             $query = $db->getQuery(true);
             $query->select('box');
             $query->from('#__gg_box_unit_map');
             $query->where('id_unita=' . $item->id);
 
-            $db->setQuery((string) $query);
+            $db->setQuery((string)$query);
             $res = $db->loadColumn();
 
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             print_r($e);
             die("Errore GetBoxId");
         }
         return $res;
     }
 
-    public static function SetBoxId($item){
+    public static function SetBoxId($item)
+    {
 
-        try{
+        try {
             $db = JFactory::getDBO();
 
-            $unitid=$item['id'];
+            $unitid = $item['id'];
             $id_box = $item['id_box'];
 
             $query_del = "DELETE FROM #__gg_box_unit_map WHERE id_unita = $unitid";
-            $query = "INSERT IGNORE INTO #__gg_box_unit_map (box, id_unita) values ($id_box, $unitid)";
-            $db->setQuery((string) $query_del);
-            $db->execute();
+            $db->setQuery((string)$query_del);
+            $res = $db->execute();
+            if ($id_box > -1) {
+                $query = "INSERT IGNORE INTO #__gg_box_unit_map (box, id_unita) values ($id_box, $unitid)";
 
-
-            $db->setQuery((string) $query);
+                $db->setQuery((string)$query);
                 $res = $db->execute();
 
-        }catch (Exception $e){
+            }
+
+        } catch (Exception $e) {
             echo "<pre>";
             print_r($e);
             echo "</pre>";
             die("SetBoxId");
+        }
+
+        return $res;
+    }
+
+
+    public static function GetMappaAccessoPiattaforme($item)
+    {
+
+        $db = JFactory::getDBO();
+
+        $res = array();
+        if (!$item->id)
+            return $res;
+
+        try {
+            $query = $db->getQuery(true);
+            $query->select('id_gruppo_piattaforma');
+            $query->from('#__gg_piattaforma_corso_map');
+            $query->where('id_unita=' . $item->id);
+
+            $db->setQuery((string)$query);
+            $res = $db->loadColumn();
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore GetMappaAccessoPiattaforme");
+        }
+        return $res;
+    }
+
+    public static function SetMappaAccessoPiattaforme($item)
+    {
+
+        try {
+            $db = JFactory::getDBO();
+
+            $unitid = $item['id'];
+            $list_piattaforme =  $item['id_piattaforme_abilitate'];
+
+
+            $query_del = "DELETE FROM #__gg_piattaforma_corso_map WHERE id_unita = $unitid";
+            $db->setQuery((string)$query_del);
+            $db->execute();
+
+            foreach ($list_piattaforme as $value) {
+                $query = "INSERT IGNORE INTO #__gg_piattaforma_corso_map (id_unita, id_gruppo_piattaforma) values ($unitid,$value)";
+
+                $db->setQuery((string)$query);
+                $res = $db->execute();
+
+            }
+        } catch (Exception $e) {
+            echo "<pre>";
+            print_r($e);
+            echo "</pre>";
+            die("SetMappaAccessoPiattaforme");
         }
 
         return $res;

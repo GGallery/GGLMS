@@ -28,22 +28,26 @@ class gglmsModelCatalogo extends JModelLegacy
     public function __construct($config = array())
     {
         parent::__construct($config);
-      
+
         $this->_db = $this->getDbo();
         $this->_app = JFactory::getApplication('site');
 
     }
 
-    public function getCatalogo($dominio,$box){
+    public function getCatalogo($dominio, $box)
+    {
 
         $query = $this->_db->getQuery(true)
-        ->select('u.id,u.titolo,u.descrizione')
-        ->from('#__gg_unit as u')
+            ->select(' u.id,u.titolo,u.descrizione, u.alias')
+            ->from('#__gg_unit as u')
 //        ->join('inner','#__gg_usergroup_map as mp on mp.idunita=u.id')
-        ->join('inner','#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
-        ->join('inner','#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
-        ->join('inner','#__gg_box_unit_map as b on b.id_unita=u.id')
-        ->where('det.dominio="'.$dominio.'" and b.box='.$box);
+            ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
+            ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
+            ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
+            ->where('det.dominio="' . $dominio . '" ')
+            ->where('b.box =' . $box)
+            ->where('u.pubblicato = 1');
+
 //        echo $query; die;
 
         $this->_db->setQuery($query);
@@ -52,6 +56,6 @@ class gglmsModelCatalogo extends JModelLegacy
 
         return $catalogo;
     }
-   
+
 }
 

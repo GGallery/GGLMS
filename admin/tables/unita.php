@@ -33,7 +33,7 @@ class gglmsTableunita extends JTable {
 
             gglmsHelper::SetMappaAccessoGruppi($array);
             gglmsHelper::SetBoxId($array);
-
+            gglmsHelper::SetMappaAccessoPiattaforme($array);
         }
 
         // Blocco unita padre per unita root

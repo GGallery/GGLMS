@@ -80,6 +80,13 @@ JHtml::_('formbehavior.chosen', 'select');
                         echo $this->form->renderField('id_box'); ?>
                 </div>
 
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('id_piattaforme_abilitate'); ?>
+                </div>
+
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
