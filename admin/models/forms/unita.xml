@@ -29,7 +29,7 @@
 
         <field
                 name="descrizione"
-                type="textarea"
+                type="editor"
                 label="Descrizione"
                 description="Descrizione unità"
                 size="70"

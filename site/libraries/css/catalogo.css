@@ -1,0 +1,49 @@
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+h1{
+    text-align: center;
+    padding: 10px;
+}
+
+.item-container {
+    display: flex;
+    flex-direction: row;
+
+}
+
+.unit-img {
+    max-width: 500px;
+    width: 250px;
+
+}
+
+hr{
+    border-bottom: 1px solid #ccc !important;
+}
+
+.item-container > div {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+
+.img-container {
+    vertical-align: middle;
+    margin: auto auto;
+}
+
+
+@media (max-width: 768px) {
+
+    .item-container {
+        display: flex;
+        flex-direction: column;
+
+    }
+
+}
+
