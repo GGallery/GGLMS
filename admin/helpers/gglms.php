@@ -430,6 +430,7 @@ class gglmsHelper
             $query_del = "DELETE FROM #__gg_box_unit_map WHERE id_unita = $unitid";
             $db->setQuery((string)$query_del);
             $res = $db->execute();
+
             if ($id_box > -1) {
                 $query = "INSERT IGNORE INTO #__gg_box_unit_map (box, id_unita) values ($id_box, $unitid)";
 
@@ -437,6 +438,9 @@ class gglmsHelper
                 $res = $db->execute();
 
             }
+
+//            echo($id_box . 'set');
+//            die();
 
         } catch (Exception $e) {
             echo "<pre>";
