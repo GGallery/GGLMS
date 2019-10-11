@@ -432,7 +432,7 @@ class gglmsModelContenuto extends JModelLegacy {
         }
     }
 
-    private function getStato_scorm(){
+    public function getStato_scorm(){
 
         try {
             if ($this->_userid == null) {

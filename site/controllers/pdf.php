@@ -99,6 +99,34 @@ class gglmsControllerPdf extends JControllerLegacy
             $db->setQuery($query);
             $dg = $db->loadResult();
 
+            //TRACKLOG
+
+            //ottengo tutti i contenuti che compongono il corso
+            if (!$unita->is_corso) {
+
+                $this->findAllRelatedContents($unita->unitapadre, $all_contents);
+
+            } else {
+                $this->findAllRelatedContents($unita->id, $all_contents);
+
+            }
+
+//            var_dump($test_contenuti);
+//            die();
+
+
+            $tracklog = array();
+            foreach ($all_contents as $c) {
+
+                $item = new stdClass();
+                $scorm_vars = $c->getStato_scorm();
+                $item->titolo = $c->titolo;
+                $item->permanenza = $scorm_vars->permanenza;
+                $item->data = $scorm_vars->data;
+
+                array_push($tracklog, $item);
+            }
+
 
             $model_user = new gglmsModelUsers();
             $user = $model_user->get_user($this->_user->get('id'), $unita->id_event_booking);
@@ -143,7 +171,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
-            $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg);
+            $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog);
 
         } catch (Exception $e) {
 
@@ -170,4 +198,39 @@ class gglmsControllerPdf extends JControllerLegacy
         }
         $this->_japp->close();
     }
+
+
+    private function findAllRelatedContents($unita_padre_id, &$all_contents)
+    {
+
+//        var_dump('findAllRelatedContents', $unita_padre_id);
+
+        $db = JFactory::getDbo();
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from('#__gg_unit as u')
+            ->where('u.id = ' . $unita_padre_id);
+
+
+        $db->setQuery($query);
+        $unita = $db->loadObject('gglmsModelUnita');
+
+        if ($unita->is_corso) {
+
+            // ok, ho trovato il corso
+            $unita->getSottoUnitaRic($unita->id);
+            $contenuti = $unita->contenuti;
+            $all_contents = $contenuti;
+
+
+        } else {
+            $this->findAllRelatedContents($unita->unitapadre, $all_contents);
+        }
+
+        return $all_contents;
+
+
+    }
+
+
 }
