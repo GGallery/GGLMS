@@ -22,7 +22,7 @@ foreach ($this->catalogo as $item) { ?>
             <img class="unit-img" src="<?php echo $img ?>">
         </div>
 
-        <div>
+        <div class="unit-desc">
             <h3> <?php echo $item->titolo ?> </h3>
             <div>
                 <?php echo $item->descrizione ?>

@@ -34,7 +34,7 @@ class gglmsModelPdf extends JModelLegacy {
     }
 
 
-    public function _generate_pdf($user, $orientamento,$attestato, $contenuto_verifica) {
+    public function _generate_pdf($user, $orientamento,$attestato, $contenuto_verifica,$dg) {
         try {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
             $orientation=$orientamento;
@@ -47,6 +47,10 @@ class gglmsModelPdf extends JModelLegacy {
             $info['path_id'] = $attestato->id;
             $info['path'] = $_SERVER['DOCUMENT_ROOT'].'/mediagg/contenuti/';
             $info['content_path'] = $info['path'] . $info['path_id'];
+            $info['logo'] = DOMINIO;
+            $info['firma'] = DOMINIO;
+            $info['dg'] = $dg;
+
 
             $template = "file:" . $_SERVER['DOCUMENT_ROOT'].'/mediagg/contenuti/'. $attestato->id . "/" . $attestato->id . ".tpl";
 

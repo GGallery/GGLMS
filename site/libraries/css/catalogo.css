@@ -15,10 +15,15 @@ h1{
 }
 
 .unit-img {
-    max-width: 500px;
+    max-width: 300px;
     width: 250px;
 
 }
+
+.unit-desc{
+ flex:1;
+}
+
 
 hr{
     border-bottom: 1px solid #ccc !important;
@@ -33,7 +38,7 @@ hr{
 
 .img-container {
     vertical-align: middle;
-    margin: auto auto;
+    /*margin: auto auto;*/
 }
 
 
