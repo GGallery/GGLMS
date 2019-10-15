@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @package		Joomla.Tutorials
- * @subpackage	Component
- * @copyright	Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
- * @license		License GNU General Public License version 2 or later; see LICENSE.txt
+ * @package        Joomla.Tutorials
+ * @subpackage    Component
+ * @copyright    Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
+ * @license        License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
 defined('_JEXEC') or die;
@@ -13,26 +13,29 @@ jimport('joomla.application.component.modeladmin');
 require_once 'libs/getid3/getid3.php';
 require_once JPATH_COMPONENT . '/models/libs/debugg/debugg.php';
 
-class gglmsModelunita extends JModelAdmin {
+class gglmsModelunita extends JModelAdmin
+{
 
-    private $contenuti_inseriti=0;
-    private $unita_inserite=0;
-    private $array_corrispondenze=[];
-    private $array_corrispondenze_contenuti=[];
+    private $contenuti_inseriti = 0;
+    private $unita_inserite = 0;
+    private $array_corrispondenze = [];
+    private $array_corrispondenze_contenuti = [];
     private $id_completamento;
     private $newid_completamento;
     private $oldcontentid;
     private $newcontentid;
 
 
-    public function getForm($data = array(), $loadData = true) {
+    public function getForm($data = array(), $loadData = true)
+    {
         // Get the form.
         $form = $this->loadForm('com_gglms.unita', 'unita', array('control' => 'jform', 'load_data' => $loadData));
 
         return $form;
     }
 
-    protected function loadFormData() {
+    protected function loadFormData()
+    {
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState('com_gglms.edit.unita.data', array());
 
@@ -41,8 +44,8 @@ class gglmsModelunita extends JModelAdmin {
 
             // $data->categoria = explode(',', $data->categoria);
             // $data->esercizi = explode(',', $data->esercizi);
-    
-           
+
+
         }
         return $data;
     }
@@ -51,7 +54,8 @@ class gglmsModelunita extends JModelAdmin {
      * Verifico la durata del contenuto 
      */
 
-    public function getTable($name = '', $prefix = 'gglmsTable', $options = array()) {
+    public function getTable($name = '', $prefix = 'gglmsTable', $options = array())
+    {
 
         return parent::getTable($name, $prefix, $options);
     }
@@ -59,41 +63,44 @@ class gglmsModelunita extends JModelAdmin {
     /**
      * Method to get a single record.
      *
-     * @param	integer	The id of the primary key.
+     * @param    integer    The id of the primary key.
      *
-     * @return	mixed	Object on success, false on failure.
+     * @return    mixed    Object on success, false on failure.
      */
-    public function getItem($pk = null) {
+    public function getItem($pk = null)
+    {
         //debug::msg('model->getItem');
 
         if ($item = parent::getItem($pk)) {
 
-            $item->id_gruppi_abilitati= gglmsHelper::GetMappaAccessoGruppi($item);
-            $item->id_box=gglmsHelper::GetBoxId($item);
-            $item->id_piattaforme_abilitate=gglmsHelper::GetMappaAccessoPiattaforme($item);
+            $item->id_gruppi_abilitati = gglmsHelper::GetMappaAccessoGruppi($item);
+            $item->id_box = gglmsHelper::GetBoxId($item);
+            $item->id_piattaforme_abilitate = gglmsHelper::GetMappaAccessoPiattaforme($item);
 
         }
 
         return $item;
     }
 
-    public function clonaCorso($pk){
+    public function clonaCorso($pk)
+    {
 
-         try {
+        try {
 
-             $this->id_completamento = $this->getIdCompletamento($pk);
-             $this->clonaUnita($pk);
-             $this->updateUnita($pk);
-             $this->updateContenuti();
-             return "unita inserite: " . $this->unita_inserite . " contenuti inseriti: " . $this->contenuti_inseriti;
-         }catch (Exception $e){
+            $this->id_completamento = $this->getIdCompletamento($pk);
+            $this->clonaUnita($pk);
+            $this->updateUnita($pk);
+            $this->updateContenuti();
+            return "unita inserite: " . $this->unita_inserite . " contenuti inseriti: " . $this->contenuti_inseriti;
+        } catch (Exception $e) {
 
-             DEBUGG::log($e->getMessage(), 'clona corso',0,1,0);
-         }
+            DEBUGG::log($e->getMessage(), 'clona corso', 0, 1, 0);
+        }
 
     }
 
-    private function getIdCompletamento($pk){
+    private function getIdCompletamento($pk)
+    {
 
         try {
             $db = JFactory::getDBO();
@@ -104,13 +111,14 @@ class gglmsModelunita extends JModelAdmin {
             $db->setQuery($query);
 
             return $db->loadResult();
-        }catch (Exception $e){
+        } catch (Exception $e) {
 
-            DEBUGG::log($e->getMessage(), 'get id completamento',0,1,0);
+            DEBUGG::log($e->getMessage(), 'get id completamento', 0, 1, 0);
         }
     }
 
-    private function clonaUnita($pk){
+    private function clonaUnita($pk)
+    {
 
         try {
             $db = JFactory::getDBO();
@@ -125,13 +133,12 @@ class gglmsModelunita extends JModelAdmin {
 
             $db->setQuery($query);
             $newid = $db->loadResult();
-            array_push($this->array_corrispondenze,['vecchioid'=>$pk,'nuovoid'=>$newid]);
+            array_push($this->array_corrispondenze, ['vecchioid' => $pk, 'nuovoid' => $newid]);
             $query = "select idcontenuto from #__gg_unit_map where idunita=" . $pk;
             $db->setQuery($query);
             $contenuti = $db->loadAssocList();
 
             foreach ($contenuti as $contenuto) {
-
 
 
                 $query = "insert into #__gg_contenuti (titolo,alias,pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data)
@@ -142,7 +149,7 @@ class gglmsModelunita extends JModelAdmin {
                 $query = "select max(id) from #__gg_contenuti";
                 $db->setQuery($query);
                 $newid_contenuto = $db->loadResult();
-                array_push($this->array_corrispondenze_contenuti,['vecchioid'=>$contenuto['idcontenuto'],'nuovoid'=>$newid_contenuto]);
+                array_push($this->array_corrispondenze_contenuti, ['vecchioid' => $contenuto['idcontenuto'], 'nuovoid' => $newid_contenuto]);
 
 
                 $query = 'select ordinamento from #__gg_unit_map where idcontenuto=' . $contenuto['idcontenuto'] . ' limit 1';
@@ -152,13 +159,13 @@ class gglmsModelunita extends JModelAdmin {
                 $db->setQuery($query);
                 $db->execute();
 
-                $query='select max(id) from #__gg_contenuti';
+                $query = 'select max(id) from #__gg_contenuti';
                 $db->setQuery($query);
-                $newcontentid= $db->loadResult();
-                $this->duplicate_folder($contenuto['idcontenuto'],$newcontentid);
-                if($contenuto['idcontenuto']==$this->id_completamento){
+                $newcontentid = $db->loadResult();
+                $this->duplicate_folder($contenuto['idcontenuto'], $newcontentid);
+                if ($contenuto['idcontenuto'] == $this->id_completamento) {
 
-                    $this->newid_completamento=$newcontentid;
+                    $this->newid_completamento = $newcontentid;
                 }
             }
             $query = "select id from #__gg_unit where unitapadre=" . $pk;
@@ -170,14 +177,14 @@ class gglmsModelunita extends JModelAdmin {
             }
 
 
+        } catch (Exception $e) {
 
-        }catch (Exception $e){
-
-            DEBUGG::log($e->getMessage(), 'clone unita',0,1,0);
+            DEBUGG::log($e->getMessage(), 'clone unita', 0, 1, 0);
         }
     }
 
-    public function duplicate_folder($oldcontentid,$newcontentid){
+    public function duplicate_folder($oldcontentid, $newcontentid)
+    {
 
         try {
 
@@ -187,16 +194,17 @@ class gglmsModelunita extends JModelAdmin {
             $dest = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $newcontentid;
             if ($this->dircopy($source, $dest) == true) {
 
-               DEBUGG::log('duplicate:' . $source . ' in to ' . $dest , 'duplicate folder',0,1,0);
+                DEBUGG::log('duplicate:' . $source . ' in to ' . $dest, 'duplicate folder', 0, 1, 0);
             }
-        }catch (Exception $e){
+        } catch (Exception $e) {
 
-            DEBUGG::log($e->getMessage(), 'duplicate folder',0,1,0);
+            DEBUGG::log($e->getMessage(), 'duplicate folder', 0, 1, 0);
         }
 
     }
 
-    private function dircopy($source, $dest, $permissions = 0755){
+    private function dircopy($source, $dest, $permissions = 0755)
+    {
 
         try {
             // Check for symlinks
@@ -240,15 +248,16 @@ class gglmsModelunita extends JModelAdmin {
                 $dir->close();
                 return true;
             }
-        }catch (Exception $e){
+        } catch (Exception $e) {
 
-                DEBUGG::log($e->getMessage(), 'dircopy',0,1,0);
-            }
+            DEBUGG::log($e->getMessage(), 'dircopy', 0, 1, 0);
+        }
 
 
     }
 
-    private function updateUnita($pk){
+    private function updateUnita($pk)
+    {
 
         try {
             $db = JFactory::getDBO();
@@ -284,16 +293,16 @@ class gglmsModelunita extends JModelAdmin {
                 $db->execute();
 
 
-
             }
-        }catch (Exception $e){
+        } catch (Exception $e) {
 
-            DEBUGG::log($e->getMessage(), 'update unita',0,1,0);
+            DEBUGG::log($e->getMessage(), 'update unita', 0, 1, 0);
         }
     }
 
 
-    private function updateContenuti(){
+    private function updateContenuti()
+    {
 
         try {
             $db = JFactory::getDBO();
@@ -322,48 +331,50 @@ class gglmsModelunita extends JModelAdmin {
                 $db->execute();
 
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
 
-            DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
+            DEBUGG::log($e->getMessage(), 'update contenuti', 0, 1, 0);
         }
 
     }
 
-    public function verify_id_completamento_corso($pk){
+    public function verify_id_completamento_corso($pk)
+    {
 
-        try{
+        try {
             $db = JFactory::getDBO();
-            $query=$db->getQuery(true);
+            $query = $db->getQuery(true);
             $query->select('is_corso, id_contenuto_completamento');
             $query->from('#__gg_unit');
-            $query->where('id='.$pk);
+            $query->where('id=' . $pk);
             $db->setQuery($query);
-            $idcontenuto=$db->loadObjectList();
-            if($idcontenuto[0]->is_corso==0){
+            $idcontenuto = $db->loadObjectList();
+            if ($idcontenuto[0]->is_corso == 0) {
                 return true;
-            }elseif($idcontenuto[0]->id_contenuto_completamento){
-                $query=$db->getQuery(true);
+            } elseif ($idcontenuto[0]->id_contenuto_completamento) {
+                $query = $db->getQuery(true);
                 $query->select('count(*)');
                 $query->from('#__gg_contenuti');
-                $query->where('id='.$idcontenuto[0]->id_contenuto_completamento);
+                $query->where('id=' . $idcontenuto[0]->id_contenuto_completamento);
                 $db->setQuery($query);
-                $count=$db->loadResult();
-                if($count>0){
+                $count = $db->loadResult();
+                if ($count > 0) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
-            }else{
+            } else {
                 return false;
             }
 
-        }catch(Exception $e){
-            DEBUGG::log($e->getMessage(), 'update contenuti',0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'update contenuti', 0, 1, 0);
         }
 
     }
 
-    public function deleteUnita($pk){
+    public function deleteUnita($pk)
+    {
 
         try {
             $db = JFactory::getDBO();
@@ -383,11 +394,91 @@ class gglmsModelunita extends JModelAdmin {
 
                 $this->deleteUnita($unita['id']);
             }
-        return "operazione conclusa";
-        }catch (Exception $e){
+            return "operazione conclusa";
+        } catch (Exception $e) {
 
-            DEBUGG::log($e->getMessage(), 'delete unita',0,1,0);
-            return "operazione fallita: ".$e->getMessage();
+            DEBUGG::log($e->getMessage(), 'delete unita', 0, 1, 0);
+            return "operazione fallita: " . $e->getMessage();
         }
+    }
+
+    public function creaGruppoCorso($pk, $titolo)
+    {
+        try {
+            $db = JFactory::getDBO();
+
+            // check se esiste già un gruppo per questo corso
+            $query = $db->getQuery(true)
+                ->select('count(*)')
+                ->from('#__gg_usergroup_map')
+                ->where('idunita="' . $pk . '"');
+
+            $db->setQuery($query);
+            $count = $db->loadResult();
+
+
+            if ($count == 0) {
+
+                // get config
+                $query = $db->getQuery(true)
+                    ->select('config_value')
+                    ->from('#__gg_configs')
+                    ->where("config_key='id_gruppo_corsi'");
+
+                $db->setQuery($query);
+                $group_parent_id = $db->loadResult();
+
+                // non esiste il gruppo , lo creo
+                $insertquery_group = 'INSERT INTO #__usergroups (parent_id, lft,rgt, title) VALUES(';
+                $insertquery_group = $insertquery_group . $group_parent_id . ',';
+                $insertquery_group = $insertquery_group . '0' . ',';
+                $insertquery_group = $insertquery_group . '0' . ',';
+                $insertquery_group = $insertquery_group . '\'' . $titolo . '\'' . ')';
+
+                //echo $insertquery; die;
+                $db->setQuery($insertquery_group);
+                $db->execute();
+                $group_id = $db->insertid(); // id del gruppo appena inserito
+
+                // inserisco in gg_usergroup_map
+                $insertquery_map = 'INSERT INTO #__gg_usergroup_map (idunita, idgruppo) VALUES(';
+                $insertquery_map = $insertquery_map . $pk . ',';
+                $insertquery_map = $insertquery_map . $group_id . ')';
+
+                $db->setQuery($insertquery_map);
+                $db->execute();
+
+               // rebuild usergroups to fix lft e rgt
+                $JTUserGroup = new JTableUsergroup($db);
+                $JTUserGroup->rebuild();
+
+
+            // insert corso in configs id_gruppi_visibili per farlo comparire nella dropdown Gruppi abilitati all'accesso
+            $query = $db->getQuery(true)
+                ->select('config_value')
+                ->from('#__gg_configs')
+                ->where("config_key='id_gruppi_visibili'");
+
+            $db->setQuery($query);
+            $current_id_list = $db->loadResult();
+            $current_id_list = $current_id_list . ',' . $group_id;
+
+            $query_upd = "update #__gg_configs set config_value='" . $current_id_list . "' where config_key='id_gruppi_visibili'";
+            $db->setQuery($query_upd);
+            $db->execute();
+
+            return $group_id;
+
+
+            } else {
+                return null;
+            }
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::log($e->getMessage(), 'update unita', 0, 1, 0);
+        }
+
     }
 }
