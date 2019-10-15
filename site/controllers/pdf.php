@@ -99,32 +99,42 @@ class gglmsControllerPdf extends JControllerLegacy
             $db->setQuery($query);
             $dg = $db->loadResult();
 
+
             //TRACKLOG
 
-            //ottengo tutti i contenuti che compongono il corso
+            $corso_obj = null;
             if (!$unita->is_corso) {
-
-                $this->findAllRelatedContents($unita->unitapadre, $all_contents);
+                $corso_obj = $unita->find_corso($unita->id);
+                $corso_obj = $db->loadObject('gglmsModelUnita');
 
             } else {
-                $this->findAllRelatedContents($unita->id, $all_contents);
 
+                $corso_obj = $unita;
             }
 
-//            var_dump($test_contenuti);
-//            die();
+            $tracklog= null;
+            if ($corso_obj->accesso == 'gruppo') {
+
+                $stampa_tracciato = $corso_obj->isStampaTracciato();
+                if ($stampa_tracciato == 1) {
+                    $all_contents = $corso_obj->getAllContentsByCorso();
+//                    var_dump($all_contents);
+//                    die();
+
+                    $tracklog = array();
+                    foreach ($all_contents as $c) {
+
+                        $item = new stdClass();
+                        $scorm_vars = $c->getStato_scorm();
+                        $item->titolo = $c->titolo;
+                        $item->permanenza = $scorm_vars->permanenza;
+                        $item->data = $scorm_vars->data;
+
+                        array_push($tracklog, $item);
+                    }
+                }
 
 
-            $tracklog = array();
-            foreach ($all_contents as $c) {
-
-                $item = new stdClass();
-                $scorm_vars = $c->getStato_scorm();
-                $item->titolo = $c->titolo;
-                $item->permanenza = $scorm_vars->permanenza;
-                $item->data = $scorm_vars->data;
-
-                array_push($tracklog, $item);
             }
 
 
@@ -200,11 +210,8 @@ class gglmsControllerPdf extends JControllerLegacy
     }
 
 
-    private function findAllRelatedContents($unita_padre_id, &$all_contents)
+    private function findAllRelatedContents_old($unita_padre_id, &$all_contents)
     {
-
-//        var_dump('findAllRelatedContents', $unita_padre_id);
-
         $db = JFactory::getDbo();
         $query = $db->getQuery(true)
             ->select('*')
@@ -218,18 +225,17 @@ class gglmsControllerPdf extends JControllerLegacy
         if ($unita->is_corso) {
 
             // ok, ho trovato il corso
+//            var_dump('idcorso',$unita->id);
             $unita->getSottoUnitaRic($unita->id);
             $contenuti = $unita->contenuti;
             $all_contents = $contenuti;
 
-
         } else {
+
             $this->findAllRelatedContents($unita->unitapadre, $all_contents);
         }
 
         return $all_contents;
-
-
     }
 
 

@@ -354,7 +354,7 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    private function check_iscrizione_gruppo($corso)
+    public function check_iscrizione_gruppo($corso)
     {
 
         try {
@@ -412,5 +412,68 @@ class gglmsModelUnita extends JModelLegacy
         $result = sprintf('h:%02d m:%02d s:%02d', $h,$m, $s);
         return $result;
     }
+
+    ////////////////////////////////////////////////
+    public function isStampaTracciato()
+    {
+
+        try {
+
+            if($this->is_corso ==1)
+            {
+
+                //id gruppo by utente e by idcorso
+                //NB -> la logica da ora diventa che un coupon corrisponde ad un solo corso 15/10/19
+                $subQuery = $this->_db->getQuery(true)
+                    ->select('idgruppo')
+                    ->from('#__gg_usergroup_map AS ug')
+                    ->join('inner', '#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
+                    ->where('ug.idunita = ' . $this->id)//parametrizzare con campo EB
+                    ->where('uj.user_id= ' . $this->_userid);
+
+                // uso subquery per tovare il coupon giusto
+                $query= $this->_db->getQuery(true)
+                        ->select('stampatracciato')
+                    ->from('#__gg_coupon AS c')
+                    ->where('c.id_utente = ' . $this->_userid)
+                    ->where( $this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')');
+
+
+                $this->_db->setQuery($query);
+
+                $data = $this->_db->loadResult();
+                var_dump((string)$query);
+                die();
+
+                if ($data == 0)
+                    return false;
+                else
+                    return $data;
+            }
+            else{
+                $this->_app->enqueueMessage('L\'Unita non è un corso', 'Error');
+                $this->_app->redirect('index.php');
+            }
+
+
+        } catch (Exception $e) {
+            DEBUGG::query($query);
+            DEBUGG::log($e, 'check_iscrizione_gruppo', 1);
+
+        }
+    }
+
+    public function getAllContentsByCorso()
+    {
+        if($this->is_corso)
+        {
+            $this->getSottoUnitaRic($this->id);
+            return $this->contenuti;
+        }
+        else{
+            return null;
+        }
+    }
+
 }
 
