@@ -1,0 +1,25 @@
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+h1{
+    text-align: center;
+    padding: 10px;
+    /*color: deeppink !important;*/
+}
+
+form{
+    padding:20px 200px;
+}
+
+@media (max-width: 768px) {
+
+    /*.item-container {*/
+        /*display: flex;*/
+        /*flex-direction: column;*/
+
+    /*}*/
+
+}
+

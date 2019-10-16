@@ -35,6 +35,7 @@ class gglmsController extends JControllerLegacy {
 
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/generaCoupon.js');
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
@@ -43,6 +44,7 @@ class gglmsController extends JControllerLegacy {
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
 
         if(file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');

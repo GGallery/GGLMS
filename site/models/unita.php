@@ -419,11 +419,10 @@ class gglmsModelUnita extends JModelLegacy
 
         try {
 
-            if($this->is_corso ==1)
+            if($this->is_corso == 1)
             {
 
                 //id gruppo by utente e by idcorso
-                //NB -> la logica da ora diventa che un coupon corrisponde ad un solo corso 15/10/19
                 $subQuery = $this->_db->getQuery(true)
                     ->select('idgruppo')
                     ->from('#__gg_usergroup_map AS ug')
@@ -442,8 +441,8 @@ class gglmsModelUnita extends JModelLegacy
                 $this->_db->setQuery($query);
 
                 $data = $this->_db->loadResult();
-                var_dump((string)$query);
-                die();
+//                var_dump((string)$query);
+//                die();
 
                 if ($data == 0)
                     return false;
@@ -458,7 +457,7 @@ class gglmsModelUnita extends JModelLegacy
 
         } catch (Exception $e) {
             DEBUGG::query($query);
-            DEBUGG::log($e, 'check_iscrizione_gruppo', 1);
+            DEBUGG::log($e, 'isStampaTracciato', 1);
 
         }
     }
