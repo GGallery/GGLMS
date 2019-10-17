@@ -30,8 +30,8 @@ class gglmsViewGenera extends JViewLegacy
     {
 
         $couponCtrl = new gglmsControllerGeneraCoupon();
-        $this->lista_corsi = $couponCtrl->getGruppiCorsi();
 
+        $this->lista_corsi = $couponCtrl->getGruppiCorsi();
         $this->societa_venditrici = $couponCtrl->getVenditrici();
 
 

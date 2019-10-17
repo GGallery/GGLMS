@@ -10,7 +10,7 @@
 defined('_JEXEC') or die;
 
 //require_once JPATH_COMPONENT . '/models/contenuto.php';
-//require_once JPATH_COMPONENT . '/models/libretto.php';
+require_once JPATH_COMPONENT . '/models/generacoupon.php';
 
 /**
  * Controller for single contact view
@@ -36,13 +36,6 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         $this->_db = &JFactory::getDbo();
 
 
-        define('SMARTY_DIR', JPATH_COMPONENT . '/libraries/smarty/smarty/');
-        define('SMARTY_COMPILE_DIR', JPATH_COMPONENT . '/models/cache/compile/');
-        define('SMARTY_CACHE_DIR', JPATH_COMPONENT . '/models/cache/');
-        define('SMARTY_TEMPLATE_DIR', JPATH_COMPONENT . '/models/templates/');
-        define('SMARTY_CONFIG_DIR', JPATH_COMPONENT . '/models/');
-        define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT . '/libraries/smarty/extras/');
-
     }
 
     //
@@ -52,18 +45,35 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         try {
             $db = JFactory::getDbo();
             $postData = $this->_japp->input->get;
-            $id_elemento = $postData->get('content', 0, 'int');
+            $data = JRequest::get($_POST);
 
-            var_dump($postData);
+//
+//            $piva = $data['username'];
+//            $ragioneSociale = $data['ragioneSociale'];
+//            $email = $data['email'];
+//            $ateco = $data['ateco'];
+//            $qty = $data['qty'];
+//            $id_gruppo_piattaforma = $data['vendor'];
+//            $attestato = $data['attestato'] == 'on' ? true : false;
+//            $stampatracciato = $data['stampatracciato'] == 'on' ? true : false;
+
+
+
+            $coupon = new gglmsModelGeneraCoupon();
+            $coupon->insert_coupon($data);
+
+
 
 
         } catch (Exception $e) {
 
-            DEBUGG::log($e, 'Exception in generateAttestato ', 1);
+//            DEBUGG::log($e, 'Exception in generaCoupon ', 1);
         }
         $this->_japp->close();
     }
 
+
+    ///////////////////////////////////////////////////////////
 
     public function getGruppiCorsi()
     {

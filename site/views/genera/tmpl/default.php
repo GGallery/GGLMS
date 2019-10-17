@@ -11,53 +11,59 @@ echo "<h1> Genera Coupon</h1>";
 
 <!--<form method="post" name="form_genera_coupon">-->
 
-    <form action="<?php echo JRoute::_('index.php?option=com_gglms&task=generaCoupon.generaCoupon.php'); ?>"
-          method="post" name="adminForm" id="adminForm" class="form-validate">
-    <div class="form-group">
-        <label for="ragioneSociale">Ragione Sociale:</label>
-        <input placeholder="Ragione sociale dell'azienda" type="text" class="form-control" id="ragioneSociale">
-    </div>
+<form action="<?php echo JRoute::_('index.php?option=com_gglms&task=generaCoupon.generaCoupon.php'); ?>"
+      method="post" name="generaCouponForm" id="adminForm" class="form-validate">
     <div class="form-group">
         <label for="username">Username:</label>
-        <input required placeholder="Partita IVA dell'azienda" type="text" class="form-control" id="username">
+        <input  placeholder="Partita IVA dell'azienda" type="text" class="form-control" id="username"
+               name="username">
     </div>
     <div class="form-group">
+        <label for="ragioneSociale">Ragione Sociale:</label>
+        <input placeholder="Ragione sociale dell'azienda" type="text" class="form-control" id="ragione_sociale"
+               name="ragione_sociale">
+    </div>
+
+    <div class="form-group">
         <label for="email">Email:</label>
-        <input required placeholder="Email del referente aziendale" type="email" class="form-control" id="email">
+        <input  placeholder="Email del referente aziendale" type="email" class="form-control" id="email"
+               name="email">
     </div>
     <div class="form-group">
         <label for="ateco">ATECO:</label>
-        <input required placeholder="Codice ATECO" type="text" class="form-control" id="ateco">
+        <input  placeholder="Codice ATECO" type="text" class="form-control" id="ateco" name="ateco">
     </div>
     <div class="form-group">
         <label for="corso">Corso:</label>
-        <select required placeholder="Corso" type="text" class="form-control" id="corso">
-            <?php foreach ($this->lista_corsi as $c){ ?>
-            <option value="<?php echo $c->value; ?>">
-                <?php echo $c->text ?>
-            </option>
-            <?php }?>
+        <select required placeholder="Corso" type="text" class="form-control" id="corso" name="corso">
+            <?php foreach ($this->lista_corsi as $c) { ?>
+                <option value="<?php echo $c->value; ?>">
+                    <?php echo $c->text ?>
+                </option>
+            <?php } ?>
 
         </select>
     </div>
     <div class="form-group">
         <label for="qty">Quantità:</label>
-        <input required placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty">
+        <input  placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty"
+               name="qty">
     </div>
     <div class="form-group">
         <label for="vendor">Venditrice:</label>
-        <select required placeholder="Venditrice" class="form-control" id="vendor">
-            <?php foreach ($this->societa_venditrici as $s){ ?>
+        <select  placeholder="Venditrice" class="form-control" id="vendor" name="vendor">
+            <?php foreach ($this->societa_venditrici as $s) { ?>
                 <option value="<?php echo $s->value; ?>">
                     <?php echo $s->text ?>
                 </option>
-            <?php }?>
+            <?php } ?>
 
         </select>
     </div>
     <div class="form-group">
-        <label for="attestato"><input type="checkbox" id="attestato"> Attestato</label>
-        <label for="stampatracciato"><input type="checkbox" id="stampatracciato"> Stampa tracciato</label>
+        <label for="attestato"><input type="checkbox" id="attestato" name="attestato"> Attestato</label>
+        <label for="stampatracciato"><input type="checkbox" id="stampatracciato" name="stampatracciato"> Stampa
+            tracciato</label>
     </div>
 
 
