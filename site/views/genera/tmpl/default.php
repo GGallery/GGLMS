@@ -8,72 +8,89 @@ echo "<h1> Genera Coupon</h1>";
 
 
 ?>
-
-<!--<form method="post" name="form_genera_coupon">-->
-
 <form action="<?php echo JRoute::_('index.php?option=com_gglms&task=generaCoupon.generaCoupon.php'); ?>"
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
-    <div class="form-group">
-        <label for="username">Username:</label>
-        <input  placeholder="Partita IVA dell'azienda" type="text" class="form-control" id="username"
-               name="username">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="username">Partita Iva:</label>
+        <div class="col-sm-9">
+            <input required placeholder="Partita IVA dell'azienda" type="text" class="form-control" id="username"
+                   name="username">
+        </div>
     </div>
-    <div class="form-group">
-        <label for="ragioneSociale">Ragione Sociale:</label>
-        <input placeholder="Ragione sociale dell'azienda" type="text" class="form-control" id="ragione_sociale"
-               name="ragione_sociale">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="ragioneSociale">Ragione Sociale:</label>
+        <div class="col-sm-9">
+            <input placeholder="Ragione sociale dell'azienda" type="text" class="form-control" id="ragione_sociale"
+                   name="ragione_sociale">
+        </div>
     </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="email">Email:</label>
+        <div class="col-sm-9">
+            <input placeholder="Email del referente aziendale" type="email" class="form-control" id="email"
+                   name="email">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="ateco">ATECO:</label>
+        <div class="col-sm-9">
+            <input placeholder="Codice ATECO" type="text" class="form-control" id="ateco" name="ateco">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="corso">Corso:</label>
+        <div class="col-sm-9">
+            <select required placeholder="Corso" type="text" class="form-control" id="gruppo_corsi" name="gruppo_corsi">
+                <?php foreach ($this->lista_corsi as $c) { ?>
+                    <option value="<?php echo $c->value; ?>">
+                        <?php echo $c->text ?>
+                    </option>
+                <?php } ?>
 
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <input  placeholder="Email del referente aziendale" type="email" class="form-control" id="email"
-               name="email">
+            </select>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="ateco">ATECO:</label>
-        <input  placeholder="Codice ATECO" type="text" class="form-control" id="ateco" name="ateco">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="qty">Quantità:</label>
+        <div class="col-sm-9">
+            <input placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty" min ="1"
+                   name="qty">
+        </div>
     </div>
-    <div class="form-group">
-        <label for="corso">Corso:</label>
-        <select required placeholder="Corso" type="text" class="form-control" id="gruppo_corsi" name="gruppo_corsi">
-            <?php foreach ($this->lista_corsi as $c) { ?>
-                <option value="<?php echo $c->value; ?>">
-                    <?php echo $c->text ?>
-                </option>
-            <?php } ?>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="vendor">Venditrice:</label>
+        <div class="col-sm-9">
+            <select  required placeholder="Venditrice" class="form-control" id="vendor" name="vendor">
+                <?php foreach ($this->societa_venditrici as $s) { ?>
+                    <option value="<?php echo $s->value; ?>">
+                        <?php echo $s->text ?>
+                    </option>
+                <?php } ?>
 
-        </select>
+            </select>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="qty">Quantità:</label>
-        <input  placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty"
-               name="qty">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="username">Prefisso:</label>
+        <div class="col-sm-9">
+            <input placeholder="Prefisso Coupon (opzionale ma consigliato)" type="text" class="form-control"
+                   id="prefisso_coupon"
+                   name="prefisso_coupon">
+        </div>
     </div>
-    <div class="form-group">
-        <label for="vendor">Venditrice:</label>
-        <select  placeholder="Venditrice" class="form-control" id="vendor" name="vendor">
-            <?php foreach ($this->societa_venditrici as $s) { ?>
-                <option value="<?php echo $s->value; ?>">
-                    <?php echo $s->text ?>
-                </option>
-            <?php } ?>
-
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="username">Prefisso:</label>
-        <input  placeholder="Prefisso Coupon (opzionale ma consigliato)" type="text" class="form-control" id="prefisso_coupon"
-                name="prefisso_coupon">
-    </div>
-    <div class="form-group">
-        <label for="abilitati"><input type="checkbox" id="abilitato" name="abilitato"> Abilitati</label>
-        <label for="attestato"><input type="checkbox" id="attestato" name="attestato"> Attestato</label>
-        <label for="stampatracciato"><input type="checkbox" id="stampatracciato" name="stampatracciato"> Stampa
+    <div class="form-group row">
+        <div class="col-sm-3"> </div>
+        <label class="col-sm-3 col-form-label" for="abilitato"><input type="checkbox" id="abilitato" name="abilitato">
+            Abilitati</label>
+        <label class="col-sm-3 col-form-label" for="attestato"><input type="checkbox" id="attestato" name="attestato">
+            Attestato</label>
+        <label class="col-sm-3 col-form-label " for="stampatracciato"><input type="checkbox" id="stampatracciato"
+                                                                            name="stampatracciato"> Stampa
             tracciato</label>
     </div>
-
-
-    <button type="submit" class="btn btn-default">Genera</button>
+    <div class="form-group">
+        <button id="btn-genera" type="submit" class="btn-block my-btn">Genera</button>
+    </div>
 </form>
 
 

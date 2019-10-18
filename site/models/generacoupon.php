@@ -53,14 +53,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public  function insert_coupon($data)
+    public function insert_coupon($data)
     {
 
         try {
 
-            $data['attestato']  = $data['attestato'] == 'on' ? 1 : 0;
-            $data['stampatracciato']  = $data['stampatracciato'] == 'on' ? 1 : 0;
-            $data['abilitato']  = $data['abilitati'] == 'on' ? 1 : 0;
+            $data['attestato'] = $data['attestato'] == 'on' ? 1 : 0;
+            $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
+            $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
 
             // se non esiste crea utente ( tutor ) legato alla company
             if (false === ($new_user = $this->create_new_company_user($data))) {
@@ -68,6 +68,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             }
 
+//            var_dump($new_user);
 
             $id_gruppo_societa = $this->_get_id_gruppo_societa($data['username'], $data["vendor"]);
             $id_iscrizione = $this->_generate_id_iscrizione($data['vendor']);
@@ -79,41 +80,42 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // campo unico il set di coupon composto da idPiattaformaVenditrice_stringone senza senso basato sul now
             for ($i = 0; $i < $data['qty']; $i++) {
 
-
                 $coupons[$i] = $this->_generate_coupon($data, $id_gruppo_societa);
-                var_dump('loop ' . $i   );
 
                 // se abilitato -> dataabilitazione = now
 
-                $values[] = sprintf("('%s', '%s', %d, '%s', %s, %d, %d , %d , %d , %d)",
+                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d)",
                     $coupons[$i],
                     date('Y-m-d H:i:s', time()), //  time(), //creation_time
                     $data['abilitato'],
                     $id_iscrizione,
-                    $data['abilitato'] == 1 ?  date('Y-m-d H:i:s', time()) : 'NULL' ,
+                    $data['abilitato'] == 1 ? date('Y-m-d H:i:s', time()) : 'NULL',
                     self::DEFAULT_LENGHT,
                     $data['attestato'],
                     $id_gruppo_societa,
                     $data['gruppo_corsi'],
                     $data['stampatracciato']
-                    );
+                );
 
             }
 
 
             // li inserisco nel DB
             $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato) VALUES ' . join(',', $values);
-           echo($query);
-
 
 
             $this->_db->setQuery($query);
             if (false === $this->_db->execute())
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
-//            $this->_db->execute();
 
-            $values = array();
+            if ($this->_send_mail($data["vendor"], $data['email'], $new_user, $coupons, $data['gruppo_corsi']) === false) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
+            $this->_japp->redirect(JRoute::_( '/home/genera-coupon'), 'ok');
+
 
         } catch (Exception $ex) {
 
@@ -164,20 +166,20 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $user_id = $this->_check_username($data['username']);
 
             if (empty($user_id)) {
-//
-//                // genero una password casuale
+
+                // genero una password casuale
                 $password = $this->_generate_pwd(8);
                 $salt = JUserHelper::genRandomPassword(32);
                 $crypt = JUserHelper::getCryptedPassword($password, $salt) . ':' . $salt;
-//
-//                // creo nuovo user
+
+                // creo nuovo user
                 $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $data['ragione_sociale'], $data['username'], $crypt, $data['email']);
                 $this->_db->setQuery($query);
                 if (false === $this->_db->query())
                     throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 //                debug::msg('Nuovo utente ' . $data['username'] . ':' . $password . ' inserito.');
-//
-//                // id del nuovo user
+
+                // id del nuovo user
                 $user_id = $this->_db->insertid();
 
 
@@ -202,8 +204,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 }
 //                debug::msg('Nuovo utente aggiornata anagrafica');
-//
-//
 
 //                // creo nuovo forum
 //                /** @todo sostituire il 16 della riga sotto con un sistema che prelevi l'ID del gruppo tutor da DB */
@@ -213,8 +213,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
             $res = array('user_id' => $user_id, 'password' => isset($password) ? $password : null, 'id_gruppo_societa' => $company_group_id);
-
-//            var_dump($res);
 
             return $res;
         } catch (Exception $e) {
@@ -231,9 +229,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
         $query = 'SELECT id FROM #__users WHERE username=\'' . $username . '\' LIMIT 1';
         $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->loadRow()))
+        if (false === ($results = $this->_db->loadRow())) {
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-//        debug::vardump($results, 'società');
+        }
+
         return isset($results[0]) ? $results[0] : null;
     }
 
@@ -248,7 +247,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
      *
      * @param int $company_id
      * @param string $company_name
-     * @param  int $parent_id
+     * @param  int $piattaforma_group_id
      * @return int Ritorn l'ID del gruppo appena creato o FALSE in caso di errore.
      */
     private function _create_company_group($company_id, $company_name, $piattaforma_group_id)
@@ -283,12 +282,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             var_dump($ex);
             echo 'errore in _create_company_group';
+            return false;
 
 
         }
 
-
-        return false;
     }
 
     private function _set_user_tutor($user_id)
@@ -315,10 +313,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
 //        $var_1 = str_replace(' ', '_', $data['prefisso_coupon'] . substr($data['ragione_sociale'], 0, 3)) . str_replace('0', 'k', uniqid('', true)); // no zeros
-        $var_1 = str_replace(' ', '_', $data['prefisso_coupon'] ) . str_replace('0', 'k', uniqid('', true)); // no zeros
+        $var_1 = str_replace(' ', '_', $data['prefisso_coupon']) . str_replace('0', 'k', uniqid('', true)); // no zeros
         $var_2 = 's' . $id_gruppo_societa . 'c' . $data['gruppo_corsi'];
 
-        return $var_1 . $var_2 ;
+        return $var_1 . $var_2;
 //        return str_replace(' ', '_', $prefisso . substr($usr_ragionesociale, 0, 3)) . str_replace('0', 'k', md5(uniqid('', true))); // no zeros
 
     }
@@ -326,6 +324,61 @@ class gglmsModelgeneracoupon extends JModelLegacy
     private function _generate_id_iscrizione($id_piattaforma)
     {
         return $id_piattaforma . '_' . uniqid(time());
+    }
+
+    private function _send_mail($id_gruppo_piattaforma, $email_ref_aziendale, $new_user, $coupons, $id_gruppo_corso)
+    {
+
+        //get email di riferimento
+        $query = 'SELECT dominio, email_riferimento FROM #__usergroups_details WHERE group_id=' . $id_gruppo_piattaforma . ' LIMIT 1';
+        $this->_db->setQuery($query);
+        if (false === ($results = $this->_db->loadRow()))
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+        $data['associazione_name'] = $results[0];
+        $data['associazione_url'] = 'http://www.' . strtolower($results[0]) . '/';
+        $data['email_riferimento'] = $results[1];
+
+        //todo per evitare di mandare mail a caso, da cancellare
+        $data['email_riferimento'] = 'francesca.bagni@ggallery.it';
+
+
+        // get course info
+        $query = 'SELECT * FROM #__usergroups WHERE id=' . $id_gruppo_corso . ' LIMIT 1';
+        $this->_db->setQuery($query);
+        if (false === ($course_info = $this->_db->loadRow()))
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+
+        require_once(JPATH_COMPONENT . '/libraries/smarty/EasySmarty.class.php');
+        $mailer = JFactory::getMailer();
+        $mailer->setSender($data['email_riferimento']);
+        $recipient = array($data['email_riferimento'], $email_ref_aziendale);//, 'martina@ggallery.it');
+        $mailer->addRecipient($recipient);
+        $mailer->setSubject('Coupon corso ' . $data['associazione_name']);
+
+//        var_dump($data['email_riferimento']);
+//        var_dump($email_ref_aziendale);
+//        var_dump($recipient);
+//
+//        die();
+
+        $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
+
+        $smarty = new EasySmarty();
+        $data['password'] = $new_user['password'];
+        $smarty->assign('ausind', $data);
+        $smarty->assign('coupons', $coupons);
+        $smarty->assign('coursename', $course_info['title']);
+        $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+        $mailer->isHTML(true);
+
+        if (!$mailer->Send())
+            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+
+
+        return true;
+
     }
 
     public function getGruppiCorsi()
