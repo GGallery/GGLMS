@@ -20,11 +20,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
 {
 
     private $_japp;
-    private $_coupon;
     protected $_db;
     private $_userid;
     private $_user;
     public $_params;
+    public $lista_corsi;
+    public $societa_venditrici;
+
+
+    //todo da spostare a database in tabella config?
+    const DEFAULT_LENGHT = 60;
+
 
     public function __construct($config = array())
     {
@@ -36,6 +42,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $this->_userid = $this->_user->get('id');
         $this->_params = $this->_japp->getParams();
 
+        // valori per dropdown
+        $this->lista_corsi = $this->getGruppiCorsi();
+        $this->societa_venditrici = $this->getVenditrici();
+
     }
 
     public function __destruct()
@@ -43,11 +53,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-
-    public function insert_coupon($data)
+    public  function insert_coupon($data)
     {
 
         try {
+
+            $data['attestato']  = $data['attestato'] == 'on' ? 1 : 0;
+            $data['stampatracciato']  = $data['stampatracciato'] == 'on' ? 1 : 0;
+            $data['abilitato']  = $data['abilitati'] == 'on' ? 1 : 0;
 
             // se non esiste crea utente ( tutor ) legato alla company
             if (false === ($new_user = $this->create_new_company_user($data))) {
@@ -56,14 +69,93 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
+            $id_gruppo_societa = $this->_get_id_gruppo_societa($data['username'], $data["vendor"]);
+            $id_iscrizione = $this->_generate_id_iscrizione($data['vendor']);
+
+            $coupons = array();
+            $values = array();
+
+
+            // campo unico il set di coupon composto da idPiattaformaVenditrice_stringone senza senso basato sul now
+            for ($i = 0; $i < $data['qty']; $i++) {
+
+
+                $coupons[$i] = $this->_generate_coupon($data, $id_gruppo_societa);
+                var_dump('loop ' . $i   );
+
+                // se abilitato -> dataabilitazione = now
+
+                $values[] = sprintf("('%s', '%s', %d, '%s', %s, %d, %d , %d , %d , %d)",
+                    $coupons[$i],
+                    date('Y-m-d H:i:s', time()), //  time(), //creation_time
+                    $data['abilitato'],
+                    $id_iscrizione,
+                    $data['abilitato'] == 1 ?  date('Y-m-d H:i:s', time()) : 'NULL' ,
+                    self::DEFAULT_LENGHT,
+                    $data['attestato'],
+                    $id_gruppo_societa,
+                    $data['gruppo_corsi'],
+                    $data['stampatracciato']
+                    );
+
+            }
+
+
+            // li inserisco nel DB
+            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato) VALUES ' . join(',', $values);
+           echo($query);
+
+
+
+            $this->_db->setQuery($query);
+            if (false === $this->_db->execute())
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+//            $this->_db->execute();
+
+            $values = array();
+
         } catch (Exception $ex) {
 
-            echo 'error in insert_coupon';
+//            echo 'error in insert_coupon';
+            var_dump($ex);
 
         }
 
     }
 
+    public function _get_id_gruppo_societa($piva, $id_piattaforma)
+    {
+        // prendo utente username= p.iva
+
+        $query = $this->_db->getQuery(true)
+            ->select('u.id')
+            ->from('#__users as u')
+            ->where('username="' . $piva . '"');
+
+
+        $this->_db->setQuery($query);
+        $user_societa = $this->_db->loadResult();
+
+//        var_dump($user_societa);
+
+        // prendo i gruppi a cui appartiene
+        $gruppi_appartenenza_utente = JAccess::getGroupsByUser($user_societa, true);
+
+
+        // filtro i gruppi a cui appartiene l'utente piva per quelli figli di piattaforma $id_piattaforma
+        $query = $this->_db->getQuery(true)
+            ->select('ug.id')
+            ->from('#__usergroups as ug')
+            ->where('parent_id="' . $id_piattaforma . '"')
+            ->where('ug.id IN ' . ' (' . implode(',', $gruppi_appartenenza_utente) . ')');
+
+
+        $this->_db->setQuery($query);
+        $id_gruppo_societa = $this->_db->loadResult();
+
+        return $id_gruppo_societa;
+    }
 
     public function create_new_company_user($data)
     {
@@ -93,7 +185,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 if (false === ($company_group_id = $this->_create_company_group($user_id, $data['ragione_sociale'], $data["vendor"])))
                     throw new Exception('Errore nella creazione del gruppo', E_USER_ERROR);
 
-                $this->_set_user_turor($user_id);
+                $this->_set_user_tutor($user_id);
 
 
                 // inserisco in comprofiler
@@ -120,7 +212,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //
             }
 
-            $res= array('user_id' => $user_id, 'password' => isset($password) ? $password : null);
+            $res = array('user_id' => $user_id, 'password' => isset($password) ? $password : null, 'id_gruppo_societa' => $company_group_id);
 
 //            var_dump($res);
 
@@ -134,7 +226,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
         return false;
     }
-
 
     private function _check_username($username)
     {
@@ -150,7 +241,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
         return chr(65 + rand(0, 1) * 32 + rand(0, 25)) . ($l ? $this->_generate_pwd(--$l) : '');
     }
-
 
     /**
      * Crea un nuovo gruppo con il nome della società ($company_name) gerarchicamente sotto il gruppo della piattaforma veditrice ($parent_id) e associa
@@ -201,7 +291,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
         return false;
     }
 
-    private function _set_user_turor($user_id){
+    private function _set_user_tutor($user_id)
+    {
 
         $query = $this->_db->getQuery(true)
             ->select('config_value')
@@ -216,6 +307,100 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $this->_db->setQuery($insertquery_map);
         $this->_db->execute();
 
+
+    }
+
+    private function _generate_coupon($data, $id_gruppo_societa)
+    {
+
+
+//        $var_1 = str_replace(' ', '_', $data['prefisso_coupon'] . substr($data['ragione_sociale'], 0, 3)) . str_replace('0', 'k', uniqid('', true)); // no zeros
+        $var_1 = str_replace(' ', '_', $data['prefisso_coupon'] ) . str_replace('0', 'k', uniqid('', true)); // no zeros
+        $var_2 = 's' . $id_gruppo_societa . 'c' . $data['gruppo_corsi'];
+
+        return $var_1 . $var_2 ;
+//        return str_replace(' ', '_', $prefisso . substr($usr_ragionesociale, 0, 3)) . str_replace('0', 'k', md5(uniqid('', true))); // no zeros
+
+    }
+
+    private function _generate_id_iscrizione($id_piattaforma)
+    {
+        return $id_piattaforma . '_' . uniqid(time());
+    }
+
+    public function getGruppiCorsi()
+    {
+
+        // carico i gruppi dei corsi
+        $query_config = $this->_db->getQuery(true)
+            ->select('config_value')
+            ->from('#__gg_configs')
+            ->where("config_key='id_gruppo_corsi'");
+
+        $this->_db->setQuery($query_config);
+        $id_gruppo_accesso_corsi = $this->_db->loadResult();
+
+
+        $query = $this->_db->getQuery(true)
+            ->select('g.id as value, g.title as text')
+            ->from('#__usergroups as g')
+            ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
+
+        $this->_db->setQuery($query);
+        $corsi = $this->_db->loadObjectList();
+
+
+        return $corsi;
+    }
+
+    public function getVenditrici()
+    {
+
+        $user = JFactory::getUser();
+        $gruppi_appartenenza_utente = JAccess::getGroupsByUser($user->id);
+        $società_venditrici = array();
+
+
+        $query_config = $this->_db->getQuery(true)
+            ->select('config_value')
+            ->from('#__gg_configs')
+            ->where("config_key='id_gruppo_venditori'");
+
+        $this->_db->setQuery($query_config);
+        $id_gruppo_venditori = $this->_db->loadResult();
+
+
+        if (in_array($id_gruppo_venditori, $gruppi_appartenenza_utente)) {
+//            echo 'sei un venditore';
+            // filtro i gruppi a cui appartiene l'utente per ricavare le piattaforme a cui è associato
+
+            $query_config = $this->_db->getQuery(true)
+                ->select('config_value')
+                ->from('#__gg_configs')
+                ->where("config_key='id_gruppo_piattaforme'");
+
+            $this->_db->setQuery($query_config);
+            $id_gruppo_piattaforme = $this->_db->loadResult();
+
+
+            // ricavo tra i gruppi di appartenenza dell'utente quelli che corrispondono a delle piattaforme
+            $query = $this->_db->getQuery(true)
+                ->select('g.id as value, d.alias as text')
+                ->from('#__usergroups as g')
+                ->join('inner', '#__user_usergroup_map as m ON  g.id = m.group_id')
+                ->join('inner', '#__usergroups_details as d ON g.id = d.group_id')
+                ->where("g.parent_id=" . $id_gruppo_piattaforme)
+                ->where("m.user_id=" . $user->id);
+
+
+            $this->_db->setQuery($query);
+            $società_venditrici = $this->_db->loadObjectList();
+
+        } else {
+            echo "l'utente loggato non appartiene al gruppo venditore, non può generare coupon";
+        }
+
+        return $società_venditrici;
 
     }
 

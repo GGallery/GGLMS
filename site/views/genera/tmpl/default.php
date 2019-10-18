@@ -35,7 +35,7 @@ echo "<h1> Genera Coupon</h1>";
     </div>
     <div class="form-group">
         <label for="corso">Corso:</label>
-        <select required placeholder="Corso" type="text" class="form-control" id="corso" name="corso">
+        <select required placeholder="Corso" type="text" class="form-control" id="gruppo_corsi" name="gruppo_corsi">
             <?php foreach ($this->lista_corsi as $c) { ?>
                 <option value="<?php echo $c->value; ?>">
                     <?php echo $c->text ?>
@@ -61,6 +61,12 @@ echo "<h1> Genera Coupon</h1>";
         </select>
     </div>
     <div class="form-group">
+        <label for="username">Prefisso:</label>
+        <input  placeholder="Prefisso Coupon (opzionale ma consigliato)" type="text" class="form-control" id="prefisso_coupon"
+                name="prefisso_coupon">
+    </div>
+    <div class="form-group">
+        <label for="abilitati"><input type="checkbox" id="abilitato" name="abilitato"> Abilitati</label>
         <label for="attestato"><input type="checkbox" id="attestato" name="attestato"> Attestato</label>
         <label for="stampatracciato"><input type="checkbox" id="stampatracciato" name="stampatracciato"> Stampa
             tracciato</label>
