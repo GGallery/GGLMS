@@ -102,7 +102,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             // li inserisco nel DB
             $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato) VALUES ' . join(',', $values);
-
+//            echo  $query;die;
 
             $this->_db->setQuery($query);
             if (false === $this->_db->execute())
@@ -114,9 +114,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            $this->_japp->redirect(JRoute::_( '/home/genera-coupon'), 'ok');
+            $this->_japp->redirect(JRoute::_( '/home/genera-coupon'),   $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
-
+//            $app->enqueueMessage('Gruppo creato con successo!', 'Success')
         } catch (Exception $ex) {
 
 //            echo 'error in insert_coupon';

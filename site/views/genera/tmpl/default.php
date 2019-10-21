@@ -53,7 +53,7 @@ echo "<h1> Genera Coupon</h1>";
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" for="qty">Quantità:</label>
         <div class="col-sm-9">
-            <input placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty" min ="1"
+            <input required placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty" min ="1"
                    name="qty">
         </div>
     </div>
