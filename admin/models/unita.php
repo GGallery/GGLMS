@@ -453,19 +453,20 @@ class gglmsModelunita extends JModelAdmin
                 $JTUserGroup->rebuild();
 
 
-            // insert corso in configs id_gruppi_visibili per farlo comparire nella dropdown Gruppi abilitati all'accesso
-            $query = $db->getQuery(true)
-                ->select('config_value')
-                ->from('#__gg_configs')
-                ->where("config_key='id_gruppi_visibili'");
-
-            $db->setQuery($query);
-            $current_id_list = $db->loadResult();
-            $current_id_list = $current_id_list . ',' . $group_id;
-
-            $query_upd = "update #__gg_configs set config_value='" . $current_id_list . "' where config_key='id_gruppi_visibili'";
-            $db->setQuery($query_upd);
-            $db->execute();
+// non serve più! il campi  id_gruppi_visibili è in disuso
+//            // insert corso in configs id_gruppi_visibili per farlo comparire nella dropdown Gruppi abilitati all'accesso
+//            $query = $db->getQuery(true)
+//                ->select('config_value')
+//                ->from('#__gg_configs')
+//                ->where("config_key='id_gruppi_visibili'");
+//
+//            $db->setQuery($query);
+//            $current_id_list = $db->loadResult();
+//            $current_id_list = $current_id_list . ',' . $group_id;
+//
+//            $query_upd = "update #__gg_configs set config_value='" . $current_id_list . "' where config_key='id_gruppi_visibili'";
+//            $db->setQuery($query_upd);
+//            $db->execute();
 
             return $group_id;
 

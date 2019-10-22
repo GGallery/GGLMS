@@ -16,6 +16,9 @@ jimport('joomla.application.component.model');
  * @package    Joomla.Components
  * @subpackage WebTV
  */
+
+require_once JPATH_COMPONENT . '/models/config.php';
+
 class gglmsModelgeneracoupon extends JModelLegacy
 {
 
@@ -26,6 +29,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     public $_params;
     public $lista_corsi;
     public $societa_venditrici;
+    private $_config;
 
 
     //todo da spostare a database in tabella config?
@@ -41,6 +45,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $this->_user = JFactory::getUser();
         $this->_userid = $this->_user->get('id');
         $this->_params = $this->_japp->getParams();
+        $this->_config = new gglmsModelConfig();
 
         // valori per dropdown
         $this->lista_corsi = $this->getGruppiCorsi();
@@ -114,7 +119,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            $this->_japp->redirect(JRoute::_( '/home/genera-coupon'),   $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
+            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
 //            $app->enqueueMessage('Gruppo creato con successo!', 'Success')
         } catch (Exception $ex) {
@@ -292,14 +297,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     private function _set_user_tutor($user_id)
     {
 
-        $query = $this->_db->getQuery(true)
-            ->select('config_value')
-            ->from('#__gg_configs')
-            ->where("config_key='id_gruppo_tutor'");
-
-        $this->_db->setQuery($query);
-        $tutor_group_id = $this->_db->loadResult();
-
+        $tutor_group_id = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
 
         $insertquery_map = 'INSERT INTO #__user_usergroup_map (user_id, group_id) VALUES (' . $user_id . ', ' . $tutor_group_id . ')';
         $this->_db->setQuery($insertquery_map);
@@ -385,14 +383,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
 
         // carico i gruppi dei corsi
-        $query_config = $this->_db->getQuery(true)
-            ->select('config_value')
-            ->from('#__gg_configs')
-            ->where("config_key='id_gruppo_corsi'");
 
-        $this->_db->setQuery($query_config);
-        $id_gruppo_accesso_corsi = $this->_db->loadResult();
-
+        $_config = new gglmsModelConfig();
+        $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
 
         $query = $this->_db->getQuery(true)
             ->select('g.id as value, g.title as text')
@@ -409,45 +402,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
     public function getVenditrici()
     {
 
-        $user = JFactory::getUser();
-        $gruppi_appartenenza_utente = JAccess::getGroupsByUser($user->id);
-        $società_venditrici = array();
+
+        $user = new gglmsModelUsers();
+        $Juser = JFactory::getUser();
+        $user->get_user($Juser->id);
 
 
-        $query_config = $this->_db->getQuery(true)
-            ->select('config_value')
-            ->from('#__gg_configs')
-            ->where("config_key='id_gruppo_venditori'");
+        if ($user->is_venditore($Juser->id)) {
+            $società_venditrici = $user->get_user_piattaforme($Juser->id);
 
-        $this->_db->setQuery($query_config);
-        $id_gruppo_venditori = $this->_db->loadResult();
-
-
-        if (in_array($id_gruppo_venditori, $gruppi_appartenenza_utente)) {
-//            echo 'sei un venditore';
-            // filtro i gruppi a cui appartiene l'utente per ricavare le piattaforme a cui è associato
-
-            $query_config = $this->_db->getQuery(true)
-                ->select('config_value')
-                ->from('#__gg_configs')
-                ->where("config_key='id_gruppo_piattaforme'");
-
-            $this->_db->setQuery($query_config);
-            $id_gruppo_piattaforme = $this->_db->loadResult();
-
-
-            // ricavo tra i gruppi di appartenenza dell'utente quelli che corrispondono a delle piattaforme
-            $query = $this->_db->getQuery(true)
-                ->select('g.id as value, d.alias as text')
-                ->from('#__usergroups as g')
-                ->join('inner', '#__user_usergroup_map as m ON  g.id = m.group_id')
-                ->join('inner', '#__usergroups_details as d ON g.id = d.group_id')
-                ->where("g.parent_id=" . $id_gruppo_piattaforme)
-                ->where("m.user_id=" . $user->id);
-
-
-            $this->_db->setQuery($query);
-            $società_venditrici = $this->_db->loadObjectList();
 
         } else {
             echo "l'utente loggato non appartiene al gruppo venditore, non può generare coupon";

@@ -35,7 +35,7 @@ defined('_JEXEC') or die;
         <h2>Filtri</h2>
 
         <div class="form-group">
-            <label for="usergroups">Gruppo utenti</label>
+            <label for="usergroups">Azienda</label>
             <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2 , 'refresh'); ?>
         </div>
         <div class="form-group" id="searchPhrase_div">
@@ -70,7 +70,7 @@ defined('_JEXEC') or die;
         <input type="hidden" id="task" name="task" value="api.get_csv">
 
         <div class="form-group">
-            <button type="button" id="update" class="btn btn-success btn-lg width100" onclick="reload()">AGGIORNA DATI</button>
+            <button type="button" id="update" class= "width100 my-btn" onclick="reload()">AGGIORNA DATI</button>
         </div>
         <!--
         <div class="form-group">
@@ -82,7 +82,7 @@ defined('_JEXEC') or die;
         </div>
 -->
         <div class="form-group">
-            <button type="button" id="get_csv" class="btn btn-success btn-lg width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
+            <button type="button" id="get_csv" class="my-btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
         </div>
     </form>
 

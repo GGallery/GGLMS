@@ -23,10 +23,15 @@ class gglmsViewReport extends JViewLegacy {
 
     function display($tpl = null)
     {
- 
+
+        $model = new gglmsModelReport();
         $this->state = $this->get('State');
-        $this->corsi = $this->get('Corsi');
+
+
         $this->usergroups = $this->get('Usergroups');
+
+        $this->corsi = $model->getCorsi(true);
+
 
         $this->summarize = $this->get('SummarizeCourse');
         
@@ -58,4 +63,3 @@ class gglmsViewReport extends JViewLegacy {
 
 
 }
-    
