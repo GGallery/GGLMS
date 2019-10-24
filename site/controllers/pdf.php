@@ -112,7 +112,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 $corso_obj = $unita;
             }
 
-            $tracklog= null;
+            $tracklog = null;
             if ($corso_obj->accesso == 'gruppo') {
 
                 $stampa_tracciato = $corso_obj->isStampaTracciato();
@@ -120,6 +120,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $all_contents = $corso_obj->getAllContentsByCorso();
 //                    var_dump($all_contents);
 //                    die();
+
+//                    DEBUGG::log($all_contents, 'allcontents', 1);
 
                     $tracklog = array();
                     foreach ($all_contents as $c) {
@@ -210,33 +212,32 @@ class gglmsControllerPdf extends JControllerLegacy
     }
 
 
-    private function findAllRelatedContents_old($unita_padre_id, &$all_contents)
-    {
-        $db = JFactory::getDbo();
-        $query = $db->getQuery(true)
-            ->select('*')
-            ->from('#__gg_unit as u')
-            ->where('u.id = ' . $unita_padre_id);
-
-
-        $db->setQuery($query);
-        $unita = $db->loadObject('gglmsModelUnita');
-
-        if ($unita->is_corso) {
-
-            // ok, ho trovato il corso
-//            var_dump('idcorso',$unita->id);
-            $unita->getSottoUnitaRic($unita->id);
-            $contenuti = $unita->contenuti;
-            $all_contents = $contenuti;
-
-        } else {
-
-            $this->findAllRelatedContents($unita->unitapadre, $all_contents);
-        }
-
-        return $all_contents;
-    }
+//    private function findAllRelatedContents_old($unita_padre_id, &$all_contents)
+//    {
+//        $db = JFactory::getDbo();
+//        $query = $db->getQuery(true)
+//            ->select('*')
+//            ->from('#__gg_unit as u')
+//            ->where('u.id = ' . $unita_padre_id);
+//
+//
+//        $db->setQuery($query);
+//        $unita = $db->loadObject('gglmsModelUnita');
+//
+//        if ($unita->is_corso) {
+//
+//            // ok, ho trovato il corso
+//            $unita->getSottoUnitaRic($unita->id);
+//            $contenuti = $unita->contenuti;
+//            $all_contents = $contenuti;
+//
+//        } else {
+//
+//            $this->findAllRelatedContents($unita->unitapadre, $all_contents);
+//        }
+//
+//        return $all_contents;
+//    }
 
 
 }

@@ -30,7 +30,7 @@ class gglmsModelUnita extends JModelLegacy
     public $_params;
     protected $_db;
     private $unitas = array();
-    public $contenuti = array();
+    public $contenuti =  array();
 
 
     public function __construct($config = array())
@@ -94,10 +94,11 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    public function getSottoUnita($pk = null)
+    public function getSottoUnita($pk = null, $is_attestato = null)
     {
-        if ($pk)
+        if ($pk) {
             $this->id = $pk;
+        }
 
         try {
             $query = $this->_db->getQuery(true)
@@ -109,6 +110,8 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('', 'gglmsModelUnita');
 
+//            DEBUGG::log($data, 'getSottoUnita', 1);
+
         } catch (Exception $e) {
             DEBUGG::log($e, 'getSottoUnita');
         }
@@ -118,17 +121,28 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    public function getContenuti()
+    public function getContenuti($is_attestato = null,$unit_id= null)
     {
+
+        $query_id = $this->id;
+        if ($unit_id != null) {
+            $query_id =$unit_id;
+        }
+
         try {
             $query = $this->_db->getQuery(true)
                 ->select('c.*')
                 ->from('#__gg_unit_map as m')
-                ->where('m.idunita = ' . $this->id)
+//                ->where('m.idunita = ' . $this->id)
+                ->where('m.idunita = ' . $query_id)
                 ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
                 ->where('c.pubblicato = 1')
                 ->order('m.ordinamento');
 
+
+            if ($is_attestato == 1) {
+                $query = $query->where('c.tipologia = 5');
+            }
 
             $this->_db->setQuery($query);
             $contenuti = $this->_db->loadObjectList('', 'gglmsModelContenuto');
@@ -153,6 +167,7 @@ class gglmsModelUnita extends JModelLegacy
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
             }
         }
+
         foreach ($this->contenuti as $contenuto) {   //ANALISI DI OGNI CONTENUTO: APPENA NE TROVI UNO NON COMPLETO, ESCI FALSE
 
             $contenutoObj = new gglmsModelContenuto();
@@ -164,10 +179,10 @@ class gglmsModelUnita extends JModelLegacy
         return true;
     }
 
-    public function getSottoUnitaRic($pk = null)
+    public function getSottoUnitaRic($pk = null, $is_attestato = null)
     {
-
         $result = $this->getSottoUnita($pk);
+
         if ($result != null) {
             if ($this->unitas == null) {
                 $this->unitas = $result;
@@ -175,16 +190,24 @@ class gglmsModelUnita extends JModelLegacy
                 array_push($this->unitas, $result);
             }
         }
+        else{
 
+            // non ha sotto unità cerco i soi contenuti
+            $content_list = $this->getContenuti($is_attestato, $pk);
+            foreach ($content_list as $c) {
+                array_push($this->contenuti, $c);
+            }
+
+        }
 
         foreach ($result as $unita) {
 
-            $result = $this->getContenuti();
+            $result = $this->getContenuti($is_attestato, $this->id);
             foreach ($result as $res) {
 
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
             }
-            $this->getSottoUnitaRic($unita->id);
+            $this->getSottoUnitaRic($unita->id, $is_attestato);
         }
         return;
     }
@@ -386,7 +409,7 @@ class gglmsModelUnita extends JModelLegacy
             $repotObj = new gglmsModelReport();
             $contenuti = $repotObj->getContenutiArrayList($pk);
 
-            if(sizeof($contenuti)== 0)
+            if (sizeof($contenuti) == 0)
                 return self::convertiDurata(0);
 
             $contenuti = implode(',', array_column($contenuti, 'id'));
@@ -398,7 +421,7 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
             $data = $this->_db->loadResult();
 
-        }catch (Exception $e){
+        } catch (Exception $e) {
 
         }
         return self::convertiDurata($data);
@@ -406,10 +429,10 @@ class gglmsModelUnita extends JModelLegacy
 
     public static function convertiDurata($durata)
     {
-        $h = floor($durata/3600);
+        $h = floor($durata / 3600);
         $m = floor(($durata % 3600) / 60);
         $s = ($durata % 3600) % 60;
-        $result = sprintf('h:%02d m:%02d s:%02d', $h,$m, $s);
+        $result = sprintf('h:%02d m:%02d s:%02d', $h, $m, $s);
         return $result;
     }
 
@@ -419,8 +442,7 @@ class gglmsModelUnita extends JModelLegacy
 
         try {
 
-            if($this->is_corso == 1)
-            {
+            if ($this->is_corso == 1) {
 
                 //id gruppo by utente e by idcorso
                 $subQuery = $this->_db->getQuery(true)
@@ -431,11 +453,11 @@ class gglmsModelUnita extends JModelLegacy
                     ->where('uj.user_id= ' . $this->_userid);
 
                 // uso subquery per tovare il coupon giusto
-                $query= $this->_db->getQuery(true)
-                        ->select('stampatracciato')
+                $query = $this->_db->getQuery(true)
+                    ->select('stampatracciato')
                     ->from('#__gg_coupon AS c')
                     ->where('c.id_utente = ' . $this->_userid)
-                    ->where( $this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')');
+                    ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')');
 
 
                 $this->_db->setQuery($query);
@@ -448,8 +470,7 @@ class gglmsModelUnita extends JModelLegacy
                     return false;
                 else
                     return $data;
-            }
-            else{
+            } else {
                 $this->_app->enqueueMessage('L\'Unita non è un corso', 'Error');
                 $this->_app->redirect('index.php');
             }
@@ -464,15 +485,37 @@ class gglmsModelUnita extends JModelLegacy
 
     public function getAllContentsByCorso()
     {
-        if($this->is_corso)
-        {
+        if ($this->is_corso) {
+
             $this->getSottoUnitaRic($this->id);
+
             return $this->contenuti;
-        }
-        else{
+
+        } else {
             return null;
         }
     }
+
+    public function getAllAttestatiByCorso()
+    {
+
+        if ($this->is_corso) {
+            $this->getSottoUnitaRic($this->id, 1);
+
+
+
+            return $this->contenuti;
+        } else {
+            return null;
+        }
+    }
+
+    public function setAsCorso($unit_id)
+    {
+        $this->is_corso = 1;
+        $this->id = $unit_id;
+    }
+
 
 }
 

@@ -80,6 +80,10 @@ class gglmsControllerReportUtente extends JControllerLegacy
 
                  $user_id=$this->_filterparam->user_id;
              }
+
+//             echo($user_id);
+//             die();
+
              $model=$this->getModel('reportutente');
              $user= $model->get_user($user_id);
              return $user;
@@ -95,10 +99,18 @@ class gglmsControllerReportUtente extends JControllerLegacy
 
            $unita_id=$this->_filterparam->unita_id;
            $data_superamento=$this->_filterparam->data_superamento;
+           $user_id=$this->_filterparam->user_id;
 
-           $user = $this->get_user();
+//           echo('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+           // todo  da id anagrafica a userid
+
+            $user = $this->get_user();
+
+
            $model = $this->getModel('reportutente');
-           $model->_generate_pdf($user, $unita_id,$data_superamento);
+
+           $model->_generate_pdf($user, 'p' ,$unita_id,$data_superamento);
 
         }catch (Exception $e){
 

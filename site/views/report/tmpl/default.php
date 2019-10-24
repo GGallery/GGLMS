@@ -12,9 +12,9 @@ defined('_JEXEC') or die;
             <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
             <select id="corso_id" name="corso_id" class="refresh">
                 <?php
-                foreach ($this->corsi as $corso){
+                foreach ($this->corsi as $corso) {
 
-                    echo '<option value="'.$corso->id.'|'.$corso->id_contenuto_completamento.'">'.$corso->titolo."</option>";
+                    echo '<option value="' . $corso->id . '|' . $corso->id_contenuto_completamento . '">' . $corso->titolo . "</option>";
                 }
                 ?>
             </select>
@@ -36,7 +36,7 @@ defined('_JEXEC') or die;
 
         <div class="form-group">
             <label for="usergroups">Azienda</label>
-            <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2 , 'refresh'); ?>
+            <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2, 'refresh'); ?>
         </div>
         <div class="form-group" id="searchPhrase_div">
             <label for="searchPhrase">Cerca:</label><br>
@@ -56,12 +56,12 @@ defined('_JEXEC') or die;
 
         <div class="form-group" id="calendar_startdate_div">
             <label for="startdate">Completato dal:</label><br>
-            <?php echo JHTML::calendar('','startdate','startdate','%Y-%m-%d'); ?>
+            <?php echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d'); ?>
         </div>
 
         <div class="form-group" id="calendar_finishdate_div">
             <label for="finishdate">Completato al:</label><br>
-            <?php echo JHTML::_( 'calendar','','finishdate','finishdate','%Y-%m-%d'); ?>
+            <?php echo JHTML::_('calendar', '', 'finishdate', 'finishdate', '%Y-%m-%d'); ?>
 
 
         </div>
@@ -70,7 +70,7 @@ defined('_JEXEC') or die;
         <input type="hidden" id="task" name="task" value="api.get_csv">
 
         <div class="form-group">
-            <button type="button" id="update" class= "width100 my-btn" onclick="reload()">AGGIORNA DATI</button>
+            <button type="button" id="update" class="width100 my-btn" onclick="reload()">AGGIORNA DATI</button>
         </div>
         <!--
         <div class="form-group">
@@ -90,7 +90,6 @@ defined('_JEXEC') or die;
 
 
     <canvas id="myChart" width="100" height="100" style="visibility: hidden"></canvas>
-
 
 
 </div>
@@ -124,7 +123,7 @@ defined('_JEXEC') or die;
                     <li class="last" aria-disabled="false">
                         <a data-page="last" class="button">»</a></li>
                     <li class="last" aria-disabled="false">
-                        <span  id="totalcount"></span></li>
+                        <span id="totalcount"></span></li>
                 </ul>
 
             </div>
@@ -143,16 +142,24 @@ defined('_JEXEC') or die;
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Dettagli utente</h4>
+
             </div>
             <div class="modal-body">
                 <table id="details_table" class="table table-condensed table-hover table-striped ">
-                    <thead> <tr> <th>Campo</th> <th>Valore</th> </tr> </thead>
+                    <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Valore</th>
+                    </tr>
+                    </thead>
                     <tbody>
                     </tbody>
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="tn btn-success btn-lg" onclick="loadLibretto()" style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo</button>
+                <button type="button" class="tn btn-success btn-lg" onclick="loadLibretto()"
+                        style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo
+                </button>
 
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
@@ -173,7 +180,14 @@ defined('_JEXEC') or die;
             </div>
             <div class="modal-body">
                 <table id="details_table_corso" class="table table-condensed table-hover table-striped ">
-                    <thead> <tr> <th>Titolo unità</th> <th>Titolo contenuto</th>  <th>stato</th><th>data</th></tr></thead>
+                    <thead>
+                    <tr>
+                        <th>Titolo unità</th>
+                        <th>Titolo contenuto</th>
+                        <th>stato</th>
+                        <th>data</th>
+                    </tr>
+                    </thead>
                     <tbody>
                     </tbody>
                 </table>
@@ -221,10 +235,11 @@ defined('_JEXEC') or die;
             </div>
             <div id="div_send_mail_textarea" class="modal-body">Confermi di inviare questa email?<br>
                 oggetto:<input id="oggettomail" type="text" value="promemoria scadenza corso">
-                <textarea   cols="50" rows="5" id="testomail" style="width: 560px;"></textarea>
+                <textarea cols="50" rows="5" id="testomail" style="width: 560px;"></textarea>
             </div>
             <div class="modal-footer">
-                <button id="sendmailbutton" type="button" class="btn btn-success btn-lg"  onclick="sendMail()">Invia</button>
+                <button id="sendmailbutton" type="button" class="btn btn-success btn-lg" onclick="sendMail()">Invia
+                </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -234,31 +249,30 @@ defined('_JEXEC') or die;
 
 
 <?php
-echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
+echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
 ?>
 
 <script type="text/javascript">
 
 
     //CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI
-    var testo_base_mail='<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
-    var loadreportlimit=0;
-    var loadreportoffset=15;
-    var actualminpage=1;
-    var columnfilter = ['id_anagrafica','scadenza','fields'];//CAMPI DA NON MOSTRARE IN TABELLA
-    var columnmappingname=[{name:'data_inizio',alias:'data inizio'},
-                           {name: 'data_fine',alias: 'data fine'}];
-    var buttonscolumn=['fields'];//CAMPO CHE SI TRASFORMA IN PULSANTE
-    var buttonscolumnname='DETTAGLI';//CAMPO CHE DA IL NOME AL PULSANTE
-    var buttonkeyidfield='id_anagrafica';//CHIAVE DI ASSOCIAZIONE AL PULSANTE
+    var testo_base_mail = '<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
+    var loadreportlimit = 0;
+    var loadreportoffset = 15;
+    var actualminpage = 1;
+    var columnfilter = ['id_anagrafica', 'scadenza', 'fields'];//CAMPI DA NON MOSTRARE IN TABELLA
+    var columnmappingname = [{name: 'data_inizio', alias: 'data inizio'},
+        {name: 'data_fine', alias: 'data fine'}];
+    var buttonscolumn = ['fields', 'attestato'];//CAMPO CHE SI TRASFORMA IN PULSANTE
+    var buttonscolumnname = ['DETTAGLI', 'ATTESTATI'];//CAMPO CHE DA IL NOME AL PULSANTE
+    var buttonkeyidfield = ['id_anagrafica', 'attestati'];//CHIAVE DI ASSOCIAZIONE AL PULSANTE
 
     var maxNofpages;
     var viewReportColumns;
-    var fields=[];
+    var fields = [];
 
 
-
-    jQuery( document ).ready(function($) {
+    jQuery(document).ready(function ($) {
 
         window.console.log('document ready');
 
@@ -277,7 +291,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 labels: ["Utenti che hanno completato", "Utenti che non hanno completato"],
                 datasets: [{
                     label: '% corsi completati',
-                    data: [completed , notcompleted ],
+                    data: [completed, notcompleted],
                     backgroundColor: [
                         'rgba(0, 123, 132, 0.2)',
                         'rgba(128, 162, 25, 0.2)'
@@ -294,10 +308,8 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
         });
 
 
-
-
         //  TABELLA
-        $(".refresh").change(function(){
+        $(".refresh").change(function () {
 
             notcompleted = 0;
             completed = 0;
@@ -305,9 +317,11 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             //$("#grid-basic").bootgrid("reload");
         });
 
-        $("#tipo_report").change(function(){
+        $("#tipo_report").change(function () {
 
             if ($("#tipo_report option:selected").val() == 0) {
+                console.log('change');
+
                 $("#filterstatodiv").show();
                 $("#calendar_startdate_div").show();
                 $("#calendar_finishdate_div").show();
@@ -319,20 +333,19 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
         });
 
-        $("#filterstato").change(function(){
+        $("#filterstato").change(function () {
 
 
-            if($("#filterstato option:selected").val()==1){
+            if ($("#filterstato option:selected").val() == 1) {
                 $("#calendar_startdate_div").show();
                 $("#calendar_finishdate_div").show();
-            }else{
+            } else {
                 $("#calendar_startdate_div").hide();
                 $("#calendar_finishdate_div").hide();
-            };
-
+            }
         });
 
-        $("#startdate").bind('change',function(){
+        $("#startdate").bind('change', function () {
 
             notcompleted = 0;
             completed = 0;
@@ -340,7 +353,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             //$("#grid-basic").bootgrid("reload");
         });
 
-        $("#finishdate").change(function(){
+        $("#finishdate").change(function () {
 
             notcompleted = 0;
             completed = 0;
@@ -361,11 +374,11 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 jQuery("a[data-page='3']").html('3');
                 jQuery("a[data-page='4']").html('4');
                 jQuery("a[data-page='5']").html('5');
-                actualminpage=1;
+                actualminpage = 1;
                 break;
 
             case 'prev':
-                if(actualminpage>1) {
+                if (actualminpage > 1) {
                     jQuery("a[data-page='1']").html(parseInt(jQuery("a[data-page='1']").html()) - 1);
                     jQuery("a[data-page='2']").html(parseInt(jQuery("a[data-page='2']").html()) - 1);
                     jQuery("a[data-page='3']").html(parseInt(jQuery("a[data-page='3']").html()) - 1);
@@ -388,45 +401,45 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
             case 'last':
 
-                jQuery("a[data-page='1']").html(maxNofpages-4);
-                jQuery("a[data-page='2']").html(maxNofpages-3);
-                jQuery("a[data-page='3']").html(maxNofpages-2);
-                jQuery("a[data-page='4']").html(maxNofpages-1);
+                jQuery("a[data-page='1']").html(maxNofpages - 4);
+                jQuery("a[data-page='2']").html(maxNofpages - 3);
+                jQuery("a[data-page='3']").html(maxNofpages - 2);
+                jQuery("a[data-page='4']").html(maxNofpages - 1);
                 jQuery("a[data-page='5']").html(maxNofpages);
-                actualminpage=maxNofpages-4
+                actualminpage = maxNofpages - 4;
                 break;
 
             default:
-                loadreportlimit= (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
+                loadreportlimit = (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
                 loadData("pagination");
         }
     });
 
 
-    function loadData(sender){
+    function loadData(sender) {
 
 
-        var url="index.php?option=com_gglms&task=api.get_report&corso_id="+jQuery("#corso_id").val();
-        url=url+"&startdate="+jQuery("#startdate").val();
-        url=url+"&finishdate="+jQuery("#finishdate").val();
-        url=url+"&filterstato="+jQuery("#filterstato").val();
-        url=url+"&usergroups="+jQuery("#usergroups").val();
-        url=url+"&tipo_report="+jQuery("#tipo_report").val();
-        url=url+"&searchPhrase="+jQuery("#searchPhrase").val();
+        var url = "index.php?option=com_gglms&task=api.get_report&corso_id=" + jQuery("#corso_id").val();
+        url = url + "&startdate=" + jQuery("#startdate").val();
+        url = url + "&finishdate=" + jQuery("#finishdate").val();
+        url = url + "&filterstato=" + jQuery("#filterstato").val();
+        url = url + "&usergroups=" + jQuery("#usergroups").val();
+        url = url + "&tipo_report=" + jQuery("#tipo_report").val();
+        url = url + "&searchPhrase=" + jQuery("#searchPhrase").val();
 
-        if (sender!='pagination'){
+        if (sender != 'pagination') {
             jQuery("a[data-page='1']").html('1');
             jQuery("a[data-page='2']").html('2');
             jQuery("a[data-page='3']").html('3');
             jQuery("a[data-page='4']").html('4');
             jQuery("a[data-page='5']").html('5');
-            actualminpage=1;
-            url=url+"&limit=0";
-        }else{
-            url=url+"&limit="+loadreportlimit;
+            actualminpage = 1;
+            url = url + "&limit=0";
+        } else {
+            url = url + "&limit=" + loadreportlimit;
         }
 
-        url=url+"&offset="+loadreportoffset;
+        url = url + "&offset=" + loadreportoffset;
         jQuery("#aggiornamentoReport").modal('show');
         jQuery.when(jQuery.get(url))
             .done(function (data) {
@@ -438,31 +451,38 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
             .then(function (data) {
 
 
-                data=JSON.parse(data);
+                data = JSON.parse(data);
+
+                console.log('data', data);
 
                 jQuery('#grid-basic').empty();
                 jQuery('#totalcount').empty();
-                jQuery('#totalcount').html('record totali:'+data['rowCount']);
-                viewReportColumns=[];
-                fields=data;
-                maxNofpages=parseInt((data['rowCount']/loadreportoffset)+1);
+                jQuery('#totalcount').html('record totali:' + data['rowCount']);
+                viewReportColumns = [];
+                fields = data;
+                maxNofpages = parseInt((data['rowCount'] / loadreportoffset) + 1);
                 jQuery("#aggiornamentoReport").modal('hide');
                 data['columns'].forEach(addColumn);
-                if(buttonscolumn.length>0){
+                if (buttonscolumn.length > 0) {
 
-                    jQuery('#grid-basic').append('<th>'+buttonscolumnname+'</th>');
-                    viewReportColumns.push(buttonscolumnname);
+                    jQuery.each(buttonscolumn, function (i, item) {
+
+                        // console.log(item);
+                        jQuery('#grid-basic').append('<th>' + buttonscolumnname[i] + '</th>');
+                        viewReportColumns.push(buttonscolumnname[i]);
+                    });
+
                 }
-                for(i=0; i<data['rows'].length; i++){
+                for (i = 0; i < data['rows'].length; i++) {
 
-                    var row=data['rows'][i];
+                    var row = data['rows'][i];
                     //fields[row['id_anagrafica']]=JSON.parse(row['fields']);
 
-                    jQuery('#grid-basic').append('<tr class=\''+defineRowBootClass(row)+'\'>');
+                    jQuery('#grid-basic').append('<tr class=\'' + defineRowBootClass(row) + '\'>');
 
-                    for(ii=0; ii<viewReportColumns.length;ii++) {
+                    for (ii = 0; ii < viewReportColumns.length; ii++) {
 
-                        addCell(jQuery('#grid-basic tr:last'),row,row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]],i,ii, jQuery("#tipo_report").val(),viewReportColumns)
+                        addCell(jQuery('#grid-basic tr:last'), row, row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]], i, ii, jQuery("#tipo_report").val(), viewReportColumns)
                     }
 
                 }
@@ -473,45 +493,51 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
     function defineRowBootClass(row) {
 
-        if(row['scadenza']==1){
+        if (row['scadenza'] == 1) {
 
             return 'warning';
         }
-        if(row['stato']==1){
+        if (row['stato'] == 1) {
 
             return 'success';
         }
 
     }
-    function addCell(table,row,rowCellData,rowindex,columIndex,viewType,dataColumns) {
 
-        stiletd='border-left: 1px solid #ddd;';
-        stiletdcenter=" text-align:center;"
+    function addCell(table, row, rowCellData, rowindex, columIndex, viewType, dataColumns) {
+
+        stiletd = 'border-left: 1px solid #ddd;';
+        stiletdcenter = " text-align:center;";
         //SET OF RULES
 
-        if(rowCellData=='1'){
+        if (rowCellData == '1') {
 
-            rowCellData="<span title='completato' class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>"
-            stiletd=stiletd+stiletdcenter;
+            rowCellData = "<span title='completato' class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>";
+            stiletd = stiletd + stiletdcenter;
         }
 
-        if(rowCellData=='0'){
+        if (rowCellData == '0') {
 
-            rowCellData="<span title='iniziato' class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>"
-            stiletd=stiletd+stiletdcenter;
+            rowCellData = "<span title='iniziato' class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>";
+            stiletd = stiletd + stiletdcenter;
         }
 
-        if(rowCellData=='0000-00-00'){
+        if (rowCellData == '0000-00-00') {
 
-            rowCellData=""
+            rowCellData = ""
         }
 
-        if(dataColumns[columIndex]==buttonscolumnname){
 
-            rowCellData=addButtonsCell(row);
+        if (jQuery.inArray(dataColumns[columIndex], buttonscolumnname) > -1) {
+
+
+
+            rowCellData = addButtonsCell(row, jQuery.inArray(dataColumns[columIndex], buttonscolumnname));
         }
 
-        switch (viewType){
+
+
+        switch (viewType) {
 
             case '0':
                 break;
@@ -522,7 +548,7 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                 break;
         }
 
-        table.append("<td  style='"+stiletd+"'>"+rowCellData+"</td>");
+        table.append("<td  style='" + stiletd + "'>" + rowCellData + "</td>");
     }
 
     function addColumn(item, index) {
@@ -541,55 +567,121 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
                     break;
             }
             columnname = item.toString();
-            for(var i=0; i<columnmappingname.length;i++){
+            for (var i = 0; i < columnmappingname.length; i++) {
 
-                if(columnmappingname[i]['name']==item){
-                    columnname=columnmappingname[i]['alias'];
+                if (columnmappingname[i]['name'] == item) {
+                    columnname = columnmappingname[i]['alias'];
                 }
             }
-           //if(columnmappingname.filter(c=>c.name==item).length>0){
-           //     columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
+            //if(columnmappingname.filter(c=>c.name==item).length>0){
+            //     columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
 
-           //}else {
+            //}else {
 
-           //}
+            //}
 
-            jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
-            viewReportColumns.push(item);
+            //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
+            if(!columnname.includes('_hidden'))
+            {
+                jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
+                viewReportColumns.push(item);
+            }
         }
     }
-    function addButtonsCell(row) {
 
-        rowCellData='';
+    function addButtonsCell(row, _index) {
 
-        for (var i=0;i<buttonscolumn.length;i++) {
+        rowCellData = '';
 
-            rowCellData = rowCellData+"<button id='columnbutton'";
-            rowCellData = rowCellData+" type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
+
+        var btnColumnName = buttonscolumnname[_index];
+        if (btnColumnName == "DETTAGLI") {
+            rowCellData = rowCellData + "<button id='columnbutton'";
+            rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
             //rowCellData = rowCellData+rowindex;
-            rowCellData = rowCellData+"\" onclick=playbutton("+row[buttonkeyidfield]+",'"+buttonscolumn[i]+"') ><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\" title='"+buttonscolumn[i].toString()+"'></span></button>";
-
-            //jQuery(rowCellData).append("<span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span>");
+            rowCellData = rowCellData + "\" onclick=playbutton(" + row[buttonkeyidfield[_index]] + ",'" + buttonscolumn[_index] + "') ><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
         }
+
+        // non mostro genera attestao se la visualizzazione non è per corso
+        if (btnColumnName == "ATTESTATI" && jQuery("#tipo_report option:selected").val() == 0) {
+            console.log('row', row);
+
+            var att_array = row.attestati_hidden.split('|');
+            if(att_array.length >0 && att_array[0]!= ""){
+               jQuery.each(att_array,function(i,item){
+                   // console.log(item); // ID DEL CONTENUTO
+
+                    // todo disabled se stato !=1
+                    // console.log('addButtonsCell', row);
+                    rowCellData = rowCellData + "<button id='columnbutton1'";
+                    rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
+                    //rowCellData = rowCellData+rowindex;
+                    rowCellData = rowCellData + "\" onclick=btnAttestatoClick(" + row['id_anagrafica'] + ",'" + row['data_fine'] + "'," + item +") ><span class=\"glyphicon glyphicon-save-file\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
+                });
+            }
+
+
+        }
+
+
+        //jQuery(rowCellData).append("<span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span>");
+        // }<
         return rowCellData;
     }
-    function playbutton(searchkey,field) {
-    var id;
-        for (var i=0; i<fields['rows'].length;i++) {
 
-            if(fields['rows'][i][buttonkeyidfield]==searchkey) {
+
+    function btnAttestatoClick(id_anagrafica, data_superamento, attestato_id) {
+
+
+        //todo ricavare userid da id anagrafica, qui o in php
+
+        // index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=122&user_id=&data_superamento=2017/09/14
+        var unit_id = jQuery("#corso_id option:selected").val().split('|')[0];
+        console.log(unit_id);
+        console.log('id_anagrafica', id_anagrafica);
+        console.log('data_superamento', data_superamento);
+        console.log('id_attestato', attestato_id);
+
+        // var url = 'index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=' + unit_id + '&user_id=821' + '&data_superamento=' + data_superamento;
+        //
+        // console.log(url);
+        // jQuery.when(jQuery.get(url))
+        //     .done(function (data) {
+        //
+        //         console.log('done');
+        //     })
+        //     .fail(function (data) {
+        //         console.log('fail');
+        //     })
+        //     .then(function (data) {
+        //
+        //         console.log('then');
+        //
+        //     });
+
+
+    }
+
+
+    function playbutton(searchkey, field) {
+        var id;
+        for (var i = 0; i < fields['rows'].length; i++) {
+
+            if (fields['rows'][i][buttonkeyidfield[0]] == searchkey) {
 
                 jQuery('#details_table tbody').empty();
                 jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
 
-                    var eachrow = "<tr>" + "<td>" +  key + "</td>" + "<td>" +  value + "</td>" + "</tr>";
+                    var eachrow = "<tr>" + "<td>" + key + "</td>" + "<td>" + value + "</td>" + "</tr>";
 
-                    if(key=="id"){ id=value;}
+                    if (key == "id") {
+                        id = value;
+                    }
                     jQuery('#details_table tbody').append(eachrow);
 
                 });
 
-                jQuery("#details").append('<input id=modal_id_utente type=hidden value='+id+'>');
+                jQuery("#details").append('<input id=modal_id_utente type=hidden value=' + id + '>');
                 jQuery("#details").modal('show');
             }
         }
@@ -604,38 +696,37 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
     }
 
     function loadCsv() {
-        var url="index.php?option=com_gglms&task=api.get_csv&corso_id="+jQuery("#corso_id").val();
-        url=url+"&startdate="+jQuery("#startdate").val();
-        url=url+"&finishdate="+jQuery("#finishdate").val();
-        url=url+"&filterstato="+jQuery("#filterstato").val();
-        url=url+"&usergroups="+jQuery("#usergroups").val();
-        url=url+"&tipo_report="+jQuery("#tipo_report").val();
-        url=url+"&searchPhrase="+jQuery("#searchPhrase").val();
+        var url = "index.php?option=com_gglms&task=api.get_csv&corso_id=" + jQuery("#corso_id").val();
+        url = url + "&startdate=" + jQuery("#startdate").val();
+        url = url + "&finishdate=" + jQuery("#finishdate").val();
+        url = url + "&filterstato=" + jQuery("#filterstato").val();
+        url = url + "&usergroups=" + jQuery("#usergroups").val();
+        url = url + "&tipo_report=" + jQuery("#tipo_report").val();
+        url = url + "&searchPhrase=" + jQuery("#searchPhrase").val();
 
-        location.href=url;
+        location.href = url;
 
     }
 
 
-
     function sendMail() {
 
-        oggettomail=jQuery('#oggettomail').val();
-        testomail=jQuery('#testomail').val();
+        oggettomail = jQuery('#oggettomail').val();
+        testomail = jQuery('#testomail').val();
         //to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
-        to="a.petruzzella71@gmail.com";
-        jQuery.when(jQuery.get("index.php?to="+to+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendMail"))
+        to = "a.petruzzella71@gmail.com";
+        jQuery.when(jQuery.get("index.php?to=" + to + "&oggettomail=" + oggettomail + "&testomail=" + testomail + "&option=com_gglms&task=api.sendMail"))
 
-            .done(function(data){
+            .done(function (data) {
 
-                result=JSON.parse(data);
+                result = JSON.parse(data);
 
-                if(result==true){
+                if (result == true) {
                     jQuery('#sendmailbutton').hide();
                     jQuery('#div_send_mail_textarea').hide();
                     jQuery('#details_table_invio_mail tbody').append('<tr><td>email inviata con successo, puoi chiudere questa finestra</td><tr>');
                 }
-            }).fail(function(data){
+            }).fail(function (data) {
 
         });
 
@@ -644,16 +735,16 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
     function sendAllMail() {
 
 
-        nome_corso=jQuery('#corso_id option:selected').text();
-        oggettomail=jQuery('#oggettomail').val();
-        testomail=testo_base_mail+nome_corso;
-        var id_corso= jQuery('#corso_id')[0]['value'];
-        var usergroups= jQuery('#usergroups')[0]['value'];
-        jQuery.when(jQuery.get("index.php?corso_id="+id_corso+"&usergroups="+usergroups+"&oggettomail="+oggettomail+"&testomail="+testomail+"&option=com_gglms&task=api.sendAllMail"))
+        nome_corso = jQuery('#corso_id option:selected').text();
+        oggettomail = jQuery('#oggettomail').val();
+        testomail = testo_base_mail + nome_corso;
+        var id_corso = jQuery('#corso_id')[0]['value'];
+        var usergroups = jQuery('#usergroups')[0]['value'];
+        jQuery.when(jQuery.get("index.php?corso_id=" + id_corso + "&usergroups=" + usergroups + "&oggettomail=" + oggettomail + "&testomail=" + testomail + "&option=com_gglms&task=api.sendAllMail"))
 
-            .done(function(data){
+            .done(function (data) {
 
-            }).fail(function(data){
+            }).fail(function (data) {
 
         });
 
@@ -661,10 +752,10 @@ echo "Report aggiornato al :" .$this->state->get('params')->get('data_sync');
 
     function loadLibretto() {
 
-        var user_id=jQuery('#modal_id_utente').val();
+        var user_id = jQuery('#modal_id_utente').val();
 
 
-        location.href=window.location+'../../libretto.html?user_id='+user_id
+        location.href = window.location + '../../libretto.html?user_id=' + user_id
 
 
     }
