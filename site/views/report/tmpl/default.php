@@ -580,12 +580,14 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
 
             //}
 
+
             //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
             if(!columnname.includes('_hidden'))
             {
                 jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
                 viewReportColumns.push(item);
             }
+
         }
     }
 

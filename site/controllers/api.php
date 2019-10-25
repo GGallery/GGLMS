@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/models/report.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
+require_once JPATH_COMPONENT . '/models/config.php';
 
 /**
  * Controller for single contact view
@@ -22,6 +23,9 @@ class gglmsControllerApi extends JControllerLegacy
     public $_params;
     protected $_db;
     private $_filterparam;
+
+
+//https://api.joomla.org/cms-3/classes/Joomla.Utilities.ArrayHelper.html
 
     public function __construct($config = array())
     {
@@ -219,7 +223,7 @@ class gglmsControllerApi extends JControllerLegacy
         return $result;
     }
 
-    private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $usergroups, $anagrafica_filter = null)
+    private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
     {
         try {
             $query = $this->_db->getQuery(true);
@@ -236,6 +240,9 @@ class gglmsControllerApi extends JControllerLegacy
             $query->from("#__gg_report_users as anagrafica");
             $countquery->from("#__gg_report_users as anagrafica");
 
+
+//            $usergroups --> aziende
+
             //INNER E CONDIZIONI SULLA BASE DELL'ACCESSO
             switch ($accesso) {
 
@@ -246,6 +253,36 @@ class gglmsControllerApi extends JControllerLegacy
                     $countquery->where('c.corsi_abilitati like ' . $id_corso);
                     break;
 
+                case "gruppo":
+//                  da unit id ad gruppo acesso corso,
+                    $_config = new gglmsModelConfig();
+                    $id_gruppo_corsi = $_config->getConfigValue('id_gruppo_corsi');
+
+
+                    $q = $this->_db->getQuery(true);
+                    $q->select("idgruppo");
+                    $q->from("#__gg_usergroup_map as um");
+                    $q->join('inner', '#__usergroups as g on g.id = um.idgruppo');
+                    $q->where("um.idunita=" . $id_corso);
+                    $q->where(" g.parent_id = " . $id_gruppo_corsi);  //per sicurezza filtro anche per parent_id = gruppo corso
+
+                    $this->_db->setQuery($q);
+                    $id_gruppo_corso = $this->_db->loadResult();
+
+
+                    $query->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
+                    $countquery->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
+                    $query->where('c.id_gruppi =' . $id_gruppo_corso);
+                    $countquery->where('c.id_gruppi =' . $id_gruppo_corso);
+
+
+                    // escludo gli utenti tutor aziencdalie tutor piattaforma
+//                echo (string)$query;
+//                die();
+
+
+                    break;
+
                 default:
                     $query->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
                     $countquery->join('inner', '#__gg_unit as u on anagrafica.id_event_booking=u.id_event_booking');
@@ -254,20 +291,31 @@ class gglmsControllerApi extends JControllerLegacy
                     break;
             }
 
-            if ($usergroups != null) {
+            if ($gruppo_azienda != null) {
                 $query->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
                 $countquery->join('inner', '#__user_usergroup_map as um on anagrafica.id_user=um.user_id');
+                $query->where('um.group_id=' . $gruppo_azienda);
+//
+                $countquery->where('um.group_id=' . $gruppo_azienda);
+
             }
+            if ($accesso == "gruppo") {
+
+                // escludo gli utenti tutor aziendali e tutor piattaforma, solo per gruppo (?)
+                $_config = new gglmsModelConfig();
+                $id_gruppo_tutor_aziendale = $_config->getConfigValue('id_gruppo_tutor_aziendale');
+                $id_gruppo_tutor_piattaforma = $_config->getConfigValue('id_gruppo_tutor_piattaforma');
+                $query->where('um.group_id not in (' . $id_gruppo_tutor_aziendale . ', ' . $id_gruppo_tutor_piattaforma .')');
+            }
+
 
             //$query->where('anagrafica.id=11497');
             if ($searchPrase != null) {
                 $query->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');
                 $countquery->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');
             }
-            if ($usergroups != null) {
-                $query->where('um.group_id=' . $usergroups);
-                $countquery->where('um.group_id=' . $usergroups);
-            }
+
+
 
             if ($anagrafica_filter != null) {
                 $query->where('anagrafica.id in(' . $anagrafica_filter . ')');
