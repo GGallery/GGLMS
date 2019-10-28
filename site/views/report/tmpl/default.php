@@ -157,9 +157,9 @@ defined('_JEXEC') or die;
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="tn btn-success btn-lg" onclick="loadLibretto()"
-                        style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo
-                </button>
+                <!--                <button type="button" class="tn btn-success btn-lg" onclick="loadLibretto()"-->
+                <!--                        style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo-->
+                <!--                </button>-->
 
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
@@ -266,6 +266,22 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
     var buttonscolumn = ['fields', 'attestato'];//CAMPO CHE SI TRASFORMA IN PULSANTE
     var buttonscolumnname = ['DETTAGLI', 'ATTESTATI'];//CAMPO CHE DA IL NOME AL PULSANTE
     var buttonkeyidfield = ['id_anagrafica', 'attestati'];//CHIAVE DI ASSOCIAZIONE AL PULSANTE
+
+
+    var user_detail_columns = ['id', 'cb_cognome',
+        'cb_codicefiscale',
+        'cb_datadinascita',
+        'cb_luogodinascita',
+        'cb_provinciadinascita',
+        'cb_indirizzodiresidenza',
+        'cb_provdiresidenza',
+        'cb_cap',
+        'cb_telefono',
+        'cb_nome',
+        'username',
+        'email',
+        'registerDate',
+        'lastvisitDate'];
 
     var maxNofpages;
     var viewReportColumns;
@@ -531,10 +547,8 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
         if (jQuery.inArray(dataColumns[columIndex], buttonscolumnname) > -1) {
 
 
-
             rowCellData = addButtonsCell(row, jQuery.inArray(dataColumns[columIndex], buttonscolumnname));
         }
-
 
 
         switch (viewType) {
@@ -582,8 +596,7 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
 
 
             //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
-            if(!columnname.includes('_hidden'))
-            {
+            if (!columnname.includes('_hidden')) {
                 jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
                 viewReportColumns.push(item);
             }
@@ -599,26 +612,37 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
         var btnColumnName = buttonscolumnname[_index];
         if (btnColumnName == "DETTAGLI") {
             rowCellData = rowCellData + "<button id='columnbutton'";
-            rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
+            rowCellData = rowCellData + " type='button' class=\"my-btn btn-xs btn-default command-edit\" data-row=\"";
             //rowCellData = rowCellData+rowindex;
             rowCellData = rowCellData + "\" onclick=playbutton(" + row[buttonkeyidfield[_index]] + ",'" + buttonscolumn[_index] + "') ><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
         }
 
         // non mostro genera attestao se la visualizzazione non è per corso
         if (btnColumnName == "ATTESTATI" && jQuery("#tipo_report option:selected").val() == 0) {
-            console.log('row', row);
+            // console.log('row', row);
+            var disabled = row.stato == 1 ? false : true;
 
+            // console.log('fields',JSON.parse(row['fields']));
+
+            var user_id = JSON.parse(row['fields']).user_id;
+
+            // creo un bottone per ogni attestato
             var att_array = row.attestati_hidden.split('|');
-            if(att_array.length >0 && att_array[0]!= ""){
-               jQuery.each(att_array,function(i,item){
-                   // console.log(item); // ID DEL CONTENUTO
 
-                    // todo disabled se stato !=1
-                    // console.log('addButtonsCell', row);
-                    rowCellData = rowCellData + "<button id='columnbutton1'";
-                    rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
-                    //rowCellData = rowCellData+rowindex;
-                    rowCellData = rowCellData + "\" onclick=btnAttestatoClick(" + row['id_anagrafica'] + ",'" + row['data_fine'] + "'," + item +") ><span class=\"glyphicon glyphicon-save-file\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
+            // se ci sono attestati
+            if (att_array.length > 0 && att_array[0] != "") {
+
+                jQuery.each(att_array, function (i, content_id) {
+
+                    // console.log(item); // ID DEL CONTENUTO
+                    var url = "index.php?option=com_gglms&task=reportutente.generateAttestato&content_id=" + content_id + "&user_id=" + user_id;
+                    if (!disabled) {
+                        rowCellData = rowCellData + "<a type='button' class='my-btn btn-xs btn-default command-edit' href='" + url + "' >";
+                    } else {
+                        rowCellData = rowCellData + "<a disabled type='button' class='my-btn btn-xs btn-default command-edit' href='" + url + "' >";
+                    }
+                    rowCellData = rowCellData + "<i class='glyphicon glyphicon-save-file'></i></a>"
+
                 });
             }
 
@@ -631,55 +655,63 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
         return rowCellData;
     }
 
-
-    function btnAttestatoClick(id_anagrafica, data_superamento, attestato_id) {
-
-
-        //todo ricavare userid da id anagrafica, qui o in php
-
-        // index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=122&user_id=&data_superamento=2017/09/14
-        var unit_id = jQuery("#corso_id option:selected").val().split('|')[0];
-        console.log(unit_id);
-        console.log('id_anagrafica', id_anagrafica);
-        console.log('data_superamento', data_superamento);
-        console.log('id_attestato', attestato_id);
-
-        // var url = 'index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=' + unit_id + '&user_id=821' + '&data_superamento=' + data_superamento;
-        //
-        // console.log(url);
-        // jQuery.when(jQuery.get(url))
-        //     .done(function (data) {
-        //
-        //         console.log('done');
-        //     })
-        //     .fail(function (data) {
-        //         console.log('fail');
-        //     })
-        //     .then(function (data) {
-        //
-        //         console.log('then');
-        //
-        //     });
-
-
-    }
+    //
+    // function btnAttestatoClick(id_anagrafica, data_superamento, attestato_id) {
+    //
+    //
+    //     //todo ricavare userid da id anagrafica, qui o in php
+    //
+    //     // index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=122&user_id=&data_superamento=2017/09/14
+    //     var unit_id = jQuery("#corso_id option:selected").val().split('|')[0];
+    //     console.log(unit_id);
+    //     console.log('id_anagrafica', id_anagrafica);
+    //     console.log('data_superamento', data_superamento);
+    //     console.log('id_attestato', attestato_id);
+    //
+    //
+    //     var url = "index.php?option=com_gglms&task=pdf.generateAttestato&content=634";
+    //     debugger;
+    //
+    //     // var url = 'index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=' + unit_id + '&user_id=821' + '&data_superamento=' + data_superamento;
+    //     //
+    //     // console.log(url);
+    //     jQuery.when(jQuery.get(url))
+    //         .done(function (data) {
+    //
+    //             console.log('done', data);
+    //         })
+    //         .fail(function (data) {
+    //             console.log('fail', data);
+    //         })
+    //         .then(function (data) {
+    //
+    //             console.log('then', data);
+    //
+    //         });
+    //
+    //
+    // }
 
 
     function playbutton(searchkey, field) {
         var id;
         for (var i = 0; i < fields['rows'].length; i++) {
 
+
             if (fields['rows'][i][buttonkeyidfield[0]] == searchkey) {
 
                 jQuery('#details_table tbody').empty();
                 jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
 
-                    var eachrow = "<tr>" + "<td>" + key + "</td>" + "<td>" + value + "</td>" + "</tr>";
 
-                    if (key == "id") {
-                        id = value;
+                    if (jQuery.inArray(key, user_detail_columns) > -1) {
+                        var eachrow = "<tr>" + "<td>" + key + "</td>" + "<td>" + value + "</td>" + "</tr>";
+
+                        if (key == "id") {
+                            id = value;
+                        }
+                        jQuery('#details_table tbody').append(eachrow);
                     }
-                    jQuery('#details_table tbody').append(eachrow);
 
                 });
 

@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/controllers/pdf.php';
 
 /**
  * Controller for single contact view
@@ -33,86 +34,90 @@ class gglmsControllerReportUtente extends JControllerLegacy
         $this->_db = JFactory::getDbo();
         $this->_filterparam = new stdClass();
         $this->_filterparam->user_id = JRequest::getVar('user_id');
-        $this->_filterparam->unita_id=JRequest::getVar('unita_id');
-        $this->_filterparam->datetest=JRequest::getVar('datetest');
-        $this->_filterparam->data_superamento=JRequest::getVar('data_superamento');
+        $this->_filterparam->unita_id = JRequest::getVar('unita_id');
+        $this->_filterparam->datetest = JRequest::getVar('datetest');
+        $this->_filterparam->data_superamento = JRequest::getVar('data_superamento');
 
-        define('SMARTY_DIR', JPATH_COMPONENT.'/libraries/smarty/smarty/');
-        define('SMARTY_COMPILE_DIR', JPATH_COMPONENT.'/models/cache/compile/');
-        define('SMARTY_CACHE_DIR', JPATH_COMPONENT.'/models/cache/');
-        define('SMARTY_TEMPLATE_DIR', JPATH_COMPONENT.'/models/templates/');
-        define('SMARTY_CONFIG_DIR', JPATH_COMPONENT.'/models/');
-        define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT.'/libraries/smarty/extras/');
+        define('SMARTY_DIR', JPATH_COMPONENT . '/libraries/smarty/smarty/');
+        define('SMARTY_COMPILE_DIR', JPATH_COMPONENT . '/models/cache/compile/');
+        define('SMARTY_CACHE_DIR', JPATH_COMPONENT . '/models/cache/');
+        define('SMARTY_TEMPLATE_DIR', JPATH_COMPONENT . '/models/templates/');
+        define('SMARTY_CONFIG_DIR', JPATH_COMPONENT . '/models/');
+        define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT . '/libraries/smarty/extras/');
 //        $this->params = $this->_app->getParams();
 
+        $this->_japp = JFactory::getApplication();
+        $this->_params = $this->_japp->getParams();
 
 
-       JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
 
 
     }
 
-    public function get_report_utente(){
+    public function get_report_utente()
+    {
 
         try {
 
-            $model=$this->getModel('reportutente');
+            $model = $this->getModel('reportutente');
 
             return $model->get_data($this->get_user());
-        }catch (exceptions $ex){
-            DEBUGG::log('ERRORE DA get_libretto','gglmsControllerLibretto',1,1);
+        } catch (exceptions $ex) {
+            DEBUGG::log('ERRORE DA get_libretto', 'gglmsControllerLibretto', 1, 1);
         }
 
     }
-    private function get_data($user_id){
 
-        $model=$this->getModel('reportutente');
+    private function get_data($user_id)
+    {
+
+        $model = $this->getModel('reportutente');
         return $model->get_data($user_id);
 
-     }
-    public function get_user(){
+    }
 
-         try {
-             if (!$this->_filterparam->user_id) {
-                 $user = JFactory::getUser();
-                 $user_id=$user->id;
-             }else{
+    public function get_user()
+    {
 
-                 $user_id=$this->_filterparam->user_id;
-             }
+        try {
+            if (!$this->_filterparam->user_id) {
+                $user = JFactory::getUser();
+                $user_id = $user->id;
+            } else {
 
-//             echo($user_id);
-//             die();
+                $user_id = $this->_filterparam->user_id;
+            }
 
-             $model=$this->getModel('reportutente');
-             $user= $model->get_user($user_id);
-             return $user;
+            $model = $this->getModel('reportutente');
+            $user = $model->get_user($user_id);
+            return $user;
 
-         }catch (exceptions $ex){
-             DEBUGG::log('ERRORE DA get_libretto','gglmsControllerLibretto',1,1);
+        } catch (exceptions $ex) {
+            DEBUGG::log('ERRORE DA get_libretto', 'gglmsControllerLibretto', 1, 1);
 
-         }
-     }
-    public function generateAttestato() {
+        }
+    }
+
+    public function generateAttestato()
+    {
 
         try {
 
-           $unita_id=$this->_filterparam->unita_id;
+
            $data_superamento=$this->_filterparam->data_superamento;
-           $user_id=$this->_filterparam->user_id;
-
-//           echo('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-
-           // todo  da id anagrafica a userid
-
-            $user = $this->get_user();
 
 
-           $model = $this->getModel('reportutente');
+            $postData = $this->_japp->input->get;
+            $content_id = $postData->get('content_id', null, 'int');
+            $user_id = $postData->get('user_id', null, 'int');
 
-           $model->_generate_pdf($user, 'p' ,$unita_id,$data_superamento);
 
-        }catch (Exception $e){
+            $pdf_ctrl = new gglmsControllerPdf();
+            $pdf_ctrl->generateAttestato($user_id, $content_id,$data_superamento);
+
+
+        } catch (Exception $e) {
 
             DEBUGG::log($e, 'Exception in generateAttestato ', 1);
         }

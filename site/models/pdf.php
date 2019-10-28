@@ -39,9 +39,10 @@ class gglmsModelPdf extends JModelLegacy {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
             $orientation=$orientamento;
             $pdf = new certificatePDF($orientation);
-
-            if (null === ($datetest = $contenuto_verifica->getStato()->data))
+            $datetest = $contenuto_verifica->getStato($user->id)->data;
+            if ( $datetest === null  || $datetest == '0000-00-00')
                 throw new RuntimeException('L\'utente non ha superato l\'esame o lo ha fatto in data ignota', E_USER_ERROR);
+
 
             $info['data_superamento']=$datetest;
             $info['path_id'] = $attestato->id;
@@ -51,10 +52,6 @@ class gglmsModelPdf extends JModelLegacy {
             $info['firma'] = DOMINIO;
             $info['dg'] = $dg;
             $info['tracklog'] = $tracklog;
-
-//           var_dump($tracklog);
-
-
 
             $template = "file:" . $_SERVER['DOCUMENT_ROOT'].'/mediagg/contenuti/'. $attestato->id . "/" . $attestato->id . ".tpl";
 

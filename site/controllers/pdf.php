@@ -41,16 +41,22 @@ class gglmsControllerPdf extends JControllerLegacy
 
     }
 
-    public function generateAttestato()
+    public function generateAttestato($user_id = null, $id_content = null)
     {
 
         try {
             $db = JFactory::getDbo();
             $postData = $this->_japp->input->get;
-            $id_elemento = $postData->get('content', 0, 'int');
+            $id_elemento = $id_content != null ? $id_content : $postData->get('content', 0, 'int');
+            $user_id = $user_id != null ? $user_id : $this->_user->get('id');
+
+
+            if (!$user_id)
+                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id dell\'utente ', 'error');
 
             if (!$id_elemento)
                 JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id dell\'attestato ', 'error');
+
 
             //ATTESTATO CORRENTE
             $query = $db->getQuery(true)
@@ -115,19 +121,16 @@ class gglmsControllerPdf extends JControllerLegacy
             $tracklog = null;
             if ($corso_obj->accesso == 'gruppo') {
 
-                $stampa_tracciato = $corso_obj->isStampaTracciato();
+                $stampa_tracciato = $corso_obj->isStampaTracciato($user_id);
+
                 if ($stampa_tracciato == 1) {
                     $all_contents = $corso_obj->getAllContentsByCorso();
-//                    var_dump($all_contents);
-//                    die();
-
-//                    DEBUGG::log($all_contents, 'allcontents', 1);
 
                     $tracklog = array();
                     foreach ($all_contents as $c) {
 
                         $item = new stdClass();
-                        $scorm_vars = $c->getStato_scorm();
+                        $scorm_vars = $c->getStato($user_id);
                         $item->titolo = $c->titolo;
                         $item->permanenza = $scorm_vars->permanenza;
                         $item->data = $scorm_vars->data;
@@ -141,7 +144,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
 
             $model_user = new gglmsModelUsers();
-            $user = $model_user->get_user($this->_user->get('id'), $unita->id_event_booking);
+            $user = $model_user->get_user($user_id, $unita->id_event_booking);
 
             if ($this->_params->get('verifica_cf')) {
 
@@ -164,7 +167,6 @@ class gglmsControllerPdf extends JControllerLegacy
                         die();
                 }
 
-//                DEBUGG::error($cf, 'cf', 1);
 
                 $conformita = utilityHelper::conformita_cf($cf);
                 if (!$conformita['valido']) {
@@ -175,6 +177,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $data_change['return'] = $attestato->alias;
                     $data_change = base64_encode(json_encode($data_change));
                     $app = JFactory::getApplication();
+
+                    //TODO SE é DA REPORT IL REDIRECT DEVE ESSERE DIVERSO
                     $app->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=mcf&data=' . $data_change));
                 }
             }
@@ -210,34 +214,6 @@ class gglmsControllerPdf extends JControllerLegacy
         }
         $this->_japp->close();
     }
-
-
-//    private function findAllRelatedContents_old($unita_padre_id, &$all_contents)
-//    {
-//        $db = JFactory::getDbo();
-//        $query = $db->getQuery(true)
-//            ->select('*')
-//            ->from('#__gg_unit as u')
-//            ->where('u.id = ' . $unita_padre_id);
-//
-//
-//        $db->setQuery($query);
-//        $unita = $db->loadObject('gglmsModelUnita');
-//
-//        if ($unita->is_corso) {
-//
-//            // ok, ho trovato il corso
-//            $unita->getSottoUnitaRic($unita->id);
-//            $contenuti = $unita->contenuti;
-//            $all_contents = $contenuti;
-//
-//        } else {
-//
-//            $this->findAllRelatedContents($unita->unitapadre, $all_contents);
-//        }
-//
-//        return $all_contents;
-//    }
 
 
 }

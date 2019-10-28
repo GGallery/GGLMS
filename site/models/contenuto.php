@@ -19,7 +19,8 @@ require_once JPATH_COMPONENT . '/models/stato.php';
  * @package    Joomla.Components
  * @subpackage WebTV
  */
-class gglmsModelContenuto extends JModelLegacy {
+class gglmsModelContenuto extends JModelLegacy
+{
 
     private $_app;
     private $_id; //id dell'oggetto
@@ -29,7 +30,8 @@ class gglmsModelContenuto extends JModelLegacy {
     public $_params;
 
 
-    public function __construct($config = array()) {
+    public function __construct($config = array())
+    {
         parent::__construct($config);
 
         $user = JFactory::getUser();
@@ -42,15 +44,18 @@ class gglmsModelContenuto extends JModelLegacy {
 
     }
 
-    public function __destruct() {}
+    public function __destruct()
+    {
+    }
 
-    public function getPropedeuticita(){
-        if($this->prerequisiti) {
+    public function getPropedeuticita()
+    {
+        if ($this->prerequisiti) {
             foreach (explode(",", $this->prerequisiti) as $idprerequisito) {
                 $model_prerequisito = new gglmsModelContenuto();
                 $prerequisito = $model_prerequisito->getContenuto($idprerequisito);
                 if (!$prerequisito->getStato()->completato)
-                    return  false;
+                    return false;
             }
         }
         return true;
@@ -75,44 +80,42 @@ class gglmsModelContenuto extends JModelLegacy {
         $this->setState('filter.language', JLanguageMultilang::isEnabled());
     }
 
-    public function getContenuto($id = null){
+    public function getContenuto($id = null)
+    {
 
-        $this->_id = (!empty($id)) ? $id : (int) $this->getState('contenuto.id');
+        $this->_id = (!empty($id)) ? $id : (int)$this->getState('contenuto.id');
 
-        try
-        {
+        try {
             $query = $this->_db->getQuery(true)
                 ->select('c.*,t.tipologia as tipologia_contenuto')
                 ->from('#__gg_contenuti as c')
                 ->leftJoin('#__gg_contenuti_tipology as t on t.id=c.tipologia')
-                ->where('c.id = ' . (int) $this->_id);
+                ->where('c.id = ' . (int)$this->_id);
 
 
             $this->_db->setQuery($query);
 
             $data = $this->_db->loadObject('gglmsModelContenuto');
 
-            if (empty($data))
-            {
-                DEBUGG::log('contenuto non trovato, id: '.$id, 'error in getContenuto' , 0,1,0);
+            if (empty($data)) {
+                DEBUGG::log('contenuto non trovato, id: ' . $id, 'error in getContenuto', 0, 1, 0);
                 return null;
             }
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::query($query, 'query get contenuto');
-            DEBUGG::log($e->getMessage(), 'error in getContenuto' , 0,1,0);
+            DEBUGG::log($e->getMessage(), 'error in getContenuto', 0, 1, 0);
         }
         return $data;
 
     }
 
-    public function getJumperXML() {
+    public function getJumperXML()
+    {
         try {
 
-            $xml_path = PATH_CONTENUTI.'/'.$this->id. '/'.$this->id.'.xml';
+            $xml_path = PATH_CONTENUTI . '/' . $this->id . '/' . $this->id . '.xml';
             if (!file_exists($xml_path)) {
-                JFactory::getApplication()->enqueueMessage('Impossibile trovare l\'xml per il contenuto "'. $this->titolo.'" al path '. $this->_path.'', 'error');
+                JFactory::getApplication()->enqueueMessage('Impossibile trovare l\'xml per il contenuto "' . $this->titolo . '" al path ' . $this->_path . '', 'error');
                 return array();
             }
 
@@ -136,7 +139,8 @@ class gglmsModelContenuto extends JModelLegacy {
                     elseif ('Name' == $node->nodeName)
                         $jumpers[$i]['titolo'] = $node->nodeValue;
                 }
-                $i++;/** @todo se il nodo non contiene time e name incremento i e non faccio nessun controllo se il jumper abbia 2 elementi tstart e titolo */
+                $i++;
+                /** @todo se il nodo non contiene time e name incremento i e non faccio nessun controllo se il jumper abbia 2 elementi tstart e titolo */
             }
             unset($xml);
             unset($cue_points);
@@ -148,28 +152,29 @@ class gglmsModelContenuto extends JModelLegacy {
         return 0;
     }
 
-    public function getUrlLink(){
+    public function getUrlLink()
+    {
 
-        switch($this->tipologia){
+        switch ($this->tipologia) {
 
             case 1: //videoslide
             case 2: //videoslide
             case 3: //allegati
             case 4: //Scorm
-            case 5:	//attestato
+            case 5:    //attestato
             case 6: //Testuale HTML
             case 9: //pdfsingolo
 
 
-                $url="index.php?option=com_gglms&view=contenuto&alias=".$this->alias;
-                $url = "href='". JRoute::_($url)."'";
+                $url = "index.php?option=com_gglms&view=contenuto&alias=" . $this->alias;
+                $url = "href='" . JRoute::_($url) . "'";
 
                 return $url;
                 break;
 
             case 7: //quixdeluxe
-                $url="index.php?option=com_joomlaquiz&view=quiz&quiz_id=".$this->id_quizdeluxe;
-                $url = "href='". JRoute::_($url)."'";
+                $url = "index.php?option=com_joomlaquiz&view=quiz&quiz_id=" . $this->id_quizdeluxe;
+                $url = "href='" . JRoute::_($url) . "'";
                 return $url;
                 break;
 
@@ -186,10 +191,10 @@ class gglmsModelContenuto extends JModelLegacy {
                 $array['username'] = $username;
                 $array['password'] = $username;
 
-                $serialize=base64_encode(serialize($array));
+                $serialize = base64_encode(serialize($array));
 
-                $url = $this->path."?sso=dekra&data=".$serialize.">";
-                $url = "href='". $url ."' target='_blank' ";
+                $url = $this->path . "?sso=dekra&data=" . $serialize . ">";
+                $url = "href='" . $url . "' target='_blank' ";
 
                 return $url;
                 break;
@@ -197,13 +202,13 @@ class gglmsModelContenuto extends JModelLegacy {
         }
     }
 
-    public function createVTT_slide($jumpers) {
+    public function createVTT_slide($jumpers)
+    {
 
         // if (empty($itemid) || !filter_var($itemid, FILTER_VALIDATE_INT))
         //     throw new BadMethodCallException('Parametro non valido, atteso un intero valido - VTT', E_USER_ERROR);
         // if (empty($jumpers) || !is_array($jumpers))
         //     throw new BadMethodCallException('Parametro non valido, atteso un array valido - VTT', E_USER_ERROR);
-
 
 
         try {
@@ -218,7 +223,6 @@ class gglmsModelContenuto extends JModelLegacy {
             $pathimmagini = "../../../../" . $path;
 
 
-
             foreach ($jumpers AS $jumper) {
                 //$values[] = '(' . $itemid . ', ' . $jumper['tstart'] . ', \'' . $jumper['titolo'] . '\')';
                 $values[$i]['a'] = "$i\n";
@@ -229,8 +233,6 @@ class gglmsModelContenuto extends JModelLegacy {
 //				echo $pathimmagini . "/slide/Slide" . $shift . ".jpg\n\n";
                 $i++;
             }
-
-
 
 
             for ($i = 0; $i < count($values); $i++) {
@@ -247,11 +249,8 @@ class gglmsModelContenuto extends JModelLegacy {
             }
 
 
-
             $file = $filepath . "vtt_slide.vtt";
-        }
-
-        catch (Exception $e){
+        } catch (Exception $e) {
             var_dump($e);
         }
 
@@ -262,7 +261,8 @@ class gglmsModelContenuto extends JModelLegacy {
         return 0;
     }
 
-    public function convertiDurata($durata) {
+    public function convertiDurata($durata)
+    {
         $h = floor($durata / 3600);
         $m = floor(($durata % 3600) / 60);
         $s = ($durata % 3600) % 60;
@@ -271,7 +271,8 @@ class gglmsModelContenuto extends JModelLegacy {
         return $result;
     }
 
-    public function getUnitPadre(){
+    public function getUnitPadre()
+    {
 
         try {
             $query = $this->_db->getQuery(true)
@@ -283,19 +284,20 @@ class gglmsModelContenuto extends JModelLegacy {
             $data = $this->_db->loadResult();
 
             return $data;
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in getUnitPAdre' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in getUnitPAdre', 0, 1, 0);
         }
     }
 
-    public function getStato($user_id = null){
+    public function getStato($user_id = null)
+    {
 
         try {
 
             //Se passo come parametro lo user_id, invece che avere lo stato per l'utente corrente lo avrò per quell'id. Mi serve per i report
-            if ($user_id)
+            if ($user_id != null) {
                 $this->_userid = $user_id;
-
+            }
 
 //		RESTITUISCO UN OGGETTO STATO
             switch ($this->tipologia) {
@@ -309,7 +311,7 @@ class gglmsModelContenuto extends JModelLegacy {
                 case 4: //scorm
                 case 6: //testuale
                 case 9: //pdfsingolo
-                    $data = $this->getStato_scorm();
+                    $data = $this->getStato_scorm($this->_userid);
                     return $data;
                     break;
 
@@ -319,7 +321,7 @@ class gglmsModelContenuto extends JModelLegacy {
                     break;
 
                 case 7: //quizdeluxe
-                    $data = $this->getStato_quiz_deluxe();
+                    $data = $this->getStato_quiz_deluxe($this->_userid,$this->id_quizdeluxe);
 
                     return $data;
                     break;
@@ -329,21 +331,23 @@ class gglmsModelContenuto extends JModelLegacy {
                     break;
 
             }
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in getStato' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in getStato', 0, 1, 0);
         }
     }
 
-    private function getStato_SSO(){
+    private function getStato_SSO()
+    {
         try {
             $stato = new gglmsModelStatoContenuto();
             return $stato->format_sso();
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in geStato_SSO' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in geStato_SSO', 0, 1, 0);
         }
     }
 
-    private function getStato_attestato(){
+    private function getStato_attestato()
+    {
 
         try {
             if ($this->_userid == null) {
@@ -365,29 +369,34 @@ class gglmsModelContenuto extends JModelLegacy {
 
             return $stato->format_attestato($data);
 
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in getStato_attestato' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in getStato_attestato', 0, 1, 0);
         }
     }
 
-    private function getStato_quiz_deluxe(){
+    private function getStato_quiz_deluxe($user_id = null, $quiz_id= null)
+    {
 
         try {
-            if ($this->id_quizdeluxe == null) {
+            if ($this->id_quizdeluxe == null && $quiz_id == null) {
                 JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '""', 'error');
                 return 0;
             }
 
-            if ($this->_userid == null) {
+            if ($this->_userid == null &&$user_id == null ) {
                 JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
                 return 0;
             }
 
+            $user_id = $user_id!= null ? $user_id :$this->_userid;
+            $quiz_id = $quiz_id!= null ? $quiz_id : $this->_userid;
+
+
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__quiz_r_student_quiz as q')
-                ->where('q.c_quiz_id = ' . (int)$this->id_quizdeluxe)
-                ->where('q.c_student_id = ' . $this->_userid)
+                ->where('q.c_quiz_id = ' . (int)$quiz_id)
+                ->where('q.c_student_id = ' .$user_id)
                 ->order('q.c_passed desc')
                 ->order('c_date_time')
                 ->setLimit(1);
@@ -398,12 +407,13 @@ class gglmsModelContenuto extends JModelLegacy {
             $stato = new gglmsModelStatoContenuto();
 
             return $stato->format_quiz_deluxe($data);
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in getStato_quiz_deluxe' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in getStato_quiz_deluxe', 0, 1, 0);
         }
     }
 
-    private function getStato_allegati(){
+    private function getStato_allegati()
+    {
 
         try {
             if ($this->_userid == null) {
@@ -422,20 +432,24 @@ class gglmsModelContenuto extends JModelLegacy {
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('varName');
 
-//		DEBUGG::log($data, 'data getStato_allegati');
-
             $stato = new gglmsModelStatoContenuto();
 
             return $stato->format_allegati($data);
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in getStato_allegati' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in getStato_allegati', 0, 1, 0);
         }
     }
 
-    public function getStato_scorm(){
+    public function getStato_scorm($user_id = null)
+    {
 
         try {
-            if ($this->_userid == null) {
+
+            if ($user_id) {
+                $user_id = $user_id != null ? $user_id : $this->_userid;
+            }
+
+            if ($user_id == null) {
                 JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
                 return 0;
             }
@@ -444,21 +458,21 @@ class gglmsModelContenuto extends JModelLegacy {
                 ->select('varName, varValue,DATE(timestamp) as TimeStamp')
                 ->from('#__gg_scormvars as s')
                 ->where('scoid = ' . $this->id)
-                ->where('s.userid = ' . $this->_userid);
+                ->where('s.userid = ' . $user_id);
 
-            //echo $query;
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('varName');
             $stato = new gglmsModelStatoContenuto();
 
             return $stato->format_scorm($data);
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in getStato_scorm' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in getStato_scorm', 0, 1, 0);
         }
     }
 
-    public function getFiles(){
+    public function getFiles()
+    {
 
         try {
 
@@ -467,7 +481,7 @@ class gglmsModelContenuto extends JModelLegacy {
                 ->from('#__gg_files as f')
                 ->innerJoin('#__gg_files_map as m on f.id = m.idfile')
                 ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
-                ->where('m.idcontenuto = ' . (int) $this->id)
+                ->where('m.idcontenuto = ' . (int)$this->id)
                 ->order('m.ordinamento');
 
 
@@ -475,9 +489,7 @@ class gglmsModelContenuto extends JModelLegacy {
 
             $data = $this->_db->loadObjectList();
 
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             $this->setError($e);
             $data = array();
         }
@@ -486,7 +498,8 @@ class gglmsModelContenuto extends JModelLegacy {
 
     }
 
-    public function setStato(){
+    public function setStato()
+    {
 
         try {
             if ($this->tipologia == 4)
@@ -528,12 +541,13 @@ class gglmsModelContenuto extends JModelLegacy {
 
                 $stato->setStato($tmp);
             }
-        }catch (Exception $e){
-            DEBUGG::log($e->getMessage(), 'error in setStato' , 0,1,0);
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error in setStato', 0, 1, 0);
         }
     }
 
-    public function testscorm(){
+    public function testscorm()
+    {
 
         echo "opk";
 

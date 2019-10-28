@@ -437,10 +437,15 @@ class gglmsModelUnita extends JModelLegacy
     }
 
     ////////////////////////////////////////////////
-    public function isStampaTracciato()
+    public function isStampaTracciato($user_id = null)
     {
 
         try {
+
+            if ($user_id) {
+                $user_id = $user_id != null ? $user_id : $this->_userid;
+            }
+
 
             if ($this->is_corso == 1) {
 
@@ -450,13 +455,13 @@ class gglmsModelUnita extends JModelLegacy
                     ->from('#__gg_usergroup_map AS ug')
                     ->join('inner', '#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
                     ->where('ug.idunita = ' . $this->id)//parametrizzare con campo EB
-                    ->where('uj.user_id= ' . $this->_userid);
+                    ->where('uj.user_id= ' .$user_id);
 
                 // uso subquery per tovare il coupon giusto
                 $query = $this->_db->getQuery(true)
                     ->select('stampatracciato')
                     ->from('#__gg_coupon AS c')
-                    ->where('c.id_utente = ' . $this->_userid)
+                    ->where('c.id_utente = ' . $user_id)
                     ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')');
 
 
