@@ -649,9 +649,9 @@ defined('_JEXEC') or die;
                     var content_title = content_info.split('#')[1];
                     var url = "index.php?option=com_gglms&task=reportutente.generateAttestato&content_id=" + content_id + "&user_id=" + user_id;
                     if (!disabled) {
-                        rowCellData = rowCellData + "<a type='button' title='"+ content_title + "' class='btn btn-xs btn-default command-edit' href='" + url + "' >";
+                        rowCellData = rowCellData + "<a target='_blank' type='button' title='"+ content_title + "' class='btn btn-xs btn-default command-edit' href='" + url + "' >";
                     } else {
-                        rowCellData = rowCellData + "<a disabled type='button' style='display: none' href='" + url + "' >";
+                        rowCellData = rowCellData + "<a target='_blank' disabled type='button' style='display: none' href='" + url + "' >";
                     }
                     rowCellData = rowCellData + "<span class='glyphicon glyphicon-save-file'></span></a>"
 

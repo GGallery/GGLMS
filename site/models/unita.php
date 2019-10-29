@@ -106,7 +106,8 @@ class gglmsModelUnita extends JModelLegacy
                 ->from('#__gg_unit as u')
                 ->where('u.unitapadre  = ' . $this->id)
                 ->where('u.pubblicato = 1')
-                ->order('ordinamento');
+                ->order('ordinamento')
+                ->order('id');
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('', 'gglmsModelUnita');
 
@@ -492,9 +493,13 @@ class gglmsModelUnita extends JModelLegacy
     {
         if ($this->is_corso) {
 
-            $this->getSottoUnitaRic($this->id);
 
-            return $this->contenuti;
+            $reportObj = new gglmsModelReport();
+            $all_contents = $reportObj->getContenutiArrayList($this->id);
+//            $this->getSottoUnitaRic($this->id);
+//
+//
+            return $all_contents;
 
         } else {
             return null;

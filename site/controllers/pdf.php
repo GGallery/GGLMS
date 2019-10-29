@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/libretto.php';
 
+
 /**
  * Controller for single contact view
  *
@@ -124,14 +125,27 @@ class gglmsControllerPdf extends JControllerLegacy
                 $stampa_tracciato = $corso_obj->isStampaTracciato($user_id);
 
                 if ($stampa_tracciato == 1) {
+//
                     $all_contents = $corso_obj->getAllContentsByCorso();
 
                     $tracklog = array();
                     foreach ($all_contents as $c) {
 
+                        // carico il contenuto come oggetto
+                        $query = $db->getQuery(true)
+                            ->select('*')
+                            ->from('#__gg_contenuti c')
+                            ->where('id =' . $c['id']);
+                        $db->setQuery($query);
+                        $gg_content = $db->loadObject('gglmsModelContenuto');
+                        $gg_content->setUserContent($user_id, $c['id']);
+
+
+                        //TRACKLOG
+
                         $item = new stdClass();
-                        $scorm_vars = $c->getStato($user_id);
-                        $item->titolo = $c->titolo;
+                        $scorm_vars = $gg_content->getStato($user_id);
+                        $item->titolo = $gg_content->titolo;
                         $item->permanenza = $scorm_vars->permanenza;
                         $item->data = $scorm_vars->data;
 
@@ -167,7 +181,6 @@ class gglmsControllerPdf extends JControllerLegacy
                         die();
                 }
 
-
                 $conformita = utilityHelper::conformita_cf($cf);
                 if (!$conformita['valido']) {
                     $data_change['integration'] = $integrazione;
@@ -178,8 +191,18 @@ class gglmsControllerPdf extends JControllerLegacy
                     $data_change = base64_encode(json_encode($data_change));
                     $app = JFactory::getApplication();
 
-                    //TODO SE é DA REPORT IL REDIRECT DEVE ESSERE DIVERSO
-                    $app->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=mcf&data=' . $data_change));
+
+                    // se gli arriva user_id lo è il tutor che scarica l'attesato per l'utente
+                    if ($user_id != null) {
+                        $data_change = base64_encode(json_encode($user));
+                        // tutor, redirect a pagina di errore
+                        $this->_japp->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=nocf&data=' . $data_change));
+                    } else {
+
+                        // utente per se stesso, redirect a pagina di aggiorna cf
+                        $this->_japp->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=mcf&data=' . $data_change));
+                    }
+
                 }
             }
 

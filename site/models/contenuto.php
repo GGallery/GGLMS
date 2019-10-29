@@ -299,6 +299,8 @@ class gglmsModelContenuto extends JModelLegacy
                 $this->_userid = $user_id;
             }
 
+
+
 //		RESTITUISCO UN OGGETTO STATO
             switch ($this->tipologia) {
                 case 3: //allegati
@@ -321,7 +323,7 @@ class gglmsModelContenuto extends JModelLegacy
                     break;
 
                 case 7: //quizdeluxe
-                    $data = $this->getStato_quiz_deluxe($this->_userid,$this->id_quizdeluxe);
+                    $data = $this->getStato_quiz_deluxe($this->_userid, $this->id_quizdeluxe);
 
                     return $data;
                     break;
@@ -374,7 +376,7 @@ class gglmsModelContenuto extends JModelLegacy
         }
     }
 
-    private function getStato_quiz_deluxe($user_id = null, $quiz_id= null)
+    private function getStato_quiz_deluxe($user_id = null, $quiz_id = null)
     {
 
         try {
@@ -383,20 +385,20 @@ class gglmsModelContenuto extends JModelLegacy
                 return 0;
             }
 
-            if ($this->_userid == null &&$user_id == null ) {
+            if ($this->_userid == null && $user_id == null) {
                 JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
                 return 0;
             }
 
-            $user_id = $user_id!= null ? $user_id :$this->_userid;
-            $quiz_id = $quiz_id!= null ? $quiz_id : $this->_userid;
+            $user_id = $user_id != null ? $user_id : $this->_userid;
+            $quiz_id = $quiz_id != null ? $quiz_id : $this->_userid;
 
 
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__quiz_r_student_quiz as q')
                 ->where('q.c_quiz_id = ' . (int)$quiz_id)
-                ->where('q.c_student_id = ' .$user_id)
+                ->where('q.c_student_id = ' . $user_id)
                 ->order('q.c_passed desc')
                 ->order('c_date_time')
                 ->setLimit(1);
@@ -552,6 +554,13 @@ class gglmsModelContenuto extends JModelLegacy
         echo "opk";
 
 
+    }
+
+    public function setUserContent($user_id, $content_id)
+    {
+
+        $this->_userid = $user_id;
+        $this->_id = $content_id;
     }
 
 
