@@ -541,9 +541,20 @@
                 class=""
                 label="Messaggio inserimento non valido"
                 labelclass="control-label"
-                default="In coupon non è valido o è scaduto"
+                default="Il coupon non è valido o è scaduto"
                 description=""
         />
+
+        <field
+                name="messaggio_inserimento_duplicate"
+                type="text"
+                class=""
+                label="Messaggio inserimento duplicato"
+                labelclass="control-label"
+                default="Hai già inserito un coupon per questo corso. Verifica con i tuoi referenti formazione o sicurezza."
+                description=""
+        />
+
 
 
 

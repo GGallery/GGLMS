@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
         <p>
             <input class="field" id="box_coupon_field" type="text" name="nome"/>
             <br>
-            <button id="button_conferma_codice" class="">Conferma codice</button>
+            <button id="button_conferma_codice" class="btn btn-primary btn-lg">Conferma codice</button>
         </p>
         <div id="waiting_verifica_codice" class="hide">
             <h3>Verifica codice in corso...</h3>

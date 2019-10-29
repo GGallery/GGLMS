@@ -89,7 +89,7 @@ echo "<h1> Genera Coupon</h1>";
             tracciato</label>
     </div>
     <div class="form-group">
-        <button id="btn-genera" type="submit" class="btn-block my-btn">Genera</button>
+        <button id="btn-genera" type="submit" class="btn-block btn">Genera</button>
     </div>
 </form>
 

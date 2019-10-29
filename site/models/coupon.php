@@ -171,4 +171,29 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
+
+    public function check_already_enrolled($coupon)
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('count(*)')
+                ->from('#__gg_coupon as c')
+                ->where('c.id_societa=' . (int)$coupon['id_societa'])
+                ->where('c.id_utente=' . $this->_userid)
+                ->where('c.id_gruppi=' . (int)$coupon['id_gruppi']);
+
+            $this->_db->setQuery($query);
+            $count = (int)$this->_db->loadResult();
+
+            return $count > 0 ? true : false ;
+
+
+        } catch (Exception $e) {
+
+            throw new BadMethodCallException('Errore nella procedura check_already_enrolled', E_USER_ERROR);
+        }
+
+    }
+
+
 }

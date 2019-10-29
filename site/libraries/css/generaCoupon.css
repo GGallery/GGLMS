@@ -14,6 +14,14 @@ form[name=generaCouponForm]{
 }
 
 
+#btn-genera{
+    padding: 10px !important;
+    line-height: 1;
+    vertical-align: middle;
+    height: 45px !important;
+}
+
+
 @media (max-width: 768px) {
 
     /*.item-container {*/
