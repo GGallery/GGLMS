@@ -84,7 +84,7 @@ class gglmsModelReport extends JModelLegacy
             $query->select('distinct id_utente, id_event_booking');
             $query->from('report');
             $query->where('id_corso = ' . $this->getState('id_corso'));
-            $query->orderBy('id_utente');
+            $query->order('id_utente');
 
             $this->_db->setQuery($query);
 
@@ -201,6 +201,9 @@ class gglmsModelReport extends JModelLegacy
         $query->select('a.id, a.titolo');
         $query->from('#__gg_unit AS a');
         $query->where("unitapadre=" . $item);
+        $query->order('a.ordinamento');
+        $query->order('a.id');
+
 
         $this->_db->setQuery($query);
 
@@ -220,9 +223,7 @@ class gglmsModelReport extends JModelLegacy
     public function getContenutiArrayList($item = 0)
     {
         $contenuti = array();
-        foreach ($this->getContenutiUnitaArrayList($item) as $contenuto) {
-            array_push($contenuti, $contenuto);
-        }
+
 
         $unitas = $this->getSottoUnitaArrayList($item);
 
@@ -232,6 +233,11 @@ class gglmsModelReport extends JModelLegacy
                 array_push($contenuti, $contenuto);
             }
         }
+
+        foreach ($this->getContenutiUnitaArrayList($item) as $contenuto) {
+            array_push($contenuti, $contenuto);
+        }
+
         return $contenuti;
     }
 
@@ -270,6 +276,8 @@ class gglmsModelReport extends JModelLegacy
             $query->join('inner', '#__gg_contenuti AS c on c.id = a.idcontenuto');
             $query->where("idunita=" . $item);
             $query->order('a.ordinamento');
+            $query->order('a.idunita');
+            $query->order('c.id');
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadAssocList();
@@ -354,7 +362,7 @@ class gglmsModelReport extends JModelLegacy
 
 //
                 // utente loggato ha ruolo di TUTOR AZIENDALE , prendo la sua società
-                $usergroups = $user->get_user_societa($Juser->id ,true);
+                $usergroups = $user->get_user_societa($Juser->id, true);
 
             }
 

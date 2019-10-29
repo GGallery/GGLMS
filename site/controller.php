@@ -40,12 +40,12 @@ class gglmsController extends JControllerLegacy {
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupon.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
+       JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
 
         if(file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');

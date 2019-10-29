@@ -1,136 +1,149 @@
 <?php
 defined('_JEXEC') or die;
 ?>
-<div id="barrafiltri" class="span2">
 
-    <form id="theform" class="form-inline" action="index.php">
+<div>
+    <div id="barrafiltri" class="span2">
 
-
-        <h2>Corso</h2>
-        <div class="form-group">
-
-            <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
-            <select id="corso_id" name="corso_id" class="refresh">
-                <?php
-                foreach ($this->corsi as $corso) {
-
-                    echo '<option value="' . $corso->id . '|' . $corso->id_contenuto_completamento . '">' . $corso->titolo . "</option>";
-                }
-                ?>
-            </select>
-
-        </div>
-
-        <h2>Tipo Report</h2>
-        <div class="form-group">
-
-            <select id="tipo_report" name="tipo_report" class="refresh">
-                <option value="0">per Corso</option>
-                <option value="1">per Unità</option>
-                <option value="2">per Contenuto</option>
-            </select>
-
-        </div>
-
-        <h2>Filtri</h2>
-
-        <div class="form-group">
-            <label for="usergroups">Azienda</label>
-            <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2, 'refresh'); ?>
-        </div>
-        <div class="form-group" id="searchPhrase_div">
-            <label for="searchPhrase">Cerca:</label><br>
-            <input type="text" id="searchPhrase">
-        </div>
-
-        <div class="form-group" id="filterstatodiv">
-            <label for="filterstato">Stato corso</label>
-            <select id="filterstato" name="filterstato" class="refresh">
-                <option value="0">Qualisiasi stato</option>
-                <option value="1">Solo completati</option>
-                <option value="2">Solo NON compleati</option>
-                <option value="3">In scadenza</option>
-            </select>
-        </div>
+        <form id="theform" class="form-inline" action="index.php">
 
 
-        <div class="form-group" id="calendar_startdate_div">
-            <label for="startdate">Completato dal:</label><br>
-            <?php echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d'); ?>
-        </div>
+            <!--            <h3>Corso</h3>-->
+            <div class="form-group">
+                <label for="corso_id">Corso:</label><br>
+                <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
+                <select id="corso_id" name="corso_id" class="refresh">
+                    <?php
+                    foreach ($this->corsi as $corso) {
 
-        <div class="form-group" id="calendar_finishdate_div">
-            <label for="finishdate">Completato al:</label><br>
-            <?php echo JHTML::_('calendar', '', 'finishdate', 'finishdate', '%Y-%m-%d'); ?>
-
-
-        </div>
-
-        <input type="hidden" id="option" name="option" value="com_gglms">
-        <input type="hidden" id="task" name="task" value="api.get_csv">
-
-        <div class="form-group">
-            <button type="button" id="update" class="width100 my-btn" onclick="reload()">AGGIORNA DATI</button>
-        </div>
-        <!--
-        <div class="form-group">
-            <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
-        </div>
-
-        <div>
-            <button type="button" class="btn btn-info btn-lg width100" onclick="dataSyncUsers()">SINCRONIZZA TABELLA REPORT</button>
-        </div>
--->
-        <div class="form-group">
-            <button type="button" id="get_csv" class="my-btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
-        </div>
-    </form>
-
-    <hr>
-
-
-    <canvas id="myChart" width="100" height="100" style="visibility: hidden"></canvas>
-
-
-</div>
-<div id="contenitoreprincipale" class="span8">
-
-    <div class="row">
-        <div class="span12">
-
-            <table id="grid-basic" class="table table-condensed table-hover table-striped ">
-
-            </table>
-
-            <div class="col-sm-6">
-                <ul class="pagination">
-                    <li class="first" aria-disabled="true">
-                        <a data-page="first" class="button">«</a></li>
-                    <li class="prev" aria-disabled="true">
-                        <a data-page="prev" class="button">&lt;</a></li>
-                    <li class="page-1" aria-disabled="false" aria-selected="false">
-                        <a data-page="1" class="button">1</a></li>
-                    <li class="page-2" aria-disabled="false" aria-selected="false">
-                        <a data-page="2" class="button">2</a></li>
-                    <li class="page-3" aria-disabled="false" aria-selected="false">
-                        <a data-page="3" class="button">3</a></li>
-                    <li class="page-4" aria-disabled="false" aria-selected="false">
-                        <a data-page="4" class="button">4</a></li>
-                    <li class="page-5" aria-disabled="false" aria-selected="false">
-                        <a data-page="5" class="button">5</a></li>
-                    <li class="next" aria-disabled="false">
-                        <a data-page="next" class="button">&gt;</a></li>
-                    <li class="last" aria-disabled="false">
-                        <a data-page="last" class="button">»</a></li>
-                    <li class="last" aria-disabled="false">
-                        <span id="totalcount"></span></li>
-                </ul>
+                        echo '<option value="' . $corso->id . '|' . $corso->id_contenuto_completamento . '">' . $corso->titolo . "</option>";
+                    }
+                    ?>
+                </select>
 
             </div>
 
-        </div>
+            <!--            <h4>Tipo Report</h4>-->
+            <div class="form-group">
+                <label for="tipo_report">Tipo Report:</label><br>
+                <select id="tipo_report" name="tipo_report" class="refresh">
+                    <option selected value="0">per Corso</option>
+                    <option value="1">per Unità</option>
+                    <option value="2">per Contenuto</option>
+                </select>
+
+            </div>
+
+
+            <hr>
+            <h5 style="text-align: center">Filtri</h5>
+
+            <div class="form-group">
+                <label for="usergroups">Azienda:</label><br>
+                <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2, 'refresh'); ?>
+            </div>
+
+            <div class="form-group" id="filterstatodiv">
+                <label for="filterstato">Stato corso</label>
+                <select id="filterstato" name="filterstato" class="refresh">
+                    <option value="0">Qualisiasi stato</option>
+                    <option value="1">Solo completati</option>
+                    <option value="2">Solo NON compleati</option>
+                    <option value="3">In scadenza</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="calendar_startdate_div">
+                <label for="startdate">Completato dal:</label><br>
+                <?php echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d'); ?>
+            </div>
+
+            <div class="form-group" id="calendar_finishdate_div">
+                <label for="finishdate">Completato al:</label><br>
+                <?php echo JHTML::_('calendar', '', 'finishdate', 'finishdate', '%Y-%m-%d'); ?>
+
+
+            </div>
+
+
+            <div class="form-group" id="searchPhrase_div">
+                <label for="searchPhrase">Cerca:</label><br>
+                <input type="text" id="searchPhrase">
+            </div>
+
+
+            <input type="hidden" id="option" name="option" value="com_gglms">
+            <input type="hidden" id="task" name="task" value="api.get_csv">
+
+            <div class="form-group">
+                <button type="button" id="update" class="width100 btn" onclick="reload()">AGGIORNA DATI</button>
+                <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
+            </div>
+            <!--
+            <div class="form-group">
+                <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
+            </div>
+
+            <div>
+                <button type="button" class="btn btn-info btn-lg width100" onclick="dataSyncUsers()">SINCRONIZZA TABELLA REPORT</button>
+            </div>
+    -->
+            <!--        <div class="form-group">-->
+            <!--        -->
+            <!--        </div>-->
+        </form>
+
+        <hr>
+        <?php
+        echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
+        ?>
+
+        <!--        <canvas id="myChart" width="100" height="100" style="visibility: hidden"></canvas>-->
+
+
     </div>
-</div>
+    <div id="contenitoreprincipale" class="span8">
+
+        <div class="row">
+            <div class="grid-container">
+
+                <table id="grid-basic" class="table table-condensed table-hover table-striped ">
+
+                </table>
+
+                <div class="col-sm-6">
+                    <ul class="pagination">
+                        <li class="first" aria-disabled="true">
+                            <a data-page="first" class="button">«</a></li>
+                        <li class="prev" aria-disabled="true">
+                            <a data-page="prev" class="button">&lt;</a></li>
+                        <li class="page-1" aria-disabled="false" aria-selected="false">
+                            <a data-page="1" class="button">1</a></li>
+                        <li class="page-2" aria-disabled="false" aria-selected="false">
+                            <a data-page="2" class="button">2</a></li>
+                        <li class="page-3" aria-disabled="false" aria-selected="false">
+                            <a data-page="3" class="button">3</a></li>
+                        <li class="page-4" aria-disabled="false" aria-selected="false">
+                            <a data-page="4" class="button">4</a></li>
+                        <li class="page-5" aria-disabled="false" aria-selected="false">
+                            <a data-page="5" class="button">5</a></li>
+                        <li class="next" aria-disabled="false">
+                            <a data-page="next" class="button">&gt;</a></li>
+                        <li class="last" aria-disabled="false">
+                            <a data-page="last" class="button">»</a></li>
+                        <li class="last" aria-disabled="false">
+                            <span id="totalcount"></span></li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
 </div>
 
 <!-- Modal -->
@@ -248,10 +261,6 @@ defined('_JEXEC') or die;
 </div>
 
 
-<?php
-echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
-?>
-
 <script type="text/javascript">
 
 
@@ -291,37 +300,37 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
     jQuery(document).ready(function ($) {
 
         window.console.log('document ready');
-
+        // default is by corso
         jQuery('#filterstatodiv').show();
         jQuery('#calendar_startdate_div').hide();
         jQuery('#calendar_finishdate_div').hide();
         loadData(null);
 
 //        TORTA
-        var ctx = document.getElementById("myChart").getContext('2d');
-        var notcompleted = 0;
-        var completed = 0;
-        var myChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ["Utenti che hanno completato", "Utenti che non hanno completato"],
-                datasets: [{
-                    label: '% corsi completati',
-                    data: [completed, notcompleted],
-                    backgroundColor: [
-                        'rgba(0, 123, 132, 0.2)',
-                        'rgba(128, 162, 25, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(0,123,132,1)',
-                        'rgba(128, 162, 25, 1)'
-
-                    ],
-                    borderWidth: 5
-                }]
-            },
-
-        });
+//         var ctx = document.getElementById("myChart").getContext('2d');
+//         var notcompleted = 0;
+//         var completed = 0;
+        // var myChart = new Chart(ctx, {
+        //     type: 'pie',
+        //     data: {
+        //         labels: ["Utenti che hanno completato", "Utenti che non hanno completato"],
+        //         datasets: [{
+        //             label: '% corsi completati',
+        //             data: [completed, notcompleted],
+        //             backgroundColor: [
+        //                 'rgba(0, 123, 132, 0.2)',
+        //                 'rgba(128, 162, 25, 0.2)'
+        //             ],
+        //             borderColor: [
+        //                 'rgba(0,123,132,1)',
+        //                 'rgba(128, 162, 25, 1)'
+        //
+        //             ],
+        //             borderWidth: 5
+        //         }]
+        //     },
+        //
+        // });
 
 
         //  TABELLA
@@ -336,7 +345,7 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
         $("#tipo_report").change(function () {
 
             if ($("#tipo_report option:selected").val() == 0) {
-                console.log('change');
+
 
                 $("#filterstatodiv").show();
                 $("#calendar_startdate_div").show();
@@ -353,6 +362,7 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
 
 
             if ($("#filterstato option:selected").val() == 1) {
+                // solo completati
                 $("#calendar_startdate_div").show();
                 $("#calendar_finishdate_div").show();
             } else {
@@ -612,7 +622,7 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
         var btnColumnName = buttonscolumnname[_index];
         if (btnColumnName == "DETTAGLI") {
             rowCellData = rowCellData + "<button id='columnbutton'";
-            rowCellData = rowCellData + " type='button' class=\"my-btn btn-xs btn-default command-edit\" data-row=\"";
+            rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
             //rowCellData = rowCellData+rowindex;
             rowCellData = rowCellData + "\" onclick=playbutton(" + row[buttonkeyidfield[_index]] + ",'" + buttonscolumn[_index] + "') ><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
         }
@@ -632,16 +642,18 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
             // se ci sono attestati
             if (att_array.length > 0 && att_array[0] != "") {
 
-                jQuery.each(att_array, function (i, content_id) {
+                jQuery.each(att_array, function (i, content_info) {
 
-                    // console.log(item); // ID DEL CONTENUTO
+
+                    var content_id = content_info.split('#')[0];
+                    var content_title = content_info.split('#')[1];
                     var url = "index.php?option=com_gglms&task=reportutente.generateAttestato&content_id=" + content_id + "&user_id=" + user_id;
                     if (!disabled) {
-                        rowCellData = rowCellData + "<a type='button' class='my-btn btn-xs btn-default command-edit' href='" + url + "' >";
+                        rowCellData = rowCellData + "<a type='button' title='"+ content_title + "' class='btn btn-xs btn-default command-edit' href='" + url + "' >";
                     } else {
-                        rowCellData = rowCellData + "<a disabled type='button' class='my-btn btn-xs btn-default command-edit' href='" + url + "' >";
+                        rowCellData = rowCellData + "<a disabled type='button' style='display: none' href='" + url + "' >";
                     }
-                    rowCellData = rowCellData + "<i class='glyphicon glyphicon-save-file'></i></a>"
+                    rowCellData = rowCellData + "<span class='glyphicon glyphicon-save-file'></span></a>"
 
                 });
             }
@@ -654,43 +666,6 @@ echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
         // }<
         return rowCellData;
     }
-
-    //
-    // function btnAttestatoClick(id_anagrafica, data_superamento, attestato_id) {
-    //
-    //
-    //     //todo ricavare userid da id anagrafica, qui o in php
-    //
-    //     // index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=122&user_id=&data_superamento=2017/09/14
-    //     var unit_id = jQuery("#corso_id option:selected").val().split('|')[0];
-    //     console.log(unit_id);
-    //     console.log('id_anagrafica', id_anagrafica);
-    //     console.log('data_superamento', data_superamento);
-    //     console.log('id_attestato', attestato_id);
-    //
-    //
-    //     var url = "index.php?option=com_gglms&task=pdf.generateAttestato&content=634";
-    //     debugger;
-    //
-    //     // var url = 'index.php?option=com_gglms&task=pdf.generateAttestato&task=reportutente.generateAttestato&unita_id=' + unit_id + '&user_id=821' + '&data_superamento=' + data_superamento;
-    //     //
-    //     // console.log(url);
-    //     jQuery.when(jQuery.get(url))
-    //         .done(function (data) {
-    //
-    //             console.log('done', data);
-    //         })
-    //         .fail(function (data) {
-    //             console.log('fail', data);
-    //         })
-    //         .then(function (data) {
-    //
-    //             console.log('then', data);
-    //
-    //         });
-    //
-    //
-    // }
 
 
     function playbutton(searchkey, field) {

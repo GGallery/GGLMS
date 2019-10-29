@@ -272,13 +272,9 @@ class gglmsControllerApi extends JControllerLegacy
 
                     $query->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
                     $countquery->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
-                    $query->where('c.id_gruppi =' . $id_gruppo_corso);
+
+                   $query->where('c.id_gruppi =' . $id_gruppo_corso);
                     $countquery->where('c.id_gruppi =' . $id_gruppo_corso);
-
-
-                    // escludo gli utenti tutor aziencdalie tutor piattaforma
-//                echo (string)$query;
-//                die();
 
 
                     break;
@@ -305,7 +301,7 @@ class gglmsControllerApi extends JControllerLegacy
                 $_config = new gglmsModelConfig();
                 $id_gruppo_tutor_aziendale = $_config->getConfigValue('id_gruppo_tutor_aziendale');
                 $id_gruppo_tutor_piattaforma = $_config->getConfigValue('id_gruppo_tutor_piattaforma');
-                $query->where('um.group_id not in (' . $id_gruppo_tutor_aziendale . ', ' . $id_gruppo_tutor_piattaforma .')');
+                $query->where('um.group_id not in (' . $id_gruppo_tutor_aziendale . ', ' . $id_gruppo_tutor_piattaforma . ')');
             }
 
 
@@ -314,8 +310,6 @@ class gglmsControllerApi extends JControllerLegacy
                 $query->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');
                 $countquery->where('anagrafica.fields LIKE \'%' . $searchPrase . '%\'');
             }
-
-
 
             if ($anagrafica_filter != null) {
                 $query->where('anagrafica.id in(' . $anagrafica_filter . ')');
@@ -453,157 +447,6 @@ class gglmsControllerApi extends JControllerLegacy
         }
     }
 
-    private function get_data($offsetforcsv = null)
-    {
-
-        $this->_filterparam->task = JRequest::getVar('task');
-        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
-        $alert_days_before = $this->_params->get('alert_days_before');
-
-
-        try {
-
-            $query = $this->_db->getQuery(true);
-            $countquery = $this->_db->getQuery(true);
-
-            if ($this->_filterparam->filterstato == 1) {
-                $query->select('r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
-
-            } else {
-                $query->select('DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome,anagrafica.fields, users.email');
-            }
-            //SELECT COUNT PER LA COUNTQUERY
-            if ($this->_filterparam->filterstato == 1) {
-                $countquery = 'select count(*) ';
-            } else {
-                $countquery = 'SELECT count(DISTINCT r.id_utente , anagrafica.nome, anagrafica.cognome, anagrafica.fields,users.email) ';
-            }
-
-            //DISTINZIONE PER DEFINIZIONE VALORE DI STATO
-            if ($this->_filterparam->filterstato == 1) {
-                $query->select('1 as stato');
-            } else {
-                $query->select('COALESCE((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente and id_corso = ' . $id_corso . ' and id_contenuto= ' . $id_contenuto . ' and stato = 1 limit 1),0) 
-                                as stato');
-            }
-
-            // SUBQUERY COMUNI A TUTTE E LE QUERY
-            $query->select('(select r1.data from #__gg_report as r1 where r1.id_utente = r.id_utente and id_corso = ' . $id_corso . ' 
-               and r1.data<>\'0000-00-00\' ORDER BY r1.data  limit 1) as hainiziato,
-                                (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_corso = ' . $id_corso . ' and 
-                                id_contenuto= ' . $id_contenuto . ' and stato = 1 ORDER BY r2.data limit 1) as hacompletato');
-
-
-            //SUBQUERY PER SOMME TEMPI DI COMPLETAMENTO
-            $param_colonne_somme = $this->_params->get('colonne_somme_tempi');
-
-            if ($param_colonne_somme) {
-                $query->select($this->buildSelectColonneTempi($id_corso));
-            }
-
-            //DISTINZIONE PER DEFINIZIONE VALORE DI ALERT
-            if ($this->_filterparam->filterstato == 1) {
-                $query->select('0 as alert');
-            } else {
-                $query->select('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -' . $alert_days_before . ' DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente 
-                                and id_contenuto=' . $id_contenuto . ' and stato = 1 limit 1),0,1),0) as alert');
-            }
-
-            // FINE DELLA SELECT INIZIO FROM - INNER JOIN
-
-            //FROM E JOIN COMUNI A TUTTE LE QUERY
-            $query->from('#__gg_report as r');
-            $query->join('inner', '#__gg_report_users as anagrafica ON anagrafica.id = r.id_anagrafica');
-            $query->join('inner', '#__users as users on r.id_utente=users.id');
-
-            //SE NON SONO COMPLETI ALLORA BISOGNA RECUPERARE LA DATA DI SCADENZA: JOIN
-            if ($this->_filterparam->filterstato != 1) {
-                $query->join('inner', '#__gg_unit as un on r.id_corso=un.id');
-            }
-
-            //FINE FROM - JOIN INIZIO WHERE
-
-            //WHERE COMUNE A TUTTE LE QUERY
-            $query->where('r.id_corso = ' . $id_corso);//id_corso, primo paramentro in combo
-            if ($this->_filterparam->usergroups) {
-                $query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
-                $query->where('group_id = ' . $this->_filterparam->usergroups);
-            }
-
-            //WHERE DISTINTE IN BASE AI FILTERSTATE, PER TUTTI VA BENE COSI'
-            if ($this->_filterparam->filterstato == 1)
-                $query->where('r.stato = ' . $this->_filterparam->filterstato . ' and  r.id_contenuto=' . $id_contenuto);
-
-            if ($this->_filterparam->filterstato == 3)
-                $query->where('date(now())>DATE_ADD(un.data_fine, INTERVAL -' . $alert_days_before . ' DAY)');
-            //SOLO NON COMPLETATI O IN SCADENZA
-            if ($this->_filterparam->filterstato == 0 || $this->_filterparam->filterstato == 3)
-                $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r 
-                               INNER JOIN #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
-                               WHERE r.id_corso = ' . $id_corso . ' AND r.stato = 1 
-                               and  r.id_contenuto=' . $id_contenuto . ' AND group_id = ' . $this->_filterparam->usergroups . ')');
-
-            //FILTRI DA REPORT
-            if ($this->_filterparam->startdate)
-                $query->where(' (select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= ' . $id_contenuto . ' and stato = 1 
-                ORDER BY r2.data limit 1) >= "' . $this->_filterparam->startdate . '"');
-
-            if ($this->_filterparam->finishdate)
-                $query->where('(select r2.data from #__gg_report as r2 where r2.id_utente = r.id_utente and id_contenuto= ' . $id_contenuto . ' and stato = 1 
-                ORDER BY r2.data limit 1) <= "' . $this->_filterparam->finishdate . '"');
-
-            if ($this->_filterparam->searchPhrase)
-                $query->where('concat(nome,cognome,fields) like "%' . $this->_filterparam->searchPhrase . '%"');
-
-            $offset = 0;
-            $csvoffset = $this->_filterparam->csvoffset;
-            $csvlimit = $this->_filterparam->csvlimit;
-            if ($this->_filterparam->task != 'get_csv') {
-                $offset = $this->_filterparam->rowCount * $this->_filterparam->current - $this->_filterparam->rowCount;
-                $query->setLimit($this->_filterparam->rowCount, $offset);
-            } else {
-                if ($csvlimit == 0) {
-                    $query->setLimit(1);
-                } else {
-                    $query->setLimit($csvoffset, $csvlimit - $csvoffset);
-                }
-
-            }
-
-            $total = null;
-            $countquery = $countquery . $query->from;
-            $countquery = $countquery . (is_array($query->join) ? implode($query->join) : $query->join);
-            $countquery = $countquery . (is_array($query->where) ? implode($query->where) : $query->where);
-
-            if ($this->_filterparam->sort && $this->_filterparam->filterstato == 1) {
-                foreach ($this->_filterparam->sort as $key => $value)
-                    $query->order($key . " " . $value);
-
-            }
-            //echo $query;
-            $this->_db->setQuery($query);
-            $rows = $this->_db->loadAssocList();
-            $this->_db->setQuery($countquery);
-            $total = $this->_db->LoadResult();
-
-
-        } catch (Exception $e) {
-
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
-            //DEBUGG::error($e, 'error', 1);
-        }
-
-        $result['query'] = (string)$query;
-        $result['offset'] = $offset;
-        $result['current'] = $this->_filterparam->current;
-        $result['rowCount'] = 10;
-        $result['rows'] = $rows;
-        $result['total'] = $total;
-        $result['totalquery'] = $countquery;
-        return $result;
-    }
 
     public function get_csv()
     {
@@ -927,8 +770,10 @@ class gglmsControllerApi extends JControllerLegacy
         $all_attestati = $corso_obj->getAllAttestatiByCorso();
         $att_id_array = array();
 
+        //costruiscp array ["id_attestato1#titolo_attestato1","id_attestato2#titolo_attestato2 ]
+        // per poterlo splittare nel report e avere sia id che titolo
         foreach ($all_attestati as $att) {
-            array_push($att_id_array, $att->id);
+            array_push($att_id_array, $att->id . '#' . $att->titolo);
         }
 
         $att_id_string = implode('|', $att_id_array);

@@ -9,37 +9,10 @@ h1{
     /*color: deeppink !important;*/
 }
 
-form{
+form[name=generaCouponForm]{
     padding:20px 100px;
 }
 
-.my-btn{
-    display: inline-block;
-    font-weight: 400;
-    background: #325482;
-    border: 1px solid #325482;
-    color: #fff;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    line-height: 1.8;
-    margin: 0 0 0.5rem 0;
-    padding: 0.8rem 1.8rem;
-    border-radius: 2px;
-    vertical-align: middle;
-    text-shadow: none;
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    transition: all 0.2s;
-}
-
-
-.my-btn:hover{
-    color: #325482 !important;
-    text-decoration: none;
-    background: #ffffff;
-    display: inline-block;
-    transition: all 0.4s ease 0s;
-}
 
 @media (max-width: 768px) {
 

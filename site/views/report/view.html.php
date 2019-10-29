@@ -37,6 +37,7 @@ class gglmsViewReport extends JViewLegacy {
         
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
         JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/container-fluid.css');
 
         //GRAFICO TORTA
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/Chart.bundle.min.js');

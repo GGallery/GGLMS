@@ -18,3 +18,8 @@
     font-size: 15px !important;
     line-height: 23px !important;
 }
+
+button.btn{
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
