@@ -192,8 +192,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $app = JFactory::getApplication();
 
 
-                    // se gli arriva user_id lo è il tutor che scarica l'attesato per l'utente
-                    if ($user_id != null) {
+                    // se gli arriva user_id  come  parametro --> è il tutor che scarica l'attesato per l'utente
+                    if ($user_id !=$this->_user->get('id')) {
                         $data_change = base64_encode(json_encode($user));
                         // tutor, redirect a pagina di errore
                         $this->_japp->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=nocf&data=' . $data_change));

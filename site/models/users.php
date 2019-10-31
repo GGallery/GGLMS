@@ -201,7 +201,7 @@ class gglmsModelUsers extends JModelLegacy
             $subQuery_strict = $this->_db->getQuery(true)
                 ->select('group_id')
                 ->from('#__usergroups_details')
-                ->where("dominio= '" . DOMINIO ."'");
+                ->where("dominio= '" . DOMINIO . "'");
 
 
             $query_strict = $this->_db->getQuery(true)

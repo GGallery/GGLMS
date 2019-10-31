@@ -34,5 +34,9 @@
         <?php echo $this->form->renderField('messaggio_inserimento_pending'); ?>
     </div>
 
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('messaggio_inserimento_duplicate'); ?>
+    </div>
+
 </div>
 

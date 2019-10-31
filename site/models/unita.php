@@ -30,7 +30,7 @@ class gglmsModelUnita extends JModelLegacy
     public $_params;
     protected $_db;
     private $unitas = array();
-    public $contenuti =  array();
+    public $contenuti = array();
 
 
     public function __construct($config = array())
@@ -122,12 +122,12 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    public function getContenuti($is_attestato = null,$unit_id= null)
+    public function getContenuti($is_attestato = null, $unit_id = null)
     {
 
         $query_id = $this->id;
         if ($unit_id != null) {
-            $query_id =$unit_id;
+            $query_id = $unit_id;
         }
 
         try {
@@ -190,8 +190,7 @@ class gglmsModelUnita extends JModelLegacy
             } else {
                 array_push($this->unitas, $result);
             }
-        }
-        else{
+        } else {
 
             // non ha sotto unità cerco i soi contenuti
             $content_list = $this->getContenuti($is_attestato, $pk);
@@ -456,7 +455,7 @@ class gglmsModelUnita extends JModelLegacy
                     ->from('#__gg_usergroup_map AS ug')
                     ->join('inner', '#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
                     ->where('ug.idunita = ' . $this->id)//parametrizzare con campo EB
-                    ->where('uj.user_id= ' .$user_id);
+                    ->where('uj.user_id= ' . $user_id);
 
                 // uso subquery per tovare il coupon giusto
                 $query = $this->_db->getQuery(true)
@@ -513,7 +512,6 @@ class gglmsModelUnita extends JModelLegacy
             $this->getSottoUnitaRic($this->id, 1);
 
 
-
             return $this->contenuti;
         } else {
             return null;
@@ -526,6 +524,75 @@ class gglmsModelUnita extends JModelLegacy
         $this->id = $unit_id;
     }
 
+    public function is_visibile_today($unita)
+    {
+
+        if (!$unita->is_corso) {
+            // unità non corso è sempre visibile
+            return true;
+
+        } else {
+            // un corso è visibile se: 'filtro_date_corsi' è spento  OPPURE  'filtro_date_corsi' attivo  e passa il check delle date
+//            return  ($this->_params->get('filtro_date_corsi') == 0) || ($this->_params->get('filtro_date_corsi') == 1 && ($unita->data_inizio <= date("Y-m-d") && $unita->data_fine >= date("Y-m-d")));
+            return ($this->_params->get('filtro_date_corsi') == 0) || ($this->_params->get('filtro_date_corsi') == 1 && !$this->is_corso_expired($unita));
+
+        }
+    }
+
+    public function is_corso_expired($unita)
+    {
+        if (!$unita->is_corso) {
+            // unità non è mai expired
+            return false;
+
+        } else {
+
+            return !($unita->data_inizio <= date("Y-m-d") && $unita->data_fine >= date("Y-m-d"));
+
+        }
+    }
+
+    public function get_access_class()
+    {
+
+        $retval = '';
+        if ($this->is_corso == 1 && !$this->isUnitacompleta($this->id)) {
+
+            if ($this->is_corso_expired($this) || $this->check_coupon_is_expired($this)) {
+
+                $retval = 'disabled';
+            }
+        }
+        return $retval;
+    }
+
+
+    public function check_coupon_is_expired($corso)
+    {
+
+
+        $retval = null;
+        $access_list = explode(",", $corso->accesso);
+        if ($corso->accesso) {
+            foreach ($access_list as $metodo) {
+                switch ($metodo) {
+                    case 'gruppo':
+                        $coupon_model = new gglmsModelcoupon();
+
+                        $retval = $coupon_model->is_coupon_expired($corso);
+                        break;
+                    default:
+                        //todo per ora se acesso non è gruppo ritorno tutti i coupon come validi
+                        $retval = false;
+//
+                        break;
+                }
+            }
+        }
+
+
+        return $retval;
+    }
 
 }
 

@@ -171,7 +171,6 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
-
     public function check_already_enrolled($coupon)
     {
         try {
@@ -182,10 +181,11 @@ class gglmsModelcoupon extends JModelLegacy
                 ->where('c.id_utente=' . $this->_userid)
                 ->where('c.id_gruppi=' . (int)$coupon['id_gruppi']);
 
+
             $this->_db->setQuery($query);
             $count = (int)$this->_db->loadResult();
 
-            return $count > 0 ? true : false ;
+            return $count > 0 ? true : false;
 
 
         } catch (Exception $e) {
@@ -195,5 +195,40 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
+    public function is_coupon_expired($corso)
+    {
+
+        try {
+            $subQuery = $this->_db->getQuery(true)
+                ->select('idgruppo')
+                ->from('#__gg_usergroup_map AS ug')
+                ->join('inner', '#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
+                ->where('ug.idunita = ' . $corso->id)//parametrizzare con campo EB
+                ->where('uj.user_id= ' . $this->_user->id);
+
+
+            // calcolo data_scadenza_calc come data_scadenza + durata
+            $query = $this->_db->getQuery(true)
+                ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc , c.data_utilizzo')
+                ->from('#__gg_coupon AS c')
+                ->where('c.id_utente = ' . $this->_user->id)
+                ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')');
+
+            $this->_db->setQuery($query);
+
+            if (null === ($results = $this->_db->loadAssoc())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $data_scadenza_calc =  new DateTime($results['data_scadenza_calc']);
+
+            // se $data_scadenza_calc è minore di oggi il coupon è expired
+            return $data_scadenza_calc < date("Y-m-d") ? true : false;
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e);
+        }
+    }
 
 }

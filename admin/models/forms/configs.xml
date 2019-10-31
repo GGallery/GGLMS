@@ -34,7 +34,7 @@
                 name="id_gruppo_societa"
                 type="listagruppi"
                 class="inputbox"
-                label="Gruppo padre per lista societa"
+                label="Gruppo padre per lista societa__ IN DISUSO"
                 description="Use Ctrl per selezionare più gruppi"
                 required=""
         >
@@ -44,7 +44,7 @@
                 name="id_gruppo_corsi"
                 type="listagruppi"
                 class="inputbox"
-                label="Gruppo padre per lista gruppi accesso corsi _ IN DISUSO"
+                label="Gruppo padre per lista gruppi accesso corsi"
                 description="Use Ctrl per selezionare più gruppi"
                 required=""
         >
@@ -61,6 +61,54 @@
                 multiple="multiple"
                 size="10"
                 default="2"
+        >
+
+        </field>
+
+
+
+        <field
+                name="id_gruppo_venditori"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo venditoti"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+        >
+
+        </field>
+
+
+        <field
+                name="id_gruppo_piattaforme"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo padre per lista piattaforme"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+        >
+
+        </field>
+
+        <field
+                name="id_gruppo_tutor_piattaforma"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo tutor di piattaforma"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+        >
+
+        </field>
+
+
+        <field
+                name="id_gruppo_tutor_aziendale"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo tutor aziendale"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
         >
 
         </field>

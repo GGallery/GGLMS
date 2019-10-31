@@ -48,7 +48,7 @@ class gglmsControllerCoupon extends JControllerLegacy
 
 
 
-                if (!$model->check_already_enrolled($dettagli_coupon['id_gruppi'], $dettagli_coupon['id_societa'])) {
+                if ($model->check_already_enrolled($dettagli_coupon['id_gruppi'], $dettagli_coupon['id_societa'])) {
                     // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente
 
                     $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_duplicate') . "</p>";
@@ -78,19 +78,5 @@ class gglmsControllerCoupon extends JControllerLegacy
         $japp->close();
     }
 
-
-    private function already_enrolled($id_gruppo, $id_societa)
-    {
-//                'id_societa' => string '57' (length=2)
-//  'id_gruppi' => string '40' (length=2)
-
-//        select count(*)
-//from cis19_gg_coupon
-//where id_societa = 57
-//    and id_gruppi = 40
-//    and id_utente = 821
-
-        return true;
-    }
 
 }

@@ -52,3 +52,16 @@
     background-image: url("../images/grigio.png");
 }
 
+
+.modal-backdrop {
+    z-index: 12001 !important;
+}
+
+#exampleModal{
+    z-index: 12002 !important;
+}
+
+.g-block .disabled{
+    opacity:0.5;
+
+}
