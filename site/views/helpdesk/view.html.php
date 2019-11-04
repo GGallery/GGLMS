@@ -32,6 +32,8 @@ class gglmsViewHelpdesk extends JViewLegacy
         $helpDeskCtrl = new gglmsControllerHelpDesk();
 
         $this->info_piattaforma = $helpDeskCtrl->info_piattaforma;
+        $this->request_recipients = $helpDeskCtrl->request_recipients;
+
 
 
         // Display the view

@@ -355,12 +355,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer->addRecipient($recipient);
         $mailer->setSubject('Coupon corso ' . $data['associazione_name']);
 
-//        var_dump($data['email_riferimento']);
-//        var_dump($email_ref_aziendale);
-//        var_dump($recipient);
 //
-//        die();
-
         $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
 
         $smarty = new EasySmarty();

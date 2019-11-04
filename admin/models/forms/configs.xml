@@ -618,6 +618,45 @@
 
 
 
+        <field
+                name="mail_riferimento_specifica"
+                type="radio"
+                class="btn-group"
+                label="Mail richiesta unificata tecnica/didattica per piattaforma"
+                labelclass="control-label"
+                description="OFF per email di piataforma, ON per email unificata"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+
+
+        <field
+                name="mail_richiesta_tecnica"
+                type="text"
+                class=""
+                label="Mail unificata per richiesta tecnica"
+                labelclass="control-label"
+                default="helpdesk@ausindfad.it"
+                description=""
+                showon="mail_riferimento_specifica:1"
+        />
+
+        <field
+                name="mail_richiesta_didattica"
+                type="text"
+                class=""
+                label="Mail unificata per richiesta didattica"
+                labelclass="control-label"
+                default="silvia.alcozer@ausind.it"
+                description=""
+                showon="mail_riferimento_specifica:1"
+        />
+
+
+
 
     </fieldset>
 </form>

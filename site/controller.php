@@ -14,11 +14,12 @@ jimport('joomla.application.component.controller');
 jimport('joomla.access.access');
 
 
-class gglmsController extends JControllerLegacy {
+class gglmsController extends JControllerLegacy
+{
 
     private $_user;
     private $_japp;
-    public  $_params;
+    public $_params;
 
     public function __construct($config = array())
     {
@@ -45,9 +46,9 @@ class gglmsController extends JControllerLegacy {
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
-       JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/helpdesk.css');
-        if(file_exists('gglms_custom.css'))
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
+        if (file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');
 
 //        JHtml::_('script','components/com_gglms/js/mediaelement-and-player.js');
@@ -55,16 +56,16 @@ class gglmsController extends JControllerLegacy {
 
         $this->_params = $this->_japp->getParams();
 
-        $this->_user =   JFactory::getUser();
+        $this->_user = JFactory::getUser();
 
 
-
-        if ($this->_user->guest && strpos(JUri::getInstance()->toString(),'catalogo')===false ) {
+            //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
+        if ($this->_user->guest && strpos(JUri::getInstance()->toString(), 'catalogo') === false && strpos(JUri::getInstance()->toString(), 'help-desk') === false) {
             $msg = "Per accedere al corso è necessario loggarsi";
-            $uri      = JUri::getInstance();
-            $return      = $uri->toString();
-            $url  = 'index.php?option=com_users&view=login';
-            $url .= '&return='.base64_encode($return);
+            $uri = JUri::getInstance();
+            $return = $uri->toString();
+            $url = 'index.php?option=com_users&view=login';
+            $url .= '&return=' . base64_encode($return);
             $this->_japp->redirect(JRoute::_($url), $msg);
         }
 
@@ -73,19 +74,20 @@ class gglmsController extends JControllerLegacy {
     }
 
 
-    public function sync(){
+    public function sync()
+    {
         $model = $this->getModel('syncdatareport');
         $model->sync();
     }
 
-    public function returnfromjoomlaquiz() {
+    public function returnfromjoomlaquiz()
+    {
 
-        $db = & JFactory::getDbo();
+        $db = &JFactory::getDbo();
         $app = &JFactory::getApplication();
 
         $getdata = $app->input->get;
-        $quiz_id=$getdata->get('quiz_id');
-
+        $quiz_id = $getdata->get('quiz_id');
 
 
         $query = $db->getQuery(true)
@@ -96,11 +98,11 @@ class gglmsController extends JControllerLegacy {
             ->where("c.path = " . $quiz_id);
 
 
-        $db->setQuery((string) $query);
+        $db->setQuery((string)$query);
         $res = $db->loadResult();
 
-        $msg="";
-        $url  = 'index.php?option=com_gglms&view=unita&alias='.$res;
+        $msg = "";
+        $url = 'index.php?option=com_gglms&view=unita&alias=' . $res;
         $app->redirect(JRoute::_($url), $msg);
 
         // echo json_encode($query);

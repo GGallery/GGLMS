@@ -94,4 +94,3 @@ echo "<h1> Genera Coupon</h1>";
 </form>
 
 
-<!--<script type="application/javascript">pippo()</script>-->

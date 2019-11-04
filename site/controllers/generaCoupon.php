@@ -40,7 +40,6 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         $this->lista_corsi = $this->generaCoupon->lista_corsi;
         $this->societa_venditrici = $this->generaCoupon->societa_venditrici;
 
-        //var_dump('controller');
     }
 
     public function generaCoupon()

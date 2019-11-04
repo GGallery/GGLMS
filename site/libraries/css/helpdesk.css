@@ -1,3 +1,7 @@
+.help-desk-container {
+    /*background-image: linear-gradient(white, lightsteelblue);*/
+}
+
 #info_associazione {
     font-size: 20px;
 
@@ -8,4 +12,36 @@
 
     margin-right: 5px;
     font-weight: bold;
+}
+
+#contactForm {
+    padding: 10px 20px;
+    font-size: 20px;
+}
+
+.hd-title {
+    padding: 10px;
+
+}
+
+h1.hd-title {
+    background-color: #325482;
+    color: white;
+}
+
+input[type=radio].hd {
+
+    margin-left: 5px;
+}
+
+
+#btn_invia {
+    padding: 10px !important;
+    line-height: 1;
+    vertical-align: middle;
+    height: 45px !important;
+    margin: auto auto !important;
+    font-size: 20px;
+
+
 }

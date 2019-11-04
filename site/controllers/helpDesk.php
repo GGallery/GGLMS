@@ -9,8 +9,8 @@
 
 defined('_JEXEC') or die;
 
-//require_once JPATH_COMPONENT . '/models/contenuto.php';
-require_once JPATH_COMPONENT . '/models/generacoupon.php';
+
+require_once JPATH_COMPONENT . '/models/helpdesk.php';
 
 /**
  * Controller for single contact view
@@ -26,6 +26,7 @@ class gglmsControllerHelpDesk extends JControllerLegacy
     public $_db;
     public $model;
     public $info_piattaforma;
+//    public $request_recipients;
 
     public function __construct($config = array())
     {
@@ -41,7 +42,34 @@ class gglmsControllerHelpDesk extends JControllerLegacy
         $this->info_piattaforma = $this->model->getPiattaformaHelpDeskInfo();
 
 
+
     }
+
+    public function sendMailRequest()
+    {
+
+        try {
+
+            $data = JRequest::get($_POST);
+            $this->model->sendRequestMail($data);
+
+
+            if (  $this->model->sendRequestMail($data) === false) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
+            $this->_japp->redirect(JRoute::_('/home/help-desk'), $this->_japp->enqueueMessage('Richiesta inoltrata con successo', 'Success'));
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::log($e, 'Exception in sendMailRequest ', 1);
+        }
+        $this->_japp->close();
+    }
+
+
 
 
 }

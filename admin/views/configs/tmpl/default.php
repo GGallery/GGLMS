@@ -56,7 +56,9 @@ JHtml::_('formbehavior.chosen', 'select');
             include(dirname(__FILE__).DS.'coupon.php');
             echo JHtml::_('bootstrap.endTab');
 
-
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'HelpDesk', JText::_('HelpDesk', true));
+            include(dirname(__FILE__).DS.'helpDesk.php');
+            echo JHtml::_('bootstrap.endTab');
             ?>
 
             <input type="hidden" name="task" value=""/>
