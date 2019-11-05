@@ -220,7 +220,7 @@ class gglmsModelcoupon extends JModelLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
-            $data_scadenza_calc =  new DateTime($results['data_scadenza_calc']);
+            $data_scadenza_calc = new DateTime($results['data_scadenza_calc']);
 
             // se $data_scadenza_calc è minore di oggi il coupon è expired
             return $data_scadenza_calc < date("Y-m-d") ? true : false;
@@ -229,6 +229,18 @@ class gglmsModelcoupon extends JModelLegacy
         } catch (Exception $e) {
             DEBUGG::error($e);
         }
+    }
+
+    public function is_logged_user_tutor()
+    {
+
+
+        $user = new gglmsModelUsers();
+        $user->get_user($this->_userid);
+
+        return $user->is_tutor_piattaforma($this->_userid) || $user->is_tutor_aziendale($this->_userid);
+
+
     }
 
 }

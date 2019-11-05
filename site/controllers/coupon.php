@@ -46,29 +46,35 @@ class gglmsControllerCoupon extends JControllerLegacy
                 $results['valido'] = 0;
             } else {
 
+                if ($model->is_logged_user_tutor()) {
 
-
-                if ($model->check_already_enrolled($dettagli_coupon['id_gruppi'], $dettagli_coupon['id_societa'])) {
-                    // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente
-
-                    $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_duplicate') . "</p>";
+                    $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_tutor') . "</p>";
                     $results['valido'] = 0;
-                }
-                else{
-                    $model->assegnaCoupon($coupon);
 
-                    if ($dettagli_coupon['id_gruppi'])
-                        $model->setUsergroupUserGroup($dettagli_coupon['id_gruppi']);
-                    if ($dettagli_coupon['id_societa'])
-                        $model->setUsergroupUserGroup($dettagli_coupon['id_societa']);
+                } else {
 
-                    $results['valido'] = 1;
-                    $results['report'] = "<p class='alert-success alert'> Coupon valido. (COD.04)</p>";
 
-                    if ($dettagli_coupon['corsi_abilitati'])
-                        $results['report'] .= $model->get_listaCorsiFast($dettagli_coupon['corsi_abilitati']);
-                    else
-                        $results['report'] = $this->_params->get('messaggio_inserimento_success');
+                    if ($model->check_already_enrolled($dettagli_coupon['id_gruppi'], $dettagli_coupon['id_societa'])) {
+                        // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente
+
+                        $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_duplicate') . "</p>";
+                        $results['valido'] = 0;
+                    } else {
+                        $model->assegnaCoupon($coupon);
+
+                        if ($dettagli_coupon['id_gruppi'])
+                            $model->setUsergroupUserGroup($dettagli_coupon['id_gruppi']);
+                        if ($dettagli_coupon['id_societa'])
+                            $model->setUsergroupUserGroup($dettagli_coupon['id_societa']);
+
+                        $results['valido'] = 1;
+                        $results['report'] = "<p class='alert-success alert'> Coupon valido. (COD.04)</p>";
+
+                        if ($dettagli_coupon['corsi_abilitati'])
+                            $results['report'] .= $model->get_listaCorsiFast($dettagli_coupon['corsi_abilitati']);
+                        else
+                            $results['report'] = $this->_params->get('messaggio_inserimento_success');
+                    }
                 }
 
             }
