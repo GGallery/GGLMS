@@ -643,6 +643,101 @@
         />
 
 
+
+        <!--inizio rinnova coupon-->
+        <field
+                name="titolo_pagina_rinnova_coupon"
+                type="text"
+                class=""
+                label="Testo/titolo pagina rinnova coupon"
+                labelclass="control-label"
+                default="Inserisci qui il codice coupon da rinnnovare"
+                description=""
+        />
+
+        <field
+                name="descrizione_pagina_rinnova_coupon"
+                type="textarea"
+                cols="25"
+                rows="5"
+                class=""
+                label="Descrizione rinnova coupon (opzionale)"
+                labelclass="control-label"
+                default="Inserisci il codice coupon da rinnovare. La durata dell'iscrizione al corso è di 60 giorni a partire dal momento del rinnovo."
+                description=""
+        />
+
+        <field
+                name="messaggio_rinnovo_nouser"
+                type="textarea"
+                class=""
+                label="Messaggio rinnovo coupon non associato ad utente"
+                labelclass="control-label"
+                default="Il coupon non è stato ancora inserito da nessun utente, per ulteriori informazioni contatta il supoorto tecnico"
+                description=""
+                rows="10"
+                cols="5"
+                filter="raw"
+        />
+
+        <field
+                name="messaggio_rinnovo_notutor"
+                type="textarea"
+                class=""
+                label="Messaggio rinnovo coupon, utente richiedente non è tutor"
+                labelclass="control-label"
+                default="Ops sembra che tu non sia loggato come utente tutor di piattaforma, non è possibilie effettuare il rinnovo se non sei un tutor di piattaforma"
+                description=""
+                rows="10"
+                cols="5"
+                filter="raw"
+        />
+
+        <field
+                name="messaggio_rinnovo_wrong_società"
+                type="textarea"
+                class=""
+                label="Messaggio rinnovo coupon, utente richiedente non è tutor"
+                labelclass="control-label"
+                default="Ops sembra che il coupon che vuoi rinnovare  sia stato emesso per una società che non afferisce alle tue piattaforme"
+                description=""
+                rows="10"
+                cols="5"
+                filter="raw"
+        />
+
+        <field
+                name="messaggio_rinnovo_not_expired"
+                type="textarea"
+                class=""
+                label="Messaggio rinnovo coupon, il coupon non è scaduto"
+                labelclass="control-label"
+                default="Ops sembra che il coupon che vuoi rinnovare non sia ancora scaduto."
+                description=""
+                rows="10"
+                cols="5"
+                filter="raw"
+        />
+
+
+        <field
+                name="messaggio_rinnovo_success"
+                type="textarea"
+                class=""
+                label="Messaggio rinnovo coupon avvenuto con succcesso"
+                labelclass="control-label"
+                default="Il coupon è stato rinnovao con successo. Scadrà  nuovamente tra 60 giorni."
+                description=""
+                rows="10"
+                cols="5"
+                filter="raw"
+        />
+
+
+
+
+
+
         <!--F I N E COUPON -->
 
         <!--I N I Z I Z I O HELPDESK -->

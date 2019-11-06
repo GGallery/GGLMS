@@ -579,7 +579,7 @@ class gglmsModelUnita extends JModelLegacy
                     case 'gruppo':
                         $coupon_model = new gglmsModelcoupon();
 
-                        $retval = $coupon_model->is_coupon_expired($corso);
+                        $retval = $coupon_model->is_coupon_expired_by_corso($corso);
                         break;
                     default:
                         //todo per ora se acesso non è gruppo ritorno tutti i coupon come validi

@@ -339,7 +339,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         //todo per evitare di mandare mail a caso, da cancellare
         $data['email_riferimento'] = 'francesca.bagni@ggallery.it';
-
+        $email_ref_aziendale =  'francesca.bagni@ggallery.it';
 
         // get course info
         $query = 'SELECT * FROM #__usergroups WHERE id=' . $id_gruppo_corso . ' LIMIT 1';

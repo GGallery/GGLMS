@@ -67,15 +67,26 @@ class gglmsModelcoupon extends JModelLegacy
         return $corsi_abilitati;
     }
 
-    public function check_Coupon($coupon)
+    public function check_Coupon($coupon, $isRinnovo = false)
     {
         try {
-            $query = $this->_db->getQuery(true)
-                ->select('*')
-                ->from('#__gg_coupon as c')
-                ->where('c.coupon="' . ($coupon) . '"')
-                ->where('c.id_utente IS NULL')
-                ->where('c.data_abilitazione < NOW()');
+
+            if (!$isRinnovo) {
+
+                $query = $this->_db->getQuery(true)
+                    ->select('*')
+                    ->from('#__gg_coupon as c')
+                    ->where('c.coupon="' . ($coupon) . '"')
+                    ->where('c.id_utente IS NULL')
+                    ->where('c.data_abilitazione < NOW()');
+
+            } else {
+                $query = $this->_db->getQuery(true)
+                    ->select('*')
+                    ->from('#__gg_coupon as c')
+                    ->where('c.coupon="' . ($coupon) . '"');
+            }
+
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc()))
@@ -171,6 +182,8 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
+    /////////////////////////////////////////////////
+
     public function check_already_enrolled($coupon)
     {
         try {
@@ -195,7 +208,7 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
-    public function is_coupon_expired($corso)
+    public function is_coupon_expired_by_corso($corso)
     {
 
         try {
@@ -221,13 +234,14 @@ class gglmsModelcoupon extends JModelLegacy
             }
 
             $data_scadenza_calc = new DateTime($results['data_scadenza_calc']);
+            $today = new DateTime(date("Y-m-d"));
 
             // se $data_scadenza_calc è minore di oggi il coupon è expired
-            return $data_scadenza_calc < date("Y-m-d") ? true : false;
+            return $data_scadenza_calc < $today ? true : false;
 
 
         } catch (Exception $e) {
-            DEBUGG::error($e);
+            DEBUGG::error($e, 'is_coupon_expired_by_corso');
         }
     }
 
@@ -243,4 +257,78 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
+    public function check_id_societa_match_user($id_societa_coupon, $user_id)
+    {
+
+        $user = new gglmsModelUsers();
+        $lista_societa_utente = array_column($user->get_user_societa($user_id, false), 'id');
+
+        return in_array($id_societa_coupon, $lista_societa_utente);
+
+    }
+
+    public function is_expired($coupon)
+    {
+
+        try {
+
+            // rifaccio la query per far fare il calcolo a sql
+            $query = $this->_db->getQuery(true)
+                ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc , c.data_utilizzo')
+                ->from('#__gg_coupon AS c')
+                ->where("c.coupon = '" . $coupon . "'");
+
+            $this->_db->setQuery($query);
+
+            if (null === ($results = $this->_db->loadAssoc())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $data_scadenza_calc = new DateTime($results['data_scadenza_calc']);
+            $today = new DateTime(date("Y-m-d"));
+
+            // se $data_scadenza_calc è minore di oggi il coupon è expired
+            return $data_scadenza_calc < $today ? true : false;
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'is_expired');
+        }
+
+    }
+
+    public function rinnova_coupon($coupon)
+    {
+
+        try {
+            // rifaccio la query per far fare il calcolo a sql
+
+            // calcolo i gg di differenza tra data_utilizzo e oggi
+            // nuova_durata = durata + gg + 60
+
+            $query = $this->_db->getQuery(true)
+                ->select('DATEDIFF(CURDATE(),c.data_utilizzo) AS diff_days, durata as current_durata')
+                ->from('#__gg_coupon AS c')
+                ->where("c.coupon = '" . $coupon . "'");
+            $this->_db->setQuery($query);
+
+            if (null === ($res = $this->_db->loadAssoc())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $new_durata = (int)$res['diff_days'] + (int)$res['current_durata'];
+
+
+            $updatequery = "UPDATE #__gg_coupon set durata= " . $new_durata . " WHERE coupon= '" . $coupon . "'";
+            $this->_db->setQuery($updatequery);
+            $this->_db->execute();
+
+            return true;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'rinnova_coupon');
+            return false;
+        }
+
+    }
 }
