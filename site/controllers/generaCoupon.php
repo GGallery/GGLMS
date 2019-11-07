@@ -53,7 +53,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
         } catch (Exception $e) {
 
-//            DEBUGG::log($e, 'Exception in generaCoupon ', 1);
+            DEBUGG::error($e, 'generaCoupon');
         }
         $this->_japp->close();
     }

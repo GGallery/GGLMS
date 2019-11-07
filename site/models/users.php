@@ -15,6 +15,8 @@ class gglmsModelUsers extends JModelLegacy
     public $_userid;
     public $nome;
     public $cognome;
+    public $_config;
+
 
     public function __construct($config = array())
     {
@@ -25,6 +27,8 @@ class gglmsModelUsers extends JModelLegacy
         $this->_db = $this->getDbo();
         $this->_app = JFactory::getApplication();
         $this->_params = $this->_app->getParams();
+        $this->_config = new gglmsModelConfig();
+
 
     }
 
@@ -151,9 +155,8 @@ class gglmsModelUsers extends JModelLegacy
 
     public function is_tutor_piattaforma($id)
     {
-        $_config = new gglmsModelConfig();
         $user_groups = JAccess::getGroupsByUser($id, false);
-        $id_gruppo_tutor_piattaforma = $_config->getConfigValue('id_gruppo_tutor_piattaforma');
+        $id_gruppo_tutor_piattaforma = $this->_config->getConfigValue('id_gruppo_tutor_piattaforma');
 
         return in_array($id_gruppo_tutor_piattaforma, $user_groups);
 
@@ -162,9 +165,9 @@ class gglmsModelUsers extends JModelLegacy
 
     public function is_tutor_aziendale($id)
     {
-        $_config = new gglmsModelConfig();
+
         $user_groups = JAccess::getGroupsByUser($id, false);
-        $id_gruppo_tutor_aziendale = $_config->getConfigValue('id_gruppo_tutor_aziendale');
+        $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
 
         return in_array($id_gruppo_tutor_aziendale, $user_groups);
     }
@@ -172,14 +175,50 @@ class gglmsModelUsers extends JModelLegacy
 
     public function is_venditore($id)
     {
-        $_config = new gglmsModelConfig();
+
         $user_groups = JAccess::getGroupsByUser($id, false);
-        $id_gruppo_venditori = $_config->getConfigValue('id_gruppo_venditori');
+        $id_gruppo_venditori = $this->_config->getConfigValue('id_gruppo_venditori');
 
         return in_array($id_gruppo_venditori, $user_groups);
 
     }
 
+    /** TYPE = 'aziendale' oppure 'piattaforma' **/
+    public function set_user_tutor($user_id, $tutor_type)
+    {
+
+
+        try {
+
+            switch ($tutor_type) {
+                case "aziendale":
+                    $tutor_group_id = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
+                    break;
+
+                case "piattaforma":
+                    $tutor_group_id = $this->_config->getConfigValue('id_gruppo_tutor_piattaforma');
+                    break;
+                default:
+                    // non faccio niente
+                    $tutor_group_id = null;
+                    break;
+
+            }
+
+            if ($tutor_group_id) {
+                $insertquery_map = 'INSERT INTO #__user_usergroup_map (user_id, group_id) VALUES (' . $user_id . ', ' . $tutor_group_id . ')';
+                $this->_db->setQuery($insertquery_map);
+                $this->_db->execute();
+
+            }
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, '_set_user_tutor');
+        }
+
+
+    }
 
 
     // $strict = true --> solo societa a cui l'utente appartiene, la ricavo dal dominio per essere sicura di avere un solo risultato (in caso di configurazioni sbagliate)
@@ -189,83 +228,126 @@ class gglmsModelUsers extends JModelLegacy
 
         $res = array();
 
-        $_config = new gglmsModelConfig();
-        $id_gruppo_piattaforme = $_config->getConfigValue('id_gruppo_piattaforme');
-
-        $user_groups = JAccess::getGroupsByUser($id, false);
-        $groupid_list = '(' . implode(',', $user_groups) . ')';
+        try {
 
 
-        if ($strict) {
-
-            $subQuery_strict = $this->_db->getQuery(true)
-                ->select('group_id')
-                ->from('#__usergroups_details')
-                ->where("dominio= '" . DOMINIO . "'");
+            $id_gruppo_piattaforme = $this->_config->getConfigValue('id_gruppo_piattaforme');
+            $user_groups = JAccess::getGroupsByUser($id, false);
+            $groupid_list = '(' . implode(',', $user_groups) . ')';
 
 
-            $query_strict = $this->_db->getQuery(true)
-                ->select('id, title')
-                ->from('#__usergroups')
-                ->where($this->_db->quoteName('parent_id') . ' IN (' . $subQuery_strict->__toString() . ')')
-                ->where('id IN ' . $groupid_list);
+            if ($strict) {
+
+                $subQuery_strict = $this->_db->getQuery(true)
+                    ->select('group_id')
+                    ->from('#__usergroups_details')
+                    ->where("dominio= '" . DOMINIO . "'");
+
+
+                $query_strict = $this->_db->getQuery(true)
+                    ->select('id, title')
+                    ->from('#__usergroups')
+                    ->where($this->_db->quoteName('parent_id') . ' IN (' . $subQuery_strict->__toString() . ')')
+                    ->where('id IN ' . $groupid_list);
 
 
 //           echo (string)$query_strict;
 
-            $this->_db->setQuery($query_strict);
-            $res = $this->_db->loadObjectList();
+                $this->_db->setQuery($query_strict);
+                $res = $this->_db->loadObjectList();
 
-        } else {
-
-
-            $subQuery = $this->_db->getQuery(true)
-                ->select('id')
-                ->from('#__usergroups')
-                ->where('id IN ' . $groupid_list)
-                ->where('parent_id= ' . $id_gruppo_piattaforme);
+            } else {
 
 
-            $query_P = $this->_db->getQuery(true)
-                ->select('id, title')
-                ->from('#__usergroups')
-                ->where($this->_db->quoteName('parent_id') . ' IN (' . $subQuery->__toString() . ')');
+                $subQuery = $this->_db->getQuery(true)
+                    ->select('id')
+                    ->from('#__usergroups')
+                    ->where('id IN ' . $groupid_list)
+                    ->where('parent_id= ' . $id_gruppo_piattaforme);
 
-            $this->_db->setQuery($query_P);
-            $res = $this->_db->loadObjectList();
+
+                $query_P = $this->_db->getQuery(true)
+                    ->select('id, title')
+                    ->from('#__usergroups')
+                    ->where($this->_db->quoteName('parent_id') . ' IN (' . $subQuery->__toString() . ')');
+
+                $this->_db->setQuery($query_P);
+                $res = $this->_db->loadObjectList();
+            }
+
+
+            return $res;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_user_societa');
         }
 
 
-        return $res;
-
-
     }
-
 
     public function get_user_piattaforme($id)
     {
-        $_config = new gglmsModelConfig();
-        $id_gruppo_piattaforme = $_config->getConfigValue('id_gruppo_piattaforme');
+        // ritorna id e nonme di tutte le piattaforme associate un utente
 
-        $user_groups = JAccess::getGroupsByUser($id, true);
-        $groupid_list = '(' . implode(',', $user_groups) . ')';
+        try {
 
-        $query = $this->_db->getQuery(true)
-            ->select('g.id as value, d.alias as text')
-            ->from('#__usergroups as g')
-            ->join('inner', '#__usergroups_details as d ON g.id = d.group_id')
-            ->where("g.parent_id=" . $id_gruppo_piattaforme)
-            ->where('g.id IN ' . $groupid_list);
+            $id_gruppo_piattaforme = $this->_config->getConfigValue('id_gruppo_piattaforme');
 
-//        echo(string)$query;
-        $this->_db->setQuery($query);
+            $user_groups = JAccess::getGroupsByUser($id, true);
+            $groupid_list = '(' . implode(',', $user_groups) . ')';
 
-        $result = $this->_db->loadObjectList();
+            $query = $this->_db->getQuery(true)
+                ->select('g.id as value, d.alias as text')
+                ->from('#__usergroups as g')
+                ->join('inner', '#__usergroups_details as d ON g.id = d.group_id')
+                ->where("g.parent_id=" . $id_gruppo_piattaforme)
+                ->where('g.id IN ' . $groupid_list);
 
-        return $result;
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadObjectList();
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_user_piattaforme');
+        }
 
 
     }
+
+    public function get_all_tutor_piattaforma($id_piattaforma)
+    {
+
+        // ritorna array di id di tutor di piattaforma
+
+        try {
+            $result = array();
+
+            $id_gruppo_tutor_piattaforma = $this->_config->getConfigValue('id_gruppo_tutor_piattaforma');
+            $all_tutor_piattaforma = JAccess::getUsersByGroup((int)$id_gruppo_tutor_piattaforma);
+
+            foreach ($all_tutor_piattaforma as $tutor_id) {
+
+                // per ognuno dei tutor piattaforma guardo se appartiene al gruppo piattaforma corrente
+                $user_groups = array_column($this->get_user_piattaforme($tutor_id), 'value');
+
+
+                if (in_array($id_piattaforma, $user_groups)) {
+                    // l'utente è tutor per la piattaforma
+                    array_push($result, $tutor_id);
+
+                }
+
+            }
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_all_tutor_piattaforma');
+        }
+
+
+    }
+
 
 
 }
