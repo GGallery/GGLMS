@@ -122,15 +122,23 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
 
-            if ($new_societa) {
-                //TODO mandare mail credenziali
-                $this->send_new_company_user_mail();
-            }
+            //todo scommenta per attivare invio mail
+
+            // send coupon
+//            if ($this->send_coupon_mail($coupons, $data["vendor"], $data['gruppo_corsi'], $nome_societa) === false) {
+//                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+//            }
+//
+//            // send new credentials
+//            if ($new_societa) {
+//
+//                if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["vendor"]) === false) {
+//                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+//                }
+//
+//            }
 
 
-            if ($this->send_coupon_mail($coupons, $data["vendor"], $data['gruppo_corsi'], $nome_societa) === false) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-            }
 
 
             $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
@@ -209,8 +217,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             $new_user = new gglmsModelUsers();
-            $new_user->_set_user_tutor($user_id, 'aziendale');
-//            $this->_set_user_tutor($user_id, 'aziendale');
+            $new_user->set_user_tutor($user_id, 'aziendale');
 
 
             // inserisco in comprofiler
@@ -234,7 +241,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //                    throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
 //
 
-            $res = array('user_id' => $user_id, 'password' => isset($password) ? $password : null, 'id_gruppo_societa' => $company_group_id, 'nome_societa');
+            $res = array('user_id' => $user_id,
+                        'password' => isset($password) ? $password : null,
+                        'id_gruppo_societa' => $company_group_id,
+                        'email' => $data['email'],
+                        'company_name' => $data['ragione_sociale'],
+                        'piva' =>  $data['username']);
 
             return $res;
         } catch (Exception $e) {
@@ -371,6 +383,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //////////////////////////////////////////////////////
 
 
+    // MAIL COUPON
     public function send_coupon_mail($coupons, $id_piattaforma, $id_gruppo_corso, $nome_societa)
     {
 
@@ -381,7 +394,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
 
         // get sender
-        if (false == ($sender = $this->get_coupon_mail_sender($id_piattaforma))) {
+        if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
             $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non è configurato un indirizzo mail di piattaforma', 'Error'));
 
         }
@@ -391,12 +404,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
         if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso))) {
 
             DEBUGG::log($titolo_corso, 'send_coupon_mail');
-//            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non è configurato un indirizzo mail di piattaforma', 'Error'));
 
         }
 
 
-        $nome_piattaforma = $this->get_info_piattaforma($id_piattaforma);
+        $info_piattaforma = $this->get_info_piattaforma($id_piattaforma);
 
         // send mail
         $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
@@ -405,8 +417,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients["to"]->email);
-
-
         $mailer->addCc($recipients["cc"]);
         $mailer->setSubject('Coupon corso ' . $titolo_corso);
 
@@ -416,7 +426,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $smarty->assign('coupons_count', count($coupons));
         $smarty->assign('course_name', $titolo_corso);
         $smarty->assign('company_name', $nome_societa);
-        $smarty->assign('piattaforma_name', $nome_piattaforma["name"]);
+        $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
         $smarty->assign('recipient_name', $recipients["to"]->name);
 
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
@@ -425,10 +435,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
         if (!$mailer->Send())
             throw new RuntimeException('Error sending mail', E_USER_ERROR);
 
+        return true;
 
     }
 
-    public function get_coupon_mail_sender($id_piattaforma)
+    public function get_mail_sender($id_piattaforma)
     {
 
         try {
@@ -515,8 +526,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name')
+                ->select('ug.id as id , ug.title as name, ud.dominio as dominio')
                 ->from('#__usergroups as ug')
+                ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('id=' . $id_piattaforma);
 
 
@@ -532,11 +544,49 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function send_new_company_user_mail()
+    // MAIL REGISTRAZIONE NUOVA SOCIETA'
+    public function send_new_company_user_mail($company_user, $nome_societa, $id_piattaforma)
     {
 
+        if (false == $recipients = $company_user["email"]) {
+            DEBUGG::log($recipients, 'send_new_company_user_mail');
+        }
 
+        // get sender
+        if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
+            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non è configurato un indirizzo mail di piattaforma', 'Error'));
+
+        }
+
+        $info_piattaforma = $this->get_info_piattaforma($id_piattaforma);
+
+        // send mail
+        $template = JPATH_COMPONENT . '/models/template/new_tutor_mail.tpl';
+
+
+        $mailer = JFactory::getMailer();
+        $mailer->setSender($sender);
+        $mailer->addRecipient($recipients);
+
+
+        $smarty = new EasySmarty();
+        $smarty->assign('company_name', $nome_societa);
+        $smarty->assign('user_name', $company_user["piva"]);
+        $smarty->assign('user_password', $company_user["password"]);
+        $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
+        $smarty->assign('piattaforma_link', ' https://www.'.$info_piattaforma["dominio"]);
+
+
+        $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+        $mailer->isHTML(true);
+
+        if (!$mailer->Send())
+            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+
+        return true;
     }
+
+
 }
 
 

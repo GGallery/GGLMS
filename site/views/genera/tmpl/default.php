@@ -58,7 +58,7 @@ echo "<h1> Genera Coupon</h1>";
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="vendor">Venditrice:</label>
+        <label class="col-sm-3 col-form-label" for="vendor">Piattaforma:</label>
         <div class="col-sm-9">
             <select  required placeholder="Venditrice" class="form-control" id="vendor" name="vendor">
                 <?php foreach ($this->societa_venditrici as $s) { ?>
