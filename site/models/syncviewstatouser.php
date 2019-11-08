@@ -256,7 +256,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
         try {
             $obj = new gglmsModelUnita();
             $obj->getSottoUnitaRic($pk);//CHIAMATA ALLA FUNZIONE RICORSIVA
-            $result = $obj->getContenuti($pk);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
+            $result = $obj->getContenuti_u($pk,null);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
             if ($result) {
 
                 foreach ($result as $res) {

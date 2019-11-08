@@ -96,22 +96,22 @@ class gglmsModelUnita extends JModelLegacy
 
     public function getSottoUnita($pk = null, $is_attestato = null)
     {
-        if ($pk) {
-            $this->id = $pk;
+        $query_id = $this->id;
+        if ($pk != null) {
+            $query_id = $pk;
         }
-
         try {
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_unit as u')
-                ->where('u.unitapadre  = ' . $this->id)
+//                ->where('u.unitapadre  = ' . $this->id)
+                ->where('u.unitapadre  = ' . $query_id)
                 ->where('u.pubblicato = 1')
                 ->order('ordinamento')
                 ->order('id');
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('', 'gglmsModelUnita');
 
-//            DEBUGG::log($data, 'getSottoUnita', 1);
 
         } catch (Exception $e) {
             DEBUGG::log($e, 'getSottoUnita');
@@ -122,13 +122,10 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    public function getContenuti($is_attestato = null, $unit_id = null)
+    public function getContenuti_u($unit_id = null, $is_attestato = null)
     {
 
-        $query_id = $this->id;
-        if ($unit_id != null) {
-            $query_id = $unit_id;
-        }
+        $query_id = $unit_id;
 
         try {
             $query = $this->_db->getQuery(true)
@@ -161,13 +158,14 @@ class gglmsModelUnita extends JModelLegacy
 
         $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
         $this->getSottoUnitaRic($pk);//CHIAMATA ALLA FUNZIONE RICORSIVA
-        $result = $this->getContenuti($pk);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
+        $result = $this->getContenuti_u($pk, null);//QUI CARICHIAMO I CONTENUTI ALLA RADICE DELL'UNITA
         if ($result) {
 
             foreach ($result as $res) {
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
             }
         }
+
 
         foreach ($this->contenuti as $contenuto) {   //ANALISI DI OGNI CONTENUTO: APPENA NE TROVI UNO NON COMPLETO, ESCI FALSE
 
@@ -183,7 +181,6 @@ class gglmsModelUnita extends JModelLegacy
     public function getSottoUnitaRic($pk = null, $is_attestato = null)
     {
         $result = $this->getSottoUnita($pk);
-
         if ($result != null) {
             if ($this->unitas == null) {
                 $this->unitas = $result;
@@ -193,7 +190,7 @@ class gglmsModelUnita extends JModelLegacy
         } else {
 
             // non ha sotto unità cerco i soi contenuti
-            $content_list = $this->getContenuti($is_attestato, $pk);
+            $content_list = $this->getContenuti_u($pk, $is_attestato);
             foreach ($content_list as $c) {
                 array_push($this->contenuti, $c);
             }
@@ -202,7 +199,7 @@ class gglmsModelUnita extends JModelLegacy
 
         foreach ($result as $unita) {
 
-            $result = $this->getContenuti($is_attestato, $this->id);
+            $result = $this->getContenuti_u($pk, $is_attestato);
             foreach ($result as $res) {
 
                 array_push($this->contenuti, $res); //LA VARIABILE DI CLASSE contenuti E' QUELLA CHE VIENE POPOLATA DALLA RICORSIVA
@@ -527,6 +524,7 @@ class gglmsModelUnita extends JModelLegacy
     public function is_visibile_today($unita)
     {
 
+
         if (!$unita->is_corso) {
             // unità non corso è sempre visibile
             return true;
@@ -547,47 +545,82 @@ class gglmsModelUnita extends JModelLegacy
 
         } else {
 
-            return !($unita->data_inizio <= date("Y-m-d") && $unita->data_fine >= date("Y-m-d"));
+            $today = strtotime(date("Y-m-d"));
+            $inizio = strtotime($unita->data_inizio);
+            $fine = strtotime($unita->data_fine);
+
+            return !($inizio <= $today && $fine >= $today);
+//            return array('id' => $unita->id, 'inizio' => $inizio, 'fine' => $fine, 'expired' =>  !($inizio <= $today && $fine >= $today));
 
         }
+
+
     }
 
-    public function get_access_class()
+    public function get_access_class($unita)
     {
-
         $retval = '';
-        if ($this->is_corso == 1 && !$this->isUnitacompleta($this->id)) {
+
+//        $t['iscorso'] = $this->is_corso;
+//        $t['input'] = $this->id;
+////        $t['isUnitacompleta'] = $this->isUnitacompleta($id);
+//        $t['input2'] = $this->id;
+//        print_r($t);
+
+        if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
 
             if ($this->is_corso_expired($this) || $this->check_coupon_is_expired($this)) {
 
                 $retval = 'disabled';
             }
         }
+
+
+//        if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
+////            if ($this->check_coupon_is_expired($unita)) {
+////                $retval = 'expired coupon';
+////            }
+////
+//
+////            //OK
+//            if ($unita->is_corso_expired($unita)) {
+//                $retval = 'disabled';
+//            }
+//
+//        }
+
         return $retval;
     }
 
 
     public function check_coupon_is_expired($corso)
     {
-
-
         $retval = null;
-        $access_list = explode(",", $corso->accesso);
-        if ($corso->accesso) {
-            foreach ($access_list as $metodo) {
-                switch ($metodo) {
-                    case 'gruppo':
-                        $coupon_model = new gglmsModelcoupon();
 
-                        $retval = $coupon_model->is_coupon_expired_by_corso($corso);
-                        break;
-                    default:
-                        //todo per ora se acesso non è gruppo ritorno tutti i coupon come validi
-                        $retval = false;
+        try {
+            $access_list = explode(",", $corso->accesso);
+//            var_dump($corso->id);
+//            die();
+
+            if ($corso->accesso) {
+                foreach ($access_list as $metodo) {
+                    switch ($metodo) {
+                        case 'gruppo':
+                            $coupon_model = new gglmsModelcoupon();
+
+                            $retval = $coupon_model->is_coupon_expired_by_corso($corso);
+
+                            break;
+                        default:
+                            //todo per ora se acesso non è gruppo ritorno tutti i coupon come validi
+                            $retval = false;
 //
-                        break;
+                            break;
+                    }
                 }
             }
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'check_coupon_is_expired');
         }
 
 

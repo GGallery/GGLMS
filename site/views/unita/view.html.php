@@ -45,8 +45,9 @@ class gglmsViewUnita extends JViewLegacy
 
 
         $this->sottounita = $this->unita->getSottoUnita();
+//        DEBUGG::log($e, 'getSottoUnita');
 
-        $this->contenuti = $this->unita->getContenuti();
+        $this->contenuti = $this->unita->getContenuti_u($this->unita->id, null);
 
         $this->breadcrumbs = outputHelper::buildUnitBreadcrumb($this->unita->id);
 
@@ -54,4 +55,3 @@ class gglmsViewUnita extends JViewLegacy
         parent::display($tpl);
     }
 }
-    
