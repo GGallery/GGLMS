@@ -255,25 +255,13 @@ class gglmsControllerApi extends JControllerLegacy
 
                 case "gruppo":
 //                  da unit id ad gruppo acesso corso,
-                    $_config = new gglmsModelConfig();
-                    $id_gruppo_corsi = $_config->getConfigValue('id_gruppo_corsi');
-
-
-                    $q = $this->_db->getQuery(true);
-                    $q->select("idgruppo");
-                    $q->from("#__gg_usergroup_map as um");
-                    $q->join('inner', '#__usergroups as g on g.id = um.idgruppo');
-                    $q->where("um.idunita=" . $id_corso);
-                    $q->where(" g.parent_id = " . $id_gruppo_corsi);  //per sicurezza filtro anche per parent_id = gruppo corso
-
-                    $this->_db->setQuery($q);
-                    $id_gruppo_corso = $this->_db->loadResult();
-
+                    $model_unita = new gglmsModelUnita();
+                    $id_gruppo_corso = $model_unita->get_gruppo_accesso_corso($id_corso);
 
                     $query->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
                     $countquery->join('inner', '#__gg_coupon as c on c.id_utente=anagrafica.id_user');
 
-                   $query->where('c.id_gruppi =' . $id_gruppo_corso);
+                    $query->where('c.id_gruppi =' . $id_gruppo_corso);
                     $countquery->where('c.id_gruppi =' . $id_gruppo_corso);
 
 

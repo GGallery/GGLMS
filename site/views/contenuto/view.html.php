@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @version		1
- * @package		webtv
- * @author 		antonio
- * @author mail	tony@bslt.it
+ * @version        1
+ * @package        webtv
+ * @author        antonio
+ * @author mail    tony@bslt.it
  * @link
- * @copyright	Copyright (C) 2011 antonio - All rights reserved.
- * @license		GNU/GPL
+ * @copyright    Copyright (C) 2011 antonio - All rights reserved.
+ * @license        GNU/GPL
  */
 // no direct access
 defined('_JEXEC') or die('Restricted access');
@@ -19,7 +19,8 @@ jimport('joomla.application.component.helper');
 
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 
-class gglmsViewContenuto extends JViewLegacy {
+class gglmsViewContenuto extends JViewLegacy
+{
 
     protected $params;
 
@@ -35,7 +36,7 @@ class gglmsViewContenuto extends JViewLegacy {
         $user = JFactory::getUser();
         $this->id_utente = $user->get('id');
 
-        switch ($this->contenuto->tipologia_contenuto){
+        switch ($this->contenuto->tipologia_contenuto) {
             case 'videoslide':
                 $this->jumper = $this->contenuto->getJumperXML();
                 $this->contenuto->createVTT_slide($this->jumper);
@@ -43,6 +44,10 @@ class gglmsViewContenuto extends JViewLegacy {
 
             case 'solovideo':
                 $this->jumper = [];
+                break;
+            case 'attestato':
+                $this->att_scaricabile = $this->contenuto->attestato_scaricabile_by_user();
+
                 break;
         }
 

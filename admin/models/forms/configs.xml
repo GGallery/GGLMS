@@ -469,6 +469,20 @@
                 filter="safehtml"
         />
 
+        <field
+                name="testo_attestato_disabilitato"
+                class="inputbox"
+                buttons="false"
+                label="Testo utente non è abilitato a scaricare attestato"
+                type="editor"
+                validate=""
+                required=""
+                size="100"
+                default="Il download di questo attestato è disabilitato, rivolgiti al tuo tutor aziendale"
+                filter="safehtml"
+        />
+
+
         <!-- F I N E     ATTESTATO-->
 
         <!-- I N I Z I O BREADCRUMB-->

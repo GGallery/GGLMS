@@ -300,7 +300,6 @@ class gglmsModelContenuto extends JModelLegacy
             }
 
 
-
 //		RESTITUISCO UN OGGETTO STATO
             switch ($this->tipologia) {
                 case 3: //allegati
@@ -561,6 +560,54 @@ class gglmsModelContenuto extends JModelLegacy
 
         $this->_userid = $user_id;
         $this->_id = $content_id;
+    }
+
+    /////////////////////////
+
+    public function attestato_scaricabile_by_user()
+    {
+        // ritorna true se l'utente può scaricare da solo il suo attestato ovvero
+        //  se il flag 'attestato' su coupon è == a 1 l'utente può scaricare l'attestato
+
+
+        $this->_id = (!empty($id)) ? $id : (int)$this->getState('contenuto.id');
+
+        try {
+
+
+            $query = $this->_db->getQuery(true)
+                ->select('idunita')
+                ->from('#__gg_unit_map')
+                ->where("idcontenuto= " . $this->_id);
+
+            $this->_db->setQuery($query);
+            $id_unita_padre = $this->_db->loadResult();
+
+            $model_unita = new gglmsModelUnita();
+            $corso = $model_unita->find_corso((int)$id_unita_padre);
+            $gruppo_corso = $model_unita->get_gruppo_accesso_corso($corso->id);
+
+            //entro in coupon con gruppo corso e utente e guardo attestato
+            $query = $this->_db->getQuery(true)
+                ->select('c.attestato')
+                ->from('#__gg_coupon AS c')
+                ->where('c.id_utente = ' . $this->_userid)
+                ->where('c.id_gruppi = ' . $gruppo_corso);
+
+            $this->_db->setQuery($query);
+
+            if (null === ($results = $this->_db->loadResult())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
+            return $results;
+
+        } catch (Exception $e) {
+//            DEBUGG::query($query, 'query get contenuto');
+            DEBUGG::log($e->getMessage(), 'error in getContenuto', 1, 0, 0);
+        }
+        return false;
     }
 
 

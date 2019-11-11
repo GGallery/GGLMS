@@ -443,7 +443,6 @@ class gglmsModelUnita extends JModelLegacy
                 $user_id = $user_id != null ? $user_id : $this->_userid;
             }
 
-
             if ($this->is_corso == 1) {
 
                 //id gruppo by utente e by idcorso
@@ -561,11 +560,6 @@ class gglmsModelUnita extends JModelLegacy
     {
         $retval = '';
 
-//        $t['iscorso'] = $this->is_corso;
-//        $t['input'] = $this->id;
-////        $t['isUnitacompleta'] = $this->isUnitacompleta($id);
-//        $t['input2'] = $this->id;
-//        print_r($t);
 
         if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
 
@@ -575,23 +569,8 @@ class gglmsModelUnita extends JModelLegacy
             }
         }
 
-
-//        if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
-////            if ($this->check_coupon_is_expired($unita)) {
-////                $retval = 'expired coupon';
-////            }
-////
-//
-////            //OK
-//            if ($unita->is_corso_expired($unita)) {
-//                $retval = 'disabled';
-//            }
-//
-//        }
-
         return $retval;
     }
-
 
     public function check_coupon_is_expired($corso)
     {
@@ -599,8 +578,6 @@ class gglmsModelUnita extends JModelLegacy
 
         try {
             $access_list = explode(",", $corso->accesso);
-//            var_dump($corso->id);
-//            die();
 
             if ($corso->accesso) {
                 foreach ($access_list as $metodo) {
@@ -627,5 +604,48 @@ class gglmsModelUnita extends JModelLegacy
         return $retval;
     }
 
+    public function get_gruppo_accesso_corso($id_corso)
+    {
+
+        try{
+
+
+            $query = $this->_db->getQuery(true);
+            $query->select("accesso,is_corso");
+            $query->from("#__gg_unit as u");
+            $query->where('u.id=' . $id_corso);
+            $this->_db->setQuery($query);
+            $corso_info = $this->_db->loadObject();
+
+            if($corso_info->is_corso == 0 || $corso_info->accesso == false || $corso_info->accesso!= 'gruppo' )
+            {
+               // todo accesso corso throw rutome exception (?)
+                return null;
+            }
+
+            $_config = new gglmsModelConfig();
+            $id_gruppo_corsi = $_config->getConfigValue('id_gruppo_corsi');
+
+
+            //GETGRUPPOCORSO
+            $q = $this->_db->getQuery(true);
+            $q->select("idgruppo");
+            $q->from("#__gg_usergroup_map as um");
+            $q->join('inner', '#__usergroups as g on g.id = um.idgruppo');
+            $q->where("um.idunita=" . $id_corso);
+            $q->where(" g.parent_id = " . $id_gruppo_corsi);  //per sicurezza filtro anche per parent_id = gruppo corso
+
+            $this->_db->setQuery($q);
+            $id_gruppo_corso = $this->_db->loadResult();
+
+            return $id_gruppo_corso;
+        }
+        catch(Exception $e)
+        {
+            DEBUGG::error($e, 'get_gruppo_accesso_corso');
+        }
+
+
+    }
 }
 
