@@ -139,8 +139,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //            }
 
 
-
-
             $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
 
@@ -241,12 +239,16 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //                    throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
 //
 
+            if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
+                throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
+            }
+
             $res = array('user_id' => $user_id,
-                        'password' => isset($password) ? $password : null,
-                        'id_gruppo_societa' => $company_group_id,
-                        'email' => $data['email'],
-                        'company_name' => $data['ragione_sociale'],
-                        'piva' =>  $data['username']);
+                'password' => isset($password) ? $password : null,
+                'id_gruppo_societa' => $company_group_id,
+                'email' => $data['email'],
+                'company_name' => $data['ragione_sociale'],
+                'piva' => $data['username']);
 
             return $res;
         } catch (Exception $e) {
@@ -574,7 +576,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $smarty->assign('user_name', $company_user["piva"]);
         $smarty->assign('user_password', $company_user["password"]);
         $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
-        $smarty->assign('piattaforma_link', ' https://www.'.$info_piattaforma["dominio"]);
+        $smarty->assign('piattaforma_link', ' https://www.' . $info_piattaforma["dominio"]);
 
 
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
@@ -587,6 +589,89 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
 
+    ////////////////////////////////////// FORUM ////////////////////
+
+    public function _create_company_forum($company_group_id, $company_name, $id_piattaforma)
+    {
+
+
+        try {
+            $parent_id = 0;
+            $forum_name = 'Forum aziendale ' . $company_name;
+            $alias = str_replace(' ', '-', filter_var(strtolower($forum_name), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+            $access_type = 'joomla.group';
+            $access = 2;
+            $pub_access = $admin_access = $company_group_id;
+            $pub_recurse = $admin_recurse = 0;
+            $published = 1;
+            $description = $headerdesc = '';//'Forum di discussione della società ' . $company_name;
+            $params = '{"display":{"index":{"parent":"3","children":"3"}}}';
+
+            $query = 'INSERT INTO #__kunena_categories (parent_id, name, alias, accesstype, access, pub_access, pub_recurse, admin_access , admin_recurse , published, description, headerdesc, params)';
+            $query = $query . 'VALUES ( ' . $parent_id . ', \'' . $forum_name . '\', \'' . $alias . '\', \'' . $access_type . '\', ' . $access . ',' . $pub_access . ',' . $pub_recurse . ',' . $admin_access . ',' . $admin_recurse . ',' . $published . ', \'' . $description . '\', \'' . $headerdesc . '\', \'' . $params . '\')';
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            // ID della categoria del forum appena creata
+            $query = 'SELECT LAST_INSERT_ID() AS id';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+            $company_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
+            if (empty($company_forum_id)) {
+                throw RuntimeException('Cannot get forum ID from database', E_USER_ERROR);
+            }
+
+            // inserisco nella tabella alias altrimento il link al forum non è cliccabile
+            $alias_type = 'catid';
+            $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
+            $query = $query . 'VALUES ( \'' . $alias . '\', \'' . $alias_type . '\',' . $company_forum_id . ')';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+
+            // se va a buon fine
+            //tutor piattaforma diventa  il moderatore del forum
+            $this->_set_forum_moderator($id_piattaforma, $company_forum_id);
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, '_create_company_forum');
+            return false;
+
+
+        }
+
+
+    }
+
+    public function _set_forum_moderator($id_piattaforma, $company_forum_id)
+    {
+
+        try {
+            // tutor piattaforma  sono moderatori del company forum
+            $mu = new gglmsModelUsers();
+            $tutor_piattaforma_list = $mu->get_all_tutor_piattaforma($id_piattaforma);
+
+            foreach ($tutor_piattaforma_list as $tutor_id) {
+
+
+                $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
+
+            }
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, '_set_forum_moderator');
+            return false;
+
+
+        }
+
+
+    }
 }
 
 

@@ -348,6 +348,25 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    ////////////////
+    public function set_user_forum_moderator($user_id, $forum_id)
+    {
+
+
+        $query = 'INSERT INTO #__kunena_user_categories (user_id, category_id, role) VALUES (' . $user_id . ', ' . $forum_id . ', 1)';
+        $this->_db->setQuery($query);
+        if (false === ($results = $this->_db->query())) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+
+        $query = 'INSERT INTO #__kunena_users (userid, moderator, rank) VALUES (' . $forum_id . ', 1, 8) ON DUPLICATE KEY UPDATE moderator=1, rank=8';
+        $this->_db->setQuery($query);
+        if (false === ($results = $this->_db->query())) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+        return true;
+
+    }
 
 
 }
