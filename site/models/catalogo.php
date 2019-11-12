@@ -47,6 +47,7 @@ class gglmsModelCatalogo extends JModelLegacy
             ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
             ->where('det.dominio="' . $dominio . '" ')
             ->where('b.box =' . $box)
+            ->order('b.order')
             ->where('u.pubblicato = 1');
 
 //        echo $query; die;
