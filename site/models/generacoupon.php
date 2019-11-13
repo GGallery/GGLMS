@@ -138,14 +138,26 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //
 //            }
 
+            // todo scommenta per riprendere svluppi forum
+//            $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
 
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
+
+//            if (empty($forum_corso)) {
+//
+//
+//                $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
+////                if (false === ($company_user = $this->create_new_company_user($data))) {
+////                    throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
+////
+////                }
+//            }
+
+            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
 
         } catch (Exception $ex) {
 
-//            echo 'error in insert_coupon';
-            var_dump($ex);
+            DEBUGG::error($ex, 'insert_coupon');
 
         }
 
@@ -231,17 +243,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
             }
-//                debug::msg('Nuovo utente aggiornata anagrafica');
 
-//                // creo nuovo forum
-//                /** @todo sostituire il 16 della riga sotto con un sistema che prelevi l'ID del gruppo tutor da DB */
-//                if (false === $this->_create_company_forum($user_id, $company_group_id, $data['ragione_sociale'], $data['id_associazione'], 16))
-//                    throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
-//
 
-            if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
-                throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
-            }
+            // todo scommenta per abilitare i forum
+//            if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
+//                throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
+//            }
 
             $res = array('user_id' => $user_id,
                 'password' => isset($password) ? $password : null,
@@ -382,7 +389,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-//////////////////////////////////////////////////////
+//////////////////////////////  MAIL   /////////////////////
 
 
     // MAIL COUPON
@@ -669,6 +676,116 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
         }
+
+
+    }
+
+    public function _get_company_forum($company_group_id)
+    {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('c.id')
+                ->from('#__kunena_categories as c')
+                ->where("c.parent_id = " . 0)
+                ->where("c.pub_access =" . $company_group_id);
+
+            $this->_db->setQuery($query);
+
+
+            if (false === ($results = $this->_db->loadResult())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results) ? $results : null;
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, '_get_company_forum');
+            return false;
+        }
+
+
+    }
+
+    public function _check_corso_forum($id_societa, $id_gruppo_corso)
+    {
+
+
+        try {
+
+            $company_forum = $this->_get_company_forum($id_societa);
+            if (null === $company_forum) {
+
+                // se sono arrivato qui il company forum deve esistere
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $query = $this->_db->getQuery(true)
+                ->select('c.id')
+                ->from('#__kunena_categories as c')
+                ->where("c.parent_id = " . $company_forum)
+                ->where("c.pub_access =" . $id_gruppo_corso);
+
+            $this->_db->setQuery($query);
+
+
+            if (false === ($results = $this->_db->loadRow())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results) ? $results : null;
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, '_check_corso_forum');
+            return false;
+        }
+
+
+    }
+
+    public function _create_corso_forum($id_societa,$id_gruppo_corso)
+    {
+
+        // il forum del corso è figlio del forum aziendale
+        $parent_id = $this->_get_company_forum($id_societa);
+        if (null === $parent_id) {
+            // se sono arrivato qui il company forum deve esistere
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+
+        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso))) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+        }
+
+
+        $id_gruppo_tutor_aziendale= $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
+
+
+        $alias = str_replace(' ', '-', filter_var(strtolower($titolo_corso), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+        $access_type = 'joomla.group';
+        $access = 1;
+        $pub_access = $id_gruppo_corso;
+        $admin_access = $id_gruppo_tutor_aziendale;
+        $pub_recurse = $admin_recurse = 0;
+        $published = 1;
+        $description = $headerdesc = '';//'Forum di discussione della corso ' . $titolo_corso;
+        $params = '{"access_post":["6","2","8"],"access_reply":["6","2","8"],"display":{"index":{"parent":"3","children":"3"}}}'; //todo check access post e access reply
+
+        $query = 'INSERT INTO #__kunena_categories (parent_id, name, alias, accesstype, access, pub_access, pub_recurse, admin_access , admin_recurse , published, description, headerdesc, params)';
+        $query = $query . 'VALUES ( ' . $parent_id . ', \'' . $titolo_corso . '\', \'' . $alias . '\', \'' . $access_type . '\', ' . $access . ',' . $pub_access . ',' . $pub_recurse . ',' . $admin_access . ',' . $admin_recurse . ',' . $published . ', \'' . $description . '\', \'' . $headerdesc . '\', \'' . $params . '\')';
+
+       
+       
+        $this->_db->setQuery($query);
+        if (false === ($results = $this->_db->query()))
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
 
 
     }

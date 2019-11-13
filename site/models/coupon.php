@@ -229,8 +229,6 @@ class gglmsModelcoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
 
-
-
             if (null === ($results = $this->_db->loadAssoc())) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }

@@ -16,7 +16,7 @@ jimport('joomla.application.component.view');
 
 jimport('joomla.application.component.helper');
 
-require_once JPATH_COMPONENT . '/controllers/generaCoupon.php';
+require_once JPATH_COMPONENT . '/controllers/generacoupon.php';
 
 
 class gglmsViewGenera extends JViewLegacy

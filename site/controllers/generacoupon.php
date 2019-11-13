@@ -42,9 +42,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
-    public function generaCoupon()
+    public function generacoupon()
     {
-
         try {
 
             $data = JRequest::get($_POST);

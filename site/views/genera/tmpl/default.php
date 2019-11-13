@@ -8,7 +8,7 @@ echo "<h1> Genera Coupon</h1>";
 
 
 ?>
-<form action="<?php echo JRoute::_('index.php?option=com_gglms&task=generaCoupon.generaCoupon.php'); ?>"
+    <form action="<?php echo ('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" for="username">Partita Iva:</label>
