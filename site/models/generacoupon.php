@@ -138,19 +138,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //
 //            }
 
-            // todo scommenta per riprendere svluppi forum
-//            $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
 
+            $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
+            if (empty($forum_corso)) {
 
-//            if (empty($forum_corso)) {
-//
-//
-//                $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
-////                if (false === ($company_user = $this->create_new_company_user($data))) {
-////                    throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
-////
-////                }
-//            }
+                if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi'],$nome_societa))) {
+                    throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
+                }
+            }
 
             $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
@@ -642,8 +637,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // se va a buon fine
-            //tutor piattaforma diventa  il moderatore del forum
-            $this->_set_forum_moderator($id_piattaforma, $company_forum_id);
+            //tutor aziendale diventa  il moderatore del forum
+            $mu = new gglmsModelUsers();
+            $tutor_id = $mu->get_tutor_aziendale($company_group_id);
+            $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
+
 
         } catch (Exception $e) {
             DEBUGG::error($e, '_create_company_forum');
@@ -655,30 +653,26 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function _set_forum_moderator($id_piattaforma, $company_forum_id)
-    {
-
-        try {
-            // tutor piattaforma  sono moderatori del company forum
-            $mu = new gglmsModelUsers();
-            $tutor_piattaforma_list = $mu->get_all_tutor_piattaforma($id_piattaforma);
-
-            foreach ($tutor_piattaforma_list as $tutor_id) {
-
-
-                $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
-
-            }
-
-        } catch (Exception $e) {
-            DEBUGG::error($e, '_set_forum_moderator');
-            return false;
-
-
-        }
-
-
-    }
+//    public function _set_tutor_aziendale_forum_moderator($company_group_id, $company_forum_id)
+//    {
+//
+//        try {
+//            // tutor aziendale  moderatore forum
+//            $mu = new gglmsModelUsers();
+//
+//            $tutor_id = $mu->get_tutor_aziendale($company_group_id);
+//            $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
+//
+//
+//        } catch (Exception $e) {
+//            DEBUGG::error($e, '_set_forum_moderator');
+//            return false;
+//
+//
+//        }
+//
+//
+//    }
 
     public function _get_company_forum($company_group_id)
     {
@@ -748,7 +742,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function _create_corso_forum($id_societa,$id_gruppo_corso)
+    public function _create_corso_forum($id_societa, $id_gruppo_corso,$nome_societa)
     {
 
         // il forum del corso è figlio del forum aziendale
@@ -763,11 +757,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         }
 
+        // alias deve essere combinazione di nome corso, nome società perchè kunena lo vuole unique nella tabella alias
+        $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
 
-        $id_gruppo_tutor_aziendale= $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
 
-
-        $alias = str_replace(' ', '-', filter_var(strtolower($titolo_corso), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+        $alias = str_replace(' ', '-', filter_var(strtolower($titolo_corso . ' - ' . $nome_societa), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
         $access_type = 'joomla.group';
         $access = 1;
         $pub_access = $id_gruppo_corso;
@@ -780,12 +774,39 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $query = 'INSERT INTO #__kunena_categories (parent_id, name, alias, accesstype, access, pub_access, pub_recurse, admin_access , admin_recurse , published, description, headerdesc, params)';
         $query = $query . 'VALUES ( ' . $parent_id . ', \'' . $titolo_corso . '\', \'' . $alias . '\', \'' . $access_type . '\', ' . $access . ',' . $pub_access . ',' . $pub_recurse . ',' . $admin_access . ',' . $admin_recurse . ',' . $published . ', \'' . $description . '\', \'' . $headerdesc . '\', \'' . $params . '\')';
 
-       
-       
+
         $this->_db->setQuery($query);
         if (false === ($results = $this->_db->query()))
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
+
+        // ID della categoria del forum appena creata
+        $query = 'SELECT LAST_INSERT_ID() AS id';
+        $this->_db->setQuery($query);
+        if (false === ($results = $this->_db->loadAssoc())) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+
+        $corso_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
+        if (empty($corso_forum_id)) {
+            throw RuntimeException('Cannot get forum ID from database', E_USER_ERROR);
+        }
+
+        // inserisco nella tabella alias altrimento il link al forum non è cliccabile
+        $alias_type = 'catid';
+        $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
+        $query = $query . 'VALUES ( \'' . $alias . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
+        $this->_db->setQuery($query);
+        if (false === ($results = $this->_db->query())) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+        }
+
+
+        //tutor aziendale diventa  il moderatore del forum
+        $mu = new gglmsModelUsers();
+        $tutor_id = $mu->get_tutor_aziendale($id_societa);
+        $mu->set_user_forum_moderator($tutor_id, $corso_forum_id);
 
 
     }

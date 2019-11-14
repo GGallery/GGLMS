@@ -348,6 +348,30 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_tutor_aziendale($id_gruppo_societa){
+        try {
+
+            $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
+
+
+            $query = $this->_db->getQuery(true)
+                ->select('ug1.user_id')
+                ->from('#__user_usergroup_map AS ug1')
+                ->join('inner', '#__user_usergroup_map AS ug2 ON  ug1.user_id = ug2.user_id')
+                ->where("ug1.group_id =" . $id_gruppo_societa)
+                ->where("ug2.group_id=" . $id_gruppo_tutor_aziendale);
+
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_tutor_aziendale');
+        }
+    }
+
     ////////////////
     public function set_user_forum_moderator($user_id, $forum_id)
     {
