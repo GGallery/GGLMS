@@ -566,40 +566,51 @@ class gglmsModelContenuto extends JModelLegacy
 
     public function attestato_scaricabile_by_user()
     {
-        // ritorna true se l'utente può scaricare da solo il suo attestato ovvero
+        // ritorna true se l'utente può scaricare da solo il suo attestato
+
+        // se config.check_coupon_attestato == 1 --> guardo il valore del flag del coupon
+        // se config.check_coupon_attestato == 0 --> attestato sempre scaricabile
         //  se il flag 'attestato' su coupon è == a 1 l'utente può scaricare l'attestato
 
-
-        $this->_id = (!empty($id)) ? $id : (int)$this->getState('contenuto.id');
-
         try {
+            $_config = new gglmsModelConfig();
+            $check_coupon_attestato = $_config->getConfigValue('check_coupon_attestato');
+
+            if ((int)$check_coupon_attestato == 1) {
+
+                // controllo attivo
+                $this->_id = (!empty($id)) ? $id : (int)$this->getState('contenuto.id');
 
 
-            $query = $this->_db->getQuery(true)
-                ->select('idunita')
-                ->from('#__gg_unit_map')
-                ->where("idcontenuto= " . $this->_id);
+                $query = $this->_db->getQuery(true)
+                    ->select('idunita')
+                    ->from('#__gg_unit_map')
+                    ->where("idcontenuto= " . $this->_id);
 
-            $this->_db->setQuery($query);
-            $id_unita_padre = $this->_db->loadResult();
+                $this->_db->setQuery($query);
+                $id_unita_padre = $this->_db->loadResult();
 
-            $model_unita = new gglmsModelUnita();
-            $corso = $model_unita->find_corso((int)$id_unita_padre);
-            $gruppo_corso = $model_unita->get_gruppo_accesso_corso($corso->id);
+                $model_unita = new gglmsModelUnita();
+                $corso = $model_unita->find_corso((int)$id_unita_padre);
+                $gruppo_corso = $model_unita->get_gruppo_accesso_corso($corso->id);
 
-            //entro in coupon con gruppo corso e utente e guardo attestato
-            $query = $this->_db->getQuery(true)
-                ->select('c.attestato')
-                ->from('#__gg_coupon AS c')
-                ->where('c.id_utente = ' . $this->_userid)
-                ->where('c.id_gruppi = ' . $gruppo_corso);
+                //entro in coupon con gruppo corso e utente e guardo attestato
+                $query = $this->_db->getQuery(true)
+                    ->select('c.attestato')
+                    ->from('#__gg_coupon AS c')
+                    ->where('c.id_utente = ' . $this->_userid)
+                    ->where('c.id_gruppi = ' . $gruppo_corso);
 
-            $this->_db->setQuery($query);
+                $this->_db->setQuery($query);
 
-            if (null === ($results = $this->_db->loadResult())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                if (null === ($results = $this->_db->loadResult())) {
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                }
+
+            } else {
+                // controllo spento, attestato sempre scaricabile
+                $results = 1;
             }
-
 
             return $results;
 

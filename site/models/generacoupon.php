@@ -64,7 +64,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         try {
 
-            $data['attestato'] = $data['attestato'] == 'on' ? 1 : 0;
+
+            if (!$this->_config->getConfigValue('check_coupon_attestato')) {
+                // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
+                $data['attestato'] = 1;
+
+            } else {
+//                altrimenti lo leggo dal form
+                $data['attestato'] = $data['attestato'] == 'on' ? 1 : 0;
+            }
+
+
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
 
@@ -142,7 +152,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
             if (empty($forum_corso)) {
 
-                if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi'],$nome_societa))) {
+                if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $nome_societa))) {
                     throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
                 }
             }
@@ -742,7 +752,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function _create_corso_forum($id_societa, $id_gruppo_corso,$nome_societa)
+    public function _create_corso_forum($id_societa, $id_gruppo_corso, $nome_societa)
     {
 
         // il forum del corso è figlio del forum aziendale

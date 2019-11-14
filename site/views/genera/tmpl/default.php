@@ -79,14 +79,19 @@ echo "<h1> Genera Coupon</h1>";
         </div>
     </div>
     <div class="form-group row">
-        <div class="col-sm-3"> </div>
+        <div class="col-sm-3">  <label class="col-form-label" for="">Opzioni:</label></div>
+
         <label class="col-sm-3 col-form-label" for="abilitato"><input type="checkbox" id="abilitato" name="abilitato">
             Abilitati</label>
-        <label class="col-sm-3 col-form-label" for="attestato"><input type="checkbox" id="attestato" name="attestato">
-            Attestato</label>
+
         <label class="col-sm-3 col-form-label " for="stampatracciato"><input type="checkbox" id="stampatracciato"
                                                                             name="stampatracciato"> Stampa
             tracciato</label>
+
+        <?php if($this->check_coupon_attestato == 1) {?>
+            <label class="col-sm-3 col-form-label" for="attestato"><input type="checkbox" id="attestato" name="attestato">
+                Attestato</label>
+        <?php } ?>
     </div>
     <div class="form-group">
         <button id="btn-genera" type="submit" class="btn-block btn">Genera</button>

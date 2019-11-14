@@ -36,6 +36,14 @@
 <div class="row-fluid">
 
     <div>
+        <?php echo $this->form->renderField('check_coupon_attestato'); ?>
+    </div>
+
+</div>
+
+<div class="row-fluid">
+
+    <div>
         <?php echo $this->form->renderField('testo_attestato_disabilitato'); ?>
     </div>
 

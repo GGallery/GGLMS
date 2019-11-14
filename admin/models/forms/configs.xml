@@ -469,6 +469,21 @@
                 filter="safehtml"
         />
 
+
+        <field
+                name="check_coupon_attestato"
+                type="radio"
+                class="btn-group"
+                label="Check campo attestato in coupon (regola la possibilità da parte dell'utente di scaricare i propri attesati)"
+                labelclass="control-label"
+                description="OFF per saltare il controllo (gli utenti possono scaricare sempre i propri attestati) , ON per abilitarlo"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+
         <field
                 name="testo_attestato_disabilitato"
                 class="inputbox"
@@ -480,7 +495,11 @@
                 size="100"
                 default="Il download di questo attestato è disabilitato, rivolgiti al tuo tutor aziendale"
                 filter="safehtml"
+                showon="check_coupon_attestato:1"
         />
+
+
+
 
 
         <!-- F I N E     ATTESTATO-->

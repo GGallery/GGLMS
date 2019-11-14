@@ -25,6 +25,7 @@ class gglmsViewGenera extends JViewLegacy
     protected $params;
     public $lista_corsi;
     public $societa_venditrici;
+    public $check_coupon_attestato;
 
     function display($tpl = null)
     {
@@ -32,6 +33,12 @@ class gglmsViewGenera extends JViewLegacy
         $couponCtrl = new gglmsControllerGeneraCoupon();
         $this->lista_corsi = $couponCtrl->generaCoupon->lista_corsi;
         $this->societa_venditrici = $couponCtrl->generaCoupon->societa_venditrici;
+
+        // leggo parametro config.check_coupon_attestato
+        // se == 1 mostra la checkbox
+        // se == 0 nascondi la checkbox e creali tutti abilitati
+        $_config = new gglmsModelConfig();
+        $this->check_coupon_attestato = $_config->getConfigValue('check_coupon_attestato');
 
 
         // Display the view
