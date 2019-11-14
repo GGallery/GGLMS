@@ -118,6 +118,14 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
 
 
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('prefisso_coupon'); ?>
+                </div>
+
+
+
             </div>
 
             <div class="span4">

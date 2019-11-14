@@ -183,6 +183,21 @@
         >
         </field>
 
+
+        <field
+                name="prefisso_coupon"
+                type="text"
+                default=""
+                label="Prefisso Coupon"
+                description="Prefisso coupon"
+                showon="is_corso:1"
+                required=""
+                multiple="multiple"
+                size="10"
+        >
+        </field>
+
+
         <field
                 name="id_contenuto_completamento"
                 type="listacontenuti"
