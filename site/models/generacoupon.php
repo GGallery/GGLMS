@@ -31,6 +31,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     public $lista_corsi;
     public $societa_venditrici;
     private $_config;
+    private $_info_corso;
 
 
     //todo da spostare a database in tabella config?
@@ -65,6 +66,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
 
+            // check for attestato
             if (!$this->_config->getConfigValue('check_coupon_attestato')) {
                 // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
                 $data['attestato'] = 1;
@@ -77,6 +79,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
+
 
             // se non esiste crea utente ( tutor ) legato alla company
             // esiste gia' l'username (P.iva) ?
@@ -97,6 +100,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $id_gruppo_societa = $info_societa["id"];
             $nome_societa = $info_societa["name"];
 
+            $this->_info_corso = $this->get_info_corso($data["gruppo_corsi"]);
+            $prefisso_coupon =  $this->_info_corso["prefisso_coupon"];
+//            var_dump($prefisso_coupon);
+//            var_dump($this->_info_corso);
+//            die();
+
 
             $coupons = array();
             $values = array();
@@ -105,7 +114,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // campo unico il set di coupon composto da idPiattaformaVenditrice_stringone senza senso basato sul now
             for ($i = 0; $i < $data['qty']; $i++) {
 
-                $coupons[$i] = $this->_generate_coupon($data, $id_gruppo_societa);
+                $coupons[$i] = $this->_generate_coupon($prefisso_coupon, $id_gruppo_societa, $data['gruppo_corsi']);
 
                 // se abilitato -> dataabilitazione = now
 
@@ -135,7 +144,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             //todo scommenta per attivare invio mail
 
             // send coupon
-//            if ($this->send_coupon_mail($coupons, $data["vendor"], $data['gruppo_corsi'], $nome_societa) === false) {
+//            if ($this->send_coupon_mail($coupons, $data["vendor"], $nome_societa) === false) {
 //                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 //            }
 //
@@ -335,16 +344,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    private function _generate_coupon($data, $id_gruppo_societa)
+    private function _generate_coupon($prefisso_coupon, $id_gruppo_societa, $id_gruppo_corso)
     {
 
-
-//        $var_1 = str_replace(' ', '_', $data['prefisso_coupon'] . substr($data['ragione_sociale'], 0, 3)) . str_replace('0', 'k', uniqid('', true)); // no zeros
-        $var_1 = str_replace(' ', '_', $data['prefisso_coupon']) . str_replace('0', 'k', uniqid('', true)); // no zeros
-        $var_2 = 's' . $id_gruppo_societa . 'c' . $data['gruppo_corsi'];
+        $var_1 = str_replace(' ', '_', $prefisso_coupon) . str_replace('0', 'k', uniqid('', true)); // no zeros
+        $var_2 = 's' . $id_gruppo_societa . 'c' . $id_gruppo_corso;
 
         return $var_1 . $var_2;
-//        return str_replace(' ', '_', $prefisso . substr($usr_ragionesociale, 0, 3)) . str_replace('0', 'k', md5(uniqid('', true))); // no zeros
 
     }
 
@@ -357,17 +363,21 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
 
         // carico i gruppi dei corsi
+        try {
+            $_config = new gglmsModelConfig();
+            $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
 
-        $_config = new gglmsModelConfig();
-        $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
+            $query = $this->_db->getQuery(true)
+                ->select('g.id as value, g.title as text')
+                ->from('#__usergroups as g')
+                ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
 
-        $query = $this->_db->getQuery(true)
-            ->select('g.id as value, g.title as text')
-            ->from('#__usergroups as g')
-            ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
+            $this->_db->setQuery($query);
+            $corsi = $this->_db->loadObjectList();
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'getGruppiCorsi');
 
-        $this->_db->setQuery($query);
-        $corsi = $this->_db->loadObjectList();
+        }
 
 
         return $corsi;
@@ -376,21 +386,26 @@ class gglmsModelgeneracoupon extends JModelLegacy
     public function getVenditrici()
     {
 
-
-        $user = new gglmsModelUsers();
-        $Juser = JFactory::getUser();
-        $user->get_user($Juser->id);
-
-
-        if ($user->is_venditore($Juser->id)) {
-            $società_venditrici = $user->get_user_piattaforme($Juser->id);
+        try {
+            $user = new gglmsModelUsers();
+            $Juser = JFactory::getUser();
+            $user->get_user($Juser->id);
 
 
-        } else {
-            echo "l'utente loggato non appartiene al gruppo venditore, non può generare coupon";
+            if ($user->is_venditore($Juser->id)) {
+                $società_venditrici = $user->get_user_piattaforme($Juser->id);
+
+
+            } else {
+                $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
+            }
+
+            return $società_venditrici;
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, 'getVenditrici');
         }
 
-        return $società_venditrici;
 
     }
 
@@ -398,7 +413,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
     // MAIL COUPON
-    public function send_coupon_mail($coupons, $id_piattaforma, $id_gruppo_corso, $nome_societa)
+    public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa)
     {
 
         // get recipients --> tutor piattaforma (cc) + utente loggato
@@ -414,14 +429,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
 
         // get data
-        // get course info
-        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso))) {
-
-            DEBUGG::log($titolo_corso, 'send_coupon_mail');
-
-        }
-
-
         $info_piattaforma = $this->get_info_piattaforma($id_piattaforma);
 
         // send mail
@@ -432,13 +439,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients["to"]->email);
         $mailer->addCc($recipients["cc"]);
-        $mailer->setSubject('Coupon corso ' . $titolo_corso);
+        $mailer->setSubject('Coupon corso ' . $this->_info_corso->titolo);
 
 
         $smarty = new EasySmarty();
         $smarty->assign('coupons', $coupons);
         $smarty->assign('coupons_count', count($coupons));
-        $smarty->assign('course_name', $titolo_corso);
+        $smarty->assign('course_name', $this->_info_corso["titolo"]);
         $smarty->assign('company_name', $nome_societa);
         $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
         $smarty->assign('recipient_name', $recipients["to"]->name);
@@ -517,14 +524,24 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
 
         try {
-            $query = 'SELECT * FROM #__usergroups WHERE id=' . $id_gruppo_corso . ' LIMIT 1';
+
+            $query = $this->_db->getQuery(true)
+                ->select('u.prefisso_coupon, u.titolo')
+                ->from('#__usergroups as g')
+                ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
+                ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
+                ->where('gm.idgruppo=' . $id_gruppo_corso)
+                ->setLimit('1');
+
             $this->_db->setQuery($query);
-            if (false === ($course_info = $this->_db->loadAssoc())) {
+
+
+            if (false === ($result = $this->_db->loadAssoc())) {
 
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
-            return $course_info["title"];
+            return $result;
 
         } catch (Exception $e) {
             DEBUGG::error($e, 'get_info_corso');
@@ -762,7 +779,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
         }
 
-        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso))) {
+//        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso)["title"])) {
+//            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+//
+//        }
+
+        if (false == ($titolo_corso = $this->_info_corso["titolo"])) {
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
         }

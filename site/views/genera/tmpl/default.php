@@ -70,14 +70,14 @@ echo "<h1> Genera Coupon</h1>";
             </select>
         </div>
     </div>
-    <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="username">Prefisso:</label>
-        <div class="col-sm-9">
-            <input placeholder="Prefisso Coupon (opzionale ma consigliato)" type="text" class="form-control"
-                   id="prefisso_coupon"
-                   name="prefisso_coupon">
-        </div>
-    </div>
+<!--    <div class="form-group row">-->
+<!--        <label class="col-sm-3 col-form-label" for="username">Prefisso:</label>-->
+<!--        <div class="col-sm-9">-->
+<!--            <input placeholder="Prefisso Coupon (opzionale ma consigliato)" type="text" class="form-control"-->
+<!--                   id="prefisso_coupon"-->
+<!--                   name="prefisso_coupon">-->
+<!--        </div>-->
+<!--    </div>-->
     <div class="form-group row">
         <div class="col-sm-3">  <label class="col-form-label" for="">Opzioni:</label></div>
 
