@@ -18,7 +18,7 @@ _generaCoupon = (function ($, my) {
         {
 
             // blocco piva
-            $("#username").prop('disabled', true);
+            $("#username").prop('readonly', true);
             $("label[for='username']").addClass('disabled');
             $("#piva-msg").hide();
 
@@ -68,7 +68,7 @@ _generaCoupon = (function ($, my) {
     function reset() {
 
         $("#username").val("");
-        $("#username").prop('disabled', false);
+        $("#username").prop('readonly', false);
         $("label[for='username']").removeClass('disabled');
 
         //blocco tutti i campoi tranne partita iva

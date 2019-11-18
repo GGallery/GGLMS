@@ -45,6 +45,22 @@
 
     <hr>
 
+    <h2 style="text-align: center">GENERA COUPON</h2>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('specifica_durata_coupon'); ?>
+    </div>
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('durata_standard_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_forum'); ?>
+    </div>
+
+    <hr>
+
+
     <h2 style="text-align: center">RINNOVA COUPON</h2>
 
     <div class="row-fluid">

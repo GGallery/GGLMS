@@ -34,10 +34,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
     private $_info_corso;
 
 
-    //todo da spostare a database in tabella config?
-    const DEFAULT_LENGHT = 60;
-
-
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -77,13 +73,20 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
+            // check durata coupon, se il campo è nel form vince l'input dell'utente
+            $durata_coupon = $data["durata"] ? $data["durata"] : $this->_config->getConfigValue('durata_standard_coupon');
+            if ($durata_coupon == null) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
 
 
             // se non esiste crea utente ( tutor ) legato alla company
             // esiste gia' l'username (P.iva) ?
-            $user_id = $this->_check_username($data['username']);
+            $user_id = $this->_check_username((string)$data['username']);
             $company_user = null;
             $new_societa = false;
 
@@ -101,7 +104,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $nome_societa = $info_societa["name"];
 
             $this->_info_corso = $this->get_info_corso($data["gruppo_corsi"]);
-            $prefisso_coupon =  $this->_info_corso["prefisso_coupon"];
+            $prefisso_coupon = $this->_info_corso["prefisso_coupon"];
 
 
             $coupons = array();
@@ -121,7 +124,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $data['abilitato'],
                     $id_iscrizione,
                     $data['abilitato'] == 1 ? date('Y-m-d H:i:s', time()) : 'NULL',
-                    self::DEFAULT_LENGHT,
+                    $durata_coupon,
                     $data['attestato'],
                     $id_gruppo_societa,
                     $data['gruppo_corsi'],
@@ -134,12 +137,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // li inserisco nel DB
             $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
-            if (false === $this->_db->execute())
+            if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
 
 
             //todo scommenta per attivare invio mail
-
             // send coupon
 //            if ($this->send_coupon_mail($coupons, $data["vendor"], $nome_societa) === false) {
 //                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
@@ -155,13 +158,23 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //            }
 
 
-            $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
-            if (empty($forum_corso)) {
 
-                if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $nome_societa))) {
-                    throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
+            // leggo da configurazione se creare o meno forum
+            $genera_forum = $this->_config->getConfigValue('genera_forum');
+            if ($genera_forum == 1) {
+                $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
+
+                if (empty($forum_corso)) {
+
+                    if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $nome_societa))) {
+                        throw new RuntimeException('Error: cannot create forum corso', E_USER_ERROR);
+                    }
                 }
+
             }
+
+
+
 
             $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
@@ -256,9 +269,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
-                throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
+            // leggo da configurazione se creare o meno forum compagnia
+            $genera_forum = $this->_config->getConfigValue('genera_forum');
+            if ($genera_forum == 1) {
+                if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
+                    throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
+                }
             }
+
 
             $res = array('user_id' => $user_id,
                 'password' => isset($password) ? $password : null,

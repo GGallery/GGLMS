@@ -31,7 +31,6 @@ class gglmsModelConfig extends JModelLegacy
     protected $_db;
 
 
-
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -47,17 +46,28 @@ class gglmsModelConfig extends JModelLegacy
 
     }
 
-    public function getConfigValue($key){
+    public function getConfigValue($key)
+    {
 
-        $query = $this->_db->getQuery(true)
-            ->select('config_value')
-            ->from('#__gg_configs')
-            ->where("config_key='" .  $key . "'");
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('config_value')
+                ->from('#__gg_configs')
+                ->where("config_key='" . $key . "'");
 
-        $this->_db->setQuery($query);
-        $result = $this->_db->loadResult();
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
 
-        return $result;
+            if($result === false){
+                throw new Exception('Non riesco a leggere parametro di configueazione ' . $key, E_USER_ERROR);
+            }
+
+            return $result;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'getConfigValue');
+        }
+
+        return false;
 
     }
 

@@ -596,7 +596,48 @@
         />
 
         <field
-                name="descrizione_pagina_coupon"
+                name="specifica_durata_coupon"
+                type="radio"
+                class="btn-group"
+                label="Specifica durata coupon nel form?"
+                labelclass="control-label"
+                description="Se ON specificare la durata di ogni coupon al momento della generazione. Se OFF tutti i coupon sono generati con la durata standard "
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+
+        <field
+                name="durata_standard_coupon"
+                type="text"
+                class=""
+                label="Durata Standard coupon"
+                labelclass="control-label"
+                default="60"
+                description=""
+                showon="specifica_durata_coupon:0"
+        />
+
+        <field
+                name="genera_forum"
+                type="radio"
+                class="btn-group"
+                label="Generare forum aziendali e di corso alla generazione del coupon?"
+                labelclass="control-label"
+                description="Se ON vengono creati forum aziendali e di corso al momento della generazione dei coupon."
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+
+
+
+        <field
+                name="specifica_durata_coupon"
                 type="textarea"
                 cols="25"
                 rows="3"
