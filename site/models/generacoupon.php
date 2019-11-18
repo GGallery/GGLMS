@@ -102,9 +102,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $this->_info_corso = $this->get_info_corso($data["gruppo_corsi"]);
             $prefisso_coupon =  $this->_info_corso["prefisso_coupon"];
-//            var_dump($prefisso_coupon);
-//            var_dump($this->_info_corso);
-//            die();
 
 
             $coupons = array();
@@ -259,10 +256,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            // todo scommenta per abilitare i forum
-//            if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
-//                throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
-//            }
+            if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
+                throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
+            }
 
             $res = array('user_id' => $user_id,
                 'password' => isset($password) ? $password : null,

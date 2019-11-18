@@ -58,4 +58,26 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     }
 
 
+    public function check_username()
+    {
+
+        // usato in form genera coupon frontend
+        $japp = JFactory::getApplication();
+        $piva = JRequest::getVar('username');
+
+        $query = $this->_db->getQuery(true)
+            ->select('u.id, u.username, u.email, c.cb_ateco, u.name')
+            ->from('#__users as u')
+            ->join('inner', '#__comprofiler AS c ON c.user_id = u.id')
+            ->where("u.username= '" . $piva . "'");
+
+        $this->_db->setQuery($query);
+
+        $result = $this->_db->loadAssoc();
+        echo isset($result) ? json_encode($result) : null;
+        $japp->close();
+
+    }
+
+
 }

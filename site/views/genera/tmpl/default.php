@@ -8,39 +8,45 @@ echo "<h1> Genera Coupon</h1>";
 
 
 ?>
-    <form action="<?php echo ('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
+    <form  id="form-genera-coupon" action="<?php echo ('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="username">Partita Iva:</label>
-        <div class="col-sm-9">
-            <input required placeholder="Partita IVA dell'azienda" type="text" class="form-control" id="username"
+        <label class="col-sm-3 col-form-label " for="username">Partita Iva:</label>
+        <div class="col-sm-6">
+            <input required placeholder="Partita IVA dell'azienda" type="number" class="form-control" id="username"
                    name="username">
+            <small id="piva-msg"> Inserisici la partita iva dell'azienda</small>
+        </div>
+        <div class="col-sm-3">
+           <button type="button" id="confirm_piva" class="btn btn-sm"> Conferma P. iva </button>
+           <button type="button" id="change_piva" class="btn btn-sm"> Reset </button>
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="ragioneSociale">Ragione Sociale:</label>
+        <label  class="col-sm-3 col-form-label disabled lbl_company_opt" for="ragioneSociale">Ragione Sociale:</label>
         <div class="col-sm-9">
-            <input placeholder="Ragione sociale dell'azienda" type="text" class="form-control" id="ragione_sociale"
+            <input required disabled placeholder="Ragione sociale dell'azienda" type="text" class="form-control company_opt" id="ragione_sociale"
                    name="ragione_sociale">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="email">Email:</label>
+        <label  disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email">Email:</label>
         <div class="col-sm-9">
-            <input placeholder="Email del referente aziendale" type="email" class="form-control" id="email"
+            <input required disabled  placeholder="Email del referente aziendale" type="email" class="form-control company_opt" id="email"
                    name="email">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="ateco">ATECO:</label>
+        <label  disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="ateco">ATECO:</label>
         <div class="col-sm-9">
-            <input placeholder="Codice ATECO" type="text" class="form-control" id="ateco" name="ateco">
+            <input disabled placeholder="Codice ATECO" type="text" class="form-control company_opt" id="ateco" name="ateco">
         </div>
     </div>
+        <hr>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="corso">Corso:</label>
+        <label  class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="corso">Corso:</label>
         <div class="col-sm-9">
-            <select required placeholder="Corso" type="text" class="form-control" id="gruppo_corsi" name="gruppo_corsi">
+            <select   required disabled required placeholder="Corso" type="text" class="form-control cpn_opt" id="gruppo_corsi" name="gruppo_corsi">
                 <?php foreach ($this->lista_corsi as $c) { ?>
                     <option value="<?php echo $c->value; ?>">
                         <?php echo $c->text ?>
@@ -51,16 +57,16 @@ echo "<h1> Genera Coupon</h1>";
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="qty">Quantità:</label>
+        <label   class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="qty">Quantità:</label>
         <div class="col-sm-9">
-            <input required placeholder="Numero di coupon da produrre" type="number" class="form-control" id="qty" min ="1"
+            <input class="cpn_opt" disabled required placeholder="Numero di coupon da generare" type="number" class="form-control" id="qty" min ="1"
                    name="qty">
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="vendor">Piattaforma:</label>
+        <label  class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="vendor">Piattaforma:</label>
         <div class="col-sm-9">
-            <select  required placeholder="Venditrice" class="form-control" id="vendor" name="vendor">
+            <select  disabled required placeholder="Venditrice" class="form-control cpn_opt" id="vendor" name="vendor">
                 <?php foreach ($this->societa_venditrici as $s) { ?>
                     <option value="<?php echo $s->value; ?>">
                         <?php echo $s->text ?>
@@ -70,32 +76,29 @@ echo "<h1> Genera Coupon</h1>";
             </select>
         </div>
     </div>
-<!--    <div class="form-group row">-->
-<!--        <label class="col-sm-3 col-form-label" for="username">Prefisso:</label>-->
-<!--        <div class="col-sm-9">-->
-<!--            <input placeholder="Prefisso Coupon (opzionale ma consigliato)" type="text" class="form-control"-->
-<!--                   id="prefisso_coupon"-->
-<!--                   name="prefisso_coupon">-->
-<!--        </div>-->
-<!--    </div>-->
     <div class="form-group row">
-        <div class="col-sm-3">  <label class="col-form-label" for="">Opzioni:</label></div>
+        <div class="col-sm-3">  <label class="col-form-label disabled lbl_cpn_opt" for="">Opzioni:</label></div>
 
-        <label class="col-sm-3 col-form-label" for="abilitato"><input type="checkbox" id="abilitato" name="abilitato">
+        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="abilitato"><input class="cpn_opt" disabled type="checkbox" id="abilitato" name="abilitato">
             Abilitati</label>
 
-        <label class="col-sm-3 col-form-label " for="stampatracciato"><input type="checkbox" id="stampatracciato"
+        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt " for="stampatracciato"><input  class="cpn_opt" disabled type="checkbox" id="stampatracciato"
                                                                             name="stampatracciato"> Stampa
             tracciato</label>
 
         <?php if($this->check_coupon_attestato == 1) {?>
-            <label class="col-sm-3 col-form-label" for="attestato"><input type="checkbox" id="attestato" name="attestato">
+            <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="attestato"><input class="cpn_opt" disabled type="checkbox" id="attestato" name="attestato">
                 Attestato</label>
         <?php } ?>
     </div>
     <div class="form-group">
-        <button id="btn-genera" type="submit" class="btn-block btn">Genera</button>
+        <button  id="btn-genera" type="submit" class="btn-block btn">Genera</button>
     </div>
 </form>
 
+<script type="application/javascript">
+    jQuery(document).ready(function() {
+        _generaCoupon.init();
+    });
 
+</script>
