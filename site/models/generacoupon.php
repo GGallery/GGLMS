@@ -99,7 +99,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['vendor']);
-            $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["vendor"]);
+            $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["id_piattaforma"]);
             $id_gruppo_societa = $info_societa["id"];
             $nome_societa = $info_societa["name"];
 
@@ -144,14 +144,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             //todo scommenta per attivare invio mail
             // send coupon
-//            if ($this->send_coupon_mail($coupons, $data["vendor"], $nome_societa) === false) {
+//            if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa) === false) {
 //                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 //            }
 //
 //            // send new credentials
 //            if ($new_societa) {
 //
-//                if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["vendor"]) === false) {
+//                if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["id_piattaforma"]) === false) {
 //                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 //                }
 //
@@ -246,7 +246,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // creo nuovo gruppo figlio di piattaforma e lo associo all'utente che ho appena creato
-            if (false === ($company_group_id = $this->_create_company_group($user_id, $data['ragione_sociale'], $data["vendor"])))
+            if (false === ($company_group_id = $this->_create_company_group($user_id, $data['ragione_sociale'], $data["id_piattaforma"])))
                 throw new Exception('Errore nella creazione del gruppo', E_USER_ERROR);
 
 

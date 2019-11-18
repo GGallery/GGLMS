@@ -14,8 +14,7 @@ _generaCoupon = (function ($, my) {
     function _checkUsername() {
 
         var piva = $("#username").val().toString();
-        if(piva)
-        {
+        if (piva) {
 
             // blocco piva
             $("#username").prop('readonly', true);
@@ -31,6 +30,7 @@ _generaCoupon = (function ($, my) {
             $.get("index.php?option=com_gglms&task=generacoupon.check_username", {username: piva},
                 function (data) {
 
+                    console.log(data);
 
                     if (data) {
                         //piva già esistente
@@ -39,6 +39,10 @@ _generaCoupon = (function ($, my) {
                         $("#ragione_sociale").val(data.name);
                         $("#email").val(data.email);
                         $("#ateco").val(data.cb_ateco);
+                        $("#vendor").val(data.cb_ateco);
+                        $("#id_piattaforma").val(data.id_piattaforma);
+
+
 
                     } else {
 
@@ -56,8 +60,7 @@ _generaCoupon = (function ($, my) {
 
                 }, 'json');
 
-        }
-        else {
+        } else {
 
             // partita iva non inserita!
             $("#piva-msg").show();

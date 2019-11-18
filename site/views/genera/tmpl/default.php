@@ -10,7 +10,6 @@ echo "<h1> Genera Coupon</h1>";
 ?>
 <form id="form-genera-coupon" action="<?php echo('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
-
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" for="username">Partita Iva:</label>
         <div class="col-sm-6">
@@ -23,7 +22,6 @@ echo "<h1> Genera Coupon</h1>";
             <button type="button" id="change_piva" class="btn btn-sm"> Reset</button>
         </div>
     </div>
-
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_company_opt" for="ragioneSociale">Ragione Sociale:</label>
         <div class="col-sm-9">
@@ -47,6 +45,19 @@ echo "<h1> Genera Coupon</h1>";
                    name="ateco">
         </div>
     </div>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label disabled lbl_company_opt" for="id_piattaforma">Piattaforma:</label>
+        <div class="col-sm-9">
+            <select disabled required placeholder="Piattaforma" class="form-control company_opt" id="id_piattaforma" name="id_piattaforma">
+                <?php foreach ($this->societa_venditrici as $s) { ?>
+                    <option value="<?php echo $s->value; ?>">
+                        <?php echo $s->text ?>
+                    </option>
+                <?php } ?>
+
+            </select>
+        </div>
+    </div>
     <hr>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="corso">Corso:</label>
@@ -62,21 +73,6 @@ echo "<h1> Genera Coupon</h1>";
             </select>
         </div>
     </div>
-
-    <div class="form-group row">
-        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="vendor">Piattaforma:</label>
-        <div class="col-sm-9">
-            <select disabled required placeholder="Piattaforma" class="form-control cpn_opt" id="vendor" name="vendor">
-                <?php foreach ($this->societa_venditrici as $s) { ?>
-                    <option value="<?php echo $s->value; ?>">
-                        <?php echo $s->text ?>
-                    </option>
-                <?php } ?>
-
-            </select>
-        </div>
-    </div>
-
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="qty">Quantità:</label>
         <div class="col-sm-9">

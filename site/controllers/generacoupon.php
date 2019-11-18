@@ -72,8 +72,17 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             ->where("u.username= '" . $piva . "'");
 
         $this->_db->setQuery($query);
-
         $result = $this->_db->loadAssoc();
+
+        if ($result) {
+            // prendo anche la piattaforma
+            $model_user = new gglmsModelUsers();
+            $id_piattaforma = $model_user->get_user_piattaforme($result["id"]);
+
+            $result["id_piattaforma"] = $id_piattaforma[0]->value;
+
+            }
+
         echo isset($result) ? json_encode($result) : null;
         $japp->close();
 
