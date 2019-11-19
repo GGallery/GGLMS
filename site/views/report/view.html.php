@@ -28,7 +28,7 @@ class gglmsViewReport extends JViewLegacy {
         $this->state = $this->get('State');
 
 
-        $this->usergroups = $this->get('Usergroups');
+        $this->usergroups = utilityHelper::getSocietaByUser();
 
         $this->corsi = $model->getCorsi(true);
 
@@ -48,14 +48,6 @@ class gglmsViewReport extends JViewLegacy {
 
         $modelReport  = $this->getModel('report');
         $this->header  = $modelReport->getSottoUnita($this->state->get('id_corso'));
-//
-//        $this->userReport = $this->get('User');
-
-//        DEBUGG::log($this->corsi, 'corsi');
-//        DEBUGG::log($this->header, 'header');
-
-
-//        DEBUGG::log($this->userReport, 'userReport');
 
         parent::display($tpl);
     }

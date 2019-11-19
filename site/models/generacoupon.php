@@ -46,8 +46,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $this->_config = new gglmsModelConfig();
 
         // valori per dropdown
-        $this->lista_corsi = $this->getGruppiCorsi();
-        $this->societa_venditrici = $this->getVenditrici();
+        $this->lista_corsi = utilityHelper::getGruppiCorsi();
+        $this->societa_venditrici = utilityHelper::getPiattaformeByUser();
 
     }
 
@@ -158,7 +158,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //            }
 
 
-
             // leggo da configurazione se creare o meno forum
             $genera_forum = $this->_config->getConfigValue('genera_forum');
             if ($genera_forum == 1) {
@@ -172,8 +171,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 }
 
             }
-
-
 
 
             $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
@@ -373,58 +370,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         return $id_piattaforma . '_' . uniqid(time());
     }
 
-    public function getGruppiCorsi()
-    {
-
-        // carico i gruppi dei corsi
-        try {
-            $_config = new gglmsModelConfig();
-            $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
-
-            $query = $this->_db->getQuery(true)
-                ->select('g.id as value, g.title as text')
-                ->from('#__usergroups as g')
-                ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
-
-            $this->_db->setQuery($query);
-            $corsi = $this->_db->loadObjectList();
-        } catch (Exception $e) {
-            DEBUGG::error($e, 'getGruppiCorsi');
-
-        }
-
-
-        return $corsi;
-    }
-
-    public function getVenditrici()
-    {
-
-        try {
-            $user = new gglmsModelUsers();
-            $Juser = JFactory::getUser();
-            $user->get_user($Juser->id);
-
-
-            if ($user->is_venditore($Juser->id)) {
-                $società_venditrici = $user->get_user_piattaforme($Juser->id);
-
-
-            } else {
-                $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
-            }
-
-            return $società_venditrici;
-        } catch (Exception $e) {
-
-            DEBUGG::error($e, 'getVenditrici');
-        }
-
-
-    }
-
 //////////////////////////////  MAIL   /////////////////////
-
 
     // MAIL COUPON
     public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa)
@@ -694,27 +640,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-//    public function _set_tutor_aziendale_forum_moderator($company_group_id, $company_forum_id)
-//    {
-//
-//        try {
-//            // tutor aziendale  moderatore forum
-//            $mu = new gglmsModelUsers();
-//
-//            $tutor_id = $mu->get_tutor_aziendale($company_group_id);
-//            $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
-//
-//
-//        } catch (Exception $e) {
-//            DEBUGG::error($e, '_set_forum_moderator');
-//            return false;
-//
-//
-//        }
-//
-//
-//    }
-
     public function _get_company_forum($company_group_id)
     {
 
@@ -856,6 +781,27 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
     }
+
+//    public function _set_tutor_aziendale_forum_moderator($company_group_id, $company_forum_id)
+//    {
+//
+//        try {
+//            // tutor aziendale  moderatore forum
+//            $mu = new gglmsModelUsers();
+//
+//            $tutor_id = $mu->get_tutor_aziendale($company_group_id);
+//            $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
+//
+//
+//        } catch (Exception $e) {
+//            DEBUGG::error($e, '_set_forum_moderator');
+//            return false;
+//
+//
+//        }
+//
+//
+//    }
 }
 
 

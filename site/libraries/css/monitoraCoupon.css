@@ -1,0 +1,25 @@
+.mc-main {
+    display: flex;
+    flex-direction: row;
+
+}
+
+.mc-main > div.filtri{
+    flex:0;
+    /*border: 2px solid green;*/
+    min-width: 400px;
+    padding: 10px;
+}
+
+.mc-main > div.table-container{
+    flex:1;
+    /*border: 2px solid mediumpurple;*/
+}
+
+
+
+@media (max-width: 768px) {
+
+
+}
+

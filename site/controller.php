@@ -48,6 +48,7 @@ class gglmsController extends JControllerLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/helpdesk.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/monitoraCoupon.css');
         if (file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');
 

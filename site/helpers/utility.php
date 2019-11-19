@@ -133,8 +133,6 @@ class utilityHelper {
         return  $res;
     }
 
-
-
     public static function setComponentParam($key, $value)    {
 
         $params = JComponentHelper::getParams('com_gglms');
@@ -155,8 +153,6 @@ class utilityHelper {
         }
     }
 
-
-
     public static function DISATTIVATOconvertiDurata($durata) {
         $m = floor(($durata % 3600) / 60);
         $s = ($durata % 3600) % 60;
@@ -164,5 +160,124 @@ class utilityHelper {
 
         return $result;
     }
-    
+
+    /////////////////////////////////////
+
+    // metodi per dropdown report, monitora coupon, generacoupon
+
+    public static function getGruppiCorsi()
+    {
+
+        // carico i gruppi dei corsi
+        try {
+            $_config = new gglmsModelConfig();
+            $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('g.id as value, g.title as text')
+                ->from('#__usergroups as g')
+                ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
+
+            $db->setQuery($query);
+            $corsi = $db->loadObjectList();
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'getGruppiCorsi');
+
+        }
+
+
+        return $corsi;
+    }
+
+    public static function getSocietaByUser()
+    {
+
+        try {
+
+            $Juser = JFactory::getUser();
+
+            $user = new gglmsModelUsers();
+            $user->get_user($Juser->id);
+
+
+            if ($user->is_tutor_piattaforma($Juser->id)) {
+
+                //  utente loggato  ha ruolo TUTOR PIATTAFORMA, prendo le scoieta figlie di piattaforma
+                $usergroups = $user->get_user_societa($Juser->id, false);
+
+
+            } else if ($user->is_tutor_aziendale($Juser->id)) {
+
+                // utente loggato ha ruolo di TUTOR AZIENDALE , prendo la sua società
+                $usergroups = $user->get_user_societa($Juser->id, true);
+
+            }
+
+
+            return $usergroups;
+
+        } catch (Exceptions $e) {
+//
+            DEBUGG::error($e, 'errore get userGroup ', 1);
+        }
+
+
+        // vecchia logica
+//        try {
+//            $query = $this->_db->getQuery(true);
+//            $query->select('config_value');
+//            $query->from('#__gg_configs');
+//            $query->where('config_key=\'id_gruppi_visibili\'');
+//
+//            $this->_db->setQuery($query);
+//            $usergroupsfromparams = $this->_db->loadResult();
+//
+//            $usergroupsfrompermessi = $this->get_report_view_permessi_gruppi();
+//
+//            $query = $this->_db->getQuery(true);
+//            $query->select('id, title');
+//            $query->from('#__usergroups AS u');
+//            if ($usergroupsfrompermessi != null) {
+//                $query->where('u.id in (' . $usergroupsfrompermessi . ') ');
+//            } else {
+//                $query->where('u.id in (' . $usergroupsfromparams . ') ');
+//            }
+//
+//            $this->_db->setQuery($query);
+//
+//            $usergroups = $this->_db->loadObjectList();
+//
+//            return $usergroups;
+//        } catch (exceptions $e) {
+//
+//            DEBUGG::error($e, 'errore get Contenuti unita', 1);
+//        }
+    }
+
+    public static  function getPiattaformeByUser(){
+        try {
+            $user = new gglmsModelUsers();
+            $Juser = JFactory::getUser();
+            $user->get_user($Juser->id);
+            $_japp =  JFactory::getApplication();
+
+
+            if ($user->is_venditore($Juser->id)) {
+                $societa_venditrici = $user->get_user_piattaforme($Juser->id);
+
+
+            } else {
+                $_japp->redirect(('index.php?option=com_gglms&view=genera'), $_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
+            }
+
+            return $societa_venditrici;
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, 'getVenditrici');
+        }
+    }
+
+
 }
