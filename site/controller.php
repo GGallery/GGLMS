@@ -37,6 +37,7 @@ class gglmsController extends JControllerLegacy
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/generaCoupon.js');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/monitoraCoupon.js');
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');

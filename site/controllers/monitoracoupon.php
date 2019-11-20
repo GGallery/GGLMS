@@ -42,11 +42,123 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     public function getcouponlist()
     {
 
-        $data = JRequest::get($_POST);
-        var_dump($data);
+        $filter_params = JRequest::get($_POST);
+        $data = $this->get_filterd_coupon_list($filter_params);
+
+        echo json_encode($data);
+        $this->_japp->close();
 
 
+    }
 
+
+    public function get_filterd_coupon_list($filter_params)
+    {
+
+
+        try {
+
+
+            $offset = $filter_params["offset"];
+            $limit = $filter_params["limit"];
+
+
+            // count totale senza limit
+            $total_count_query = $this->_db->getQuery(true)
+                ->select('count(*)')
+                ->from('#__gg_coupon AS c');
+
+            $total_count_query = $this->_filter_query($total_count_query, $filter_params);
+            $this->_db->setQuery($total_count_query);
+            $count = $this->_db->loadResult();
+
+
+            if ($count > 0) {
+
+
+                $query = $this->_db->getQuery(true)
+                    ->select("c.*, CONCAT(cm.cb_nome, ' ', cm.cb_cognome) as user , u.titolo as corso")
+                    ->from('#__gg_coupon AS c');
+
+
+                $query = $this->_filter_query($query, $filter_params);
+                $query->setlimit($offset, $limit);
+
+                $this->_db->setQuery($query);
+                $results = $this->_db->loadAssocList();
+
+
+            } else {
+
+                $results = array();
+            }
+
+
+            $results['rowCount'] = $count;
+            return $results;
+
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'error get_filterd_coupon_list', 0, 0, 0);
+
+        }
+
+
+    }
+
+
+    public function _filter_query($query, $params)
+    {
+        $id_gruppo_corso = $params['id_gruppo_corso'];
+        $id_gruppo_societa = $params['id_gruppo_azienda'];
+        $stato = $params['stato'];
+
+
+        // info corso
+        $query = $query->join('inner', '#__gg_usergroup_map AS gm ON c.id_gruppi = gm.idgruppo');
+        $query = $query->join('inner', '#__gg_unit AS u ON u.id = gm.idunita');
+
+        if ($id_gruppo_corso != -1) {
+            $query = $query->where('c.id_gruppi = ' . $id_gruppo_corso);
+        }
+
+        if ($id_gruppo_societa != -1) {
+            $query = $query->where('c.id_societa = ' . $id_gruppo_societa);
+        }
+
+        switch ($stato) {
+            case -1:
+                // qualsiasi
+                $query = $query->join('left', '#__comprofiler as cm on cm.id = c.id_utente');
+                break;
+
+            case 0:
+                // non assegnati ad utente
+                $query = $query->join('left', '#__comprofiler as cm on cm.id = c.id_utente');
+                $query = $query->where('c.id_utente is null');
+
+                break;
+
+
+            case 1:
+                // assegnati ad un utente
+                $query = $query->join('inner', '#__comprofiler as cm on cm.id = c.id_utente');
+
+                break;
+
+            case 2:
+                // scaduti = assegnati ad un utente e  data_utilizzo + durata < oggi
+                $query = $query->join('inner', '#__comprofiler as cm on cm.id = c.id_utente');
+                $query = $query->where('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() ');
+
+                break;
+
+        }
+
+
+      $query = $query->order('c.data_utilizzo DESC');
+//      $query = $query->order('c.id_utente');
+        return $query;
     }
 
 
