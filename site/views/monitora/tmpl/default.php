@@ -42,7 +42,13 @@ echo "<h1> Monitora Coupon</h1>"; ?>
                     <option value="2">Scaduti</option>
                 </select>
             </div>
-            <button type="button" id="btn_monitora_coupon" class="btn btn-primary">Aggiorna Dati</button>
+
+            <div class="form-group">
+                <label for="coupon">Cerca:</label>
+                <input placeholder="Cerca Coupon" class="" type="text" id="coupon" name="coupon">
+            </div>
+<!--            <button type="button" id="btn_monitora_coupon" class="btn btn-primary">Aggiorna Dati</button>-->
+            <button type="button" id="btn_export_csv" class="btn btn-primary">Esporta in CSV</button>
         </form>
     </div>
     <div class="data">
@@ -53,12 +59,7 @@ echo "<h1> Monitora Coupon</h1>"; ?>
             <span id="no-data-msg" >Non ci sono coupon per i filtri selezionati</span>
             <table id="coupon-table" class="table table-striped table-bordered" style="width:100%">
                 <thead>
-                <tr>
-                    <th>Coupon</th>
-                    <th>Utente</th>
-                    <th>Data Creazione</th>
-                    <th>Data Utilizzo</th>
-                    <th>Corso</th>
+                <tr class="header-row">
                 </tr>
                 </thead>
                 <tbody>
@@ -96,7 +97,7 @@ echo "<h1> Monitora Coupon</h1>"; ?>
     </div>
 
 </div>
-
+<div id="cover-spin"></div>
 
 <script type="application/javascript">
     jQuery(document).ready(function () {

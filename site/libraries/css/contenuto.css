@@ -1,4 +1,4 @@
-.jumper{
+.jumper {
     border-top: 1px dotted #61625D;
     cursor: pointer;
     float: left;
@@ -6,7 +6,8 @@
     padding-left: 5px;
     color: #424242;
 }
-.jumper:hover{
+
+.jumper:hover {
     background-color: #318BBC !important;
 }
 
@@ -19,14 +20,14 @@
 }
 
 #files li {
-background-image: url("../images/icona_file.jpg");
-background-position: left center;
-background-repeat: no-repeat;
-background-size: 110px auto;
-font-size: large;
-list-style: outside none none;
-margin: 0;
-padding: 30px 0 10px 100px;
+    background-image: url("../images/icona_file.jpg");
+    background-position: left center;
+    background-repeat: no-repeat;
+    background-size: 110px auto;
+    font-size: large;
+    list-style: outside none none;
+    margin: 0;
+    padding: 30px 0 10px 100px;
 }
 
 
@@ -52,14 +53,55 @@ padding: 30px 0 10px 100px;
 #panel_jumper {
     height: 300px;
     overflow-y: scroll;
-    margin-top: 5px;
+    margin-top: 42px;
 }
 
-#boxslide{
-    margin:0px !important;
+#boxslide {
+    margin: 0px !important;
     padding-left: 5px;
 }
 
-#boxvideo{
-    margin:0px !important;
+#boxvideo {
+    margin: 0px !important;
 }
+
+
+@media (min-width: 768px) {
+
+    /*DESKTOP*/
+    .layout-desktop {
+        display: none;
+    }
+
+    .mejs-overlay-play{
+        height: 100% !important;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    /*MOBILE*/
+    .layout-sm {
+        display: none;
+
+    }
+
+    .mejs-video {
+        height: 152px !important;
+        width: 100% !important;
+    }
+
+
+    #boxslide {
+        margin-top: 30px !important;
+
+    }
+
+    .mejs-overlay-play{
+        height: 100% !important;
+    }
+
+
+}
+

@@ -38,7 +38,6 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
     }
 
-
     public function getcouponlist()
     {
 
@@ -55,7 +54,6 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     public function get_filterd_coupon_list($filter_params)
     {
 
-
         try {
 
 
@@ -63,7 +61,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             $limit = $filter_params["limit"];
 
 
-            // count totale senza limit
+            // count totale senza limit per ottenere il numero di righe totali
             $total_count_query = $this->_db->getQuery(true)
                 ->select('count(*)')
                 ->from('#__gg_coupon AS c');
@@ -75,9 +73,8 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
             if ($count > 0) {
 
-
                 $query = $this->_db->getQuery(true)
-                    ->select("c.*, CONCAT(cm.cb_nome, ' ', cm.cb_cognome) as user , u.titolo as corso")
+                    ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome), cm.id) as user , u.titolo as corso")
                     ->from('#__gg_coupon AS c');
 
 
@@ -91,10 +88,12 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             } else {
 
                 $results = array();
+
             }
 
 
             $results['rowCount'] = $count;
+            $results['query'] = ((string)$query);
             return $results;
 
 
@@ -106,12 +105,12 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
     }
 
-
     public function _filter_query($query, $params)
     {
         $id_gruppo_corso = $params['id_gruppo_corso'];
         $id_gruppo_societa = $params['id_gruppo_azienda'];
         $stato = $params['stato'];
+        $coupon= $params['coupon'];
 
 
         // info corso
@@ -124,6 +123,10 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
         if ($id_gruppo_societa != -1) {
             $query = $query->where('c.id_societa = ' . $id_gruppo_societa);
+        }
+
+        if ($coupon != '') {
+            $query = $query->where("c.coupon like '%" . $coupon . "%'");
         }
 
         switch ($stato) {
@@ -156,10 +159,33 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         }
 
 
-      $query = $query->order('c.data_utilizzo DESC');
-//      $query = $query->order('c.id_utente');
+        $query = $query->order('c.data_utilizzo DESC');
         return $query;
     }
+
+
+    public function exportCsv()
+    {
+        $filter_params = JRequest::get($_POST);
+        $data = $this->get_filterd_coupon_list($filter_params);
+        $this->createCSV($data, $filter_params["columns"]);
+    }
+
+
+    public function createCSV($rows, $csv_columns)
+    {
+
+
+        // unset del totale delle righe perchè è al livello superiore rispetto all'array dei dati e non mi interessa esportatlo
+        unset($rows["rowCount"]);
+        // colonne da esportare
+        $csv_columns_list = explode(',', $csv_columns);
+
+        utilityHelper::_export_data_csv('monitora_coupon', $rows, $csv_columns_list);
+        $this->_japp->close();
+    }
+
+
 
 
 }

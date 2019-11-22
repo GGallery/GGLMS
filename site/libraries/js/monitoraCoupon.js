@@ -1,6 +1,6 @@
 _monitoraCoupon = (function ($, my) {
 
-        var loadreportoffset = 15; // qunti per pagina
+        var loadreportoffset = 15; // quanti per pagina
         var loadreportlimit = 0;
         var maxNofpages;
         var columns = [
@@ -25,22 +25,30 @@ _monitoraCoupon = (function ($, my) {
                 field: 'corso',
                 title: 'Corso'
             }
+
         ];
+
+        //per aggiungere una colonna basta aggiungere all'array columns
 
         function _init() {
 
-            console.log(' monitora coupon ready');
+            $.each(columns, function (i, item) {
 
-            // $('#example').DataTable();
-            $("#btn_monitora_coupon").click(_loadData);
+                $(".header-row").append('<th>' + item.title + '</th>')
+            });
 
+
+            $("#form-monitora-coupon select").change(_loadData);
+            $('#coupon').keyup(_delay(_loadData, 500));
+            // $("#btn_monitora_coupon").click(_loadData);
+
+            $("#btn_export_csv").click(loadCsv);
             $('.button-page').on('click', _pagination_click);
 
             _toggle_table(false);
 
 
         }
-
 
         function _loadData(sender) {
 
@@ -59,12 +67,15 @@ _monitoraCoupon = (function ($, my) {
                 id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
                 id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
                 stato: parseInt($("#stato_coupon").val()),
+                coupon: $("#coupon").val(),
                 limit: sender !== 'pagination' ? 0 : loadreportlimit,
                 offset: loadreportoffset
             };
 
 
-            $.when(jQuery.get("index.php?option=com_gglms&task=monitoracoupon.getcouponlist", param))
+            // show spinner
+            $('#cover-spin').show(0);
+            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.getcouponlist", param))
                 .done(function (data) {
 
                     data = JSON.parse(data);
@@ -87,10 +98,13 @@ _monitoraCoupon = (function ($, my) {
 
                 })
                 .fail(function (data) {
-                    // console.log('fail', data);
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
                 })
                 .then(function (data) {
                     // console.log('then', data);
+                    $('#cover-spin').hide(0);
                 });
         }
 
@@ -109,7 +123,6 @@ _monitoraCoupon = (function ($, my) {
 
             }
         }
-
 
         function _fill_grid(data) {
 
@@ -194,6 +207,35 @@ _monitoraCoupon = (function ($, my) {
                     $(this).addClass('active');
                     _loadData("pagination");
             }
+        }
+
+        function loadCsv() {
+
+
+            console.log('columns', columns);
+
+            var url = "index.php?option=com_gglms&task=monitoracoupon.exportCsv";
+            url = url + "&id_gruppo_azienda=" + $("#id_gruppo_azienda").val();
+            url = url + "&id_gruppo_corso=" + $("#id_gruppo_corso").val();
+            url = url + "&stato=" + $("#stato_coupon").val();
+            url = url + "&coupon=" + $("#coupon").val();
+            url = url + "&columns=" + columns.map(function (c) { // colonne da esportare
+                return c.field
+            }).toString();
+
+            location.href = url;
+
+        }
+
+        function _delay(callback, ms) {
+            var timer = 0;
+            return function () {
+                var context = this, args = arguments;
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    callback.apply(context, args);
+                }, ms || 0);
+            };
         }
 
 
