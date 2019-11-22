@@ -36,8 +36,7 @@ class gglmsController extends JControllerLegacy
 
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/generaCoupon.js');
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/monitoraCoupon.js');
+
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
@@ -46,10 +45,11 @@ class gglmsController extends JControllerLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/helpdesk.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/monitoraCoupon.css');
+
+
+
         if (file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');
 

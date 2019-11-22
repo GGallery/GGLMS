@@ -47,6 +47,8 @@ _monitoraCoupon = (function ($, my) {
 
             _toggle_table(false);
 
+            _loadData(null);
+
 
         }
 

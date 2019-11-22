@@ -3,6 +3,9 @@ _generaCoupon = (function ($, my) {
 
     function _init() {
 
+
+        console.log('genera Coupon ready');
+
         // $('#username').keyup(_delay(_checkUsername, 500));
         $('#confirm_piva').click(_checkUsername);
         $('#change_piva').click(reset);
@@ -41,7 +44,6 @@ _generaCoupon = (function ($, my) {
                         $("#ateco").val(data.cb_ateco);
                         $("#vendor").val(data.cb_ateco);
                         $("#id_piattaforma").val(data.id_piattaforma);
-
 
 
                     } else {
@@ -88,17 +90,6 @@ _generaCoupon = (function ($, my) {
 
 
     }
-
-    // function _delay(callback, ms) {
-    //     var timer = 0;
-    //     return function () {
-    //         var context = this, args = arguments;
-    //         clearTimeout(timer);
-    //         timer = setTimeout(function () {
-    //             callback.apply(context, args);
-    //         }, ms || 0);
-    //     };
-    // }
 
 
     // public methods

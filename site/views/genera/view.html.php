@@ -30,6 +30,8 @@ class gglmsViewGenera extends JViewLegacy
 
     function display($tpl = null)
     {
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/generaCoupon.js');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
 
         $couponCtrl = new gglmsControllerGeneraCoupon();
         $this->lista_corsi = $couponCtrl->generaCoupon->lista_corsi;
@@ -45,7 +47,6 @@ class gglmsViewGenera extends JViewLegacy
         // se == 1 si prende la durata standard
         // se == 0 specificare la durata per ogni coupon
         $this->specifica_durata = $_config->getConfigValue('specifica_durata_coupon');
-
 
         // Display the view
         parent::display($tpl);

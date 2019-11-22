@@ -35,10 +35,15 @@ class gglmsViewMonitora extends JViewLegacy
         JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/container-fluid.css');
 
+
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/monitoraCoupon.js');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/monitoraCoupon.css');
+
+
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
 
 
-        $this->societa=utilityHelper::getSocietaByUser();
+        $this->societa = utilityHelper::getSocietaByUser();
         $this->lista_corsi = utilityHelper::getGruppiCorsi();
 
 
