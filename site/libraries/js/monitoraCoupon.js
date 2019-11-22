@@ -133,8 +133,11 @@ _monitoraCoupon = (function ($, my) {
 
                 if (item.coupon) {
 
-                    var new_row = $('<tr></tr>');
+                    var new_row =  item.scaduto == 0 ? $('<tr></tr>') : $('<tr class="expired"></tr>');
+
+
                     $.each(columns, function (i, c) {
+
 
                         new_row.append('<td>' + item[c.field] + '</td>');
 

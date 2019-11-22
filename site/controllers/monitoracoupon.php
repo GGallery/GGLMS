@@ -74,7 +74,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             if ($count > 0) {
 
                 $query = $this->_db->getQuery(true)
-                    ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome), cm.id) as user , u.titolo as corso")
+                    ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome), cm.id) as user , u.titolo as corso, case when DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() then 1 else 0 END as scaduto")
                     ->from('#__gg_coupon AS c');
 
 
