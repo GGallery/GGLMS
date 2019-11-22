@@ -59,6 +59,8 @@ _generaCoupon = (function ($, my) {
                     $(".cpn_opt").prop('disabled', false);
                     $("label.lbl_cpn_opt").removeClass("disabled");
 
+                    $("#btn-genera").prop('disabled', false);
+
 
                 }, 'json');
 
@@ -87,6 +89,8 @@ _generaCoupon = (function ($, my) {
 
         $('#change_piva').hide();
         $("#confirm_piva").show();
+
+        $("#btn-genera").prop('disabled', true);
 
 
     }

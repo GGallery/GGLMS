@@ -118,7 +118,7 @@ echo "<h1> Genera Coupon</h1>";
         <?php } ?>
     </div>
     <div class="form-group">
-        <button id="btn-genera" type="submit" class="btn-block btn">Genera</button>
+        <button id="btn-genera" type="submit"  disabled class="btn-block btn">Genera</button>
     </div>
 </form>
 

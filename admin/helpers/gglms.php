@@ -122,20 +122,49 @@ class gglmsHelper
         $db = JFactory::getDBO();
 
         $contentid = $item['id'];
-        $categorie = explode(",", $item['categoria']);
+        $new_unit = $item['categoria'];
 
-        if (!$contentid)
+        if (!$contentid) {
             return false;
+        }
+
+        // categorie = new unit;
+
+        $query = $db->getQuery(true)
+            ->select('idunita')
+            ->from('#__gg_unit_map')
+            ->where("idcontenuto = '" . $contentid . "'");
+
+        $db->setQuery($query);
+        $current_unit = $db->loadResult();
+
+        if (isset($current_unit)) {
+
+            if ($current_unit != $new_unit) {
+
+                // contenuto già associato ad un'unita --> update del record
+                $query = "UPDATE  #__gg_unit_map SET idunita=" . $new_unit . " WHERE idcontenuto=" . $contentid;
+                $db->setQuery((string)$query);
+                $db->execute();
+            }
+
+        } else {
+
+            // nuovo contenuto
+            $query = "INSERT INTO #__gg_unit_map (idcontenuto, idunita) values ($contentid,$new_unit) "; // ON DUPLICATE KEY UPDATE idunita=" . $value;
+            $db->setQuery((string)$query);
+            $db->execute();
+
+        }
+
+
+        // se sto cambiando unità di appartenenza --> update
+        // altrimenti non tocco ste tabelle
 
 //        $query = "DELETE FROM #__gg_unit_map WHERE idcontenuto= $contentid";
 //        $db->setQuery((string) $query);
 //        $db->execute();
 
-        foreach ($categorie as $value) {
-            $query = "INSERT INTO #__gg_unit_map (idcontenuto, idunita) values ($contentid,$value) ON DUPLICATE KEY UPDATE idunita=" . $value;
-            $db->setQuery((string)$query);
-            $db->execute();
-        }
 
         return true;
     }
@@ -485,7 +514,7 @@ class gglmsHelper
             $db = JFactory::getDBO();
 
             $unitid = $item['id'];
-            $list_piattaforme =  $item['id_piattaforme_abilitate'];
+            $list_piattaforme = $item['id_piattaforme_abilitate'];
 
 
             $query_del = "DELETE FROM #__gg_piattaforma_corso_map WHERE id_unita = $unitid";
