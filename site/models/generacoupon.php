@@ -87,6 +87,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // se non esiste crea utente ( tutor ) legato alla company
             // esiste gia' l'username (P.iva) ?
             $user_id = $this->_check_username((string)$data['username']);
+
             $company_user = null;
             $new_societa = false;
 
@@ -96,6 +97,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
 
                 }
+            } else {
+                // se l'utente esiste già, la parte del from aziendale e disabilitata
+                // non mi arriva l'id piattaforma
+                // lo ricavo dall'utente partita iva
+                $model_user = new gglmsModelUsers();
+                $data["id_piattaforma"] = $model_user->get_user_piattaforme($user_id)[0]->value;
+                
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['vendor']);
