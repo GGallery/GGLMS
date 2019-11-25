@@ -103,7 +103,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 // lo ricavo dall'utente partita iva
                 $model_user = new gglmsModelUsers();
                 $data["id_piattaforma"] = $model_user->get_user_piattaforme($user_id)[0]->value;
-                
+
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['vendor']);
@@ -150,20 +150,25 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            //todo scommenta per attivare invio mail
-            // send coupon
-//            if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa) === false) {
-//                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-//            }
-//
-//            // send new credentials
-//            if ($new_societa) {
-//
-//                if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["id_piattaforma"]) === false) {
-//                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-//                }
-//
-//            }
+            // leggo da configurazione se mandare le mail con i coupon generati
+            $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
+            if ($send_mail == 1) {
+
+                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa) === false) {
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                }
+
+                // send new credentials
+                if ($new_societa) {
+
+                    if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["id_piattaforma"]) === false) {
+                        throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                    }
+
+                }
+
+
+            }
 
 
             // leggo da configurazione se creare o meno forum

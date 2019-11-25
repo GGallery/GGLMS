@@ -46,6 +46,9 @@
     <hr>
 
     <h2 style="text-align: center">GENERA COUPON</h2>
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('mail_coupon_acitve'); ?>
+    </div
 
     <div class="row-fluid">
         <?php echo $this->form->renderField('specifica_durata_coupon'); ?>

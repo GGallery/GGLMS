@@ -35,15 +35,8 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('campo_community_builder_controllo_cf'); ?>
             </div>
-
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('id_gruppo_societa'); ?>
-            </div>
             <div class="row-fluid">
                 <?php echo $this->form->renderField('id_gruppo_corsi'); ?>
-            </div>
-            <div class="row-fluid">
-                <?php echo $this->form->renderField('id_gruppi_visibili'); ?>
             </div>
             <div class="row-fluid">
                 <?php echo $this->form->renderField('id_gruppo_venditori'); ?>
