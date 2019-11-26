@@ -56,6 +56,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
+    // entry point
     public function insert_coupon($data)
     {
 
@@ -82,6 +83,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
+            $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
 
 
             // se non esiste crea utente ( tutor ) legato alla company
@@ -126,7 +128,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 // se abilitato -> dataabilitazione = now
 
-                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d)",
+                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d)",
                     $coupons[$i],
                     date('Y-m-d H:i:s', time()), //  time(), //creation_time
                     $data['abilitato'],
@@ -136,14 +138,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $data['attestato'],
                     $id_gruppo_societa,
                     $data['gruppo_corsi'],
-                    $data['stampatracciato']
+                    $data['stampatracciato'],
+                    $data['trial']
                 );
 
             }
 
 
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato) VALUES ' . join(',', $values);
+            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato, trial) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

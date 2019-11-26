@@ -51,6 +51,9 @@
                 <?php echo $this->form->renderField('id_gruppo_tutor_aziendale'); ?>
             </div>
             <div class="row-fluid">
+                <?php echo $this->form->renderField('id_gruppo_super_admin'); ?>
+            </div>
+            <div class="row-fluid">
                 <?php echo $this->form->renderField('campo_community_builder_nome'); ?>
             </div>
             <div class="row-fluid">
