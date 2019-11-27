@@ -162,7 +162,6 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-
     public function is_tutor_aziendale($id)
     {
 
@@ -172,7 +171,6 @@ class gglmsModelUsers extends JModelLegacy
         return in_array($id_gruppo_tutor_aziendale, $user_groups);
     }
 
-
     public function is_venditore($id)
     {
 
@@ -180,6 +178,15 @@ class gglmsModelUsers extends JModelLegacy
         $id_gruppo_venditori = $this->_config->getConfigValue('id_gruppo_venditori');
 
         return in_array($id_gruppo_venditori, $user_groups);
+
+    }
+
+    public function is_user_superadmin($id){
+
+        $id_gruppo_superadmin = $this->_config->getConfigValue('id_gruppo_super_admin');
+        $user_groups = JAccess::getGroupsByUser($id, false);
+        return in_array($id_gruppo_superadmin, $user_groups);
+
 
     }
 
@@ -371,6 +378,8 @@ class gglmsModelUsers extends JModelLegacy
             DEBUGG::error($e, 'get_tutor_aziendale');
         }
     }
+
+
 
     ////////////////
     public function set_user_forum_moderator($user_id, $forum_id)

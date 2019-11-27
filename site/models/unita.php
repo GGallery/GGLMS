@@ -607,7 +607,7 @@ class gglmsModelUnita extends JModelLegacy
     public function get_gruppo_accesso_corso($id_corso)
     {
 
-        try{
+        try {
 
 
             $query = $this->_db->getQuery(true);
@@ -617,9 +617,8 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
             $corso_info = $this->_db->loadObject();
 
-            if($corso_info->is_corso == 0 || $corso_info->accesso == false || $corso_info->accesso!= 'gruppo' )
-            {
-               // todo accesso corso throw rutome exception (?)
+            if ($corso_info->is_corso == 0 || $corso_info->accesso == false || $corso_info->accesso != 'gruppo') {
+                // todo accesso corso throw rutome exception (?)
                 return null;
             }
 
@@ -639,13 +638,64 @@ class gglmsModelUnita extends JModelLegacy
             $id_gruppo_corso = $this->_db->loadResult();
 
             return $id_gruppo_corso;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             DEBUGG::error($e, 'get_gruppo_accesso_corso');
         }
 
 
     }
+
+    public function get_corso_from_gruppo($id_gruppo_corso)
+    {
+
+
+        try {
+            $query = $this->_db->getQuery(true);
+            $query->select('u.*')
+                ->from('#__usergroups as g')
+                ->join('inner', '#__gg_usergroup_map AS m ON g.id = m.idgruppo')
+                ->join('inner', '#__gg_unit AS u ON u.id = m.idunita')
+                ->where('g.id=' . $id_gruppo_corso)
+                ->setLimit('1');
+
+            $this->_db->setQuery($query);
+
+            if (false === ($corso_obj = $this->_db->loadObject('gglmsModelUnita'))) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $corso_obj;
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_corso_from_gruppo');
+        }
+
+
+    }
+
+    public function set_corso_completed($id_gruppo_corso)
+    {
+
+        try {
+
+            $corso_obj = $this->get_corso_from_gruppo($id_gruppo_corso);
+            $all_contents = $corso_obj->getAllContentsByCorso();
+
+            $content_model = new gglmsModelContenuto();
+            foreach ($all_contents as $c) {
+                $content_obj = $content_model->getContenuto($c["id"]);
+                $content_obj->set_content_as_passed();
+            }
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'set_corso_completed');
+
+
+        }
+
+
+    }
+
+
 }
 

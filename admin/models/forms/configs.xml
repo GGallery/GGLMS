@@ -79,8 +79,19 @@
                 description="Use Ctrl per selezionare più gruppi"
                 required=""
         >
+        </field>
+
+        <field
+                name="id_gruppo_super_admin"
+                type="listagruppi"
+                class="inputbox"
+                label="Gruppo super admin"
+                description="Use Ctrl per selezionare più gruppi"
+                required=""
+        >
 
         </field>
+
 
         <field
                 name="nomenclatura_unita"
@@ -466,9 +477,6 @@
         />
 
 
-
-
-
         <!-- F I N E     ATTESTATO-->
 
         <!-- I N I Z I O BREADCRUMB-->
@@ -614,8 +622,6 @@
         </field>
 
 
-
-
         <field
                 name="specifica_durata_coupon"
                 type="textarea"
@@ -695,7 +701,6 @@
                 cols="5"
                 filter="raw"
         />
-
 
 
         <!--inizio rinnova coupon-->
@@ -786,10 +791,6 @@
                 cols="5"
                 filter="raw"
         />
-
-
-
-
 
 
         <!--F I N E COUPON -->

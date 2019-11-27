@@ -4,6 +4,12 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.1
+ - G: coupon trial
+
+4.0.0 
+  - G: accesso gruppi, ottimizzazione report, aggiunto monitora coupon, form genera coupon frontend, tutor aziendali, tutor piattaforma, venditori, società figlie di piattaforma
+  
 3.8.50
   - F: gestita iscrizione tramite coupon non solo al gruppo-corso, ma anche al gruppo-azienda
 

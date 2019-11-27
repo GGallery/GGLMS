@@ -48,7 +48,8 @@ echo "<h1> Genera Coupon</h1>";
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_company_opt" for="id_piattaforma">Piattaforma:</label>
         <div class="col-sm-9">
-            <select disabled required placeholder="Piattaforma" class="form-control company_opt" id="id_piattaforma" name="id_piattaforma">
+            <select disabled required placeholder="Piattaforma" class="form-control company_opt" id="id_piattaforma"
+                    name="id_piattaforma">
                 <?php foreach ($this->societa_venditrici as $s) { ?>
                     <option value="<?php echo $s->value; ?>">
                         <?php echo $s->text ?>
@@ -117,8 +118,19 @@ echo "<h1> Genera Coupon</h1>";
                 Attestato</label>
         <?php } ?>
     </div>
+    <?php if ($this->show_trial == 1) { ?>
+    <div class="form-group row">
+        <div class="col-sm-3"><label class="col-form-label disabled lbl_cpn_opt" for="">Trial:</label></div>
+
+        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="trial"><input class="cpn_opt" disabled
+                                                                                           type="checkbox"
+                                                                                           id="trial"
+                                                                                           name="trial">
+            Trial</label>
+        <?php } ?>
+    </div>
     <div class="form-group">
-        <button id="btn-genera" type="submit"  disabled class="btn-block btn">Genera</button>
+        <button id="btn-genera" type="submit" disabled class="btn-block btn">Genera</button>
     </div>
 </form>
 

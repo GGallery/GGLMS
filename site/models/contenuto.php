@@ -622,5 +622,67 @@ class gglmsModelContenuto extends JModelLegacy
     }
 
 
+    public function set_content_as_passed()
+    {
+
+        $stato_model = new gglmsModelStatoContenuto();
+
+//        var_dump($this->_userid);
+//        die();
+        switch ($this->tipologia) {
+
+            case 7:
+                // QUIZ
+                $quiz_obj = $this->get_quiz_info($this->id_quizdeluxe);
+                $stato_model->setStatoQuiz($quiz_obj, (int)$this->_userid);
+
+                break;
+
+            default:
+
+
+                $tmp = new stdClass();
+                $tmp->scoid = $this->id;
+                $tmp->userid = (int)$this->_userid;
+
+                //ultima visualizzazione
+                $tmp->varName = 'cmi.core.last_visit_date';
+                $tmp->varValue = date('Y-m-d');
+                $stato_model->setStato($tmp);
+
+                //contatore
+                $tmp->varName = 'cmi.core.lesson_status';
+                $tmp->varValue = ('completed');
+                $stato_model->setStato($tmp);
+
+
+                break;
+
+
+        }
+
+
+    }
+
+
+    public function get_quiz_info($quiz_id)
+    {
+
+        $query = $this->_db->getQuery(true)
+            ->select('*')
+            ->from('#__quiz_t_quiz')
+            ->where('c_id =' . (int)$quiz_id);
+
+
+        $this->_db->setQuery($query);
+        $quiz_info = $this->_db->loadAssoc();
+
+
+        return $quiz_info;
+
+
+    }
+
+
 }
 

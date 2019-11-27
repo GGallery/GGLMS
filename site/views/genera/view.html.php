@@ -27,6 +27,8 @@ class gglmsViewGenera extends JViewLegacy
     public $societa_venditrici;
     public $check_coupon_attestato;
     public $is_durata_standard;
+    public $show_trial = 0;
+
 
     function display($tpl = null)
     {
@@ -47,6 +49,14 @@ class gglmsViewGenera extends JViewLegacy
         // se == 1 si prende la durata standard
         // se == 0 specificare la durata per ogni coupon
         $this->specifica_durata = $_config->getConfigValue('specifica_durata_coupon');
+
+        $user = JFactory::getUser();
+        $user_model = new gglmsModelUsers();
+        $is_super_admin = $user_model->is_user_superadmin($user->id);
+        if ($is_super_admin == 1) {
+            $this->show_trial = 1;
+        }
+
 
         // Display the view
         parent::display($tpl);
