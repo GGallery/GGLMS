@@ -49,6 +49,24 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $data = JRequest::get($_POST);
             $this->generaCoupon->insert_coupon($data);
 
+            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
+
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, 'generaCoupon');
+        }
+        $this->_japp->close();
+    }
+
+
+    public function api_genera_coupon()
+    {
+        try {
+
+            $data = JRequest::get($_POST);
+            $id_iscrizione = $this->generaCoupon->insert_coupon($data);
+
+            return $id_iscrizione;
 
         } catch (Exception $e) {
 
@@ -81,7 +99,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             $result["id_piattaforma"] = $id_piattaforma[0]->value;
 
-            }
+        }
 
         echo isset($result) ? json_encode($result) : null;
         $japp->close();

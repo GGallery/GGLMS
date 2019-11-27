@@ -189,8 +189,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
-
+            return $id_iscrizione;
 
         } catch (Exception $ex) {
 

@@ -278,9 +278,10 @@ class utilityHelper
             $user->get_user($Juser->id);
 
 
-            if ($user->is_tutor_piattaforma($Juser->id)) {
+            if ($user->is_tutor_piattaforma($Juser->id) || $user->is_user_superadmin($Juser->id) ) {
 
                 //  utente loggato  ha ruolo TUTOR PIATTAFORMA, prendo le scoieta figlie di piattaforma
+                // lo stesso se è super admin
                 $usergroups = $user->get_user_societa($Juser->id, false);
 
 
@@ -290,6 +291,7 @@ class utilityHelper
                 $usergroups = $user->get_user_societa($Juser->id, true);
 
             }
+
 
 
             return $usergroups;
