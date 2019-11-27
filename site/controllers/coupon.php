@@ -33,6 +33,7 @@ class gglmsControllerCoupon extends JControllerLegacy
     public function check_coupon()
     {
 
+
         $japp = JFactory::getApplication();
 
         $coupon = JRequest::getVar('coupon');
@@ -81,6 +82,16 @@ class gglmsControllerCoupon extends JControllerLegacy
                 }
 
             }
+
+            // manage TRIAL, se il coupon è trial sblocco tutti i contenuti
+
+            if ($dettagli_coupon["trial"] == 1) {
+
+                $unita_model = new gglmsModelUnita();
+                $unita_model->set_corso_completed($dettagli_coupon["id_gruppi"]);
+
+            }
+
         }
 
         echo json_encode($results);
@@ -143,7 +154,7 @@ class gglmsControllerCoupon extends JControllerLegacy
                     // tutti i controlli superati, rinnova coupon
                     if ($model->rinnova_coupon($coupon)) {
                         $results['valido'] = 1;
-                        $results['report'] = "<p class='alert-success alert'>" .  $this->_params->get('messaggio_rinnovo_success') . "</p>";
+                        $results['report'] = "<p class='alert-success alert'>" . $this->_params->get('messaggio_rinnovo_success') . "</p>";
                     }
 
                 }

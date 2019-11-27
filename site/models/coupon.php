@@ -81,6 +81,8 @@ class gglmsModelcoupon extends JModelLegacy
                     ->where('c.data_abilitazione < NOW()');
 
             } else {
+
+                // caso rinnovo
                 $query = $this->_db->getQuery(true)
                     ->select('*')
                     ->from('#__gg_coupon as c')
@@ -95,6 +97,7 @@ class gglmsModelcoupon extends JModelLegacy
             $this->_coupon = empty($results) ? array() : $results;
 
         } catch (Exception $e) {
+
         }
         return $this->_coupon;
     }
