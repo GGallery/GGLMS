@@ -32,6 +32,10 @@ class gglmsViewGenera extends JViewLegacy
 
     function display($tpl = null)
     {
+        // scripts per input text venditori  filtrato
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/typeahead.js');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/typeahead.css');
+
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/generaCoupon.js');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/generaCoupon.css');
 

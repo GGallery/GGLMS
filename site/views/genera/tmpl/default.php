@@ -8,7 +8,7 @@ echo "<h1> Genera Coupon</h1>";
 
 
 ?>
-<form id="form-genera-coupon" action="<?php echo('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
+<form autocomplete="off" id="form-genera-coupon" action="<?php echo('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" for="username">Partita Iva:</label>
@@ -93,6 +93,15 @@ echo "<h1> Genera Coupon</h1>";
             </div>
         </div>
     <?php } ?>
+
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="venditore">Venditore:</label>
+        <div class="col-sm-9">
+            <input class="cpn_opt typeahead" disabled placeholder="Venditore di riferimento" type="text"
+                   class="form-control" id="venditore"
+                   name="venditore">
+        </div>
+    </div>
     <div class="form-group row">
         <div class="col-sm-3"><label class="col-form-label disabled lbl_cpn_opt" for="">Opzioni:</label></div>
 
@@ -123,9 +132,9 @@ echo "<h1> Genera Coupon</h1>";
         <div class="col-sm-3"><label class="col-form-label disabled lbl_cpn_opt" for="">Trial:</label></div>
 
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="trial"><input class="cpn_opt" disabled
-                                                                                           type="checkbox"
-                                                                                           id="trial"
-                                                                                           name="trial">
+                                                                                       type="checkbox"
+                                                                                       id="trial"
+                                                                                       name="trial">
             Trial</label>
         <?php } ?>
     </div>

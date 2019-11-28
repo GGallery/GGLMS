@@ -24,6 +24,10 @@ _monitoraCoupon = (function ($, my) {
             {
                 field: 'corso',
                 title: 'Corso'
+            },
+            {
+                field: 'venditore',
+                title: 'Venditore'
             }
 
         ];
@@ -81,7 +85,7 @@ _monitoraCoupon = (function ($, my) {
                 .done(function (data) {
 
                     data = JSON.parse(data);
-                    // console.log('done', data);
+                     // console.log('done', data);
 
 
                     _resetGridaAndPagination(data['rowCount']);

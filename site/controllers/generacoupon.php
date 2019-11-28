@@ -75,11 +75,10 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         $this->_japp->close();
     }
 
-
+    // usato in form genera coupon frontend
     public function check_username()
     {
 
-        // usato in form genera coupon frontend
         $japp = JFactory::getApplication();
         $piva = JRequest::getVar('username');
 
@@ -106,5 +105,34 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
+    // usato in form genera coupon frontend
+    public function load_matching_venditori_list()
+    {
+
+        $japp = JFactory::getApplication();
+        $venditore = JRequest::getVar('query');
+
+        $query = $this->_db->getQuery(true)
+            ->select('c.venditore')
+            ->from('#__gg_coupon as c')
+            ->where("c.venditore like '%" . $venditore . "%'");
+
+
+        $this->_db->setQuery($query);
+        $list = $this->_db->loadAssocList();
+
+        $result = [];
+        foreach ($list as $v) {
+
+            array_push($result, $v["venditore"]);
+
+        }
+
+
+        echo isset($result) ? json_encode($result) : null;
+        $japp->close();
+
+
+    }
 
 }

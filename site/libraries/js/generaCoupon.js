@@ -2,11 +2,24 @@ _generaCoupon = (function ($, my) {
 
 
     function _init() {
-
-
         console.log('genera Coupon ready');
 
-        // $('#username').keyup(_delay(_checkUsername, 500));
+        $('#venditore').typeahead({
+            source: function (query, result) {
+                $.ajax({
+                    url: "index.php?option=com_gglms&task=generacoupon.load_matching_venditori_list",
+                    data: 'query=' + query,
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        result($.map(data, function (item) {
+                            return item;
+                        }));
+                    }
+                });
+            }
+        });
+
         $('#confirm_piva').click(_checkUsername);
         $('#change_piva').click(reset);
 
@@ -92,9 +105,10 @@ _generaCoupon = (function ($, my) {
 
         $("#btn-genera").prop('disabled', true);
 
+        $("#venditore").val("");
+
 
     }
-
 
     // public methods
     my.init = _init;
