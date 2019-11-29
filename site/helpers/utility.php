@@ -242,7 +242,7 @@ class utilityHelper
     public static function getGruppiCorsi()
     {
 
-        // carico i gruppi dei corsi
+        // carico i gruppi dei corsi, filtrati per piattaforma
         try {
             $_config = new gglmsModelConfig();
             $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
@@ -253,7 +253,13 @@ class utilityHelper
                 ->from('#__usergroups as g')
                 ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
-                ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
+                ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
+                ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
+                ->where("ud.dominio='" . DOMINIO . "'");
+
+//            var_dump((string)$query);
+//            die();
 
             $db->setQuery($query);
             $corsi = $db->loadObjectList();
