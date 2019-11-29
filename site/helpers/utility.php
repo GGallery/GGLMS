@@ -242,7 +242,7 @@ class utilityHelper
     public static function getGruppiCorsi()
     {
 
-        // carico i gruppi dei corsi
+        // carico i gruppi dei corsi, filtrati per piattaforma
         try {
             $_config = new gglmsModelConfig();
             $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
@@ -253,7 +253,13 @@ class utilityHelper
                 ->from('#__usergroups as g')
                 ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
-                ->where(" g.parent_id =" . $id_gruppo_accesso_corsi);
+                ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
+                ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
+                ->where("ud.dominio='" . DOMINIO . "'");
+
+//            var_dump((string)$query);
+//            die();
 
             $db->setQuery($query);
             $corsi = $db->loadObjectList();
@@ -278,9 +284,10 @@ class utilityHelper
             $user->get_user($Juser->id);
 
 
-            if ($user->is_tutor_piattaforma($Juser->id)) {
+            if ($user->is_tutor_piattaforma($Juser->id) || $user->is_user_superadmin($Juser->id)) {
 
                 //  utente loggato  ha ruolo TUTOR PIATTAFORMA, prendo le scoieta figlie di piattaforma
+                // lo stesso se è super admin
                 $usergroups = $user->get_user_societa($Juser->id, false);
 
 
@@ -339,15 +346,16 @@ class utilityHelper
             $Juser = JFactory::getUser();
             $user->get_user($Juser->id);
             $_japp = JFactory::getApplication();
-
+            $societa_venditrici = [];
 
             if ($user->is_venditore($Juser->id)) {
                 $societa_venditrici = $user->get_user_piattaforme($Juser->id);
 
 
-            } else {
-                $_japp->redirect(('index.php?option=com_gglms&view=genera'), $_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
             }
+//            else {
+//                $_japp->redirect(('index.php?option=com_gglms&view=genera'), $_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
+//            }
 
             return $societa_venditrici;
         } catch (Exception $e) {

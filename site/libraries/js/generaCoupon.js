@@ -2,11 +2,28 @@ _generaCoupon = (function ($, my) {
 
 
     function _init() {
-
-
         console.log('genera Coupon ready');
+        console.log($('#id_piattaforma').val());
 
-        // $('#username').keyup(_delay(_checkUsername, 500));
+
+        $('#venditore').typeahead({
+            source: function (txt_venditore, result) {
+
+                console.log($('#id_piattaforma').val());
+                $.ajax({
+                    url: "index.php?option=com_gglms&task=generacoupon.load_matching_venditori_list",
+                    data: {txt_venditore: txt_venditore, id_piattaforma: $('#id_piattaforma').val()},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        result($.map(data, function (item) {
+                            return item;
+                        }));
+                    }
+                });
+            }
+        });
+
         $('#confirm_piva').click(_checkUsername);
         $('#change_piva').click(reset);
 
@@ -92,9 +109,10 @@ _generaCoupon = (function ($, my) {
 
         $("#btn-genera").prop('disabled', true);
 
+        $("#venditore").val("");
+
 
     }
-
 
     // public methods
     my.init = _init;

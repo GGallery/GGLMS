@@ -49,6 +49,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $data = JRequest::get($_POST);
             $this->generaCoupon->insert_coupon($data);
 
+            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
 
         } catch (Exception $e) {
 
@@ -58,10 +59,27 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     }
 
 
+    public function api_genera_coupon()
+    {
+        try {
+
+            $data = JRequest::get($_POST);
+            // todo iviare in response id_iscrizione da postman vedo la pagina di login
+            $id_iscrizione = $this->generaCoupon->insert_coupon($data);
+
+            return json_encode($id_iscrizione);
+
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, 'generaCoupon');
+        }
+        $this->_japp->close();
+    }
+
+    // usato in form genera coupon frontend
     public function check_username()
     {
 
-        // usato in form genera coupon frontend
         $japp = JFactory::getApplication();
         $piva = JRequest::getVar('username');
 
@@ -81,12 +99,40 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             $result["id_piattaforma"] = $id_piattaforma[0]->value;
 
-            }
+        }
 
         echo isset($result) ? json_encode($result) : null;
         $japp->close();
 
     }
 
+    // usato in form genera coupon frontend
+    public function load_matching_venditori_list()
+    {
+
+        $japp = JFactory::getApplication();
+        $venditore = JRequest::getVar('txt_venditore');
+        $id_piattaforma = JRequest::getVar('id_piattaforma');
+
+        // filtro i venditori anche  per piattaforma
+        $query = $this->_db->getQuery(true)
+            ->select('c.venditore')
+            ->from('#__gg_coupon as c')
+            ->where("c.venditore like '%" . $venditore . "%'")
+            ->where("LEFT(c.id_iscrizione, 2) = '" . $id_piattaforma . "'");
+
+        $this->_db->setQuery($query);
+        $list = $this->_db->loadAssocList();
+
+        $result = [];
+        foreach ($list as $v) {
+            array_push($result, $v["venditore"]);
+        }
+
+        echo isset($result) ? json_encode($result) : null;
+        $japp->close();
+
+
+    }
 
 }

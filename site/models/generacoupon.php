@@ -84,6 +84,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
+            $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
 
 
             // se non esiste crea utente ( tutor ) legato alla company
@@ -108,7 +109,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             }
 
-            $id_iscrizione = $this->_generate_id_iscrizione($data['vendor']);
+            $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
             $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["id_piattaforma"]);
             $id_gruppo_societa = $info_societa["id"];
             $nome_societa = $info_societa["name"];
@@ -128,7 +129,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 // se abilitato -> dataabilitazione = now
 
-                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d)",
+                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s')",
                     $coupons[$i],
                     date('Y-m-d H:i:s', time()), //  time(), //creation_time
                     $data['abilitato'],
@@ -139,14 +140,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $id_gruppo_societa,
                     $data['gruppo_corsi'],
                     $data['stampatracciato'],
-                    $data['trial']
+                    $data['trial'],
+                    $data['venditore']
                 );
 
             }
 
 
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato, trial) VALUES ' . join(',', $values);
+            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato, trial, venditore) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
@@ -157,7 +159,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
             if ($send_mail == 1) {
 
-                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa) === false) {
+                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa, $id_gruppo_societa) === false) {
                     throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                 }
 
@@ -189,8 +191,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
 
-            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
-
+            return $id_iscrizione;
 
         } catch (Exception $ex) {
 
@@ -318,6 +319,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         return isset($results[0]) ? $results[0] : null;
     }
 
+
     private function _generate_pwd($l = 8)
     {
         return chr(65 + rand(0, 1) * 32 + rand(0, 25)) . ($l ? $this->_generate_pwd(--$l) : '');
@@ -389,11 +391,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //////////////////////////////  MAIL   /////////////////////
 
     // MAIL COUPON
-    public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa)
+    public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa, $id_gruppo_societa)
     {
 
-        // get recipients --> tutor piattaforma (cc) + utente loggato
-        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma))) {
+        // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
+        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa))) {
             $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non ci sono tutor piattaforma configurati per questa piattaforma', 'Error'));
 
         }
@@ -411,11 +413,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
 
 
+
+
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients["to"]->email);
         $mailer->addCc($recipients["cc"]);
-        $mailer->setSubject('Coupon corso ' . $this->_info_corso->titolo);
+        $mailer->setSubject('Coupon corso ' . $this->_info_corso["titolo"]);
 
 
         $smarty = new EasySmarty();
@@ -461,10 +465,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function get_coupon_mail_recipients($id_piattaforma)
+    public function get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa)
     {
 
-        // TO = utente loggato = venditore
+        // TO = tutor aziendale
         // CC = tutor di piattaforma
 
         // utente loggato
@@ -478,8 +482,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
             array_push($cc, $this->get_user_info($tutor_id, 'email'));
         }
 
-        $to->email = $this->get_user_info($this->_userid, 'email');
-        $to->name = $this->get_user_info($this->_userid, 'name');
+        // TODO il campo to to deve essere al tutor aziendale
+
+        $tutor_az = $user->get_tutor_aziendale($id_gruppo_societa);
+        $to->email = $this->get_user_info($tutor_az, 'email');
+        $to->name = $this->get_user_info($tutor_az, 'name');
+
+//        $to->email = $this->get_user_info($this->_userid, 'email');
+//        $to->name = $this->get_user_info($this->_userid, 'name');
 
 
         $result = array('to' => $to, 'cc' => $cc);
@@ -552,6 +562,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
     // MAIL REGISTRAZIONE NUOVA SOCIETA'
+
     public function send_new_company_user_mail($company_user, $nome_societa, $id_piattaforma)
     {
 
@@ -574,6 +585,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients);
+        $mailer->setSubject('Registrazione  ' .  $info_piattaforma["name"]);
 
 
         $smarty = new EasySmarty();
