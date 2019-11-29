@@ -62,15 +62,13 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     public function api_genera_coupon()
     {
         try {
-            $input = JFactory::getApplication()->input;
-            $data = JRequest::get($_POST);
 
-//
+            $data = JRequest::get($_POST);
             // todo iviare in response id_iscrizione da postman vedo la pagina di login
             $id_iscrizione = $this->generaCoupon->insert_coupon($data);
-//
+
             return json_encode($id_iscrizione);
-//
+
         } catch (Exception $e) {
 
             DEBUGG::error($e, 'generaCoupon');
