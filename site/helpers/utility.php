@@ -278,7 +278,7 @@ class utilityHelper
             $user->get_user($Juser->id);
 
 
-            if ($user->is_tutor_piattaforma($Juser->id) || $user->is_user_superadmin($Juser->id) ) {
+            if ($user->is_tutor_piattaforma($Juser->id) || $user->is_user_superadmin($Juser->id)) {
 
                 //  utente loggato  ha ruolo TUTOR PIATTAFORMA, prendo le scoieta figlie di piattaforma
                 // lo stesso se è super admin
@@ -291,7 +291,6 @@ class utilityHelper
                 $usergroups = $user->get_user_societa($Juser->id, true);
 
             }
-
 
 
             return $usergroups;
@@ -341,15 +340,16 @@ class utilityHelper
             $Juser = JFactory::getUser();
             $user->get_user($Juser->id);
             $_japp = JFactory::getApplication();
-
+            $societa_venditrici = [];
 
             if ($user->is_venditore($Juser->id)) {
                 $societa_venditrici = $user->get_user_piattaforme($Juser->id);
 
 
-            } else {
-                $_japp->redirect(('index.php?option=com_gglms&view=genera'), $_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
             }
+//            else {
+//                $_japp->redirect(('index.php?option=com_gglms&view=genera'), $_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
+//            }
 
             return $societa_venditrici;
         } catch (Exception $e) {

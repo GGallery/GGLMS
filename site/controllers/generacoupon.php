@@ -62,12 +62,15 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     public function api_genera_coupon()
     {
         try {
-
+            $input = JFactory::getApplication()->input;
             $data = JRequest::get($_POST);
+
+//
+            // todo iviare in response id_iscrizione da postman vedo la pagina di login
             $id_iscrizione = $this->generaCoupon->insert_coupon($data);
-
-            return $id_iscrizione;
-
+//
+            return json_encode($id_iscrizione);
+//
         } catch (Exception $e) {
 
             DEBUGG::error($e, 'generaCoupon');
@@ -110,24 +113,23 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
-        $venditore = JRequest::getVar('query');
+        $venditore = JRequest::getVar('txt_venditore');
+        $id_piattaforma = JRequest::getVar('id_piattaforma');
 
+        // filtro i venditori anche  per piattaforma
         $query = $this->_db->getQuery(true)
             ->select('c.venditore')
             ->from('#__gg_coupon as c')
-            ->where("c.venditore like '%" . $venditore . "%'");
-
+            ->where("c.venditore like '%" . $venditore . "%'")
+            ->where("LEFT(c.id_iscrizione, 2) = '" . $id_piattaforma . "'");
 
         $this->_db->setQuery($query);
         $list = $this->_db->loadAssocList();
 
         $result = [];
         foreach ($list as $v) {
-
             array_push($result, $v["venditore"]);
-
         }
-
 
         echo isset($result) ? json_encode($result) : null;
         $japp->close();

@@ -3,12 +3,16 @@ _generaCoupon = (function ($, my) {
 
     function _init() {
         console.log('genera Coupon ready');
+        console.log($('#id_piattaforma').val());
+
 
         $('#venditore').typeahead({
-            source: function (query, result) {
+            source: function (txt_venditore, result) {
+
+                console.log($('#id_piattaforma').val());
                 $.ajax({
                     url: "index.php?option=com_gglms&task=generacoupon.load_matching_venditori_list",
-                    data: 'query=' + query,
+                    data: {txt_venditore: txt_venditore, id_piattaforma: $('#id_piattaforma').val()},
                     dataType: "json",
                     type: "POST",
                     success: function (data) {
