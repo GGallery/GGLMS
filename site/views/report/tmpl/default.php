@@ -49,7 +49,7 @@ defined('_JEXEC') or die;
                     <option value="0">Qualisiasi stato</option>
                     <option value="1">Solo completati</option>
                     <option value="2">Solo NON compleati</option>
-                    <option value="3">In scadenza</option>
+<!--                    <option value="3">In scadenza</option>-->
                 </select>
             </div>
 
@@ -213,23 +213,6 @@ defined('_JEXEC') or die;
     </div>
 </div>
 
-
-<!-- Modal Dettagli Aggiornamento Report-->
-<div id="aggiornamentoReport" class="modal fade " role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-
-            <div class="modal-body">
-                caricamento dati...
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
 <!-- Modal Dettagli invio mail -->
 <div id="detailsInvioMail" class="modal fade " role="dialog">
     <div class="modal-dialog">
@@ -259,7 +242,7 @@ defined('_JEXEC') or die;
 
     </div>
 </div>
-
+<div id="cover-spin"></div>
 
 <script type="text/javascript">
 
@@ -344,12 +327,16 @@ defined('_JEXEC') or die;
 
         $("#tipo_report").change(function () {
 
-            if ($("#tipo_report option:selected").val() == 0) {
+            if ($("#tipo_report option:selected").val() == 0 ) {
 
 
                 $("#filterstatodiv").show();
-                $("#calendar_startdate_div").show();
-                $("#calendar_finishdate_div").show();
+
+                if( $("#filterstatodiv option:selected").val() == 1){
+                    $("#calendar_startdate_div").show();
+                    $("#calendar_finishdate_div").show();
+                }
+
             } else {
                 $("#filterstatodiv").hide();
                 $("#calendar_startdate_div").hide();
@@ -466,7 +453,11 @@ defined('_JEXEC') or die;
         }
 
         url = url + "&offset=" + loadreportoffset;
-        jQuery("#aggiornamentoReport").modal('show');
+        // jQuery("#aggiornamentoReport").modal('show');
+        jQuery('#cover-spin').show(0);
+
+
+
         jQuery.when(jQuery.get(url))
             .done(function (data) {
 
@@ -475,7 +466,7 @@ defined('_JEXEC') or die;
 
             })
             .then(function (data) {
-
+                jQuery('#cover-spin').hide(0);
 
                 data = JSON.parse(data);
 

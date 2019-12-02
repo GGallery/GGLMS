@@ -116,7 +116,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
         // filtro i venditori anche  per piattaforma
         $query = $this->_db->getQuery(true)
-            ->select('c.venditore')
+            ->select('DISTINCT c.venditore')
             ->from('#__gg_coupon as c')
             ->where("c.venditore like '%" . $venditore . "%'")
             ->where("LEFT(c.id_iscrizione, 2) = '" . $id_piattaforma . "'");

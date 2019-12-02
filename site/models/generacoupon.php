@@ -80,11 +80,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
-
+            // se non è specificato nel form il default è coupon abilitati.
+            $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : $this->_config->getConfigValue('coupon_active_default') == 0 ? 1: 0;
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
-            $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
             $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
+
 
 
             // se non esiste crea utente ( tutor ) legato alla company

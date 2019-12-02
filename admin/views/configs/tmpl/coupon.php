@@ -48,11 +48,16 @@
     <h2 style="text-align: center">GENERA COUPON</h2>
     <div class="row-fluid">
         <?php echo $this->form->renderField('mail_coupon_acitve'); ?>
-    </div
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('coupon_active_default'); ?>
+    </div>
 
     <div class="row-fluid">
         <?php echo $this->form->renderField('specifica_durata_coupon'); ?>
     </div>
+
     <div class="row-fluid">
         <?php echo $this->form->renderField('durata_standard_coupon'); ?>
     </div>
