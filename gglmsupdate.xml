@@ -14,7 +14,7 @@
 		<maintainer>GGallery</maintainer>
 		<maintainerurl>https://www.ggallery.it/</maintainerurl>
 		<section>Updates</section>
-		<targetplatform name="joomla" version="3.8" />
+		<targetplatform name="joomla" version="3.9" />
 		<client>1</client>
 	</update>
 </updates>
