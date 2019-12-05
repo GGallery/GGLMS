@@ -105,11 +105,13 @@ echo "<h1> Genera Coupon</h1>";
     <div class="form-group row">
         <div class="col-sm-3"><label class="col-form-label disabled lbl_cpn_opt" for="">Opzioni:</label></div>
 
+        <?php if ($this->specifica_abilitazione == 1) { ?>
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="abilitato"><input class="cpn_opt" disabled
                                                                                            type="checkbox"
                                                                                            id="abilitato"
                                                                                            name="abilitato">
             Abilitati</label>
+        <?php } ?>
 
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt " for="stampatracciato"><input class="cpn_opt"
                                                                                                   disabled

@@ -64,16 +64,19 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         try {
 
             $data = JRequest::get($_POST);
-            // todo iviare in response id_iscrizione da postman vedo la pagina di login
             $id_iscrizione = $this->generaCoupon->insert_coupon($data);
 
-            return json_encode($id_iscrizione);
+            $result = new stdClass();
+            $result->id_iscrizione = $id_iscrizione;
+
+            echo json_encode($result);
+            $this->_japp->close();
 
         } catch (Exception $e) {
 
             DEBUGG::error($e, 'generaCoupon');
         }
-        $this->_japp->close();
+
     }
 
     // usato in form genera coupon frontend
@@ -116,7 +119,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
         // filtro i venditori anche  per piattaforma
         $query = $this->_db->getQuery(true)
-            ->select('c.venditore')
+            ->select('DISTINCT c.venditore')
             ->from('#__gg_coupon as c')
             ->where("c.venditore like '%" . $venditore . "%'")
             ->where("LEFT(c.id_iscrizione, 2) = '" . $id_piattaforma . "'");

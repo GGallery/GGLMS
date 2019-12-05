@@ -54,6 +54,13 @@ class gglmsViewGenera extends JViewLegacy
         // se == 0 specificare la durata per ogni coupon
         $this->specifica_durata = $_config->getConfigValue('specifica_durata_coupon');
 
+        // leggo parametro config.specifica_durata_coupon
+        // se == 1 mostro la checkbox nel form
+        // se == 0 coupon generati abilitati di default
+        $this->specifica_abilitazione= $_config->getConfigValue('coupon_active_default');
+
+
+        // checkbox trial la mostro solo se l'utente super user perchè sblocca tutto il corso.
         $user = JFactory::getUser();
         $user_model = new gglmsModelUsers();
         $is_super_admin = $user_model->is_user_superadmin($user->id);
