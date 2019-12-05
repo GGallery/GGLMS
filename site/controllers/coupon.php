@@ -58,7 +58,7 @@ class gglmsControllerCoupon extends JControllerLegacy
                 } else {
 
 
-                    if ($model->check_already_enrolled($dettagli_coupon['id_gruppi'], $dettagli_coupon['id_societa'])) {
+                    if ($model->check_already_enrolled($dettagli_coupon)) {
                         // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente
 
                         $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_duplicate') . "</p>";
