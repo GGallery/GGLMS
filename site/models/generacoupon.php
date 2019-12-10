@@ -81,11 +81,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
             // se non è specificato nel form il default è coupon abilitati.
-            $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : $this->_config->getConfigValue('coupon_active_default') == 0 ? 1: 0;
+            $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : $this->_config->getConfigValue('coupon_active_default') == 0 ? 1 : 0;
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
             $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
-
 
 
             // se non esiste crea utente ( tutor ) legato alla company
@@ -126,7 +125,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // campo unico il set di coupon composto da idPiattaformaVenditrice_stringone senza senso basato sul now
             for ($i = 0; $i < $data['qty']; $i++) {
 
-                $coupons[$i] = $this->_generate_coupon($prefisso_coupon, $id_gruppo_societa, $data['gruppo_corsi']);
+                $coupons[$i] = $this->_generate_coupon($prefisso_coupon, $nome_societa);
 
                 // se abilitato -> dataabilitazione = now
 
@@ -374,13 +373,16 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    private function _generate_coupon($prefisso_coupon, $id_gruppo_societa, $id_gruppo_corso)
+    private function _generate_coupon($prefisso_coupon, $nome_societa)
     {
 
-        $var_1 = str_replace(' ', '_', $prefisso_coupon) . str_replace('0', 'k', uniqid('', true)); // no zeros
-        $var_2 = 's' . $id_gruppo_societa . 'c' . $id_gruppo_corso;
+        $var_1 = 'X' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3); ;
+        $var_2 = str_replace('0', 'k', uniqid('', true)); // no zeros
 
-        return $var_1 . $var_2;
+//        $var_1 = str_replace(' ', '_', $prefisso_coupon) . str_replace('0', 'k', uniqid('', true)); // no zeros
+//        $var_2 = 's' . $id_gruppo_societa . 'c' . $id_gruppo_corso;
+//
+      return $var_1 . $var_2;
 
     }
 
@@ -412,8 +414,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         // send mail
         $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
-
-
 
 
         $mailer = JFactory::getMailer();
@@ -586,7 +586,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients);
-        $mailer->setSubject('Registrazione  ' .  $info_piattaforma["name"]);
+        $mailer->setSubject('Registrazione  ' . $info_piattaforma["name"]);
 
 
         $smarty = new EasySmarty();
