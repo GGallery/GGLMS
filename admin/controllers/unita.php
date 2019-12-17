@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.controllerform');
 require_once JPATH_COMPONENT . '/models/report.php';
+require_once JPATH_COMPONENT . '/models/unitas.php';
 
 class gglmsControllerUnita extends JControllerForm
 {
@@ -91,6 +92,16 @@ class gglmsControllerUnita extends JControllerForm
         } catch (exception $ex) {
             $app->redirect(JRoute::_('index.php?option=com_gglms&view=unita&layout=edit&id=' . $id, false), $app->enqueueMessage($ex->getMessage(), 'Error'));
         }
+
+    }
+
+
+    public function setUnitOrdinamento(){
+        $unitasModel=new gglmsModelunitas();
+        $unit_id=JRequest::getVar('unit_id');
+        $pos=JRequest::getVar('pos');
+        $result=$unitasModel->updateOrderValue($unit_id,$pos);
+
 
     }
 

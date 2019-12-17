@@ -482,4 +482,25 @@ class gglmsModelunita extends JModelAdmin
         }
 
     }
+
+
+    public function getChilds($pk=null){
+        if ($item = parent::getItem($pk)) {
+
+            try {
+                $db = JFactory::getDBO();
+                $query = $db->getQuery(true);
+                $query->select('*');
+                $query->from('#__gg_unit');
+                $query->where('unitapadre=' . $item->id);
+                $query->order('ordinamento asc');
+                $db->setQuery($query);
+
+                return $db->loadObjectList();
+            } catch (Exception $e) {
+
+                DEBUGG::log($e->getMessage(), 'get id completamento', 0, 1, 0);
+            }
+        }
+    }
 }

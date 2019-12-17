@@ -16,8 +16,10 @@ class gglmsViewunita extends JViewLegacy
 
     public function display($tpl = null)
     {
+        $app = JFactory::getApplication();
         $form = $this->get('Form');
         $item = $this->get('Item');
+        $this->childs=$this->get('childs');
 
 
         $this->form = $form;
