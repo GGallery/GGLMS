@@ -105,5 +105,24 @@ class gglmsModelunitas extends JModelList
         $this->setState('filter.congresso', $state);
         parent::populateState('a.congresso', 'asc');
     }
+
+
+    public function updateOrderValue($pk,$i){
+        try {
+
+
+            $db = JFactory::getDBO();
+            $query='update #__gg_unit set ordinamento='.$i.' where id='.$pk;
+            $db->setQuery($query);
+            $result=$db->execute();
+
+
+            return $result;
+        }catch (exceptions $e){
+
+            DEBUGG::log('errore '.$e->getMessage(),"errore in UpdateOrderValue",0,1);
+        }
+
+    }
 }
 

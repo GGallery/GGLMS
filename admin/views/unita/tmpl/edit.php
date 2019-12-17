@@ -12,7 +12,38 @@ JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 JHtml::_('formbehavior.chosen', 'select');
 ?>
+<head>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        jQuery(document).ready(function() {
+            jQuery('#sortableTable').sortable();
+            jQuery('.draggable').draggable({
+                    stop:function (ev, ui) {
+                        console.log('qui')
+                        var items=jQuery('.draggable')
+                        items.each(
+                            function(index){
+                                console.log('posizione: '+index+' ID: '+jQuery(this).attr('id'))
+                                var unit_id=jQuery(this).attr('id');
+                                var pos=index;
+                                jQuery.ajax({
+                                    url:'index.php?option=com_gglms&task=unita.setUnitOrdinamento&unit_id='+unit_id+'&pos='+index
+                                }).done(function(data){
+                                    console.log('ordinamento registrato')
 
+                                })
+                            }
+
+                        )
+
+                    }
+                }
+
+            )
+        })
+    </script>
+</head>
 
 <form action="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&layout=edit&id=' . (int) $this->item->id); ?>"
       method="post"
@@ -22,6 +53,7 @@ JHtml::_('formbehavior.chosen', 'select');
     <?php echo JHtml::_('bootstrap.startTabSet', 'myTab', array('active' => 'general')); ?>
 
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'general', JText::_('COM_GGLMS_UNITA_PANEL', true)); ?>
+    <?php echo JHtml::_('sortablelist.sortable', 'itemList', 'adminForm', null,""); ?>
     <div class="row-fluid">
         <div class="span12">
 
@@ -194,6 +226,54 @@ JHtml::_('formbehavior.chosen', 'select');
                     <!-- QUI FINISCE IL FILE UPLOAD -->
                 </fieldset>
 
+        </div>
+    </div>
+
+    <?php echo JHtml::_('bootstrap.endTab'); ?>
+    <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'ordering', 'Ordinamento', true); ?>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <table class="table table-striped" id="itemList" name="itemList" id="sortableTable">
+                <?php foreach ($this->childs as $i => $item): ?>
+
+                    <tr class="row<?php echo $i % 2; ?>, draggable" id="<?php echo $item->id; ?>">
+
+                        <td class="order nowrap center hidden-phone">
+
+                            <?php
+
+                            //$iconClass = ' inactive tip-top hasTooltip" title="' . JHtml::tooltipText('JORDERINGDISABLED');
+                            $iconClass='';
+                            ?>
+                            <span class="sortable-handler <?php echo $iconClass ?>">
+                     <span class="icon-menu"></span>
+                 </span>
+
+                            <input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->id; ?>" class="width-20 text-area-order " />
+
+
+                        </td>
+
+                        <td>
+                            <?php echo $item->id; ?>
+                        </td>
+
+                        <td>
+                            <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&layout=edit&id=' . $item->id); ?>">
+                                <?php echo $item->titolo; ?>
+                            </a>
+                        </td>
+
+                        <td>
+                            <?php echo $item->ordinamento;?>
+                        </td>
+
+
+
+                    </tr>
+                <?php endforeach; ?>
+            </table>
         </div>
     </div>
 

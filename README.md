@@ -5,6 +5,9 @@ CHANGELOG
 F:Frontend, B:Backend, D:Database, G:Generale
 
 4.0.1
+ - B: ordinamento unità backend
+ 
+4.0.1
  - G: coupon trial
 
 4.0.0 
