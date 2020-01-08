@@ -376,12 +376,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
     private function _generate_coupon($prefisso_coupon, $nome_societa)
     {
 
-        $var_1 = 'X' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3); ;
-        $var_2 = str_replace('0', 'k', uniqid('', true)); // no zeros
+        $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
+        $var_2 = str_replace('.','p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
 
-//        $var_1 = str_replace(' ', '_', $prefisso_coupon) . str_replace('0', 'k', uniqid('', true)); // no zeros
-//        $var_2 = 's' . $id_gruppo_societa . 'c' . $id_gruppo_corso;
-//
       return $var_1 . $var_2;
 
     }
