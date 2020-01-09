@@ -364,6 +364,39 @@ class utilityHelper
         }
     }
 
+    public static function logMail($template, $sender, $recipient, $status, $cc = null, $id_gruppo_corso = null)
+    {
+        try {
+
+
+            $values[] = sprintf("('%s', '%s', '%s', '%s', '%s', '%s' ,%d)",
+                $template,
+                $sender,
+                $recipient,
+                $cc,
+                $id_gruppo_corso,
+                date('Y-m-d H:i:s', time()), //  time(), //creation_time
+                $status
+            );
+
+            $query = 'INSERT INTO #__gg_mail_log (template, sender, recipient, cc, id_gruppo_corso,created_at,status) VALUES ' . join(',', $values);
+
+//var_dump($query);
+//die();
+
+            $db = JFactory::getDbo();
+            $db->setQuery($query);
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, 'logMail');
+        }
+    }
+
 
     ////////////////////////////////////    export csv
 

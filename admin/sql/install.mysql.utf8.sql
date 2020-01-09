@@ -535,3 +535,15 @@ CREATE TABLE `#__gg_view_stato_user_unita` (
 -- ----------------------------
 -- Records of #__gg_view_stato_user_unita
 -- ----------------------------
+CREATE TABLE `#__gg_mail_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `template` varchar(255) DEFAULT NULL,
+  `sender` varchar(255) DEFAULT NULL,
+  `recipient` varchar(255) DEFAULT NULL,
+  `cc` varchar(255) DEFAULT NULL,
+  `id_gruppo_corso` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+

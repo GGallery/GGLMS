@@ -377,9 +377,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
 
         $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
-        $var_2 = str_replace('.','p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
+        $var_2 = str_replace('.', 'p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
 
-      return $var_1 . $var_2;
+        return $var_1 . $var_2;
 
     }
 
@@ -431,9 +431,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
         $mailer->isHTML(true);
 
-        if (!$mailer->Send())
-            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+        if (!$mailer->Send()) {
+//            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+            utilityHelper::logMail('coupons_mail', $sender, $recipients["to"]->email, 0, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
+        }
 
+        //log mail sent
+        utilityHelper::logMail('coupons_mail', $sender, $recipients["to"]->email, 1, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
         return true;
 
     }
@@ -510,7 +514,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('u.prefisso_coupon, u.titolo')
+                ->select('u.prefisso_coupon, u.titolo, gm.idgruppo')
                 ->from('#__usergroups as g')
                 ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
@@ -597,9 +601,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
         $mailer->isHTML(true);
 
-        if (!$mailer->Send())
-            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+        if (!$mailer->Send()) {
+//            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+            utilityHelper::logMail('new_tutor_mail', $sender, $recipients,0);
 
+        }
+
+        utilityHelper::logMail('new_tutor_mail', $sender, $recipients,1);
         return true;
     }
 
