@@ -128,13 +128,8 @@ class gglmsModelHelpDesk extends JModelLegacy
         $user->get_user($Juser->id);
         $usergroups = $user->get_user_societa($Juser->id, true);
 
-
         require_once(JPATH_COMPONENT . '/libraries/smarty/EasySmarty.class.php');
         $recipient = $this->getRequestRecipients()[$data["request_type"]];
-
-        //TODO da cancellare , per non mandare mail a caso
-        $recipient = 'francesca.bagni@ggallery.it';
-
 
         $mailer = JFactory::getMailer();
         $mailer->setSender($data['email']);
@@ -155,7 +150,6 @@ class gglmsModelHelpDesk extends JModelLegacy
         $smarty->assign('id_utente', $this->_user->id);
         $smarty->assign('username', $this->_user->username);
         $smarty->assign('società', $usergroups[0]->titolo);
-        // TODO  da testare la parte di società se l'utente non è loggato
 
 
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));

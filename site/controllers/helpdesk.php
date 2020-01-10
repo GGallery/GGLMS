@@ -51,8 +51,6 @@ class gglmsControllerHelpDesk extends JControllerLegacy
         try {
 
             $data = JRequest::get($_POST);
-            $this->model->sendRequestMail($data);
-
 
             if (  $this->model->sendRequestMail($data) === false) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
