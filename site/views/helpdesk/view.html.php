@@ -16,7 +16,7 @@ jimport('joomla.application.component.view');
 
 jimport('joomla.application.component.helper');
 
-require_once JPATH_COMPONENT . '/controllers/helpDesk.php';
+require_once JPATH_COMPONENT . '/controllers/helpdesk.php';
 
 
 class gglmsViewHelpdesk extends JViewLegacy
