@@ -456,20 +456,37 @@ class gglmsHelper
             $unitid = $item['id'];
             $id_box = $item['id_box'];
 
+            //se non cambio box di appartenenza mantengo lo stesso ordine
+            $columns = array('box', 'id_unita', 'order');
+            $query = $db->getQuery(true);
+            $query->select($db->quoteName($columns));
+            $query->from('#__gg_box_unit_map');
+            $query->where('id_unita=' . $unitid);
+            $db->setQuery((string)$query);
+            $current = $db->loadAssoc();
+
+
+            $order = $current['box'] == $id_box ? $current["order"] : 0;
+
+
             $query_del = "DELETE FROM #__gg_box_unit_map WHERE id_unita = $unitid";
             $db->setQuery((string)$query_del);
             $res = $db->execute();
 
             if ($id_box > -1) {
-                $query = "INSERT IGNORE INTO #__gg_box_unit_map (box, id_unita) values ($id_box, $unitid)";
 
-                $db->setQuery((string)$query);
-                $res = $db->execute();
+
+                $query = $db->getQuery(true);
+                $values = array($id_box, $unitid, $order);
+                $query->insert($db->quoteName('#__gg_box_unit_map'))
+                    ->columns($db->quoteName($columns))
+                    ->values(implode(',', $values));
+
+                $db->setQuery($query);
+                $db->execute();
 
             }
 
-//            echo($id_box . 'set');
-//            die();
 
         } catch (Exception $e) {
             echo "<pre>";
