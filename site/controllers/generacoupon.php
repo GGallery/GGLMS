@@ -138,4 +138,47 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
+
+    public function get_corsi_by_piattaforma()
+    {
+
+        $japp = JFactory::getApplication();
+        $id_piattaforma = JRequest::getVar('id_piattaforma');
+        $result = utilityHelper::getGruppiCorsi($id_piattaforma);
+
+        echo isset($result) ? json_encode($result) : null;
+        $japp->close();
+
+    }
+
+
+    public function get_lista_corsi_by_piattaforma()
+    {
+
+        $japp = JFactory::getApplication();
+        $piva = JRequest::getVar('username');
+
+        $query = $this->_db->getQuery(true)
+            ->select('u.id, u.username, u.email, c.cb_ateco, u.name')
+            ->from('#__users as u')
+            ->join('inner', '#__comprofiler AS c ON c.user_id = u.id')
+            ->where("u.username= '" . $piva . "'");
+
+        $this->_db->setQuery($query);
+        $result = $this->_db->loadAssoc();
+
+        if ($result) {
+            // prendo anche la piattaforma
+            $model_user = new gglmsModelUsers();
+            $id_piattaforma = $model_user->get_user_piattaforme($result["id"]);
+
+            $result["id_piattaforma"] = $id_piattaforma[0]->value;
+
+        }
+
+        echo isset($result) ? json_encode($result) : null;
+        $japp->close();
+
+    }
+
 }
