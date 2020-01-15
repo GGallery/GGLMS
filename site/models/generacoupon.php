@@ -123,7 +123,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // campo unico il set di coupon composto da idPiattaformaVenditrice_stringone senza senso basato sul now
-            for ($i = 0; $i < $data['qty']; $i++) {
+            for ($i = 0; $i < intval($data['qty']); $i++) {
 
                 $coupons[$i] = $this->_generate_coupon($prefisso_coupon, $nome_societa);
 
@@ -595,7 +595,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $smarty->assign('user_name', $company_user["piva"]);
         $smarty->assign('user_password', $company_user["password"]);
         $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
-        $smarty->assign('piattaforma_link', ' https://www.' . $info_piattaforma["dominio"]);
+        $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
 
 
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
@@ -603,11 +603,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         if (!$mailer->Send()) {
 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-            utilityHelper::logMail('new_tutor_mail', $sender, $recipients,0);
+            utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 0);
 
         }
 
-        utilityHelper::logMail('new_tutor_mail', $sender, $recipients,1);
+        utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 1);
         return true;
     }
 
@@ -836,6 +836,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //
 //
 //    }
+
+
+
+
 }
 
 

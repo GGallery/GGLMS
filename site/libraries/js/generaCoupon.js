@@ -5,7 +5,6 @@ _generaCoupon = (function ($, my) {
         console.log('genera Coupon ready');
         console.log($('#id_piattaforma').val());
 
-
         $('#venditore').typeahead({
             source: function (txt_venditore, result) {
 
@@ -29,6 +28,23 @@ _generaCoupon = (function ($, my) {
 
         $('#change_piva').hide();
         $("#piva-msg").hide();
+
+        $('#id_piattaforma').change(function () {
+
+            console.log($('#id_piattaforma').val());
+            // ricarico la lista dei corsi visibili per la piattaforma corrente
+            var p = $('#id_piattaforma').val();
+            $.get("index.php?option=com_gglms&task=generacoupon.get_corsi_by_piattaforma", {id_piattaforma: p},
+                function (data) {
+                    // rimuovo le option correnti
+                    $('#gruppo_corsi option').remove();
+
+                    $(data).each(function (i,item) {
+                        $('#gruppo_corsi').append('<option value="' + item.value +' ">' + item.text + '</option>');
+                    });
+
+                }, 'json');
+        })
     }
 
     function _checkUsername() {

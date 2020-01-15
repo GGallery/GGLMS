@@ -239,7 +239,7 @@ class utilityHelper
 
     // metodi per dropdown report, monitora coupon, generacoupon
 
-    public static function getGruppiCorsi()
+    public static function getGruppiCorsi($id_piattaforma = null)
     {
 
         // carico i gruppi dei corsi, filtrati per piattaforma
@@ -255,8 +255,19 @@ class utilityHelper
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
                 ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
                 ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
-                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
-                ->where("ud.dominio='" . DOMINIO . "'");
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi);
+
+            if ($id_piattaforma != null) {
+
+                // specifica piattaforma, serve nel form genera coupon qunado un super admin vede due piattaforme
+                $query = $query->where("ud.group_id=" . $id_piattaforma);
+
+            } else {
+                // piattaforma corrente
+                $query = $query->where("ud.dominio='" . DOMINIO . "'");
+            }
+
+//                ->where("ud.dominio='" . DOMINIO . "'");
 
 //            var_dump((string)$query);
 //            die();
