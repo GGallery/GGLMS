@@ -63,6 +63,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
 
+//            var_dump($data);
+//            die();
+
             // check for attestato
             if (!$this->_config->getConfigValue('check_coupon_attestato')) {
                 // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
@@ -85,6 +88,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
             $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
+//            $data['email_coupon'] = $data['email_coupon'] == '' ? $data['email_coupon'] : NULL;
+
+
+//
+//            var_dump($data);
+//            die();
 
 
             // se non esiste crea utente ( tutor ) legato alla company
@@ -159,7 +168,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
             if ($send_mail == 1) {
 
-                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa, $id_gruppo_societa) === false) {
+                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa, $id_gruppo_societa, $data['email_coupon']) === false) {
                     throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                 }
 
@@ -391,11 +400,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //////////////////////////////  MAIL   /////////////////////
 
     // MAIL COUPON
-    public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa, $id_gruppo_societa)
+    public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa, $id_gruppo_societa, $email_coupon = '')
     {
 
         // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
-        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa))) {
+        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon))) {
             $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non ci sono tutor piattaforma configurati per questa piattaforma', 'Error'));
 
         }
@@ -412,11 +421,18 @@ class gglmsModelgeneracoupon extends JModelLegacy
         // send mail
         $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
 
+        // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
+        $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
+//        var_dump($recipients['cc']);
+//        var_dump($to);
+//        die();
+
 
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
-        $mailer->addRecipient($recipients["to"]->email);
+        $mailer->addRecipient($to);
         $mailer->addCc($recipients["cc"]);
+//        $mailer->addCc('frinciola@gmail.com');
         $mailer->setSubject('Coupon corso ' . $this->_info_corso["titolo"]);
 
 
@@ -467,7 +483,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa)
+    public function get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon = '')
     {
 
         // TO = tutor aziendale
@@ -484,10 +500,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
             array_push($cc, $this->get_user_info($tutor_id, 'email'));
         }
 
-        // TODO il campo to to deve essere al tutor aziendale
 
         $tutor_az = $user->get_tutor_aziendale($id_gruppo_societa);
-        $to->email = $this->get_user_info($tutor_az, 'email');
+        $to->email = $email_coupon == '' ?  $this->get_user_info($tutor_az, 'email') : $email_coupon;
         $to->name = $this->get_user_info($tutor_az, 'name');
 
 //        $to->email = $this->get_user_info($this->_userid, 'email');
@@ -836,8 +851,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //
 //
 //    }
-
-
 
 
 }
