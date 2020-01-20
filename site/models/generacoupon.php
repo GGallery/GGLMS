@@ -175,7 +175,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 // send new credentials
                 if ($new_societa) {
 
-                    if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["id_piattaforma"]) === false) {
+                    if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["id_piattaforma"], $data['email_coupon']) === false) {
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
@@ -423,16 +423,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
         $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
-//        var_dump($recipients['cc']);
-//        var_dump($to);
-//        die();
 
 
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($to);
         $mailer->addCc($recipients["cc"]);
-//        $mailer->addCc('frinciola@gmail.com');
         $mailer->setSubject('Coupon corso ' . $this->_info_corso["titolo"]);
 
 
@@ -502,7 +498,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
         $tutor_az = $user->get_tutor_aziendale($id_gruppo_societa);
-        $to->email = $email_coupon == '' ?  $this->get_user_info($tutor_az, 'email') : $email_coupon;
+        $to->email = $email_coupon == '' ? $this->get_user_info($tutor_az, 'email') : $email_coupon;
         $to->name = $this->get_user_info($tutor_az, 'name');
 
 //        $to->email = $this->get_user_info($this->_userid, 'email');
@@ -580,12 +576,18 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     // MAIL REGISTRAZIONE NUOVA SOCIETA'
 
-    public function send_new_company_user_mail($company_user, $nome_societa, $id_piattaforma)
+    public function send_new_company_user_mail($company_user, $nome_societa, $id_piattaforma, $email_coupon = '')
     {
 
-        if (false == $recipients = $company_user["email"]) {
+        // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
+        $recipients = $email_coupon == '' ?$company_user["email"] : $email_coupon ;
+        if (false == $recipients) {
             DEBUGG::log($recipients, 'send_new_company_user_mail');
         }
+
+//        var_dump($email_coupon);
+//        var_dump($recipients);
+//        die();
 
         // get sender
         if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
