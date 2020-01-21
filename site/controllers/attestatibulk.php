@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
 
 require_once JPATH_COMPONENT . '/controllers/pdf.php';
+require_once JPATH_COMPONENT . '/models/pdf.php';
 
 /**
  * Controller for single contact view
@@ -34,86 +35,6 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
     }
 
-    public function scaricaattestati()
-    {
-        try {
-
-            $data = JRequest::get($_POST);
-            $id_corso = $data['id_corso'];
-//            echo (json_encode($id_corso));
-//            $this->_japp->close();
-
-//            var_dump($id_corso);
-//            die();
-
-
-//            // dal id corso entro in base_gg_view_stato_user_corso in join con user e capisco per chi devo scaricare l'attestato
-            $users = $this->getUserCompleted($id_corso);
-            $att_id_string = $this->getAttestati($id_corso);
-//
-            $base_link = 'index.php?option=com_gglms&task=reportutente.generateAttestato';
-            $link_list = array();
-
-//            echo(json_encode($users));
-//            $this->_japp->close();
-
-
-            foreach ($users as $u) {
-//                $link = $base_link . '&content_id=4&user_id=' . $u;
-//                array_push($link_list, $u["id_user"]);
-
-
-                foreach ($att_id_string as $a) {
-
-
-                    $link = $base_link . '&content_id=' . $a . '&user_id=' . $u["id_user"];
-                    array_push($link_list, $link);
-
-
-//                    $pdf_ctrl->generateAttestato($u->id_user, $a);
-                }
-
-
-            }
-
-            echo(json_encode($link_list));
-            $this->_japp->close();
-
-//            echo(json_encode($link_list));
-//            $this->_japp->close();
-
-//            var_dump($link_list);
-//            die();
-
-
-//            index.php?option=com_gglms&amp;task=reportutente.generateAttestato&amp;content_id=4&amp;user_id=400
-
-//            var_dump($att_id_string);
-//            var_dump($users);
-//            die();
-
-
-//            $pdf_ctrl = new gglmsControllerPdf();
-//            foreach ($users as $u) {
-//
-//                foreach ($att_id_string as $a) {
-//
-//                    $pdf_ctrl->generateAttestato($u->id_user, $a);
-//                }
-//
-//
-//            }
-
-
-        } catch (Exception $e) {
-
-            echo(json_encode($e));
-            $this->_japp->close();
-//            DEBUGG::error($e, 'scaricaattestati');
-        }
-//        $this->_japp->close();
-    }
-
 
     public function getUserCompleted($id_corso)
     {
@@ -121,8 +42,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select(' ru.id_user')
-//                ->select(' ru.id_user, ru.nome, ru.cognome')
+//                ->select(' ru.id_user')
+                ->select('ru.id_user, ru.nome, ru.cognome, r.data_inizio, r.data_fine')
                 ->from('#__gg_view_stato_user_corso as r')
                 ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
                 ->where("r.stato=1")
@@ -131,7 +52,15 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             $this->_db->setQuery($query);
             $users = $this->_db->loadAssocList();
-            return $users;
+
+            // creo array di id utenti
+            $user_id_list = array();
+            foreach ($users as $u) {
+                array_push($user_id_list, $u["id_user"]);
+            }
+
+
+            return $user_id_list;
 
         } catch (Exception $e) {
             DEBUGG::error($e, 'getGruppiCorsi');
@@ -157,6 +86,53 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
         return $att_id_array;
+    }
+
+
+    public function downloadAttestati_multiple()
+    {
+
+
+        try {
+
+            $data = JRequest::get($_POST);
+            $id_corso = $data['id_corso'];
+
+            $user_id_list = $this->getUserCompleted($id_corso); //[400,394]
+            $attestati_corso = $this->getAttestati($id_corso); //[3,4]
+
+            $pdf_ctrl = new gglmsControllerPdf();
+            $file_location = JPATH_COMPONENT . '/models/tmp/';
+
+
+            foreach ($attestati_corso as $att_id) {
+
+                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
+                foreach ($data_att as $data) {
+                    $model = new gglmsModelPdf();
+                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
+
+                    ob_end_clean();
+                    $nomefile = $file_location . 'attestato_' .$att_id . $data->user->id;
+                    $pdf->Output($nomefile . '.pdf', 'F');
+
+                }
+
+            }
+
+
+            // zippala
+            //scaricala
+            //svuotala
+
+            $this->_japp->close();
+
+        } catch
+        (Exception $e) {
+            echo $e;
+        }
+
+
     }
 
 

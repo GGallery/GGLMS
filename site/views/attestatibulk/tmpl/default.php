@@ -13,7 +13,7 @@ echo "<h1>Scarica Attestati</h1>";
     <div class="form-group row">
         <label class="col-sm-2 col-form-label disabled lbl_cpn_opt" for="corso">Corso:</label>
         <div class="col-sm-10">
-            <select required  placeholder="Corso" type="text" class="form-control cpn_opt"
+            <select required placeholder="Corso" type="text" class="form-control cpn_opt"
                     id="id_corso" name="id_corso">
                 <?php foreach ($this->lista_corsi as $c) { ?>
                     <option value="<?php echo $c->value; ?>">
@@ -26,15 +26,20 @@ echo "<h1>Scarica Attestati</h1>";
     </div>
 
     <div class="form-group">
-        <button id="btn-genera" type="button" class="btn-block btn">CERCA</button>
-        <button id="btn-download" type="button" class="btn-block btn">SCARICA</button>
+        <button id="btn-cerca" type="button" class="btn-block btn">SCARICA</button>
+<!--        <button disabled id="btn-download" type="button" class="btn-block btn">SCARICA</button>-->
     </div>
 </form>
+<div id="report">
 
-<div id="link_container">
+
+
 
 </div>
+<div style="display: none" id="link_container">
 
+
+</div>
 <script type="application/javascript">
     jQuery(document).ready(function () {
         _scaricaattesati.init();
