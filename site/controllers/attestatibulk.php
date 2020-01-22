@@ -25,7 +25,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     private $_japp;
     public $_params;
     public $_db;
-    public $generaCoupon;
+
+    public $_folder_location = JPATH_COMPONENT . '/models/tmp/';
 
     public function __construct($config = array())
     {
@@ -35,7 +36,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
     }
 
-
+    // ritorna array di id_utente che hanno completato il corso
     public function getUserCompleted($id_corso)
     {
 
@@ -70,7 +71,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
     }
 
-
+    // ritorna array di id attestati del corso
     public function getAttestati($id_corso)
     {
 
@@ -88,7 +89,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         return $att_id_array;
     }
 
-
+    // salva tutti gli attestati in folder components/gglms/models/tmp
     public function downloadAttestati_multiple()
     {
 
@@ -102,30 +103,41 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             $attestati_corso = $this->getAttestati($id_corso); //[3,4]
 
             $pdf_ctrl = new gglmsControllerPdf();
-            $file_location = JPATH_COMPONENT . '/models/tmp/';
-
+            $file_list = array();
 
             foreach ($attestati_corso as $att_id) {
 
                 $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
                 foreach ($data_att as $data) {
                     $model = new gglmsModelPdf();
+
                     $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
 
-                    ob_end_clean();
-                    $nomefile = $file_location . 'attestato_' .$att_id . $data->user->id;
-                    $pdf->Output($nomefile . '.pdf', 'F');
+                    $nome_file = 'attestato_' . $att_id . $data->user->nome . '.pdf';
+                    $path_file = $this->_folder_location . $nome_file;
 
+
+                    // save file in folder
+//                    ob_end_clean();
+                    $pdf->Output($path_file, 'F');
+
+
+                    $file_obj = new stdClass();
+                    $file_obj->path = $path_file;
+                    $file_obj->nome = $nome_file;
+                    array_push($file_list, $file_obj);
                 }
 
             }
 
-
+//            $this->_japp->close();
             // zippala
             //scaricala
-            //svuotala
+            $this->zip_and_download($file_list);
 
-            $this->_japp->close();
+
+            //svuotala
+//            $this->_japp->close();
 
         } catch
         (Exception $e) {
@@ -135,5 +147,46 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
     }
 
+    public function zip_and_download($file_list)
+    {
 
+        try {
+
+            $zip_name = 'frinciola.zip';
+            $zip_location= $this->_folder_location . $zip_name;
+            $error = '';
+
+
+            $zip = new ZipArchive();
+            if ($zip->open($zip_location, ZIPARCHIVE::CREATE) !== TRUE) {
+                $error .= "* Sorry ZIP creation failed at this time";
+                print_r($error);
+                die();
+            }
+
+
+            foreach ($file_list as $f) {
+                $zip->addFile($f->path, $f->nome);
+            }
+
+
+            $zip->close();
+
+            header("Content-type: application/zip");
+            header("Content-Disposition: attachment; filename=".$zip_name );
+//        header("Content-length:" . filesize($zipname)); // questo rende il file corrotto who knows why....
+            header("Pragma: no-cache");
+            header("Expires: 0");
+            readfile($zip_location);
+
+
+
+            $this->_japp->close();
+        } catch (Exception $e) {
+
+            echo $e;
+        }
+
+
+    }
 }

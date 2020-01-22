@@ -5,6 +5,7 @@ _scaricaattesati = (function ($, my) {
             console.log('init scarica attestati ok');
 
             $('#btn-cerca').click(_get);
+            // $('#btn-zi').click(_get);
             // $('#btn-download').click(_download);
 
         }

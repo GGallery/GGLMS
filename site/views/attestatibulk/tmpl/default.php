@@ -27,7 +27,7 @@ echo "<h1>Scarica Attestati</h1>";
 
     <div class="form-group">
         <button id="btn-cerca" type="button" class="btn-block btn">SCARICA</button>
-<!--        <button disabled id="btn-download" type="button" class="btn-block btn">SCARICA</button>-->
+<!--        <button disabled id="btn-zip" type="button" class="btn-block btn">ZIP</button>-->
     </div>
 </form>
 <div id="report">
