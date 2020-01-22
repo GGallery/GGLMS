@@ -25,14 +25,72 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     private $_japp;
     public $_params;
     public $_db;
-
     public $_folder_location = JPATH_COMPONENT . '/models/tmp/';
+    public $id_corso;
 
     public function __construct($config = array())
     {
         parent::__construct($config);
         $this->_japp = JFactory::getApplication();
         $this->_db = JFactory::getDbo();
+
+    }
+
+    //ENTRY POINT salva tutti gli attestati in folder components/gglms/models/tmp
+    public function downloadAttestati_multiple()
+    {
+
+
+        try {
+
+
+            // delete all files from tmp folder
+            $this->clean_folder();
+
+            $data = JRequest::get($_POST);
+            $this->id_corso = $data['id_corso'];
+
+            $user_id_list = $this->getUserCompleted($this->id_corso); //[400,394]
+            $attestati_corso = $this->getAttestati($this->id_corso); //[3,4]
+
+            $pdf_ctrl = new gglmsControllerPdf();
+            $file_list = array();
+
+            foreach ($attestati_corso as $att_id) {
+
+                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
+                foreach ($data_att as $data) {
+                    $model = new gglmsModelPdf();
+
+                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
+
+                    $nome_file = 'attestato_' . $att_id . $data->user->nome . '.pdf';
+                    $path_file = $this->_folder_location . $nome_file;
+
+
+                    // save file in folder
+//                    ob_end_clean();
+                    $pdf->Output($path_file, 'F');
+
+
+                    $file_obj = new stdClass();
+                    $file_obj->path = $path_file;
+                    $file_obj->nome = $nome_file;
+                    array_push($file_list, $file_obj);
+                }
+
+            }
+
+
+            $this->zip_and_download($file_list);
+
+
+
+        } catch
+        (Exception $e) {
+            echo $e;
+        }
+
 
     }
 
@@ -89,71 +147,13 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         return $att_id_array;
     }
 
-    // salva tutti gli attestati in folder components/gglms/models/tmp
-    public function downloadAttestati_multiple()
-    {
-
-
-        try {
-
-            $data = JRequest::get($_POST);
-            $id_corso = $data['id_corso'];
-
-            $user_id_list = $this->getUserCompleted($id_corso); //[400,394]
-            $attestati_corso = $this->getAttestati($id_corso); //[3,4]
-
-            $pdf_ctrl = new gglmsControllerPdf();
-            $file_list = array();
-
-            foreach ($attestati_corso as $att_id) {
-
-                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
-                foreach ($data_att as $data) {
-                    $model = new gglmsModelPdf();
-
-                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
-
-                    $nome_file = 'attestato_' . $att_id . $data->user->nome . '.pdf';
-                    $path_file = $this->_folder_location . $nome_file;
-
-
-                    // save file in folder
-//                    ob_end_clean();
-                    $pdf->Output($path_file, 'F');
-
-
-                    $file_obj = new stdClass();
-                    $file_obj->path = $path_file;
-                    $file_obj->nome = $nome_file;
-                    array_push($file_list, $file_obj);
-                }
-
-            }
-
-//            $this->_japp->close();
-            // zippala
-            //scaricala
-            $this->zip_and_download($file_list);
-
-
-            //svuotala
-//            $this->_japp->close();
-
-        } catch
-        (Exception $e) {
-            echo $e;
-        }
-
-
-    }
-
     public function zip_and_download($file_list)
     {
 
         try {
 
-            $zip_name = 'frinciola.zip';
-            $zip_location= $this->_folder_location . $zip_name;
+            $zip_name = $this->get_prefisso_corso($this->id_corso) . '_' . time() . '.zip';
+            $zip_location = $this->_folder_location . $zip_name;
             $error = '';
 
 
@@ -172,16 +172,20 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             $zip->close();
 
+            //header("Content-length:" . filesize($zipname)); // questo rende il file corrotto who knows why....
             header("Content-type: application/zip");
-            header("Content-Disposition: attachment; filename=".$zip_name );
-//        header("Content-length:" . filesize($zipname)); // questo rende il file corrotto who knows why....
+            header("Content-Disposition: attachment; filename=" . $zip_name);
             header("Pragma: no-cache");
             header("Expires: 0");
             readfile($zip_location);
 
 
+            // delete zip folder
+            $this->delete_attestati($file_list);
+
 
             $this->_japp->close();
+
         } catch (Exception $e) {
 
             echo $e;
@@ -189,4 +193,57 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
     }
+
+    public function delete_attestati($file_list)
+    {    // delete all files
+        foreach ($file_list as $f) {
+            if (is_file($f->path))
+                unlink($f->path);
+        }
+
+
+    }
+
+    public function clean_folder()
+    {
+
+
+        $files = glob($this->_folder_location . '*'); // get all file names
+        foreach ($files as $file) { // iterate files
+            if (is_file($file))
+                unlink($file); // delete file
+        }
+    }
+
+    public function get_prefisso_corso($id_corso)
+    {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('u.prefisso_coupon')
+                ->from('#__gg_unit AS u ')
+                ->where('u.id=' . $id_corso)
+                ->setLimit('1');
+
+            $this->_db->setQuery($query);
+
+
+            if (false === ($result = $this->_db->loadAssoc())) {
+
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+//            var_dump($result);
+////            die();
+
+            return $result['prefisso_coupon'];
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_prefisso_corso');
+        }
+
+
+    }
+
 }
