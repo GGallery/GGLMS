@@ -255,7 +255,10 @@ class utilityHelper
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
                 ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
                 ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
-                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi);
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
+                ->where(" u.pubblicato=1")
+                ->order('u.titolo');
+
 
             if ($id_piattaforma != null) {
 
@@ -295,8 +298,9 @@ class utilityHelper
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
                 ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
                 ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
-                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi);
-
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
+                ->where(" u.pubblicato=1")
+                ->order('u.titolo');
             if ($id_piattaforma != null) {
 
                 // specifica piattaforma, serve nel form genera coupon qunado un super admin vede due piattaforme

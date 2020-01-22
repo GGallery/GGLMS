@@ -51,6 +51,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             $this->id_corso = $data['id_corso'];
 
             $user_id_list = $this->getUserCompleted($this->id_corso); //[400,394]
+
+//            $user_id_list = ["400","894", "400","400","400","400","400","400","400","400","400","400","400","400","400","400","894","894","894","894","894","894"];
             $attestati_corso = $this->getAttestati($this->id_corso); //[3,4]
 
             $pdf_ctrl = new gglmsControllerPdf();
@@ -64,7 +66,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
                     $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
 
-                    $nome_file = 'attestato_' . $att_id . $data->user->nome . '.pdf';
+                    $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
+//                    $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
                     $path_file = $this->_folder_location . $nome_file;
 
 
@@ -83,7 +86,6 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
             $this->zip_and_download($file_list);
-
 
 
         } catch
@@ -234,8 +236,6 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
-//            var_dump($result);
-////            die();
 
             return $result['prefisso_coupon'];
 
