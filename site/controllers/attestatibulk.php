@@ -43,49 +43,60 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
         try {
 
-
             // delete all files from tmp folder
             $this->clean_folder();
 
             $data = JRequest::get($_POST);
             $this->id_corso = $data['id_corso'];
 
-            $user_id_list = $this->getUserCompleted($this->id_corso); //[400,394]
+            $start = $data['startdate'];
+            $end = $data['enddate'];
 
-//            $user_id_list = ["400","894", "400","400","400","400","400","400","400","400","400","400","400","400","400","400","894","894","894","894","894","894"];
-            $attestati_corso = $this->getAttestati($this->id_corso); //[3,4]
 
-            $pdf_ctrl = new gglmsControllerPdf();
-            $file_list = array();
+            $user_id_list = $this->getUserCompleted($this->id_corso, $start, $end); //[400,394]
 
-            foreach ($attestati_corso as $att_id) {
+            if(count($user_id_list)>0)
+            {
+                //            $user_id_list = ["400","894", "400","400","400","400","400","400","400","400","400","400","400","400","400","400","894","894","894","894","894","894"];
+                $attestati_corso = $this->getAttestati($this->id_corso); //[3,4]
 
-                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
-                foreach ($data_att as $data) {
-                    $model = new gglmsModelPdf();
+                $pdf_ctrl = new gglmsControllerPdf();
+                $file_list = array();
 
-                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
+                foreach ($attestati_corso as $att_id) {
 
-                    $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
+                    $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
+                    foreach ($data_att as $data) {
+                        $model = new gglmsModelPdf();
+
+                        $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
+
+                        $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
 //                    $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
-                    $path_file = $this->_folder_location . $nome_file;
+                        $path_file = $this->_folder_location . $nome_file;
 
 
-                    // save file in folder
+                        // save file in folder
 //                    ob_end_clean();
-                    $pdf->Output($path_file, 'F');
+                        $pdf->Output($path_file, 'F');
 
 
-                    $file_obj = new stdClass();
-                    $file_obj->path = $path_file;
-                    $file_obj->nome = $nome_file;
-                    array_push($file_list, $file_obj);
+                        $file_obj = new stdClass();
+                        $file_obj->path = $path_file;
+                        $file_obj->nome = $nome_file;
+                        array_push($file_list, $file_obj);
+                    }
+
                 }
 
+
+                $this->zip_and_download($file_list);
+
+            }
+            else{
+                $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
             }
 
-
-            $this->zip_and_download($file_list);
 
 
         } catch
@@ -97,18 +108,26 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     }
 
     // ritorna array di id_utente che hanno completato il corso
-    public function getUserCompleted($id_corso)
+    public function getUserCompleted($id_corso, $start = null, $end = null)
     {
 
         try {
 
-            $query = $this->_db->getQuery(true)
-//                ->select(' ru.id_user')
+            $query = $this->_db->getQuery(true);
+            $query->select(' ru.id_user')
                 ->select('ru.id_user, ru.nome, ru.cognome, r.data_inizio, r.data_fine')
                 ->from('#__gg_view_stato_user_corso as r')
                 ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
-                ->where("r.stato=1")
+                ->where("r.stato = 1")
                 ->where("r.id_corso=" . $id_corso);
+
+            if ($start) {
+                $query->where("data_fine >= '" . $start . "'");
+            }
+
+            if ($end) {
+                $query->where("data_fine <= '" . $end . "'");
+            }
 
 
             $this->_db->setQuery($query);

@@ -28,6 +28,23 @@ echo "<h1>Scarica Attestati</h1>";
                 </select>
             </div>
         </div>
+        <div class="form-group row" id="calendar_startdate_div">
+            <label class="col-sm-2" for="startdate">Completato dal:</label>
+            <div class="col-sm-10">
+                <?php echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d', array('onChange' => '_scaricaattesati.getDays()')); ?>
+            </div>
+        </div>
+
+        <div class="form-group row" id="calendar_finishdate_div">
+            <label class="col-sm-2" for="finishdate">Completato al:</label>
+            <div class="col-sm-10">
+                <?php echo JHTML::calendar('NOW', 'finishdate', 'finishdate', '%Y-%m-%d', array('onChange' => '_scaricaattesati.getDays()')); ?>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <span id="msg" class="alert alert-danger" style="display: none; width: 100%"></span>
+        </div>
 
         <div class="form-group" style="text-align: center">
             <a id="btn-download" style="padding: 2px 32px;" type="button" target="_blank" href=""
@@ -42,5 +59,6 @@ echo "<h1>Scarica Attestati</h1>";
     jQuery(document).ready(function () {
         _scaricaattesati.init();
     });
+
 
 </script>
