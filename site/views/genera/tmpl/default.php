@@ -31,7 +31,7 @@ echo "<h1> Genera Coupon</h1>";
         </div>
     </div>
     <div class="form-group row">
-        <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email">Email:</label>
+        <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email">Email Tutor Aziendale:</label>
         <div class="col-sm-9">
             <input required disabled placeholder="Email del referente aziendale" type="email"
                    class="form-control company_opt" id="email"
@@ -103,14 +103,22 @@ echo "<h1> Genera Coupon</h1>";
         </div>
     </div>
     <div class="form-group row">
+        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="venditore">Email Coupon:</label>
+        <div class="col-sm-9">
+            <input placeholder="Email a cui inviare i coupon (lasciare vuoto per inviarli al referente aziendale) " type="email"
+                   class="form-control cpn_opt" id="email_coupon"
+                   name="email_coupon">
+        </div>
+    </div>
+    <div class="form-group row">
         <div class="col-sm-3"><label class="col-form-label disabled lbl_cpn_opt" for="">Opzioni:</label></div>
 
         <?php if ($this->specifica_abilitazione == 1) { ?>
-        <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="abilitato"><input class="cpn_opt" disabled
-                                                                                           type="checkbox"
-                                                                                           id="abilitato"
-                                                                                           name="abilitato">
-            Abilitati</label>
+            <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="abilitato"><input class="cpn_opt" disabled
+                                                                                               type="checkbox"
+                                                                                               id="abilitato"
+                                                                                               name="abilitato">
+                Abilitati</label>
         <?php } ?>
 
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt " for="stampatracciato"><input class="cpn_opt"

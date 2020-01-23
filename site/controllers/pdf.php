@@ -42,10 +42,14 @@ class gglmsControllerPdf extends JControllerLegacy
 
     }
 
-    public function generateAttestato($user_id = null, $id_content = null)
+    // se $generate_pdf = false il metodo ritorna id dati per generare il pdf
+    // il default == true --> stampa il pdf
+    public function generateAttestato($user_id = null, $id_content = null, $generate_pdf = true)
     {
 
         try {
+
+//            var_dump($user_id);
             $db = JFactory::getDbo();
             $postData = $this->_japp->input->get;
             $id_elemento = $id_content != null ? $id_content : $postData->get('content', 0, 'int');
@@ -193,7 +197,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
 
                     // se gli arriva user_id  come  parametro --> è il tutor che scarica l'attesato per l'utente
-                    if ($user_id !=$this->_user->get('id')) {
+                    if ($user_id != $this->_user->get('id')) {
                         $data_change = base64_encode(json_encode($user));
                         // tutor, redirect a pagina di errore
                         $this->_japp->redirect(JRoute::_('index.php?option=com_gglms&view=gglms&layout=nocf&data=' . $data_change));
@@ -206,11 +210,26 @@ class gglmsControllerPdf extends JControllerLegacy
                 }
             }
 
-            $model = $this->getModel('pdf');
-
             $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
-            $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog);
+            if ($generate_pdf) {
+                $model = $this->getModel('pdf');
+
+                $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog);
+            } else {
+
+
+                $result_user = new stdClass();
+                $result_user->user = $user;
+                $result_user->orientamento = $orientamento;
+                $result_user->attestato = $attestato;
+                $result_user->contenuto_verifica = $contenuto_verifica;
+                $result_user->dg = $dg;
+                $result_user->tracklog = $tracklog;
+                return $result_user;
+
+            }
+
 
         } catch (Exception $e) {
 
@@ -236,6 +255,32 @@ class gglmsControllerPdf extends JControllerLegacy
             DEBUGG::log($e, 'Exception in generateAttestato ', 1);
         }
         $this->_japp->close();
+    }
+
+    public function getDataForAttestato_multi($user_id_list, $id_content = null)
+    {
+
+
+        try {
+            // todo validazione
+//        $id_elemento = $id_content; //$id_content != null ? $id_content : $postData->get('content', 0, 'int');
+//         $user_id = $user_id != null ? $user_id : $this->_user->get('id');
+
+            $result = array();
+            foreach ($user_id_list as $user_id) {
+
+                $res = $this->generateAttestato($user_id, $id_content, false);
+                array_push($result, $res);
+
+            }
+
+            return $result;
+        } catch (Exception $e) {
+
+            DEBUGG::log($e, 'Exception in generateAttestato ', 1);
+        }
+
+
     }
 
 

@@ -270,7 +270,7 @@ class gglmsController extends JControllerLegacy {
         if (!JFile::upload($fileTemp, $uploadPath)) {
             echo JText::_('ERROR MOVING FILE');
         }
-        //extract
+        //extract\
         else {
 
             $zip = new ZipArchive;

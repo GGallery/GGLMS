@@ -309,10 +309,10 @@ class gglmsModelReport extends JModelLegacy
         if ($by_platform == true) {
             $query->join('inner', '#__gg_piattaforma_corso_map AS pc ON pc.id_unita = a.id');
             $query->join('inner', '#__usergroups_details AS ud ON pc.id_gruppo_piattaforma = ud.group_id');
-            $query->where(" ud.dominio = '" . DOMINIO . "'");
+            $query ->where("a.pubblicato=1"); $query->where(" ud.dominio = '" . DOMINIO . "'");
 
         }
-
+        $query->order('a.titolo');
 
         $this->_db->setQuery($query);
         $corsi = $this->_db->loadObjectList();

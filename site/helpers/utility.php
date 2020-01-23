@@ -255,7 +255,10 @@ class utilityHelper
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
                 ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
                 ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
-                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi);
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
+                ->where(" u.pubblicato=1")
+                ->order('u.titolo');
+
 
             if ($id_piattaforma != null) {
 
@@ -267,10 +270,46 @@ class utilityHelper
                 $query = $query->where("ud.dominio='" . DOMINIO . "'");
             }
 
-//                ->where("ud.dominio='" . DOMINIO . "'");
+            $db->setQuery($query);
+            $corsi = $db->loadObjectList();
 
-//            var_dump((string)$query);
-//            die();
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'getGruppiCorsi');
+
+        }
+
+
+        return $corsi;
+    }
+
+    public static function getIdCorsi($id_piattaforma = null)
+    {
+
+        // carico i gruppi dei corsi, filtrati per piattaforma
+        try {
+            $_config = new gglmsModelConfig();
+            $id_gruppo_accesso_corsi = $_config->getConfigValue('id_gruppo_corsi');
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('u.id as value, u.titolo as text')
+                ->from('#__usergroups as g')
+                ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
+                ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
+                ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
+                ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
+                ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
+                ->where(" u.pubblicato=1")
+                ->order('u.titolo');
+            if ($id_piattaforma != null) {
+
+                // specifica piattaforma, serve nel form genera coupon qunado un super admin vede due piattaforme
+                $query = $query->where("ud.group_id=" . $id_piattaforma);
+
+            } else {
+                // piattaforma corrente
+                $query = $query->where("ud.dominio='" . DOMINIO . "'");
+            }
 
             $db->setQuery($query);
             $corsi = $db->loadObjectList();
