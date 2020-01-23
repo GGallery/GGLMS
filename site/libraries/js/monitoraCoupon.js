@@ -85,7 +85,7 @@ _monitoraCoupon = (function ($, my) {
                 .done(function (data) {
 
                     data = JSON.parse(data);
-                     // console.log('done', data);
+                    // console.log('done', data);
 
 
                     _resetGridaAndPagination(data['rowCount']);
@@ -132,18 +132,28 @@ _monitoraCoupon = (function ($, my) {
 
         function _fill_grid(data) {
 
-
+            var offset = new Date().getTimezoneOffset();
             $.each(data, function (i, item) {
 
                 if (item.coupon) {
 
-                    var new_row =  item.scaduto == 0 ? $('<tr></tr>') : $('<tr class="expired"></tr>');
+                    var new_row = item.scaduto == 0 ? $('<tr></tr>') : $('<tr class="expired"></tr>');
 
 
                     $.each(columns, function (i, c) {
 
 
+                        if ((c.field === 'data_utilizzo' || c.field === 'creation_time') && item[c.field] !== null) {
+
+                            // convert data from utc to local
+                            var utc = new Date(item[c.field]);
+                            utc.setMinutes(utc.getMinutes() - offset);
+                            item[c.field] = utc.toISOString().replace('T', ' ').replace('Z', '').split('.')[0];
+
+                        }
+
                         new_row.append('<td>' + item[c.field] + '</td>');
+
 
                     });
 
