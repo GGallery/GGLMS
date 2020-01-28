@@ -388,7 +388,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
         $var_2 = str_replace('.', 'p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
 
-        return $var_1 . $var_2;
+        return str_replace(' ','_', $var_1 . $var_2);
 
     }
 

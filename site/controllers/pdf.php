@@ -44,11 +44,12 @@ class gglmsControllerPdf extends JControllerLegacy
 
     // se $generate_pdf = false il metodo ritorna id dati per generare il pdf
     // il default == true --> stampa il pdf
-    public function generateAttestato($user_id = null, $id_content = null, $generate_pdf = true)
+    public function generateAttestato($user_id = null, $id_content = null, $generate_pdf= true)
     {
 
         try {
 
+            $generate_pdf = isset($generate_pdf) ? $generate_pdf : true;
 //            var_dump($user_id);
             $db = JFactory::getDbo();
             $postData = $this->_japp->input->get;
@@ -212,7 +213,8 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
-            if ($generate_pdf) {
+
+            if ($generate_pdf == true) {
                 $model = $this->getModel('pdf');
 
                 $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog);
