@@ -148,7 +148,7 @@ _monitoraCoupon = (function ($, my) {
                             // convert data from utc to local
                             var utc = new Date(item[c.field]);
                             utc.setMinutes(utc.getMinutes() - offset);
-                            item[c.field] = utc.toISOString().replace('T', ' ').replace('Z', '').split('.')[0];
+                            item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString()
 
                         }
 
