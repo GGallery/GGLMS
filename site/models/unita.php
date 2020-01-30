@@ -76,8 +76,9 @@ class gglmsModelUnita extends JModelLegacy
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_unit as u')
-                ->where('u.id = ' . (int)$pk)
-                ->where('u.pubblicato = 1');
+                ->where('u.id = ' . (int)$pk);
+            /// QUESTA RIGA E' COMMENTATA DA PETRUX il 30/01/2020 prchè non caricava i report in seguito a una spubblicazione di un' unità
+//                ->where('u.pubblicato = 1');
 
 
             $this->_db->setQuery($query);
