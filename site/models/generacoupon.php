@@ -437,7 +437,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $smarty->assign('coupons_count', count($coupons));
         $smarty->assign('course_name', $this->_info_corso["titolo"]);
         $smarty->assign('company_name', $nome_societa);
-        $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
+        $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
         $smarty->assign('recipient_name', $recipients["to"]->name);
 
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
@@ -556,7 +556,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.dominio as dominio')
+                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('id=' . $id_piattaforma);
@@ -611,7 +611,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $smarty->assign('company_name', $nome_societa);
         $smarty->assign('user_name', $company_user["piva"]);
         $smarty->assign('user_password', $company_user["password"]);
-        $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
+        $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
         $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
 
 
