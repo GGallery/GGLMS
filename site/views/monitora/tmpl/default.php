@@ -49,8 +49,8 @@ echo "<h1> Monitora Coupon</h1>"; ?>
             </div>
 
             <div class="form-group">
-                <label for="coupon">Cerca Coupon:</label>
-                <input placeholder="Cerca Coupon" class="" type="text" id="coupon" name="coupon">
+                <label for="venditore">Cerca Vendtore:</label>
+                <input placeholder="Cerca Vendtore" class="" type="text" id="venditore" name="venditore">
             </div>
 
             <div class="form-group">

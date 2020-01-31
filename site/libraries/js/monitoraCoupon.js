@@ -42,7 +42,7 @@ _monitoraCoupon = (function ($, my) {
                 .done(function (data) {
 
 
-                    if (data) {
+                    if (data == "true") {
                         // utente collegato è tutor aziendale
                         // nascondo le info relative a venditore
                         columns = columns.filter(function (obj) {
@@ -101,9 +101,9 @@ _monitoraCoupon = (function ($, my) {
                 id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
                 id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
                 stato: parseInt($("#stato_coupon").val()),
-                coupon: $("#coupon").val(),
-                venditore: $("#venditore").val(),
-                utente:$("#utente").val(),
+                coupon: $("#coupon").val().trim(),
+                venditore: $("#venditore").val().trim(),
+                utente: $("#utente").val().trim(),
                 limit: sender !== 'pagination' ? 0 : loadreportlimit,
                 offset: loadreportoffset
             };
