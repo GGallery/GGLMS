@@ -111,6 +111,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $id_gruppo_societa = $params['id_gruppo_azienda'];
         $stato = $params['stato'];
         $coupon= $params['coupon'];
+        $venditore = $params["venditore"];
 
 
         // info corso
@@ -127,6 +128,10 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
         if ($coupon != '') {
             $query = $query->where("c.coupon like '%" . $coupon . "%'");
+        }
+
+        if ( $venditore != '') {
+            $query = $query->where("c.venditore like '%" . $venditore . "%'");
         }
 
         switch ($stato) {

@@ -44,6 +44,7 @@ _monitoraCoupon = (function ($, my) {
 
             $("#form-monitora-coupon select").change(_loadData);
             $('#coupon').keyup(_delay(_loadData, 500));
+            $('#venditore').keyup(_delay(_loadData, 500));
             // $("#btn_monitora_coupon").click(_loadData);
 
             $("#btn_export_csv").click(loadCsv);
@@ -74,6 +75,7 @@ _monitoraCoupon = (function ($, my) {
                 id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
                 stato: parseInt($("#stato_coupon").val()),
                 coupon: $("#coupon").val(),
+                venditore: $("#venditore").val(),
                 limit: sender !== 'pagination' ? 0 : loadreportlimit,
                 offset: loadreportoffset
             };
@@ -85,8 +87,6 @@ _monitoraCoupon = (function ($, my) {
                 .done(function (data) {
 
                     data = JSON.parse(data);
-                    // console.log('done', data);
-
 
                     _resetGridaAndPagination(data['rowCount']);
 

@@ -44,8 +44,13 @@ echo "<h1> Monitora Coupon</h1>"; ?>
             </div>
 
             <div class="form-group">
-                <label for="coupon">Cerca:</label>
+                <label for="coupon">Cerca Coupon:</label>
                 <input placeholder="Cerca Coupon" class="" type="text" id="coupon" name="coupon">
+            </div>
+
+            <div class="form-group">
+                <label for="coupon">Cerca Venditore:</label>
+                <input placeholder="Cerca Venditore" class="" type="text" id="venditore" name="venditore">
             </div>
 <!--            <button type="button" id="btn_monitora_coupon" class="btn btn-primary">Aggiorna Dati</button>-->
             <button type="button" id="btn_export_csv" class="btn btn-primary">Esporta in CSV</button>
