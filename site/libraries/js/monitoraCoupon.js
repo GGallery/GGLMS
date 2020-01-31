@@ -8,6 +8,7 @@ _monitoraCoupon = (function ($, my) {
             {
                 field: 'coupon',
                 title: 'Coupon'
+
             },
             {
                 field: 'user',
@@ -36,23 +37,50 @@ _monitoraCoupon = (function ($, my) {
 
         function _init() {
 
-            $.each(columns, function (i, item) {
 
-                $(".header-row").append('<th>' + item.title + '</th>')
-            });
+            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.getTutorType"))
+                .done(function (data) {
 
 
-            $("#form-monitora-coupon select").change(_loadData);
-            $('#coupon').keyup(_delay(_loadData, 500));
-            // $("#btn_monitora_coupon").click(_loadData);
+                    if (data == "true") {
+                        // utente collegato è tutor aziendale
+                        // nascondo le info relative a venditore
+                        columns = columns.filter(function (obj) {
+                            return obj.field !== 'venditore';
+                        });
 
-            $("#btn_export_csv").click(loadCsv);
-            $('.button-page').on('click', _pagination_click);
+                        $("#venditore").hide();
+                        $("label[for=venditore]").hide();
+                    }
 
-            _toggle_table(false);
 
-            _loadData(null);
+                    $.each(columns, function (i, item) {
+                        $(".header-row").append('<th>' + item.title + '</th>')
+                    });
 
+                    $("#form-monitora-coupon select").change(_loadData);
+                    $('#coupon').keyup(_delay(_loadData, 500));
+                    $('#venditore').keyup(_delay(_loadData, 500));
+                    $('#utente').keyup(_delay(_loadData, 500));
+                    // $("#btn_monitora_coupon").click(_loadData);
+
+                    $("#btn_export_csv").click(loadCsv);
+                    $('.button-page').on('click', _pagination_click);
+
+                    _toggle_table(false);
+                    _loadData(null);
+
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    $('#cover-spin').hide(0);
+                });
 
         }
 
@@ -73,7 +101,9 @@ _monitoraCoupon = (function ($, my) {
                 id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
                 id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
                 stato: parseInt($("#stato_coupon").val()),
-                coupon: $("#coupon").val(),
+                coupon: $("#coupon").val().trim(),
+                venditore: $("#venditore").val().trim(),
+                utente: $("#utente").val().trim(),
                 limit: sender !== 'pagination' ? 0 : loadreportlimit,
                 offset: loadreportoffset
             };
@@ -85,8 +115,6 @@ _monitoraCoupon = (function ($, my) {
                 .done(function (data) {
 
                     data = JSON.parse(data);
-                    // console.log('done', data);
-
 
                     _resetGridaAndPagination(data['rowCount']);
 
@@ -255,6 +283,13 @@ _monitoraCoupon = (function ($, my) {
                     callback.apply(context, args);
                 }, ms || 0);
             };
+        }
+
+        function _getTutorType() {
+
+            $('#cover-spin').show(0);
+
+
         }
 
 

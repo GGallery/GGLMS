@@ -243,12 +243,13 @@ class gglmsModelUsers extends JModelLegacy
             $groupid_list = '(' . implode(',', $user_groups) . ')';
 
 
+
             if ($strict) {
 
                 $subQuery_strict = $this->_db->getQuery(true)
                     ->select('group_id')
-                    ->from('#__usergroups_details')
-                    ->where("dominio= '" . DOMINIO . "'");
+                    ->from('#__usergroups_details');
+//                    ->where("dominio= '" . DOMINIO . "'");
 
 
                 $query_strict = $this->_db->getQuery(true)
@@ -258,7 +259,7 @@ class gglmsModelUsers extends JModelLegacy
                     ->where('id IN ' . $groupid_list);
 
 
-//           echo (string)$query_strict;
+//          echo (string)$query_strict;
 
                 $this->_db->setQuery($query_strict);
                 $res = $this->_db->loadObjectList();

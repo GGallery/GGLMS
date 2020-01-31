@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
 
 require_once JPATH_COMPONENT . '/models/helpdesk.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 
 /**
  * Controller for single contact view
@@ -36,6 +37,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $this->_user = JFactory::getUser();
         $this->_db = &JFactory::getDbo();
 
+
     }
 
     public function getcouponlist()
@@ -49,7 +51,6 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
 
     }
-
 
     public function get_filterd_coupon_list($filter_params)
     {
@@ -110,7 +111,9 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $id_gruppo_corso = $params['id_gruppo_corso'];
         $id_gruppo_societa = $params['id_gruppo_azienda'];
         $stato = $params['stato'];
-        $coupon= $params['coupon'];
+        $coupon = $params['coupon'];
+        $venditore = $params["venditore"];
+        $utente = $params["utente"];
 
 
         // info corso
@@ -127,6 +130,15 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
         if ($coupon != '') {
             $query = $query->where("c.coupon like '%" . $coupon . "%'");
+        }
+
+        if ($venditore != '') {
+            $query = $query->where("c.venditore like '%" . $venditore . "%'");
+        }
+
+        if ($utente != '') {
+            $query = $query->where("cm.cb_nome like '%" . $utente . "%'");
+            $query = $query->orWhere("cm.cb_cognome like '%" . $utente . "%'");
         }
 
         switch ($stato) {
@@ -163,14 +175,12 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         return $query;
     }
 
-
     public function exportCsv()
     {
         $filter_params = JRequest::get($_POST);
         $data = $this->get_filterd_coupon_list($filter_params);
         $this->createCSV($data, $filter_params["columns"]);
     }
-
 
     public function createCSV($rows, $csv_columns)
     {
@@ -185,7 +195,18 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $this->_japp->close();
     }
 
+    public function getTutorType()
+    {
 
+        $model = new gglmsModelUsers();
+        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
+
+        echo(json_encode($is_tutor_az));
+        $this->_japp->close();
+
+        // is_tutor_aziendale
+
+    }
 
 
 }
