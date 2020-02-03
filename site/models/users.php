@@ -181,7 +181,8 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function is_user_superadmin($id){
+    public function is_user_superadmin($id)
+    {
 
         $id_gruppo_superadmin = $this->_config->getConfigValue('id_gruppo_super_admin');
         $user_groups = JAccess::getGroupsByUser($id, false);
@@ -190,10 +191,9 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    /** TYPE = 'aziendale' oppure 'piattaforma' **/
     public function set_user_tutor($user_id, $tutor_type)
     {
-
+        /** TYPE = 'aziendale' oppure 'piattaforma' **/
 
         try {
 
@@ -228,11 +228,10 @@ class gglmsModelUsers extends JModelLegacy
     }
 
 
-    // $strict = true --> solo societa a cui l'utente appartiene, la ricavo dal dominio per essere sicura di avere un solo risultato (in caso di configurazioni sbagliate)
-    // $strict = false --> tutte le società delle piattaforme a cui appartiene
     public function get_user_societa($id, $strict = true)
     {
-
+        // $strict = true --> solo societa a cui l'utente appartiene, la ricavo dal dominio per essere sicura di avere un solo risultato (in caso di configurazioni sbagliate)
+        // $strict = false --> tutte le società delle piattaforme a cui appartiene
         $res = array();
 
         try {
@@ -241,7 +240,6 @@ class gglmsModelUsers extends JModelLegacy
             $id_gruppo_piattaforme = $this->_config->getConfigValue('id_gruppo_piattaforme');
             $user_groups = JAccess::getGroupsByUser($id, false);
             $groupid_list = '(' . implode(',', $user_groups) . ')';
-
 
 
             if ($strict) {
@@ -356,7 +354,8 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_tutor_aziendale($id_gruppo_societa){
+    public function get_tutor_aziendale($id_gruppo_societa)
+    {
         try {
 
             $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
@@ -381,8 +380,6 @@ class gglmsModelUsers extends JModelLegacy
     }
 
 
-
-    ////////////////
     public function set_user_forum_moderator($user_id, $forum_id)
     {
 
@@ -399,6 +396,45 @@ class gglmsModelUsers extends JModelLegacy
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
         }
         return true;
+
+    }
+
+/////////////// LOGIN AS
+    public function get_all_users()
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__users');
+
+
+            $this->_db->setQuery($query);
+            $res = $this->_db->loadObjectList();
+            return $res;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_all_users');
+        }
+
+    }
+
+    public static function getUserGroupName($user_id, $return_text = false)
+    {
+
+
+        $db = JFactory::getDBO();
+        $groups = JAccess::getGroupsByUser($user_id);
+        $groupid_list = '(' . implode(',', $groups) . ')';
+        $query = $db->getQuery(true);
+        $query->select('title');
+        $query->from('#__usergroups');
+        $query->where('id IN ' . $groupid_list);
+        $db->setQuery($query);
+        $rows = $db->loadColumn();
+
+        if ($return_text) {
+            return implode(', <br>', $rows);
+        } else
+            return $rows;
 
     }
 

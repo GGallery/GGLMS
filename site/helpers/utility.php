@@ -270,6 +270,10 @@ class utilityHelper
                 $query = $query->where("ud.dominio='" . DOMINIO . "'");
             }
 
+//            var_dump((string)$query);
+//            var_dump((string)$id_piattaforma);
+//            die();
+
             $db->setQuery($query);
             $corsi = $db->loadObjectList();
 
