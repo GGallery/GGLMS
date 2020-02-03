@@ -298,7 +298,7 @@ class gglmsModelReport extends JModelLegacy
 
         $query = $this->_db->getQuery(true);
 
-        $query->select('*');
+        $query->select('distinct a.*');
         $query->from('#__gg_unit AS a');
         if ($corsi_ammessi_utente != null) {
             $query->where("is_corso=1 and id in (" . $corsi_ammessi_utente . ")");
@@ -306,10 +306,28 @@ class gglmsModelReport extends JModelLegacy
             $query->where("is_corso=1 ");
         }
 
+
         if ($by_platform == true) {
+
+            $model_user = new gglmsModelUsers();
+            $id_piattaforma = $model_user->get_user_piattaforme($this->_userid);
+            $id_piattaforma_array = array();
+
+
+            foreach ($id_piattaforma as $p) {
+                array_push($id_piattaforma_array, $p->value);
+
+            }
+
             $query->join('inner', '#__gg_piattaforma_corso_map AS pc ON pc.id_unita = a.id');
             $query->join('inner', '#__usergroups_details AS ud ON pc.id_gruppo_piattaforma = ud.group_id');
-            $query ->where("a.pubblicato=1"); $query->where(" ud.dominio = '" . DOMINIO . "'");
+            $query->where("a.pubblicato=1");
+            //$query->where(" ud.dominio = '" . DOMINIO . "'");
+            $query->where($this->_db->quoteName('ud.group_id') . ' IN (' . implode(", ", $id_piattaforma_array) . ')');
+
+            //NB con il barbatrucco dei coupon la piattaforma di riferimento non è più quella del dominio MA quella dell'utente collegato
+            //nella query uso WHERE IN perchè se l'utente collegato è super_admin e vede più piattaforme
+
 
         }
         $query->order('a.titolo');

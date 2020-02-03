@@ -58,6 +58,7 @@ _generaCoupon = (function ($, my) {
             $("#piva-msg").hide();
 
 
+
             //mostro botone reset, nascondo conferma
             $('#confirm_piva').hide();
             $('#change_piva').show();
@@ -77,6 +78,7 @@ _generaCoupon = (function ($, my) {
                         $("#ateco").val(data.cb_ateco);
                         $("#vendor").val(data.cb_ateco);
                         $("#id_piattaforma").val(data.id_piattaforma);
+                        $("#id_piattaforma").trigger('change');
 
 
                     } else {
