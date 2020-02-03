@@ -316,7 +316,6 @@ class gglmsModelReport extends JModelLegacy
 
             foreach ($id_piattaforma as $p) {
                 array_push($id_piattaforma_array, $p->value);
-
             }
 
             $query->join('inner', '#__gg_piattaforma_corso_map AS pc ON pc.id_unita = a.id');
