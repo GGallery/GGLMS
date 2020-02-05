@@ -8,73 +8,93 @@
 
 
 /**
- * @package		Joomla.Tutorials
- * @subpackage	Component
- * @copyright	Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
- * @license		License GNU General Public License version 2 or later; see LICENSE.txt
+ * @package        Joomla.Tutorials
+ * @subpackage    Component
+ * @copyright    Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
+ * @license        License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modellist');
 
-class gglmsModelReport extends JModelList {
+class gglmsModelReport extends JModelList
+{
 
 
-    public function empty_tables(){
+    public function empty_tables()
+    {
 
-        if($this->empty_table('#__gg_report_users')==true){
 
-            if($this->empty_table('#__gg_report')==true){
-
-                if($this->azzera_data_sync()){
-                return true;
-                }else{
-                    return false;
-                }
-            }else{
-                return false;
+        try {
+            $continue = false;
+            $continue = $this->empty_table('#__gg_report_users');
+            if ($continue == true) {
+                $continue = $this->empty_table('#__gg_report');
             }
-        }else{
+
+
+            if ($continue == true) {
+                $continue = $this->empty_table('#__gg_view_stato_user_unita');
+            }
+            if ($continue == true) {
+                $continue = $this->empty_table('#__gg_view_stato_user_corso');
+            }
+
+            if ($continue == true) {
+                $continue = $this->azzera_data_sync();
+            }
+
+            return $continue;
+
+        } catch (Exception $e) {
+
+//            var_dump($e);
+//            die();
+            DEBUGG::error($e, "empty_tables error");
             return false;
         }
-        return true;
+
+
     }
 
-    private function empty_table($table_name){
+    private function empty_table($table_name)
+    {
 
-        $db= JFactory::getDBO();
+        $db = JFactory::getDBO();
         $query = $db->getQuery(true);
         $query->delete($table_name);
         $db->setQuery($query);
-        $result=$db->execute();
+        $result = $db->execute();
         return $result;
     }
 
-    private function azzera_data_sync(){
+    private function azzera_data_sync()
+    {
 
-        $db= JFactory::getDBO();
+        $db = JFactory::getDBO();
         $query = 'UPDATE #__gg_configs SET config_value=null WHERE config_key=\'data_sync\'';
 
         $db->setQuery($query);
-        $result=$db->execute();
+        $result = $db->execute();
         return $result;
 
     }
 
-    public function allinea_tabella($tabella,$modalita=null){
+    public function allinea_tabella($tabella, $modalita = null)
+    {
 
-        $db= JFactory::getDBO();
+        $db = JFactory::getDBO();
         $query = $db->getQuery(true);
-        if($tabella=='scormvars')
-            $query=$this->query_scormvars($query,$modalita);
-        if($tabella=='unit_map')
-            $query=$this->query_unit_map($query,$modalita);
+        if ($tabella == 'scormvars')
+            $query = $this->query_scormvars($query, $modalita);
+        if ($tabella == 'unit_map')
+            $query = $this->query_unit_map($query, $modalita);
         $db->setQuery($query);
-        if($modalita=='delete') {
+        if ($modalita == 'delete') {
             $result = $db->execute();
 
-        }else{
+        } else {
             $result = $db->loadResult();
 
         }
@@ -83,29 +103,31 @@ class gglmsModelReport extends JModelList {
 
     }
 
-    private function query_scormvars($query,$modalita=null){
+    private function query_scormvars($query, $modalita = null)
+    {
 
-        if($modalita=='delete') {
+        if ($modalita == 'delete') {
             $query->delete('#__gg_scormvars');
-        }else{
+        } else {
             $query->select('count(*)');
             $query->from('#__gg_scormvars');
         }
-        $query->where ('scoid not in (select id from #__gg_contenuti)');
+        $query->where('scoid not in (select id from #__gg_contenuti)');
 
-               return $query;
+        return $query;
 
     }
 
-    private function query_unit_map($query,$modalita=null){
+    private function query_unit_map($query, $modalita = null)
+    {
 
-        if($modalita=='delete') {
+        if ($modalita == 'delete') {
             $query->delete('#__gg_unit_map');
-        }else{
+        } else {
             $query->select('count(*)');
             $query->from('#__gg_unit_map');
         }
-        $query->where ('idunita not in (select id from #__gg_unit)');
+        $query->where('idunita not in (select id from #__gg_unit)');
 
         return $query;
     }
