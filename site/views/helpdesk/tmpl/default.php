@@ -16,6 +16,7 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
         <div class="row">
             <div class="col-sm-12">
                 <div> <span title='telefono' class='glyphicon glyphicon-phone-alt info-icon'
+
                     ></span> <?php echo $this->info_piattaforma->telefono ?></div>
             </div>
         </div>
@@ -27,13 +28,18 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="<?php echo empty($this->info_piattaforma->link_ecommerce) ? 'row hidden' : 'row' ?> ">
             <div class="col-sm-12">
-                <div> <span title='email' class='glyphicon glyphicon-shopping-cart info-icon'
+                <div>
+
+                    <span title='email' class='glyphicon glyphicon-shopping-cart info-icon'
+
                     ></span> <b> <a href="<?php echo $this->info_piattaforma->link_ecommerce ?>">catalogo e-commerce</a></b>
                 </div>
             </div>
         </div>
+
+
     </div>
     <hr>
     <h4 class="hd-title">Per ricevere assistenza in merito ai corsi utilizza il seguente modulo:</h4>
