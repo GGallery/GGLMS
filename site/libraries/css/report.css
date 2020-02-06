@@ -28,6 +28,16 @@ input {
 
 }
 
+/*.table-striped>tbody>tr.report-success{*/
+    /*background-color: #D0E9C6 !important;*/
+/*}*/
+
+
+table.table.table-striped tr.success td {
+    background-color:#d0e9c6;
+}
+
+
 .modal-body {
     overflow: auto;
 }

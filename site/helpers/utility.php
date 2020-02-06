@@ -204,7 +204,7 @@ class utilityHelper
         $res['cf'] = $cf;
         return $res;
     }
-
+//Moni
     public static function setComponentParam($key, $value)
     {
 
@@ -267,8 +267,26 @@ class utilityHelper
 
             } else {
                 // piattaforma corrente
-                $query = $query->where("ud.dominio='" . DOMINIO . "'");
+//                $query = $query->where("ud.dominio='" . DOMINIO . "'");
+
+                // come in models\report getCorsi()
+                //  con il barbatrucco dei coupon la piattaforma corrente  non è più quella del dominio MA quella dell'utente collegato
+                $user = JFactory::getUser();
+                $userid = $user->get('id');
+                $model_user = new gglmsModelUsers();
+                $id_piattaforma = $model_user->get_user_piattaforme($userid);
+                $id_piattaforma_array = array();
+
+
+                foreach ($id_piattaforma as $p) {
+                    array_push($id_piattaforma_array, $p->value);
+                }
+
+                $query->where($db->quoteName('ud.group_id') . ' IN (' . implode(", ", $id_piattaforma_array) . ')');
+
             }
+
+
 
             $db->setQuery($query);
             $corsi = $db->loadObjectList();
