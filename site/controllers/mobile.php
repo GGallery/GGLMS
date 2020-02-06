@@ -215,4 +215,41 @@ class gglmsControllerMobile extends JControllerLegacy
         return $return;
 
     }
+
+    public function login()
+    {
+
+        jimport('joomla.user.authentication');
+
+        $jinput = JFactory::getApplication()->input->json;
+        $username = $jinput->get('username');
+        $password = $jinput->get('password');
+
+        $auth = &JAuthentication::getInstance();
+        $credentials = array('username' => $username, 'password' => $password);
+        $options = array();
+
+        $response = null;
+        $response = $auth->authenticate($credentials, $options);
+
+        if ($response->status === JAuthentication::STATUS_SUCCESS) {
+
+            $this->_db = JFactory::getDbo();
+            $query = $this->_db->getQuery(true)
+                ->select('id')
+                ->from('#__users')
+                ->where("username =" . $this->_db->quote($username));
+
+            $this->_db->setQuery($query);
+            $user_id = $this->_db->loadResult();
+
+            $response->id = $user_id;
+
+            echo json_encode($response);
+        } else {
+            echo json_encode($response);
+        }
+
+        $this->_japp->close();
+    }
 }
