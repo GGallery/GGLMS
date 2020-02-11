@@ -63,9 +63,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
 
-//            var_dump($data);
-//            die();
-
             // check for attestato
             if (!$this->_config->getConfigValue('check_coupon_attestato')) {
                 // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
@@ -75,7 +72,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //                altrimenti lo leggo dal form
                 $data['attestato'] = $data['attestato'] == 'on' ? 1 : 0;
             }
-
 
             // check durata coupon, se il campo è nel form vince l'input dell'utente
             $durata_coupon = $data["durata"] ? $data["durata"] : $this->_config->getConfigValue('durata_standard_coupon');
@@ -91,11 +87,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //            $data['email_coupon'] = $data['email_coupon'] == '' ? $data['email_coupon'] : NULL;
 
 
-//
-//            var_dump($data);
-//            die();
-
-
             // se non esiste crea utente ( tutor ) legato alla company
             // esiste gia' l'username (P.iva) ?
             $user_id = $this->_check_username((string)$data['username']);
@@ -105,17 +96,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             if (empty($user_id)) {
                 $new_societa = true;
-                if (false === ($company_user = $this->create_new_company_user($data))) {
-                    throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
+                $company_user = $this->create_new_company_user($data);
 
-                }
             } else {
                 // se l'utente esiste già, la parte del from aziendale e disabilitata
                 // non mi arriva l'id piattaforma
                 // lo ricavo dall'utente partita iva
                 $model_user = new gglmsModelUsers();
                 $data["id_piattaforma"] = $model_user->get_user_piattaforme($user_id)[0]->value;
-
+                
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
@@ -388,7 +377,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
         $var_2 = str_replace('.', 'p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
 
-        return str_replace(' ','_', $var_1 . $var_2);
+        return str_replace(' ', '_', $var_1 . $var_2);
 
     }
 
@@ -431,6 +420,21 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer->addCc($recipients["cc"]);
         $mailer->setSubject('Coupon corso ' . $this->_info_corso["titolo"]);
 
+
+//        // modidifca custom per ausind, da cambiare in piattaforma hidden!!
+//        if ($id_piattaforma == '141') {
+//            $info_piattaforma["alias"] = "Ausind";
+//        }
+
+        if ($info_piattaforma['mail_from_default'] == 1) {
+
+//            ricavo alias e name dalla piattaforma di default
+            $piattaforma_default = $this->get_info_piattaforma_default();
+
+            $info_piattaforma["alias"] =$piattaforma_default['alias'];
+            $info_piattaforma["name"] = $piattaforma_default['name'];
+//
+        }
 
         $smarty = new EasySmarty();
         $smarty->assign('coupons', $coupons);
@@ -556,10 +560,36 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias')
+                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias, ud.mail_from_default as mail_from_default')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('id=' . $id_piattaforma);
+
+
+            $this->_db->setQuery($query);
+            $info_piattaforma = $this->_db->loadAssoc();
+
+            return $info_piattaforma;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_info_piattaforma');
+        }
+
+
+    }
+
+
+    public function get_info_piattaforma_default()
+    {
+
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias, ud.mail_from_default as mail_from_default')
+                ->from('#__usergroups as ug')
+                ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
+                ->where('ud.is_default = 1');
 
 
             $this->_db->setQuery($query);
@@ -580,14 +610,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
     {
 
         // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
-        $recipients = $email_coupon == '' ?$company_user["email"] : $email_coupon ;
+        $recipients = $email_coupon == '' ? $company_user["email"] : $email_coupon;
         if (false == $recipients) {
             DEBUGG::log($recipients, 'send_new_company_user_mail');
         }
-
-//        var_dump($email_coupon);
-//        var_dump($recipients);
-//        die();
 
         // get sender
         if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
@@ -596,15 +622,26 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
 
         $info_piattaforma = $this->get_info_piattaforma($id_piattaforma);
-
-        // send mail
         $template = JPATH_COMPONENT . '/models/template/new_tutor_mail.tpl';
+
+//         modidifca custom per ausind,
+        if ($info_piattaforma['mail_from_default'] == 1) {
+
+//            ricavo alias e name dalla piattaforma di default
+            $piattaforma_default = $this->get_info_piattaforma_default();
+
+            $info_piattaforma["alias"] =$piattaforma_default['alias'];
+            $info_piattaforma["name"] = $piattaforma_default['name'];
+            $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
+        }
+
+
 
 
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients);
-        $mailer->setSubject('Registrazione  ' . $info_piattaforma["name"]);
+        $mailer->setSubject('Registrazione  ' . $info_piattaforma["alias"]);
 
 
         $smarty = new EasySmarty();

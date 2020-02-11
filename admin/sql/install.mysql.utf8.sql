@@ -346,6 +346,7 @@ CREATE TABLE `#__gg_report` (
   `stato` int(10) DEFAULT NULL,
   `data` date DEFAULT NULL,
   `visualizzazioni` int(10) DEFAULT NULL,
+  `permanenza_tot` int(10) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_contenuto`,`id_utente`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
