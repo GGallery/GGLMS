@@ -29,6 +29,8 @@ _generaCoupon = (function ($, my) {
         $('#change_piva').hide();
         $("#piva-msg").hide();
 
+
+
         $('#id_piattaforma').change(function () {
 
             console.log($('#id_piattaforma').val());
@@ -45,6 +47,10 @@ _generaCoupon = (function ($, my) {
 
                 }, 'json');
         })
+
+        //seleziono il primo valore per  filtrare i corsi per piattaforma
+        $("#id_piattaforma").val($("#id_piattaforma option:first").val());
+        $('#id_piattaforma').trigger('change');
     }
 
     function _checkUsername() {
