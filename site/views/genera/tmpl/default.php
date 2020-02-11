@@ -57,6 +57,8 @@ echo "<h1> Genera Coupon</h1>";
                 <?php } ?>
 
             </select>
+            <div id="piattaforma_warning" style="display: none" class="alert alert-warning">L'azienda è già prensente sotto un altro referente. Rivolgiti all'amministratore del sito. </div>
+
         </div>
     </div>
     <hr>

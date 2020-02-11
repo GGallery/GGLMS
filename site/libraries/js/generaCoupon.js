@@ -48,9 +48,9 @@ _generaCoupon = (function ($, my) {
                 }, 'json');
         })
 
-        //seleziono il primo valore per  filtrare i corsi per piattaforma
-        $("#id_piattaforma").val($("#id_piattaforma option:first").val());
-        $('#id_piattaforma').trigger('change');
+        // //seleziono il primo valore per  filtrare i corsi per piattaforma
+        // $("#id_piattaforma").val($("#id_piattaforma option:first").val());
+        // $('#id_piattaforma').trigger('change');
     }
 
     function _checkUsername() {
@@ -62,7 +62,7 @@ _generaCoupon = (function ($, my) {
             $("#username").prop('readonly', true);
             $("label[for='username']").addClass('disabled');
             $("#piva-msg").hide();
-
+            $("#piattaforma_warning").hide();
 
 
             //mostro botone reset, nascondo conferma
@@ -77,14 +77,36 @@ _generaCoupon = (function ($, my) {
 
                     if (data) {
                         //piva già esistente
+                        // se data.id_piattaforma non appartiene alle option della select
+                        // significa che la partita iva esista già ma è sotto una piattaforma
+                        // che l'utente non può vedere.
+
+
 
                         // aggiorno il valore dei campi azienda
                         $("#ragione_sociale").val(data.name);
                         $("#email").val(data.email);
                         $("#ateco").val(data.cb_ateco);
                         $("#vendor").val(data.cb_ateco);
-                        $("#id_piattaforma").val(data.id_piattaforma);
-                        $("#id_piattaforma").trigger('change');
+
+                        if( $("#id_piattaforma option[value='" + data.id_piattaforma + "']").length >0){
+
+                            // l'opzione è presente, l'utente è abilitato a vedere la piattaforma
+                            $("#id_piattaforma").val(data.id_piattaforma);
+                            $("#id_piattaforma").trigger('change');
+
+                            // sblocco campi coupon
+                            $(".cpn_opt").prop('disabled', false);
+                            $("label.lbl_cpn_opt").removeClass("disabled");
+
+                            $("#btn-genera").prop('disabled', false);
+                        }
+                        else{
+                            // l'opzione NON è presente
+                            // Joomla.renderMessages({'success': ['This has a title!'], 'custom_alert': ['This has a title!']});
+                            $("#piattaforma_warning").show();
+                        }
+
 
 
                     } else {
@@ -93,14 +115,16 @@ _generaCoupon = (function ($, my) {
                         $(".company_opt").prop('disabled', false);
                         $("label.lbl_company_opt").removeClass("disabled");
 
+                        // sblocco campi coupon
+                        $(".cpn_opt").prop('disabled', false);
+                        $("label.lbl_cpn_opt").removeClass("disabled");
+
+                        $("#btn-genera").prop('disabled', false);
+
                     }
 
 
-                    // sblocco campi coupon
-                    $(".cpn_opt").prop('disabled', false);
-                    $("label.lbl_cpn_opt").removeClass("disabled");
 
-                    $("#btn-genera").prop('disabled', false);
 
 
                 }, 'json');
@@ -134,6 +158,8 @@ _generaCoupon = (function ($, my) {
         $("#btn-genera").prop('disabled', true);
 
         $("#venditore").val("");
+
+        $("#piattaforma_warning").hide();
 
 
     }

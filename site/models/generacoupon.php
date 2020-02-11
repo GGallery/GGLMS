@@ -63,9 +63,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
 
-//            var_dump($data);
-//            die();
-
             // check for attestato
             if (!$this->_config->getConfigValue('check_coupon_attestato')) {
                 // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
@@ -75,7 +72,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //                altrimenti lo leggo dal form
                 $data['attestato'] = $data['attestato'] == 'on' ? 1 : 0;
             }
-
 
             // check durata coupon, se il campo è nel form vince l'input dell'utente
             $durata_coupon = $data["durata"] ? $data["durata"] : $this->_config->getConfigValue('durata_standard_coupon');
@@ -91,11 +87,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //            $data['email_coupon'] = $data['email_coupon'] == '' ? $data['email_coupon'] : NULL;
 
 
-//
-//            var_dump($data);
-//            die();
-
-
             // se non esiste crea utente ( tutor ) legato alla company
             // esiste gia' l'username (P.iva) ?
             $user_id = $this->_check_username((string)$data['username']);
@@ -106,17 +97,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
             if (empty($user_id)) {
                 $new_societa = true;
                 $company_user = $this->create_new_company_user($data);
-//                if (false === ($company_user = $this->create_new_company_user($data))) {
-//                    throw new RuntimeException('Error: cannot create user.', E_USER_ERROR);
-//
-//                }
+
             } else {
                 // se l'utente esiste già, la parte del from aziendale e disabilitata
                 // non mi arriva l'id piattaforma
                 // lo ricavo dall'utente partita iva
                 $model_user = new gglmsModelUsers();
                 $data["id_piattaforma"] = $model_user->get_user_piattaforme($user_id)[0]->value;
-
+                
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
