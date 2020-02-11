@@ -641,7 +641,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
         $mailer->addRecipient($recipients);
-        $mailer->setSubject('Registrazione  ' . $info_piattaforma["name"]);
+        $mailer->setSubject('Registrazione  ' . $info_piattaforma["alias"]);
 
 
         $smarty = new EasySmarty();

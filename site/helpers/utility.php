@@ -249,7 +249,7 @@ class utilityHelper
 
             $db = JFactory::getDbo();
             $query = $db->getQuery(true)
-                ->select('g.id as value, u.titolo as text')
+                ->select('DISTINCT  g.id as value, u.titolo as text')
                 ->from('#__usergroups as g')
                 ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
@@ -270,19 +270,25 @@ class utilityHelper
 //                $query = $query->where("ud.dominio='" . DOMINIO . "'");
 
                 // come in models\report getCorsi()
-                //  con il barbatrucco dei coupon la piattaforma corrente  non è più quella del dominio MA quella dell'utente collegato
+
                 $user = JFactory::getUser();
                 $userid = $user->get('id');
-                $model_user = new gglmsModelUsers();
-                $id_piattaforma = $model_user->get_user_piattaforme($userid);
-                $id_piattaforma_array = array();
+                // controllo se esiste un utente collegato, potrebbe non esserci im caso di chiamata genera coupon da ecommerce esterni!!
+                if($userid != null)
+                {
+                    //  con il barbatrucco dei coupon la piattaforma corrente  non è più quella del dominio MA quella dell'utente collegato
+                    $model_user = new gglmsModelUsers();
+                    $id_piattaforma = $model_user->get_user_piattaforme($userid);
+                    $id_piattaforma_array = array();
 
 
-                foreach ($id_piattaforma as $p) {
-                    array_push($id_piattaforma_array, $p->value);
+                    foreach ($id_piattaforma as $p) {
+                        array_push($id_piattaforma_array, $p->value);
+                    }
+
+                    $query->where($db->quoteName('ud.group_id') . ' IN (' . implode(", ", $id_piattaforma_array) . ')');
                 }
 
-                $query->where($db->quoteName('ud.group_id') . ' IN (' . implode(", ", $id_piattaforma_array) . ')');
 
             }
 
