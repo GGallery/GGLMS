@@ -12,7 +12,7 @@ File Encoding         : 65001
 
 Date: 2019-11-26 12:03:23
 */
-
+SET sql_mode='';
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
