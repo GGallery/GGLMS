@@ -536,6 +536,7 @@ CREATE TABLE `#__gg_view_stato_user_unita` (
 -- ----------------------------
 -- Records of #__gg_view_stato_user_unita
 -- ----------------------------
+DROP TABLE IF EXISTS `#__gg_mail_log`;
 CREATE TABLE `#__gg_mail_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `template` varchar(255) DEFAULT NULL,
