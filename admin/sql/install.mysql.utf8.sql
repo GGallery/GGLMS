@@ -546,5 +546,5 @@ CREATE TABLE `#__gg_mail_log` (
   `created_at` datetime DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
