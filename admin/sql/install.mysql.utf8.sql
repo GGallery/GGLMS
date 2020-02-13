@@ -219,7 +219,7 @@ CREATE TABLE `#__gg_coupon` (
   `id_societa` int(11) DEFAULT NULL,
   `id_gruppi` varchar(11) DEFAULT NULL,
   `stampatracciato` int(1) DEFAULT NULL,
-  `venditore` varchar(255) DEFAULT NULL
+  `venditore` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`coupon`(20))
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
