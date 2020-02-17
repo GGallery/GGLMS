@@ -38,7 +38,7 @@ class gglmsModelCatalogo extends JModelLegacy
     {
 
         $query = $this->_db->getQuery(true)
-            ->select(' u.id,u.titolo,u.descrizione, u.alias, b1.description')
+            ->select('distinct u.id,u.titolo,u.descrizione, u.alias, b1.description')
             ->from('#__gg_unit as u')
 //        ->join('inner','#__gg_usergroup_map as mp on mp.idunita=u.id')
             ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')

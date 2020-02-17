@@ -9,7 +9,6 @@ echo "<h1> Monitora Coupon</h1>"; ?>
 <div class="mc-main">
     <div id="filtri" class="filtri">
         <h5>Filtri</h5>
-<!--        <hr>-->
         <form id="form-monitora-coupon" name="form-monitora-coupon" class="form-validate">
             <div class="form-group">
                 <label for="id_gruppo_azienda">Azienda:</label>
@@ -63,10 +62,9 @@ echo "<h1> Monitora Coupon</h1>"; ?>
     </div>
     <div class="data">
         <h5>Coupon</h5>
-<!--        <hr>-->
         <div class="table-container">
 
-            <span id="no-data-msg" >Non ci sono coupon per i filtri selezionati</span>
+            <span id="no-data-msg">Non ci sono coupon per i filtri selezionati</span>
             <table id="coupon-table" class="table table-striped table-bordered" style="width:100%">
                 <thead>
                 <tr class="header-row">
@@ -108,6 +106,57 @@ echo "<h1> Monitora Coupon</h1>"; ?>
 
 </div>
 <div id="cover-spin"></div>
+
+<!-- Modal Corso Disabilitato-->
+<div id="modalMail" class="modal fade" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Invia Coupon </h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="col-sm-1 col-form-label" for="to">Da:</label>
+                        <div class="col-sm-11">
+                            <input type="email" id="to" name="to">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 col-form-label" for="from">A:</label>
+                        <div class="col-sm-11">
+                            <input type="email" id="from" name="from">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-1 col-form-label" for="subject">Obj:</label>
+                        <div class="col-sm-11">
+                            <input type="text" id="subject" name="subject">
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-sm-12">
+                            <div style ="min-height: 350px" contenteditable="true" class="form-control"  id="body" name="body">
+                            </div>
+
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button  class="btn" type="button" id="btn_invia_coupon">Invia</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
 <script type="application/javascript">
     jQuery(document).ready(function () {
