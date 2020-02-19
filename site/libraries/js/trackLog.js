@@ -1,41 +1,35 @@
-_monitoraCoupon = (function ($, my) {
+_tracklog = (function ($, my) {
 
         var loadreportoffset = 15; // quanti per pagina
         var loadreportlimit = 0;
         var maxNofpages;
         var columns = [
-
-            {
-                field: 'coupon',
-                title: 'Coupon',
-                type: 'standard'
-
-            },
             {
                 field: 'user',
                 title: 'Utente',
                 type: 'standard'
             },
-            {
-                field: 'creation_time',
-                title: 'Data Creazione',
-                type: 'date'
-            },
-            {
-                field: 'data_utilizzo',
-                title: 'Data Utilizzo',
-                type: 'date'
-            },
+            // {
+            //     field: 'creation_time',
+            //     title: 'Data Creazione',
+            //     type: 'date'
+            // },
             {
                 field: 'corso',
                 title: 'Corso',
                 type: 'standard'
             },
             {
-                field: 'venditore',
-                title: 'Venditore',
+                field: 'stato',
+                title: 'Stato',
                 type: 'standard'
+            },
+            {
+                field: 'details',
+                title: 'Dettagli',
+                type: 'action'
             }
+
             // ,{
             //     field: 'mailto',
             //     title: 'Invia',
@@ -43,69 +37,29 @@ _monitoraCoupon = (function ($, my) {
             // }
 
         ];
-        //per aggiungere una colonna basta aggiungere all'array columns
 
-        var body_mail = "<span>Spettabile utente," +
-            " </br> ti invitiamo a svolgere il corso <b>{{corso}}</b>. " +
-            "</br></br> Registrati, o se hai già effettuato una registrazione, accedi con le credenziali scelte su <a href = '{{piattaforma}}'>la piattaforma</a>, clicca sulla voce di menù CODICE COUPON  e inserisci il codice <span style='font-family:monospace; font-weight: bold '>{{coupon}}</span> per sbloccare l'iscrizione.</span>" +
-            "</br></br>Troverai il corso alla voce I MIEI CORSI: leggi la scheda e consulta i contenuti nell'ordine in cui sono presentati." +
-            "</br> Ti ricordiamo che dal momento dell'iscrizione hai {{durata}} giorni per completare il corso e scaricare il tuo attestato." +
-            "</br></br>Cordiali saluti," +
-            "</br> Il tutor ";
-        var subject_mail = "Iscrizione corso {{corso}}";
+        //per aggiungere una colonna basta aggiungere all'array columns
 
 
         function _init() {
 
+            $.each(columns, function (i, item) {
+                $(".header-row").append('<th>' + item.title + '</th>')
+            });
 
-            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.is_tutor_aziendale"))
-                .done(function (data) {
+            $("#id_gruppo_azienda").change(_loadData);
 
+            // $('#utente').keyup(_delay(_loadData, 500));
+            // $("#btn_monitora_coupon").click(_loadData);
 
-                    if (data == "true") {
-                        // utente collegato ? tutor aziendale nascondo le info relative a venditore
-                        columns = columns.filter(function (obj) {
-                            return obj.field !== 'venditore';
-                        });
-
-                        $("#venditore").hide();
-                        $("label[for=venditore]").hide();
-                    } else {
-                        columns = columns.filter(function (obj) {
-                            return obj.field !== 'mailto';
-                        });
-                    }
+            $("#btn_export_csv").click(loadCsv);
+            $('.button-page').on('click', _pagination_click);
 
 
-                    $.each(columns, function (i, item) {
+            $("#btn_export_csv").click(loadCsv);
+            $('.button-page').on('click', _pagination_click);
 
-                        $(".header-row").append('<th>' + item.title + '</th>')
-                    });
-
-                    $("#form-monitora-coupon select").change(_loadData);
-                    $('#coupon').keyup(_delay(_loadData, 500));
-                    $('#venditore').keyup(_delay(_loadData, 500));
-                    $('#utente').keyup(_delay(_loadData, 500));
-                    // $("#btn_monitora_coupon").click(_loadData);
-
-                    $("#btn_export_csv").click(loadCsv);
-                    $('.button-page').on('click', _pagination_click);
-
-                    _toggle_table(false);
-                    _loadData(null);
-
-
-                })
-                .fail(function (data) {
-                    console.log('fail', data);
-                    $('#cover-spin').hide(0);
-
-                })
-                .then(function (data) {
-                    // console.log('then', data);
-                    $('#cover-spin').hide(0);
-                });
-
+            _loadData();
 
         }
 
@@ -124,10 +78,8 @@ _monitoraCoupon = (function ($, my) {
 
             var param = {
                 id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
-                id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
-                stato: parseInt($("#stato_coupon").val()),
-                coupon: $("#coupon").val().trim(),
-                venditore: $("#venditore").val().trim(),
+                // id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
+                stato: parseInt($("#stato").val()),
                 utente: $("#utente").val().trim(),
                 limit: sender !== 'pagination' ? 0 : loadreportlimit,
                 offset: loadreportoffset
@@ -136,7 +88,7 @@ _monitoraCoupon = (function ($, my) {
 
             // show spinner
             $('#cover-spin').show(0);
-            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.getcouponlist", param))
+            $.when($.get("index.php?option=com_gglms&task=tracklog.getData", param))
                 .done(function (data) {
 
                     data = JSON.parse(data);
@@ -146,7 +98,7 @@ _monitoraCoupon = (function ($, my) {
 
                     if (data['rowCount'] > 0) {
 
-                        _fill_grid(data);
+                        _fill_grid(data.data);
                         _toggle_table(true);
 
 
@@ -173,13 +125,13 @@ _monitoraCoupon = (function ($, my) {
 
             if (show) {
                 $('#pagination-container').show();
-                $('#coupon-table').show();
+                $('#data-table').show();
                 $('#no-data-msg').hide();
             } else {
 
                 $('#pagination-container').hide();
                 $('#no-data-msg').show();
-                $('#coupon-table').hide();
+                $('#data-table').hide();
 
             }
         }
@@ -189,47 +141,39 @@ _monitoraCoupon = (function ($, my) {
             var offset = new Date().getTimezoneOffset();
             $.each(data, function (i, item) {
 
-                if (item.coupon) {
 
-                    var new_row = item.scaduto == 0 ? $('<tr></tr>') : $('<tr class="expired"></tr>');
-
-
-                    $.each(columns, function (i, c) {
+                var new_row = item.stato == 1 ? $('<tr></tr>') : $('<tr class="completed"></tr>');
 
 
-                        switch (c.type) {
-                            case'date':
+                $.each(columns, function (i, c) {
 
-                                // convert data from utc to local
-                                if (item[c.field] !== null) {
-                                    var utc = new Date(item[c.field]);
-                                    utc.setMinutes(utc.getMinutes() - offset);
-                                    item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
-                                }
-                                new_row.append('<td>' + item[c.field] + '</td>');
-                                break;
-                            case'action':
 
-                                console.log(item);
-                                if (!item['user']) {
+                    switch (c.type) {
+                        case'date':
 
-                                    new_row.append('<td><button class="btn btn-envelope" data-coupon="' + item['coupon'] + '"  data-corso = "' + item['corso'] + '" data-durata="' + item["durata"] + '" type="button" title="Invia coupon" class="btn btn-xs btn-default command-edit"><span class="glyphicon glyphicon-envelope"></span></button> </td>');
-                                } else {
-                                    new_row.append('<td></td>');
-                                }
+                            // convert data from utc to local
+                            if (item[c.field] !== null) {
+                                var utc = new Date(item[c.field]);
+                                utc.setMinutes(utc.getMinutes() - offset);
+                                item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
+                            }
+                            new_row.append('<td>' + item[c.field] + '</td>');
+                            break;
+                        case'action':
 
-                                break;
-                            case 'standard':
-                            default:
-                                new_row.append('<td>' + item[c.field] + '</td>');
-                                break;
-                        }
 
-                    });
+                            new_row.append('<td><button class="btn btn-envelope"  data-corso = "' + item['corso'] + '" data-durata="' + item["durata"] + '" type="button" title="Invia coupon" class="btn btn-xs btn-default command-edit"><span class="glyphicon glyphicon-envelope"></span></button> </td>');
 
-                    $("#coupon-table tbody").append(new_row);
+                            break;
+                        case 'standard':
+                        default:
+                            new_row.append('<td>' + item[c.field] + '</td>');
+                            break;
+                    }
 
-                }
+                });
+
+                $("#data-table tbody").append(new_row);
 
 
             });
@@ -245,7 +189,7 @@ _monitoraCoupon = (function ($, my) {
             $("#modalMail").appendTo("body");
             // $(".modal-backdrop")[0].hide(); // workaround , crea due modalbackdrop non so perchè
 
-            var coupon = $($(e.target).closest('button')).data('coupon');
+            // var coupon = $($(e.target).closest('button')).data('coupon');
             var corso = $($(e.target).closest('button')).data('corso');
             var durata = $($(e.target).closest('button')).data('durata');
             var origin = window.location.origin;
@@ -265,7 +209,7 @@ _monitoraCoupon = (function ($, my) {
         function _resetGridaAndPagination(rowCount) {
 
             maxNofpages = parseInt((rowCount / loadreportoffset) + 1);
-            $('#coupon-table tbody').empty();
+            $('#data-table tbody').empty();
             $('#totalcount').empty();
             $('#totalcount').html('record totali:' + rowCount);
         }
@@ -350,14 +294,6 @@ _monitoraCoupon = (function ($, my) {
                     callback.apply(context, args);
                 }, ms || 0);
             };
-        }
-
-
-        function _getTutorType() {
-
-            $('#cover-spin').show(0);
-
-
         }
 
 

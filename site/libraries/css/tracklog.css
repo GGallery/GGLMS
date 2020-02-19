@@ -1,0 +1,167 @@
+.mc-main {
+    display: flex;
+    flex-direction: row;
+    overflow-x: scroll;
+
+}
+
+.mc-main > div.filtri {
+    flex: 0;
+    border: 1px solid grey;
+    border-right: none;
+    min-width: 300px;
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.mc-main > div.data {
+    flex: 1;
+    border: 1px solid grey;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+
+#coupon-table {
+    padding: 10px;
+}
+
+
+.button-page.active {
+    color: white;
+    background-color: #325482;
+}
+
+
+#btn_monitora_coupon {
+
+    text-align: center;
+}
+
+
+#no-data-msg {
+    display: none;
+}
+
+
+h5 {
+    text-align: center;
+}
+
+.expired{
+    color: indianred;
+}
+
+
+
+#modalMail {
+    z-index: 12002 !important;
+}
+
+#modalMail > .modal-dialog {
+ width: 549px;
+margin: 30px auto;
+}
+
+#modalMail > .modal-dialog {
+    width: 549px;
+    margin: 30px auto;
+}
+
+#btn_invia_coupon {
+    margin-bottom:2px !important;
+    background-color: #51a351 !important;
+    color:white !important;
+    border-color:#51a351 !important;
+}
+
+
+#btn_invia_coupon:not(:disabled):not(.disabled) {
+    cursor: pointer !important;;
+}
+#btn_invia_coupon:hover {
+    color: #51a351 !important;
+    background-color:transparent !important;
+    border-color: #1e7e34 !important;
+}
+#btn_invia_coupon:focus, #btn_invia_coupon:hover {
+    text-decoration: none;
+}
+
+/*spinner */
+#cover-spin {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(163, 165, 168, 0.7);
+    z-index: 9999;
+    display: none;
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#cover-spin::after {
+
+    content: '';
+    display: block;
+    position: absolute;
+    left: 48%;
+    top: 40%;
+    width: 40px;
+    height: 40px;
+    border-style: solid;
+    border-color: #325482;
+    border-top-color: transparent;
+    border-width: 4px;
+    border-radius: 50%;
+    -webkit-animation: spin .8s linear infinite;
+    animation: spin .8s linear infinite;
+}
+
+
+@media (max-width: 768px) {
+
+    .mc-main {
+        display: flex;
+        flex-direction: column;
+        /*overflow-x: scroll;*/
+
+    }
+
+    .mc-main > div.filtri {
+        flex: 0;
+        flex-direction: column;
+        border:none;
+    }
+
+    .mc-main > div.data {
+        border-top: 1px solid grey;
+        border-right:none;
+        border-left:none;
+        border-bottom: none;
+    }
+
+
+}
+

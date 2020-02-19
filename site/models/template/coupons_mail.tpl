@@ -20,6 +20,7 @@
         </div>
 
         <p>
+        <p>Per accedere al corso registrati, o se hai già effettuato una registrazione, accedi con le credenziali scelte su <a href="{$piattaforma_link}">{$piattaforma_name} </a> </p>
 	        <b>Per una migliore fruizione del corso consigliamo fortemente di usare browser quali Firefox (versione 4 o superiore), Google Chrome (versione 6 o superiore)</b>
         <p>
         
