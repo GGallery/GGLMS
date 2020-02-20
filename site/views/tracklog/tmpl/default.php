@@ -21,6 +21,17 @@ echo "<h1>Tracklog Utente</h1>"; ?>
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="id_gruppo_corso">Corso:</label>
+                <select placeholder="Corso" class="form-control" id="id_corso" name="id_corso">
+<!--                    <option value="-1">Tutti i corsi</option>-->
+                    <?php foreach ($this->lista_corsi as $s) { ?>
+                        <option value="<?php echo $s->value; ?>">
+                            <?php echo $s->text ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
 
             <div class="form-group">
                 <label for="stato">Stato:</label>
@@ -41,7 +52,7 @@ echo "<h1>Tracklog Utente</h1>"; ?>
         </form>
     </div>
     <div class="data">
-        <h5>...</h5>
+        <h5>Tracciamenti</h5>
         <div class="table-container">
 
             <span id="no-data-msg">Non ci sono dati per i filtri selezionati</span>
@@ -87,50 +98,31 @@ echo "<h1>Tracklog Utente</h1>"; ?>
 </div>
 <div id="cover-spin"></div>
 
-<!-- Modal Corso Disabilitato-->
-<div id="modalMail" class="modal fade" role="dialog" data-backdrop="static">
+<!-- Modal Details-->
+<div id="modalDetails" class="modal fade" role="dialog" data-backdrop="static">
     <div class="modal-dialog">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Invia Coupon </h4>
+                <button type="button" class="close" onclick="closeModal()" ">&times;</button>
+                <h4 class="modal-title">Dettagli </h4>
             </div>
             <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label class="col-sm-1 col-form-label" for="to">Da:</label>
-                        <div class="col-sm-11">
-                            <input type="email" id="to" name="to">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 col-form-label" for="from">A:</label>
-                        <div class="col-sm-11">
-                            <input type="email" id="from" name="from">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 col-form-label" for="subject">Obj:</label>
-                        <div class="col-sm-11">
-                            <input type="text" id="subject" name="subject">
-                        </div>
-                    </div>
-                    <div class="form-group">
-
-                        <div class="col-sm-12">
-                            <div style ="min-height: 350px" contenteditable="true" class="form-control"  id="body" name="body">
-                            </div>
-
-                        </div>
-                    </div>
-
-                </form>
+          <table id="details_grid">
+              <thead>
+              <tr class="header-row-details">
+<!--                  <th>Contenuto</th>-->
+<!--                  <th>Ultimo Accesso</th>-->
+<!--                  <th>Permanenza</th>-->
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+          </table>
             </div>
             <div class="modal-footer">
-                <button  class="btn" type="button" id="btn_invia_coupon">Invia</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="closeModal()" class="btn btn-default btn-close" >Close</button>
             </div>
         </div>
 

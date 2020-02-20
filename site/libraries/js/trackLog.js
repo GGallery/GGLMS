@@ -9,11 +9,6 @@ _tracklog = (function ($, my) {
                 title: 'Utente',
                 type: 'standard'
             },
-            // {
-            //     field: 'creation_time',
-            //     title: 'Data Creazione',
-            //     type: 'date'
-            // },
             {
                 field: 'corso',
                 title: 'Corso',
@@ -28,14 +23,30 @@ _tracklog = (function ($, my) {
                 field: 'details',
                 title: 'Dettagli',
                 type: 'action'
+            },
+            {
+                field: 'id_corso',
+                title: '',
+                type: 'hidden'
             }
 
-            // ,{
-            //     field: 'mailto',
-            //     title: 'Invia',
-            //     type: 'action'
-            // }
 
+        ];
+        var details_column = [{
+            field: 'titolo_contenuto',
+            title: 'Contenuto',
+            type: 'standard'
+        },
+            {
+                field: 'permanenza',
+                title: 'Permanenza',
+                type: 'standard'
+            },
+            {
+                field: 'last_visit',
+                title: 'Ultimo accesso',
+                type: 'standard'
+            }
         ];
 
         //per aggiungere una colonna basta aggiungere all'array columns
@@ -44,10 +55,15 @@ _tracklog = (function ($, my) {
         function _init() {
 
             $.each(columns, function (i, item) {
-                $(".header-row").append('<th>' + item.title + '</th>')
+                if (item.type != 'hidden') {
+
+                    $(".header-row").append('<th>' + item.title + '</th>')
+                }
             });
 
+
             $("#id_gruppo_azienda").change(_loadData);
+            $("#id_corso").change(_loadData);
 
             // $('#utente').keyup(_delay(_loadData, 500));
             // $("#btn_monitora_coupon").click(_loadData);
@@ -78,7 +94,7 @@ _tracklog = (function ($, my) {
 
             var param = {
                 id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
-                // id_gruppo_corso: parseInt($("#id_gruppo_corso").val()),
+                id_corso: parseInt($("#id_corso").val()),
                 stato: parseInt($("#stato").val()),
                 utente: $("#utente").val().trim(),
                 limit: sender !== 'pagination' ? 0 : loadreportlimit,
@@ -162,8 +178,12 @@ _tracklog = (function ($, my) {
                         case'action':
 
 
-                            new_row.append('<td><button class="btn btn-envelope"  data-corso = "' + item['corso'] + '" data-durata="' + item["durata"] + '" type="button" title="Invia coupon" class="btn btn-xs btn-default command-edit"><span class="glyphicon glyphicon-envelope"></span></button> </td>');
+                            new_row.append('<td><button class="btn btn-details"  data-user="' + item["id_user"] + '" type="button" title="Dettagli" class="btn btn-xs btn-default command-edit"><span class="\n' +
+                                'glyphicon glyphicon-zoom-in"></span></button> </td>');
 
+                            break;
+                        case 'hidden':
+                            // hidden non fare nulla
                             break;
                         case 'standard':
                         default:
@@ -179,32 +199,71 @@ _tracklog = (function ($, my) {
             });
 
 
-            $("button.btn-envelope").click(openModal);
+            $("button.btn-details").click(openModal);
 
 
         }
 
         function openModal(e) {
-            $("#modalMail").modal("show");
-            $("#modalMail").appendTo("body");
-            // $(".modal-backdrop")[0].hide(); // workaround , crea due modalbackdrop non so perchè
 
-            // var coupon = $($(e.target).closest('button')).data('coupon');
-            var corso = $($(e.target).closest('button')).data('corso');
-            var durata = $($(e.target).closest('button')).data('durata');
+
+            var user = $($(e.target).closest('button')).data('user');
             var origin = window.location.origin;
 
-            var body = body_mail.replace('{{coupon}}', coupon).replace('{{corso}}', corso).replace('{{piattaforma}}', origin).replace('{{durata}}', durata);
-            var subject = subject_mail.replace('{{corso}}', corso);
+            $.each(details_column, function (i, item) {
+                $(".header-row-details").append('<th>' + item.title + '</th>')
+            });
 
-            $("#body").empty();
-            $("#body").append(body);
 
-            $("#subject").empty();
-            $("#subject").val(subject);
+            var param = {
+                id_user: user,
+                id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
+                id_corso: parseInt($("#id_corso").val())
+            };
+
+            // show spinner
+            $('#cover-spin').show(0);
+            $.when($.get("index.php?option=com_gglms&task=tracklog.getDetails", param))
+                .done(function (data) {
+
+                    data = JSON.parse(data);
+                    console.log('details-data', data);
+
+                    $.each(data, function (i, item) {
+                        var new_row = $('<tr></tr>');
+                        $.each(details_column, function (a, c) {
+                            new_row.append('<td>' + item[c.field] + '</td>');
+                        });
+                        $("#details_grid").append(new_row);
+                    });
+
+                    $("#modalDetails").modal("show");
+                    $("#modalDetails").appendTo("body");
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    $('#cover-spin').hide(0);
+                });
 
 
         }
+
+
+      function _closeModal(){
+
+          $(".header-row-details").empty();
+
+          console.log( $("#details_grid tbody"));
+          $("#details_grid > tbody").empty();
+
+          $("#modalDetails").modal("hide");
+      }
 
         function _resetGridaAndPagination(rowCount) {
 
@@ -299,6 +358,7 @@ _tracklog = (function ($, my) {
 
         // public methods
         my.init = _init;
+        my.closeModal = _closeModal;
 
 
         return my;

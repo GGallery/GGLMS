@@ -45,6 +45,8 @@ class gglmsViewTracklog extends JViewLegacy
 
         $this->societa = utilityHelper::getSocietaByUser();
         $this->lista_corsi = utilityHelper::getGruppiCorsi();
+        $this->lista_corsi = utilityHelper::getIdCorsi();
+
 
 
         // Display the view
