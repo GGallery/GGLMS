@@ -114,7 +114,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                     $data->data = $stato->data;
                     $data->stato = $stato->completato;
                     $data->visualizzazioni =  $stato->visualizzazioni;
-                    $data->permanenza_tot= $contenuto->getPermanenza_tot($item->id_contenuto, $data->id_utente);
+                    $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
                     $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
 
 //                    var_dump($data->permanenza_tot);

@@ -679,12 +679,12 @@ class gglmsModelContenuto extends JModelLegacy
         return $quiz_info;
 
 
+
     }
 
-    /////////////
-    ///
 
-    public function getPermanenza_tot($id_contenuto,$id_user)
+    // calcola la permanenza sommando i record da gg_log
+    public function calculatePermanenza_tot($id_contenuto,$id_user)
     {
 
         try {
@@ -698,17 +698,42 @@ class gglmsModelContenuto extends JModelLegacy
             $this->_db->setQuery($query);
             $permanenza_tot = $this->_db->loadResult('permanenza_tot');
 
-//            var_dump((string)$query);
-//            var_dump($permanenza_tot);
             return $permanenza_tot;
 
         } catch (Exception $e) {
-//            DEBUGG::log($e->getMessage(), 'error in getPermanenza_tot', 0, 1, 0);
-            DEBUGG::log((string)$query, 'error in getPermanenza_tot', 0, 1, 0);
+
+            DEBUGG::log((string)$query, 'error in calculatePermanenza_tot', 0, 1, 0);
         }
 
 
     }
+
+
+    // recupera la permanenza da ggreport
+    public function getPermanenza_tot($id_contenuto,$id_user){
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('COALESCE(sum(permanenza_tot), 0) as permanenza_tot')
+                ->from('#__gg_report')
+                ->where('id_contenuto = ' . $id_contenuto)
+                ->where('id_utente = ' . $id_user);
+
+            $this->_db->setQuery($query);
+            $permanenza_tot = $this->_db->loadResult('permanenza_tot');
+
+            return $permanenza_tot;
+
+        } catch (Exception $e) {
+            DEBUGG::log((string)$query, 'error in getPermanenza_tot', 0, 1, 0);
+        }
+
+
+
+    }
+
+
 
 }
 
