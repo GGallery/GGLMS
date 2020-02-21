@@ -52,7 +52,7 @@ echo "<h1>Tracklog Utente</h1>"; ?>
         </form>
     </div>
     <div class="data">
-        <h5>Tracciamenti</h5>
+        <h5 class="title_corso"></h5>
         <div class="table-container">
 
             <span id="no-data-msg">Non ci sono dati per i filtri selezionati</span>
@@ -106,15 +106,12 @@ echo "<h1>Tracklog Utente</h1>"; ?>
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" onclick="closeModal()" ">&times;</button>
-                <h4 class="modal-title">Dettagli </h4>
+                <h4 class="modal-title">Dettagli Utente</h4>
             </div>
             <div class="modal-body">
           <table id="details_grid">
               <thead>
               <tr class="header-row-details">
-<!--                  <th>Contenuto</th>-->
-<!--                  <th>Ultimo Accesso</th>-->
-<!--                  <th>Permanenza</th>-->
               </tr>
               </thead>
               <tbody>

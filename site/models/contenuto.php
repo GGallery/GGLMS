@@ -690,13 +690,16 @@ class gglmsModelContenuto extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('COALESCE (sum(permanenza), 0) as permanenza_tot')
+                ->select('COALESCE(sum(permanenza), 0) as permanenza_tot')
                 ->from('#__gg_log')
                 ->where('id_contenuto = ' . $id_contenuto)
                 ->where('id_utente = ' . $id_user);
 
             $this->_db->setQuery($query);
             $permanenza_tot = $this->_db->loadResult('permanenza_tot');
+
+//            var_dump((string)$query);
+//            var_dump($permanenza_tot);
             return $permanenza_tot;
 
         } catch (Exception $e) {

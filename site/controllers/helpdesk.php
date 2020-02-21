@@ -57,7 +57,7 @@ class gglmsControllerHelpDesk extends JControllerLegacy
             }
 
 
-            $this->_japp->redirect(JRoute::_('/home/help-desk'), $this->_japp->enqueueMessage('Richiesta inoltrata con successo', 'Success'));
+            $this->_japp->redirect(JRoute::_('/home/helpdesk'), $this->_japp->enqueueMessage('Richiesta inoltrata con successo', 'Success'));
 
 
         } catch (Exception $e) {

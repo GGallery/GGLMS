@@ -46,7 +46,14 @@ _tracklog = (function ($, my) {
                 field: 'last_visit',
                 title: 'Ultimo accesso',
                 type: 'standard'
+            },
+            {
+                field: 'visualizzazioni',
+                title: '# Visite',
+                type: 'standard'
             }
+
+
         ];
 
         //per aggiungere una colonna basta aggiungere all'array columns
@@ -65,15 +72,11 @@ _tracklog = (function ($, my) {
             $("#id_gruppo_azienda").change(_loadData);
             $("#id_corso").change(_loadData);
 
-            // $('#utente').keyup(_delay(_loadData, 500));
-            // $("#btn_monitora_coupon").click(_loadData);
+            $('#utente').keyup(_delay(_loadData, 500));
 
             $("#btn_export_csv").click(loadCsv);
             $('.button-page').on('click', _pagination_click);
 
-
-            $("#btn_export_csv").click(loadCsv);
-            $('.button-page').on('click', _pagination_click);
 
             _loadData();
 
@@ -91,6 +94,9 @@ _tracklog = (function ($, my) {
                 $("a[data-page='5']").html('5');
                 actualminpage = 1;
             }
+            // $("#id_corso").val()
+            var title = $("#id_corso option:selected").text().trim();
+            $(".title_corso").text("Tracciamenti " + title);
 
             var param = {
                 id_gruppo_azienda: parseInt($("#id_gruppo_azienda").val()),
@@ -231,8 +237,16 @@ _tracklog = (function ($, my) {
 
                     $.each(data, function (i, item) {
                         var new_row = $('<tr></tr>');
+
+
                         $.each(details_column, function (a, c) {
-                            new_row.append('<td>' + item[c.field] + '</td>');
+
+                            var val = item[c.field];
+                            if (c.field === "permanenza") {
+                                val = _secondsTohhmmss(val);
+                            }
+
+                            new_row.append('<td>' + val + '</td>');
                         });
                         $("#details_grid").append(new_row);
                     });
@@ -254,16 +268,15 @@ _tracklog = (function ($, my) {
 
         }
 
+        function _closeModal() {
 
-      function _closeModal(){
+            $(".header-row-details").empty();
 
-          $(".header-row-details").empty();
+            console.log($("#details_grid tbody"));
+            $("#details_grid > tbody").empty();
 
-          console.log( $("#details_grid tbody"));
-          $("#details_grid > tbody").empty();
-
-          $("#modalDetails").modal("hide");
-      }
+            $("#modalDetails").modal("hide");
+        }
 
         function _resetGridaAndPagination(rowCount) {
 
@@ -329,16 +342,10 @@ _tracklog = (function ($, my) {
         function loadCsv() {
 
 
-            console.log('columns', columns);
-
-            var url = "index.php?option=com_gglms&task=monitoracoupon.exportCsv";
+            var url = "index.php?option=com_gglms&task=tracklog.exportCsv";
             url = url + "&id_gruppo_azienda=" + $("#id_gruppo_azienda").val();
-            url = url + "&id_gruppo_corso=" + $("#id_gruppo_corso").val();
-            url = url + "&stato=" + $("#stato_coupon").val();
-            url = url + "&coupon=" + $("#coupon").val();
-            url = url + "&columns=" + columns.map(function (c) { // colonne da esportare
-                return c.field
-            }).toString();
+            url = url + "&id_corso=" + $("#id_corso").val();
+            url = url + "&stato=" + $("#stato").val();
 
             location.href = url;
 
@@ -353,6 +360,27 @@ _tracklog = (function ($, my) {
                     callback.apply(context, args);
                 }, ms || 0);
             };
+        }
+
+
+        function _secondsTohhmmss(totalSeconds) {
+
+            if (totalSeconds == 0) {
+                result = 0;
+            } else {
+                var hours = Math.floor(totalSeconds / 3600);
+                var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+                var seconds = totalSeconds - (hours * 3600) - (minutes * 60);
+
+                // round seconds
+                seconds = Math.round(seconds * 100) / 100;
+
+                var result = (hours < 10 ? "0" + hours : hours);
+                result += ":" + (minutes < 10 ? "0" + minutes : minutes);
+                result += ":" + (seconds < 10 ? "0" + seconds : seconds);
+            }
+
+            return result;
         }
 
 
