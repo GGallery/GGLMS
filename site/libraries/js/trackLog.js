@@ -71,6 +71,7 @@ _tracklog = (function ($, my) {
 
             $("#id_gruppo_azienda").change(_loadData);
             $("#id_corso").change(_loadData);
+            $("#stato").change(_loadData);
 
             $('#utente').keyup(_delay(_loadData, 500));
 
