@@ -8,17 +8,20 @@ echo "<h1> Genera Coupon</h1>";
 
 
 ?>
-<form autocomplete="off" id="form-genera-coupon" action="<?php echo('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
+<form autocomplete="off" id="form-genera-coupon"
+      action="<?php echo('index.php?option=com_gglms&task=generacoupon.generacoupon'); ?>"
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
+
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" for="username">Partita Iva:</label>
-        <div class="col-sm-6">
+        <div class="col-sm-5">
             <input required placeholder="Partita IVA dell'azienda" type="number" class="form-control" id="username"
                    name="username">
             <small id="piva-msg"> Inserisici la partita iva dell'azienda</small>
         </div>
-        <div class="col-sm-3">
-            <button type="button" id="confirm_piva" class="btn btn-sm"> Conferma P. iva</button>
+        <div class="col-sm-4">
+            <button onclick="openModal" type="button" title="Cerca Partita Iva" id="search_piva" class="btn btn-xs"> <span class="glyphicon glyphicon-zoom-in"></span></button>
+            <button type="button" id="confirm_piva" class="btn btn-sm">Conferma</button>
             <button type="button" id="change_piva" class="btn btn-sm"> Reset</button>
         </div>
     </div>
@@ -31,7 +34,8 @@ echo "<h1> Genera Coupon</h1>";
         </div>
     </div>
     <div class="form-group row">
-        <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email">Email Tutor Aziendale:</label>
+        <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email">Email Tutor
+            Aziendale:</label>
         <div class="col-sm-9">
             <input required disabled placeholder="Email del referente aziendale" type="email"
                    class="form-control company_opt" id="email"
@@ -57,7 +61,9 @@ echo "<h1> Genera Coupon</h1>";
                 <?php } ?>
 
             </select>
-            <div id="piattaforma_warning" style="display: none" class="alert alert-warning">L'azienda è già prensente sotto un altro referente. Rivolgiti all'amministratore del sito. </div>
+            <div id="piattaforma_warning" style="display: none" class="alert alert-warning">L'azienda è già prensente
+                sotto un altro referente. Rivolgiti all'amministratore del sito.
+            </div>
 
         </div>
     </div>
@@ -107,7 +113,8 @@ echo "<h1> Genera Coupon</h1>";
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="venditore">Email Coupon:</label>
         <div class="col-sm-9">
-            <input placeholder="Email a cui inviare i coupon (lasciare vuoto per inviarli al referente aziendale) " type="email"
+            <input placeholder="Email a cui inviare i coupon (lasciare vuoto per inviarli al referente aziendale) "
+                   type="email"
                    class="form-control cpn_opt" id="email_coupon"
                    name="email_coupon">
         </div>
@@ -154,6 +161,37 @@ echo "<h1> Genera Coupon</h1>";
         <button id="btn-genera" type="submit" disabled class="btn-block btn">Genera</button>
     </div>
 </form>
+
+
+<!-- Modal Details-->
+<div id="modalDetails_genera" class="modal fade" role="dialog" >
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="closeModal()" ">&times;</button>
+                <h4 class="modal-title"> Società </h4>
+                <h6>Clicca su una riga per selezionare l'azienda</h6>
+            </div>
+            <div class="modal-body">
+                <table id="details_grid">
+                    <thead>
+                    <tr class="header-row">
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeModal()" class="btn btn-default btn-close" >Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
 <script type="application/javascript">
     jQuery(document).ready(function () {

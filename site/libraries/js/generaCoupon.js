@@ -1,9 +1,31 @@
 _generaCoupon = (function ($, my) {
 
+    var details_column = [
+        {
+            field: 'azienda',
+            title: 'Ragione Sociale',
+            type: 'standard'
+        },
+        {
+            field: 'piva',
+            title: 'Partita Iva',
+            type: 'action'
+        }
+        // ,{
+        //     field: 'action',
+        //     title: 'Copia Piva',
+        //     type: 'action'
+        // }
+
+
+    ];
+
+    var lista_societa = null;
 
     function _init() {
         console.log('genera Coupon ready');
         console.log($('#id_piattaforma').val());
+
 
         $('#venditore').typeahead({
             source: function (txt_venditore, result) {
@@ -23,6 +45,7 @@ _generaCoupon = (function ($, my) {
             }
         });
 
+
         $('#confirm_piva').click(_checkUsername);
         $('#change_piva').click(reset);
 
@@ -30,28 +53,13 @@ _generaCoupon = (function ($, my) {
         $("#piva-msg").hide();
 
 
-
-        $('#id_piattaforma').change(function () {
-
-            console.log($('#id_piattaforma').val());
-            // ricarico la lista dei corsi visibili per la piattaforma corrente
-            var p = $('#id_piattaforma').val();
-            $.get("index.php?option=com_gglms&task=generacoupon.get_corsi_by_piattaforma", {id_piattaforma: p},
-                function (data) {
-                    // rimuovo le option correnti
-                    $('#gruppo_corsi option').remove();
-
-                    $(data).each(function (i,item) {
-                        $('#gruppo_corsi').append('<option value="' + item.value +' ">' + item.text + '</option>');
-                    });
-
-                }, 'json');
-        })
+        $('#search_piva').click(_openModal);
 
         // //seleziono il primo valore per  filtrare i corsi per piattaforma
         // $("#id_piattaforma").val($("#id_piattaforma option:first").val());
         // $('#id_piattaforma').trigger('change');
     }
+
 
     function _checkUsername() {
 
@@ -82,14 +90,13 @@ _generaCoupon = (function ($, my) {
                         // che l'utente non può vedere.
 
 
-
                         // aggiorno il valore dei campi azienda
                         $("#ragione_sociale").val(data.name);
                         $("#email").val(data.email);
                         $("#ateco").val(data.cb_ateco);
                         $("#vendor").val(data.cb_ateco);
 
-                        if( $("#id_piattaforma option[value='" + data.id_piattaforma + "']").length >0){
+                        if ($("#id_piattaforma option[value='" + data.id_piattaforma + "']").length > 0) {
 
                             // l'opzione è presente, l'utente è abilitato a vedere la piattaforma
                             $("#id_piattaforma").val(data.id_piattaforma);
@@ -100,13 +107,11 @@ _generaCoupon = (function ($, my) {
                             $("label.lbl_cpn_opt").removeClass("disabled");
 
                             $("#btn-genera").prop('disabled', false);
-                        }
-                        else{
+                        } else {
                             // l'opzione NON è presente
                             // Joomla.renderMessages({'success': ['This has a title!'], 'custom_alert': ['This has a title!']});
                             $("#piattaforma_warning").show();
                         }
-
 
 
                     } else {
@@ -122,9 +127,6 @@ _generaCoupon = (function ($, my) {
                         $("#btn-genera").prop('disabled', false);
 
                     }
-
-
-
 
 
                 }, 'json');
@@ -164,8 +166,105 @@ _generaCoupon = (function ($, my) {
 
     }
 
+
+    /////////
+    function _openModal() {
+
+
+        if (lista_societa == null) {
+            $.ajax({
+                url: "index.php?option=com_gglms&task=generacoupon.get_lista_piva",
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+
+                    lista_societa = data;
+
+                    $.each(details_column, function (i, c) {
+                        $(".header-row").append('<th>' + c.title + '</th>')
+                    });
+
+                    $.each(data, function (i, item) {
+                        var new_row = $('<tr class="myrow"></tr>');
+
+
+                        $.each(details_column, function (a, c) {
+
+                            switch (c.type) {
+                                case'date':
+
+                                    // convert data from utc to local
+                                    if (item[c.field] !== null) {
+                                        var utc = new Date(item[c.field]);
+                                        utc.setMinutes(utc.getMinutes() - offset);
+                                        item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
+                                    }
+                                    new_row.append('<td>' + item[c.field] + '</td>');
+                                    break;
+                                case'action':
+                                    new_row.append('<td class="copy">' + item[c.field] + '</td>');
+                                    break;
+                                case 'standard':
+                                default:
+                                    new_row.append('<td>' + item[c.field] + '</td>');
+                                    break;
+                            }
+
+
+                        });
+
+                        $("#details_grid").append(new_row);
+                    });
+
+                    $("#modalDetails_genera").modal("show");
+                    $("#modalDetails_genera").appendTo("body");
+
+                    $('.myrow').click(selectPiva);
+
+                }
+            });
+
+        } else {
+            $("#modalDetails_genera").modal("show");
+            $("#modalDetails_genera").appendTo("body");
+        }
+
+
+    }
+
+    function _closeModal() {
+
+        $("#modalDetails_genera").modal("hide");
+    }
+
+     function selectPiva(e) {
+
+        reset();
+         // var piva = $($(e.target)).text();
+
+
+
+             var piva= $(e.target).next('.copy').text()  === "" ?  $(e.target).closest('.copy').text() : $(e.target).next('.copy').text();
+
+         //     // var piva2 = $(e.target).closest('.copy').text();
+         // console.log(piva_, 'aaaaaaaaaaaaaaaaaaaaaaaaaaa');
+         // console.log(piva2, 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+
+         $("#username").val(piva);
+
+         _checkUsername();
+         // $('#confirm_piva').click(_checkUsername);
+         // $('#change_piva').click(reset);
+
+         $("#modalDetails_genera").modal("hide");
+
+    }
+
+
     // public methods
     my.init = _init;
+    my.openModal = _openModal;
+    my.closeModal = _closeModal;
 
 
     return my;

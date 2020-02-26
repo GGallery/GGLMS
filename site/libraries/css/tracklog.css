@@ -57,18 +57,18 @@ h5 {
 
 
 #modalDetails {
-    z-index: 12002 !important;
-}
+        z-index: 12002 !important;
+    }
 
-#modalDetails > .modal-dialog {
- width: 549px;
-margin: 30px auto;
-}
-
-#modalDetails > .modal-dialog {
-    width: 549px;
+    #modalDetails > .modal-dialog {
+     width: 549px;
     margin: 30px auto;
-}
+    }
+
+    #modalDetails > .modal-dialog {
+        width: 549px;
+        margin: 30px auto;
+    }
 
 
 
