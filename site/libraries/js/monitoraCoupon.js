@@ -7,54 +7,78 @@ _monitoraCoupon = (function ($, my) {
 
             {
                 field: 'coupon',
-                title: 'Coupon'
+                title: 'Coupon',
+                type: 'standard'
 
             },
             {
                 field: 'user',
-                title: 'Utente'
+                title: 'Utente',
+                type: 'standard'
             },
             {
                 field: 'creation_time',
-                title: 'Data Creazione'
+                title: 'Data Creazione',
+                type: 'date'
             },
             {
                 field: 'data_utilizzo',
-                title: 'Data Utilizzo'
+                title: 'Data Utilizzo',
+                type: 'date'
             },
             {
                 field: 'corso',
-                title: 'Corso'
+                title: 'Corso',
+                type: 'standard'
             },
             {
                 field: 'venditore',
-                title: 'Venditore'
+                title: 'Venditore',
+                type: 'standard'
             }
+            // ,{
+            //     field: 'mailto',
+            //     title: 'Invia',
+            //     type: 'action'
+            // }
 
         ];
-
         //per aggiungere una colonna basta aggiungere all'array columns
+
+        var body_mail = "<span>Spettabile utente," +
+            " </br> ti invitiamo a svolgere il corso <b>{{corso}}</b>. " +
+            "</br></br> Registrati, o se hai già effettuato una registrazione, accedi con le credenziali scelte su <a href = '{{piattaforma}}'>la piattaforma</a>, clicca sulla voce di menù CODICE COUPON  e inserisci il codice <span style='font-family:monospace; font-weight: bold '>{{coupon}}</span> per sbloccare l'iscrizione.</span>" +
+            "</br></br>Troverai il corso alla voce I MIEI CORSI: leggi la scheda e consulta i contenuti nell'ordine in cui sono presentati." +
+            "</br> Ti ricordiamo che dal momento dell'iscrizione hai {{durata}} giorni per completare il corso e scaricare il tuo attestato." +
+            "</br></br>Cordiali saluti," +
+            "</br> Il tutor ";
+        var subject_mail = "Iscrizione corso {{corso}}";
+
 
         function _init() {
 
 
-            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.getTutorType"))
+            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.is_tutor_aziendale"))
                 .done(function (data) {
 
 
                     if (data == "true") {
-                        // utente collegato è tutor aziendale
-                        // nascondo le info relative a venditore
+                        // utente collegato ? tutor aziendale nascondo le info relative a venditore
                         columns = columns.filter(function (obj) {
                             return obj.field !== 'venditore';
                         });
 
                         $("#venditore").hide();
                         $("label[for=venditore]").hide();
+                    } else {
+                        columns = columns.filter(function (obj) {
+                            return obj.field !== 'mailto';
+                        });
                     }
 
 
                     $.each(columns, function (i, item) {
+
                         $(".header-row").append('<th>' + item.title + '</th>')
                     });
 
@@ -81,6 +105,7 @@ _monitoraCoupon = (function ($, my) {
                     // console.log('then', data);
                     $('#cover-spin').hide(0);
                 });
+
 
         }
 
@@ -115,6 +140,7 @@ _monitoraCoupon = (function ($, my) {
                 .done(function (data) {
 
                     data = JSON.parse(data);
+                    console.log('data', data);
 
                     _resetGridaAndPagination(data['rowCount']);
 
@@ -171,17 +197,33 @@ _monitoraCoupon = (function ($, my) {
                     $.each(columns, function (i, c) {
 
 
-                        if ((c.field === 'data_utilizzo' || c.field === 'creation_time') && item[c.field] !== null) {
+                        switch (c.type) {
+                            case'date':
 
-                            // convert data from utc to local
-                            var utc = new Date(item[c.field]);
-                            utc.setMinutes(utc.getMinutes() - offset);
-                            item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString()
+                                // convert data from utc to local
+                                if (item[c.field] !== null) {
+                                    var utc = new Date(item[c.field]);
+                                    utc.setMinutes(utc.getMinutes() - offset);
+                                    item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
+                                }
+                                new_row.append('<td>' + item[c.field] + '</td>');
+                                break;
+                            case'action':
 
+                                console.log(item);
+                                if (!item['user']) {
+
+                                    new_row.append('<td><button class="btn btn-envelope" data-coupon="' + item['coupon'] + '"  data-corso = "' + item['corso'] + '" data-durata="' + item["durata"] + '" type="button" title="Invia coupon" class="btn btn-xs btn-default command-edit"><span class="glyphicon glyphicon-envelope"></span></button> </td>');
+                                } else {
+                                    new_row.append('<td></td>');
+                                }
+
+                                break;
+                            case 'standard':
+                            default:
+                                new_row.append('<td>' + item[c.field] + '</td>');
+                                break;
                         }
-
-                        new_row.append('<td>' + item[c.field] + '</td>');
-
 
                     });
 
@@ -191,6 +233,31 @@ _monitoraCoupon = (function ($, my) {
 
 
             });
+
+
+            $("button.btn-envelope").click(openModal);
+
+
+        }
+
+        function openModal(e) {
+            $("#modalMail").modal("show");
+            $("#modalMail").appendTo("body");
+            // $(".modal-backdrop")[0].hide(); // workaround , crea due modalbackdrop non so perchè
+
+            var coupon = $($(e.target).closest('button')).data('coupon');
+            var corso = $($(e.target).closest('button')).data('corso');
+            var durata = $($(e.target).closest('button')).data('durata');
+            var origin = window.location.origin;
+
+            var body = body_mail.replace('{{coupon}}', coupon).replace('{{corso}}', corso).replace('{{piattaforma}}', origin).replace('{{durata}}', durata);
+            var subject = subject_mail.replace('{{corso}}', corso);
+
+            $("#body").empty();
+            $("#body").append(body);
+
+            $("#subject").empty();
+            $("#subject").val(subject);
 
 
         }
@@ -284,6 +351,7 @@ _monitoraCoupon = (function ($, my) {
                 }, ms || 0);
             };
         }
+
 
         function _getTutorType() {
 

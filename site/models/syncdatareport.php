@@ -113,9 +113,11 @@ class gglmsModelSyncdatareport extends JModelLegacy
                     $stato = $contenuto->getStato($data->id_utente);
                     $data->data = $stato->data;
                     $data->stato = $stato->completato;
-                    $data->visualizzazioni = $stato->visualizzazioni;
-                    $data->permanenza_tot= $contenuto->getPermanenza_tot($item->id_contenuto, $data->id_utente);
+                    $data->visualizzazioni =  $stato->visualizzazioni;
+                    $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
                     $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
+
+//                    var_dump($data->permanenza_tot);
 
                     if (!isset($data->id_unita)) continue;
                     $modelunita = new gglmsModelUnita();
@@ -244,12 +246,17 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
         try {
 
+
+
             $query = "
     INSERT INTO #__gg_report (id_corso, id_event_booking,id_unita, id_contenuto,  id_utente , id_anagrafica, stato, visualizzazioni,permanenza_tot, data ) 
     VALUES ($data->id_corso, $data->id_event_booking, $data->id_unita,$data->id_contenuto,$data->id_utente,$data->id_anagrafica,$data->stato, $data->visualizzazioni,  $data->permanenza_tot ,'$data->data')";
-            $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data'  ";
+            $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data' , permanenza_tot= " . $data->permanenza_tot;
             $this->_db->setQuery($query);
             $this->_db->execute();
+
+
+//            var_dump((string)$query);
 
         } catch (Exception $e) {
             // echo "storereport ".$e->getMessage();

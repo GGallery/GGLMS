@@ -181,4 +181,49 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
+
+    function get_lista_piva()
+    {
+
+        try {
+           $japp = JFactory::getApplication();
+//            $txt_azienda = JRequest::getVar('txt_azienda');
+
+            $user_id = $this->_user->id;
+            $_config = new gglmsModelConfig();
+            $id_gruppo_tutor_aziendale = $_config->getConfigValue('id_gruppo_tutor_aziendale');
+
+            $model_user = new gglmsModelUsers();
+            $id_piattaforma = $model_user->get_user_piattaforme($user_id);
+
+            $id_piattaforma_array = array();
+            foreach ($id_piattaforma as $p) {
+                array_push($id_piattaforma_array, $p->value);
+            }
+
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select(' distinct u.name as azienda , u.username as piva ')
+                ->from('#__users as u')
+                ->join('inner', '#__user_usergroup_map as map on map.user_id = u.id')
+                ->join('inner', '#__usergroups as ug on ug.id = map.group_id')
+                ->join('inner', '#__usergroups as  piattaforme on piattaforme.title = u.name')
+                ->where(" ug.id=" . $id_gruppo_tutor_aziendale)
+                ->where('piattaforme.parent_id IN (' . implode(", ", $id_piattaforma_array) . ')')
+                ->order('u.name asc');
+
+            $db->setQuery($query);
+            $piva_list = $db->loadObjectList();
+
+
+            echo json_encode($piva_list);
+            $japp->close();
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'getListaPiva');
+        }
+
+
+    }
+
 }

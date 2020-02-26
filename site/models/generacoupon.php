@@ -164,7 +164,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 // send new credentials
                 if ($new_societa) {
 
-                    if ($this->send_new_company_user_mail($company_user, $nome_societa, $data["id_piattaforma"], $data['email_coupon']) === false) {
+                    if ($this->send_new_company_user_mail($company_user, $nome_societa, $id_gruppo_societa ,$data["id_piattaforma"], $data['email_coupon']) === false) {
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
@@ -433,6 +433,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $info_piattaforma["alias"] =$piattaforma_default['alias'];
             $info_piattaforma["name"] = $piattaforma_default['name'];
+            $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
 //
         }
 
@@ -443,6 +444,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $smarty->assign('company_name', $nome_societa);
         $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
         $smarty->assign('recipient_name', $recipients["to"]->name);
+        $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
+
 
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
         $mailer->isHTML(true);
@@ -606,13 +609,20 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     // MAIL REGISTRAZIONE NUOVA SOCIETA'
 
-    public function send_new_company_user_mail($company_user, $nome_societa, $id_piattaforma, $email_coupon = '')
+    public function send_new_company_user_mail($company_user, $nome_societa, $id_gruppo_societa, $id_piattaforma, $email_coupon = '')
     {
 
         // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
-        $recipients = $email_coupon == '' ? $company_user["email"] : $email_coupon;
-        if (false == $recipients) {
-            DEBUGG::log($recipients, 'send_new_company_user_mail');
+//        $recipients = $email_coupon == '' ? $company_user["email"] : $email_coupon;
+//        if (false == $recipients) {
+//            DEBUGG::log($recipients, 'send_new_company_user_mail');
+//        }
+
+
+        // get recipients --> tutor piattaforma (cc) + tutor aziendale (to) --
+        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon))) {
+            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non ci sono tutor piattaforma configurati per questa piattaforma', 'Error'));
+
         }
 
         // get sender
@@ -635,12 +645,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
         }
 
-
+        // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
+        $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
 
 
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);
-        $mailer->addRecipient($recipients);
+//        $mailer->addRecipient($recipients);
+        $mailer->addRecipient($to);
+        $mailer->addCc($recipients["cc"]);
         $mailer->setSubject('Registrazione  ' . $info_piattaforma["alias"]);
 
 

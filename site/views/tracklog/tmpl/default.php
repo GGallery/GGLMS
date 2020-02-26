@@ -4,12 +4,12 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-echo "<h1> Monitora Coupon</h1>"; ?>
+echo "<h1>Tracklog Utente</h1>"; ?>
 
 <div class="mc-main">
     <div id="filtri" class="filtri">
         <h5>Filtri</h5>
-        <form id="form-monitora-coupon" name="form-monitora-coupon" class="form-validate">
+        <form id="form-tracklog" name="form-tracklog" class="form-validate">
             <div class="form-group">
                 <label for="id_gruppo_azienda">Azienda:</label>
                 <select placeholder="Azienda" class="form-control" id="id_gruppo_azienda" name="id_gruppo_azienda">
@@ -20,10 +20,11 @@ echo "<h1> Monitora Coupon</h1>"; ?>
                     <?php } ?>
                 </select>
             </div>
+
             <div class="form-group">
                 <label for="id_gruppo_corso">Corso:</label>
-                <select placeholder="Corso" class="form-control" id="id_gruppo_corso" name="id_gruppo_corso">
-                    <option value="-1">Tutti i corsi</option>
+                <select placeholder="Corso" class="form-control" id="id_corso" name="id_corso">
+<!--                    <option value="-1">Tutti i corsi</option>-->
                     <?php foreach ($this->lista_corsi as $s) { ?>
                         <option value="<?php echo $s->value; ?>">
                             <?php echo $s->text ?>
@@ -33,24 +34,14 @@ echo "<h1> Monitora Coupon</h1>"; ?>
             </div>
 
             <div class="form-group">
-                <label for="stato_coupon">Stato:</label>
-                <select placeholder="Stato" class="form-control" id="stato_coupon" name="stato_coupon">
+                <label for="stato">Stato:</label>
+                <select placeholder="Stato" class="form-control" id="stato" name="stato">
                     <option value="-1">Qualsiasi stato</option>
-                    <option value="0">Liberi</option>
-                    <option value="1">Assegnati</option>
-                    <option value="2">Scaduti</option>
+                    <option value="0">Non Completati</option>
+                    <option value="1">Completati</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="coupon">Cerca Coupon:</label>
-                <input placeholder="Cerca Coupon" class="" type="text" id="coupon" name="coupon">
-            </div>
-
-            <div class="form-group">
-                <label for="venditore">Cerca Vendtore:</label>
-                <input placeholder="Cerca Vendtore" class="" type="text" id="venditore" name="venditore">
-            </div>
 
             <div class="form-group">
                 <label for="utente">Cerca Utente:</label>
@@ -61,11 +52,11 @@ echo "<h1> Monitora Coupon</h1>"; ?>
         </form>
     </div>
     <div class="data">
-        <h5>Coupon</h5>
+        <h5 class="title_corso"></h5>
         <div class="table-container">
 
-            <span id="no-data-msg">Non ci sono coupon per i filtri selezionati</span>
-            <table id="coupon-table" class="table table-striped table-bordered" style="width:100%">
+            <span id="no-data-msg">Non ci sono dati per i filtri selezionati</span>
+            <table id="data-table" class="table table-striped table-bordered" style="width:100%">
                 <thead>
                 <tr class="header-row">
                 </tr>
@@ -107,50 +98,28 @@ echo "<h1> Monitora Coupon</h1>"; ?>
 </div>
 <div id="cover-spin"></div>
 
-<!-- Modal Corso Disabilitato-->
-<div id="modalMail" class="modal fade" role="dialog" data-backdrop="static">
+<!-- Modal Details-->
+<div id="modalDetails" class="modal fade" role="dialog" data-backdrop="static">
     <div class="modal-dialog">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Invia Coupon </h4>
+                <button type="button" class="close" onclick="closeModal()" ">&times;</button>
+                <h4 class="modal-title">Dettagli Utente</h4>
             </div>
             <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label class="col-sm-1 col-form-label" for="to">Da:</label>
-                        <div class="col-sm-11">
-                            <input type="email" id="to" name="to">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 col-form-label" for="from">A:</label>
-                        <div class="col-sm-11">
-                            <input type="email" id="from" name="from">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 col-form-label" for="subject">Obj:</label>
-                        <div class="col-sm-11">
-                            <input type="text" id="subject" name="subject">
-                        </div>
-                    </div>
-                    <div class="form-group">
-
-                        <div class="col-sm-12">
-                            <div style ="min-height: 350px" contenteditable="true" class="form-control"  id="body" name="body">
-                            </div>
-
-                        </div>
-                    </div>
-
-                </form>
+          <table id="details_grid">
+              <thead>
+              <tr class="header-row-details">
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+          </table>
             </div>
             <div class="modal-footer">
-                <button  class="btn" type="button" id="btn_invia_coupon">Invia</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="closeModal()" class="btn btn-default btn-close" >Close</button>
             </div>
         </div>
 
@@ -160,7 +129,7 @@ echo "<h1> Monitora Coupon</h1>"; ?>
 
 <script type="application/javascript">
     jQuery(document).ready(function () {
-        _monitoraCoupon.init();
+        _tracklog.init();
     });
 
 </script>

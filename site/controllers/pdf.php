@@ -144,14 +144,14 @@ class gglmsControllerPdf extends JControllerLegacy
                         $db->setQuery($query);
                         $gg_content = $db->loadObject('gglmsModelContenuto');
                         $gg_content->setUserContent($user_id, $c['id']);
+                       $permanenza =  $gg_content->getPermanenza_tot( $c['id'],$user_id);
 
 
                         //TRACKLOG
-
                         $item = new stdClass();
                         $scorm_vars = $gg_content->getStato($user_id);
                         $item->titolo = $gg_content->titolo;
-                        $item->permanenza = $scorm_vars->permanenza;
+                        $item->permanenza = $permanenza ; //$scorm_vars->permanenza;
                         $item->data = $scorm_vars->data;
 
                         array_push($tracklog, $item);

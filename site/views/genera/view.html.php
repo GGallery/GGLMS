@@ -57,7 +57,7 @@ class gglmsViewGenera extends JViewLegacy
         // leggo parametro config.specifica_durata_coupon
         // se == 1 mostro la checkbox nel form
         // se == 0 coupon generati abilitati di default
-        $this->specifica_abilitazione= $_config->getConfigValue('coupon_active_default');
+        $this->specifica_abilitazione = $_config->getConfigValue('coupon_active_default');
 
 
         // checkbox trial la mostro solo se l'utente super user perchè sblocca tutto il corso.
@@ -69,8 +69,12 @@ class gglmsViewGenera extends JViewLegacy
         }
 
 
+
+
         // Display the view
         parent::display($tpl);
-
     }
+
+
+
 }

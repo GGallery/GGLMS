@@ -316,7 +316,7 @@ class utilityHelper
 
             $db = JFactory::getDbo();
             $query = $db->getQuery(true)
-                ->select('u.id as value, u.titolo as text')
+                ->select('distinct u.id as value, u.titolo as text')
                 ->from('#__usergroups as g')
                 ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')

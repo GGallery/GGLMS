@@ -42,3 +42,36 @@ input[disabled]:hover {
 
 }
 
+
+#modalDetails_genera {
+    z-index: 12002 !important;
+}
+
+#modalDetails_genera > .modal-dialog {
+    width: 549px;
+    margin: 30px auto;
+}
+
+#modalDetails_genera > .modal-dialog {
+    width: 549px;
+    margin: 30px auto;
+}
+
+#details_grid {
+    font-size: small;
+}
+
+#details_grid > tbody > tr:hover {
+    background-color: lightblue;
+    font-weight: bold;
+}
+
+
+.td {
+    cursor: pointer;
+}
+
+
+
+
+

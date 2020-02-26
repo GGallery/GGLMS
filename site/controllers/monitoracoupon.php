@@ -35,7 +35,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $this->_params = $this->_japp->getParams();
 
         $this->_user = JFactory::getUser();
-        $this->_db = &JFactory::getDbo();
+        $this->_db = JFactory::getDbo();
 
 
     }
@@ -80,7 +80,8 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
 
                 $query = $this->_filter_query($query, $filter_params);
-                $query->setlimit($offset, $limit);
+
+                               $query->setlimit($offset, $limit);
 
                 $this->_db->setQuery($query);
                 $results = $this->_db->loadAssocList();
@@ -137,8 +138,9 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         }
 
         if ($utente != '') {
-            $query = $query->where("cm.cb_nome like '%" . $utente . "%'");
-            $query = $query->orWhere("cm.cb_cognome like '%" . $utente . "%'");
+
+            $query = $query->where("(cm.cb_nome like '%" . $utente . "%'  OR cm.cb_cognome like '%" . $utente . "%')", "AND");
+
         }
 
         switch ($stato) {
@@ -195,7 +197,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $this->_japp->close();
     }
 
-    public function getTutorType()
+    public function is_tutor_aziendale()
     {
 
         $model = new gglmsModelUsers();
