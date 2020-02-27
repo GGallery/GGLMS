@@ -44,11 +44,11 @@ class gglmsHelper
             $submenu == 'unitas'
         );
 
-        JHtmlSidebar::addEntry(
-            '<i class="icon-print  "></i>' . JText::_('Genera coupon'),
-            'index.php?option=com_gglms&view=generacoupon',
-            $submenu == 'generacoupon'
-        );
+//        JHtmlSidebar::addEntry(
+//            '<i class="icon-print  "></i>' . JText::_('Genera coupon'),
+//            'index.php?option=com_gglms&view=generacoupon',
+//            $submenu == 'generacoupon'
+//        );
 
         JHtmlSidebar::addEntry(
             '<i class="icon-users  "></i>' . JText::_('Utenti'),
@@ -77,9 +77,9 @@ class gglmsHelper
             $document->setTitle("Unita");
         }
 
-        if ($submenu == 'generacoupon') {
-            $document->setTitle("generacoupon");
-        }
+//        if ($submenu == 'generacoupon') {
+//            $document->setTitle("generacoupon");
+//        }
 
         if ($submenu == 'users') {
             $document->setTitle("Utenti");

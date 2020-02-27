@@ -433,7 +433,8 @@ class gglmsModelunita extends JModelAdmin
                 $insertquery_group = $insertquery_group . $group_parent_id . ',';
                 $insertquery_group = $insertquery_group . '0' . ',';
                 $insertquery_group = $insertquery_group . '0' . ',';
-                $insertquery_group = $insertquery_group . '\'' . $titolo . '\'' . ')';
+                $insertquery_group = $insertquery_group .  $db->quote($titolo) .  ')';
+
 
                 //echo $insertquery; die;
                 $db->setQuery($insertquery_group);
