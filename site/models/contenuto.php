@@ -503,7 +503,9 @@ class gglmsModelContenuto extends JModelLegacy
     {
 
         try {
-            if ($this->tipologia == 4)
+
+            // Se è uno scorm e mod track non marca subito come passato, non scrivo niente su db.
+            if ($this->tipologia == 4 && $this->mod_track != 1)
                 return;
 
             $stato_attuale = $this->getStato();
