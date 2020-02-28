@@ -413,7 +413,9 @@ class utilityHelper
 //        }
     }
 
-    public static function getPiattaformeByUser()
+// se $only_vendor è TRUE --> ritorno la piattaforma SOLO se utente è venditore per quella piattaforma
+//se $only_vendor è TRUE --> ritorno la piattaforma
+    public static function getPiattaformeByUser($only_vendor)
     {
         try {
             $user = new gglmsModelUsers();
@@ -427,9 +429,7 @@ class utilityHelper
 
 
             }
-//            else {
-//                $_japp->redirect(('index.php?option=com_gglms&view=genera'), $_japp->enqueueMessage('L\'utente loggato non appartiene al gruppo venditore, non può generare coupon', 'Error'));
-//            }
+
 
             return $societa_venditrici;
         } catch (Exception $e) {

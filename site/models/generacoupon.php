@@ -47,7 +47,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         // valori per dropdown
         $this->lista_corsi = utilityHelper::getGruppiCorsi();
-        $this->societa_venditrici = utilityHelper::getPiattaformeByUser();
+        $this->societa_venditrici = utilityHelper::getPiattaformeByUser(true);
 
     }
 

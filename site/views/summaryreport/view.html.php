@@ -32,19 +32,25 @@ class gglmsViewsummaryreport extends JViewLegacy
 
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
-        JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/container-fluid.css');
 
 
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/tracklog.js');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/tracklog.css');
 
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo.all.min.js');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo.common.min.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo.default.min.css');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.all.min.js');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.messages.it-IT.min.js');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.culture.it-IT.min.js');
 
 
-        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
+
+
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.common.min.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.bootstrap.min.css');
+
+     JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/summaryreport.js');
+
+
+
+//        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
 
 
         $this->societa = utilityHelper::getSocietaByUser();
