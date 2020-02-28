@@ -1,10 +1,13 @@
 _summaryreport = (function ($, my) {
 
 
+    // todo colonna piattaforma e venditore visibile solo se tutor piattaforma
+
         var columns = [
             {
                 field: 'coupon',
-                title: 'Coupon'
+                title: 'Coupon',
+                width:320
 
             },
             {
@@ -42,12 +45,24 @@ _summaryreport = (function ($, my) {
             },
             {
                 field: 'azienda',
-                title: 'Azienda'
+                title: 'Azienda',
+
 
             },
             {
                 field: 'stato',
-                title: 'Stato'
+                title: 'Stato',
+                // filterable:{
+                //     ui: function(element){
+                //         element.kendoDropDownList({
+                //             dataSource: [{ value: 1, text: "completato" }, { value: false, text: "non completato" }],
+                //             optionLabel: "--Select--",
+                //             dataTextField: "text",
+                //             dataValueField: "value"
+                //         });
+                //     }
+                // }
+
 
             },
             {
@@ -68,9 +83,8 @@ _summaryreport = (function ($, my) {
         function _init() {
 
 
+            _kendofix();
             console.log('summary report ready');
-
-            // var culture = kendo.culture("IT");
             kendo.culture("it-IT");
             // console.log(culture.name); // outputs "en-US"
             _createGrid();
@@ -79,11 +93,14 @@ _summaryreport = (function ($, my) {
 
         function _createGrid() {
             $("#grid").kendoGrid({
-                dataSource: {},
                 height: 550,
-                groupable: true,
                 sortable: true,
-                filtrable:true,
+                resizable: true,
+                groupable: true,
+                filterable: {
+                    mode: " row",
+                    extra:false
+                },
                 pageable: {
                     refresh: true,
                     pageSizes: true,
@@ -111,13 +128,32 @@ _summaryreport = (function ($, my) {
                 })
                 .fail(function (data) {
                     console.log('fail', data);
-                    $('#cover-spin').hide(0);
+
 
                 })
                 .then(function (data) {
                     // console.log('then', data);
-                    $('#cover-spin').hide(0);
+
                 });
+        }
+
+
+        function _kendofix(){
+
+            kendo.ui.Grid.prototype._positionColumnResizeHandle= function() {
+                var that = this,
+                    indicatorWidth = that.options.columnResizeHandleWidth,
+                    lockedHead = that.lockedHeader ? that.lockedHeader.find("thead:first") : $();
+
+                that.thead.add(lockedHead).on("mousemove" + ".kendoGrid", "th", function (e) {
+                    var th = $(this);
+                    if (th.hasClass("k-group-cell") || th.hasClass("k-hierarchy-cell")) {
+                        return;
+                    }
+                    that._createResizeHandle(th.closest("div"), th);
+                });
+            };
+
         }
 
 

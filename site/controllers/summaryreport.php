@@ -58,7 +58,8 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $query = $this->_db->getQuery(true)
             ->select('*')
             ->from('#__view_report')
-            ->where("id_piattaforma  in (". implode(', ', $p_list) .")");
+            ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")")
+            ->order('id_piattaforma');
 
         $this->_db->setQuery($query);
         $result = $this->_db->loadAssocList();

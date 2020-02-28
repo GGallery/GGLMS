@@ -45,6 +45,7 @@ class gglmsViewsummaryreport extends JViewLegacy
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.common.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.bootstrap.min.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/summaryreport.css');
 
      JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/summaryreport.js');
 
