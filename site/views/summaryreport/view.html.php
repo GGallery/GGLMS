@@ -35,10 +35,11 @@ class gglmsViewsummaryreport extends JViewLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/container-fluid.css');
 
 
-
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.all.min.js');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/jszip.min.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.messages.it-IT.min.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.culture.it-IT.min.js');
+
 
 
 
@@ -47,21 +48,15 @@ class gglmsViewsummaryreport extends JViewLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.bootstrap.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/summaryreport.css');
 
-     JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/summaryreport.js');
-
-
-
-//        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
-
-
-        $this->societa = utilityHelper::getSocietaByUser();
-        $this->lista_corsi = utilityHelper::getGruppiCorsi();
-        $this->lista_corsi = utilityHelper::getIdCorsi();
-
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/summaryreport.js');
 
 
         // Display the view
         parent::display($tpl);
 
     }
+
+
+
+
 }

@@ -59,6 +59,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->select('*')
             ->from('#__view_report')
             ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")")
+//            ->where("stato = 1")
             ->order('id_piattaforma');
 
         $this->_db->setQuery($query);
