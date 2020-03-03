@@ -44,6 +44,7 @@ class gglmsViewReport extends JViewLegacy {
 
         //JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.fa.min.js');
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/loader.css');
 
 
         $modelReport  = $this->getModel('report');

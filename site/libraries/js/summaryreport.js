@@ -8,7 +8,18 @@ _summaryreport = (function ($, my) {
             {
                 field: 'coupon',
                 title: 'Coupon',
-                width: 320
+                width: 256,
+                filterable: {
+                    cell: {
+                         showOperators: false
+
+                    }
+                }
+
+            },
+            {
+                field: 'user_',
+                title: 'Utente'
 
             },
             {
@@ -16,6 +27,7 @@ _summaryreport = (function ($, my) {
                 title: 'Corso'
 
             },
+
             {
                 field: 'data_creazione',
                 title: 'Data Creazione'
@@ -27,11 +39,6 @@ _summaryreport = (function ($, my) {
 
             },
             {
-                field: 'user_',
-                title: 'Utente'
-
-            },
-            {
                 field: 'id_piattaforma',
                 title: '',
                 hidden: true
@@ -40,22 +47,47 @@ _summaryreport = (function ($, my) {
             {
                 field: 'azienda',
                 title: 'Azienda',
+                cell: {
+                    showOperators: false,
+                    template: function (cell) {
+
+
+                        cell.element.kendoDropDownList({
+                            dataSource: grid.dataSource.view(),
+                            // optionLabel: "--Select--",
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            change: function (e) {
+                                // console.log('eeeeeeeeeee', e);
+                                console.log('azienda', this.value());
+                            }
+                        });
+                    }
+                }
 
 
             },
             {
                 field: 'stato',
                 title: 'Stato',
-                // filterable:{
-                //     ui: function(element){
-                //         element.kendoDropDownList({
-                //             dataSource: [{ value: 1, text: "completato" }, { value: false, text: "non completato" }],
-                //             optionLabel: "--Select--",
-                //             dataTextField: "text",
-                //             dataValueField: "value"
-                //         });
-                //     }
-                // }
+                width: 150,
+                filterable: {
+                    cell: {
+                        showOperators: false,
+                        template: function (cell) {
+                            cell.element.kendoDropDownList({
+                                dataSource: [{value: "1", text: "Completato"}, {value: "0", text: "Non completato"}],
+
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                optionLabel: 'Tutti'
+
+                            });
+                        }
+                    }
+                },
+                template: '<span type="checkbox" class=" #= stato == 1 ? "glyphicon glyphicon-ok" : "" # "" ></span>'
 
 
             },
@@ -72,29 +104,44 @@ _summaryreport = (function ($, my) {
             {
                 field: 'id_user',
                 title: '',
-                hidden:true
+                hidden: true
 
             },
             {
                 field: 'id_corso',
                 title: 'Attestati',
+                filterable:false,
                 template: "<a href='http://gglms.base.it/home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
 
 
             }
 
-            ];
-
+        ];
         var gridDataSource = null;
         var grid = null;
 
-        function _init() {
+        function boolFilterTemplate(input) {
+            input.kendoDropDownList({
+                dataSource: {
+                    data: [
+                        {text: "True", value: '0'},
+                        {text: "False", value: '1'}
+                    ]
+                },
+                dataTextField: "text",
+                dataValueField: "value",
+                valuePrimitive: true,
+                optionLabel: "All"
+            });
+        }
 
+        function _init() {
 
             _kendofix();
             console.log('summary report ready');
             kendo.culture("it-IT");
-            // console.log(culture.name); // outputs "en-US"
+            $('#cover-spin').show(0);
+
             _createGrid();
             _loadData();
         }
@@ -117,7 +164,7 @@ _summaryreport = (function ($, my) {
                     buttonCount: 5
                 },
                 columns: columns,
-                dataBound: function(e) {
+                dataBound: function (e) {
 
                     // bottone scarica attestato  visibile solo se corso è completato
                     var grid = $("#grid").data("kendoGrid");
@@ -130,9 +177,7 @@ _summaryreport = (function ($, my) {
                             var currenRow = grid.table.find("tr[data-uid='" + currentUid + "']");
                             editButton.hide();
                         }
-                        else{
-                            editButton.attr('href','http:\\google.com');
-                        }
+
                     }
                 }
 
@@ -140,6 +185,8 @@ _summaryreport = (function ($, my) {
 
 
             grid = $("#grid").data('kendoGrid');
+            // grid.autoFitColumn(0);
+            // grid.autoFitColumn(1);
         }
 
         function _loadData(sender) {
@@ -159,16 +206,18 @@ _summaryreport = (function ($, my) {
                 })
                 .fail(function (data) {
                     console.log('fail', data);
+                    $('#cover-spin').hide(0);
 
 
                 })
                 .then(function (data) {
+                    $('#cover-spin').hide(0);
                     // console.log('then', data);
 
                 });
         }
 
-        // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
+// fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
 
             kendo.ui.Grid.prototype._positionColumnResizeHandle = function () {
@@ -185,15 +234,6 @@ _summaryreport = (function ($, my) {
                 });
             };
 
-        }
-
-        function downloadAttestato(e) {
-
-            e.preventDefault();
-
-            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-
-            console.log('you clicked downaload atetstato',dataItem);
         }
 
 

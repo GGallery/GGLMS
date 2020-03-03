@@ -38,7 +38,7 @@ class gglmsViewMonitora extends JViewLegacy
 
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/monitoraCoupon.js');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/monitoraCoupon.css');
-
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/loader.css');
 
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/jquery.bootgrid.min.js');
 
