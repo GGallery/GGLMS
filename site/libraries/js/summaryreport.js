@@ -2,16 +2,15 @@ _summaryreport = (function ($, my) {
 
 
         // todo colonna piattaforma e venditore visibile solo se tutor piattaforma
-        //todo datasource schema anc custom filters and format per le date
 
         var columns = [
             {
                 field: 'coupon',
                 title: 'Coupon',
-                width: 256,
+                width: 310,
                 filterable: {
                     cell: {
-                         showOperators: false
+                        showOperators: false
 
                     }
                 }
@@ -19,23 +18,58 @@ _summaryreport = (function ($, my) {
             },
             {
                 field: 'user_',
-                title: 'Utente'
+                title: 'Utente',
+                width: 200,
+                filterable: {
+                    cell: {
+                        showOperators: false
+                    }
+                }
 
             },
             {
                 field: 'titolo_corso',
-                title: 'Corso'
+                title: 'Corso',
+                width: 200,
+                filterable: {
+                    cell: {
+                        showOperators: false
+                    }
+                }
 
             },
-
             {
                 field: 'data_creazione',
-                title: 'Data Creazione'
+                title: 'Data Creazione',
+                format: "{0: dd-MM-yyyy HH:mm}",
+                width: 150,
+                filterable: {
+                    operators: {
+                        date: {
+                            lte: "Prima o uguale del",
+                            gte: "Dopo o uguale del"
+                            // , eq: "Uguale"
+                        }
+                    }
+                }
 
             },
             {
                 field: 'data_utilizzo',
-                title: 'Data Utilizzo'
+                title: 'Data Utilizzo',
+                width: 150,
+                format: "{0: dd-MM-yyyy HH:mm}",
+                filterable: {
+                    operators: {
+                        date: {
+                            lte: "Prima o uguale del",
+                            gte: "Dopo o uguale del",
+                            isnull: "E' nulla",
+                            isnotnull: "Non è nulla"
+                            // , eq: "Uguale"
+                        }
+                    }
+                }
 
             },
             {
@@ -45,27 +79,20 @@ _summaryreport = (function ($, my) {
 
             },
             {
+                field: 'id_azienda',
+                title: '',
+                hidden: true
+
+            },
+            {
                 field: 'azienda',
                 title: 'Azienda',
-                cell: {
-                    showOperators: false,
-                    template: function (cell) {
-
-
-                        cell.element.kendoDropDownList({
-                            dataSource: grid.dataSource.view(),
-                            // optionLabel: "--Select--",
-                            dataTextField: "text",
-                            dataValueField: "value",
-                            change: function (e) {
-                                // console.log('eeeeeeeeeee', e);
-                                console.log('azienda', this.value());
-                            }
-                        });
+                width: 150,
+                filterable: {
+                    cell: {
+                        showOperators: false
                     }
                 }
-
-
             },
             {
                 field: 'stato',
@@ -76,8 +103,10 @@ _summaryreport = (function ($, my) {
                         showOperators: false,
                         template: function (cell) {
                             cell.element.kendoDropDownList({
-                                dataSource: [{value: "1", text: "Completato"}, {value: "0", text: "Non completato"}],
-
+                                dataSource: [{value: "1", text: "Completato"}, {
+                                    value: "0",
+                                    text: "Non completato"
+                                }, {value: "-1", text: "Liberi"}],
                                 dataTextField: "text",
                                 dataValueField: "value",
                                 valuePrimitive: true,
@@ -87,18 +116,47 @@ _summaryreport = (function ($, my) {
                         }
                     }
                 },
-                template: '<span type="checkbox" class=" #= stato == 1 ? "glyphicon glyphicon-ok" : "" # "" ></span>'
+
+                template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
+                attributes: {
+                    style: "text-align: center; font-size: 18px"
+                }
 
 
             },
             {
                 field: 'data_inizio',
-                title: 'Data Inizio'
+                title: 'Data Inizio',
+                width: 150,
+                format: "{0: dd-MM-yyyy }",
+                filterable: {
+                    operators: {
+                        date: {
+                            lte: "Prima o uguale del",
+                            gte: "Dopo o uguale del",
+                            isnull: "E' nulla",
+                            isnotnull: "Non è nulla"
+                        }
+                    }
+                }
 
             },
             {
                 field: 'data_fine',
-                title: 'Data Fine'
+                title: 'Data Fine',
+                width: 150,
+                format: "{0: dd-MM-yyyy}",
+                filterable: {
+                    operators: {
+                        date: {
+                            lte: "Prima o uguale del",
+                            gte: "Dopo o uguale del",
+                            isnull: "E' nulla",
+                            isnotnull: "Non è nulla"
+
+                        }
+                    }
+                }
 
             },
             {
@@ -110,9 +168,26 @@ _summaryreport = (function ($, my) {
             {
                 field: 'id_corso',
                 title: 'Attestati',
-                filterable:false,
+                width:200,
+                filterable: false,
                 template: "<a href='http://gglms.base.it/home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
+                attributes: {
+                    style: "text-align: center"
+                }
 
+
+            },
+            {
+                field: 'venditore',
+                title: 'Venditore',
+                width: 100,
+                hidden: false,
+                filterable: {
+                    cell: {
+                        showOperators: false
+
+                    }
+                }
 
             }
 
@@ -120,20 +195,6 @@ _summaryreport = (function ($, my) {
         var gridDataSource = null;
         var grid = null;
 
-        function boolFilterTemplate(input) {
-            input.kendoDropDownList({
-                dataSource: {
-                    data: [
-                        {text: "True", value: '0'},
-                        {text: "False", value: '1'}
-                    ]
-                },
-                dataTextField: "text",
-                dataValueField: "value",
-                valuePrimitive: true,
-                optionLabel: "All"
-            });
-        }
 
         function _init() {
 
@@ -142,12 +203,15 @@ _summaryreport = (function ($, my) {
             kendo.culture("it-IT");
             $('#cover-spin').show(0);
 
-            _createGrid();
+
+            _isLoggedUser_tutorAz();
+            // _createGrid();
             _loadData();
         }
 
-        function _createGrid() {
+        function _createGrid(dataSource) {
             $("#grid").kendoGrid({
+                dataSource: dataSource,
                 toolbar: ["excel"],
                 height: 550,
                 sortable: true,
@@ -183,8 +247,15 @@ _summaryreport = (function ($, my) {
 
             });
 
-
+            $('#cover-spin').hide(0);
             grid = $("#grid").data('kendoGrid');
+            //todo---- aggiungi gli altri placheolder...
+            $("[data-text-field=coupon]").attr("placeholder", 'filtra coupon');
+            $("[data-text-field=user_]").attr("placeholder", 'filtra utente');
+            $("[data-text-field=titolo_corso]").attr("placeholder", 'filtra corso');
+            $("[data-text-field=azienda]").attr("placeholder", 'filtra azienda');
+
+            // .k-state-default
             // grid.autoFitColumn(0);
             // grid.autoFitColumn(1);
         }
@@ -199,9 +270,31 @@ _summaryreport = (function ($, my) {
                     data = JSON.parse(data);
                     console.log('data', data);
 
-                    gridDataSource = new kendo.data.DataSource({data: data});
-                    var grid = $("#grid").data("kendoGrid");
-                    grid.setDataSource(gridDataSource);
+                    //data type of the field {number|string|boolean|date} default is string
+                    gridDataSource = new kendo.data.DataSource({
+                        data: data,
+                        schema: {
+                            model: {
+                                fields: {
+                                    coupon: {type: "string"},
+                                    data_creazione: {type: "date"},
+                                    data_utilizzo: {type: "date"},
+                                    id_corso: {type: "number"},
+                                    titolo_corso: {type: "string"},
+                                    id_azienda: {type: "number"},
+                                    azienda: {type: "string"},
+                                    id_piattaforma: {type: "number"},
+                                    piattaforma: {type: "string"},
+                                    user_: {type: "string"},
+                                    stato: {type: "number"},
+                                    data_inizio: {type: "date"},
+                                    data_fine: {type: "date"}
+                                }
+                            }
+                        }
+                    });
+                    _createGrid(gridDataSource);
+
 
                 })
                 .fail(function (data) {
@@ -217,7 +310,37 @@ _summaryreport = (function ($, my) {
                 });
         }
 
-// fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
+        function _isLoggedUser_tutorAz() {
+
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.is_tutor_aziendale"))
+                .done(function (data) {
+
+
+                    if (data == "true") {
+                        // utente collegato ? tutor aziendale nascondo le info relative a venditore
+                        columns = $.each(columns, function (i, item) {
+                            if (item.field === 'venditore') {
+                                item.hidden = true;
+                            }
+                        });
+
+                    }
+
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    // $('#cover-spin').hide(0);
+                });
+
+        }
+
+        // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
 
             kendo.ui.Grid.prototype._positionColumnResizeHandle = function () {

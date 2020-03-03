@@ -59,7 +59,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->select('*')
             ->from('#__view_report')
             ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")")
-//            ->where("stato = 1")
             ->order('id_piattaforma');
 
         $this->_db->setQuery($query);
@@ -69,6 +68,19 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         echo json_encode($result);
         $this->_japp->close();
 //
+    }
+
+    public function is_tutor_aziendale()
+    {
+
+        $model = new gglmsModelUsers();
+        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
+
+        echo(json_encode($is_tutor_az));
+        $this->_japp->close();
+
+        // is_tutor_aziendale
+
     }
 
 

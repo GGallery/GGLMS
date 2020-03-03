@@ -1,6 +1,33 @@
-#grid{
+#grid {
     font-size: smaller;
 }
 
 
+.g-content {
 
+    padding: 0 !important;
+}
+
+
+.glyphicon-remove {
+    color: red !important;
+}
+
+
+.glyphicon-ok {
+    color: green !important;
+}
+
+
+.k-grid-attestato{
+
+    background-color: #428BCA;
+    color:white;
+}
+
+
+.k-grid-attestato:hover{
+
+    background-color: white;
+    color:#428BCA;
+}
