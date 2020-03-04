@@ -180,7 +180,7 @@ _summaryreport = (function ($, my) {
             {
                 field: 'venditore',
                 title: 'Venditore',
-                width: 100,
+                width: 120,
                 hidden: false,
                 filterable: {
                     cell: {
@@ -192,6 +192,24 @@ _summaryreport = (function ($, my) {
             }
 
         ];
+
+
+        var fields = {
+            coupon: {type: "string"},
+            data_creazione: {type: "date"},
+            data_utilizzo: {type: "date"},
+            id_corso: {type: "number"},
+            titolo_corso: {type: "string"},
+            id_azienda: {type: "number"},
+            azienda: {type: "string"},
+            id_piattaforma: {type: "number"},
+            piattaforma: {type: "string"},
+            user_: {type: "string"},
+            stato: {type: "number"},
+            data_inizio: {type: "date"},
+            data_fine: {type: "date"},
+            venditore: {type: "string"}
+        };
         var gridDataSource = null;
         var grid = null;
 
@@ -203,29 +221,30 @@ _summaryreport = (function ($, my) {
             kendo.culture("it-IT");
             $('#cover-spin').show(0);
 
+            _createGrid();
+            // _loadData();
 
             _isLoggedUser_tutorAz();
             _loadData();
         }
 
-        function _createGrid(dataSource) {
+        function _createGrid() {
             $("#grid").kendoGrid({
-                dataSource: dataSource,
                 toolbar: ["excel"],
+                excel: {
+                    allPages: true
+                },
                 height: 550,
+                scrollable: true,
                 sortable: true,
                 resizable: true,
-                groupable: true,
+                groupable: false,
                 selectable: true,
                 filterable: {
                     mode: " row",
                     extra: false
                 },
-                pageable: {
-                    refresh: true,
-                    pageSizes: true,
-                    buttonCount: 5
-                },
+                pageable: true,
                 columns: columns,
                 dataBound: function (e) {
 
@@ -240,14 +259,9 @@ _summaryreport = (function ($, my) {
                             var currenRow = grid.table.find("tr[data-uid='" + currentUid + "']");
                             editButton.hide();
                         }
-
-                        console.log('quiiiiiiii');
                         if (parseInt(gridData[i].stato) === -1 || gridData[i].stato == null) {
-
                             currenRow.find(".k-hierarchy-cell").html("");
-
                         }
-
 
                     }
                 },
@@ -258,65 +272,58 @@ _summaryreport = (function ($, my) {
             $('#cover-spin').hide(0);
             grid = $("#grid").data('kendoGrid');
 
-
-            $("[data-text-field=coupon]").attr("placeholder", 'filtra coupon');
-            $("[data-text-field=user_]").attr("placeholder", 'filtra utente');
-            $("[data-text-field=titolo_corso]").attr("placeholder", 'filtra corso');
-            $("[data-text-field=azienda]").attr("placeholder", 'filtra azienda');
-
-            // .k-state-default
-            // grid.autoFitColumn(0);
-            // grid.autoFitColumn(1);
         }
 
         function _loadData() {
 
 
-            // $('#cover-spin').show(0);
-            $.when($.get("index.php?option=com_gglms&task=summaryreport.getData"))
-                .done(function (data) {
+            var testDataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: window.location.hostname + "/home/index.php?option=com_gglms&task=summaryreport.getData",
+                        dataType: "json"
+                    },
 
-                    data = JSON.parse(data);
-                    console.log('data', data);
 
-                    //data type of the field {number|string|boolean|date} default is string
-                    gridDataSource = new kendo.data.DataSource({
-                        data: data,
-                        schema: {
-                            model: {
-                                fields: {
-                                    coupon: {type: "string"},
-                                    data_creazione: {type: "date"},
-                                    data_utilizzo: {type: "date"},
-                                    id_corso: {type: "number"},
-                                    titolo_corso: {type: "string"},
-                                    id_azienda: {type: "number"},
-                                    azienda: {type: "string"},
-                                    id_piattaforma: {type: "number"},
-                                    piattaforma: {type: "string"},
-                                    user_: {type: "string"},
-                                    stato: {type: "number"},
-                                    data_inizio: {type: "date"},
-                                    data_fine: {type: "date"}
+                    parameterMap: function (data, type) {
+                        //prima di eseguire la request al server passa di qua
+
+                        if (data.filter) {
+                            $.each(data.filter.filters, function (i, f) {
+                                // leggo dallo schema se è un campo di tipo data formatto la data prima di mandarla al server per il filtraggio
+                                if (fields[f.field].type === 'date') {
+                                    var val = _formatDate(f.value);
+                                    f.value = val;
                                 }
-                            }
+
+                                // se è un campo di tipo string sostituisco il default equals con con like
+                                if(fields[f.field].type === 'string'){
+                                    f.operator = 'like'
+                                }
+                            });
                         }
-                    });
-                    _createGrid(gridDataSource);
 
+                        return data;
+                    }
 
-                })
-                .fail(function (data) {
-                    console.log('fail', data);
-                    $('#cover-spin').hide(0);
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting:true,
+                pageSize: 100,
+                schema: {
+                    data: 'data',
+                    total: "total",
+                    model: {
+                        fields: fields
+                    }
+                }
+            });
 
-
-                })
-                .then(function (data) {
-                    $('#cover-spin').hide(0);
-                    // console.log('then', data);
-
-                });
+            testDataSource.fetch(function () {
+                console.log(testDataSource.view());
+                grid.setDataSource(testDataSource);
+            });
         }
 
         function _isLoggedUser_tutorAz() {
@@ -377,14 +384,15 @@ _summaryreport = (function ($, my) {
                         pageable: true,
                         columns: [
                             {field: "id_contenuto", title: "", hidden: true},
-                            {field: "titolo_contenuto", title: "Contenuto", width:300},
-                            {field: "last_visit", title: "Ultima visita", width:100},
-                            {field: "permanenza",
+                            {field: "titolo_contenuto", title: "Contenuto", width: 300},
+                            {field: "last_visit", title: "Ultima visita", width: 100},
+                            {
+                                field: "permanenza",
                                 title: "Permanenza",
-                                width:100,
+                                width: 100,
                                 template: '<span>#= _secondsTohhmmss(permanenza) #</span>'
                             },
-                            {field: "visualizzazioni", title: "Visualizzazioni", width:80}
+                            {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
                         ]
                     });
 
@@ -427,6 +435,20 @@ _summaryreport = (function ($, my) {
             // });
         }
 
+        function _formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
         function _secondsTohhmmss(totalSeconds) {
             var totalSeconds = parseInt(totalSeconds);
             if (totalSeconds == 0) {
@@ -446,6 +468,7 @@ _summaryreport = (function ($, my) {
 
             return result;
         }
+
         // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
 
@@ -463,10 +486,19 @@ _summaryreport = (function ($, my) {
                 });
             };
 
+            // remove autocomplete in filters, perchè facendo la paginazione lato server
+            // // suggerisce solo i dati caricati in quel momento
+            // kendo.ui.FilterCell.fn.options.template = function (e) {
+            //
+            //     console.log('eeeeeeeeee', e);
+            //     e.element.kendoAutoComplete({
+            //         serverFiltering: false,
+            //         valuePrimitive: true,
+            //         noDataTemplate: ''
+            //     });
+            // }
         }
 
-
-// public methods
         my.init = _init;
 
         return my;

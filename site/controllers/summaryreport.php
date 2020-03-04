@@ -44,31 +44,119 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     public function getData()
     {
+        $params = JRequest::get($_POST);
+
+        $page = $params["page"];
+        $take = $params["take"];
+        $filter = $params["filter"];
+        $sort = $params["sort"];
+
+
         $model_user = new gglmsModelUsers();
-
         $piattaforme = $model_user->get_user_piattaforme($this->_user->id);
-
         $p_list = array();
-
         foreach ($piattaforme as $p) {
 
             array_push($p_list, $p->value);
         }
 
-        $query = $this->_db->getQuery(true)
-            ->select('*')
-            ->from('#__view_report')
-            ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")")
-            ->order('id_piattaforma');
 
-        $this->_db->setQuery($query);
-        $result = $this->_db->loadAssocList();
+        $total_count_query = $this->_db->getQuery(true)
+            ->select('count(*)')
+            ->from('#__view_report')
+            ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
+
+
+        $total_count_query = $this->_filter_query($total_count_query, $filter);
+        $this->_db->setQuery($total_count_query);
+        $count = $this->_db->loadResult();
+
+        if ($count > 0) {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__view_report')
+                ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
+
+            $query = $this->_filter_query($query, $filter);
+
+
+
+            if( $page == 1){
+                $query->setLimit($take);
+            }
+            else{
+                $query->setLimit($take, ($page-1) * $take);
+            }
+
+
+            if($sort){
+                $query->order($sort[0]['field'] .' '. $sort[0]['dir']);
+            }
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadAssocList();
+
+
+            $result['data'] = $data;
+            $result['total'] = $count;
+            $result['sort'] = $sort[0]['field'] .' '. $sort[0]['dir'];
+
+            $result['query'] = (string)$query;
+            $result['filter'] = $filter;
+            $result["page"]= $params["page"] ;
+
+        }
+        else{
+
+            $result['data'] = array();
+            $result['query'] = '';
+            $result['filter'] = $filter;
+            $result['total'] = 0;
+        }
 
 
         echo json_encode($result);
         $this->_japp->close();
-//
+
     }
+
+
+    public function _filter_query($query, $filter)
+    {
+        foreach ($filter["filters"] as $f) {
+
+
+            switch ($f["operator"]) {
+                case "eq":
+                    $query = $query->where($f['field'] . " = '" . $f['value'] . "'");
+                    break;
+                case "like":
+                    $query = $query->where($f['field'] . " like '%" . $f['value'] . "%'");
+                    break;
+                case "lte":
+                    // lowerthan or equal --> campo data
+                    $query = $query->where($f['field'] . " <= '" . $f['value'] . "'");
+                    break;
+                case "gte":
+                    // greater than or equal --> campo data
+                    $query = $query->where($f['field'] . " >= '" . $f['value'] . "'");
+                    break;
+                case "isnull":
+                    $query = $query->where($f['field'] . " is null");
+                    // campo data
+                    break;
+                case "isnotnull":
+                    $query = $query->where($f['field'] . "is not null");
+                    break;
+
+            }
+
+
+        }
+        return $query;
+    }
+
 
     public function is_tutor_aziendale()
     {

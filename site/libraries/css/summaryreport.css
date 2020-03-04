@@ -19,15 +19,16 @@
 }
 
 
-.k-grid-attestato{
+.k-grid-attestato {
 
     background-color: #428BCA;
-    color:white;
+    color: white;
 }
 
 
-.k-grid-attestato:hover{
+.k-grid-attestato:hover {
 
     background-color: white;
-    color:#428BCA;
+    color: #428BCA;
 }
+
