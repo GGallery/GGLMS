@@ -168,7 +168,7 @@ _summaryreport = (function ($, my) {
             {
                 field: 'id_corso',
                 title: 'Attestati',
-                width:200,
+                width: 200,
                 filterable: false,
                 template: "<a href='http://gglms.base.it/home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
                 attributes: {
@@ -205,7 +205,6 @@ _summaryreport = (function ($, my) {
 
 
             _isLoggedUser_tutorAz();
-            // _createGrid();
             _loadData();
         }
 
@@ -242,14 +241,24 @@ _summaryreport = (function ($, my) {
                             editButton.hide();
                         }
 
+                        console.log('quiiiiiiii');
+                        if (parseInt(gridData[i].stato) === -1 || gridData[i].stato == null) {
+
+                            currenRow.find(".k-hierarchy-cell").html("");
+
+                        }
+
+
                     }
-                }
+                },
+                detailInit: detailInit,
 
             });
 
             $('#cover-spin').hide(0);
             grid = $("#grid").data('kendoGrid');
-            //todo---- aggiungi gli altri placheolder...
+
+
             $("[data-text-field=coupon]").attr("placeholder", 'filtra coupon');
             $("[data-text-field=user_]").attr("placeholder", 'filtra utente');
             $("[data-text-field=titolo_corso]").attr("placeholder", 'filtra corso');
@@ -260,7 +269,7 @@ _summaryreport = (function ($, my) {
             // grid.autoFitColumn(1);
         }
 
-        function _loadData(sender) {
+        function _loadData() {
 
 
             // $('#cover-spin').show(0);
@@ -340,6 +349,103 @@ _summaryreport = (function ($, my) {
 
         }
 
+        function detailInit(e) {
+            var detailRow = e.detailRow;
+            var data = e.data;
+
+            var params = {
+                id_user: data.id_user,
+                id_gruppo_azienda: data.id_azienda,
+                id_corso: data.id_corso
+            };
+
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.getDetails", params))
+                .done(function (data) {
+
+                    data = JSON.parse(data);
+
+                    $('#cover-spin').show(0);
+                    //data type of the field {number|string|boolean|date} default is string
+                    var detailsDataSource = new kendo.data.DataSource({
+                        data: data
+                    });
+
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: detailsDataSource,
+                        scrollable: false,
+                        sortable: true,
+                        pageable: true,
+                        columns: [
+                            {field: "id_contenuto", title: "", hidden: true},
+                            {field: "titolo_contenuto", title: "Contenuto", width:300},
+                            {field: "last_visit", title: "Ultima visita", width:100},
+                            {field: "permanenza",
+                                title: "Permanenza",
+                                width:100,
+                                template: '<span>#= _secondsTohhmmss(permanenza) #</span>'
+                            },
+                            {field: "visualizzazioni", title: "Visualizzazioni", width:80}
+                        ]
+                    });
+
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+
+                })
+                .then(function (data) {
+                    $('#cover-spin').hide(0);
+                    // console.log('then', data);
+
+                });
+            //
+            //   $("<div/>").appendTo(e.detailCell).kendoGrid({
+            //     dataSource: {
+            //         type: "odata",
+            //         transport: {
+            //             read: "http://gglms.base.it/home/index.php?option=com_gglms&task=tracklog.getDetails&id_user=894&id_gruppo_azienda=91&id_corso=248"
+            //         },
+            //         serverPaging: true,
+            //         serverSorting: true,
+            //         serverFiltering: true,
+            //         pageSize: 7
+            //         // ,filter: { field: "EmployeeID", operator: "eq", value: e.data.EmployeeID }
+            //     },
+            //     scrollable: false,
+            //     sortable: true,
+            //     pageable: true,
+            //     columns: [
+            //         { field: "id_contenuto", title:"", hidden: true},
+            //         { field: "titolo_contentuto", title:"Contenuto"},
+            //         { field: "last_visit", title:"Ultima visita" },
+            //         { field: "permanenza", title:"Permanenza" },
+            //         { field: "visualizzazioni", title: "Visualizzazioni"}
+            //     ]
+            // });
+        }
+
+        function _secondsTohhmmss(totalSeconds) {
+            var totalSeconds = parseInt(totalSeconds);
+            if (totalSeconds == 0) {
+                result = 0;
+            } else {
+                var hours = Math.floor(totalSeconds / 3600);
+                var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+                var seconds = totalSeconds - (hours * 3600) - (minutes * 60);
+
+                // round seconds
+                seconds = Math.round(seconds * 100) / 100;
+
+                var result = (hours < 10 ? "0" + hours : hours);
+                result += ":" + (minutes < 10 ? "0" + minutes : minutes);
+                result += ":" + (seconds < 10 ? "0" + seconds : seconds);
+            }
+
+            return result;
+        }
         // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
 
