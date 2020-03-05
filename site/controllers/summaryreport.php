@@ -147,7 +147,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
                     // campo data
                     break;
                 case "isnotnull":
-                    $query = $query->where($f['field'] . "is not null");
+                    $query = $query->where($f['field'] . " is not null");
                     break;
 
             }

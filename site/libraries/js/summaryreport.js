@@ -213,7 +213,6 @@ _summaryreport = (function ($, my) {
         var gridDataSource = null;
         var grid = null;
 
-
         function _init() {
 
             _kendofix();
@@ -265,7 +264,7 @@ _summaryreport = (function ($, my) {
 
                     }
                 },
-                detailInit: detailInit,
+                detailInit: detailInit
 
             });
 
@@ -297,7 +296,7 @@ _summaryreport = (function ($, my) {
                                 }
 
                                 // se è un campo di tipo string sostituisco il default equals con con like
-                                if(fields[f.field].type === 'string'){
+                                if (fields[f.field].type === 'string') {
                                     f.operator = 'like'
                                 }
                             });
@@ -309,7 +308,7 @@ _summaryreport = (function ($, my) {
                 },
                 serverPaging: true,
                 serverFiltering: true,
-                serverSorting:true,
+                serverSorting: true,
                 pageSize: 100,
                 schema: {
                     data: 'data',
@@ -356,6 +355,7 @@ _summaryreport = (function ($, my) {
 
         }
 
+
         function detailInit(e) {
             var detailRow = e.detailRow;
             var data = e.data;
@@ -379,20 +379,17 @@ _summaryreport = (function ($, my) {
 
                     $("<div/>").appendTo(e.detailCell).kendoGrid({
                         dataSource: detailsDataSource,
+                        toolbar: ["excel"],
                         scrollable: false,
+                        resizable:true,
                         sortable: true,
-                        pageable: true,
+                        pageable: false,
                         columns: [
                             {field: "id_contenuto", title: "", hidden: true},
-                            {field: "titolo_contenuto", title: "Contenuto", width: 300},
-                            {field: "last_visit", title: "Ultima visita", width: 100},
-                            {
-                                field: "permanenza",
-                                title: "Permanenza",
-                                width: 100,
-                                template: '<span>#= _secondsTohhmmss(permanenza) #</span>'
-                            },
-                            {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
+                            {field: "titolo_contenuto", title: "Contenuto",width: 120 },
+                            {field: "last_visit", title: "Ultima visita",width: 120},
+                            { field: "permanenza", title: "Permanenza",width: 120, template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'  },
+                            {field: "visualizzazioni", title: "Visualizzazioni",width: 120}
                         ]
                     });
 
@@ -409,31 +406,10 @@ _summaryreport = (function ($, my) {
                     // console.log('then', data);
 
                 });
-            //
-            //   $("<div/>").appendTo(e.detailCell).kendoGrid({
-            //     dataSource: {
-            //         type: "odata",
-            //         transport: {
-            //             read: "http://gglms.base.it/home/index.php?option=com_gglms&task=tracklog.getDetails&id_user=894&id_gruppo_azienda=91&id_corso=248"
-            //         },
-            //         serverPaging: true,
-            //         serverSorting: true,
-            //         serverFiltering: true,
-            //         pageSize: 7
-            //         // ,filter: { field: "EmployeeID", operator: "eq", value: e.data.EmployeeID }
-            //     },
-            //     scrollable: false,
-            //     sortable: true,
-            //     pageable: true,
-            //     columns: [
-            //         { field: "id_contenuto", title:"", hidden: true},
-            //         { field: "titolo_contentuto", title:"Contenuto"},
-            //         { field: "last_visit", title:"Ultima visita" },
-            //         { field: "permanenza", title:"Permanenza" },
-            //         { field: "visualizzazioni", title: "Visualizzazioni"}
-            //     ]
-            // });
+
         }
+
+
 
         function _formatDate(date) {
             var d = new Date(date),
@@ -448,6 +424,9 @@ _summaryreport = (function ($, my) {
 
             return [year, month, day].join('-');
         }
+
+
+
 
         function _secondsTohhmmss(totalSeconds) {
             var totalSeconds = parseInt(totalSeconds);
@@ -471,8 +450,7 @@ _summaryreport = (function ($, my) {
 
         // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
-
-            kendo.ui.Grid.prototype._positionColumnResizeHandle = function () {
+            kendo.ui.Grid.prototype._positionColumnResizeHandle= function() {
                 var that = this,
                     indicatorWidth = that.options.columnResizeHandleWidth,
                     lockedHead = that.lockedHeader ? that.lockedHeader.find("thead:first") : $();
@@ -486,20 +464,10 @@ _summaryreport = (function ($, my) {
                 });
             };
 
-            // remove autocomplete in filters, perchè facendo la paginazione lato server
-            // // suggerisce solo i dati caricati in quel momento
-            // kendo.ui.FilterCell.fn.options.template = function (e) {
-            //
-            //     console.log('eeeeeeeeee', e);
-            //     e.element.kendoAutoComplete({
-            //         serverFiltering: false,
-            //         valuePrimitive: true,
-            //         noDataTemplate: ''
-            //     });
-            // }
         }
 
         my.init = _init;
+        my.secondsTohhmmss = _secondsTohhmmss;
 
         return my;
 

@@ -2,6 +2,24 @@
     font-size: smaller;
 }
 
+#grid .k-grid-header .k-header
+{
+       text-align: center;
+
+}
+
+/*header text*/
+#grid .k-link {
+    color: #325482!important;
+    font-size: medium;
+
+    font-weight: bold;
+}
+
+#grid .k-filtercell{
+    width: 110%;
+}
+
 
 .g-content {
 
@@ -15,9 +33,13 @@
 
 
 .glyphicon-ok {
-    color: green !important;
+    color: #79dc79  !important;
 }
 
+
+.glyphicon-log-in {
+    color: #325482!important;
+}
 
 .k-grid-attestato {
 
@@ -31,4 +53,11 @@
     background-color: white;
     color: #428BCA;
 }
+
+.k-grid .k-detail-cell {
+    padding: 0;
+}
+
+
+
 
