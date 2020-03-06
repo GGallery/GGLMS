@@ -201,7 +201,7 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
-            $fields = explode(',', $this->_params->get('campi_csv'));
+            $fields = explode(',', $this->_params->get('campicustom_report'));
             $columns = array_merge($columns, $fields);
 
             $rows = $this->buildPivot($rows, $columns, "");
@@ -387,7 +387,7 @@ class gglmsControllerApi extends JControllerLegacy
 
     private function buildPivot($basearray, $columns, $nullvalue)
     {
-        $fields = explode(',', $this->_params->get('campi_csv'));
+        $fields = explode(',', $this->_params->get('campicustom_report'));
 
         $table = array();
 
