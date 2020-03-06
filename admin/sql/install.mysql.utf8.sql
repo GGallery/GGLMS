@@ -125,7 +125,7 @@ INSERT INTO `#__gg_configs` VALUES ('61', 'messaggio_rinnovo_success', 'Il coupo
 INSERT INTO `#__gg_configs` VALUES ('62', 'mail_riferimento_specifica', '1');
 INSERT INTO `#__gg_configs` VALUES ('63', 'mail_richiesta_tecnica', 'mail_richiesta_tecnica@ggallery.it');
 INSERT INTO `#__gg_configs` VALUES ('64', 'mail_richiesta_didattica', 'mail_richiesta_didattica@ggallery.it');
-
+INSERT INTO `#__gg_configs` VALUES ('65', 'campicustom_report', '');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------

@@ -201,6 +201,8 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
+            $fields = explode(',', $this->_params->get('campi_csv'));
+            $columns = array_merge($columns, $fields);
 
             $rows = $this->buildPivot($rows, $columns, "");
 
@@ -385,8 +387,10 @@ class gglmsControllerApi extends JControllerLegacy
 
     private function buildPivot($basearray, $columns, $nullvalue)
     {
+        $fields = explode(',', $this->_params->get('campi_csv'));
 
         $table = array();
+
         foreach ($basearray as $item) {
 
             foreach ($columns as $column) {
@@ -398,6 +402,16 @@ class gglmsControllerApi extends JControllerLegacy
                     $row{$column} = $nullvalue;
                 }
             }
+
+            $userFields = json_decode($row['fields']);
+            foreach ($fields as $field) {
+                if (isset($userFields->$field)) {
+                    $row{$field} = $userFields->$field;
+                } else {
+                    $row{$field} = $nullvalue;
+                }
+            }
+
             array_push($table, $row);
 
         }
