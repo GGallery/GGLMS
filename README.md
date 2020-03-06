@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.3 
+ - G: aggingi campi custom report selezionabili da backend.
+
 4.0.1
  - B: ordinamento unità backend
  

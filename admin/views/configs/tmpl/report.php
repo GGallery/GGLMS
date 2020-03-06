@@ -56,6 +56,11 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('alert_mail_text'); ?>
             </div>
+
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('campicustom_report'); ?>
+            </div>
+
             <div class="row-fluid">
                 <?php echo $this->form->renderField('campi_csv'); ?>
             </div>
