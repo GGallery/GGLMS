@@ -201,5 +201,26 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_japp->close();
     }
 
+    public function get_user_detail(){
+
+        $params = JRequest::get($_POST);
+        $user_id= $params["user_id"];
+
+
+        $query = $this->_db->getQuery(true)
+            ->select('fields')
+            ->from('#__gg_report_users')
+            ->where("id_user =" . $user_id );
+
+        $this->_db->setQuery($query);
+        $u = $this->_db->loadAssoc();
+
+
+        echo json_encode($u);
+        $this->_japp->close();
+
+
+    }
+
 }
 

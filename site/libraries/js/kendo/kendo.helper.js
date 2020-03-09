@@ -1386,12 +1386,12 @@ function createPopup(id, width, height, resizable, actions) {
 
     // bind the responsive functionality on open and on resize
     // It is necessary to pass the id of the wrapper because it holds the width of the window even before it is opened
-    popup.bind("open", function () {
-        responsiveContentManagement(popupWrapperId);
-    });
-    popup.bind("resize", function () {
-        responsiveContentManagement(popupWrapperId);
-    });
+    // popup.bind("open", function () {
+    //     responsiveContentManagement(popupWrapperId);
+    // });
+    // popup.bind("resize", function () {
+    //     responsiveContentManagement(popupWrapperId);
+    // });
 
     //custom settings
     if (width !== "auto") {
@@ -1411,6 +1411,8 @@ function createPopup(id, width, height, resizable, actions) {
     }
 
     popup.close();
+
+    return popup;
 
 }
 

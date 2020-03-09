@@ -2,22 +2,17 @@
     font-size: smaller;
 }
 
-#grid .k-grid-header .k-header
-{
-       text-align: center;
+#grid .k-grid-header .k-header {
+    text-align: center;
 
 }
 
 /*header text*/
 #grid .k-link {
-    color: #325482!important;
+    color: #325482 !important;
     font-size: medium;
 
     font-weight: bold;
-}
-
-#grid .k-filtercell{
-    width: 110%;
 }
 
 
@@ -33,30 +28,39 @@
 
 
 .glyphicon-ok {
-    color: #79dc79  !important;
+    color: #79dc79 !important;
 }
 
 
 .glyphicon-log-in {
-    color: #325482!important;
+    color: #325482 !important;
 }
 
-.k-grid-attestato {
 
-    background-color: #428BCA;
+
+.k-grid-button {
+    min-width: 45px;
+    background-color: #325482;
     color: white;
 }
 
-
-.k-grid-attestato:hover {
-
+.k-grid-button:hover {
     background-color: white;
-    color: #428BCA;
+    color: #325482;
 }
 
-.k-grid .k-detail-cell {
-    padding: 0;
+.k-grid-button:active {
+    background-color: white;
+    color: #325482;
 }
+
+
+.k-detail-cell {
+    -webkit-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);
+    -moz-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);
+    box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);
+}
+
 
 
 

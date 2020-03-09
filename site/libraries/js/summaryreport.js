@@ -1,7 +1,13 @@
 _summaryreport = (function ($, my) {
 
 
-        // todo colonna piattaforma e venditore visibile solo se tutor piattaforma
+        // todo
+        // 1) dettagli utente
+        // 2) export excell formatao stato
+        // 5)coupon scaduti (calcolo ed evidenza)
+        // 3) cancella coupon (tutor piattaforma, coupon liberi)
+        // 4)invia coupon per mail (tutor az, tutor p)
+        // 6)disiscrivi utente (solo super admin)
 
         var columns = [
             {
@@ -20,11 +26,25 @@ _summaryreport = (function ($, my) {
                 field: 'user_',
                 title: 'Utente',
                 width: 200,
+                // template: '<span>#= user_ # <button type="button" class="k-button user-details" ><span class="glyphicon glyphicon-user"></span></button></span>',
                 filterable: {
                     cell: {
                         showOperators: false
                     }
                 }
+
+            },
+            {
+                field: 'id_user',
+                title: 'Dettagli utente',
+                width: 100,
+                filterable: false,
+                // template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=summaryreport.get_user_detail&user_id=#=id_user#' class='k-button k-grid-button  k-grid-user'><span class='glyphicon glyphicon-user'></span></a>",
+                template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
+                attributes: {
+                    style: "text-align: center"
+                }
+
 
             },
             {
@@ -160,17 +180,11 @@ _summaryreport = (function ($, my) {
 
             },
             {
-                field: 'id_user',
-                title: '',
-                hidden: true
-
-            },
-            {
                 field: 'id_corso',
                 title: 'Attestati',
-                width: 200,
+                width: 100,
                 filterable: false,
-                template: "<a href='http://gglms.base.it/home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
+                template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
                 attributes: {
                     style: "text-align: center"
                 }
@@ -192,8 +206,6 @@ _summaryreport = (function ($, my) {
             }
 
         ];
-
-
         var fields = {
             coupon: {type: "string"},
             data_creazione: {type: "date"},
@@ -210,8 +222,33 @@ _summaryreport = (function ($, my) {
             data_fine: {type: "date"},
             venditore: {type: "string"}
         };
-        var gridDataSource = null;
+
+
+        var user_details_fields = {
+
+            "cb_datadinascita": {titolo: "Data di nascita"},
+            "cb_luogodinascita": {titolo: "Luogo di nascita"},
+            "cb_provinciadinascita": {titolo: "Provinxcia di nascita"},
+            "cb_indirizzodiresidenza": {titolo: "Indirizzo di residenza"},
+            "cb_provdiresidenza": {titolo: "Provincia di residenza"},
+            "cb_cap": {titolo: "Cap"},
+            "cb_telefono": {titolo: "Telefono"},
+            "cb_codicefiscale": {titolo: "Codice Fiscale"},
+            "cb_username": {titolo: "Username"},
+            "email": {titolo: "Email"}
+
+        };
+
         var grid = null;
+        var widgets = {
+            grid: null,
+            dataSource: null,
+            popup: {
+                window: null,
+                grid: null
+            }
+        };
+
 
         function _init() {
 
@@ -248,18 +285,24 @@ _summaryreport = (function ($, my) {
                 dataBound: function (e) {
 
                     // bottone scarica attestato  visibile solo se corso è completato
-                    var grid = $("#grid").data("kendoGrid");
-                    var gridData = grid.dataSource.view();
+                    widgets.grid = $("#grid").data('kendoGrid');
+                    var gridData = widgets.grid.dataSource.view();
 
                     for (var i = 0; i < gridData.length; i++) {
                         var currentUid = gridData[i].uid;
-                        var editButton = $(currenRow).find(".k-grid-attestato");
+
+                        var currenRow = widgets.grid.table.find("tr[data-uid='" + currentUid + "']");
+                        var attestati_btn = $(currenRow).find(".k-grid-attestato");
+                        var user_btn = $(currenRow).find(".k-grid-user");
+
                         if (parseInt(gridData[i].stato) !== 1) {
-                            var currenRow = grid.table.find("tr[data-uid='" + currentUid + "']");
-                            editButton.hide();
+                            attestati_btn.hide();
                         }
-                        if (parseInt(gridData[i].stato) === -1 || gridData[i].stato == null) {
+
+                        // hide expand icon  e detail user if user not enrolled
+                        if (parseInt(gridData[i].stato) === -1) {
                             currenRow.find(".k-hierarchy-cell").html("");
+                            user_btn.hide();
                         }
 
                     }
@@ -269,14 +312,115 @@ _summaryreport = (function ($, my) {
             });
 
             $('#cover-spin').hide(0);
-            grid = $("#grid").data('kendoGrid');
+
+
+            // bind popup
+            $("#grid").on("click", ".k-grid-user", _openUserDetails);
 
         }
+
+        //////////////// popup dettagli utente //////////////////////////
+
+        function _createUserDetailGrid() {
+
+            // console.log(data);
+
+            $("#user_grid").kendoGrid({
+                height: 480,
+                scrollable: true,
+                sortable: true,
+                resizable: true,
+                groupable: false,
+                selectable: true,
+                filterable: false,
+                pageable: false,
+                columns: [{
+                    field: 'label',
+                    title: 'Campo'
+
+                }, {
+                    field: 'value',
+                    title: 'Valore'
+
+                }]
+            });
+
+            $('#cover-spin').hide(0);
+            widgets.popup.grid = $("#user_grid").data('kendoGrid');
+
+
+        }
+
+        function _openUserDetails() {
+
+            var row = $(this).closest("tr");
+            var dataItem = widgets.grid.dataItem(row);
+            var params = {user_id: dataItem.id_user};
+
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.get_user_detail", params))
+                .done(function (data) {
+
+                    data = JSON.parse(data);
+
+                    // console.log(data);
+                    if (widgets.popup.window === null) {
+
+                        widgets.popup.window = createPopup('#user-details', '450', '500', true, ["Minimize", "Maximize", "Close"]);
+                        _createUserDetailGrid();
+                    }
+
+                    _poppulateDetailUserGrid(data);
+                    openPopup('#user-details', 'Dettagli Utente', false, true, true)
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+
+                })
+                .then(function (data) {
+                    $('#cover-spin').hide(0);
+                    // console.log('then', data);
+
+                });
+
+
+        }
+
+
+        function _poppulateDetailUserGrid(data) {
+            var user_data = [];
+
+            // pivot dei dati
+            $.each(JSON.parse(data.fields), function (field, value) {
+
+                var c = user_details_fields[field];
+                if (c) {
+                    var obj = {
+                        label: c.titolo,
+                        value: value
+                    };
+
+                    user_data.push(obj);
+                }
+
+            });
+            var dataSource = new kendo.data.DataSource({
+
+                data: user_data
+            });
+
+            dataSource.fetch(function () {
+                widgets.popup.grid.setDataSource(dataSource);
+            });
+        }
+
+        //////////////////////////////////////////////////////////////////
 
         function _loadData() {
 
 
-            var testDataSource = new kendo.data.DataSource({
+            widgets.dataSource = new kendo.data.DataSource({
                 transport: {
                     read: {
                         url: window.location.hostname + "/home/index.php?option=com_gglms&task=summaryreport.getData",
@@ -319,9 +463,9 @@ _summaryreport = (function ($, my) {
                 }
             });
 
-            testDataSource.fetch(function () {
-                console.log(testDataSource.view());
-                grid.setDataSource(testDataSource);
+            widgets.dataSource.fetch(function () {
+                // console.log(testDataSource.view());
+                widgets.grid.setDataSource(widgets.dataSource);
             });
         }
 
@@ -355,7 +499,6 @@ _summaryreport = (function ($, my) {
 
         }
 
-
         function detailInit(e) {
             var detailRow = e.detailRow;
             var data = e.data;
@@ -381,15 +524,20 @@ _summaryreport = (function ($, my) {
                         dataSource: detailsDataSource,
                         toolbar: ["excel"],
                         scrollable: false,
-                        resizable:true,
+                        resizable: true,
                         sortable: true,
                         pageable: false,
                         columns: [
                             {field: "id_contenuto", title: "", hidden: true},
-                            {field: "titolo_contenuto", title: "Contenuto",width: 120 },
-                            {field: "last_visit", title: "Ultima visita",width: 120},
-                            { field: "permanenza", title: "Permanenza",width: 120, template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'  },
-                            {field: "visualizzazioni", title: "Visualizzazioni",width: 120}
+                            {field: "titolo_contenuto", title: "Contenuto", width: 120},
+                            {field: "last_visit", title: "Ultima visita", width: 80},
+                            {
+                                field: "permanenza",
+                                title: "Permanenza",
+                                width: 80,
+                                template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
+                            },
+                            {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
                         ]
                     });
 
@@ -409,8 +557,6 @@ _summaryreport = (function ($, my) {
 
         }
 
-
-
         function _formatDate(date) {
             var d = new Date(date),
                 month = '' + (d.getMonth() + 1),
@@ -424,9 +570,6 @@ _summaryreport = (function ($, my) {
 
             return [year, month, day].join('-');
         }
-
-
-
 
         function _secondsTohhmmss(totalSeconds) {
             var totalSeconds = parseInt(totalSeconds);
@@ -448,9 +591,10 @@ _summaryreport = (function ($, my) {
             return result;
         }
 
+
         // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
-            kendo.ui.Grid.prototype._positionColumnResizeHandle= function() {
+            kendo.ui.Grid.prototype._positionColumnResizeHandle = function () {
                 var that = this,
                     indicatorWidth = that.options.columnResizeHandleWidth,
                     lockedHead = that.lockedHeader ? that.lockedHeader.find("thead:first") : $();
