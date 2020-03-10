@@ -6,18 +6,21 @@ h6 , h5{
 
 .mc-main {
 
-    min-height: 600px;
+    min-height: 700px;
     font-size: smaller;
 }
 
 
 .form-inline .form-group {
-    margin: 5px;
-    width: 90%;
+    margin: 5px 0 5px 5px;
+    width: 100%;
+    /*text-align: center;*/
 }
 
-.k-dropdown {
-    width: 100%;
+.k-dropdown, input {
+    width: 90%;
+    margin: auto auto;
+
 }
 
 

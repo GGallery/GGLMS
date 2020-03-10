@@ -1,120 +1,36 @@
 _reportkendo = (function ($, my) {
 
 
-        // todo
-        // 1) dettagli utente
-        //-------------------------------------------
-        // 2) export excell formatao stato
-        // -----------------------------
-        // 5)coupon scaduti (calcolo ed evidenza)
-        // 3) cancella coupon (tutor piattaforma, coupon liberi)
-        // 4)invia coupon per mail (tutor az, tutor p)
-        // 6)disiscrivi utente (solo super admin)
 
-        var columns = [
+        // colonne base che ci sono sempre nella prima visualizzazione iniziale(tipo report =  corso)
+        //
+
+        // 0: "id_anagrafica"
+        // 1: "cognome"
+        // 2: "nome"
+        // 3: "stato"
+        // 4: "data_inizio"
+        // 5: "data_fine"
+        // 6: "scadenza"
+        // 7: "fields"
+        // 8: "attestati_hidden"
+
+
+        var _base_columns = [
             {
-                field: 'coupon',
-                title: 'Coupon',
-                width: 310,
-                filterable: {
-                    cell: {
-                        showOperators: false
-
-                    }
-                }
-
-            },
-            {
-                field: 'user_',
-                title: 'Utente',
-                width: 200,
-                // template: '<span>#= user_ # <button type="button" class="k-button user-details" ><span class="glyphicon glyphicon-user"></span></button></span>',
-                filterable: {
-                    cell: {
-                        showOperators: false
-                    }
-                }
-
-            },
-            {
-                field: 'id_user',
-                title: 'Dettagli utente',
-                width: 100,
-                filterable: false,
-                // template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=summaryreport.get_user_detail&user_id=#=id_user#' class='k-button k-grid-button  k-grid-user'><span class='glyphicon glyphicon-user'></span></a>",
-                template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
-                attributes: {
-                    style: "text-align: center"
-                }
-
-
-            },
-            {
-                field: 'titolo_corso',
-                title: 'Corso',
-                width: 200,
-                filterable: {
-                    cell: {
-                        showOperators: false
-                    }
-                }
-
-            },
-            {
-                field: 'data_creazione',
-                title: 'Data Creazione',
-                format: "{0: dd-MM-yyyy HH:mm}",
-                width: 150,
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del"
-                            // , eq: "Uguale"
-                        }
-                    }
-                }
-
-            },
-            {
-                field: 'data_utilizzo',
-                title: 'Data Utilizzo',
-                width: 150,
-                format: "{0: dd-MM-yyyy HH:mm}",
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del",
-                            isnull: "E' nulla",
-                            isnotnull: "Non è nulla"
-                            // , eq: "Uguale"
-                        }
-                    }
-                }
-
-            },
-            {
-                field: 'id_piattaforma',
+                field: 'id_anagrafica',
                 title: '',
-                hidden: true
-
+                hidden:true
             },
             {
-                field: 'id_azienda',
-                title: '',
-                hidden: true
-
+                field: 'cognome',
+                title: 'Cognome',
+                width: 200,
             },
             {
-                field: 'azienda',
-                title: 'Azienda',
-                width: 150,
-                filterable: {
-                    cell: {
-                        showOperators: false
-                    }
-                }
+                field: 'nome',
+                title: 'Nome',
+                width: 200,
             },
             {
                 field: 'stato',
@@ -138,7 +54,6 @@ _reportkendo = (function ($, my) {
                         }
                     }
                 },
-
                 template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
                 attributes: {
                     style: "text-align: center; font-size: 18px"
@@ -149,72 +64,36 @@ _reportkendo = (function ($, my) {
             {
                 field: 'data_inizio',
                 title: 'Data Inizio',
-                width: 150,
-                format: "{0: dd-MM-yyyy }",
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del",
-                            isnull: "E' nulla",
-                            isnotnull: "Non è nulla"
-                        }
-                    }
-                }
-
+                width: 200
             },
             {
                 field: 'data_fine',
                 title: 'Data Fine',
-                width: 150,
-                format: "{0: dd-MM-yyyy}",
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del",
-                            isnull: "E' nulla",
-                            isnotnull: "Non è nulla"
-
-                        }
-                    }
-                }
-
+                width: 200
             },
             {
-                field: 'id_corso',
+                field: 'scadenza',
+                title: 'In scadenza',
+                width: 200
+            },
+            {
+                field: 'attestati_hidden',
                 title: 'Attestati',
-                width: 100,
-                filterable: false,
-                template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
-                attributes: {
-                    style: "text-align: center"
-                }
-
+                // hidden:true
 
             },
             {
-                field: 'venditore',
-                title: 'Venditore',
-                width: 120,
-                hidden: false,
-                filterable: {
-                    cell: {
-                        showOperators: false
-
-                    }
-                }
-
-            },
-            {
-                field: 'scaduto',
-                title: 'Scaduto',
-                hidden: true
-
+                field: 'fields',
+                title: '',
+                hidden:true
 
             }
 
+
+
         ];
+
+
         var fields = {
             coupon: {type: "string"},
             data_creazione: {type: "date"},
@@ -246,6 +125,9 @@ _reportkendo = (function ($, my) {
             "email": {titolo: "Email"}
 
         };
+
+        //////////////
+
         var widgets = {
             grid: null,
             dataSource: null,
@@ -253,15 +135,15 @@ _reportkendo = (function ($, my) {
                 corso_id: null,
                 tipo_report: null,
                 usergroups: null,
-                filter_stato: null
+                filter_stato: null,
+                startdate: null,
+                finishdate: null
             },
             popup: {
                 window: null,
                 grid: null
             }
         };
-
-
         var filterdata = {
             corsi: null,
             usergroups: null,
@@ -286,6 +168,9 @@ _reportkendo = (function ($, my) {
             _createSplitter();
             _getFilterData();
             _createFilters()
+            _createGrid();
+
+
             // _createGrid();
 
             // _isLoggedUser_tutorAz();
@@ -335,21 +220,30 @@ _reportkendo = (function ($, my) {
             createFilter('#filterstato', 'dropdownlist', 'value', 'text');
             widgets.filters.filter_stato = $('#filterstato').data('kendoDropDownList');
 
-            createFilter('#startdate', 'datepicker');
-            createFilter('#finishdate', 'datepicker');
+            createFilter('#startdate', 'DatePicker');
+            widgets.filters.startdate = $('#startdate').data('kendoDatePicker');
+
+            createFilter('#finishdate', 'DatePicker');
+            widgets.filters.finishdate = $('#finishdate').data('kendoDatePicker');
+
+            widgets.filters.searchPhrase = $('#searchPhrase');
         }
 
-
+        //TODO attenzione scommentare le selezioni per sviluppo
         function _populateFilters() {
 
             populateFilter('#corso_id', 'dropdownlist', filterdata.corsi);
-            widgets.filters.corso_id.select(0);
+            // widgets.filters.corso_id.select(0);
+            
+            widgets.filters.corso_id.select(4);
+            widgets.filters.corso_id.trigger('change');
 
             populateFilter('#tipo_report', 'dropdownlist', filterdata.tipo);
             widgets.filters.tipo_report.select(0);
 
             populateFilter('#usergroups', 'dropdownlist', filterdata.usergroups);
-            widgets.filters.usergroups.select(0);
+            // widgets.filters.usergroups.select(0);
+            widgets.filters.usergroups.select(6);
 
             populateFilter('#filterstato', 'dropdownlist', filterdata.stato);
             widgets.filters.filter_stato.select(0);
@@ -372,8 +266,9 @@ _reportkendo = (function ($, my) {
 
             });
 
-        }
+            _loadData();
 
+        }
 
         function _createSplitter() {
             var panes = [{collapsible: true, size: "30%"}, {collapsible: false, size: '70%'}];
@@ -384,6 +279,7 @@ _reportkendo = (function ($, my) {
         function _createGrid() {
             $("#grid").kendoGrid({
                 toolbar: ["excel"],
+                columns:_base_columns,
                 excel: {
                     allPages: true
                 },
@@ -393,15 +289,17 @@ _reportkendo = (function ($, my) {
                 resizable: true,
                 groupable: false,
                 selectable: true,
-                filterable: {
-                    mode: " row",
-                    extra: false
-                },
+                filterable:false,
+                // filterable: {
+                //     mode: " row",
+                //     extra: false
+                // },
                 pageable: true,
-                columns: columns
+                columns: _base_columns
 
             });
 
+            widgets.grid = $("#grid").data('kendoGrid');
             $('#cover-spin').hide(0);
 
 
@@ -413,52 +311,81 @@ _reportkendo = (function ($, my) {
             widgets.dataSource = new kendo.data.DataSource({
                 transport: {
                     read: {
-                        url: window.location.hostname + "/home/index.php?option=com_gglms&task=summaryreport.getData",
+                        url: window.location.hostname + "/home/index.php?option=com_gglms&task=api.get_report",
                         dataType: "json"
                     },
-
-
                     parameterMap: function (data, type) {
                         //prima di eseguire la request al server passa di qua
 
-                        if (data.filter) {
-                            $.each(data.filter.filters, function (i, f) {
-                                // leggo dallo schema se è un campo di tipo data formatto la data prima di mandarla al server per il filtraggio
-                                if (fields[f.field].type === 'date') {
-                                    var val = _formatDate(f.value);
-                                    f.value = val;
-                                }
+                        // todo occhio che page per kendo parte da 1
+                        // allineare skip and take a offset e limit
 
-                                // se è un campo di tipo string sostituisco il default equals con con like
-                                if (fields[f.field].type === 'string') {
-                                    f.operator = 'like'
-                                }
-                            });
-                        }
+                        var params = _getParams();
+                        params.limit = 0;
+                        params.take= 15;
 
-                        return data;
+
+                        console.log(data, params);
+                        return params;
                     }
 
                 },
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true,
-                pageSize: 100,
+                pageSize: 15,
                 schema: {
-                    data: 'data',
-                    total: "total",
-                    model: {
-                        fields: fields
-                    }
+                    data: function (response) {
+                        console.log(response);
+
+
+
+                        return response.rows;
+                    },
+                    total: "rowCount"
+                    // ,model: {
+                    //     fields: fields
+                    // }
                 }
             });
 
             widgets.dataSource.fetch(function () {
-                // console.log(testDataSource.view());
-                widgets.grid.setDataSource(widgets.dataSource);
+                // console.log(widgets.dataSource.view());
+                 widgets.grid.setDataSource(widgets.dataSource);
             });
         }
 
+        function _getParams() {
+
+
+// parametri chiamata api già esistente
+            var params = {
+                corso_id: null,
+                startdate: null,
+                finishdate: null,
+                filterstato: null,
+                usergroups: null,
+                tipo_report: null,
+                searchPhrase: null,
+                limit: null,
+                offset: null
+            };
+
+            var corsoobj = widgets.filters.corso_id.dataItem();
+            params.corso_id = corsoobj.id + '|' + corsoobj.id_contenuto_completamento;
+
+            params.startdate = _formatDate(widgets.filters.startdate.value());
+            params.finishdate = _formatDate(widgets.filters.finishdate.value());
+            params.filterstato = widgets.filters.filter_stato.value();
+            params.usergroups = widgets.filters.usergroups.value();
+            params.tipo_report = widgets.filters.tipo_report.value();
+            params.searchPhrase = widgets.filters.searchPhrase.val();
+
+            console.log(params);
+            return params;
+
+
+        }
 
         function _formatDate(date) {
             var d = new Date(date),
@@ -514,6 +441,7 @@ _reportkendo = (function ($, my) {
         }
 
         my.init = _init;
+        my.loadData = _loadData;
         my.secondsTohhmmss = _secondsTohhmmss;
 
         return my;

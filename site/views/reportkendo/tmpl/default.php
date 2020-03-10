@@ -9,7 +9,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
 <div id="splitter" class="mc-main">
     <div id="filters-pane">
         <h5 style="text-align: center">
-            Report
+            Filtri
         </h5>
         <form id="theform" class="form-inline" action="index.php">
 
@@ -27,7 +27,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
             </div>
 
             <hr>
-            <h5 style="text-align: center">Filtri</h5>
+<!--            <h5 style="text-align: center">Filtri</h5>-->
 
             <div class="form-group">
                 <label for="usergroups">Azienda:</label><br>
@@ -40,7 +40,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
 
             <div class="form-group" id="searchPhrase_div">
                 <label for="searchPhrase">Cerca:</label><br>
-                <input type="text" id="searchPhrase">
+                <input  style="width: 90%"  type="text" id="searchPhrase">
             </div>
 
             <div class="form-group" id="filterstatodiv">
@@ -65,7 +65,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
             <!--            <input type="hidden" id="task" name="task" value="api.get_csv">-->
             <!---->
                         <div class="form-group">
-                            <button type="button" id="update" class="width100 btn" onclick="reload()">AGGIORNA DATI</button>
+                            <button type="button" id="update" class="width100 btn" onclick="loadData()">AGGIORNA DATI</button>
 <!--                            <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>-->
                         </div>
             <!--
