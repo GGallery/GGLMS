@@ -3,7 +3,9 @@ _summaryreport = (function ($, my) {
 
         // todo
         // 1) dettagli utente
+        //-------------------------------------------
         // 2) export excell formatao stato
+        // -----------------------------
         // 5)coupon scaduti (calcolo ed evidenza)
         // 3) cancella coupon (tutor piattaforma, coupon liberi)
         // 4)invia coupon per mail (tutor az, tutor p)
@@ -203,6 +205,13 @@ _summaryreport = (function ($, my) {
                     }
                 }
 
+            },
+            {
+                field: 'scaduto',
+                title: 'Scaduto',
+                hidden: true
+
+
             }
 
         ];
@@ -220,10 +229,9 @@ _summaryreport = (function ($, my) {
             stato: {type: "number"},
             data_inizio: {type: "date"},
             data_fine: {type: "date"},
-            venditore: {type: "string"}
+            venditore: {type: "string"},
+            scaduto: {type: "number"}
         };
-
-
         var user_details_fields = {
 
             "cb_datadinascita": {titolo: "Data di nascita"},
@@ -238,8 +246,6 @@ _summaryreport = (function ($, my) {
             "email": {titolo: "Email"}
 
         };
-
-        var grid = null;
         var widgets = {
             grid: null,
             dataSource: null,
@@ -295,6 +301,7 @@ _summaryreport = (function ($, my) {
                         var attestati_btn = $(currenRow).find(".k-grid-attestato");
                         var user_btn = $(currenRow).find(".k-grid-user");
 
+                        //hide attestati based on stato
                         if (parseInt(gridData[i].stato) !== 1) {
                             attestati_btn.hide();
                         }
@@ -305,9 +312,46 @@ _summaryreport = (function ($, my) {
                             user_btn.hide();
                         }
 
+                       // scaduti e non completati in rosso
+                        if (gridData[i].scaduto && parseInt(gridData[i].stato) !==1) {
+                            currenRow.addClass("scaduto");
+                        }
+
                     }
                 },
-                detailInit: detailInit
+                detailInit: detailInit,
+                excelExport: function (e) {
+                    var sheet = e.workbook.sheets[0];
+                    var grid = e.sender;
+                    var fields = grid.dataSource.options.columns;
+                    var fieldsModels = grid.dataSource.options.schema.model.fields;
+                    var columns = grid.columns;
+                    git;
+
+                    // https://docs.telerik.com/kendo-ui/knowledge-base/date-format-excel-export-grid
+                    for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+                        var row = sheet.rows[rowIndex];
+                        var newValue = null;
+
+                        // todo per ora lascio row di 7, dovrò calcolare dinamicamente l'indice
+                        var cellIndex = 7;
+
+                        switch (row.cells[cellIndex].value) {
+                            case -1:
+                            case null:
+                                newValue = "Libero";
+                                break;
+                            case 1:
+                                newValue = "Completato";
+                                break;
+                            case 0:
+                                newValue = "Non Completato";
+                                break;
+                        }
+                        console.log(newValue);
+                        row.cells[cellIndex].value = newValue;
+                    }
+                }
 
             });
 
