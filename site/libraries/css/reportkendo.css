@@ -1,4 +1,4 @@
-h6 {
+h6 , h5{
     text-align: center;
     margin: auto auto;
 }
@@ -7,85 +7,18 @@ h6 {
 .mc-main {
 
     min-height: 600px;
+    font-size: smaller;
 }
 
 
 .form-inline .form-group {
-    margin: 10px;
+    margin: 5px;
     width: 90%;
 }
 
 .k-dropdown {
     width: 100%;
 }
-
-
-/*#grid {*/
-/*font-size: smaller;*/
-/*}*/
-
-/*#grid .k-grid-header .k-header {*/
-/*text-align: center;*/
-
-/*}*/
-
-/*!*header text*!*/
-/*#grid .k-link {*/
-/*color: #325482 !important;*/
-/*font-size: medium;*/
-
-/*font-weight: bold;*/
-/*}*/
-
-
-/*.g-content {*/
-
-/*padding: 0 !important;*/
-/*}*/
-
-
-/*.glyphicon-remove {*/
-/*color: red !important;*/
-/*}*/
-
-
-/*.glyphicon-ok {*/
-/*color: #79dc79 !important;*/
-/*}*/
-
-
-/*.glyphicon-log-in {*/
-/*color: #325482 !important;*/
-/*}*/
-
-
-/*.k-grid-button {*/
-/*min-width: 45px;*/
-/*background-color: #325482;*/
-/*color: white;*/
-/*}*/
-
-/*.k-grid-button:hover {*/
-/*background-color: white;*/
-/*color: #325482;*/
-/*}*/
-
-/*.k-grid-button:active {*/
-/*background-color: white;*/
-/*color: #325482;*/
-/*}*/
-
-
-/*.k-detail-cell {*/
-/*-webkit-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);*/
-/*-moz-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);*/
-/*box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);*/
-/*}*/
-
-/*.scaduto{*/
-/*color: indianred;*/
-/*}*/
-
 
 
 

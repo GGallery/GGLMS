@@ -249,11 +249,11 @@ _reportkendo = (function ($, my) {
         var widgets = {
             grid: null,
             dataSource: null,
-            filters:{
-                corso_id:null,
-                tipo_report:null,
-                usergroups:null,
-                filter_stato:null
+            filters: {
+                corso_id: null,
+                tipo_report: null,
+                usergroups: null,
+                filter_stato: null
             },
             popup: {
                 window: null,
@@ -265,8 +265,14 @@ _reportkendo = (function ($, my) {
         var filterdata = {
             corsi: null,
             usergroups: null,
-            tipo: [{value: 0, text: 'per Corso'}, {value: 1, text: 'per Unità'}, {value: 2, text: 'per Contenuto'}],
-            stato: [{value: 0, text: 'Qualsiasi stato'}, {value: 1, text: 'Solo Completati'}, {value: 2, text: 'Solo NON Completati'}, {value:3,text:'In scadenza'}]
+            tipo: [{value: 0, text: 'Per Corso'},
+                {value: 1, text: 'Per Unità'},
+                {value: 2, text: 'Per Contenuto'}],
+            stato: [
+                {value: 0, text: 'Qualsiasi stato'},
+                {value: 1, text: 'Solo Completati'},
+                {value: 2, text: 'Solo NON Completati'},
+                {value: 3, text: 'In scadenza'}]
         };
 
         function _init() {
@@ -329,9 +335,8 @@ _reportkendo = (function ($, my) {
             createFilter('#filterstato', 'dropdownlist', 'value', 'text');
             widgets.filters.filter_stato = $('#filterstato').data('kendoDropDownList');
 
-
-
-
+            createFilter('#startdate', 'datepicker');
+            createFilter('#finishdate', 'datepicker');
         }
 
 
@@ -348,6 +353,24 @@ _reportkendo = (function ($, my) {
 
             populateFilter('#filterstato', 'dropdownlist', filterdata.stato);
             widgets.filters.filter_stato.select(0);
+
+            setFilter('#filterstato', 'dropdownlist', 'change', function (e) {
+                var value = this.value();
+                console.log(value);
+
+                if (parseInt(value) === 1) {
+
+                    // show date picker per completati
+                    $('#calendar_startdate_div').show();
+                    $('#calendar_finishdate_div').show();
+
+                } else {
+                    $('#calendar_startdate_div').hide();
+                    $('#calendar_finishdate_div').hide();
+                }
+
+
+            });
 
         }
 

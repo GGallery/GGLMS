@@ -8,7 +8,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
 
 <div id="splitter" class="mc-main">
     <div id="filters-pane">
-        <h5>
+        <h5 style="text-align: center">
             Report
         </h5>
         <form id="theform" class="form-inline" action="index.php">
@@ -38,38 +38,36 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
 
             </div>
 
+            <div class="form-group" id="searchPhrase_div">
+                <label for="searchPhrase">Cerca:</label><br>
+                <input type="text" id="searchPhrase">
+            </div>
+
             <div class="form-group" id="filterstatodiv">
                 <label for="filterstato">Stato corso</label>
                 <select id="filterstato" name="filterstato" class="refresh">
                 </select>
             </div>
-            <!---->
-            <!--            <div class="form-group" id="calendar_startdate_div">-->
-            <!--                <label for="startdate">Completato dal:</label><br>-->
-            <!--                --><?php //echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d'); ?>
-            <!--            </div>-->
-            <!---->
-            <!--            <div class="form-group" id="calendar_finishdate_div">-->
-            <!--                <label for="finishdate">Completato al:</label><br>-->
-            <!--                --><?php //echo JHTML::_('calendar', '', 'finishdate', 'finishdate', '%Y-%m-%d'); ?>
-            <!---->
-            <!---->
-            <!--            </div>-->
 
-            <!---->
-            <!--            <div class="form-group" id="searchPhrase_div">-->
-            <!--                <label for="searchPhrase">Cerca:</label><br>-->
-            <!--                <input type="text" id="searchPhrase">-->
-            <!--            </div>-->
-            <!---->
+            <div class="form-group" id="calendar_startdate_div" style="display:none;">
+                <label for="startdate">Completato dal:</label><br>
+                <input style="width: 90%" id="startdate" name="startdate"/>
+
+            </div>
+
+            <div class="form-group" id="calendar_finishdate_div" style="display: none;">
+                <label for="finishdate">Completato al:</label><br>
+                <input  style="width: 90%" id="finishdate" name="finishdate"/>
+            </div>
+
             <!---->
             <!--            <input type="hidden" id="option" name="option" value="com_gglms">-->
             <!--            <input type="hidden" id="task" name="task" value="api.get_csv">-->
             <!---->
-            <!--            <div class="form-group">-->
-            <!--                <button type="button" id="update" class="width100 btn" onclick="reload()">AGGIORNA DATI</button>-->
-            <!--                <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>-->
-            <!--            </div>-->
+                        <div class="form-group">
+                            <button type="button" id="update" class="width100 btn" onclick="reload()">AGGIORNA DATI</button>
+<!--                            <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>-->
+                        </div>
             <!--
                         <div class="form-group">
                             <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
@@ -87,9 +85,9 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
 
     </div>
     <div id="gird-pane">
-        <h6>
+        <h5 style="text-align: center">
             Dati
-        </h6>
+        </h5>
         <div id="grid"></div>
     </div>
 
