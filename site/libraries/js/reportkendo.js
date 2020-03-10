@@ -1,7 +1,6 @@
 _reportkendo = (function ($, my) {
 
 
-
         // colonne base che ci sono sempre nella prima visualizzazione iniziale(tipo report =  corso)
         //
 
@@ -20,17 +19,22 @@ _reportkendo = (function ($, my) {
             {
                 field: 'id_anagrafica',
                 title: '',
-                hidden:true
+                hidden: true
             },
             {
                 field: 'cognome',
                 title: 'Cognome',
                 width: 200,
+                visibility: -1
+
+
             },
             {
                 field: 'nome',
                 title: 'Nome',
                 width: 200,
+                visibility: -1
+
             },
             {
                 field: 'stato',
@@ -57,38 +61,43 @@ _reportkendo = (function ($, my) {
                 template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
                 attributes: {
                     style: "text-align: center; font-size: 18px"
-                }
+                },
+                visibility: 0
 
 
             },
             {
                 field: 'data_inizio',
                 title: 'Data Inizio',
-                width: 200
+                width: 200,
+                visibility: 0
             },
             {
                 field: 'data_fine',
                 title: 'Data Fine',
-                width: 200
+                width: 200,
+                visibility: 0
             },
             {
                 field: 'scadenza',
                 title: 'In scadenza',
-                width: 200
+                width: 200,
+                visibility: 0
             },
             {
                 field: 'attestati_hidden',
                 title: 'Attestati',
-                // hidden:true
+                width: 150,
+                visibility: 0
 
             },
             {
                 field: 'fields',
                 title: '',
-                hidden:true
+                hidden: true,
+                visibility: -1
 
             }
-
 
 
         ];
@@ -167,8 +176,8 @@ _reportkendo = (function ($, my) {
 
             _createSplitter();
             _getFilterData();
-            _createFilters()
-            _createGrid();
+            _createFilters();
+            _createGrid(_base_columns);
 
 
             // _createGrid();
@@ -209,32 +218,39 @@ _reportkendo = (function ($, my) {
         function _createFilters() {
 
             createFilter('#corso_id', 'dropdownlist', 'id', 'titolo');
+            setFilter('#corso_id', 'dropdownlist', 'change', _loadData);
             widgets.filters.corso_id = $('#corso_id').data('kendoDropDownList');
 
             createFilter('#tipo_report', 'dropdownlist', 'value', 'text');
+            setFilter('#tipo_report', 'dropdownlist', 'change', _loadData);
             widgets.filters.tipo_report = $('#tipo_report').data('kendoDropDownList');
 
             createFilter('#usergroups', 'dropdownlist', 'id', 'title');
+            setFilter('#usergroups', 'dropdownlist', 'change', _loadData);
             widgets.filters.usergroups = $('#usergroups').data('kendoDropDownList');
 
             createFilter('#filterstato', 'dropdownlist', 'value', 'text');
+            setFilter('#filterstato', 'dropdownlist', 'change', _loadData);
             widgets.filters.filter_stato = $('#filterstato').data('kendoDropDownList');
 
             createFilter('#startdate', 'DatePicker');
+            setFilter('#startdate', 'DatePicker', 'change', _loadData);
             widgets.filters.startdate = $('#startdate').data('kendoDatePicker');
 
             createFilter('#finishdate', 'DatePicker');
+            setFilter('#finishdate', 'DatePicker', 'change', _loadData);
             widgets.filters.finishdate = $('#finishdate').data('kendoDatePicker');
+
 
             widgets.filters.searchPhrase = $('#searchPhrase');
         }
 
-        //TODO attenzione scommentare le selezioni per sviluppo
+        //TODO attenzione scommentare le selezioni per sviluppo per avere dati
         function _populateFilters() {
 
             populateFilter('#corso_id', 'dropdownlist', filterdata.corsi);
             // widgets.filters.corso_id.select(0);
-            
+
             widgets.filters.corso_id.select(4);
             widgets.filters.corso_id.trigger('change');
 
@@ -276,10 +292,10 @@ _reportkendo = (function ($, my) {
 
         }
 
-        function _createGrid() {
+        function _createGrid(columns) {
             $("#grid").kendoGrid({
                 toolbar: ["excel"],
-                columns:_base_columns,
+                columns: columns,// _base_columns,
                 excel: {
                     allPages: true
                 },
@@ -289,7 +305,7 @@ _reportkendo = (function ($, my) {
                 resizable: true,
                 groupable: false,
                 selectable: true,
-                filterable:false,
+                filterable: false,
                 // filterable: {
                 //     mode: " row",
                 //     extra: false
@@ -305,7 +321,8 @@ _reportkendo = (function ($, my) {
 
         }
 
-        function _loadData() {
+        //todo check paginazione
+        function _loadData( ) {
 
 
             widgets.dataSource = new kendo.data.DataSource({
@@ -322,7 +339,7 @@ _reportkendo = (function ($, my) {
 
                         var params = _getParams();
                         params.limit = 0;
-                        params.take= 15;
+                        params.offset = data.take;
 
 
                         console.log(data, params);
@@ -338,6 +355,11 @@ _reportkendo = (function ($, my) {
                     data: function (response) {
                         console.log(response);
 
+                        // prendo le response.column
+                        //le aggiungo alle base column
+
+
+                            _manageColumns(response.columns);
 
 
                         return response.rows;
@@ -349,10 +371,45 @@ _reportkendo = (function ($, my) {
                 }
             });
 
-            widgets.dataSource.fetch(function () {
-                // console.log(widgets.dataSource.view());
-                 widgets.grid.setDataSource(widgets.dataSource);
+
+
+                widgets.dataSource.fetch(function () {
+                    widgets.grid.setDataSource(widgets.dataSource);
+                });
+
+
+        }
+
+        function _manageColumns(dbcolumns) {
+
+            // filtro per le colonne che hanno visibility === report type + visibility = -1
+            var report_type = widgets.filters.tipo_report.value();
+            var tmp_column = _base_columns.filter(function (c) {
+                return c.visibility === -1 || c.visibility === parseInt(report_type)
             });
+
+            $.each(dbcolumns.columns, function (i, item) {
+
+                var already_in = tmp_column.find(function (c) {
+                    return c.field === item
+                });
+
+                if (!already_in) {
+
+                    tmp_column.push({field: item, title: item})
+                }
+            });
+
+            console.log(tmp_column);
+
+            // widgets.grid.destroy(); // Destroy the Grid.
+            // widgets.grid = null;
+            // _createGrid(tmp_column);
+            // widgets.dataSource.fetch(function () {
+            //     widgets.grid.setDataSource(widgets.dataSource);
+            // });
+
+            // widgets.grid.setOptions({columns: tmp_column});
         }
 
         function _getParams() {
@@ -388,17 +445,20 @@ _reportkendo = (function ($, my) {
         }
 
         function _formatDate(date) {
-            var d = new Date(date),
-                month = '' + (d.getMonth() + 1),
-                day = '' + d.getDate(),
-                year = d.getFullYear();
 
-            if (month.length < 2)
-                month = '0' + month;
-            if (day.length < 2)
-                day = '0' + day;
+            if (date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
 
-            return [year, month, day].join('-');
+                if (month.length < 2)
+                    month = '0' + month;
+                if (day.length < 2)
+                    day = '0' + day;
+            }
+
+            return date ? [year, month, day].join('-') : null;
         }
 
         function _secondsTohhmmss(totalSeconds) {
