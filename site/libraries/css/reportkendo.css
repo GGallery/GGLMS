@@ -1,69 +1,90 @@
-#grid {
-    font-size: smaller;
-}
-
-#grid .k-grid-header .k-header {
+h6 {
     text-align: center;
-
-}
-
-/*header text*/
-#grid .k-link {
-    color: #325482 !important;
-    font-size: medium;
-
-    font-weight: bold;
+    margin: auto auto;
 }
 
 
-.g-content {
+.mc-main {
 
-    padding: 0 !important;
+    min-height: 600px;
 }
 
 
-.glyphicon-remove {
-    color: red !important;
+.form-inline .form-group {
+    margin: 10px;
+    width: 90%;
+}
+
+.k-dropdown {
+    width: 100%;
 }
 
 
-.glyphicon-ok {
-    color: #79dc79 !important;
-}
+/*#grid {*/
+/*font-size: smaller;*/
+/*}*/
+
+/*#grid .k-grid-header .k-header {*/
+/*text-align: center;*/
+
+/*}*/
+
+/*!*header text*!*/
+/*#grid .k-link {*/
+/*color: #325482 !important;*/
+/*font-size: medium;*/
+
+/*font-weight: bold;*/
+/*}*/
 
 
-.glyphicon-log-in {
-    color: #325482 !important;
-}
+/*.g-content {*/
+
+/*padding: 0 !important;*/
+/*}*/
 
 
-
-.k-grid-button {
-    min-width: 45px;
-    background-color: #325482;
-    color: white;
-}
-
-.k-grid-button:hover {
-    background-color: white;
-    color: #325482;
-}
-
-.k-grid-button:active {
-    background-color: white;
-    color: #325482;
-}
+/*.glyphicon-remove {*/
+/*color: red !important;*/
+/*}*/
 
 
-.k-detail-cell {
-    -webkit-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);
-    -moz-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);
-    box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);
-}
+/*.glyphicon-ok {*/
+/*color: #79dc79 !important;*/
+/*}*/
 
-.scaduto{
-    color: indianred;
-}
+
+/*.glyphicon-log-in {*/
+/*color: #325482 !important;*/
+/*}*/
+
+
+/*.k-grid-button {*/
+/*min-width: 45px;*/
+/*background-color: #325482;*/
+/*color: white;*/
+/*}*/
+
+/*.k-grid-button:hover {*/
+/*background-color: white;*/
+/*color: #325482;*/
+/*}*/
+
+/*.k-grid-button:active {*/
+/*background-color: white;*/
+/*color: #325482;*/
+/*}*/
+
+
+/*.k-detail-cell {*/
+/*-webkit-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);*/
+/*-moz-box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);*/
+/*box-shadow: -10px 0px 19px -6px rgba(112, 110, 112, 0.69);*/
+/*}*/
+
+/*.scaduto{*/
+/*color: indianred;*/
+/*}*/
 
 
 

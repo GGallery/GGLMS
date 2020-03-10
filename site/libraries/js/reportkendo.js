@@ -249,12 +249,25 @@ _reportkendo = (function ($, my) {
         var widgets = {
             grid: null,
             dataSource: null,
+            filters:{
+                corso_id:null,
+                tipo_report:null,
+                usergroups:null,
+                filter_stato:null
+            },
             popup: {
                 window: null,
                 grid: null
             }
         };
 
+
+        var filterdata = {
+            corsi: null,
+            usergroups: null,
+            tipo: [{value: 0, text: 'per Corso'}, {value: 1, text: 'per Unità'}, {value: 2, text: 'per Contenuto'}],
+            stato: [{value: 0, text: 'Qualsiasi stato'}, {value: 1, text: 'Solo Completati'}, {value: 2, text: 'Solo NON Completati'}, {value:3,text:'In scadenza'}]
+        };
 
         function _init() {
 
@@ -263,10 +276,86 @@ _reportkendo = (function ($, my) {
             kendo.culture("it-IT");
             $('#cover-spin').show(0);
 
-            _createGrid();
+
+            _createSplitter();
+            _getFilterData();
+            _createFilters()
+            // _createGrid();
 
             // _isLoggedUser_tutorAz();
             // _loadData();
+        }
+
+
+        function _getFilterData() {
+
+            $.when($.get("index.php?option=com_gglms&task=reportkendo.get_filter_data", null))
+                .done(function (data) {
+
+                    var data = JSON.parse(data);
+                    filterdata.corsi = data.corsi;
+                    filterdata.usergroups = data.usergroups;
+
+                    console.log('filter_data', data);
+                    _populateFilters();
+
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+
+                })
+                .then(function (data) {
+                    $('#cover-spin').hide(0);
+                    // console.log('then', data);
+
+                });
+
+        }
+
+        function _createFilters() {
+
+            createFilter('#corso_id', 'dropdownlist', 'id', 'titolo');
+            widgets.filters.corso_id = $('#corso_id').data('kendoDropDownList');
+
+            createFilter('#tipo_report', 'dropdownlist', 'value', 'text');
+            widgets.filters.tipo_report = $('#tipo_report').data('kendoDropDownList');
+
+            createFilter('#usergroups', 'dropdownlist', 'id', 'title');
+            widgets.filters.usergroups = $('#usergroups').data('kendoDropDownList');
+
+            createFilter('#filterstato', 'dropdownlist', 'value', 'text');
+            widgets.filters.filter_stato = $('#filterstato').data('kendoDropDownList');
+
+
+
+
+        }
+
+
+        function _populateFilters() {
+
+            populateFilter('#corso_id', 'dropdownlist', filterdata.corsi);
+            widgets.filters.corso_id.select(0);
+
+            populateFilter('#tipo_report', 'dropdownlist', filterdata.tipo);
+            widgets.filters.tipo_report.select(0);
+
+            populateFilter('#usergroups', 'dropdownlist', filterdata.usergroups);
+            widgets.filters.usergroups.select(0);
+
+            populateFilter('#filterstato', 'dropdownlist', filterdata.stato);
+            widgets.filters.filter_stato.select(0);
+
+        }
+
+
+        function _createSplitter() {
+            var panes = [{collapsible: true, size: "30%"}, {collapsible: false, size: '70%'}];
+            createSplitter('#splitter', 'veritcal', panes);
+
         }
 
         function _createGrid() {
@@ -293,11 +382,7 @@ _reportkendo = (function ($, my) {
             $('#cover-spin').hide(0);
 
 
-
-
         }
-
-
 
         function _loadData() {
 

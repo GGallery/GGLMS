@@ -32,9 +32,11 @@ class gglmsViewReport extends JViewLegacy {
 
         $this->corsi = $model->getCorsi(true);
 
+//        var_dump($this->corsi);
+//        die();
 
         $this->summarize = $this->get('SummarizeCourse');
-        
+
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
         JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/container-fluid.css');
