@@ -32,7 +32,7 @@ _scaricaattesati = (function ($, my) {
 
             var id_corso = $('#id_corso').val();
 
-            var url = "index.php?option=com_gglms&task=attestatibulk.downloadAttestati_multiple&id_corso= " + id_corso;
+            var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso;
 
 
             url = $("#startdate").val() ? url + "&startdate=" + $("#startdate").val() : url;

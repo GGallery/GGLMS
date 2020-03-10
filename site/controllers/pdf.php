@@ -11,6 +11,8 @@ defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/libretto.php';
+require_once JPATH_COMPONENT . '/models/unita.php';
+require_once JPATH_COMPONENT . '/models/pdf.php';
 
 
 /**
@@ -24,6 +26,7 @@ class gglmsControllerPdf extends JControllerLegacy
     private $_user;
     private $_japp;
     public $_params;
+    public $_folder_location = JPATH_COMPONENT . '/models/tmp/';
 
     public function __construct($config = array())
     {
@@ -44,7 +47,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
     // se $generate_pdf = false il metodo ritorna id dati per generare il pdf
     // il default == true --> stampa il pdf
-    public function generateAttestato($user_id = null, $id_content = null, $generate_pdf= true)
+    public function generateAttestato($user_id = null, $id_content = null, $generate_pdf = true)
     {
 
         try {
@@ -144,14 +147,14 @@ class gglmsControllerPdf extends JControllerLegacy
                         $db->setQuery($query);
                         $gg_content = $db->loadObject('gglmsModelContenuto');
                         $gg_content->setUserContent($user_id, $c['id']);
-                       $permanenza =  $gg_content->getPermanenza_tot( $c['id'],$user_id);
+                        $permanenza = $gg_content->getPermanenza_tot($c['id'], $user_id);
 
 
                         //TRACKLOG
                         $item = new stdClass();
                         $scorm_vars = $gg_content->getStato($user_id);
                         $item->titolo = $gg_content->titolo;
-                        $item->permanenza = $permanenza ; //$scorm_vars->permanenza;
+                        $item->permanenza = $permanenza; //$scorm_vars->permanenza;
                         $item->data = $scorm_vars->data;
 
                         array_push($tracklog, $item);
@@ -281,7 +284,6 @@ class gglmsControllerPdf extends JControllerLegacy
 
             DEBUGG::log($e, 'Exception in generateAttestato ', 1);
         }
-
 
     }
 

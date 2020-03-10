@@ -92,6 +92,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             ->join('inner', '#__comprofiler AS c ON c.user_id = u.id')
             ->where("u.username= '" . $piva . "'");
 
+
         $this->_db->setQuery($query);
         $result = $this->_db->loadAssoc();
 

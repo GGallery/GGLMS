@@ -47,7 +47,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         // valori per dropdown
         $this->lista_corsi = utilityHelper::getGruppiCorsi();
-        $this->societa_venditrici = utilityHelper::getPiattaformeByUser();
+        $this->societa_venditrici = utilityHelper::getPiattaformeByUser(true);
 
     }
 
@@ -84,7 +84,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
             $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
-//            $data['email_coupon'] = $data['email_coupon'] == '' ? $data['email_coupon'] : NULL;
 
 
             // se non esiste crea utente ( tutor ) legato alla company
@@ -127,7 +126,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 // se abilitato -> dataabilitazione = now
 
-                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s')",
+                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d)",
                     $coupons[$i],
                     date('Y-m-d H:i:s', time()), //  time(), //creation_time
                     $data['abilitato'],
@@ -139,14 +138,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $data['gruppo_corsi'],
                     $data['stampatracciato'],
                     $data['trial'],
-                    $data['venditore']
+                    $data['venditore'],
+                    $data['id_piattaforma']
                 );
 
             }
 
 
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato, trial, venditore) VALUES ' . join(',', $values);
+            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato, trial, venditore,gruppo) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

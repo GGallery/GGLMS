@@ -186,14 +186,14 @@ class gglmsControllerApi extends JControllerLegacy
                     $queryGeneralCubeCount = $arrayresult[3];
 
                     $query = $this->_db->getQuery(true);
-                    $query->select('vista.id_anagrafica as id_anagrafica, c.id as id_contenuto,c.titolo as titolo_contenuto, vista.stato as stato, vista.permanenza_tot as permanenza');
+                    $query->select('vista.id_anagrafica as id_anagrafica, c.id as id_contenuto,c.titolo as titolo_contenuto, vista.stato as stato, vista.permanenza_tot as permanenza, vista.data as last_visit');
                     $query->from('#__gg_report  as vista ');
                     $query->join('inner', '#__gg_contenuti as c on vista.id_contenuto=c.id');
                     $query->where('id_corso=' . $id_corso);
                     $result['secondaryCubeQuery'] = (string)$query;
                     $datas = $this->buildPrimaryDataCube($query);
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
-//                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "permanenza", 'outer');
+//                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
+                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "last_visit", 'outer'); // mostro ultima data di visita al posto di spunta verde in report per contenuto
                     $columns = $this->buildColumnsforContenutiView($id_corso);
                     $rows = $users;
                     break;
