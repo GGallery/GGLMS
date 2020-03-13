@@ -35,3 +35,21 @@ h6, h5 {
     font-size: smaller;
     color: white !important;
 }
+
+
+
+.k-grid-button {
+    min-width: 45px;
+    background-color: #325482;
+    color: white;
+}
+
+.k-grid-button:hover {
+    background-color: white;
+    color: #325482;
+}
+
+.k-grid-button:active {
+    background-color: white;
+    color: #325482;
+}

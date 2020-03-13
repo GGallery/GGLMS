@@ -2,26 +2,13 @@ _reportkendo = (function ($, my) {
 
 
         // colonne base che ci sono sempre nella prima visualizzazione iniziale(tipo report =  corso)
-        //
-
-        // 0: "id_anagrafica"
-        // 1: "cognome"
-        // 2: "nome"
-        // 3: "stato"
-        // 4: "data_inizio"
-        // 5: "data_fine"
-        // 6: "scadenza"
-        // 7: "fields"
-        // 8: "attestati_hidden"
-
-
-        // colonne "note"
         var _base_columns = [
             {
                 field: 'id_anagrafica',
                 title: '',
                 hidden: true,
-                visibility: -1
+                visibility: -1,
+
             },
             {
                 field: 'cognome',
@@ -37,6 +24,16 @@ _reportkendo = (function ($, my) {
                 width: 200,
                 visibility: -1
 
+            },
+            {
+                field: 'fields',
+                title: 'Dettagli Utente',
+                visibility: -1,
+                width:200,
+                template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
+                attributes: {
+                    style: "text-align: center"
+                }
             },
             {
                 field: 'stato',
@@ -92,14 +89,9 @@ _reportkendo = (function ($, my) {
                 width: 150,
                 visibility: 0
 
-            },
-            {
-                field: 'fields',
-                title: '',
-                hidden: true,
-                visibility: -1
-
             }
+
+
 
         ];
 
@@ -123,16 +115,19 @@ _reportkendo = (function ($, my) {
         };
         var user_details_fields = {
 
-            "cb_datadinascita": {titolo: "Data di nascita"},
-            "cb_luogodinascita": {titolo: "Luogo di nascita"},
-            "cb_provinciadinascita": {titolo: "Provinxcia di nascita"},
-            "cb_indirizzodiresidenza": {titolo: "Indirizzo di residenza"},
-            "cb_provdiresidenza": {titolo: "Provincia di residenza"},
-            "cb_cap": {titolo: "Cap"},
-            "cb_telefono": {titolo: "Telefono"},
-            "cb_codicefiscale": {titolo: "Codice Fiscale"},
+            // "cb_datadinascita": {titolo: "Data di nascita"},
+            // "cb_luogodinascita": {titolo: "Luogo di nascita"},
+            // "cb_provinciadinascita": {titolo: "Provinxcia di nascita"},
+            // "cb_indirizzodiresidenza": {titolo: "Indirizzo di residenza"},
+            // "cb_provdiresidenza": {titolo: "Provincia di residenza"},
+            // "cb_cap": {titolo: "Cap"},
+            // "cb_telefono": {titolo: "Telefono"},
+            // "cb_codicefiscale": {titolo: "Codice Fiscale"},
+            "registerDate": {titolo: "Data di registrazione"},
+            "lastvisitDate": {titolo: "Ultimo accesso"},
             "cb_username": {titolo: "Username"},
-            "email": {titolo: "Email"}
+            "email": {titolo: "Email"},
+            "id": {titolo: "id"}
 
         };
 
@@ -308,7 +303,8 @@ _reportkendo = (function ($, my) {
                 groupable: false,
                 selectable: true,
                 filterable: false,
-                pageable: true
+                pageable: true,
+
             });
 
 
@@ -326,8 +322,91 @@ _reportkendo = (function ($, my) {
                 }
             });
 
+            // bind popup
+            $("#grid").on("click", ".k-grid-user", _openUserDetails);
 
         }
+
+        //////////////// popup dettagli utente //////////////////////////
+
+        function _openUserDetails() {
+
+            var row = $(this).closest("tr");
+            var dataItem = widgets.grid.dataItem(row);
+
+
+            var data = JSON.parse(dataItem.fields);
+
+            // console.log(data);
+            if (widgets.popup.window === null) {
+
+                widgets.popup.window = createPopup('#user-details', '450', '350', true, ["Minimize", "Maximize", "Close"]);
+                _createUserDetailGrid();
+            }
+
+            _poppulateDetailUserGrid(data);
+            openPopup('#user-details', 'Dettagli Utente', false, true, true)
+
+
+        }
+
+        function _createUserDetailGrid() {
+
+            // console.log(data);
+
+            $("#user_grid").kendoGrid({
+                height: 300,
+                scrollable: true,
+                sortable: true,
+                resizable: true,
+                groupable: false,
+                selectable: true,
+                filterable: false,
+                pageable: false,
+                columns: [{
+                    field: 'label',
+                    title: 'Campo'
+
+                }, {
+                    field: 'value',
+                    title: 'Valore'
+
+                }]
+            });
+
+            $('#cover-spin').hide(0);
+            widgets.popup.grid = $("#user_grid").data('kendoGrid');
+
+
+        }
+        function _poppulateDetailUserGrid(data) {
+            var user_data = [];
+
+            // pivot dei dati
+            $.each(data, function (field, value) {
+
+                var c = user_details_fields[field];
+                if (c) {
+                    var obj = {
+                        label: c.titolo,
+                        value: value
+                    };
+
+                    user_data.push(obj);
+                }
+
+            });
+            var dataSource = new kendo.data.DataSource({
+
+                data: user_data
+            });
+
+            dataSource.fetch(function () {
+                widgets.popup.grid.setDataSource(dataSource);
+            });
+        }
+
+        //////////////////////////////////////////////////////////////////
 
 
         //todo check paginazione
@@ -358,7 +437,7 @@ _reportkendo = (function ($, my) {
                 },
                 serverPaging: true,
                 serverFiltering: true,
-                serverSorting: true,
+                // serverSorting: true,
                 pageSize: 15,
                 schema: {
                     data: function (response) {
