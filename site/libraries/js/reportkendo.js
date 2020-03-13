@@ -15,11 +15,13 @@ _reportkendo = (function ($, my) {
         // 8: "attestati_hidden"
 
 
+        // colonne "note"
         var _base_columns = [
             {
                 field: 'id_anagrafica',
                 title: '',
-                hidden: true
+                hidden: true,
+                visibility:-1
             },
             {
                 field: 'cognome',
@@ -99,7 +101,6 @@ _reportkendo = (function ($, my) {
 
             }
 
-
         ];
 
 
@@ -166,6 +167,8 @@ _reportkendo = (function ($, my) {
                 {value: 3, text: 'In scadenza'}]
         };
 
+        var current_index = 0;
+
         function _init() {
 
             _kendofix();
@@ -178,9 +181,6 @@ _reportkendo = (function ($, my) {
             _getFilterData();
             _createFilters();
             _createGrid(_base_columns);
-
-
-            // _createGrid();
 
             // _isLoggedUser_tutorAz();
             // _loadData();
@@ -222,7 +222,7 @@ _reportkendo = (function ($, my) {
             widgets.filters.corso_id = $('#corso_id').data('kendoDropDownList');
 
             createFilter('#tipo_report', 'dropdownlist', 'value', 'text');
-            setFilter('#tipo_report', 'dropdownlist', 'change', _loadData);
+            setFilter('#tipo_report', 'dropdownlist', 'change', _changeReportType);
             widgets.filters.tipo_report = $('#tipo_report').data('kendoDropDownList');
 
             createFilter('#usergroups', 'dropdownlist', 'id', 'title');
@@ -293,9 +293,11 @@ _reportkendo = (function ($, my) {
         }
 
         function _createGrid(columns) {
+
+
             $("#grid").kendoGrid({
                 toolbar: ["excel"],
-                columns: columns,// _base_columns,
+                columns: columns,
                 excel: {
                     allPages: true
                 },
@@ -306,23 +308,38 @@ _reportkendo = (function ($, my) {
                 groupable: false,
                 selectable: true,
                 filterable: false,
-                // filterable: {
-                //     mode: " row",
-                //     extra: false
-                // },
-                pageable: true,
-                columns: _base_columns
-
+                pageable: true
             });
+            // $(widgets.grids[current_index].sel).kendoGrid({
+            //     toolbar: ["excel"],
+            //     columns: columns || _base_columns,
+            //     excel: {
+            //         allPages: true
+            //     },
+            //     height: 550,
+            //     scrollable: true,
+            //     sortable: true,
+            //     resizable: true,
+            //     groupable: false,
+            //     selectable: true,
+            //     filterable: false,
+            //     // filterable: {
+            //     //     mode: " row",
+            //     //     extra: false
+            //     // },
+            //     pageable: true
+            // });
 
             widgets.grid = $("#grid").data('kendoGrid');
+            // widgets.grids[current_index].grid = $(widgets.grids[current_index].sel).data('kendoGrid');
             $('#cover-spin').hide(0);
 
 
         }
 
+
         //todo check paginazione
-        function _loadData( ) {
+        function _loadData() {
 
 
             widgets.dataSource = new kendo.data.DataSource({
@@ -353,13 +370,17 @@ _reportkendo = (function ($, my) {
                 pageSize: 15,
                 schema: {
                     data: function (response) {
-                        console.log(response);
+                        console.log(response, current_index);
 
                         // prendo le response.column
                         //le aggiungo alle base column
 
-
-                            _manageColumns(response.columns);
+                        // to do qui salvare le coonne del prossimo indice se è diversodal current
+                        // if (!columns_loaded) {
+                        //     _manageColumns(response.columns);
+                        //     columns_loaded = true;
+                        //
+                        // }
 
 
                         return response.rows;
@@ -371,45 +392,110 @@ _reportkendo = (function ($, my) {
                 }
             });
 
+            widgets.dataSource.fetch(function () {
+                widgets.grid.setDataSource(widgets.dataSource);
 
-
-                widgets.dataSource.fetch(function () {
-                    widgets.grid.setDataSource(widgets.dataSource);
-                });
+            });
 
 
         }
+
+        function _changeReportType() {
+
+            current_index = widgets.filters.tipo_report.value() === "" ? 0 : widgets.filters.tipo_report.value();
+
+            // destroy current widget
+            $("#grid").empty();
+            widgets.grid = null;
+            widgets.dataSource = null;
+
+
+            get_new_grid_config();
+
+        }
+
+
+        function get_new_grid_config() {
+
+
+            var params = _getParams();
+
+            $.when($.get(window.location.hostname + "/home/index.php?option=com_gglms&task=api.new_get_columns", params))
+                .done(function (data) {
+                    var dbcolumns = JSON.parse(data);
+                    var columns = _manageColumns(dbcolumns);
+
+                    _createGrid(columns);
+                    _loadData();
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    $('#cover-spin').hide(0);
+                });
+
+        }
+
 
         function _manageColumns(dbcolumns) {
 
             // filtro per le colonne che hanno visibility === report type + visibility = -1
             var report_type = widgets.filters.tipo_report.value();
+
+            // prendo le colonne visbili per il tipo di report selezionato
             var tmp_column = _base_columns.filter(function (c) {
-                return c.visibility === -1 || c.visibility === parseInt(report_type)
+                return (c.visibility === -1 || c.visibility === parseInt(report_type))
             });
 
-            $.each(dbcolumns.columns, function (i, item) {
+            if ((current_index == 1 || current_index == 2)) {
+                $.each(dbcolumns.columns, function (i, item) {
 
-                var already_in = tmp_column.find(function (c) {
-                    return c.field === item
+                    // è già nelle colonne base?
+                    var already_in = tmp_column.find(function (c) {
+                        return c.field === item
+                    });
+
+                    if (!already_in) {
+
+                        // le quadre servono a gestire il fatto che i contenuti possono avere spazi e numeri nei fields
+                        var field = '["' + item + '"]';
+                        var col = {
+                            field: field,
+                            title: item,
+                            width: 200,
+                            // hidden: false,
+                            attributes: {style: null}
+                        };
+
+
+                        // se report per unit o per contenuto aggiorno il template delle colonne dinamiche
+                        col.template = function (dataItem) {
+                            var _class = dataItem[item] == 1 ? 'glyphicon glyphicon-ok' : '';
+                            return "<span class= '" + _class + "'></span>";
+                        };
+
+                        col.attributes.style = "text-align: center; font-size: 18px";
+                        console.log(col.template);
+
+
+                        tmp_column.push(col);
+                    }
+
                 });
+            } else {
 
-                if (!already_in) {
 
-                    tmp_column.push({field: item, title: item})
-                }
-            });
+                tmp_column = _base_columns;
+            }
 
-            console.log(tmp_column);
+            return tmp_column;
 
-            // widgets.grid.destroy(); // Destroy the Grid.
-            // widgets.grid = null;
-            // _createGrid(tmp_column);
-            // widgets.dataSource.fetch(function () {
-            //     widgets.grid.setDataSource(widgets.dataSource);
-            // });
 
-            // widgets.grid.setOptions({columns: tmp_column});
         }
 
         function _getParams() {

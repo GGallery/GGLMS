@@ -282,6 +282,9 @@ class gglmsModelReport extends JModelLegacy
             $this->_db->setQuery($query);
             $data = $this->_db->loadAssocList();
 
+//            var_dump((string)$query);
+//            die();
+
             return $data;
         } catch (Exception $e) {
 

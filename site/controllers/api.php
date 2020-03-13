@@ -61,7 +61,7 @@ class gglmsControllerApi extends JControllerLegacy
     {
 
         $data = $this->new_get_data();
-        //$data = $this->get_data();
+
         echo json_encode($data);
         $this->_japp->close();
     }
@@ -192,8 +192,8 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->where('id_corso=' . $id_corso);
                     $result['secondaryCubeQuery'] = (string)$query;
                     $datas = $this->buildPrimaryDataCube($query);
-//                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "last_visit", 'outer'); // mostro ultima data di visita al posto di spunta verde in report per contenuto
+                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
+//                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "last_visit", 'outer'); // mostro ultima data di visita al posto di spunta verde in report per contenuto
                     $columns = $this->buildColumnsforContenutiView($id_corso);
                     $rows = $users;
                     break;
@@ -224,6 +224,57 @@ class gglmsControllerApi extends JControllerLegacy
         $result['totalquery'] = (string)$queryGeneralCubeCount;
         //echo json_encode($result);
         return $result;
+    }
+
+
+    // metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
+    // serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo
+    public function new_get_columns()
+    {
+
+        //$this->_filterparam->task = JRequest::getVar('task');
+        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
+        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        $tipo_report = $this->_filterparam->tipo_report;
+
+        try {
+
+
+            $columns = array();
+            switch ($tipo_report) {
+
+                case 0: //PER CORSO
+                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                    break;
+
+                case 1: //PER UNITA'
+
+                    $columns = $this->buildColumnsforUnitaView($id_corso);
+
+                    break;
+                case 2://PER CONTENUTO
+                    $columns = $this->buildColumnsforContenutiView($id_corso);
+
+                    break;
+
+
+            }
+
+            $fields = explode(',', $this->_params->get('campicustom_report'));
+            $columns = array_merge($columns, $fields);
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+
+        $result['columns'] = $columns;
+        echo json_encode($result);
+
+        $this->_japp->close();
+
     }
 
     private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
