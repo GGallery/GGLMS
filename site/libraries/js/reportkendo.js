@@ -21,7 +21,7 @@ _reportkendo = (function ($, my) {
                 field: 'id_anagrafica',
                 title: '',
                 hidden: true,
-                visibility:-1
+                visibility: -1
             },
             {
                 field: 'cognome',
@@ -218,7 +218,7 @@ _reportkendo = (function ($, my) {
         function _createFilters() {
 
             createFilter('#corso_id', 'dropdownlist', 'id', 'titolo');
-            setFilter('#corso_id', 'dropdownlist', 'change', _loadData);
+            setFilter('#corso_id', 'dropdownlist', 'change', _changeReportType);
             widgets.filters.corso_id = $('#corso_id').data('kendoDropDownList');
 
             createFilter('#tipo_report', 'dropdownlist', 'value', 'text');
@@ -310,29 +310,21 @@ _reportkendo = (function ($, my) {
                 filterable: false,
                 pageable: true
             });
-            // $(widgets.grids[current_index].sel).kendoGrid({
-            //     toolbar: ["excel"],
-            //     columns: columns || _base_columns,
-            //     excel: {
-            //         allPages: true
-            //     },
-            //     height: 550,
-            //     scrollable: true,
-            //     sortable: true,
-            //     resizable: true,
-            //     groupable: false,
-            //     selectable: true,
-            //     filterable: false,
-            //     // filterable: {
-            //     //     mode: " row",
-            //     //     extra: false
-            //     // },
-            //     pageable: true
-            // });
+
 
             widgets.grid = $("#grid").data('kendoGrid');
-            // widgets.grids[current_index].grid = $(widgets.grids[current_index].sel).data('kendoGrid');
             $('#cover-spin').hide(0);
+
+
+            // add tooltip to long column
+            $("#grid").kendoTooltip({
+                filter: "th",//".k-header span",
+                position:"top",
+                content: function (e) {
+
+                    return $(e.target[0]).data('title'); // set the element text as content of the tooltip
+                }
+            });
 
 
         }
@@ -400,6 +392,38 @@ _reportkendo = (function ($, my) {
 
         }
 
+        function _getParams() {
+
+
+// parametri chiamata api già esistente
+            var params = {
+                corso_id: null,
+                startdate: null,
+                finishdate: null,
+                filterstato: null,
+                usergroups: null,
+                tipo_report: null,
+                searchPhrase: null,
+                limit: null,
+                offset: null
+            };
+
+            var corsoobj = widgets.filters.corso_id.dataItem();
+            params.corso_id = corsoobj.id + '|' + corsoobj.id_contenuto_completamento;
+
+            params.startdate = _formatDate(widgets.filters.startdate.value());
+            params.finishdate = _formatDate(widgets.filters.finishdate.value());
+            params.filterstato = widgets.filters.filter_stato.value();
+            params.usergroups = widgets.filters.usergroups.value();
+            params.tipo_report = widgets.filters.tipo_report.value();
+            params.searchPhrase = widgets.filters.searchPhrase.val();
+
+            console.log(params);
+            return params;
+
+
+        }
+
         function _changeReportType() {
 
             current_index = widgets.filters.tipo_report.value() === "" ? 0 : widgets.filters.tipo_report.value();
@@ -412,8 +436,12 @@ _reportkendo = (function ($, my) {
 
             get_new_grid_config();
 
-        }
+            if(current_index > 0) {
+                // /nascondo stato corso
 
+            }
+
+        }
 
         function get_new_grid_config() {
 
@@ -440,7 +468,6 @@ _reportkendo = (function ($, my) {
                 });
 
         }
-
 
         function _manageColumns(dbcolumns) {
 
@@ -498,37 +525,6 @@ _reportkendo = (function ($, my) {
 
         }
 
-        function _getParams() {
-
-
-// parametri chiamata api già esistente
-            var params = {
-                corso_id: null,
-                startdate: null,
-                finishdate: null,
-                filterstato: null,
-                usergroups: null,
-                tipo_report: null,
-                searchPhrase: null,
-                limit: null,
-                offset: null
-            };
-
-            var corsoobj = widgets.filters.corso_id.dataItem();
-            params.corso_id = corsoobj.id + '|' + corsoobj.id_contenuto_completamento;
-
-            params.startdate = _formatDate(widgets.filters.startdate.value());
-            params.finishdate = _formatDate(widgets.filters.finishdate.value());
-            params.filterstato = widgets.filters.filter_stato.value();
-            params.usergroups = widgets.filters.usergroups.value();
-            params.tipo_report = widgets.filters.tipo_report.value();
-            params.searchPhrase = widgets.filters.searchPhrase.val();
-
-            console.log(params);
-            return params;
-
-
-        }
 
         function _formatDate(date) {
 

@@ -1,4 +1,4 @@
-h6 , h5{
+h6, h5 {
     text-align: center;
     margin: auto auto;
 }
@@ -28,4 +28,10 @@ h6 , h5{
     color: #79dc79 !important;
 }
 
-
+.k-tooltip {
+    background: #325482 !important;
+    width: 200px;
+    height: 35px;
+    font-size: smaller;
+    color: white !important;
+}
