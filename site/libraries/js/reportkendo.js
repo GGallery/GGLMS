@@ -422,13 +422,11 @@ _reportkendo = (function ($, my) {
                     parameterMap: function (data, type) {
                         //prima di eseguire la request al server passa di qua
 
-                        // todo occhio che page per kendo parte da 1
-                        // allineare skip and take a offset e limit
+                        //  occhio che page per kendo parte da 1
 
                         var params = _getParams();
-                        params.limit = 0;
-                        params.offset = data.take;
-
+                        params.limit =data.pageSize;
+                        params.offset =  data.page === 1 ? 0 : (data.page -1)* data.pageSize ;
 
                         console.log(data, params);
                         return params;
@@ -438,7 +436,7 @@ _reportkendo = (function ($, my) {
                 serverPaging: true,
                 serverFiltering: true,
                 // serverSorting: true,
-                pageSize: 15,
+                pageSize: 6,
                 schema: {
                     data: function (response) {
                         console.log(response, current_index);

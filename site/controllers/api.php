@@ -75,8 +75,8 @@ class gglmsControllerApi extends JControllerLegacy
         $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
         $alert_days_before = $this->_params->get('alert_days_before');
         $tipo_report = $this->_filterparam->tipo_report;
-        $offset = $this->_filterparam->offset;
         $limit = $this->_filterparam->limit;
+        $offset = $this->_filterparam->offset;
         $filters = array('startdate' => $this->_filterparam->startdate, 'finishdate' => $this->_filterparam->finishdate, 'filterstato' => $this->_filterparam->filterstato, 'searchPhrase' => $this->_filterparam->searchPhrase, 'usergroups' => $this->_filterparam->usergroups);
 
         try {
@@ -97,7 +97,7 @@ class gglmsControllerApi extends JControllerLegacy
                     switch ($filters['filterstato']) {
 
                         case 0: //qualsiasi stato
-                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $filters['searchPhrase'], $filters['usergroups']);
+                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                             $users = $arrayresult[0];
                             $count = $arrayresult[1];
                             $queryGeneralCube = $arrayresult[2];
@@ -142,7 +142,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 //                            $count = $this->countPrimaryDataCube($query);!!! BUG il count che viene su da qui non è filtrato per azienda!!
 //                            $datas = $this->buildPrimaryDataCube($query,$offset, $limit); !!! BUG offset e limit erano invertiti!!
-                            $datas = $this->buildPrimaryDataCube($query, $limit, $offset);
+                            $datas = $this->buildPrimaryDataCube($query, $offset, $limit);
 
 
                             $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, null, null, $filters['searchPhrase'], $filters['usergroups'], implode(",", (array_column($datas, "id_anagrafica"))));
@@ -169,7 +169,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
                 case 1: //PER UNITA'
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $filters['searchPhrase'], $filters['usergroups']);
+                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                     $users = $arrayresult[0];
                     $count = $arrayresult[1];
                     $queryGeneralCube = $arrayresult[2];
@@ -186,7 +186,7 @@ class gglmsControllerApi extends JControllerLegacy
                     $rows = $users;
                     break;
                 case 2://PER CONTENUTO
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $filters['searchPhrase'], $filters['usergroups']);
+                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                     $users = $arrayresult[0];
                     $count = $arrayresult[1];
                     $queryGeneralCube = $arrayresult[2];
