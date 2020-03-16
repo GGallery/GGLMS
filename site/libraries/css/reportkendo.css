@@ -24,8 +24,22 @@ h6, h5 {
 }
 
 
+
 .glyphicon-ok {
     color: #79dc79 !important;
+}
+
+
+
+/*td:has(span.glyphicon-ok) {*/
+    /*font-size: 20px !important;*/
+    /*background-color: purple !important;*/
+    /*font-weight: bold !important;*/
+/*}*/
+
+.cell-with-icon{
+    text-align: center !important;
+    font-size: 18px !important;
 }
 
 .k-tooltip {

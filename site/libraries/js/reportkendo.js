@@ -14,10 +14,9 @@ _reportkendo = (function ($, my) {
                 field: 'cognome',
                 title: 'Cognome',
                 width: 200,
+                hidden:true, // nascosto per medicasa, sempre vuoto
                 visibility: -1
-
-
-            },
+          },
             {
                 field: 'nome',
                 title: 'Nome',
@@ -29,7 +28,7 @@ _reportkendo = (function ($, my) {
                 field: 'fields',
                 title: 'Dettagli Utente',
                 visibility: -1,
-                width:200,
+                width: 200,
                 template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
                 attributes: {
                     style: "text-align: center"
@@ -87,10 +86,18 @@ _reportkendo = (function ($, my) {
                 field: 'attestati_hidden',
                 title: 'Attestati',
                 width: 150,
-                visibility: 0
+                visibility: 0,
+                template: function (dataItem) {
+
+                    // console.log(dataItem);
+                    var id_corso = widgets.filters.corso_id.dataItem().id;
+                    var id_utente = JSON.parse(dataItem.fields).user_id;
+                    var href = window.location.hostname + "/home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=" + id_corso + "&user_id=" + id_utente;
+                    return "<a href='" + href + "' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>";
+
+                },
 
             }
-
 
 
         ];
@@ -175,7 +182,10 @@ _reportkendo = (function ($, my) {
             _createSplitter();
             _getFilterData();
             _createFilters();
-            _createGrid(_base_columns);
+
+
+            // _createGrid(_base_columns);
+
 
             // _isLoggedUser_tutorAz();
             // _loadData();
@@ -193,6 +203,7 @@ _reportkendo = (function ($, my) {
 
                     console.log('filter_data', data);
                     _populateFilters();
+                    get_new_grid_config();
 
 
                 })
@@ -244,17 +255,17 @@ _reportkendo = (function ($, my) {
         function _populateFilters() {
 
             populateFilter('#corso_id', 'dropdownlist', filterdata.corsi);
-            // widgets.filters.corso_id.select(0);
+            widgets.filters.corso_id.select(0);
 
-            widgets.filters.corso_id.select(4);
-            widgets.filters.corso_id.trigger('change');
+            // widgets.filters.corso_id.select(4);
+            // widgets.filters.corso_id.trigger('change');
 
             populateFilter('#tipo_report', 'dropdownlist', filterdata.tipo);
             widgets.filters.tipo_report.select(0);
 
             populateFilter('#usergroups', 'dropdownlist', filterdata.usergroups);
-            // widgets.filters.usergroups.select(0);
-            widgets.filters.usergroups.select(6);
+            widgets.filters.usergroups.select(0);
+            // widgets.filters.usergroups.select(6);
 
             populateFilter('#filterstato', 'dropdownlist', filterdata.stato);
             widgets.filters.filter_stato.select(0);
@@ -304,6 +315,12 @@ _reportkendo = (function ($, my) {
                 selectable: true,
                 filterable: false,
                 pageable: true,
+                dataBound: function(e) {
+                    // console.log("dataBound", e);
+                    // style delle colonne dinamiche, non posso darlo direttamente alla colonnna come attributo
+                    // perchè le colonne dinamiche non so se sono di "stato" o altri campi testo
+                    $('td:has(span.glyphicon-ok)').addClass('cell-with-icon');
+                }
 
             });
 
@@ -315,7 +332,7 @@ _reportkendo = (function ($, my) {
             // add tooltip to long column
             $("#grid").kendoTooltip({
                 filter: "th",//".k-header span",
-                position:"top",
+                position: "top",
                 content: function (e) {
 
                     return $(e.target[0]).data('title'); // set the element text as content of the tooltip
@@ -324,6 +341,9 @@ _reportkendo = (function ($, my) {
 
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
+
+
+
 
         }
 
@@ -379,6 +399,7 @@ _reportkendo = (function ($, my) {
 
 
         }
+
         function _poppulateDetailUserGrid(data) {
             var user_data = [];
 
@@ -409,26 +430,25 @@ _reportkendo = (function ($, my) {
         //////////////////////////////////////////////////////////////////
 
 
-        //todo check paginazione
         function _loadData() {
+
 
 
             widgets.dataSource = new kendo.data.DataSource({
                 transport: {
                     read: {
-                        url: window.location.hostname + "/home/index.php?option=com_gglms&task=api.get_report",
+                        // url: window.location.hostname + "/home/index.php?option=com_gglms&task=api.get_report",
+                        url: "index.php?option=com_gglms&task=api.get_report",
                         dataType: "json"
                     },
                     parameterMap: function (data, type) {
                         //prima di eseguire la request al server passa di qua
 
-                        //  occhio che page per kendo parte da 1
-
                         var params = _getParams();
-                        params.limit =data.pageSize;
-                        params.offset =  data.page === 1 ? 0 : (data.page -1)* data.pageSize ;
+                        params.limit = data.pageSize;
+                        params.offset = data.page === 1 ? 0 : (data.page - 1) * data.pageSize;      //page per kendo parte da 1
 
-                        console.log(data, params);
+                        // console.log(data, params);
                         return params;
                     }
 
@@ -436,28 +456,15 @@ _reportkendo = (function ($, my) {
                 serverPaging: true,
                 serverFiltering: true,
                 // serverSorting: true,
-                pageSize: 6,
+                pageSize: 15,
                 schema: {
                     data: function (response) {
                         console.log(response, current_index);
 
-                        // prendo le response.column
-                        //le aggiungo alle base column
-
-                        // to do qui salvare le coonne del prossimo indice se è diversodal current
-                        // if (!columns_loaded) {
-                        //     _manageColumns(response.columns);
-                        //     columns_loaded = true;
-                        //
-                        // }
-
-
                         return response.rows;
                     },
                     total: "rowCount"
-                    // ,model: {
-                    //     fields: fields
-                    // }
+
                 }
             });
 
@@ -513,7 +520,7 @@ _reportkendo = (function ($, my) {
 
             get_new_grid_config();
 
-            if(current_index > 0) {
+            if (current_index > 0) {
                 // /nascondo stato corso
 
             }
@@ -525,10 +532,11 @@ _reportkendo = (function ($, my) {
 
             var params = _getParams();
 
-            $.when($.get(window.location.hostname + "/home/index.php?option=com_gglms&task=api.new_get_columns", params))
+            $.when($.get("index.php?option=com_gglms&task=api.new_get_columns", params))
                 .done(function (data) {
                     var dbcolumns = JSON.parse(data);
                     var columns = _manageColumns(dbcolumns);
+
 
                     _createGrid(columns);
                     _loadData();
@@ -556,51 +564,59 @@ _reportkendo = (function ($, my) {
                 return (c.visibility === -1 || c.visibility === parseInt(report_type))
             });
 
-            if ((current_index == 1 || current_index == 2)) {
-                $.each(dbcolumns.columns, function (i, item) {
 
-                    // è già nelle colonne base?
-                    var already_in = tmp_column.find(function (c) {
-                        return c.field === item
-                    });
+            $.each(dbcolumns.columns, function (i, item) {
 
-                    if (!already_in) {
-
-                        // le quadre servono a gestire il fatto che i contenuti possono avere spazi e numeri nei fields
-                        var field = '["' + item + '"]';
-                        var col = {
-                            field: field,
-                            title: item,
-                            width: 200,
-                            // hidden: false,
-                            attributes: {style: null}
-                        };
+                    if (item !== "" && item !== "no_column") {
 
 
-                        // se report per unit o per contenuto aggiorno il template delle colonne dinamiche
-                        col.template = function (dataItem) {
-                            var _class = dataItem[item] == 1 ? 'glyphicon glyphicon-ok' : '';
-                            return "<span class= '" + _class + "'></span>";
-                        };
+                        // è già nelle colonne base?
+                        var already_in = tmp_column.find(function (c) {
+                            return c.field === item
+                        });
 
-                        col.attributes.style = "text-align: center; font-size: 18px";
-                        console.log(col.template);
+                        // se non c'è lo aggiungo
+                        if (!already_in) {
 
+                            // le quadre servono a gestire il fatto che i contenuti possono avere spazi e numeri nei fields
+                            var field = '["' + item + '"]';
+                            var col = {
+                                field: field,
+                                title: item,
+                                width: 200,
+                                // hidden: false,
+                                attributes: {style: null}
+                            };
 
-                        tmp_column.push(col);
+                            // sto guardando il report per unità oppue per contenuto?
+                            if (current_index > 0) {
+                                // se report per unit o per contenuto aggiorno il template delle colonne dinamiche
+                                col.template = function (dataItem) {
+
+                                    if (parseInt(dataItem[item]) === 1 || parseInt(dataItem[item]) === 0) {
+
+                                        // template custom per le colonne dinamiche che rappresentano  unità e contenuti
+
+                                        var _class = dataItem[item] == 1 ? 'glyphicon glyphicon-ok' : '';
+                                        return "<span class= '" + _class + "'></span>";
+                                    } else {
+                                        return "<span>" + dataItem[item] + "</span>";
+                                    }
+                                };
+                            }
+
+                            tmp_column.push(col);
+                        }
+
                     }
-
-                });
-            } else {
-
-
-                tmp_column = _base_columns;
-            }
+                }
+            );
 
             return tmp_column;
 
 
         }
+
 
 
         function _formatDate(date) {
