@@ -237,7 +237,7 @@ class gglmsControllerApi extends JControllerLegacy
 
     // metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
     // serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo
-    public function new_get_columns()
+    public function get_report_columns()
     {
 
         //$this->_filterparam->task = JRequest::getVar('task');
@@ -284,6 +284,17 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_japp->close();
 
     }
+
+
+    public function get_export_columns()
+    {
+
+        $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
+        echo (json_encode($elenco_campi_per_csv_da_back_end));
+        $this->_japp->close();
+    }
+
+
 
     private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
     {

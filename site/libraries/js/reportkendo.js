@@ -102,23 +102,7 @@ _reportkendo = (function ($, my) {
 
 
         ];
-        var user_details_fields = {
-
-            // "cb_datadinascita": {titolo: "Data di nascita"},
-            // "cb_luogodinascita": {titolo: "Luogo di nascita"},
-            // "cb_provinciadinascita": {titolo: "Provinxcia di nascita"},
-            // "cb_indirizzodiresidenza": {titolo: "Indirizzo di residenza"},
-            // "cb_provdiresidenza": {titolo: "Provincia di residenza"},
-            // "cb_cap": {titolo: "Cap"},
-            // "cb_telefono": {titolo: "Telefono"},
-            // "cb_codicefiscale": {titolo: "Codice Fiscale"},
-            "registerDate": {titolo: "Data di registrazione",field:'registerDate', toexport: true},
-            "lastvisitDate": {titolo: "Ultimo accesso",field:'lastvisitDate', toexport: true},
-            "cb_username": {titolo: "Username",field:'cb_username', toexport: true},
-            "email": {titolo: "Email",field:'email', toexport: true},
-            "id": {titolo: "id",field:'id', toexport: true}
-
-        };
+        var user_details_fields = {};
 
         //////////////
 
@@ -165,6 +149,8 @@ _reportkendo = (function ($, my) {
             _createSplitter();
             _getFilterData();
             _createFilters();
+
+            _get_export_column();
 
 
             // _createGrid(_base_columns);
@@ -322,12 +308,18 @@ _reportkendo = (function ($, my) {
                     });
 
 
-                   $.each( col_fields_toexport, function (i, item) {
+                    $.each(col_fields_toexport, function (i, item) {
                         // aggiungerle a sheet.columns
                         sheet.columns.push({width: 200, autoWidth: false});
                         // aggiungerle all'header
-                       var override = i === 0 ? 1 : 0;
-                        sheet.rows[0].cells.splice(col_fields_index + i ,override ,  {background: "#7a7a7a", color: "#fff", value: item.titolo, colSpan: 1, rowSpan: 1});
+                        var override = i === 0 ? 1 : 0;
+                        sheet.rows[0].cells.splice(col_fields_index + i, override, {
+                            background: "#7a7a7a",
+                            color: "#fff",
+                            value: item.titolo,
+                            colSpan: 1,
+                            rowSpan: 1
+                        });
 
 
                     });
@@ -336,10 +328,10 @@ _reportkendo = (function ($, my) {
                         var row = sheet.rows[rowIndex];
                         var fields_value = JSON.parse(row.cells[col_fields_index].value);
 
-                        $.each( col_fields_toexport, function (i, item) {
+                        $.each(col_fields_toexport, function (i, item) {
 
                             var override = i === 0 ? 1 : 0;
-                            row.cells.splice(col_fields_index + i , override ,{value: fields_value[item.field] });
+                            row.cells.splice(col_fields_index + i, override, {value: fields_value[item.field]});
 
 
                         });
@@ -551,12 +543,47 @@ _reportkendo = (function ($, my) {
 
         }
 
+        function _get_export_column() {
+
+            $.when($.get("index.php?option=com_gglms&task=api.get_export_columns"))
+                .done(function (data) {
+
+                    var data = JSON.parse(data);
+                    if (data[0] !== 'no_column') {
+                        $.each(data, function (i, item) {
+
+                            var obj = {
+                                titolo: item,
+                                field: item,
+                                toexport: true
+
+                            };
+
+                            user_details_fields[item] = obj;
+                        });
+                    }
+
+                    // console.log(data);
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    $('#cover-spin').hide(0);
+                });
+
+        }
+
+
         function get_new_grid_config() {
 
 
             var params = _getParams();
 
-            $.when($.get("index.php?option=com_gglms&task=api.new_get_columns", params))
+            $.when($.get("index.php?option=com_gglms&task=api.get_report_columns", params))
                 .done(function (data) {
                     var dbcolumns = JSON.parse(data);
                     var columns = _manageColumns(dbcolumns);
@@ -577,6 +604,7 @@ _reportkendo = (function ($, my) {
                 });
 
         }
+
 
         function _manageColumns(dbcolumns) {
 
