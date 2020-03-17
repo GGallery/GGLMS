@@ -25,7 +25,6 @@ class gglmsControllerApi extends JControllerLegacy
     private $_filterparam;
 
 
-
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -253,68 +252,6 @@ class gglmsControllerApi extends JControllerLegacy
         return $att_id_string;
     }
 
-
-    // metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
-    // serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo
-    public function get_report_columns()
-    {
-
-        //$this->_filterparam->task = JRequest::getVar('task');
-        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        $tipo_report = $this->_filterparam->tipo_report;
-
-        try {
-
-
-            $columns = array();
-            switch ($tipo_report) {
-
-                case 0: //PER CORSO
-                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
-                    break;
-
-                case 1: //PER UNITA'
-
-                    $columns = $this->buildColumnsforUnitaView($id_corso);
-
-                    break;
-                case 2://PER CONTENUTO
-                    $columns = $this->buildColumnsforContenutiView($id_corso);
-
-                    break;
-
-
-            }
-
-            $fields = explode(',', $this->_params->get('campicustom_report'));
-            $columns = array_merge($columns, $fields);
-
-
-        } catch (Exception $e) {
-
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
-            //DEBUGG::error($e, 'error', 1);
-        }
-
-        $result['columns'] = $columns;
-        echo json_encode($result);
-
-        $this->_japp->close();
-
-    }
-
-
-    public function get_export_columns()
-    {
-
-        $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
-        echo (json_encode($elenco_campi_per_csv_da_back_end));
-        $this->_japp->close();
-    }
-
-
-
     private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
     {
         try {
@@ -465,23 +402,6 @@ class gglmsControllerApi extends JControllerLegacy
         }
     }
 
-    private function countPrimaryDataCube($query)
-    {
-        try {
-
-
-            $this->_db->setQuery($query);
-            $datas = $this->_db->loadAssocList();
-            return count($datas);
-
-        } catch (Exception $e) {
-
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
-            //DEBUGG::error($e, 'error', 1);
-        }
-
-    }
-
     private function buildColumnsforUnitaView($id_corso)
     {
 
@@ -538,6 +458,69 @@ class gglmsControllerApi extends JControllerLegacy
 
         }
         return $table;
+    }
+
+    /**
+     * metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
+     * serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo
+     */
+    public function get_report_columns()
+    {
+
+        //$this->_filterparam->task = JRequest::getVar('task');
+        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
+        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        $tipo_report = $this->_filterparam->tipo_report;
+
+        try {
+
+
+            $columns = array();
+            switch ($tipo_report) {
+
+                case 0: //PER CORSO
+                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                    break;
+
+                case 1: //PER UNITA'
+
+                    $columns = $this->buildColumnsforUnitaView($id_corso);
+
+                    break;
+                case 2://PER CONTENUTO
+                    $columns = $this->buildColumnsforContenutiView($id_corso);
+
+                    break;
+
+
+            }
+
+            $fields = explode(',', $this->_params->get('campicustom_report'));
+            $columns = array_merge($columns, $fields);
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+
+        $result['columns'] = $columns;
+        echo json_encode($result);
+
+        $this->_japp->close();
+
+    }
+
+    /**
+     * le colonne di field che vanno viste nel dettaglio utente e che verrano esportate.
+     */
+    public function get_export_columns()
+    {
+
+        $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
+        echo(json_encode($elenco_campi_per_csv_da_back_end));
+        $this->_japp->close();
     }
 
     public function get_csv()
@@ -817,7 +800,6 @@ class gglmsControllerApi extends JControllerLegacy
         echo '<br> ' . count($contenuti);
     }
 
-
     /**
      * Endpoint to update content status. [fad-medicasa customization]
      */
@@ -945,6 +927,23 @@ class gglmsControllerApi extends JControllerLegacy
 
         http_response_code(200);
         $this->_japp->close();
+
+    }
+
+    private function countPrimaryDataCube($query)
+    {
+        try {
+
+
+            $this->_db->setQuery($query);
+            $datas = $this->_db->loadAssocList();
+            return count($datas);
+
+        } catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
 
     }
 
