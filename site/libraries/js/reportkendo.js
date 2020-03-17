@@ -112,11 +112,11 @@ _reportkendo = (function ($, my) {
             // "cb_cap": {titolo: "Cap"},
             // "cb_telefono": {titolo: "Telefono"},
             // "cb_codicefiscale": {titolo: "Codice Fiscale"},
-            "registerDate": {titolo: "Data di registrazione"},
-            "lastvisitDate": {titolo: "Ultimo accesso"},
-            "cb_username": {titolo: "Username"},
-            "email": {titolo: "Email"},
-            "id": {titolo: "id"}
+            "registerDate": {titolo: "Data di registrazione",field:'registerDate', toexport: true},
+            "lastvisitDate": {titolo: "Ultimo accesso",field:'lastvisitDate', toexport: true},
+            "cb_username": {titolo: "Username",field:'cb_username', toexport: true},
+            "email": {titolo: "Email",field:'email', toexport: true},
+            "id": {titolo: "id",field:'id', toexport: true}
 
         };
 
@@ -298,10 +298,53 @@ _reportkendo = (function ($, my) {
                 filterable: false,
                 pageable: true,
                 dataBound: function (e) {
-                    // console.log("dataBound", e);
                     // style delle colonne dinamiche, non posso darlo direttamente alla colonnna come attributo
                     // perchè le colonne dinamiche non so se sono di "stato" o altri campi testo
                     $('td:has(span.glyphicon-ok)').addClass('cell-with-icon');
+                },
+                excelExport: function (e) {
+
+                    var sheet = e.workbook.sheets[0];
+                    var grid = e.sender;
+                    var columns = grid.columns;
+
+
+                    // dalle colonne visbili della griglia trovo l'indice di fields
+                    var col_fields_index = columns.filter(function (value) {
+                        return value.hidden !== true
+                    }).findIndex(function (value) {
+                        return value.field === 'fields'
+                    });
+
+                    // ricavo le colonne di fields che vanno esportate
+                    var col_fields_toexport = Object.values(user_details_fields).filter(function (val) {
+                        return val.toexport === true
+                    });
+
+
+                   $.each( col_fields_toexport, function (i, item) {
+                        // aggiungerle a sheet.columns
+                        sheet.columns.push({width: 200, autoWidth: false});
+                        // aggiungerle all'header
+                       var override = i === 0 ? 1 : 0;
+                        sheet.rows[0].cells.splice(col_fields_index + i ,override ,  {background: "#7a7a7a", color: "#fff", value: item.titolo, colSpan: 1, rowSpan: 1});
+
+
+                    });
+
+                    for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+                        var row = sheet.rows[rowIndex];
+                        var fields_value = JSON.parse(row.cells[col_fields_index].value);
+
+                        $.each( col_fields_toexport, function (i, item) {
+
+                            var override = i === 0 ? 1 : 0;
+                            row.cells.splice(col_fields_index + i , override ,{value: fields_value[item.field] });
+
+
+                        });
+
+                    }
                 }
 
             });
@@ -327,7 +370,8 @@ _reportkendo = (function ($, my) {
 
         }
 
-        //////////////// popup dettagli utente //////////////////////////
+
+        ///////// popup dettagli utente //////////////////////////
 
         function _openUserDetails() {
 
@@ -336,7 +380,7 @@ _reportkendo = (function ($, my) {
 
 
             var data = JSON.parse(dataItem.fields);
-            console.log('USERFIELDS',data);
+            console.log('USERFIELDS', data);
 
             // console.log(data);
             if (widgets.popup.window === null) {
