@@ -1,0 +1,69 @@
+h6, h5 {
+    text-align: center;
+    margin: auto auto;
+}
+
+
+.mc-main {
+
+    min-height: 700px;
+    font-size: smaller;
+}
+
+
+.form-inline .form-group {
+    margin: 5px 0 5px 5px;
+    width: 100%;
+    /*text-align: center;*/
+}
+
+.k-dropdown, input {
+    width: 90%;
+    margin: auto auto;
+
+}
+
+
+
+.glyphicon-ok {
+    color: #79dc79 !important;
+}
+
+
+
+/*td:has(span.glyphicon-ok) {*/
+    /*font-size: 20px !important;*/
+    /*background-color: purple !important;*/
+    /*font-weight: bold !important;*/
+/*}*/
+
+.cell-with-icon{
+    text-align: center !important;
+    font-size: 18px !important;
+}
+
+.k-tooltip {
+    background: #325482 !important;
+    width: 200px;
+    height: 35px;
+    font-size: smaller;
+    color: white !important;
+}
+
+
+
+.k-grid-button {
+    min-width: 45px;
+    background-color: #325482;
+    color: white;
+}
+
+.k-grid-button:hover {
+    background-color: white;
+    color: #325482;
+}
+
+.k-grid-button:active {
+    background-color: white;
+    color: #325482;
+}

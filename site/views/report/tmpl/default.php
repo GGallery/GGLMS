@@ -249,8 +249,9 @@ defined('_JEXEC') or die;
 
     //CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI
     var testo_base_mail = '<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
-    var loadreportlimit = 0;
-    var loadreportoffset = 15;
+    var loadreportoffset = 0;
+    var loadreportlimit = 3;
+
     var actualminpage = 1;
     var columnfilter = ['id_anagrafica', 'scadenza', 'fields'];//CAMPI DA NON MOSTRARE IN TABELLA
     var columnmappingname = [{name: 'data_inizio', alias: 'data inizio'},
@@ -423,7 +424,7 @@ defined('_JEXEC') or die;
                 break;
 
             default:
-                loadreportlimit = (parseInt(jQuery(this).html()) * loadreportoffset) - loadreportoffset;
+                loadreportoffset = (parseInt(jQuery(this).html()) * loadreportlimit) - loadreportlimit;
                 loadData("pagination");
         }
     });
@@ -447,11 +448,14 @@ defined('_JEXEC') or die;
             jQuery("a[data-page='4']").html('4');
             jQuery("a[data-page='5']").html('5');
             actualminpage = 1;
-            url = url + "&limit=0";
+            // url = url + "&limit=0";
+            url = url + "&limit=" + loadreportlimit;
         } else {
+            // url = url + "&limit=" + loadreportoffset;
             url = url + "&limit=" + loadreportlimit;
         }
 
+        // url = url + "&offset=" + loadreportlimit;
         url = url + "&offset=" + loadreportoffset;
         // jQuery("#aggiornamentoReport").modal('show');
         jQuery('#cover-spin').show(0);
@@ -477,7 +481,7 @@ defined('_JEXEC') or die;
                 jQuery('#totalcount').html('record totali:' + data['rowCount']);
                 viewReportColumns = [];
                 fields = data;
-                maxNofpages = parseInt((data['rowCount'] / loadreportoffset) + 1);
+                maxNofpages = parseInt((data['rowCount'] / loadreportlimit) + 1);
                 jQuery("#aggiornamentoReport").modal('hide');
                 data['columns'].forEach(addColumn);
                 if (buttonscolumn.length > 0) {

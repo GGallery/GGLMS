@@ -61,7 +61,7 @@ class gglmsControllerApi extends JControllerLegacy
     {
 
         $data = $this->new_get_data();
-        //$data = $this->get_data();
+
         echo json_encode($data);
         $this->_japp->close();
     }
@@ -75,8 +75,8 @@ class gglmsControllerApi extends JControllerLegacy
         $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
         $alert_days_before = $this->_params->get('alert_days_before');
         $tipo_report = $this->_filterparam->tipo_report;
-        $offset = $this->_filterparam->offset;
         $limit = $this->_filterparam->limit;
+        $offset = $this->_filterparam->offset;
         $filters = array('startdate' => $this->_filterparam->startdate, 'finishdate' => $this->_filterparam->finishdate, 'filterstato' => $this->_filterparam->filterstato, 'searchPhrase' => $this->_filterparam->searchPhrase, 'usergroups' => $this->_filterparam->usergroups);
 
         try {
@@ -97,7 +97,7 @@ class gglmsControllerApi extends JControllerLegacy
                     switch ($filters['filterstato']) {
 
                         case 0: //qualsiasi stato
-                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $filters['searchPhrase'], $filters['usergroups']);
+                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                             $users = $arrayresult[0];
                             $count = $arrayresult[1];
                             $queryGeneralCube = $arrayresult[2];
@@ -121,11 +121,11 @@ class gglmsControllerApi extends JControllerLegacy
                         case 2:
                         case 3:
                             if ($filters['filterstato'] == 1)
-                                $query->where("vista.stato=1");
+                                $query->where("vista.stato = 1");
                             if ($filters['filterstato'] == 2)
-                                $query->where("vista.stato=0");
+                                $query->where("vista.stato = 0");
                             if ($filters['filterstato'] == 3)
-                                $query->where("vista.stato=0 and IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=" . $id_corso . "), INTERVAL -" . $alert_days_before . " DAY), IF(stato=0,1,0),0)=1");
+                                $query->where("vista.stato = 0 and IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=" . $id_corso . "), INTERVAL -" . $alert_days_before . " DAY), IF(stato=0,1,0),0)=1");
 
 
                             if ($filters['startdate'] != null)
@@ -138,11 +138,18 @@ class gglmsControllerApi extends JControllerLegacy
 
                             }
                             $result['secondaryCubeQuery'] = (string)$query;
-                            $count = $this->countPrimaryDataCube($query);
+
+
+//                            $count = $this->countPrimaryDataCube($query);!!! BUG il count che viene su da qui non è filtrato per azienda!!
+//                            $datas = $this->buildPrimaryDataCube($query,$offset, $limit); !!! BUG offset e limit erano invertiti!!
                             $datas = $this->buildPrimaryDataCube($query, $offset, $limit);
+
 
                             $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, null, null, $filters['searchPhrase'], $filters['usergroups'], implode(",", (array_column($datas, "id_anagrafica"))));
                             $users = $arrayresult[0];
+
+                            // in sostituzione del count commentato sopra --> il count era già presente come parametro di ritorno ma non veniva usato
+                            $count = $arrayresult[1];
 
                             $queryGeneralCube = $arrayresult[2];
                             $queryGeneralCubeCount = $arrayresult[3];
@@ -162,7 +169,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
                 case 1: //PER UNITA'
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $filters['searchPhrase'], $filters['usergroups']);
+                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                     $users = $arrayresult[0];
                     $count = $arrayresult[1];
                     $queryGeneralCube = $arrayresult[2];
@@ -179,7 +186,7 @@ class gglmsControllerApi extends JControllerLegacy
                     $rows = $users;
                     break;
                 case 2://PER CONTENUTO
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $filters['searchPhrase'], $filters['usergroups']);
+                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                     $users = $arrayresult[0];
                     $count = $arrayresult[1];
                     $queryGeneralCube = $arrayresult[2];
@@ -192,8 +199,8 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->where('id_corso=' . $id_corso);
                     $result['secondaryCubeQuery'] = (string)$query;
                     $datas = $this->buildPrimaryDataCube($query);
-//                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "last_visit", 'outer'); // mostro ultima data di visita al posto di spunta verde in report per contenuto
+                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
+//                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "last_visit", 'outer'); // mostro ultima data di visita al posto di spunta verde in report per contenuto
                     $columns = $this->buildColumnsforContenutiView($id_corso);
                     $rows = $users;
                     break;
@@ -215,7 +222,8 @@ class gglmsControllerApi extends JControllerLegacy
 
         $result['queryGeneralCube'] = (string)$queryGeneralCube;
 
-        //$result['offset']=$offset;
+//        $result['datas'] = $datas;
+//        $result['buildGeneralDataCubeUtentiInCorso'] = $arrayresult[0];
         //$result['current']=$this->_filterparam->current;
         $result['columns'] = $columns;
         $result['rowCount'] = $count;
@@ -225,6 +233,68 @@ class gglmsControllerApi extends JControllerLegacy
         //echo json_encode($result);
         return $result;
     }
+
+
+    // metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
+    // serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo
+    public function get_report_columns()
+    {
+
+        //$this->_filterparam->task = JRequest::getVar('task');
+        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
+        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        $tipo_report = $this->_filterparam->tipo_report;
+
+        try {
+
+
+            $columns = array();
+            switch ($tipo_report) {
+
+                case 0: //PER CORSO
+                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                    break;
+
+                case 1: //PER UNITA'
+
+                    $columns = $this->buildColumnsforUnitaView($id_corso);
+
+                    break;
+                case 2://PER CONTENUTO
+                    $columns = $this->buildColumnsforContenutiView($id_corso);
+
+                    break;
+
+
+            }
+
+            $fields = explode(',', $this->_params->get('campicustom_report'));
+            $columns = array_merge($columns, $fields);
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+
+        $result['columns'] = $columns;
+        echo json_encode($result);
+
+        $this->_japp->close();
+
+    }
+
+
+    public function get_export_columns()
+    {
+
+        $elenco_campi_per_csv_da_back_end = explode(',', $this->_params->get('campi_csv'));
+        echo (json_encode($elenco_campi_per_csv_da_back_end));
+        $this->_japp->close();
+    }
+
+
 
     private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
     {
@@ -243,6 +313,7 @@ class gglmsControllerApi extends JControllerLegacy
             $query->from("#__gg_report_users as anagrafica");
             $countquery->from("#__gg_report_users as anagrafica");
 
+//            var_dump($accesso);
 
 //            $usergroups --> aziende
 
@@ -307,6 +378,9 @@ class gglmsControllerApi extends JControllerLegacy
                 $countquery->where('anagrafica.id in(' . $anagrafica_filter . ')');
             }
             $query->order('anagrafica.cognome', 'asc');
+
+//            var_dump((string)$query);
+
             $query->setlimit($offset, $limit);
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
@@ -347,6 +421,7 @@ class gglmsControllerApi extends JControllerLegacy
     private function countPrimaryDataCube($query)
     {
         try {
+
 
             $this->_db->setQuery($query);
             $datas = $this->_db->loadAssocList();
