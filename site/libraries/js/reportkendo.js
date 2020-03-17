@@ -14,9 +14,9 @@ _reportkendo = (function ($, my) {
                 field: 'cognome',
                 title: 'Cognome',
                 width: 200,
-                hidden:true, // nascosto per medicasa, sempre vuoto
+                hidden: true, // nascosto per medicasa, sempre vuoto
                 visibility: -1
-          },
+            },
             {
                 field: 'nome',
                 title: 'Nome',
@@ -80,7 +80,8 @@ _reportkendo = (function ($, my) {
                 field: 'scadenza',
                 title: 'In scadenza',
                 width: 200,
-                visibility: 0
+                visibility: 0,
+                hidden: true // nascosto per medicasa non hanno la scadenza
             },
             {
                 field: 'attestati_hidden',
@@ -101,25 +102,6 @@ _reportkendo = (function ($, my) {
 
 
         ];
-
-
-        var fields = {
-            coupon: {type: "string"},
-            data_creazione: {type: "date"},
-            data_utilizzo: {type: "date"},
-            id_corso: {type: "number"},
-            titolo_corso: {type: "string"},
-            id_azienda: {type: "number"},
-            azienda: {type: "string"},
-            id_piattaforma: {type: "number"},
-            piattaforma: {type: "string"},
-            user_: {type: "string"},
-            stato: {type: "number"},
-            data_inizio: {type: "date"},
-            data_fine: {type: "date"},
-            venditore: {type: "string"},
-            scaduto: {type: "number"}
-        };
         var user_details_fields = {
 
             // "cb_datadinascita": {titolo: "Data di nascita"},
@@ -169,7 +151,8 @@ _reportkendo = (function ($, my) {
                 {value: 3, text: 'In scadenza'}]
         };
 
-        var current_index = 0;
+        // 0:per corso 1:per unita 2:per contenuto
+        var current_report_type = 0;
 
         function _init() {
 
@@ -251,7 +234,6 @@ _reportkendo = (function ($, my) {
             widgets.filters.searchPhrase = $('#searchPhrase');
         }
 
-        //TODO attenzione scommentare le selezioni per sviluppo per avere dati
         function _populateFilters() {
 
             populateFilter('#corso_id', 'dropdownlist', filterdata.corsi);
@@ -307,7 +289,7 @@ _reportkendo = (function ($, my) {
                 excel: {
                     allPages: true
                 },
-                height: 550,
+                height: '90%',
                 scrollable: true,
                 sortable: true,
                 resizable: true,
@@ -315,7 +297,7 @@ _reportkendo = (function ($, my) {
                 selectable: true,
                 filterable: false,
                 pageable: true,
-                dataBound: function(e) {
+                dataBound: function (e) {
                     // console.log("dataBound", e);
                     // style delle colonne dinamiche, non posso darlo direttamente alla colonnna come attributo
                     // perchè le colonne dinamiche non so se sono di "stato" o altri campi testo
@@ -343,8 +325,6 @@ _reportkendo = (function ($, my) {
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
 
 
-
-
         }
 
         //////////////// popup dettagli utente //////////////////////////
@@ -356,6 +336,7 @@ _reportkendo = (function ($, my) {
 
 
             var data = JSON.parse(dataItem.fields);
+            console.log('USERFIELDS',data);
 
             // console.log(data);
             if (widgets.popup.window === null) {
@@ -433,7 +414,6 @@ _reportkendo = (function ($, my) {
         function _loadData() {
 
 
-
             widgets.dataSource = new kendo.data.DataSource({
                 transport: {
                     read: {
@@ -459,7 +439,7 @@ _reportkendo = (function ($, my) {
                 pageSize: 15,
                 schema: {
                     data: function (response) {
-                        console.log(response, current_index);
+                        console.log(response, current_report_type);
 
                         return response.rows;
                     },
@@ -510,7 +490,7 @@ _reportkendo = (function ($, my) {
 
         function _changeReportType() {
 
-            current_index = widgets.filters.tipo_report.value() === "" ? 0 : widgets.filters.tipo_report.value();
+            current_report_type = widgets.filters.tipo_report.value() === "" ? 0 : widgets.filters.tipo_report.value();
 
             // destroy current widget
             $("#grid").empty();
@@ -520,7 +500,7 @@ _reportkendo = (function ($, my) {
 
             get_new_grid_config();
 
-            if (current_index > 0) {
+            if (current_report_type > 0) {
                 // /nascondo stato corso
 
             }
@@ -589,7 +569,7 @@ _reportkendo = (function ($, my) {
                             };
 
                             // sto guardando il report per unità oppue per contenuto?
-                            if (current_index > 0) {
+                            if (current_report_type > 0) {
                                 // se report per unit o per contenuto aggiorno il template delle colonne dinamiche
                                 col.template = function (dataItem) {
 
@@ -616,8 +596,6 @@ _reportkendo = (function ($, my) {
 
 
         }
-
-
 
         function _formatDate(date) {
 
