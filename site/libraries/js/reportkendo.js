@@ -273,8 +273,12 @@ _reportkendo = (function ($, my) {
                 toolbar: ["excel"],
                 columns: columns,
                 excel: {
-                    allPages: true
+                    allPages: true,
+                    filterable: true,
+                    fileName: "Report Utenti.xlsx"
+
                 },
+
                 height: '90%',
                 scrollable: true,
                 sortable: true,
@@ -290,19 +294,39 @@ _reportkendo = (function ($, my) {
                 },
                 excelExport: function (e) {
 
+                    // kendo.ui.progress(this.element, false);
                     var sheet = e.workbook.sheets[0];
                     var grid = e.sender;
                     var columns = grid.columns;
 
 
+                    /////////////////////////////////////////////// colonne aggiuntive export ////////////////////////////////////////////////////////////////
+
                     // dalle colonne visbili della griglia trovo l'indice di fields
-                    var col_fields_index = columns.filter(function (value) {
+                    var visibile_columns = columns.filter(function (value) {
                         return value.hidden !== true
-                    }).findIndex(function (value) {
+                    });
+
+
+                    // // colonne diamniche con template
+                    // var columns_with_template = visibile_columns.filter(function (value) {
+                    //     return  value.template && value.template !== null && value.field !== 'attestati_hidden' & value.field !== 'fields';
+                    // });
+                    //
+                    // console.log(columns_with_template);
+
+
+                    // indidce colonna fields
+                    var col_fields_index = visibile_columns.findIndex(function (value) {
                         return value.field === 'fields'
                     });
 
-                    // ricavo le colonne di fields che vanno esportate
+                    // indidce colonna stato
+                    var col_stato_index = visibile_columns.findIndex(function (value) {
+                        return value.field === 'stato'
+                    });
+
+                    // ricavo le colonne di fields che vanno esportate (in questo caso tutte ma mi lascio la porta aperta in caso di modifiche)
                     var col_fields_toexport = Object.values(user_details_fields).filter(function (val) {
                         return val.toexport === true
                     });
@@ -312,7 +336,7 @@ _reportkendo = (function ($, my) {
                         // aggiungerle a sheet.columns
                         sheet.columns.push({width: 200, autoWidth: false});
                         // aggiungerle all'header
-                        var override = i === 0 ? 1 : 0;
+                        var override = i === 0 ? 1 : 0; // se è la prima override = sovrascrivo il campo fields, le altre le aggiungo senza sovrascrivere
                         sheet.rows[0].cells.splice(col_fields_index + i, override, {
                             background: "#7a7a7a",
                             color: "#fff",
@@ -321,21 +345,24 @@ _reportkendo = (function ($, my) {
                             rowSpan: 1
                         });
 
-
                     });
 
                     for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
                         var row = sheet.rows[rowIndex];
                         var fields_value = JSON.parse(row.cells[col_fields_index].value);
 
-                        $.each(col_fields_toexport, function (i, item) {
+                        if (col_stato_index !== -1) {
 
+                            // se la colonna stato è presente la formatto
+                            row.cells[col_stato_index].value = parseInt(row.cells[col_stato_index].value) === 1 ? 'Completato' : 'Non completato';
+
+                        }
+
+                        // inserisco colonne da esportare
+                        $.each(col_fields_toexport, function (i, item) {
                             var override = i === 0 ? 1 : 0;
                             row.cells.splice(col_fields_index + i, override, {value: fields_value[item.field]});
-
-
                         });
-
                     }
                 }
 
@@ -344,6 +371,10 @@ _reportkendo = (function ($, my) {
 
             widgets.grid = $("#grid").data('kendoGrid');
             $('#cover-spin').hide(0);
+
+            // $(".k-grid-excel")[0].onmousedown = function (e){
+            //     $('#cover-spin').show(0);
+            // }
 
 
             // add tooltip to long column
@@ -643,7 +674,9 @@ _reportkendo = (function ($, my) {
                             // sto guardando il report per unità oppue per contenuto?
                             if (current_report_type > 0) {
                                 // se report per unit o per contenuto aggiorno il template delle colonne dinamiche
+
                                 col.template = function (dataItem) {
+
 
                                     if (parseInt(dataItem[item]) === 1 || parseInt(dataItem[item]) === 0) {
 
