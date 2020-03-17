@@ -817,6 +817,10 @@ class gglmsControllerApi extends JControllerLegacy
         echo '<br> ' . count($contenuti);
     }
 
+
+    /**
+     * Endpoint to update content status. [fad-medicasa customization]
+     */
     public function updateContentStatus()
     {
         try {
@@ -844,9 +848,20 @@ class gglmsControllerApi extends JControllerLegacy
         http_response_code(500);
     }
 
+    /**
+     * Method to store data in scormvars
+     *
+     * @param $scoid : gglms contentId
+     * @param $opsuserid : fad-medicasa userid
+     * @param $status : compled/incomplete
+     * @param $score : score
+     * @param $date : execution date
+     * @return string
+     */
     private function storeData($scoid, $opsuserid, $status, $score, $date)
     {
 
+        // converto l'id utente di medicasa in utente joomla
         $query = $this->_db->getQuery(true);
         $query->select('user_id')
             ->from('#__comprofiler as c')
@@ -899,17 +914,18 @@ class gglmsControllerApi extends JControllerLegacy
 
     }
 
+    /**
+     * Endpoint to bulk-import content status from import_test_result table.
+     */
     public function importContentStatus()
     {
 
         $query = $this->_db->getQuery(true);
         $query->select('*')
-            ->from('import_test_result as i');
+            ->from('import_test_result');
 
         $this->_db->setQuery($query);
         $imports = $this->_db->loadObjectList();
-
-        echo count($imports);
 
         foreach ($imports as $import) {
 

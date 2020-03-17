@@ -8,7 +8,13 @@
  */
 class DEBUGG
 {
-
+    /**
+     * @param $object
+     * @param string $label
+     * @param int $die
+     * @param int $insert_in_gg_error_log
+     * @param int $debug_with_eco
+     */
     public static function log($object, $label = "", $die = 0, $insert_in_gg_error_log = 0, $debug_with_eco=1){
 
         if($insert_in_gg_error_log==1){
@@ -45,6 +51,11 @@ class DEBUGG
             die();
     }
 
+    /**
+     * @param $query
+     * @param string $label
+     * @param int $die
+     */
     public static function query($query, $label = "", $die = 0){
 
         echo "<div class='debugg'>";
@@ -65,13 +76,22 @@ class DEBUGG
             die();
     }
 
-
+    /**
+     * @param $object
+     * @param $label
+     * @param int $die
+     */
     public static function info($object, $label, $die = 0){
 
         return self::log($object, $label, $die);
 
     }
 
+    /**
+     * @param $object
+     * @param $label
+     * @param int $die
+     */
     public static function error($object, $label, $die = 0){
 
         if($label)
@@ -87,6 +107,11 @@ class DEBUGG
 
     }
 
+    /**
+     * @param $object
+     * @param string $label
+     * @param int $die
+     */
     public static function object($object, $label = "", $die = 0){
 
         if($label)
