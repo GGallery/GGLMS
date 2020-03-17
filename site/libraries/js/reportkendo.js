@@ -88,6 +88,8 @@ _reportkendo = (function ($, my) {
                 title: 'Attestati',
                 width: 150,
                 visibility: 0,
+                hidden:true,// nascosto per medicasa non hanno gli attestati
+
                 template: function (dataItem) {
 
                     // console.log(dataItem);
@@ -96,7 +98,7 @@ _reportkendo = (function ($, my) {
                     var href = window.location.hostname + "/home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=" + id_corso + "&user_id=" + id_utente;
                     return "<a href='" + href + "' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>";
 
-                },
+                }
 
             }
 
@@ -291,6 +293,29 @@ _reportkendo = (function ($, my) {
                     // style delle colonne dinamiche, non posso darlo direttamente alla colonnna come attributo
                     // perchè le colonne dinamiche non so se sono di "stato" o altri campi testo
                     $('td:has(span.glyphicon-ok)').addClass('cell-with-icon');
+
+
+                    if(current_report_type === 0)
+                    {
+                        // bottone scarica attestato  visibile solo se corso è completato
+                        widgets.grid = $("#grid").data('kendoGrid');
+                        var gridData = widgets.grid.dataSource.view();
+
+                        for (var i = 0; i < gridData.length; i++) {
+                            var currentUid = gridData[i].uid;
+
+                            var currenRow = widgets.grid.table.find("tr[data-uid='" + currentUid + "']");
+                            var attestati_btn = $(currenRow).find(".k-grid-attestato");
+
+                            //hide attestati based on stato
+                            if (parseInt(gridData[i].stato) !== 1) {
+                                attestati_btn.hide();
+                            }
+
+
+                        }
+                    }
+
                 },
                 excelExport: function (e) {
 
