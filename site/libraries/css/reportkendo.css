@@ -24,19 +24,31 @@ h6, h5 {
 }
 
 
+.scaduto{
+    color: indianred;
+}
 
 .glyphicon-ok {
     color: #79dc79 !important;
 }
 
 
+.cell-with-icon{
+    text-align: center !important;
+    font-size: 18px !important;
+}
 
-/*td:has(span.glyphicon-ok) {*/
-    /*font-size: 20px !important;*/
-    /*background-color: purple !important;*/
-    /*font-weight: bold !important;*/
-/*}*/
+.cell-with-icon-small{
+    text-align: center !important;
+}
 
+.k-tooltip {
+    background: #325482 !important;
+    width: 200px;
+    height: 35px;
+    font-size: smaller;
+    color: white !important;
+}
 .cell-with-icon{
     text-align: center !important;
     font-size: 18px !important;
