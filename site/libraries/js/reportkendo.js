@@ -233,6 +233,26 @@ _reportkendo = (function ($, my) {
             populateFilter('#tipo_report', 'dropdownlist', filterdata.tipo);
             widgets.filters.tipo_report.select(0);
 
+            setFilter('#tipo_report', 'dropdownlist', 'change', function (e) {
+                var value = this.value();
+                console.log(value);
+
+                if (parseInt(value) > 0) {
+
+                    // nascondo il filtro sullo stato
+                    $('#filterstatodiv').hide();
+                    $('#calendar_startdate_div').hide();
+                    $('#calendar_finishdate_div').hide();
+                    widgets.filters.filter_stato.select(0);
+
+
+                } else {
+                    $('#filterstatodiv').show();
+
+                }
+
+            });
+
             populateFilter('#usergroups', 'dropdownlist', filterdata.usergroups);
             widgets.filters.usergroups.select(0);
             // widgets.filters.usergroups.select(6);
