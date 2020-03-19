@@ -42,6 +42,10 @@ h6, h5 {
     font-size: 18px !important;
 }
 
+.cell-with-icon-small{
+    text-align: center !important;
+}
+
 .k-tooltip {
     background: #325482 !important;
     width: 200px;

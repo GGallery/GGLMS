@@ -27,10 +27,10 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
             </div>
 
             <hr>
-<!--            <h5 style="text-align: center">Filtri</h5>-->
+            <!--            <h5 style="text-align: center">Filtri</h5>-->
 
             <div class="form-group">
-                <label for="usergroups">Azienda:</label><br>
+                <label for="usergroups">Centrale operativa:</label><br>
                 <select id="usergroups" name="usergroups" class="refresh">
 
                 </select>
@@ -64,10 +64,10 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
             <!--            <input type="hidden" id="option" name="option" value="com_gglms">-->
             <!--            <input type="hidden" id="task" name="task" value="api.get_csv">-->
             <!---->
-                        <div class="form-group">
-                            <button type="button" id="update" class="width100 btn" onclick="loadData()">AGGIORNA DATI</button>
-<!--                            <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>-->
-                        </div>
+            <div class="form-group">
+                <button type="button" id="update" class="width100 btn" onclick="loadData()">AGGIORNA DATI</button>
+                <!--                            <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>-->
+            </div>
             <!--
                         <div class="form-group">
                             <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>

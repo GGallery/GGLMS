@@ -163,6 +163,7 @@ class gglmsControllerApi extends JControllerLegacy
 
                     }
 
+                    $columns = array_merge($columns, ['score']);
                     break;
 
 
@@ -206,15 +207,15 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
+            $special_fields = ['data_fine_fad'];
             $fields = explode(',', $this->_params->get('campicustom_report'));
-            $columns = array_merge($columns, $fields);
+            $columns = array_merge($columns, $special_fields, $fields);
 
             $rows = $this->buildPivot($rows, $columns, "");
 
-
         } catch (Exception $e) {
 
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA1', 1, 1);
             //DEBUGG::error($e, 'error', 1);
         }
 
@@ -346,7 +347,7 @@ class gglmsControllerApi extends JControllerLegacy
             return [$rows, $count, $query, $countquery];
         } catch (Exception $e) {
 
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA2', 1, 1);
             //DEBUGG::error($e, 'error', 1);
         }
     }
@@ -365,7 +366,7 @@ class gglmsControllerApi extends JControllerLegacy
 
         } catch (Exception $e) {
 
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA3', 1, 1);
             //DEBUGG::error($e, 'error', 1);
         }
     }
@@ -454,10 +455,69 @@ class gglmsControllerApi extends JControllerLegacy
                 }
             }
 
+            $row['data_fine_fad'] = $this->get_content_status($userFields->user_id, 67);
+            $row['score'] = $this->get_scorm_value($userFields->user_id, 72, "cmi.core.score.raw");
+
             array_push($table, $row);
 
         }
         return $table;
+    }
+
+    /**
+     * Metodo per recuperare la data di accesso a un contenuto - per aggiunta campi special
+     * @param $id_utente
+     * @param $id_contenuto
+     * @return string
+     */
+    private function get_content_status($id_utente, $id_contenuto)
+    {
+
+        if (!$id_utente || !$id_contenuto)
+            return '0000-00-00!';
+
+        $query = $this->_db->getQuery(true);
+        $query->select('data')
+            ->from('#__gg_report')
+            ->where('id_utente = ' . $id_utente)
+            ->where('id_contenuto = ' . $id_contenuto)
+            ->where('stato  = 1')
+            ->setLimit(1);
+
+        $this->_db->setQuery($query);
+        $res = $this->_db->loadResult();
+
+        return $res;
+
+    }
+
+    /**
+     * Metodo per recuperare un parametro da scormvars -> customizzazione FAD-MEDICASA per lo SCORE
+     * @param $id_utente
+     * @param $id_contenuto
+     * @param $varName
+     * @return string
+     */
+    private function get_scorm_value($id_utente, $id_contenuto, $varName)
+    {
+
+        if (!$id_utente || !$id_contenuto)
+            return '0000-00-00!';
+
+        $query = $this->_db->getQuery(true);
+        $query->select('varValue')
+            ->from('#__gg_scormvars')
+            ->where('userid = ' . $id_utente)
+            ->where('scoid = ' . $id_contenuto)
+            ->where('varName = "cmi.core.score.raw"')
+            ->setLimit(1);
+
+
+        $this->_db->setQuery($query);
+        $res = $this->_db->loadResult();
+
+        return $res;
+
     }
 
     /**
@@ -480,6 +540,9 @@ class gglmsControllerApi extends JControllerLegacy
 
                 case 0: //PER CORSO
                     $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+
+                    $columns = array_merge($columns, ['score']);
+
                     break;
 
                 case 1: //PER UNITA'
@@ -495,13 +558,14 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
+            $special_fields = ['data_fine_fad'];
             $fields = explode(',', $this->_params->get('campicustom_report'));
-            $columns = array_merge($columns, $fields);
+            $columns = array_merge($columns, $special_fields, $fields);
 
 
         } catch (Exception $e) {
 
-            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA', 1, 1);
+            DEBUGG::log('ERRORE DA GETDATA:' . json_encode($e->getMessage()), 'ERRORE DA GET DATA5', 1, 1);
             //DEBUGG::error($e, 'error', 1);
         }
 

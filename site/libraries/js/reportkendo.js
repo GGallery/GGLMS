@@ -1,5 +1,16 @@
 _reportkendo = (function ($, my) {
 
+        var order = [
+            '["fields"]',
+            '["nome"]',
+            '["data_inizio"]',
+            '["data_fine_fad"]',
+            '["data_fine"]',
+            '["stato"]',
+            '["score"]'
+
+        ];
+
 
         // colonne base che ci sono sempre nella prima visualizzazione iniziale(tipo report =  corso)
         var _base_columns = [
@@ -17,65 +28,77 @@ _reportkendo = (function ($, my) {
                 hidden: true, // nascosto per medicasa, sempre vuoto
                 visibility: -1
             },
-            {
-                field: 'nome',
-                title: 'Nome',
-                width: 200,
-                visibility: -1
-
-            },
-            {
-                field: 'fields',
-                title: 'Dettagli Utente',
-                visibility: -1,
-                width: 200,
-                template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
-                attributes: {
-                    style: "text-align: center"
-                }
-            },
-            {
-                field: 'stato',
-                title: 'Stato',
-                width: 150,
-                filterable: {
-                    cell: {
-                        showOperators: false,
-                        template: function (cell) {
-                            cell.element.kendoDropDownList({
-                                dataSource: [{value: "1", text: "Completato"}, {
-                                    value: "0",
-                                    text: "Non completato"
-                                }, {value: "-1", text: "Liberi"}],
-                                dataTextField: "text",
-                                dataValueField: "value",
-                                valuePrimitive: true,
-                                optionLabel: 'Tutti'
-
-                            });
-                        }
-                    }
-                },
-                template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
-                attributes: {
-                    style: "text-align: center; font-size: 18px"
-                },
-                visibility: 0
-
-
-            },
-            {
-                field: 'data_inizio',
-                title: 'Data Inizio',
-                width: 200,
-                visibility: 0
-            },
-            {
-                field: 'data_fine',
-                title: 'Data Fine',
-                width: 200,
-                visibility: 0
-            },
+            // {
+            //     field: 'nome',
+            //     title: 'Nome',
+            //     width: 200,
+            //     visibility: -1
+            //
+            // },
+            // {
+            //     field: 'fields',
+            //     title: 'Dettagli Utente',
+            //     visibility: -1,
+            //     width: 200,
+            //     template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
+            //     attributes: {
+            //         style: "text-align: center"
+            //     }
+            // },
+            // {
+            //     field: 'stato',
+            //     title: 'Test Superato',
+            //     width: 150,
+            //     filterable: {
+            //         cell: {
+            //             showOperators: false,
+            //             template: function (cell) {
+            //                 cell.element.kendoDropDownList({
+            //                     dataSource: [{value: "1", text: "Completato"}, {
+            //                         value: "0",
+            //                         text: "Non completato"
+            //                     }, {value: "-1", text: "Liberi"}],
+            //                     dataTextField: "text",
+            //                     dataValueField: "value",
+            //                     valuePrimitive: true,
+            //                     optionLabel: 'Tutti'
+            //
+            //                 });
+            //             }
+            //         }
+            //     },
+            //     template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
+            //     attributes: {
+            //         style: "text-align: center; font-size: 18px"
+            //     },
+            //     visibility: 0
+            //
+            //
+            // },
+            // {
+            //     field: 'data_inizio',
+            //     title: 'Data Inizio Corso',
+            //     width: 200,
+            //     visibility: 0
+            // },
+            // {
+            //     field: 'data_fine',
+            //     title: 'Data Test',
+            //     width: 200,
+            //     visibility: 0
+            // },
+            // {
+            //     field: 'data_fine_fad',
+            //     title: 'Data fine Fad',
+            //     width: 200,
+            //     visibility: 0
+            // },
+            // {
+            //     field: 'score',
+            //     title: 'Punteggio test',
+            //     width: 200,
+            //     visibility: 0
+            // },
             {
                 field: 'scadenza',
                 title: 'In scadenza',
@@ -88,7 +111,7 @@ _reportkendo = (function ($, my) {
                 title: 'Attestati',
                 width: 150,
                 visibility: 0,
-                hidden:true,// nascosto per medicasa non hanno gli attestati
+                hidden: true,// nascosto per medicasa non hanno gli attestati
 
                 template: function (dataItem) {
 
@@ -105,6 +128,29 @@ _reportkendo = (function ($, my) {
 
         ];
         var user_details_fields = {};
+        var name_mapping = {
+
+            data_inizio: 'Data Inizio Corso',
+            data_fine_fad: 'Data fine Fad',
+            data_fine: 'Data Test',
+            stato: "Test Superato",
+            fields: 'Dettagli Utente',
+            nome: "Nome",
+
+
+            score: 'Punteggio Test',
+            cb_figuraprofessionale: "Figura Professionale",
+            cb_centralioperative: "Centrali Operative",
+            cb_cellulare: "Cellulare",
+            cb_email: "Email",
+            username: "Username",
+            user_id: "Id utente",
+            registerDate: "Data registrazione",
+            lastvisitDate: "Data ultima visita",
+            firstname: "Nome",
+            lastname: "Cognome"
+
+        };
 
         //////////////
 
@@ -133,8 +179,9 @@ _reportkendo = (function ($, my) {
             stato: [
                 {value: 0, text: 'Qualsiasi stato'},
                 {value: 1, text: 'Solo Completati'},
-                {value: 2, text: 'Solo NON Completati'},
-                {value: 3, text: 'In scadenza'}]
+                {value: 2, text: 'Solo NON Completati'}
+
+            ]
         };
 
         // 0:per corso 1:per unita 2:per contenuto
@@ -233,9 +280,34 @@ _reportkendo = (function ($, my) {
             populateFilter('#tipo_report', 'dropdownlist', filterdata.tipo);
             widgets.filters.tipo_report.select(0);
 
+            setFilter('#tipo_report', 'dropdownlist', 'change', function (e) {
+                var value = this.value();
+                console.log(value);
+
+                if (parseInt(value) > 0) {
+
+                    // nascondo il filtro sullo stato
+                    $('#filterstatodiv').hide();
+                    $('#calendar_startdate_div').hide();
+                    $('#calendar_finishdate_div').hide();
+                    widgets.filters.filter_stato.select(0);
+
+
+                } else {
+                    $('#filterstatodiv').show();
+
+                }
+
+            });
+
             populateFilter('#usergroups', 'dropdownlist', filterdata.usergroups);
-            widgets.filters.usergroups.select(0);
-            // widgets.filters.usergroups.select(6);
+
+
+            var selectAllIndex = filterdata.usergroups.findIndex(function (value) {
+                return value.title.toLowerCase().includes("tutte");
+            });
+            widgets.filters.usergroups.select(selectAllIndex);
+
 
             populateFilter('#filterstato', 'dropdownlist', filterdata.stato);
             widgets.filters.filter_stato.select(0);
@@ -257,6 +329,7 @@ _reportkendo = (function ($, my) {
 
 
             });
+
 
             _loadData();
 
@@ -280,7 +353,7 @@ _reportkendo = (function ($, my) {
                     fileName: "Report Utenti.xlsx"
 
                 },
-
+                // reorderable:true,
                 height: '90%',
                 scrollable: true,
                 sortable: true,
@@ -293,10 +366,11 @@ _reportkendo = (function ($, my) {
                     // style delle colonne dinamiche, non posso darlo direttamente alla colonnna come attributo
                     // perchè le colonne dinamiche non so se sono di "stato" o altri campi testo
                     $('td:has(span.glyphicon-ok)').addClass('cell-with-icon');
+                    $('td:has(span.glyphicon-log-in)').addClass('cell-with-icon');
+                    $('td:has(span.glyphicon-user)').addClass('cell-with-icon-small');
 
 
-                    if(current_report_type === 0)
-                    {
+                    if (current_report_type === 0) {
                         // bottone scarica attestato  visibile solo se corso è completato
                         widgets.grid = $("#grid").data('kendoGrid');
                         var gridData = widgets.grid.dataSource.view();
@@ -343,12 +417,12 @@ _reportkendo = (function ($, my) {
 
                     // indidce colonna fields
                     var col_fields_index = visibile_columns.findIndex(function (value) {
-                        return value.field === 'fields'
+                        return value.field === '["fields"]'
                     });
 
                     // indidce colonna stato
                     var col_stato_index = visibile_columns.findIndex(function (value) {
-                        return value.field === 'stato'
+                        return value.field === '["stato"]'
                     });
 
                     // ricavo le colonne di fields che vanno esportate (in questo caso tutte ma mi lascio la porta aperta in caso di modifiche)
@@ -396,10 +470,6 @@ _reportkendo = (function ($, my) {
 
             widgets.grid = $("#grid").data('kendoGrid');
             $('#cover-spin').hide(0);
-
-            // $(".k-grid-excel")[0].onmousedown = function (e){
-            //     $('#cover-spin').show(0);
-            // }
 
 
             // add tooltip to long column
@@ -531,7 +601,7 @@ _reportkendo = (function ($, my) {
                 pageSize: 15,
                 schema: {
                     data: function (response) {
-                        console.log(response, current_report_type);
+                        // console.log(response, current_report_type);
 
                         return response.rows;
                     },
@@ -609,7 +679,8 @@ _reportkendo = (function ($, my) {
                         $.each(data, function (i, item) {
 
                             var obj = {
-                                titolo: item,
+                                // titolo: item,
+                                titolo: name_mapping[item] ? name_mapping[item] : item,
                                 field: item,
                                 toexport: true
 
@@ -690,7 +761,8 @@ _reportkendo = (function ($, my) {
                             var field = '["' + item + '"]';
                             var col = {
                                 field: field,
-                                title: item,
+                                // title: item,
+                                title: name_mapping[item] ? name_mapping[item] : item,
                                 width: 200,
                                 // hidden: false,
                                 attributes: {style: null}
@@ -699,6 +771,7 @@ _reportkendo = (function ($, my) {
                             // sto guardando il report per unità oppue per contenuto?
                             if (current_report_type > 0) {
                                 // se report per unit o per contenuto aggiorno il template delle colonne dinamiche
+
 
                                 col.template = function (dataItem) {
 
@@ -713,18 +786,73 @@ _reportkendo = (function ($, my) {
                                         return "<span>" + dataItem[item] + "</span>";
                                     }
                                 };
+
+
+                            } else {
+
+                                // se report per corso custom stato e fields
+                                if (item === 'stato') {
+                                    col.template = function (dataItem) {
+                                        if (parseInt(dataItem[item]) === 1) {
+
+                                            return "<span class= 'glyphicon glyphicon-ok'></span>";
+                                        } else {
+                                            return "<span></span>"
+
+                                        }
+                                    };
+
+                                }
+
+
+                            }
+
+                            if (item === 'fields') {
+                                col.template = "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>";
                             }
 
                             tmp_column.push(col);
+
                         }
 
                     }
                 }
             );
 
-            return tmp_column;
+            var final_colunns = _orderColumns(tmp_column);
+
+            return final_colunns;
 
 
+        }
+
+        function _orderColumns(tmp_column) {
+            var ordered_colunns = [];
+
+            // ciclo sulle colonne e se le trovo negli ordinamenti le inserisco all'index giusto
+
+            $.each(tmp_column, function (i, item) {
+
+                if (item.hidden !== true) {
+                    var index = order.findIndex(function (value) {
+                        return item.field === value
+                    });
+                    if (index > -1) {
+
+                        ordered_colunns[index] = item;
+                    } else {
+                        // se non le trovo sono colonne dinamiche --> le inserisco in fondo
+                        ordered_colunns.push(item)
+                    }
+                }
+
+
+            });
+
+            // elimino i buchi
+            return ordered_colunns.filter(function (el) {
+                return el != null;
+            });
         }
 
         function _formatDate(date) {
@@ -765,7 +893,7 @@ _reportkendo = (function ($, my) {
         }
 
 
-        // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
+// fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {
             kendo.ui.Grid.prototype._positionColumnResizeHandle = function () {
                 var that = this,

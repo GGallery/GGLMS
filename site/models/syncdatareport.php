@@ -181,7 +181,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
             $query->setLimit($offset, $limit);
 
-            DEBUGG::query($query, 'getScormVarsvariatin', 0);
+//            DEBUGG::query($query, 'getScormVarsvariatin', 0);
 
 
             $this->_db->setQuery($query);
