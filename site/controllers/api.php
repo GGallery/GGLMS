@@ -539,7 +539,7 @@ class gglmsControllerApi extends JControllerLegacy
             switch ($tipo_report) {
 
                 case 0: //PER CORSO
-                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio','data_fine_fad', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
 
                     $columns = array_merge($columns, ['score']);
 
@@ -558,9 +558,9 @@ class gglmsControllerApi extends JControllerLegacy
 
             }
 
-            $special_fields = ['data_fine_fad'];
+//            $special_fields = ['data_fine_fad'];
             $fields = explode(',', $this->_params->get('campicustom_report'));
-            $columns = array_merge($columns, $special_fields, $fields);
+            $columns = array_merge($columns, $fields);
 
 
         } catch (Exception $e) {
