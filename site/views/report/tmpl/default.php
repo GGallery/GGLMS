@@ -250,7 +250,7 @@ defined('_JEXEC') or die;
     //CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI
     var testo_base_mail = '<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
     var loadreportoffset = 0;
-    var loadreportlimit = 3;
+    var loadreportlimit = 15;
 
     var actualminpage = 1;
     var columnfilter = ['id_anagrafica', 'scadenza', 'fields'];//CAMPI DA NON MOSTRARE IN TABELLA

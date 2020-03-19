@@ -234,9 +234,9 @@ class gglmsControllerApi extends JControllerLegacy
         return $result;
     }
 
-
-    // metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
-    // serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo
+/*
+     metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
+    serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo*/
     public function get_report_columns()
     {
 

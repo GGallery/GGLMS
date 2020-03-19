@@ -157,9 +157,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
             if ($send_mail == 1) {
 
-                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa, $id_gruppo_societa, $data['email_coupon']) === false) {
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-                }
 
                 // send new credentials
                 if ($new_societa) {
@@ -168,6 +165,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
+                }
+
+                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa, $id_gruppo_societa, $data['email_coupon']) === false) {
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                 }
 
 
@@ -383,7 +384,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     private function _generate_id_iscrizione($id_piattaforma)
     {
-        return $id_piattaforma . '_' . uniqid(time());
+       $created_by=  $this->_userid === null ? '0' :  $this->_userid;
+        return $id_piattaforma . '_' . uniqid(time()) . '_' . $created_by  ;
     }
 
 //////////////////////////////  MAIL   /////////////////////

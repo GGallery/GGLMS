@@ -59,6 +59,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     }
 
 
+    /*api genera coupon per sviluppatori e comerce*/
     public function api_genera_coupon()
     {
         try {
@@ -79,7 +80,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
-    // usato in form genera coupon frontend
+    /* usato in form genera coupon frontend*/
     public function check_username()
     {
 
@@ -110,7 +111,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
-    // usato in form genera coupon frontend
+    /* usato in form genera coupon frontend*/
     public function load_matching_venditori_list()
     {
 
@@ -140,7 +141,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     }
 
 
-    public function get_corsi_by_piattaforma()
+    /* corsi per piattaforma per sviluppatori e comerce*/
+    public function api_get_corsi()
     {
 
         $japp = JFactory::getApplication();
@@ -187,7 +189,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     {
 
         try {
-           $japp = JFactory::getApplication();
+            $japp = JFactory::getApplication();
 //            $txt_azienda = JRequest::getVar('txt_azienda');
 
             $user_id = $this->_user->id;
@@ -226,5 +228,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
 
     }
+
+
 
 }
