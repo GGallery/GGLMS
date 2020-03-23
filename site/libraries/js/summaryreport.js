@@ -332,18 +332,16 @@ _summaryreport = (function ($, my) {
                         }
 
                         // scaduti e non completati in rosso
-                        if (gridData[i].scaduto && parseInt(gridData[i].scaduto) === 1  && parseInt(gridData[i].stato) !== 1) {
+                        if (gridData[i].scaduto && parseInt(gridData[i].scaduto) === 1 && parseInt(gridData[i].stato) !== 1) {
                             currenRow.addClass("scaduto");
                         }
 
                     }
 
-
+                    // se è tutor aziendale esport con i dettagli --> faccio la richiesta dei dettagli mano a mano che mi arrivano
                     if (logged_tutor_az) {
-                        console.log('expandall');
 
                         $(".k-master-row").each(function (index) {
-                            console.log('expandall');
                             widgets.grid.expandRow(this);
                             widgets.grid.collapseRow(this);
                         });
@@ -355,152 +353,36 @@ _summaryreport = (function ($, my) {
                 excelExport: function (e) {
 
 
-                    e.preventDefault();
-
-                    var workbook = e.workbook;
-                    detailExportPromises = [];
-
                     var sheet = e.workbook.sheets[0];
                     var grid = e.sender;
                     var columns = grid.columns;
-
-                    var masterData = e.data;
-
-                    for (var rowIndex = 0; rowIndex < masterData.length; rowIndex++) {
-                        exportChildData(rowIndex, masterData[rowIndex].coupon);
-                    }
-
 
                     var col_stato_index = columns.filter(function (value) {
                         return value.hidden !== true
                     }).findIndex(function (value) {
                         return value.field === "stato"
-                    }) + 1; // +1 to compensate empty column for detail export
+                    });
 
 
-                    $.when.apply(null, detailExportPromises)
-                        .then(function () {
+                    if (logged_tutor_az) {
+
+                        // EXPORT WITH DETAILS ---> tutor aziendale
+
+                        e.preventDefault();
+                        _exportWithDetails(e, col_stato_index);
+
+                    } else {
+
+                        // EXPORT STANDARD ---> tutor piattaforma
+
+                        for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+                            var row = sheet.rows[rowIndex];
+                            _formatStatoForExport(row.cells[col_stato_index]);
+
+                        }
+                    }
 
 
-                            // Get the export results.
-                            var detailExports = $.makeArray(arguments);
-
-                            // Sort by masterRowIndex.
-                            detailExports.sort(function (a, b) {
-                                return a.masterRowIndex - b.masterRowIndex;
-                            });
-
-                            // Add an empty column.
-                            workbook.sheets[0].columns.unshift({
-                                width: 30
-                            });
-
-
-                            // Prepend an empty cell to each row.
-                            for (var i = 0; i < workbook.sheets[0].rows.length; i++) {
-                                workbook.sheets[0].rows[i].cells.unshift({});
-                            }
-
-                            // PERMANENZA
-                            var col_permanenza_index = 3;
-
-                            // Merge the detail export sheet rows with the master sheet rows.
-                            // Loop backwards so the masterRowIndex does not need to be updated.
-                            for (var i = detailExports.length - 1; i >= 0; i--) {
-                                var masterRowIndex = detailExports[i].masterRowIndex + 1; // compensate for the header row
-
-                                var sheet = detailExports[i].sheet;
-
-
-                                // Prepend an empty cell to each row.
-                                for (var ci = 0; ci < sheet.rows.length; ci++) {
-                                    if (sheet.rows[ci].cells[0].value) {
-                                        sheet.rows[ci].cells.unshift({});
-
-                                       if( sheet.rows[ci].type === 'data'){
-                                           // format permanenza
-                                           sheet.rows[ci].cells[col_permanenza_index].value= _secondsTohhmmss( sheet.rows[ci].cells[col_permanenza_index].value);
-                                       }
-                                    }
-                                }
-
-
-
-                                // se ha dettagli li appendo altrimenti salto
-                                if (sheet.rows.length > 1) {
-                                    // Insert the detail sheet rows after the master row.
-                                    [].splice.apply(workbook.sheets[0].rows, [masterRowIndex + 1, 0].concat(sheet.rows));
-                                }
-
-
-                                // format master row
-                                var current_master_row = workbook.sheets[0].rows[masterRowIndex];
-                                console.log('current_master_row', current_master_row);
-
-                                switch (current_master_row.cells[col_stato_index].value) {
-                                    case -1:
-                                    case null:
-                                        var newValue = "Libero";
-                                        break;
-                                    case 1:
-                                        var newValue = "Completato";
-                                        break;
-                                    case 0:
-                                        var newValue = "Non Completato";
-                                        break;
-                                }
-
-                                current_master_row.cells[col_stato_index].value = newValue;
-                                 //format master row
-                                $.each(current_master_row.cells, function (i, item) {
-                                    item.bold= true;
-                                    item.color= "#ffffff";
-                                    item.background= "#4397db";
-
-                                })
-
-                            }
-
-                            // Save the workbook.
-                            kendo.saveAs({
-                                dataURI: new kendo.ooxml.Workbook(workbook).toDataURL(),
-                                fileName: "Export.xlsx"
-                            });
-
-                        });
-
-
-                    // // indidce colonna stato
-                    // var col_stato_index = columns.filter(function (value) {
-                    //     return value.hidden !== true
-                    // }).findIndex(function (value) {
-                    //     return value.field === "stato"
-                    // });
-                    //
-                    //
-                    // // https://docs.telerik.com/kendo-ui/knowledge-base/date-format-excel-export-grid
-                    // for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
-                    //     var row = sheet.rows[rowIndex];
-                    //     var newValue = null;
-                    //
-                    //
-                    //
-                    //     console.log(col_stato_index);
-                    //     switch (row.cells[col_stato_index].value) {
-                    //         case -1:
-                    //         case null:
-                    //             newValue = "Libero";
-                    //             break;
-                    //         case 1:
-                    //             newValue = "Completato";
-                    //             break;
-                    //         case 0:
-                    //             newValue = "Non Completato";
-                    //             break;
-                    //     }
-                    //
-                    //     row.cells[col_stato_index].value = newValue;
-                    // }
                 }
 
             });
@@ -511,6 +393,106 @@ _summaryreport = (function ($, my) {
 
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
+
+        }
+
+        function _exportWithDetails(e, col_stato_index) {
+
+            var workbook = e.workbook;
+            detailExportPromises = [];
+
+            var masterData = e.data;
+
+            for (var rowIndex = 0; rowIndex < masterData.length; rowIndex++) {
+                exportChildData(rowIndex, masterData[rowIndex].coupon);
+            }
+            var col_stato_index = col_stato_index + 1; // +1 to compensate empty column for detail export
+
+
+            $.when.apply(null, detailExportPromises)
+                .then(function () {
+
+
+                    // Get the export results.
+                    var detailExports = $.makeArray(arguments);
+
+                    // Sort by masterRowIndex.
+                    detailExports.sort(function (a, b) {
+                        return a.masterRowIndex - b.masterRowIndex;
+                    });
+
+                    // Add an empty column.
+                    workbook.sheets[0].columns.unshift({
+                        width: 30
+                    });
+
+
+                    // Prepend an empty cell to each row.
+                    for (var i = 0; i < workbook.sheets[0].rows.length; i++) {
+                        workbook.sheets[0].rows[i].cells.unshift({});
+                    }
+
+                    // PERMANENZA
+                    var col_permanenza_index = 3;
+
+                    // Merge the detail export sheet rows with the master sheet rows.
+                    // Loop backwards so the masterRowIndex does not need to be updated.
+                    for (var i = detailExports.length - 1; i >= 0; i--) {
+                        var masterRowIndex = detailExports[i].masterRowIndex + 1; // compensate for the header row
+
+                        var sheet = detailExports[i].sheet;
+
+
+                        // Prepend an empty cell to each row.
+                        for (var ci = 0; ci < sheet.rows.length; ci++) {
+                            if (sheet.rows[ci].cells[0].value) {
+                                sheet.rows[ci].cells.unshift({});
+
+                                if (sheet.rows[ci].type === 'data') {
+                                    // format permanenza
+                                    sheet.rows[ci].cells[col_permanenza_index].value = _secondsTohhmmss(sheet.rows[ci].cells[col_permanenza_index].value);
+
+                                    $.each(sheet.rows[ci].cells, function (i, item) {
+                                        if (i > 0) {
+
+                                            item.background = "#daeef3";
+                                        }
+                                    });
+
+                                }
+                            }
+                        }
+
+
+                        // se ha dettagli li appendo altrimenti salto
+                        if (sheet.rows.length > 1) {
+                            // Insert the detail sheet rows after the master row.
+                            [].splice.apply(workbook.sheets[0].rows, [masterRowIndex + 1, 0].concat(sheet.rows));
+                        }
+
+
+                        // format master row
+                        var current_master_row = workbook.sheets[0].rows[masterRowIndex];
+
+                        _formatStatoForExport(current_master_row.cells[col_stato_index]);
+
+                        //format master row
+                        $.each(current_master_row.cells, function (i, item) {
+                            item.bold = true;
+                            item.color = "#ffffff";
+                            item.background = "#4397db";
+
+                        })
+
+                    }
+
+                    // Save the workbook.
+                    kendo.saveAs({
+                        dataURI: new kendo.ooxml.Workbook(workbook).toDataURL(),
+                        fileName: "Export.xlsx"
+                    });
+
+                });
 
         }
 
@@ -525,16 +507,16 @@ _summaryreport = (function ($, my) {
             var exporter = new kendo.ExcelExporter({
                 columns: [{
                     field: "titolo_contenuto",
-                    title:'Contenuto'
+                    title: 'Contenuto'
                 }, {
                     field: "last_visit",
-                    title:'Ultima visita'
+                    title: 'Ultima visita'
                 }, {
                     field: "permanenza",
-                    title:'Permanenza'
+                    title: 'Permanenza'
                 }, {
                     field: "visualizzazioni",
-                    title:'Visualizzazioni'
+                    title: 'Visualizzazioni'
                 }],
                 dataSource: list[coupon]
             });
@@ -545,6 +527,24 @@ _summaryreport = (function ($, my) {
                     sheet: book.sheets[0]
                 });
             });
+        }
+
+        function _formatStatoForExport(cell) {
+
+            switch (cell.value) {
+                case -1:
+                case null:
+                    var newValue = "Libero";
+                    break;
+                case 1:
+                    var newValue = "Completato";
+                    break;
+                case 0:
+                    var newValue = "Non Completato";
+                    break;
+            }
+
+            cell.value = newValue;
         }
 
         //////////////// popup dettagli utente //////////////////////////
@@ -770,7 +770,7 @@ _summaryreport = (function ($, my) {
                                 field: "permanenza",
                                 title: "Permanenza",
                                 width: 80,
-                                 template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
+                                template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
                             },
                             {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
                         ],
