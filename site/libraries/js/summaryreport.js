@@ -2,13 +2,17 @@ _summaryreport = (function ($, my) {
 
 
         // todo
-        // 1) dettagli utente
+        // 1) dettagli utente --> ok
         //-------------------------------------------
-        // 2) export excell formatao stato
+        // 2) export excell formatao stato --> ok
         // -----------------------------
-        // 5)coupon scaduti (calcolo ed evidenza)
+        // 5)coupon scaduti (calcolo ed evidenza) --> ok
+        //----------------------------------------
+        //?) export details se sei un tutor aziendale
         // 3) cancella coupon (tutor piattaforma, coupon liberi)
+        //------------------------------------------
         // 4)invia coupon per mail (tutor az, tutor p)
+        //--------------------------------------------
         // 6)disiscrivi utente (solo super admin)
 
         var columns = [
@@ -16,6 +20,7 @@ _summaryreport = (function ($, my) {
                 field: 'coupon',
                 title: 'Coupon',
                 width: 310,
+                hidden: false,
                 filterable: {
                     cell: {
                         showOperators: false
@@ -28,7 +33,7 @@ _summaryreport = (function ($, my) {
                 field: 'user_',
                 title: 'Utente',
                 width: 200,
-                // template: '<span>#= user_ # <button type="button" class="k-button user-details" ><span class="glyphicon glyphicon-user"></span></button></span>',
+                hidden: false,
                 filterable: {
                     cell: {
                         showOperators: false
@@ -41,7 +46,7 @@ _summaryreport = (function ($, my) {
                 title: 'Dettagli utente',
                 width: 100,
                 filterable: false,
-                // template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=summaryreport.get_user_detail&user_id=#=id_user#' class='k-button k-grid-button  k-grid-user'><span class='glyphicon glyphicon-user'></span></a>",
+                hidden: false,
                 template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
                 attributes: {
                     style: "text-align: center"
@@ -52,6 +57,7 @@ _summaryreport = (function ($, my) {
             {
                 field: 'titolo_corso',
                 title: 'Corso',
+                hidden: false,
                 width: 200,
                 filterable: {
                     cell: {
@@ -63,6 +69,7 @@ _summaryreport = (function ($, my) {
             {
                 field: 'data_creazione',
                 title: 'Data Creazione',
+                hidden: false,
                 format: "{0: dd-MM-yyyy HH:mm}",
                 width: 150,
                 filterable: {
@@ -80,6 +87,7 @@ _summaryreport = (function ($, my) {
                 field: 'data_utilizzo',
                 title: 'Data Utilizzo',
                 width: 150,
+                hidden: false,
                 format: "{0: dd-MM-yyyy HH:mm}",
                 filterable: {
                     operators: {
@@ -120,6 +128,7 @@ _summaryreport = (function ($, my) {
                 field: 'stato',
                 title: 'Stato',
                 width: 150,
+                hidden: false,
                 filterable: {
                     cell: {
                         showOperators: false,
@@ -150,6 +159,7 @@ _summaryreport = (function ($, my) {
                 field: 'data_inizio',
                 title: 'Data Inizio',
                 width: 150,
+                hidden: false,
                 format: "{0: dd-MM-yyyy }",
                 filterable: {
                     operators: {
@@ -166,6 +176,7 @@ _summaryreport = (function ($, my) {
             {
                 field: 'data_fine',
                 title: 'Data Fine',
+                hidden: false,
                 width: 150,
                 format: "{0: dd-MM-yyyy}",
                 filterable: {
@@ -184,6 +195,7 @@ _summaryreport = (function ($, my) {
             {
                 field: 'id_corso',
                 title: 'Attestati',
+                hidden: false,
                 width: 100,
                 filterable: false,
                 template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
@@ -254,10 +266,13 @@ _summaryreport = (function ($, my) {
                 grid: null
             }
         };
+        var logged_tutor_az = false;
+        var detailExportPromises;
+        var list = {};
 
 
         function _init() {
-
+            _isLoggedUser_tutorAz();
             _kendofix();
             console.log('summary report ready');
             kendo.culture("it-IT");
@@ -266,7 +281,7 @@ _summaryreport = (function ($, my) {
             _createGrid();
             // _loadData();
 
-            _isLoggedUser_tutorAz();
+
             _loadData();
         }
 
@@ -290,9 +305,13 @@ _summaryreport = (function ($, my) {
                 columns: columns,
                 dataBound: function (e) {
 
+                    detailExportPromises = [];
+                    // this.expandRow(this.tbody.find("tr.k-master-row").first());
+
                     // bottone scarica attestato  visibile solo se corso è completato
                     widgets.grid = $("#grid").data('kendoGrid');
                     var gridData = widgets.grid.dataSource.view();
+
 
                     for (var i = 0; i < gridData.length; i++) {
                         var currentUid = gridData[i].uid;
@@ -312,48 +331,180 @@ _summaryreport = (function ($, my) {
                             user_btn.hide();
                         }
 
-                       // scaduti e non completati in rosso
-                        if (gridData[i].scaduto && parseInt(gridData[i].stato) !==1) {
+                        // scaduti e non completati in rosso
+                        if (gridData[i].scaduto && parseInt(gridData[i].scaduto) === 1  && parseInt(gridData[i].stato) !== 1) {
                             currenRow.addClass("scaduto");
                         }
 
                     }
+
+
+                    if (logged_tutor_az) {
+                        console.log('expandall');
+
+                        $(".k-master-row").each(function (index) {
+                            console.log('expandall');
+                            widgets.grid.expandRow(this);
+                            widgets.grid.collapseRow(this);
+                        });
+                    }
+
+
                 },
                 detailInit: detailInit,
                 excelExport: function (e) {
+
+
+                    e.preventDefault();
+
+                    var workbook = e.workbook;
+                    detailExportPromises = [];
+
                     var sheet = e.workbook.sheets[0];
                     var grid = e.sender;
-                    var fields = grid.dataSource.options.columns;
-                    var fieldsModels = grid.dataSource.options.schema.model.fields;
                     var columns = grid.columns;
-                    git;
 
-                    // https://docs.telerik.com/kendo-ui/knowledge-base/date-format-excel-export-grid
-                    for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
-                        var row = sheet.rows[rowIndex];
-                        var newValue = null;
+                    var masterData = e.data;
 
-                        // todo per ora lascio row di 7, dovrò calcolare dinamicamente l'indice
-                        var cellIndex = 7;
-
-                        switch (row.cells[cellIndex].value) {
-                            case -1:
-                            case null:
-                                newValue = "Libero";
-                                break;
-                            case 1:
-                                newValue = "Completato";
-                                break;
-                            case 0:
-                                newValue = "Non Completato";
-                                break;
-                        }
-                        console.log(newValue);
-                        row.cells[cellIndex].value = newValue;
+                    for (var rowIndex = 0; rowIndex < masterData.length; rowIndex++) {
+                        exportChildData(rowIndex, masterData[rowIndex].coupon);
                     }
+
+
+                    var col_stato_index = columns.filter(function (value) {
+                        return value.hidden !== true
+                    }).findIndex(function (value) {
+                        return value.field === "stato"
+                    }) + 1; // +1 to compensate empty column for detail export
+
+
+                    $.when.apply(null, detailExportPromises)
+                        .then(function () {
+
+
+                            // Get the export results.
+                            var detailExports = $.makeArray(arguments);
+
+                            // Sort by masterRowIndex.
+                            detailExports.sort(function (a, b) {
+                                return a.masterRowIndex - b.masterRowIndex;
+                            });
+
+                            // Add an empty column.
+                            workbook.sheets[0].columns.unshift({
+                                width: 30
+                            });
+
+
+                            // Prepend an empty cell to each row.
+                            for (var i = 0; i < workbook.sheets[0].rows.length; i++) {
+                                workbook.sheets[0].rows[i].cells.unshift({});
+                            }
+
+                            // PERMANENZA
+                            var col_permanenza_index = 3;
+
+                            // Merge the detail export sheet rows with the master sheet rows.
+                            // Loop backwards so the masterRowIndex does not need to be updated.
+                            for (var i = detailExports.length - 1; i >= 0; i--) {
+                                var masterRowIndex = detailExports[i].masterRowIndex + 1; // compensate for the header row
+
+                                var sheet = detailExports[i].sheet;
+
+
+                                // Prepend an empty cell to each row.
+                                for (var ci = 0; ci < sheet.rows.length; ci++) {
+                                    if (sheet.rows[ci].cells[0].value) {
+                                        sheet.rows[ci].cells.unshift({});
+
+                                       if( sheet.rows[ci].type === 'data'){
+                                           // format permanenza
+                                           sheet.rows[ci].cells[col_permanenza_index].value= _secondsTohhmmss( sheet.rows[ci].cells[col_permanenza_index].value);
+                                       }
+                                    }
+                                }
+
+
+
+                                // se ha dettagli li appendo altrimenti salto
+                                if (sheet.rows.length > 1) {
+                                    // Insert the detail sheet rows after the master row.
+                                    [].splice.apply(workbook.sheets[0].rows, [masterRowIndex + 1, 0].concat(sheet.rows));
+                                }
+
+
+                                // format master row
+                                var current_master_row = workbook.sheets[0].rows[masterRowIndex];
+                                console.log('current_master_row', current_master_row);
+
+                                switch (current_master_row.cells[col_stato_index].value) {
+                                    case -1:
+                                    case null:
+                                        var newValue = "Libero";
+                                        break;
+                                    case 1:
+                                        var newValue = "Completato";
+                                        break;
+                                    case 0:
+                                        var newValue = "Non Completato";
+                                        break;
+                                }
+
+                                current_master_row.cells[col_stato_index].value = newValue;
+                                 //format master row
+                                $.each(current_master_row.cells, function (i, item) {
+                                    item.bold= true;
+                                    item.color= "#ffffff";
+                                    item.background= "#4397db";
+
+                                })
+
+                            }
+
+                            // Save the workbook.
+                            kendo.saveAs({
+                                dataURI: new kendo.ooxml.Workbook(workbook).toDataURL(),
+                                fileName: "Export.xlsx"
+                            });
+
+                        });
+
+
+                    // // indidce colonna stato
+                    // var col_stato_index = columns.filter(function (value) {
+                    //     return value.hidden !== true
+                    // }).findIndex(function (value) {
+                    //     return value.field === "stato"
+                    // });
+                    //
+                    //
+                    // // https://docs.telerik.com/kendo-ui/knowledge-base/date-format-excel-export-grid
+                    // for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+                    //     var row = sheet.rows[rowIndex];
+                    //     var newValue = null;
+                    //
+                    //
+                    //
+                    //     console.log(col_stato_index);
+                    //     switch (row.cells[col_stato_index].value) {
+                    //         case -1:
+                    //         case null:
+                    //             newValue = "Libero";
+                    //             break;
+                    //         case 1:
+                    //             newValue = "Completato";
+                    //             break;
+                    //         case 0:
+                    //             newValue = "Non Completato";
+                    //             break;
+                    //     }
+                    //
+                    //     row.cells[col_stato_index].value = newValue;
+                    // }
                 }
 
             });
+
 
             $('#cover-spin').hide(0);
 
@@ -361,6 +512,39 @@ _summaryreport = (function ($, my) {
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
 
+        }
+
+        function exportChildData(rowIndex, coupon) {
+
+            console.log('rowIndex', rowIndex);
+            var deferred = $.Deferred();
+
+            detailExportPromises.push(deferred);
+
+
+            var exporter = new kendo.ExcelExporter({
+                columns: [{
+                    field: "titolo_contenuto",
+                    title:'Contenuto'
+                }, {
+                    field: "last_visit",
+                    title:'Ultima visita'
+                }, {
+                    field: "permanenza",
+                    title:'Permanenza'
+                }, {
+                    field: "visualizzazioni",
+                    title:'Visualizzazioni'
+                }],
+                dataSource: list[coupon]
+            });
+
+            exporter.workbook().then(function (book, data) {
+                deferred.resolve({
+                    masterRowIndex: rowIndex,
+                    sheet: book.sheets[0]
+                });
+            });
         }
 
         //////////////// popup dettagli utente //////////////////////////
@@ -431,7 +615,6 @@ _summaryreport = (function ($, my) {
 
         }
 
-
         function _poppulateDetailUserGrid(data) {
             var user_data = [];
 
@@ -474,6 +657,7 @@ _summaryreport = (function ($, my) {
 
                     parameterMap: function (data, type) {
                         //prima di eseguire la request al server passa di qua
+
 
                         if (data.filter) {
                             $.each(data.filter.filters, function (i, f) {
@@ -520,6 +704,8 @@ _summaryreport = (function ($, my) {
 
 
                     if (data == "true") {
+                        logged_tutor_az = true;
+                        console.log('is_tutor_az', logged_tutor_az);
                         // utente collegato ? tutor aziendale nascondo le info relative a venditore
                         columns = $.each(columns, function (i, item) {
                             if (item.field === 'venditore') {
@@ -552,6 +738,7 @@ _summaryreport = (function ($, my) {
                 id_gruppo_azienda: data.id_azienda,
                 id_corso: data.id_corso
             };
+            var coupon = data.coupon;
 
             $.when($.get("index.php?option=com_gglms&task=summaryreport.getDetails", params))
                 .done(function (data) {
@@ -563,6 +750,10 @@ _summaryreport = (function ($, my) {
                     var detailsDataSource = new kendo.data.DataSource({
                         data: data
                     });
+
+                    // console.log('insert in list', coupon);
+                    list[coupon] = detailsDataSource;
+
 
                     $("<div/>").appendTo(e.detailCell).kendoGrid({
                         dataSource: detailsDataSource,
@@ -579,10 +770,15 @@ _summaryreport = (function ($, my) {
                                 field: "permanenza",
                                 title: "Permanenza",
                                 width: 80,
-                                template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
+                                 template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
                             },
                             {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
-                        ]
+                        ],
+                        excelExport: function (e) {
+                            // Prevent the saving of the file.
+                            e.preventDefault();
+
+                        }
                     });
 
 

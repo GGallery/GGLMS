@@ -193,11 +193,15 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->where('u.id_user =' . $id_user);
 
 
+
+
         $this->_db->setQuery($query);
         $data = $this->_db->loadAssocList();
 
+//        echo ((string)($query));
+
 //        echo json_encode((string)$query);
-        echo json_encode($data);
+       echo json_encode($data);
         $this->_japp->close();
     }
 
