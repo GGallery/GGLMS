@@ -27,7 +27,8 @@ _summaryreport = (function ($, my) {
                         showOperators: false
 
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
@@ -39,7 +40,8 @@ _summaryreport = (function ($, my) {
                     cell: {
                         showOperators: false
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
@@ -51,7 +53,8 @@ _summaryreport = (function ($, my) {
                 template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
                 attributes: {
                     style: "text-align: center"
-                }
+                },
+                excelExport: false
 
 
             },
@@ -64,7 +67,8 @@ _summaryreport = (function ($, my) {
                     cell: {
                         showOperators: false
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
@@ -81,7 +85,8 @@ _summaryreport = (function ($, my) {
                             // , eq: "Uguale"
                         }
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
@@ -100,19 +105,22 @@ _summaryreport = (function ($, my) {
                             // , eq: "Uguale"
                         }
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
                 field: 'id_piattaforma',
                 title: '',
-                hidden: true
+                hidden: true,
+                excelExport: false
 
             },
             {
                 field: 'id_azienda',
                 title: '',
-                hidden: true
+                hidden: true,
+                excelExport: false
 
             },
             {
@@ -123,7 +131,8 @@ _summaryreport = (function ($, my) {
                     cell: {
                         showOperators: false
                     }
-                }
+                },
+                excelExport: true
             },
             {
                 field: 'stato',
@@ -152,7 +161,8 @@ _summaryreport = (function ($, my) {
                 template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
                 attributes: {
                     style: "text-align: center; font-size: 18px"
-                }
+                },
+                excelExport: true
 
 
             },
@@ -171,7 +181,8 @@ _summaryreport = (function ($, my) {
                             isnotnull: "Non è nulla"
                         }
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
@@ -190,7 +201,8 @@ _summaryreport = (function ($, my) {
 
                         }
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
@@ -202,7 +214,8 @@ _summaryreport = (function ($, my) {
                 template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
                 attributes: {
                     style: "text-align: center"
-                }
+                },
+                excelExport: false
 
 
             },
@@ -216,13 +229,15 @@ _summaryreport = (function ($, my) {
                         showOperators: false
 
                     }
-                }
+                },
+                excelExport: true
 
             },
             {
                 field: 'scaduto',
                 title: 'Scaduto',
-                hidden: true
+                hidden: true,
+                excelExport: false
 
 
             }
@@ -269,21 +284,20 @@ _summaryreport = (function ($, my) {
         };
         var logged_tutor_az = false;
         var detailExportPromises;
-        var list = {};
+        var details_ds = {};
         var export_details = false;
 
 
         function _init() {
+
             _isLoggedUser_tutorAz();
             _kendofix();
+
             console.log('summary report ready');
             kendo.culture("it-IT");
             $('#cover-spin').show(0);
 
             _createGrid();
-            // _loadData();
-
-
             _loadData();
         }
 
@@ -292,9 +306,10 @@ _summaryreport = (function ($, my) {
                 // toolbar: ["excel"],
                 toolbar: [
                     {
-                        template: '<a class="k-button k-button-icontext k-grid-excel " href="\\#" onclick="return excel_with_details()">Current page with details</a>'
+                        template: '<a  class="k-button"  href="\\#" onclick="return excel_with_details()"><span class="k-icon k-i-excel" style="color: green!important;"></span>Pagina corrente con dettagli</a>'
                     }, {
-                        template: '<a class="k-button k-button-icontext k-grid-excel " href="\\#" onclick="return excel_all_pages()">All pages no details</a>'
+
+                        template: '<a class="k-button" href="\\#" onclick="return excel_all_pages()"><span class="k-icon k-i-excel"></span>Tutte le pagine </a>'
                     }
                 ],
                 excel: {
@@ -321,6 +336,8 @@ _summaryreport = (function ($, my) {
                     widgets.grid = $("#grid").data('kendoGrid');
                     var gridData = widgets.grid.dataSource.view();
 
+                    // console.log('griddata',widgets.grid.dataSource.data());
+                    console.log('page', widgets.grid.dataSource.page());
 
                     for (var i = 0; i < gridData.length; i++) {
                         var currentUid = gridData[i].uid;
@@ -353,7 +370,7 @@ _summaryreport = (function ($, my) {
 
                         console.log('expand all rows');
                         $(".k-master-row").each(function (index) {
-                            console.log('expandrow', index);
+                            // console.log('expandrow', index);
                             widgets.grid.expandRow(this);
                             widgets.grid.collapseRow(this);
                         });
@@ -395,6 +412,8 @@ _summaryreport = (function ($, my) {
                     }
 
 
+                    //show hidden column for export again
+                    _toggleColumnsForExport(true);
                 }
 
             });
@@ -405,6 +424,22 @@ _summaryreport = (function ($, my) {
 
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
+
+        }
+
+        /////////////////// export ///////////////////////
+
+        function _toggleColumnsForExport(show) {
+            // nasconde e mostra le colonne che non vanno esportate in excel
+
+
+            columns = $.each(columns, function (i, item) {
+                if (!item.excelExport) {
+                    item.hidden = true;
+                    show ? widgets.grid.showColumn(i) : widgets.grid.hideColumn(i);
+                }
+            });
+
 
         }
 
@@ -419,18 +454,15 @@ _summaryreport = (function ($, my) {
                 }
             });
 
-            // if (logged_tutor_az) {
 
-            console.log('expand all rows');
-            $(".k-master-row").each(function (index) {
-                widgets.grid.expandRow(this);
-                widgets.grid.collapseRow(this);
-            });
-            // }
-            widgets.grid.saveAsExcel();
+            _toggleColumnsForExport(false);
+
+            // do il tempo al databound dove richiedo i dettagli di finire
+            setTimeout(function () {
+                widgets.grid.saveAsExcel();
+            }, 1000);
 
         }
-
 
         function excel_all_pages() {
 
@@ -442,13 +474,36 @@ _summaryreport = (function ($, my) {
                     collapsible: false
                 }
             });
-            widgets.grid.saveAsExcel()
+
+
+            _toggleColumnsForExport(false);
+
+            widgets.grid.saveAsExcel();
+
+
+            // tutte le pagine ignorando i filtri correnti....
+            // var current_filters = widgets.grid.dataSource._filter;
+            // var filter = { };
+            // widgets.grid.dataSource.filter(filter)
+            // _toggleColumnsForExport(false);
+            // widgets.grid.saveAsExcel();
+            // widgets.grid.dataSource.filter(current_filters);
+            //
+
+
         }
 
         function _exportWithDetails(e, col_stato_index) {
 
             var workbook = e.workbook;
             detailExportPromises = [];
+
+
+            // set autowidth per colonna contenuti così è più leggibile
+            var columns = e.workbook.sheets[0].columns;
+            delete columns[0].width;
+            columns[0].autoWidth = true;
+
 
             var masterData = e.data;
 
@@ -567,7 +622,7 @@ _summaryreport = (function ($, my) {
                     field: "visualizzazioni",
                     title: 'Visualizzazioni'
                 }],
-                dataSource: list[coupon]
+                dataSource: details_ds[coupon]
             });
 
             exporter.workbook().then(function (book, data) {
@@ -730,7 +785,7 @@ _summaryreport = (function ($, my) {
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true,
-                pageSize: 50,
+                pageSize: 100,
                 schema: {
                     data: 'data',
                     total: "total",
@@ -759,6 +814,8 @@ _summaryreport = (function ($, my) {
                         columns = $.each(columns, function (i, item) {
                             if (item.field === 'venditore') {
                                 item.hidden = true;
+
+                                widgets.grid.hideColumn(i);
                             }
                         });
 
@@ -801,7 +858,7 @@ _summaryreport = (function ($, my) {
                     });
 
                     // console.log('insert in list', coupon);
-                    list[coupon] = detailsDataSource;
+                    details_ds[coupon] = detailsDataSource;
 
 
                     $("<div/>").appendTo(e.detailCell).kendoGrid({
