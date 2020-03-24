@@ -39,7 +39,12 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_user = JFactory::getUser();
         $this->_db = &JFactory::getDbo();
 
-        $this->_piattaforme = utilityHelper::getPiattaformeByUser(false);
+//        $this->_piattaforme = utilityHelper::getPiattaformeByUser(false);
+
+//        var_dump( $this->_piattaforme);
+        $this->model_user = new gglmsModelUsers();
+        $this->lista_piattaforme = $this->get_piattaforma_filter();
+        $this->lista_aziende = $this->get_azienda_filter();
 
     }
 
@@ -53,39 +58,27 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $sort = $params["sort"];
 
 
-        $model_user = new gglmsModelUsers();
-        $piattaforme = $model_user->get_user_piattaforme($this->_user->id);
-        $p_list = array();
-        foreach ($piattaforme as $p) {
-
-            array_push($p_list, $p->value);
-        }
+        ////////////////////// filter piattaforma //////////////
 
 
         $total_count_query = $this->_db->getQuery(true)
             ->select('count(*)')
             ->from('#__view_report')
-            ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
+            ->where("id_piattaforma  in (" . implode(', ', $this->lista_piattaforme) . ")");
 
 
-        ////////////////////////// gestione tutor aziendale ///////////////////////
-//        aggiungo filtro per azienda se tutor aziendale
-        $a_list = array();
-        $tutor_az = $model_user->is_tutor_aziendale($this->_user->id);
+        ////////////////////////// filter aziendale ///////////////////////
+
+
+        $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
         if ($tutor_az) {
             // se è tutor aziendale sggiungo filtro per società
-            $azienda = $model_user->get_user_societa($this->_user->id, true);
-
-
-            foreach ($azienda as $a) {
-
-                array_push($a_list, $a->id);
-            }
-            $total_count_query->where("id_azienda  in (" . implode(', ', $a_list) . ")");
+            $total_count_query->where("id_azienda  in (" . implode(', ', $this->lista_aziende) . ")");
         }
 
+
         //////////////////////////////////////////////////
-        ///
+
         $total_count_query = $this->_filter_query($total_count_query, $filter);
         $this->_db->setQuery($total_count_query);
         $count = $this->_db->loadResult();
@@ -95,11 +88,11 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__view_report')
-                ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
+                ->where("id_piattaforma  in (" . implode(', ', $this->lista_piattaforme) . ")");
 
 
             if ($tutor_az) {
-                $query->where("id_azienda  in (" . implode(', ', $a_list) . ")");
+                $query->where("id_azienda  in (" . implode(', ', $this->lista_aziende) . ")");
             }
 
 
@@ -142,6 +135,40 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_japp->close();
 
     }
+
+    public function get_piattaforma_filter()
+    {
+
+        $piattaforme = $this->model_user->get_user_piattaforme($this->_user->id);
+        $p_list = array();
+        foreach ($piattaforme as $p) {
+
+            array_push($p_list, $p->value);
+        }
+
+        return $p_list;
+    }
+
+    public function get_azienda_filter()
+    {
+
+        $a_list = array();
+        $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
+        if ($tutor_az) {
+            // se è tutor aziendale sggiungo filtro per società
+            $azienda = $this->model_user->get_user_societa($this->_user->id, true);
+
+
+            foreach ($azienda as $a) {
+
+                array_push($a_list, $a->id);
+            }
+
+            return $a_list;
+
+        };
+    }
+
 
 
     public function _filter_query($query, $filter)
@@ -223,8 +250,8 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $data1 = $this->_db->loadAssocList('titolo_contenuto');
 
         // contenuti del corso mai visualizzati dall'utente,nella query non li becco perchè in __gg_report ci sono solo quelli dove l'utente ha fatto almeno un accesso
-        foreach ($columns as $c){
-            if(!array_key_exists( $c,$data1)){
+        foreach ($columns as $c) {
+            if (!array_key_exists($c, $data1)) {
 
                 $obj = new stdClass();
                 $obj->id_contenuto = -1;
@@ -266,6 +293,9 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
 
     }
+
+
+
 
 
     private function buildColumnsforContenutiView($id_corso)

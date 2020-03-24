@@ -349,7 +349,7 @@ _summaryreport = (function ($, my) {
                     }
 
                     // se è tutor aziendale esport con i dettagli --> faccio la richiesta dei dettagli mano a mano che mi arrivano
-                    if (logged_tutor_az) {
+                    if (export_details) {
 
                         console.log('expand all rows');
                         $(".k-master-row").each(function (index) {
