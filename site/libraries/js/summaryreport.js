@@ -8,7 +8,8 @@ _summaryreport = (function ($, my) {
         // -----------------------------
         // 5)coupon scaduti (calcolo ed evidenza) --> ok
         //----------------------------------------
-        //?) export details se sei un tutor aziendale
+        //?) export details se sei un tutor aziendale -->ok
+        /////////////////////////////////////////////////
         // 3) cancella coupon (tutor piattaforma, coupon liberi)
         //------------------------------------------
         // 4)invia coupon per mail (tutor az, tutor p)
@@ -269,6 +270,7 @@ _summaryreport = (function ($, my) {
         var logged_tutor_az = false;
         var detailExportPromises;
         var list = {};
+        var export_details = false;
 
 
         function _init() {
@@ -287,9 +289,16 @@ _summaryreport = (function ($, my) {
 
         function _createGrid() {
             $("#grid").kendoGrid({
-                toolbar: ["excel"],
+                // toolbar: ["excel"],
+                toolbar: [
+                    {
+                        template: '<a class="k-button k-button-icontext k-grid-excel " href="\\#" onclick="return excel_with_details()">Current page with details</a>'
+                    }, {
+                        template: '<a class="k-button k-button-icontext k-grid-excel " href="\\#" onclick="return excel_all_pages()">All pages no details</a>'
+                    }
+                ],
                 excel: {
-                    allPages: true
+                    allPages: false
                 },
                 height: 550,
                 scrollable: true,
@@ -336,12 +345,15 @@ _summaryreport = (function ($, my) {
                             currenRow.addClass("scaduto");
                         }
 
+
                     }
 
                     // se è tutor aziendale esport con i dettagli --> faccio la richiesta dei dettagli mano a mano che mi arrivano
                     if (logged_tutor_az) {
 
+                        console.log('expand all rows');
                         $(".k-master-row").each(function (index) {
+                            console.log('expandrow', index);
                             widgets.grid.expandRow(this);
                             widgets.grid.collapseRow(this);
                         });
@@ -364,7 +376,7 @@ _summaryreport = (function ($, my) {
                     });
 
 
-                    if (logged_tutor_az) {
+                    if (export_details) {
 
                         // EXPORT WITH DETAILS ---> tutor aziendale
 
@@ -394,6 +406,43 @@ _summaryreport = (function ($, my) {
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
 
+        }
+
+        function excel_with_details() {
+
+            export_details = true;
+            widgets.grid.setOptions({
+                excel: {
+                    allPages: false,
+                    filterable: false,
+                    collapsible: true
+                }
+            });
+
+            // if (logged_tutor_az) {
+
+            console.log('expand all rows');
+            $(".k-master-row").each(function (index) {
+                widgets.grid.expandRow(this);
+                widgets.grid.collapseRow(this);
+            });
+            // }
+            widgets.grid.saveAsExcel();
+
+        }
+
+
+        function excel_all_pages() {
+
+            export_details = false;
+            widgets.grid.setOptions({
+                excel: {
+                    allPages: true,
+                    filterable: true,
+                    collapsible: false
+                }
+            });
+            widgets.grid.saveAsExcel()
         }
 
         function _exportWithDetails(e, col_stato_index) {
@@ -498,7 +547,7 @@ _summaryreport = (function ($, my) {
 
         function exportChildData(rowIndex, coupon) {
 
-            console.log('rowIndex', rowIndex);
+            // console.log('rowIndex', rowIndex);
             var deferred = $.Deferred();
 
             detailExportPromises.push(deferred);
@@ -681,7 +730,7 @@ _summaryreport = (function ($, my) {
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true,
-                pageSize: 100,
+                pageSize: 50,
                 schema: {
                     data: 'data',
                     total: "total",
@@ -757,7 +806,7 @@ _summaryreport = (function ($, my) {
 
                     $("<div/>").appendTo(e.detailCell).kendoGrid({
                         dataSource: detailsDataSource,
-                        toolbar: ["excel"],
+                        // toolbar: ["excel"],
                         scrollable: false,
                         resizable: true,
                         sortable: true,
@@ -852,6 +901,8 @@ _summaryreport = (function ($, my) {
 
         my.init = _init;
         my.secondsTohhmmss = _secondsTohhmmss;
+        my.excel_all_pages = excel_all_pages;
+        my.excel_with_details = excel_with_details;
 
         return my;
 

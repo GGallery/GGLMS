@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/models/helpdesk.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/report.php';
 
 /**
  * Controller for single contact view
@@ -67,6 +68,24 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
 
 
+        ////////////////////////// gestione tutor aziendale ///////////////////////
+//        aggiungo filtro per azienda se tutor aziendale
+        $a_list = array();
+        $tutor_az = $model_user->is_tutor_aziendale($this->_user->id);
+        if ($tutor_az) {
+            // se è tutor aziendale sggiungo filtro per società
+            $azienda = $model_user->get_user_societa($this->_user->id, true);
+
+
+            foreach ($azienda as $a) {
+
+                array_push($a_list, $a->id);
+            }
+            $total_count_query->where("id_azienda  in (" . implode(', ', $a_list) . ")");
+        }
+
+        //////////////////////////////////////////////////
+        ///
         $total_count_query = $this->_filter_query($total_count_query, $filter);
         $this->_db->setQuery($total_count_query);
         $count = $this->_db->loadResult();
@@ -78,20 +97,24 @@ class gglmsControllerSummaryReport extends JControllerLegacy
                 ->from('#__view_report')
                 ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
 
+
+            if ($tutor_az) {
+                $query->where("id_azienda  in (" . implode(', ', $a_list) . ")");
+            }
+
+
             $query = $this->_filter_query($query, $filter);
 
 
-
-            if( $page == 1){
+            if ($page == 1) {
                 $query->setLimit($take);
-            }
-            else{
-                $query->setLimit($take, ($page-1) * $take);
+            } else {
+                $query->setLimit($take, ($page - 1) * $take);
             }
 
 
-            if($sort){
-                $query->order($sort[0]['field'] .' '. $sort[0]['dir']);
+            if ($sort) {
+                $query->order($sort[0]['field'] . ' ' . $sort[0]['dir']);
             }
 
             $this->_db->setQuery($query);
@@ -100,14 +123,13 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
             $result['data'] = $data;
             $result['total'] = $count;
-            $result['sort'] = $sort[0]['field'] .' '. $sort[0]['dir'];
+            $result['sort'] = $sort[0]['field'] . ' ' . $sort[0]['dir'];
 
             $result['query'] = (string)$query;
             $result['filter'] = $filter;
-            $result["page"]= $params["page"] ;
+            $result["page"] = $params["page"];
 
-        }
-        else{
+        } else {
 
             $result['data'] = array();
             $result['query'] = '';
@@ -178,7 +200,10 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $id_corso = $filter_params['id_corso'];
         $id_user = $filter_params['id_user'];
 
+        $columns = $this->buildColumnsforContenutiView($id_corso);
 
+
+        // questa query tira fuori solo i titoli dei contenuti visitati, a me servono tutti
         $query = $this->_db->getQuery(true)
             ->select('r.id_contenuto, r.data as last_visit ,r.permanenza_tot as permanenza ,r.visualizzazioni as visualizzazioni,contenuti.titolo as titolo_contenuto')
             ->from('#__gg_view_stato_user_corso as report')
@@ -193,28 +218,44 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->where('u.id_user =' . $id_user);
 
 
-
-
         $this->_db->setQuery($query);
         $data = $this->_db->loadAssocList();
+        $data1 = $this->_db->loadAssocList('titolo_contenuto');
 
-//        echo ((string)($query));
+        // contenuti del corso mai visualizzati dall'utente,nella query non li becco perchè in __gg_report ci sono solo quelli dove l'utente ha fatto almeno un accesso
+        foreach ($columns as $c){
+            if(!array_key_exists( $c,$data1)){
 
-//        echo json_encode((string)$query);
-       echo json_encode($data);
+                $obj = new stdClass();
+                $obj->id_contenuto = -1;
+                $obj->last_visit = null;
+                $obj->permanenza = 0;
+                $obj->visualizzazioni = 0;
+                $obj->titolo_contenuto = $c;
+                array_push($data, $obj);
+            }
+        }
+
+//        $res['data'] = $data;
+//        $res['data1'] = $data1;
+//        echo json_encode($res);
+
+        echo json_encode($data);
+
         $this->_japp->close();
     }
 
-    public function get_user_detail(){
+    public function get_user_detail()
+    {
 
         $params = JRequest::get($_POST);
-        $user_id= $params["user_id"];
+        $user_id = $params["user_id"];
 
 
         $query = $this->_db->getQuery(true)
             ->select('fields')
             ->from('#__gg_report_users')
-            ->where("id_user =" . $user_id );
+            ->where("id_user =" . $user_id);
 
         $this->_db->setQuery($query);
         $u = $this->_db->loadAssoc();
@@ -224,6 +265,20 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_japp->close();
 
 
+    }
+
+
+    private function buildColumnsforContenutiView($id_corso)
+    {
+
+        $reportObj = new gglmsModelReport();
+        $contenuti = $reportObj->getContenutiArrayList($id_corso);
+
+        $columns = [];
+        foreach ($contenuti as $contenuto) {
+            array_push($columns, $contenuto['titolo']);
+        }
+        return $columns;
     }
 
 }
