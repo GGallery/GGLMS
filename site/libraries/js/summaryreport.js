@@ -16,6 +16,7 @@ _summaryreport = (function ($, my) {
         //--------------------------------------------
         // 6)disiscrivi utente (solo super admin)
 
+        // config griglia principale
         var columns = [
             {
                 field: 'coupon',
@@ -230,7 +231,8 @@ _summaryreport = (function ($, my) {
 
                     }
                 },
-                excelExport: true
+                excelExport: true,
+                tutor_az: false,
 
             },
             {
@@ -240,8 +242,31 @@ _summaryreport = (function ($, my) {
                 excelExport: false
 
 
-            }
+            },
+            {
+                command: {
+                    text: "Elimina Coupon",
+                    click: deleteCoupon
+                },
+                title: "Elimina Coupon ",
+                width: "120px",
+                attributes: {
+                    style: "text-align: center"
+                }
 
+            },
+            {
+                command: {
+                    text: "Reset Coupon",
+                    click: resetCoupon
+                },
+                title: "Reset Coupon ",
+                width: "120px",
+                attributes: {
+                    style: "text-align: center"
+                },
+
+            }
         ];
         var fields = {
             coupon: {type: "string"},
@@ -260,6 +285,8 @@ _summaryreport = (function ($, my) {
             venditore: {type: "string"},
             scaduto: {type: "number"}
         };
+
+        // field da mostrare in poup utente
         var user_details_fields = {
 
             "cb_datadinascita": {titolo: "Data di nascita"},
@@ -274,6 +301,8 @@ _summaryreport = (function ($, my) {
             "email": {titolo: "Email"}
 
         };
+
+        // selectors
         var widgets = {
             grid: null,
             dataSource: null,
@@ -282,15 +311,20 @@ _summaryreport = (function ($, my) {
                 grid: null
             }
         };
+
         var logged_tutor_az = false;
+
+        // export config
         var detailExportPromises;
         var details_ds = {};
-        var export_details = false;
+        var export_details = false; // flag che indica quale export
+
+        var user_action = null; // azioni permesse a utente
 
 
         function _init() {
 
-            _isLoggedUser_tutorAz();
+            _get_user_action();
             _kendofix();
 
             console.log('summary report ready');
@@ -330,7 +364,7 @@ _summaryreport = (function ($, my) {
                 dataBound: function (e) {
 
                     detailExportPromises = [];
-                    // this.expandRow(this.tbody.find("tr.k-master-row").first());
+
 
                     // bottone scarica attestato  visibile solo se corso è completato
                     widgets.grid = $("#grid").data('kendoGrid');
@@ -346,6 +380,13 @@ _summaryreport = (function ($, my) {
                         var attestati_btn = $(currenRow).find(".k-grid-attestato");
                         var user_btn = $(currenRow).find(".k-grid-user");
 
+
+                        var delete_btn = $(currenRow).find(".k-grid-EliminaCoupon");
+                        var reset_btn = $(currenRow).find(".k-grid-ResetCoupon");
+
+                        delete_btn.hide();
+                        reset_btn.hide();
+
                         //hide attestati based on stato
                         if (parseInt(gridData[i].stato) !== 1) {
                             attestati_btn.hide();
@@ -355,6 +396,12 @@ _summaryreport = (function ($, my) {
                         if (parseInt(gridData[i].stato) === -1) {
                             currenRow.find(".k-hierarchy-cell").html("");
                             user_btn.hide();
+                            delete_btn.show();
+
+                        }
+
+                        if (parseInt(gridData[i].id_user)) {
+                            reset_btn.show();
                         }
 
                         // scaduti e non completati in rosso
@@ -365,7 +412,7 @@ _summaryreport = (function ($, my) {
 
                     }
 
-                    // se è tutor aziendale esport con i dettagli --> faccio la richiesta dei dettagli mano a mano che mi arrivano
+
                     if (export_details) {
 
                         console.log('expand all rows');
@@ -424,6 +471,127 @@ _summaryreport = (function ($, my) {
 
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
+
+        }
+
+        function _loadData() {
+
+
+            widgets.dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: window.location.hostname + "/home/index.php?option=com_gglms&task=summaryreport.getData",
+                        dataType: "json"
+                    },
+
+
+                    parameterMap: function (data, type) {
+                        //prima di eseguire la request al server passa di qua
+
+
+                        if (data.filter) {
+                            $.each(data.filter.filters, function (i, f) {
+                                // leggo dallo schema se è un campo di tipo data formatto la data prima di mandarla al server per il filtraggio
+                                if (fields[f.field].type === 'date') {
+                                    var val = _formatDate(f.value);
+                                    f.value = val;
+                                }
+
+                                // se è un campo di tipo string sostituisco il default equals con con like
+                                if (fields[f.field].type === 'string') {
+                                    f.operator = 'like'
+                                }
+                            });
+                        }
+
+                        return data;
+                    }
+
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true,
+                pageSize: 100,
+                schema: {
+                    data: 'data',
+                    total: "total",
+                    model: {
+                        fields: fields
+                    }
+                }
+            });
+
+            widgets.dataSource.fetch(function () {
+                // console.log(testDataSource.view());
+                widgets.grid.setDataSource(widgets.dataSource);
+            });
+        }
+
+        function detailInit(e) {
+            var detailRow = e.detailRow;
+            var data = e.data;
+
+            var params = {
+                id_user: data.id_user,
+                id_gruppo_azienda: data.id_azienda,
+                id_corso: data.id_corso
+            };
+            var coupon = data.coupon;
+
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.get_tracklog_details", params))
+                .done(function (data) {
+
+                    data = JSON.parse(data);
+
+                    $('#cover-spin').show(0);
+                    //data type of the field {number|string|boolean|date} default is string
+                    var detailsDataSource = new kendo.data.DataSource({
+                        data: data
+                    });
+
+                    // console.log('insert in list', coupon);
+                    details_ds[coupon] = detailsDataSource;
+
+
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: detailsDataSource,
+                        // toolbar: ["excel"],
+                        scrollable: false,
+                        resizable: true,
+                        sortable: true,
+                        pageable: false,
+                        columns: [
+                            {field: "id_contenuto", title: "", hidden: true},
+                            {field: "titolo_contenuto", title: "Contenuto", width: 120},
+                            {field: "last_visit", title: "Ultima visita", width: 80},
+                            {
+                                field: "permanenza",
+                                title: "Permanenza",
+                                width: 80,
+                                template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
+                            },
+                            {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
+                        ],
+                        excelExport: function (e) {
+                            // Prevent the saving of the file.
+                            e.preventDefault();
+
+                        }
+                    });
+
+
+                })
+                .fail(function (data) {
+                    console.log('fail', data);
+                    $('#cover-spin').hide(0);
+
+
+                })
+                .then(function (data) {
+                    $('#cover-spin').hide(0);
+                    // console.log('then', data);
+
+                });
 
         }
 
@@ -746,78 +914,30 @@ _summaryreport = (function ($, my) {
             });
         }
 
-        //////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////// azioni utente //////////////////////////////////
 
-        function _loadData() {
+        function _get_user_action() {
 
-
-            widgets.dataSource = new kendo.data.DataSource({
-                transport: {
-                    read: {
-                        url: window.location.hostname + "/home/index.php?option=com_gglms&task=summaryreport.getData",
-                        dataType: "json"
-                    },
-
-
-                    parameterMap: function (data, type) {
-                        //prima di eseguire la request al server passa di qua
-
-
-                        if (data.filter) {
-                            $.each(data.filter.filters, function (i, f) {
-                                // leggo dallo schema se è un campo di tipo data formatto la data prima di mandarla al server per il filtraggio
-                                if (fields[f.field].type === 'date') {
-                                    var val = _formatDate(f.value);
-                                    f.value = val;
-                                }
-
-                                // se è un campo di tipo string sostituisco il default equals con con like
-                                if (fields[f.field].type === 'string') {
-                                    f.operator = 'like'
-                                }
-                            });
-                        }
-
-                        return data;
-                    }
-
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true,
-                pageSize: 100,
-                schema: {
-                    data: 'data',
-                    total: "total",
-                    model: {
-                        fields: fields
-                    }
-                }
-            });
-
-            widgets.dataSource.fetch(function () {
-                // console.log(testDataSource.view());
-                widgets.grid.setDataSource(widgets.dataSource);
-            });
-        }
-
-        function _isLoggedUser_tutorAz() {
-
-            $.when($.get("index.php?option=com_gglms&task=summaryreport.is_tutor_aziendale"))
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.get_user_actions"))
                 .done(function (data) {
+                    user_action = JSON.parse(data);
 
 
-                    if (data == "true") {
-                        logged_tutor_az = true;
-                        console.log('is_tutor_az', logged_tutor_az);
-                        // utente collegato ? tutor aziendale nascondo le info relative a venditore
-                        columns = $.each(columns, function (i, item) {
-                            if (item.field === 'venditore') {
-                                item.hidden = true;
+                    if (user_action.tutor_az) {
+                        widgets.grid.hideColumn('venditore');
+                    }
 
-                                widgets.grid.hideColumn(i);
-                            }
-                        });
+                    console.log(user_action);
+
+                    if (!user_action.reset || user_action.tutor_az) {
+                        // nascondo colonna reset
+                        widgets.grid.hideColumn(16);
+                    }
+
+                    if (!user_action.delete || user_action.tutor_az) {
+                        // nascondo colonna delete
+                        widgets.grid.hideColumn(15);
+
 
                     }
 
@@ -835,73 +955,57 @@ _summaryreport = (function ($, my) {
 
         }
 
-        function detailInit(e) {
-            var detailRow = e.detailRow;
-            var data = e.data;
+        function deleteCoupon(e) {
 
-            var params = {
-                id_user: data.id_user,
-                id_gruppo_azienda: data.id_azienda,
-                id_corso: data.id_corso
-            };
-            var coupon = data.coupon;
+            console.log(e);
+            var row = $(e.currentTarget).closest("tr");
+            var dataItem = widgets.grid.dataItem(row);
+            console.log(dataItem);
 
-            $.when($.get("index.php?option=com_gglms&task=summaryreport.getDetails", params))
-                .done(function (data) {
-
-                    data = JSON.parse(data);
-
-                    $('#cover-spin').show(0);
-                    //data type of the field {number|string|boolean|date} default is string
-                    var detailsDataSource = new kendo.data.DataSource({
-                        data: data
-                    });
-
-                    // console.log('insert in list', coupon);
-                    details_ds[coupon] = detailsDataSource;
-
-
-                    $("<div/>").appendTo(e.detailCell).kendoGrid({
-                        dataSource: detailsDataSource,
-                        // toolbar: ["excel"],
-                        scrollable: false,
-                        resizable: true,
-                        sortable: true,
-                        pageable: false,
-                        columns: [
-                            {field: "id_contenuto", title: "", hidden: true},
-                            {field: "titolo_contenuto", title: "Contenuto", width: 120},
-                            {field: "last_visit", title: "Ultima visita", width: 80},
-                            {
-                                field: "permanenza",
-                                title: "Permanenza",
-                                width: 80,
-                                template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
-                            },
-                            {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
-                        ],
-                        excelExport: function (e) {
-                            // Prevent the saving of the file.
-                            e.preventDefault();
-
-                        }
-                    });
-
-
+            kendo.confirm("Vuoi cancellare il coupon <span class='coupon-confirm'>" + dataItem.coupon + " </span> definitivamente  ?")
+                .done(function () {
+                    console.log("User accepted");
+                    _do_delete_coupon(dataItem);
                 })
-                .fail(function (data) {
-                    console.log('fail', data);
-                    $('#cover-spin').hide(0);
-
-
-                })
-                .then(function (data) {
-                    $('#cover-spin').hide(0);
-                    // console.log('then', data);
-
+                .fail(function () {
+                    console.log("User rejected");
                 });
 
         }
+
+
+        function resetCoupon(e) {
+
+            console.log(e);
+            var row = $(e.currentTarget).closest("tr");
+            var dataItem = widgets.grid.dataItem(row);
+            console.log(dataItem);
+
+
+            kendo.confirm("Vuoi resettare il coupon <span class='coupon-confirm'>" + dataItem.coupon + " </span>   ?")
+                .done(function () {
+                    console.log("User accepted");
+                    _do_reset_coupon(dataItem);
+                })
+                .fail(function () {
+                    console.log("User rejected");
+                });
+
+        }
+
+        function _do_delete_coupon(data) {
+            console.log('do delete coupon');
+        }
+
+        function _do_reset_coupon(data) {
+            console.log('do reset coupon');
+
+
+        }
+
+
+        //////////////////////////// util ////////////////////////////////////////
+
 
         function _formatDate(date) {
             var d = new Date(date),
@@ -936,7 +1040,6 @@ _summaryreport = (function ($, my) {
 
             return result;
         }
-
 
         // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column
         function _kendofix() {

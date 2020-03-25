@@ -39,14 +39,46 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_user = JFactory::getUser();
         $this->_db = &JFactory::getDbo();
 
-//        $this->_piattaforme = utilityHelper::getPiattaformeByUser(false);
 
-//        var_dump( $this->_piattaforme);
         $this->model_user = new gglmsModelUsers();
         $this->lista_piattaforme = $this->get_piattaforma_filter();
         $this->lista_aziende = $this->get_azienda_filter();
 
     }
+
+    public function get_piattaforma_filter()
+    {
+
+        $piattaforme = $this->model_user->get_user_piattaforme($this->_user->id);
+        $p_list = array();
+        foreach ($piattaforme as $p) {
+
+            array_push($p_list, $p->value);
+        }
+
+        return $p_list;
+    }
+
+    public function get_azienda_filter()
+    {
+
+        $a_list = array();
+        $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
+        if ($tutor_az) {
+            // se è tutor aziendale sggiungo filtro per società
+            $azienda = $this->model_user->get_user_societa($this->_user->id, true);
+
+
+            foreach ($azienda as $a) {
+
+                array_push($a_list, $a->id);
+            }
+
+            return $a_list;
+
+        };
+    }
+
 
     public function getData()
     {
@@ -136,41 +168,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     }
 
-    public function get_piattaforma_filter()
-    {
-
-        $piattaforme = $this->model_user->get_user_piattaforme($this->_user->id);
-        $p_list = array();
-        foreach ($piattaforme as $p) {
-
-            array_push($p_list, $p->value);
-        }
-
-        return $p_list;
-    }
-
-    public function get_azienda_filter()
-    {
-
-        $a_list = array();
-        $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
-        if ($tutor_az) {
-            // se è tutor aziendale sggiungo filtro per società
-            $azienda = $this->model_user->get_user_societa($this->_user->id, true);
-
-
-            foreach ($azienda as $a) {
-
-                array_push($a_list, $a->id);
-            }
-
-            return $a_list;
-
-        };
-    }
-
-
-
     public function _filter_query($query, $filter)
     {
         foreach ($filter["filters"] as $f) {
@@ -206,21 +203,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         return $query;
     }
 
-
-    public function is_tutor_aziendale()
-    {
-
-        $model = new gglmsModelUsers();
-        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
-
-        echo(json_encode($is_tutor_az));
-        $this->_japp->close();
-
-        // is_tutor_aziendale
-
-    }
-
-    public function getDetails()
+    public function get_tracklog_details()
     {
         $filter_params = JRequest::get($_POST);
         $id_gruppo_societa = $filter_params['id_gruppo_azienda'];
@@ -263,9 +246,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             }
         }
 
-//        $res['data'] = $data;
-//        $res['data1'] = $data1;
-//        echo json_encode($res);
 
         echo json_encode($data);
 
@@ -294,8 +274,58 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     }
 
+    
+//    public function is_tutor_aziendale()
+//    {
+//
+//        $model = new gglmsModelUsers();
+//        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
+//
+//        echo(json_encode($is_tutor_az));
+//        $this->_japp->close();
+//
+//    }
 
+    public function get_user_actions()
+    {
 
+        $res["delete"] = $this->can_delete_coupon();
+        $res["reset"] = $this->can_reset_coupon();
+        $res["tutor_az"] = $this->is_tutor_az();
+
+        echo(json_encode($res));
+        $this->_japp->close();
+    }
+
+    public function is_tutor_az()
+    {
+
+        $model = new gglmsModelUsers();
+        $res = ($model->is_tutor_aziendale($this->_user->id)) ? true : false;
+
+        return $res;
+    }
+
+    public function can_delete_coupon()
+    {
+
+        // possono cancellare i coupon solo superadmin e tutor piattaforma (e solo coupon liberi)
+        $model = new gglmsModelUsers();
+        $res = ($model->is_tutor_piattaforma($this->_user->id) || $model->is_user_superadmin($this->_user->id)) ? true : false;
+
+        return $res;
+    }
+
+    public function can_reset_coupon()
+    {
+
+        // possono resettare i coupon solo superadmin(e solo coupon occupati)
+        $model = new gglmsModelUsers();
+        $res = ($model->is_user_superadmin($this->_user->id)) ? true : false;
+
+        return $res;;
+
+    }
 
 
     private function buildColumnsforContenutiView($id_corso)

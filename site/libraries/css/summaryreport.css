@@ -12,12 +12,15 @@
     color: #325482 !important;
     font-size: medium;
 
-    font-weight: bold;
+    font-weight: bold
 }
 
-
+th.k-header {
+    font-weight: bold !important;
+    color: #325482 !important;
+    font-size: medium !important;
+}
 .g-content {
-
     padding: 0 !important;
 }
 
@@ -35,11 +38,6 @@
 .glyphicon-log-in {
     color: #325482 !important;
 }
-
-
-/*span.k-i-excel{*/
-    /*color:green !important;*/
-/*}*/
 
 
 
@@ -70,7 +68,23 @@
     color: indianred;
 }
 
+.k-grid-ResetCoupon.k-button{
+    background-color: red;
+    color: white;
+
+}
 
 
+.k-confirm .k-window-titlebar::before {
+    content: 'Sei sicuro?';
+}
 
+.k-confirm .k-window-titlebar .k-dialog-title {
+    visibility:collapse;
+}
 
+.coupon-confirm{
+    font-family: monospace;
+    font-weight: bold;
+    font-size: larger;
+}
