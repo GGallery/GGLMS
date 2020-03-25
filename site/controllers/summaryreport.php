@@ -274,17 +274,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     }
 
-    
-//    public function is_tutor_aziendale()
-//    {
-//
-//        $model = new gglmsModelUsers();
-//        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
-//
-//        echo(json_encode($is_tutor_az));
-//        $this->_japp->close();
-//
-//    }
 
     public function get_user_actions()
     {
@@ -323,7 +312,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $model = new gglmsModelUsers();
         $res = ($model->is_user_superadmin($this->_user->id)) ? true : false;
 
-        return $res;;
+        return $res;
 
     }
 
@@ -340,6 +329,64 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         }
         return $columns;
     }
+
+
+    public function do_delete_coupon()
+    {
+
+        // possono resettare i coupon solo superadmin(e solo coupon occupati)
+
+        $params = JRequest::get($_POST);
+        $coupon = $params["coupon"];
+
+        $query_check = $this->_db->getQuery(true)
+            ->select('id_utente')
+            ->from('#__gg_coupon')
+            ->where('coupon = "' . $coupon . '"');
+
+        $this->_db->setQuery($query_check);
+        $coupon_user = $this->_db->loadResult();
+
+        if ($coupon_user == null) {
+            //todo checke che il coupon sia davvero libero
+
+            $query = $this->_db->getQuery(true);
+            $conditions = array(
+                $this->_db->quoteName('coupon') . ' = "' . $coupon . '"',
+            );
+
+            $query->delete($this->_db->quoteName('#__gg_coupon'));
+            $query->where($conditions);
+            $this->_db->setQuery($query);
+            $result_ = $this->_db->execute();
+
+
+            if($result_)
+            {
+                $result['success'] = 1;
+                $result['message'] = 'Il coupon é stato eliminato con successo';
+            }
+            else{
+                $result['success'] = -1;
+                $result['message'] = 'Oops si è verificato un errore';
+            }
+
+
+
+
+        } else {
+            $result['success'] = -1;
+            $result['message'] = 'Il coupon non è libero';
+
+        }
+
+        echo(json_encode($result));
+
+        $this->_japp->close();
+
+
+    }
+
 
 }
 

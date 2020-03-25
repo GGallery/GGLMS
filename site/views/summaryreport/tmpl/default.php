@@ -11,6 +11,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'>Monitora Coupon</h3>"; ?>
 </div>
 
 <div id="cover-spin"></div>
+<div id="notification"></div>
 <div id="user-details">
 
     <div id="user_grid"></div>

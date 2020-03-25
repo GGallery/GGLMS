@@ -68,7 +68,14 @@ th.k-header {
     color: indianred;
 }
 
-.k-grid-ResetCoupon.k-button{
+.k-grid-Reset.k-button{
+    background-color: red;
+    color: white;
+
+}
+
+
+.k-grid-Elimina.k-button{
     background-color: red;
     color: white;
 

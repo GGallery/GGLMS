@@ -245,7 +245,7 @@ _summaryreport = (function ($, my) {
             },
             {
                 command: {
-                    text: "Elimina Coupon",
+                    text: "Elimina",
                     click: deleteCoupon
                 },
                 title: "Elimina Coupon ",
@@ -257,7 +257,7 @@ _summaryreport = (function ($, my) {
             },
             {
                 command: {
-                    text: "Reset Coupon",
+                    text: "Reset",
                     click: resetCoupon
                 },
                 title: "Reset Coupon ",
@@ -333,6 +333,11 @@ _summaryreport = (function ($, my) {
 
             _createGrid();
             _loadData();
+
+
+            createNotification('#notification', 5000,true);
+
+
         }
 
         function _createGrid() {
@@ -381,8 +386,8 @@ _summaryreport = (function ($, my) {
                         var user_btn = $(currenRow).find(".k-grid-user");
 
 
-                        var delete_btn = $(currenRow).find(".k-grid-EliminaCoupon");
-                        var reset_btn = $(currenRow).find(".k-grid-ResetCoupon");
+                        var delete_btn = $(currenRow).find(".k-grid-Elimina");
+                        var reset_btn = $(currenRow).find(".k-grid-Reset");
 
                         delete_btn.hide();
                         reset_btn.hide();
@@ -964,8 +969,9 @@ _summaryreport = (function ($, my) {
 
             kendo.confirm("Vuoi cancellare il coupon <span class='coupon-confirm'>" + dataItem.coupon + " </span> definitivamente  ?")
                 .done(function () {
-                    console.log("User accepted");
-                    _do_delete_coupon(dataItem);
+
+
+                    _do_delete_coupon(dataItem.coupon);
                 })
                 .fail(function () {
                     console.log("User rejected");
@@ -984,8 +990,8 @@ _summaryreport = (function ($, my) {
 
             kendo.confirm("Vuoi resettare il coupon <span class='coupon-confirm'>" + dataItem.coupon + " </span>   ?")
                 .done(function () {
-                    console.log("User accepted");
-                    _do_reset_coupon(dataItem);
+
+                    _do_reset_coupon(dataItem.coupon);
                 })
                 .fail(function () {
                     console.log("User rejected");
@@ -993,12 +999,40 @@ _summaryreport = (function ($, my) {
 
         }
 
-        function _do_delete_coupon(data) {
-            console.log('do delete coupon');
+        function _do_delete_coupon(coupon) {
+            // console.log('do delete coupon', data);
+
+            var params = {coupon: coupon};
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.do_delete_coupon", params))
+                .done(function (data) {
+                    var d = JSON.parse(data);
+                    if(d.success === 1){
+
+                       _loadData();
+                       showNotification('#notification', 'success','Successo', d.message);
+                   }
+                    else
+                    {
+                        showNotification('#notification', 'error','Errore', d.message);
+                    }
+
+
+
+                })
+                .fail(function (data) {
+                    showNotification('#notification', 'error','Errore','Ooops si è verificato un errore');
+                    // console.log('fail', data);
+                    // $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    // $('#cover-spin').hide(0);
+                });
         }
 
         function _do_reset_coupon(data) {
-            console.log('do reset coupon');
+            console.log('do reset coupon', data);
 
 
         }
