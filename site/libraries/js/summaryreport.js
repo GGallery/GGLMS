@@ -1031,8 +1031,35 @@ _summaryreport = (function ($, my) {
                 });
         }
 
-        function _do_reset_coupon(data) {
-            console.log('do reset coupon', data);
+        function _do_reset_coupon(coupon) {
+
+            var params = {coupon: coupon};
+            $.when($.get("index.php?option=com_gglms&task=summaryreport.do_reset_coupon", params))
+                .done(function (data) {
+                    var d = JSON.parse(data);
+                    if(d.success === 1){
+
+                        _loadData();
+                        showNotification('#notification', 'success','Successo', d.message);
+                    }
+                    else
+                    {
+                        showNotification('#notification', 'error','Errore', d.message);
+                    }
+
+
+
+                })
+                .fail(function (data) {
+                    showNotification('#notification', 'error','Errore','Ooops si è verificato un errore');
+                    // console.log('fail', data);
+                    // $('#cover-spin').hide(0);
+
+                })
+                .then(function (data) {
+                    // console.log('then', data);
+                    // $('#cover-spin').hide(0);
+                });
 
 
         }

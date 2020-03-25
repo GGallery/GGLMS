@@ -348,7 +348,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $coupon_user = $this->_db->loadResult();
 
         if ($coupon_user == null) {
-            //todo checke che il coupon sia davvero libero
 
             $query = $this->_db->getQuery(true);
             $conditions = array(
@@ -361,17 +360,13 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             $result_ = $this->_db->execute();
 
 
-            if($result_)
-            {
+            if ($result_) {
                 $result['success'] = 1;
                 $result['message'] = 'Il coupon é stato eliminato con successo';
-            }
-            else{
+            } else {
                 $result['success'] = -1;
                 $result['message'] = 'Oops si è verificato un errore';
             }
-
-
 
 
         } else {
@@ -386,6 +381,97 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
 
     }
+
+
+    public function do_reset_coupon()
+    {
+
+        // possono resettare i coupon solo superadmin(e solo coupon occupati)
+
+        $params = JRequest::get($_POST);
+        $coupon = $params["coupon"];
+
+        try {
+
+
+            // check coupon
+            $query_check = $this->_db->getQuery(true)
+                ->select('id_utente , id_gruppi')
+                ->from('#__gg_coupon')
+                ->where('coupon = "' . $coupon . '"');
+
+            $this->_db->setQuery($query_check);
+            $coupon_data = $this->_db->loadAssoc();
+
+            if ($coupon_data['id_utente'] !== null) {
+
+
+                // 1) update coupon --> set data utilizzo  e id utente  null
+                $query = $this->_db->getQuery(true);
+
+                // Fields to update.
+                $fields = array(
+                    $this->_db->quoteName('id_utente') . ' = null',
+                    $this->_db->quoteName('data_utilizzo') . ' = null'
+                );
+
+                // Conditions for which records should be updated.
+                $conditions = array(
+                    $this->_db->quoteName('coupon') . ' = "' . $coupon . '"',
+                );
+
+                $query->update($this->_db->quoteName('#__gg_coupon'))->set($fields)->where($conditions);
+
+                $this->_db->setQuery($query);
+                $result_reset = $this->_db->execute();
+
+
+                // 2) disiscrivi utente da gruppo corso
+
+                $query_delete = $this->_db->getQuery(true);
+                $conditions = array(
+                    $this->_db->quoteName('user_id') . ' = "' . $coupon_data['id_utente'] . '"',
+                    $this->_db->quoteName('group_id') . ' = "' . $coupon_data['id_gruppi'] . '"',
+                );
+//
+                $query_delete->delete($this->_db->quoteName('#__user_usergroup_map'));
+                $query_delete->where($conditions);
+                $this->_db->setQuery($query_delete);
+                $result_delete = $this->_db->execute();
+
+
+                if ($result_reset && $result_delete) {
+                    $result['success'] = 1;
+                    $result['message'] = 'Il coupon é stato resettato con successo';
+                } else {
+                    $result['success'] = -1;
+                    $result['message'] = 'Oops si è verificato un errore';
+                }
+
+
+            } else {
+                $result['success'] = -1;
+                $result['message'] = 'Il coupon  è libero, non puoi resettarlo';
+
+            }
+
+            echo(json_encode($result));
+
+            $this->_japp->close();
+        }
+        catch(Exception $e){
+
+            $result['success'] = -1;
+            $result['message'] = 'Oops si è verificato un errore';
+            echo(json_encode($result));
+            $this->_japp->close();
+        }
+
+
+    }
+
+
+
 
 
 }
