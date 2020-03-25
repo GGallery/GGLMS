@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/models/helpdesk.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/report.php';
 
 /**
  * Controller for single contact view
@@ -38,9 +39,46 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_user = JFactory::getUser();
         $this->_db = &JFactory::getDbo();
 
-        $this->_piattaforme = utilityHelper::getPiattaformeByUser(false);
+
+        $this->model_user = new gglmsModelUsers();
+        $this->lista_piattaforme = $this->get_piattaforma_filter();
+        $this->lista_aziende = $this->get_azienda_filter();
 
     }
+
+    public function get_piattaforma_filter()
+    {
+
+        $piattaforme = $this->model_user->get_user_piattaforme($this->_user->id);
+        $p_list = array();
+        foreach ($piattaforme as $p) {
+
+            array_push($p_list, $p->value);
+        }
+
+        return $p_list;
+    }
+
+    public function get_azienda_filter()
+    {
+
+        $a_list = array();
+        $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
+        if ($tutor_az) {
+            // se è tutor aziendale sggiungo filtro per società
+            $azienda = $this->model_user->get_user_societa($this->_user->id, true);
+
+
+            foreach ($azienda as $a) {
+
+                array_push($a_list, $a->id);
+            }
+
+            return $a_list;
+
+        };
+    }
+
 
     public function getData()
     {
@@ -52,20 +90,26 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $sort = $params["sort"];
 
 
-        $model_user = new gglmsModelUsers();
-        $piattaforme = $model_user->get_user_piattaforme($this->_user->id);
-        $p_list = array();
-        foreach ($piattaforme as $p) {
-
-            array_push($p_list, $p->value);
-        }
+        ////////////////////// filter piattaforma //////////////
 
 
         $total_count_query = $this->_db->getQuery(true)
             ->select('count(*)')
             ->from('#__view_report')
-            ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
+            ->where("id_piattaforma  in (" . implode(', ', $this->lista_piattaforme) . ")");
 
+
+        ////////////////////////// filter aziendale ///////////////////////
+
+
+        $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
+        if ($tutor_az) {
+            // se è tutor aziendale sggiungo filtro per società
+            $total_count_query->where("id_azienda  in (" . implode(', ', $this->lista_aziende) . ")");
+        }
+
+
+        //////////////////////////////////////////////////
 
         $total_count_query = $this->_filter_query($total_count_query, $filter);
         $this->_db->setQuery($total_count_query);
@@ -76,22 +120,26 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__view_report')
-                ->where("id_piattaforma  in (" . implode(', ', $p_list) . ")");
+                ->where("id_piattaforma  in (" . implode(', ', $this->lista_piattaforme) . ")");
+
+
+            if ($tutor_az) {
+                $query->where("id_azienda  in (" . implode(', ', $this->lista_aziende) . ")");
+            }
+
 
             $query = $this->_filter_query($query, $filter);
 
 
-
-            if( $page == 1){
+            if ($page == 1) {
                 $query->setLimit($take);
-            }
-            else{
-                $query->setLimit($take, ($page-1) * $take);
+            } else {
+                $query->setLimit($take, ($page - 1) * $take);
             }
 
 
-            if($sort){
-                $query->order($sort[0]['field'] .' '. $sort[0]['dir']);
+            if ($sort) {
+                $query->order($sort[0]['field'] . ' ' . $sort[0]['dir']);
             }
 
             $this->_db->setQuery($query);
@@ -100,14 +148,13 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
             $result['data'] = $data;
             $result['total'] = $count;
-            $result['sort'] = $sort[0]['field'] .' '. $sort[0]['dir'];
+            $result['sort'] = $sort[0]['field'] . ' ' . $sort[0]['dir'];
 
             $result['query'] = (string)$query;
             $result['filter'] = $filter;
-            $result["page"]= $params["page"] ;
+            $result["page"] = $params["page"];
 
-        }
-        else{
+        } else {
 
             $result['data'] = array();
             $result['query'] = '';
@@ -120,7 +167,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $this->_japp->close();
 
     }
-
 
     public function _filter_query($query, $filter)
     {
@@ -157,28 +203,17 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         return $query;
     }
 
-
-    public function is_tutor_aziendale()
-    {
-
-        $model = new gglmsModelUsers();
-        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
-
-        echo(json_encode($is_tutor_az));
-        $this->_japp->close();
-
-        // is_tutor_aziendale
-
-    }
-
-    public function getDetails()
+    public function get_tracklog_details()
     {
         $filter_params = JRequest::get($_POST);
         $id_gruppo_societa = $filter_params['id_gruppo_azienda'];
         $id_corso = $filter_params['id_corso'];
         $id_user = $filter_params['id_user'];
 
+        $columns = $this->buildColumnsforContenutiView($id_corso);
 
+
+        // questa query tira fuori solo i titoli dei contenuti visitati, a me servono tutti
         $query = $this->_db->getQuery(true)
             ->select('r.id_contenuto, r.data as last_visit ,r.permanenza_tot as permanenza ,r.visualizzazioni as visualizzazioni,contenuti.titolo as titolo_contenuto')
             ->from('#__gg_view_stato_user_corso as report')
@@ -195,22 +230,39 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         $this->_db->setQuery($query);
         $data = $this->_db->loadAssocList();
+        $data1 = $this->_db->loadAssocList('titolo_contenuto');
 
-//        echo json_encode((string)$query);
+        // contenuti del corso mai visualizzati dall'utente,nella query non li becco perchè in __gg_report ci sono solo quelli dove l'utente ha fatto almeno un accesso
+        foreach ($columns as $c) {
+            if (!array_key_exists($c, $data1)) {
+
+                $obj = new stdClass();
+                $obj->id_contenuto = -1;
+                $obj->last_visit = null;
+                $obj->permanenza = 0;
+                $obj->visualizzazioni = 0;
+                $obj->titolo_contenuto = $c;
+                array_push($data, $obj);
+            }
+        }
+
+
         echo json_encode($data);
+
         $this->_japp->close();
     }
 
-    public function get_user_detail(){
+    public function get_user_detail()
+    {
 
         $params = JRequest::get($_POST);
-        $user_id= $params["user_id"];
+        $user_id = $params["user_id"];
 
 
         $query = $this->_db->getQuery(true)
             ->select('fields')
             ->from('#__gg_report_users')
-            ->where("id_user =" . $user_id );
+            ->where("id_user =" . $user_id);
 
         $this->_db->setQuery($query);
         $u = $this->_db->loadAssoc();
@@ -221,6 +273,206 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
 
     }
+
+
+    public function get_user_actions()
+    {
+
+        $res["delete"] = $this->can_delete_coupon();
+        $res["reset"] = $this->can_reset_coupon();
+        $res["tutor_az"] = $this->is_tutor_az();
+
+        echo(json_encode($res));
+        $this->_japp->close();
+    }
+
+    public function is_tutor_az()
+    {
+
+        $model = new gglmsModelUsers();
+        $res = ($model->is_tutor_aziendale($this->_user->id)) ? true : false;
+
+        return $res;
+    }
+
+    public function can_delete_coupon()
+    {
+
+        // possono cancellare i coupon solo superadmin e tutor piattaforma (e solo coupon liberi)
+        $model = new gglmsModelUsers();
+        $res = ($model->is_tutor_piattaforma($this->_user->id) || $model->is_user_superadmin($this->_user->id)) ? true : false;
+
+        return $res;
+    }
+
+    public function can_reset_coupon()
+    {
+
+        // possono resettare i coupon solo superadmin(e solo coupon occupati)
+        $model = new gglmsModelUsers();
+        $res = ($model->is_user_superadmin($this->_user->id)) ? true : false;
+
+        return $res;
+
+    }
+
+
+    private function buildColumnsforContenutiView($id_corso)
+    {
+
+        $reportObj = new gglmsModelReport();
+        $contenuti = $reportObj->getContenutiArrayList($id_corso);
+
+        $columns = [];
+        foreach ($contenuti as $contenuto) {
+            array_push($columns, $contenuto['titolo']);
+        }
+        return $columns;
+    }
+
+
+    public function do_delete_coupon()
+    {
+
+        // possono resettare i coupon solo superadmin(e solo coupon occupati)
+
+        $params = JRequest::get($_POST);
+        $coupon = $params["coupon"];
+
+        $query_check = $this->_db->getQuery(true)
+            ->select('id_utente')
+            ->from('#__gg_coupon')
+            ->where('coupon = "' . $coupon . '"');
+
+        $this->_db->setQuery($query_check);
+        $coupon_user = $this->_db->loadResult();
+
+        if ($coupon_user == null) {
+
+            $query = $this->_db->getQuery(true);
+            $conditions = array(
+                $this->_db->quoteName('coupon') . ' = "' . $coupon . '"',
+            );
+
+            $query->delete($this->_db->quoteName('#__gg_coupon'));
+            $query->where($conditions);
+            $this->_db->setQuery($query);
+            $result_ = $this->_db->execute();
+
+
+            if ($result_) {
+                $result['success'] = 1;
+                $result['message'] = 'Il coupon é stato eliminato con successo';
+            } else {
+                $result['success'] = -1;
+                $result['message'] = 'Oops si è verificato un errore';
+            }
+
+
+        } else {
+            $result['success'] = -1;
+            $result['message'] = 'Il coupon non è libero';
+
+        }
+
+        echo(json_encode($result));
+
+        $this->_japp->close();
+
+
+    }
+
+
+    public function do_reset_coupon()
+    {
+
+        // possono resettare i coupon solo superadmin(e solo coupon occupati)
+
+        $params = JRequest::get($_POST);
+        $coupon = $params["coupon"];
+
+        try {
+
+
+            // check coupon
+            $query_check = $this->_db->getQuery(true)
+                ->select('id_utente , id_gruppi')
+                ->from('#__gg_coupon')
+                ->where('coupon = "' . $coupon . '"');
+
+            $this->_db->setQuery($query_check);
+            $coupon_data = $this->_db->loadAssoc();
+
+            if ($coupon_data['id_utente'] !== null) {
+
+
+                // 1) update coupon --> set data utilizzo  e id utente  null
+                $query = $this->_db->getQuery(true);
+
+                // Fields to update.
+                $fields = array(
+                    $this->_db->quoteName('id_utente') . ' = null',
+                    $this->_db->quoteName('data_utilizzo') . ' = null'
+                );
+
+                // Conditions for which records should be updated.
+                $conditions = array(
+                    $this->_db->quoteName('coupon') . ' = "' . $coupon . '"',
+                );
+
+                $query->update($this->_db->quoteName('#__gg_coupon'))->set($fields)->where($conditions);
+
+                $this->_db->setQuery($query);
+                $result_reset = $this->_db->execute();
+
+
+                // 2) disiscrivi utente da gruppo corso
+
+                $query_delete = $this->_db->getQuery(true);
+                $conditions = array(
+                    $this->_db->quoteName('user_id') . ' = "' . $coupon_data['id_utente'] . '"',
+                    $this->_db->quoteName('group_id') . ' = "' . $coupon_data['id_gruppi'] . '"',
+                );
+//
+                $query_delete->delete($this->_db->quoteName('#__user_usergroup_map'));
+                $query_delete->where($conditions);
+                $this->_db->setQuery($query_delete);
+                $result_delete = $this->_db->execute();
+
+
+                if ($result_reset && $result_delete) {
+                    $result['success'] = 1;
+                    $result['message'] = 'Il coupon é stato resettato con successo';
+                } else {
+                    $result['success'] = -1;
+                    $result['message'] = 'Oops si è verificato un errore';
+                }
+
+
+            } else {
+                $result['success'] = -1;
+                $result['message'] = 'Il coupon  è libero, non puoi resettarlo';
+
+            }
+
+            echo(json_encode($result));
+
+            $this->_japp->close();
+        }
+        catch(Exception $e){
+
+            $result['success'] = -1;
+            $result['message'] = 'Oops si è verificato un errore';
+            echo(json_encode($result));
+            $this->_japp->close();
+        }
+
+
+    }
+
+
+
+
 
 }
 

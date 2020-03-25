@@ -142,7 +142,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 //                            $count = $this->countPrimaryDataCube($query);!!! BUG il count che viene su da qui non è filtrato per azienda!!
 //                            $datas = $this->buildPrimaryDataCube($query,$offset, $limit); !!! BUG offset e limit erano invertiti!!
-                            $datas = $this->buildPrimaryDataCube($query, $offset, $limit);
+                            $datas = $this->buildPrimaryDataCube($query, $limit, $offset);
 
 
                             $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, null, null, $filters['searchPhrase'], $filters['usergroups'], implode(",", (array_column($datas, "id_anagrafica"))));

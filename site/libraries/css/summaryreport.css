@@ -12,12 +12,15 @@
     color: #325482 !important;
     font-size: medium;
 
-    font-weight: bold;
+    font-weight: bold
 }
 
-
+th.k-header {
+    font-weight: bold !important;
+    color: #325482 !important;
+    font-size: medium !important;
+}
 .g-content {
-
     padding: 0 !important;
 }
 
@@ -65,7 +68,30 @@
     color: indianred;
 }
 
+.k-grid-Reset.k-button{
+    background-color: red;
+    color: white;
+
+}
 
 
+.k-grid-Elimina.k-button{
+    background-color: red;
+    color: white;
+
+}
 
 
+.k-confirm .k-window-titlebar::before {
+    content: 'Sei sicuro?';
+}
+
+.k-confirm .k-window-titlebar .k-dialog-title {
+    visibility:collapse;
+}
+
+.coupon-confirm{
+    font-family: monospace;
+    font-weight: bold;
+    font-size: larger;
+}
