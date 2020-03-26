@@ -406,7 +406,7 @@ class gglmsControllerApi extends JControllerLegacy
 
             $this->_db->setQuery($query);
 
-            $query->setLimit($offset, $limit);
+            $query->setLimit($limit, $offset);
 
             $datas = $this->_db->loadAssocList();
             return $datas;
