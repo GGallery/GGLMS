@@ -16,18 +16,16 @@ jimport('joomla.application.component.view');
 
 jimport('joomla.application.component.helper');
 
-require_once JPATH_COMPONENT . '/controllers/generacoupon.php';
+require_once JPATH_COMPONENT . '/controllers/prenotacoupon.php';
 
 
 class gglmsViewPrenota extends JViewLegacy
 {
 
     protected $params;
-    public $lista_corsi;
-    public $societa_venditrici;
-    public $check_coupon_attestato;
-    public $is_durata_standard;
-    public $show_trial = 0;
+    public $id_corso;
+    public $prezzi;
+
 
 
     function display($tpl = null)
@@ -46,8 +44,6 @@ class gglmsViewPrenota extends JViewLegacy
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/kendo/kendo.helper.js');
 
 
-
-
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.common.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/kendo/kendo.bootstrap.min.css');
 
@@ -56,19 +52,16 @@ class gglmsViewPrenota extends JViewLegacy
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/prenotaCoupon.js');
 //        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/prenotacoupon.css');
 
-//        $couponCtrl = new gglmsControllerGeneraCoupon();
-//        $this->lista_corsi = $couponCtrl->generaCoupon->lista_corsi;
-//        $this->societa_venditrici = $couponCtrl->generaCoupon->societa_venditrici;
-
+        $prenotaController = new gglmsControllerPrenotaCoupon();
 
         $this->id_corso = JRequest::getVar('id_corso');
-        var_dump( JRequest::getVar('id_corso'));
+        $this->prezzi = $prenotaController->_getPrezziByCorso($this->id_corso);
+
 
 
         // Display the view
         parent::display($tpl);
     }
-
 
 
 }
