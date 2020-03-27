@@ -56,12 +56,13 @@ class gglmsViewPrenota extends JViewLegacy
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/prenotaCoupon.js');
 //        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/prenotacoupon.css');
 
-        $couponCtrl = new gglmsControllerGeneraCoupon();
-        $this->lista_corsi = $couponCtrl->generaCoupon->lista_corsi;
-        $this->societa_venditrici = $couponCtrl->generaCoupon->societa_venditrici;
+//        $couponCtrl = new gglmsControllerGeneraCoupon();
+//        $this->lista_corsi = $couponCtrl->generaCoupon->lista_corsi;
+//        $this->societa_venditrici = $couponCtrl->generaCoupon->societa_venditrici;
 
 
-
+        $this->id_corso = JRequest::getVar('id_corso');
+        var_dump( JRequest::getVar('id_corso'));
 
 
         // Display the view

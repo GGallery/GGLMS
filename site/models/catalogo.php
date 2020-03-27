@@ -40,7 +40,6 @@ class gglmsModelCatalogo extends JModelLegacy
         $query = $this->_db->getQuery(true)
             ->select('distinct u.id,u.titolo,u.descrizione, u.alias, b1.description')
             ->from('#__gg_unit as u')
-//        ->join('inner','#__gg_usergroup_map as mp on mp.idunita=u.id')
             ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
             ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
             ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
@@ -49,6 +48,29 @@ class gglmsModelCatalogo extends JModelLegacy
             ->where('b.box =' . $box)
             ->order('b.order')
             ->where('u.pubblicato = 1');
+
+//        echo $query; die;
+
+        $this->_db->setQuery($query);
+        $catalogo = $this->_db->loadObjectList();
+
+
+        return $catalogo;
+    }
+
+    /*ritorna lista corsi della piattaforma di riferimento per la prenotazione in caso di ecommerce non presente--> usato nel template catalogo_prenota*/
+    public function getCatalogo_prenota($id_piattaforma)
+    {
+        //
+
+        $query = $this->_db->getQuery(true)
+            ->select('distinct u.id as id_corso,u.titolo,u.descrizione, u.alias')
+            ->from('#__gg_unit as u')
+            ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
+            ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
+            ->where('piattamap.id_gruppo_piattaforma="' . $id_piattaforma . '" ')
+            ->where('u.pubblicato = 1')
+            ->where('u.is_corso=1');
 
 //        echo $query; die;
 
