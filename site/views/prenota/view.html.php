@@ -51,7 +51,7 @@ class gglmsViewPrenota extends JViewLegacy
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/loader.css');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/prenotaCoupon.js');
-//        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/prenotacoupon.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/prenotacoupon.css');
 
         $prenotaController = new gglmsControllerPrenotaCoupon();
 

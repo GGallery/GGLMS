@@ -3,10 +3,14 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-
-echo "<h1> Prenota Coupon </h1> "
-
 ?>
+<h3> Prenota Coupon  </h3>
+
+<div class="info-corso">
+    <p> Titolo corso: <b style="color:indianred"> <?=$this->prezzi["titolo"] ?></b> </p>
+    <p>Codice Corso:  <b style="color:indianred"> <?=$this->prezzi["codice_corso"] ?> </b></p>
+</div>
+
 
 <div class="mc-main">
     <div id="grid"></div>
@@ -15,8 +19,8 @@ echo "<h1> Prenota Coupon </h1> "
     <div id="wrapper">
         <label for="yes_no">Sei associato?</label>
         <p>
-            <input type="radio" name="yes_no" value="true"> Yes</input>
             <input type="radio" name="yes_no" value="false" checked >No</input>
+            <input type="radio" name="yes_no" value="true"> Yes</input>
         </p>
 
     </div>

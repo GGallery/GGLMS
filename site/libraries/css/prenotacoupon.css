@@ -3,10 +3,14 @@
     flex-direction: column;
 }
 
-h1 {
+h3 {
     text-align: center;
-    padding: 10px;
+    /*padding: 10px;*/
     /*color: deeppink !important;*/
+}
+
+.info-corso{
+    font-size: larger;
 }
 
 form[name=generaCouponForm] {
@@ -43,33 +47,33 @@ input[disabled]:hover {
 }
 
 
-#modalDetails_genera {
-    z-index: 12002 !important;
-}
+/*#modalDetails_genera {*/
+    /*z-index: 12002 !important;*/
+/*}*/
 
-#modalDetails_genera > .modal-dialog {
-    width: 549px;
-    margin: 30px auto;
-}
+/*#modalDetails_genera > .modal-dialog {*/
+    /*width: 549px;*/
+    /*margin: 30px auto;*/
+/*}*/
 
-#modalDetails_genera > .modal-dialog {
-    width: 549px;
-    margin: 30px auto;
-}
+/*#modalDetails_genera > .modal-dialog {*/
+    /*width: 549px;*/
+    /*margin: 30px auto;*/
+/*}*/
 
-#details_grid {
-    font-size: small;
-}
+/*#details_grid {*/
+    /*font-size: small;*/
+/*}*/
 
-#details_grid > tbody > tr:hover {
-    background-color: lightblue;
-    font-weight: bold;
-}
+/*#details_grid > tbody > tr:hover {*/
+    /*background-color: lightblue;*/
+    /*font-weight: bold;*/
+/*}*/
 
 
-.td {
-    cursor: pointer;
-}
+/*.td {*/
+    /*cursor: pointer;*/
+/*}*/
 
 
 

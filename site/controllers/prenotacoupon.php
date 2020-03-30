@@ -45,15 +45,15 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
     {
 
         $query = $this->_db->getQuery(true)
-            ->select('p.*,r.*,u.titolo')
+            ->select('p.*,r.*,u.titolo, u.prefisso_coupon as codice_corso')
             ->from('#__gg_prezzi as p ')
             ->join('inner', '#__gg_prezzi_range as r on r.id_corso = p.id_corso')
             ->join('inner', '#__gg_unit as u on u.id = p.id_corso')
-            ->where('p.id_corso = "' . $id_corso . '"') ;
-
+            ->where('p.id_corso = "' . $id_corso . '"')
+            ->setLimit(1);
 
         $this->_db->setQuery($query);
-        $prezzi = $this->_db->loadObjectList();
+        $prezzi = $this->_db->loadAssoc();
 
 
         return $prezzi;
