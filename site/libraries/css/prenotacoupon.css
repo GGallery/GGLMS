@@ -3,22 +3,43 @@
     flex-direction: column;
 }
 
-h3 {
+h3, h6, h5{
     text-align: center;
     /*padding: 10px;*/
     /*color: deeppink !important;*/
 }
 
 .info-corso{
+    /*font-size: smaller;*/
+}
+
+.info-corso  b {
+  color: indianred;
     font-size: larger;
 }
 
-form[name=generaCouponForm] {
-    padding: 20px 100px;
+
+
+form[name=prenotaCouponForm] {
+    padding: 20px 20px;
+    border: 1px;
+    border-style: dotted;
+    margin-top: 20px;
 }
 
 
-#btn-genera {
+
+form[name=prenotaCouponForm] input[type=number],form[name=prenotaCouponForm] input[type=text],form[name=prenotaCouponForm] input[type=email]{
+   width:50%;
+}
+/*#btn_calcola {*/
+    /*margin:0 0 10px 10px;*/
+    /*padding: 0 5px;*/
+/*}*/
+
+
+
+#btn-prenota {
     padding: 10px !important;
     line-height: 1;
     vertical-align: middle;
@@ -26,18 +47,18 @@ form[name=generaCouponForm] {
 }
 
 
-.col-form-label.disabled {
-    opacity: 0.4;
-}
+/*.col-form-label.disabled {*/
+    /*opacity: 0.4;*/
+/*}*/
 
 
-input[disabled]:hover {
-    cursor: not-allowed;
-    border: 2px solid rgba(0, 0, 0, 0.1) !important;
-}
+/*input[disabled]:hover {*/
+    /*cursor: not-allowed;*/
+    /*border: 2px solid rgba(0, 0, 0, 0.1) !important;*/
+/*}*/
 
 
-#piva-msg {
+.validation-lbl {
     color: red;
 }
 

@@ -25,7 +25,9 @@ class gglmsViewPrenota extends JViewLegacy
     protected $params;
     public $id_corso;
     public $id_piattaforma;
+    public $info_corso;
     public $prezzi;
+    public $info_piattaforma;
 
 
 
@@ -61,6 +63,7 @@ class gglmsViewPrenota extends JViewLegacy
 //        var_dump($this->id_piattaforma);
 
         $this->prezzi = $prenotaController->_getPrezziByCorso($this->id_corso);
+        $this->info_corso = $prenotaController->_getInfoCorso($this->id_corso);
         $this->info_piattaforma =$prenotaController->get_info_piattaforma($this->id_piattaforma);
 
 

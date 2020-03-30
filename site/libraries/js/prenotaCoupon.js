@@ -27,29 +27,31 @@ _prenotaCoupon = (function ($, my) {
             raw_data = JSON.parse(data);
             info_piattaforma = JSON.parse(piattaforma);
 
-
             $.each(raw_data, function (name, value) {
                 raw_data[name] = parseInt(value) ? parseInt(value) : value;
             });
 
-            $("#btn_calcola").click(function (e) {
 
-                var is_associato = $('input[name=yes_no]:checked').val() === 'true';
+            $('input[type=radio][name=yes_no]').change(function () {
+                _getPrice();
 
-                var qty = parseInt($("#qty").val());
+            });
 
-                _getPrice(qty, is_associato);
+            $("#qty").on('input', function (e) {
 
+                _getPrice();
 
             });
 
             _manageData(raw_data);
+            $(".validation-lbl").hide();
 
 
             createNotification('#notification', 5000, true);
 
 
         }
+
 
         function _manageData(data) {
             var final_data = [];
@@ -60,7 +62,7 @@ _prenotaCoupon = (function ($, my) {
                 f: _calcRow(1, false),
                 f_associato: _calcRow(1, true),
                 p: data["p1"],
-                p_associato:  _calcPrezzo(data["p1"], data["sconto_associati"])
+                p_associato: _calcSconto(data["p1"], data["sconto_associati"])
 
 
             };
@@ -70,7 +72,7 @@ _prenotaCoupon = (function ($, my) {
                 ff: _calcRow(2, false),
                 f_associato: _calcRow(2, true),
                 p: data["p2"],
-                p_associato: _calcPrezzo(data["p2"],  data["sconto_associati"])
+                p_associato: _calcSconto(data["p2"], data["sconto_associati"])
             };
 
             var row3 = {
@@ -78,7 +80,7 @@ _prenotaCoupon = (function ($, my) {
                 f: _calcRow(3, false),
                 f_associato: _calcRow(3, true),
                 p: data["p3"],
-                p_associato: _calcPrezzo(data["p3"],  true)
+                p_associato: _calcSconto(data["p3"], true)
             };
 
             var row4 = {
@@ -102,10 +104,13 @@ _prenotaCoupon = (function ($, my) {
 
         }
 
-        function _getPrice(x, is_associato) {
+        function _getPrice() {
 
-            var price = 0;
+
             var formula = "";
+            var is_associato = $('input[name=yes_no]:checked').val() === 'true';
+            var x = parseInt($("#qty").val());
+            $("#price").empty();
 
 
             if (x <= raw_data["range1"]) {
@@ -116,9 +121,30 @@ _prenotaCoupon = (function ($, my) {
                 formula = _calcRow(3, is_associato);
             }
 
-             price = eval(formula);
+            if (formula) {
 
-            $("#price").text(price);
+
+                $('#price').fadeOut(400, function() {
+                    $(this).text('\u20AC\ ' + eval(formula)).fadeIn(400);
+                });
+
+                // $("#price").text('\u20AC\ ' + eval(formula));
+                console.log('current formula check', formula);
+
+            } else {
+
+                if (x) {
+
+                    $('#price').fadeOut(400, function() {
+                        $("#price").empty();
+
+                        $(this).append("<span> Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a></span>").fadeIn(400)
+                    });
+
+                }
+            }
+
+
         }
 
 
@@ -126,15 +152,13 @@ _prenotaCoupon = (function ($, my) {
 
             var base = 0;
 
-
-
             // calcolo su range precedenti
             if (row_number > 1) {
 
                 for (i = 1; i < row_number; i++) {
 
                     var field_prezzo = "p" + i;
-                    var prezzo = _calcPrezzo(raw_data[field_prezzo],is_associato);
+                    var prezzo = _calcSconto(raw_data[field_prezzo], is_associato);
 
                     base = base + (raw_data["range" + i] - (raw_data["range" + (i - 1)] || 0)) * prezzo;
                 }
@@ -142,7 +166,7 @@ _prenotaCoupon = (function ($, my) {
 
             // calcolo range corrente
             var field_prezzo = "p" + row_number;
-            var prezzo = _calcPrezzo(raw_data[field_prezzo],is_associato);
+            var prezzo = _calcSconto(raw_data[field_prezzo], is_associato);
 
             var re = base + " + (x - " + (raw_data["range" + (row_number - 1)] || 0) + " )* " + prezzo;
 
@@ -151,9 +175,9 @@ _prenotaCoupon = (function ($, my) {
 
         }
 
-        function _calcPrezzo(prezzo, is_associato) {
+        function _calcSconto(prezzo, is_associato) {
 
-            var sconto = is_associato ? raw_data["sconto_associati"]: 0;
+            var sconto = is_associato ? raw_data["sconto_associati"] : 0;
             return Math.round(prezzo - (prezzo * sconto));
 
         }
@@ -185,38 +209,39 @@ _prenotaCoupon = (function ($, my) {
                         hidden: true
                     },
                     {
-                        title:"Prezzi a coupon",
-                        columns:[
-                    {
-                        field: "p",
-                        title: "Aziende non associate",
-                        width: "30%",
-                        template: function (dataItem) {
+                        title: "Prezzi a coupon",
+                        columns: [
+                            {
+                                field: "p",
+                                title: "Aziende non associate",
+                                width: "30%",
+                                template: function (dataItem) {
 
-                            if (!parseInt(dataItem.p)) {
-                                return "Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a>";
-                            } else {
+                                    if (!parseInt(dataItem.p)) {
+                                        return "Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a>";
+                                    } else {
 
-                                return "<span> " + '\u20AC' + " " + dataItem.p + "</span>"
+                                        return "<span> " + '\u20AC' + " " + dataItem.p + "</span>"
+                                    }
+
+                                }
+                            }, {
+                                field: "p_associato",
+                                title: "Aziende  associate a " + info_piattaforma.name + "  - sconto del " + raw_data["sconto_associati"] * 100 + ' %',
+                                width: "30%",
+                                template: function (dataItem) {
+
+                                    if (!parseInt(dataItem.p_associato)) {
+                                        return "Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a>";
+                                    } else {
+
+                                        return "<span> " + '\u20AC' + " " + dataItem.p_associato + "</span>"
+                                    }
+
+                                }
                             }
-
-                        }
-                    }, {
-                        field: "p_associato",
-                        title: "Aziende  associate a " + info_piattaforma.name + "  - sconto del " + raw_data["sconto_associati"]*100 + ' %' ,
-                        width: "30%",
-                        template: function (dataItem) {
-
-                            if (!parseInt(dataItem.p_associato)) {
-                                return "Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a>";
-                            } else {
-
-                                return "<span> " + '\u20AC' + " " + dataItem.p_associato + "</span>"
-                            }
-
-                        }
+                        ]
                     }
-                    ]}
 
                 ]
 
