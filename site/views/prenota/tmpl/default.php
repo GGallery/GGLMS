@@ -35,9 +35,10 @@ echo "<h1> Prenota Coupon </h1> "
 <script type="application/javascript">
 
     var data = '<?= json_encode($this->prezzi) ?>';
+    var piattaforma = '<?= json_encode($this->info_piattaforma) ?>';
 
     jQuery(document).ready(function () {
-        _prenotaCoupon.init(data);
+        _prenotaCoupon.init(data, piattaforma);
     });
 
 </script>

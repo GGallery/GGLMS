@@ -24,7 +24,6 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
     private $_japp;
     public $_params;
     public $_db;
-    public $generaCoupon;
 
     public function __construct($config = array())
     {
@@ -61,6 +60,30 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
     }
 
 
+    public function get_info_piattaforma($id_piattaforma)
+    {
+
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('ug.id as id , ug.title as name, ud.email_riferimento as email, ud.alias as alias')
+                ->from('#__usergroups as ug')
+                ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
+                ->where('id=' . $id_piattaforma);
+
+
+            $this->_db->setQuery($query);
+            $info_piattaforma = $this->_db->loadAssoc();
+
+            return $info_piattaforma;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_info_piattaforma');
+        }
+
+
+    }
 
 
 

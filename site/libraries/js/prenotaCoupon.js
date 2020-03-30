@@ -13,14 +13,18 @@ _prenotaCoupon = (function ($, my) {
         };
 
         var raw_data;
+        var info_piattaforma;
 
-        function _init(data) {
+        function _init(data, piattaforma) {
 
+
+            console.log('prenota coupon ready');
 
             _kendofix();
 
-            console.log('prenota coupon ready');
+
             raw_data = JSON.parse(data)[0];
+            info_piattaforma = JSON.parse(piattaforma);
 
 
             $.each(raw_data, function (name, value) {
@@ -29,11 +33,11 @@ _prenotaCoupon = (function ($, my) {
 
             $("#btn_calcola").click(function (e) {
 
-                var is_associato = $('input[name=yes_no]:checked').val() === 'on'? true:false;
+                var is_associato = $('input[name=yes_no]:checked').val() === 'true';
 
-                var qty = parseInt( $("#qty").val());
+                var qty = parseInt($("#qty").val());
 
-               _getPrice(qty,is_associato);
+                _getPrice(qty, is_associato);
 
 
             });
@@ -49,39 +53,43 @@ _prenotaCoupon = (function ($, my) {
             var final_data = [];
 
 
-            console.log(data);
+            console.log('manage data', data);
             // console.log(raw_data);
             // \u20AC
             var row1 = {
-                range: "1-" + data['range1'],
-                f1: _calcRow(1, false),
-                f2: _calcRow(1, true),
-                // f1: +data['p1'] + "*x",
-                // f2: +data['p1_associato'] + "*x"
-            };
+                range: "Da 1 a " + data['range1'],
+                f: _calcRow(1, false),
+                f_associato: _calcRow(1, true),
+                p: data["p1"],
+                p_associato: data["p1_associato"]
 
+
+            };
 
             var row2 = {
-                range: data["range1"] + 1 + "-" + data['range2'],
-                f1: _calcRow(2, false),
-                f2: _calcRow(2, true)
+                range: "Da " + (data["range1"] + 1) + " a " + data['range2'],
+                ff: _calcRow(2, false),
+                f_associato: _calcRow(2, true),
+                p: data["p2"],
+                p_associato: data["p2_associato"]
             };
 
-
             var row3 = {
-                range: data["range2"] + 1 + "-" + data['range3'],
-                f1: _calcRow(3, false),
-                f2: _calcRow(3, true)
+                range: "Da " + (data["range2"] + 1) + " a " + data['range3'],
+                f: _calcRow(3, false),
+                f_associato: _calcRow(3, true),
+                p: data["p3"],
+                p_associato: data["p3_associato"]
             };
 
             var row4 = {
                 range: "Oltre " + data["range3"],
-                f1: "Da valutare con la segreteria",
-                f2: "Da valutare con la segreteria"
+                f: null,
+                f_associato: null,
+                p: info_piattaforma.email,
+                p_associato: info_piattaforma.email
             };
 
-
-            // todo  row4
 
             final_data.push(row1);
             final_data.push(row2);
@@ -98,22 +106,25 @@ _prenotaCoupon = (function ($, my) {
         function _getPrice(x, is_associato) {
 
             var price = 0;
-            var formula="";
+            var formula = "";
+
+
+
             if (x <= raw_data["range1"]) {
                 formula = _calcRow(1, is_associato);
             }
 
-            if (x <= raw_data["range2"]) {
+            else if (x <= raw_data["range2"]) {
                 formula = _calcRow(2, is_associato);
             }
 
-            if (x <= raw_data["range3"]) {
+           else if (x <= raw_data["range3"]) {
                 formula = _calcRow(3, is_associato);
             }
 
             var price = eval(formula);
 
-            $("#price").text(price) ;
+            $("#price").text(price);
         }
 
 
@@ -150,6 +161,7 @@ _prenotaCoupon = (function ($, my) {
 
         function _createGrid(data) {
 
+
             $("#grid").kendoGrid({
                 dataSource: {
                     data: data
@@ -164,15 +176,46 @@ _prenotaCoupon = (function ($, my) {
                         field: "range",
                         title: "Numero persone da formare / coupon richiesti",
                         width: "30%"
+
                     }, {
                         field: "f1",
-                        title: "Aziende associate",
-                        width: "30%"
+                        hidden: true
                     }, {
                         field: "f2",
-                        title: "Aziende  non associate",
-                        width: "30%"
-                    }]
+                        hidden: true
+                    },
+                    {
+                        field: "p",
+                        title: "Aziende non associate",
+                        width: "30%",
+                        template: function (dataItem) {
+
+                            if (!parseInt(dataItem.p)) {
+                                return "Da valutare con la segreteria  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a>";
+                            } else {
+
+                                return "<span> " + '\u20AC' + " " +  dataItem.p +"</span>"
+                            }
+
+                        }
+                    }, {
+                        field: "p_associato",
+                         title: "Aziende  associate a " + info_piattaforma.name,
+                        width: "30%",
+                        template: function (dataItem) {
+
+                            if (!parseInt(dataItem.p_associato)) {
+                                return "Da valutare con la segreteria  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a>";
+                            } else {
+
+                                return "<span> " + '\u20AC' + " " +  dataItem.p_associato +"</span>"
+                            }
+
+                        }
+                    },
+
+                ]
+
             });
 
 

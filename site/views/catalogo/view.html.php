@@ -39,8 +39,10 @@ class gglmsViewCatalogo extends JViewLegacy
             $this->catalogo = $this->catalogoModel->getCatalogo_prenota( $this->id_piattaforma );
         }
         else{
+
             // template per piattaforme che non hanno ecommerce
             $this->catalogo = $this->catalogoModel->getCatalogo(DOMINIO, $box);
+
         }
 
 

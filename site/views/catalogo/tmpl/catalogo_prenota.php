@@ -15,7 +15,7 @@ foreach ($this->catalogo as $item) { ?>
         <!--echo  $this->id_piattaforma -->
         <div>
             <h6> <?php echo $item->titolo ?> </h6>
-            <a style="font-weight: bold" href="<?php echo JURI::root() . 'index.php?option=com_gglms&view=prenota&id_corso=' . $item->id_corso ?>">
+            <a style="font-weight: bold" href="<?php echo JURI::root() . 'index.php?option=com_gglms&view=prenota&id_corso=' . $item->id_corso . '&id_piattaforma=' . $this->id_piattaforma ?>">
                 PREZZI E ACQUISTO >>
             </a>
         </div>
