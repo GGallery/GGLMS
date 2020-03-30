@@ -1,0 +1,77 @@
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    text-align: center;
+    padding: 10px;
+    /*color: deeppink !important;*/
+}
+
+form[name=generaCouponForm] {
+    padding: 20px 100px;
+}
+
+
+#btn-genera {
+    padding: 10px !important;
+    line-height: 1;
+    vertical-align: middle;
+    height: 45px !important;
+}
+
+
+.col-form-label.disabled {
+    opacity: 0.4;
+}
+
+
+input[disabled]:hover {
+    cursor: not-allowed;
+    border: 2px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+
+#piva-msg {
+    color: red;
+}
+
+@media (max-width: 768px) {
+
+
+}
+
+
+#modalDetails_genera {
+    z-index: 12002 !important;
+}
+
+#modalDetails_genera > .modal-dialog {
+    width: 549px;
+    margin: 30px auto;
+}
+
+#modalDetails_genera > .modal-dialog {
+    width: 549px;
+    margin: 30px auto;
+}
+
+#details_grid {
+    font-size: small;
+}
+
+#details_grid > tbody > tr:hover {
+    background-color: lightblue;
+    font-weight: bold;
+}
+
+
+.td {
+    cursor: pointer;
+}
+
+
+
+
+
