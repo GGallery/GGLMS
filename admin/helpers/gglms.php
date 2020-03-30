@@ -62,6 +62,12 @@ class gglmsHelper
             $submenu == 'iscrizioni'
         );
 
+        JHtmlSidebar::addEntry(
+            '<i class="icon-users  "></i>' . JText::_('Coupon Dispenser'),
+            'index.php?option=com_gglms&view=coupondispensers',
+            $submenu == 'iscrizioni'
+        );
+
 
         $document = JFactory::getDocument();
 
@@ -88,6 +94,11 @@ class gglmsHelper
         if ($submenu == 'iscrizioni') {
             $document->setTitle("Iscrizioni");
         }
+
+        if ($submenu == 'coupondispensers') {
+            $document->setTitle("Coupon Dispenser");
+        }
+
 
 
     }
