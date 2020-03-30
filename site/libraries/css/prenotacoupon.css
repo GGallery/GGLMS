@@ -32,11 +32,12 @@ form[name=prenotaCouponForm] {
 form[name=prenotaCouponForm] input[type=number],form[name=prenotaCouponForm] input[type=text],form[name=prenotaCouponForm] input[type=email]{
    width:50%;
 }
-/*#btn_calcola {*/
-    /*margin:0 0 10px 10px;*/
-    /*padding: 0 5px;*/
-/*}*/
 
+.k-panelbar>li.k-state-default>.k-link{
+    background-color: #428bca;
+    color:white;
+
+}
 
 
 #btn-prenota {

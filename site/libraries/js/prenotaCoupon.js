@@ -1,57 +1,39 @@
 _prenotaCoupon = (function ($, my) {
 
-        // todo piattaforma!!
-        var sconto = 0.25;
 
-
-        var widgets = {
-            grid: null,
-            dataSource: null,
-            popup: {
-                window: null,
-                grid: null
-            }
-        };
+        // var widgets = {
+        //         grid: null,
+        //         dataSource: null,
+        //         popup: {
+        //             window: null,
+        //             grid: null
+        //         }
+        //     };
 
         var raw_data;
         var info_piattaforma;
 
         function _init(data, piattaforma) {
 
-
             console.log('prenota coupon ready');
-
-            _kendofix();
-
 
             raw_data = JSON.parse(data);
             info_piattaforma = JSON.parse(piattaforma);
 
-            $.each(raw_data, function (name, value) {
-                raw_data[name] = parseInt(value) ? parseInt(value) : value;
-            });
-
-
-            $('input[type=radio][name=yes_no]').change(function () {
-                _getPrice();
-
-            });
-
-            $("#qty").on('input', function (e) {
-
-                _getPrice();
-
-            });
+            $('input[type=radio][name=yes_no]').change(_getPrice);
+            $("#qty").on('input', _getPrice);
+            $(".validation-lbl").hide();
 
             _manageData(raw_data);
-            $(".validation-lbl").hide();
+            _createPanelBar();
 
 
             createNotification('#notification', 5000, true);
+            _kendofix();
+            3
 
 
         }
-
 
         function _manageData(data) {
             var final_data = [];
@@ -124,7 +106,7 @@ _prenotaCoupon = (function ($, my) {
             if (formula) {
 
 
-                $('#price').fadeOut(400, function() {
+                $('#price').fadeOut(400, function () {
                     $(this).text('\u20AC\ ' + eval(formula)).fadeIn(400);
                 });
 
@@ -135,7 +117,7 @@ _prenotaCoupon = (function ($, my) {
 
                 if (x) {
 
-                    $('#price').fadeOut(400, function() {
+                    $('#price').fadeOut(400, function () {
                         $("#price").empty();
 
                         $(this).append("<span> Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a></span>").fadeIn(400)
@@ -146,7 +128,6 @@ _prenotaCoupon = (function ($, my) {
 
 
         }
-
 
         function _calcRow(row_number, is_associato) {
 
@@ -181,7 +162,6 @@ _prenotaCoupon = (function ($, my) {
             return Math.round(prezzo - (prezzo * sconto));
 
         }
-
 
         function _createGrid(data) {
 
@@ -247,6 +227,14 @@ _prenotaCoupon = (function ($, my) {
 
             });
 
+
+        }
+
+        function _createPanelBar() {
+            $("#panelbar").kendoPanelBar({});
+            var pb = $("#panelbar").data("kendoPanelBar");
+
+            pb.expand(".k-item")
 
         }
 

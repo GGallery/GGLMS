@@ -76,10 +76,6 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
         $res["codice_corso"] = $data["codice_corso"];
         $res["descrizione_corso"] =  $data["descrizione"];
 
-//        var_dump($res);
-//        var_dump($res);
-//        die();
-
 
         return $res;
     }
@@ -91,7 +87,7 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.email_riferimento as email, ud.alias as alias')
+                ->select('ug.id as id , ug.title as name, ud.email_riferimento as email, ud.alias as alias, ud.telefono , ud.dominio')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('id=' . $id_piattaforma)
