@@ -54,6 +54,9 @@ _prenotaCoupon = (function ($, my) {
             var final_data = [];
 
 
+            //todo calcolare ultimo range != null
+
+
             var row1 = {
                 range: "Da 1 a " + data['range1'],
                 f: _calcRow(1, false),
@@ -63,35 +66,59 @@ _prenotaCoupon = (function ($, my) {
 
 
             };
+            final_data.push(row1);
 
-            var row2 = {
-                range: "Da " + (data["range1"] + 1) + " a " + data['range2'],
-                ff: _calcRow(2, false),
-                f_associato: _calcRow(2, true),
-                p: data["p2"],
-                p_associato: _calcSconto(data["p2"], data["sconto_associati"])
-            };
+            if( data['range2']){
 
-            var row3 = {
-                range: "Da " + (data["range2"] + 1) + " a " + data['range3'],
-                f: _calcRow(3, false),
-                f_associato: _calcRow(3, true),
-                p: data["p3"],
-                p_associato: _calcSconto(data["p3"], true)
-            };
+                var row2 = {
+                    range: "Da " + (data["range1"] + 1) + " a " + data['range2'],
+                    ff: _calcRow(2, false),
+                    f_associato: _calcRow(2, true),
+                    p: data["p2"],
+                    p_associato: _calcSconto(data["p2"], data["sconto_associati"])
+                };
+
+                final_data.push(row2);
+
+                if(data['range3']){
+                    var row3 = {
+                        range: "Da " + (data["range2"] + 1) + " a " + data['range3'],
+                        f: _calcRow(3, false),
+                        f_associato: _calcRow(3, true),
+                        p: data["p3"],
+                        p_associato: _calcSconto(data["p3"], true)
+                    };
+                    final_data.push(row3);
+
+                }
+            }
+
+
+
+            var last_row_index = final_data.length +1;
+
+            var last_defined_range="range" + final_data.length;
+            var last_row_range ="range" + (last_row_index);
+            var last_row_price="p" + (last_row_index);
+
+
+            //todo NB
+            //gestione corsi che non hanno un tetto oltre quale si deve mandare email -->
+            // li riconosco dal fatto che hanno definiti per esempio p1 e p2 ma solo il range1
+            raw_data[last_row_range] = data[last_row_price] ? data[last_row_price] : null;
 
             var row4 = {
-                range: "Oltre " + data["range3"],
-                f: null,
-                f_associato: null,
-                p: info_piattaforma.email,
-                p_associato: info_piattaforma.email
+                range: "Oltre " + data[last_defined_range],
+                f:  _calcRow(last_row_index ,false),
+                f_associato:  _calcRow(last_row_index,true),
+                p:  data[last_row_price] ? data[last_row_price] :  info_piattaforma.email,
+                p_associato:  data[last_row_price] ? _calcSconto (data[last_row_price], true) :  info_piattaforma.email,
             };
 
 
-            final_data.push(row1);
-            final_data.push(row2);
-            final_data.push(row3);
+
+
+
             final_data.push(row4);
 
             console.log(final_data);

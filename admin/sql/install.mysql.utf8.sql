@@ -587,8 +587,8 @@ DROP TABLE IF EXISTS `#__gg_prezzi`;
 CREATE TABLE `#__gg_prezzi` (
   `id_corso` int(11) NOT NULL,
   `p1` int(255) NOT NULL,
-  `p2` int(255) NOT NULL,
-  `p3` int(255) NOT NULL,
+  `p2` int(255) DEFAULT NULL,
+  `p3` int(255) DEFAULT NULL,
   `p4` int(255) DEFAULT NULL,
   `sconto_associati` float NOT NULL,
   PRIMARY KEY (`id_corso`)
@@ -602,7 +602,7 @@ DROP TABLE IF EXISTS `#__gg_prezzi_range`;
 CREATE TABLE `#__gg_prezzi_range` (
   `id_corso` int(11) NOT NULL,
   `range1` int(11) NOT NULL,
-  `range2` int(11) NOT NULL,
+  `range2` int(11) DEFAULT NULL,
   `range3` int(11) DEFAULT NULL,
   `range4` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_corso`)
