@@ -60,13 +60,11 @@ class gglmsViewPrenota extends JViewLegacy
         $this->id_corso = JRequest::getVar('id_corso');
         $this->id_piattaforma = JRequest::getVar('id_piattaforma');
 
-//        var_dump($this->id_piattaforma);
-
         $this->prezzi = $prenotaController->_getPrezziByCorso($this->id_corso);
         $this->info_corso = $prenotaController->_getInfoCorso($this->id_corso);
         $this->info_piattaforma =$prenotaController->get_info_piattaforma($this->id_piattaforma);
 
-
+//        var_dump($prenotaController->info_piattaforma);
 
         // Display the view
         parent::display($tpl);

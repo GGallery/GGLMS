@@ -20,7 +20,15 @@ _prenotaCoupon = (function ($, my) {
             raw_data = JSON.parse(data);
             info_piattaforma = JSON.parse(piattaforma);
 
-            $('input[type=radio][name=yes_no]').change(_getPrice);
+            console.log(info_piattaforma);
+            console.log(raw_data);
+
+            $("#id_piattaforma").val(info_piattaforma.id);
+            $("#id_corso").val(raw_data.id_corso);
+
+
+
+            $('input[type=radio][name=associato]').change(_getPrice);
             $("#qty").on('input', _getPrice);
             $(".validation-lbl").hide();
 
@@ -97,9 +105,9 @@ _prenotaCoupon = (function ($, my) {
 
 
             var formula = "";
-            var is_associato = $('input[name=yes_no]:checked').val() === 'true';
+            var is_associato = $('input[name=associato]:checked').val() === 'true';
             var x = parseInt($("#qty").val());
-            $("#price").empty();
+            $("#prezzo").empty();
 
 
             if (x <= raw_data["range1"]) {
@@ -113,20 +121,20 @@ _prenotaCoupon = (function ($, my) {
             if (formula) {
 
 
-                $('#price').fadeOut(400, function () {
+                $('#prezzo').fadeOut(400, function () {
                     $(this).text('\u20AC\ ' + eval(formula)).fadeIn(400);
+                    $("#_prezzo").val( eval(formula));
                 });
 
-                // $("#price").text('\u20AC\ ' + eval(formula));
                 console.log('current formula check', formula);
 
             } else {
 
                 if (x) {
 
-                    $('#price').fadeOut(400, function () {
-                        $("#price").empty();
-
+                    $('#prezzo').fadeOut(400, function () {
+                        $("#prezzo").empty();
+                        $("#_prezzo").val('da valutare con la segreteria corsi ');
                         $(this).append("<span> Da valutare con la segreteria corsi  <a href='" + info_piattaforma.email + " '>" + info_piattaforma.email + " </a></span>").fadeIn(400)
                     });
 
@@ -143,7 +151,7 @@ _prenotaCoupon = (function ($, my) {
             // calcolo su range precedenti
             if (row_number > 1) {
 
-                for (i = 1; i < row_number; i++) {
+                for (i = 1; i< row_number; i++) {
 
                     var field_prezzo = "p" + i;
                     var prezzo = _calcSconto(raw_data[field_prezzo], is_associato);

@@ -22,27 +22,28 @@ defined('_JEXEC') or die('Restricted access');
               method="post" name="prenotaCouponForm" id="prenotaCouponForm" class="form-validate">
 
             <div class="form-group row">
-                <label class="col-sm-3 col-form-label" for="yes_no">Sei associato
+                <label class="col-sm-3 col-form-label" for="associato">Sei associato
                     a <?= $this->info_piattaforma["name"] ?> ? *</label>
                 <div class="col-sm-9">
-                    <input type="radio" name="yes_no" value="false" checked> No </input>
-                    <input type="radio" name="yes_no" value="true"> Sì </input>
+                    <input type="radio" name="associato" value="false" checked> No </input>
+                    <input type="radio" name="associato" value="true"> Sì </input>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label class="col-sm-3 col-form-label" for="qty">Quanti Coupon? *</label>
                 <div class="col-sm-9">
-                    <input style="width: 50%" required id="qty" type="number" min="1"
+                    <input style="width: 50%" required id="qty" name="qty" type="number" min="1"
                            placeholder="Inserisci il numero dei coupon per ottenere il prezzo">
                     <!--                    <button  id="btn_calcola"  disabled class="k-primary k-state-disabled" type="button" >Calcola Prezzo</button>-->
 
                 </div>
             </div>
             <div class="form-group row">
-                <label class="col-sm-3 col-form-label" for="prezzo">Prezzo: </label>
+                <label class="col-sm-3 col-form-label" for="_prezzo">Prezzo: </label>
                 <div class="col-sm-9">
-                    <span id="price"></span>
+                    <input type="hidden" name="_prezzo" id="_prezzo">
+                    <span id="prezzo"></span>
                 </div>
             </div>
             <hr>
@@ -52,8 +53,8 @@ defined('_JEXEC') or die('Restricted access');
                 <label class="col-sm-3 col-form-label" for="username">Partita Iva: *</label>
                 <div class="col-sm-9">
                     <input required placeholder="Partita IVA dell'azienda" type="number" class="form-control"
-                           id="username"
-                           name="username">
+                           id="piva"
+                           name="piva">
                     <small class="validation-lbl" id="piva-msg"> Inserisici la partita iva dell'azienda</small>
                 </div>
                 <!--                <div class="col-sm-4">-->
@@ -95,7 +96,7 @@ defined('_JEXEC') or die('Restricted access');
                 <li id="li_privacy">Informativa per la Tutela della Privacy *
                     <div style="padding: 10px;">
                         <p>
-                            In riferimento al D.lgs. 196/2003 (Codice Privacy), <?= $this->info_piattaforma["name"] ?>
+                            In riferimento al D.lgs. 196/2003 (Codice Privacy), <?= $this->info_piattaforma["alias"] ?>
                             ,- titolare del presente trattamento -
                             comunica quanto segue:
                         </p>
@@ -115,12 +116,12 @@ defined('_JEXEC') or die('Restricted access');
                             <li> in qualsiasi momento l'interessato potrà esercitare i diritti di cui all'art. 7 del
                                 decreto citato, per chiedere la conferma dell'esistenza dei propri dati personali,
                                 chiederne la cancellazione od opporsi al loro utilizzo scrivendo o contattando:
-                                <?= $this->info_piattaforma["name"] ?>
+                                <?= $this->info_piattaforma["alias"] ?>
                                 al tel. <?= $this->info_piattaforma["telefono"] ?> oppure
                                 e-mail <?= $this->info_piattaforma["email"] ?>
                             </li>
                         </ol>
-                        <label for="privacy" class="radio-inline">Acconsento: </label>
+                        <label for="privacy" class="radio-inline">Acconsento: *</label>
                         <!--                        <label class="radio-inline">-->
                         <!--                            <input type="radio" name="privacy" value="false"  id="privacy"> No </label>-->
                         <label class="radio-inline">
@@ -143,20 +144,20 @@ defined('_JEXEC') or die('Restricted access');
                                 <b> Caratteristiche del coupon</b> <br>
                                 Le caratteristiche dei coupon, incluso il prezzo di vendita, sono riportate sul catalogo
                                 on-line <a style="text-decoration: underline;color: #2e6da4;"
-                                           href="<?= $this->info_piattaforma["dominio"] ?>"><?= $this->info_piattaforma["dominio"] ?></a>
+                                           href="<?= $this->info_piattaforma["dominio"] ?>"><?= $this->info_piattaforma["alias"] ?></a>
                                 Qualora e nell'ipotesi in cui uno o più coupon ordinati non
-                                dovessero essere disponibili, <?= $this->info_piattaforma["name"] ?> si
+                                dovessero essere disponibili, <?= $this->info_piattaforma["alias"] ?> si
                                 impegnerà a darne tempestiva comunicazione all'acquirente, che potrà decidere se
                                 modificare l'ordine o se annullarlo. Nel caso in cui l'acquirente non dovesse fornire
                                 una risposta sia in senso positivo sia in senso negativo entro 7 (sette) giorni dalla
-                                comunicazione di <?= $this->info_piattaforma["name"] ?> , l'ordine verrà
+                                comunicazione di <?= $this->info_piattaforma["alias"] ?> , l'ordine verrà
                                 annullato d'ufficio ed eventuali somme riscosse verranno contestualmente restituite.
                             </li>
                             <li>
                                 <b>Diritti d'autore</b> <br>
-                                Tutti i contenuti dei corsi presenti su <a style="text-decoration: underline;color: #2e6da4;
-                                        href="<?= $this->info_piattaforma["dominio"] ?>
-                                "><?= $this->info_piattaforma["dominio"] ?></a>
+                                Tutti i contenuti dei corsi presenti su <a
+                                        style="text-decoration: underline;color: #2e6da4;"
+                                        href="<?= $this->info_piattaforma["dominio"] ?>"><?= $this->info_piattaforma["alias"] ?></a>
                                 sono proprietà letteraria
                                 riservata e protetti dal diritto di autore. I proprietari di tali diritti sono i
                                 rispettivi autori. Chi intende utilizzare i contenuti deve attenersi alle regole sul
@@ -189,14 +190,15 @@ defined('_JEXEC') or die('Restricted access');
                 </li>
                 <li id="li_condizioni_pagamento">Condizioni per il pagamento
                     <div style="padding: 10px;">
-                     Il pagamento deve essere effettuato tramite bonifico sulla banca:   <b> <?= $this->info_piattaforma["info_pagamento"] ?></b>
+                        Il pagamento deve essere effettuato tramite bonifico sulla banca:
+                        <b> <?= $this->info_piattaforma["info_pagamento"] ?></b>
                         <br>
 
                         <b>CAUSALE OBBLIGATORIA: CODICE DEL CORSO, NUMERO COUPON E SOCIETÀ DI FATTURAZIONE.</b>
                         <br>
 
 
-                        <?= $this->info_piattaforma["name"] ?>  provvederà ad emettere regolare fattura per
+                        <?= $this->info_piattaforma["alias"] ?> provvederà ad emettere regolare fattura per
                         l'importo corrispondente. Agli Enti pubblici è richiesto di trasmettere, contestualmente
                         all'invio della scheda di prenotazione, la dichiarazione di esenzione IVA in base all'art.14,
                         comma 10, della Legge 537/1993: in caso di omissione di tale documentazione, non sarà possibile
@@ -205,10 +207,14 @@ defined('_JEXEC') or die('Restricted access');
                 </li>
             </ul>
             <div class="form-group" style="margin-top: 20px; text-align: center">
-                <button style="width: 80%" id="btn-prenota" type="submit" class="btn-block btn" onclick="prenota">
+                <button style="width: 80%" id="btn-prenota" type="submit" class="btn-block btn">
                     Prenota Coupon
                 </button>
             </div>
+
+
+            <input type="hidden" name="id_piattaforma" id="id_piattaforma">
+            <input type="hidden" name="id_corso" id="id_corso">
         </form>
 
     </div>
