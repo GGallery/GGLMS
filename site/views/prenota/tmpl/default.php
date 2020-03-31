@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
             </div>
 
             <div class="form-group row">
-                <label class="col-sm-3 col-form-label"  for="qty" >Quanti Coupon? *</label>
+                <label class="col-sm-3 col-form-label" for="qty">Quanti Coupon? *</label>
                 <div class="col-sm-9">
                     <input style="width: 50%" required id="qty" type="number" min="1"
                            placeholder="Inserisci il numero dei coupon per ottenere il prezzo">
@@ -121,14 +121,14 @@ defined('_JEXEC') or die('Restricted access');
                             </li>
                         </ol>
                         <label for="privacy" class="radio-inline">Acconsento: </label>
+                        <!--                        <label class="radio-inline">-->
+                        <!--                            <input type="radio" name="privacy" value="false"  id="privacy"> No </label>-->
                         <label class="radio-inline">
-                            <input type="radio" name="privacy" value="false"  id="privacy"> No </label>
-                        <label class="radio-inline">
-                            <input type="radio" required name="privacy" value="true" id="privacy"> Sì * </label>
-
+                            <input type="radio" class="radio-required" required name="privacy" value="true"
+                                   id="privacy"> Sì </label>
                     </div>
                 </li>
-                <li  id="li_condizioni_generali">Condizioni Generali di Adesione *
+                <li id="li_condizioni_generali">Condizioni Generali di Adesione *
                     <div style="padding: 10px;">
                         <ol>
                             <li>
@@ -166,28 +166,48 @@ defined('_JEXEC') or die('Restricted access');
 
                             </li>
                         </ol>
-                        <label for="condizioni_generali" class="radio-inline">Acconsento: </label>
+                        <label for="condizioni_generali" class="radio-inline">Acconsento: *</label>
+                        <!--                        <label class="radio-inline">-->
+                        <!--                            <input type="radio" name="condizioni_generali" value="false" > No </label>-->
                         <label class="radio-inline">
-                            <input type="radio" name="condizioni_generali" value="false" > No </label>
-                        <label class="radio-inline">
-                            <input type="radio" required name="condizioni_generali" value="true"> Sì * </label>
+                            <input type="radio" class="radio-required" required name="condizioni_generali" value="true">
+                            Sì </label>
                     </div>
                 </li>
-                <li  id="li_consenso_informato" >Consenso Informato *
+                <li id="li_consenso_informato">Consenso Informato *
                     <div style="padding: 10px;">
                         L'azienda acconsente all'invio di eventuali comunicazioni relative ai servizi e contenuti del
                         sito inerenti con il corso in questione.
                         <br>
-                        <label for="consenso_informato" class="radio-inline">Acconsento: </label>
+                        <label for="consenso_informato" class="radio-inline">Acconsento: * </label>
+                        <!--                        <label class="radio-inline">-->
+                        <!--                            <input type="radio" name="consenso_informato" value="false" > No </label>-->
                         <label class="radio-inline">
-                            <input type="radio" name="consenso_informato" value="false" > No </label>
-                        <label class="radio-inline">
-                            <input type="radio" required name="consenso_informato" value="true"> Sì * </label>
+                            <input type="radio" class="radio-required" required name="consenso_informato" value="true">
+                            Sì </label>
+                    </div>
+                </li>
+                <li id="li_condizioni_pagamento">Condizioni per il pagamento
+                    <div style="padding: 10px;">
+                     Il pagamento deve essere effettuato tramite bonifico sulla banca:   <b> <?= $this->info_piattaforma["info_pagamento"] ?></b>
+                        <br>
+
+                        <b>CAUSALE OBBLIGATORIA: CODICE DEL CORSO, NUMERO COUPON E SOCIETÀ DI FATTURAZIONE.</b>
+                        <br>
+
+
+                        <?= $this->info_piattaforma["name"] ?>  provvederà ad emettere regolare fattura per
+                        l'importo corrispondente. Agli Enti pubblici è richiesto di trasmettere, contestualmente
+                        all'invio della scheda di prenotazione, la dichiarazione di esenzione IVA in base all'art.14,
+                        comma 10, della Legge 537/1993: in caso di omissione di tale documentazione, non sarà possibile
+                        modificare le fatture già emesse.
                     </div>
                 </li>
             </ul>
             <div class="form-group" style="margin-top: 20px; text-align: center">
-                <button style="width: 80%" id="btn-prenota" type="submit" class="btn-block btn" onclick="prenota">Prenota Coupon</button>
+                <button style="width: 80%" id="btn-prenota" type="submit" class="btn-block btn" onclick="prenota">
+                    Prenota Coupon
+                </button>
             </div>
         </form>
 

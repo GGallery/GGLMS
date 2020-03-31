@@ -87,7 +87,7 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.email_riferimento as email, ud.alias as alias, ud.telefono , ud.dominio')
+                ->select('ug.id as id , ug.title as name, ud.email_riferimento as email, ud.alias as alias, ud.telefono , ud.dominio, ud.info_pagamento')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('id=' . $id_piattaforma)

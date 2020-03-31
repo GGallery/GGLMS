@@ -24,13 +24,20 @@ _prenotaCoupon = (function ($, my) {
             $("#qty").on('input', _getPrice);
             $(".validation-lbl").hide();
 
+
+            $('input[type=radio].radio-required').click(function (e) {
+                var pb = $("#panelbar").data("kendoPanelBar");
+                pb.collapse($("#li_" + $(this).attr('name')) , true);
+
+            });
+
             _manageData(raw_data);
             _createPanelBar();
 
 
             createNotification('#notification', 5000, true);
             _kendofix();
-            3
+
 
 
         }
@@ -237,6 +244,8 @@ _prenotaCoupon = (function ($, my) {
             pb.expand(".k-item")
 
         }
+
+
 
 
 // fix per chrome perchè abbiamo una versione con un bug, mostra la  maniglia resize column

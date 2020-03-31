@@ -47,16 +47,9 @@ form[name=prenotaCouponForm] input[type=number],form[name=prenotaCouponForm] inp
     height: 45px !important;
 }
 
-
-/*.col-form-label.disabled {*/
-    /*opacity: 0.4;*/
-/*}*/
-
-
-/*input[disabled]:hover {*/
-    /*cursor: not-allowed;*/
-    /*border: 2px solid rgba(0, 0, 0, 0.1) !important;*/
-/*}*/
+#li_condizioni_pagamento  b{
+    /*font-size: larger;*/
+}
 
 
 .validation-lbl {
@@ -68,34 +61,6 @@ form[name=prenotaCouponForm] input[type=number],form[name=prenotaCouponForm] inp
 
 }
 
-
-/*#modalDetails_genera {*/
-    /*z-index: 12002 !important;*/
-/*}*/
-
-/*#modalDetails_genera > .modal-dialog {*/
-    /*width: 549px;*/
-    /*margin: 30px auto;*/
-/*}*/
-
-/*#modalDetails_genera > .modal-dialog {*/
-    /*width: 549px;*/
-    /*margin: 30px auto;*/
-/*}*/
-
-/*#details_grid {*/
-    /*font-size: small;*/
-/*}*/
-
-/*#details_grid > tbody > tr:hover {*/
-    /*background-color: lightblue;*/
-    /*font-weight: bold;*/
-/*}*/
-
-
-/*.td {*/
-    /*cursor: pointer;*/
-/*}*/
 
 
 
