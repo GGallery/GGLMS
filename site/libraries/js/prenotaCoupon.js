@@ -103,7 +103,7 @@ _prenotaCoupon = (function ($, my) {
 
 
             //todo NB
-            //gestione corsi che non hanno un tetto oltre quale si deve mandare email -->
+            //gestione corsi che non hanno un range massimo oltre quale si deve mandare email -->
             // li riconosco dal fatto che hanno definiti per esempio p1 e p2 ma solo il range1
             raw_data[last_row_range] = data[last_row_price] ? data[last_row_price] : null;
 
