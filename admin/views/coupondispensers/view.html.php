@@ -39,9 +39,8 @@ class gglmsViewcoupondispensers extends JViewLegacy {
 
         JToolBarHelper::title(JText::_('COM_GGLMS_MANAGER_UNITAS'), 'unitas');
         JToolBarHelper::deleteList(JText::_('COM_GGLMS_FILES_SICUROELIMINARE'), 'unita.delete');
-        JToolBarHelper::editList('unita.edit');
-        JToolBarHelper::addNew('unita.clonaCorso','duplica corso');
-        JToolBarHelper::addNew('unita.add');
+        JToolBarHelper::editList('coupondispenser.edit');
+        JToolBarHelper::addNew('coupondispenser.add');
     }
 
     protected function setDocument() {

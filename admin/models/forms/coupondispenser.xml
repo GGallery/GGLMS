@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addrulepath="/administrator/components/com_gglms/models/rules">
+
+    <fieldset addfieldpath="/administrator/components/com_gglms/models/fields">
+        <field
+                name="id"
+                type="text"
+                label="Id"
+                description="id"
+                size="100"
+                required="true"
+                default=""
+                readonly="true"
+        />
+
+
+        <field
+                name="titolo"
+                type="text"
+                label="Titolo"
+                description="Titolo dispenser"
+                size="70"
+                class="inputbox"
+
+                required="true"
+                default=""
+        />
+
+
+        <field
+                name="descrizione"
+                type="editor"
+                label="Descrizione"
+                description="Descrizione dispenser"
+                size="70"
+                class="inputbox"
+                filter="safehtml"
+
+                required="false"
+                default=""
+
+                cols="50" rows="5"
+
+        />
+
+
+        <field
+                name="alias"
+                type="text"
+                label="Alias"
+                description="Alias del dispenser"
+                size="70"
+                class="inputbox"
+                validate=""
+                required=""
+                default=""
+        />
+
+
+        <field
+                name="id_iscrizione"
+                description="ID Iscrizione"
+                type="listaidiscrizionicoupon"
+                default=""
+                class="inputbox"
+                label="id Iscrizione"
+
+        />
+
+
+    </fieldset>
+</form>

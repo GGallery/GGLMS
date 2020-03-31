@@ -18,8 +18,8 @@ defined('_JEXEC') or die;
         </td>
 
         <td>
-            <a href="<?php echo JRoute::_('index.php?option=com_gglms&task=coupondispensers.edit&id=' . $item->id); ?>">
-                <?php echo $item->title; ?>
+            <a href="<?php echo JRoute::_('index.php?option=com_gglms&task=coupondispenser.edit&id=' . $item->id); ?>">
+                <?php echo $item->titolo; ?>
             </a>
         </td>
         <td>
