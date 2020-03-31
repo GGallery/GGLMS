@@ -1,9 +1,9 @@
 <?php
 /**
- * @package		Joomla.Tutorials
- * @subpackage	Component
- * @copyright	Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
- * @license		License GNU General Public License version 2 or later; see LICENSE.txt
+ * @package        Joomla.Tutorials
+ * @subpackage    Component
+ * @copyright    Copyright (C) 2005 - 2010 Open Source Matters, Inc. All rights reserved.
+ * @license        License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
 defined('_JEXEC') or die;
@@ -13,6 +13,7 @@ defined('_JEXEC') or die;
         <td>
             <?php echo $item->id; ?>
         </td>
+
         <td>
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
@@ -22,9 +23,7 @@ defined('_JEXEC') or die;
                 <?php echo $item->titolo; ?>
             </a>
         </td>
-        <td>
-            <?php echo $item->alias; ?>
-        </td>
+
         <td>
             <?php echo $item->id_iscrizione; ?>
         </td>

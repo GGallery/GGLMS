@@ -1,5 +1,6 @@
 <?php
 defined('_JEXEC') or die;
+
 /**
  * Joomla component com_gglms
  *
@@ -9,7 +10,8 @@ defined('_JEXEC') or die;
 class GGlmsRouter extends JComponentRouterBase
 {
 
-    function build(&$query) {
+    function build(&$query)
+    {
         $segments = array();
 
         if (isset($query['view'])) {
@@ -36,10 +38,15 @@ class GGlmsRouter extends JComponentRouterBase
             unset($query['unit']);
         }
 
+        if (isset($query['coupondipenser'])) {
+            unset($query['coupondipenser']);
+        }
+
         return $segments;
     }
 
-    function parse(&$segments) {
+    function parse(&$segments)
+    {
         $db = JFactory::getDbo();
         $vars = array();
 
@@ -73,8 +80,7 @@ class GGlmsRouter extends JComponentRouterBase
 
                     $db->setQuery($query);
                     $vars['id'] = $db->loadResult();
-                }
-                else {
+                } else {
                     list($id, $alias) = explode('-', $segments[1], 2);
                     $vars['id'] = $id;
                 }
@@ -83,6 +89,24 @@ class GGlmsRouter extends JComponentRouterBase
 
             case 'coupon':
                 $vars['view'] = 'coupon';
+                break;
+
+
+            case 'coupondispenser':
+                $vars['view'] = 'coupondispenser';
+
+                print_r($segments);
+
+                $id_iscrizione = $segments[1];
+                $query = $db->getQuery(true)
+                    ->select('id')
+                    ->from('#__gg_coupon_dipenser')
+                    ->where('id_iscrizione="' . $id_iscrizione . '"');
+
+                $db->setQuery($query);
+                $vars['id'] = $db->loadResult();
+
+
                 break;
 
             case 'dash':
@@ -99,6 +123,7 @@ class GGlmsRouter extends JComponentRouterBase
         return $vars;
     }
 }
+
 function gglmsBuildRoute(&$query)
 {
 

@@ -37,10 +37,6 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
 
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('alias'); ?>
-                </div>
-
-                <div class="row-fluid">
                     <?php echo $this->form->renderField('id_iscrizione'); ?>
                 </div>
 
@@ -60,14 +56,4 @@ JHtml::_('formbehavior.chosen', 'select');
         </div>
     </div>
     <?php echo JHtml::_('bootstrap.endTab'); ?>
-
-
-<!--    <input id="idelemento" type="hidden" name="idelemento" value="--><?php //echo $this->item->id; ?><!--" size="150px">-->
-<!--    <input id="path" type="hidden" name="path" value="--><?php //echo $_SERVER['DOCUMENT_ROOT']; ?><!--/mediagg/images/unit/"-->
-<!--           size="150px">-->
-<!--    <input id="subpath" type="hidden" name="subpath" value="" size="150px">-->
-<!--    <input id="url" type="hidden" name="url"-->
-<!--           value="--><?php //echo JURI::root(); ?><!--/contenuti/--><?php //echo $this->item->id; ?><!--/" size="150px">-->
-<!--    <input id="tipologia" type="hidden" name="tipologia" value="" size="150px">-->
-
 </form>

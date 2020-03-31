@@ -43,20 +43,6 @@
 
         />
 
-
-        <field
-                name="alias"
-                type="text"
-                label="Alias"
-                description="Alias del dispenser"
-                size="70"
-                class="inputbox"
-                validate=""
-                required=""
-                default=""
-        />
-
-
         <field
                 name="id_iscrizione"
                 description="ID Iscrizione"
