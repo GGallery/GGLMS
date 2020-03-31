@@ -62,7 +62,7 @@ class gglmsController extends JControllerLegacy
 
 
             //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
-        if ($this->_user->guest && strpos(JUri::getInstance()->toString(), 'catalogo') === false && strpos(JUri::getInstance()->toString(), 'helpdesk') === false) {
+        if ($this->_user->guest && strpos(JUri::getInstance()->toString(), 'catalogo') === false && strpos(JUri::getInstance()->toString(), 'helpdesk') === false && strpos(JUri::getInstance()->toString(), 'prenota') === false) {
             $msg = "Per accedere al corso è necessario loggarsi";
             $uri = JUri::getInstance();
             $return = $uri->toString();
