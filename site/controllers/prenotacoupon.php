@@ -159,12 +159,7 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
         $mailer->setSender($sender); //FROM: email riferimento piattaforma
         $mailer->addRecipient($to); //TO: tutor Piattaforma
         $mailer->addCc($cc); // in copia chi ha compilato il form
-        $mailer->setSubject('Prenotazione Coupon corso ' . $info_corso["titolo_corso"] . " - " . $info_corso["codice_corso"]);
-
-//        var_dump($info_piattaforma["email"]);
-//        var_dump($to);
-//        var_dump($data["email"]);
-//        die();
+        $mailer->setSubject('Scheda prenotazione coupon corso ' . $info_corso["titolo_corso"] . " - " . $info_corso["codice_corso"]);
 
         $smarty = new EasySmarty();
         $smarty->assign('company_name', $data["ragione_sociale"]);
@@ -179,8 +174,7 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
         $smarty->assign('piattaforma_name', $info_piattaforma["name"]);
         $smarty->assign('piattaforma_alias', $info_piattaforma["alias"]);
         $smarty->assign('recipient_name', 'Tutor');
-//
-//
+
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
         $mailer->isHTML(true);
 

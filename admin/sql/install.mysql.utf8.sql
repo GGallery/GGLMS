@@ -549,6 +549,68 @@ CREATE TABLE `#__gg_mail_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+-- ----------------------------
+-- Table structure for `#__usergroups_details`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__usergroups_details`;
+CREATE TABLE `#__usergroups_details` (
+  `group_id` int(11) NOT NULL,
+  `is_default` tinyint(1) unsigned DEFAULT '0',
+  `name` varchar(63) NOT NULL,
+  `dg` varchar(127) DEFAULT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `nomi_tutor` varchar(255) DEFAULT NULL,
+  `email_tutor` varchar(255) NOT NULL,
+  `email_riferimento` varchar(255) DEFAULT NULL,
+  `link_ecommerce` varchar(255) DEFAULT NULL,
+  `telefono` varchar(255) DEFAULT NULL,
+  `attivo` tinyint(4) DEFAULT NULL,
+  `dominio` varchar(255) DEFAULT NULL,
+  `patrocinio` varchar(255) DEFAULT NULL,
+  `footer` mediumtext,
+  `final_test` varchar(255) DEFAULT NULL,
+  `welcome` varchar(255) DEFAULT NULL,
+  `corsi_visbili_catalogo` varchar(100) DEFAULT NULL,
+  `testo_intro_homepage` varchar(50) DEFAULT NULL,
+  `attestati_custom` varchar(255) DEFAULT NULL,
+  `alias` varchar(255) DEFAULT NULL,
+  `mail_from_default` tinyint(1) unsigned zerofill DEFAULT '0',
+  `info_pagamento` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`group_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_prezzi`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_prezzi`;
+CREATE TABLE `#__gg_prezzi` (
+  `id_corso` int(11) NOT NULL,
+  `p1` int(255) NOT NULL,
+  `p2` int(255) NOT NULL,
+  `p3` int(255) NOT NULL,
+  `p4` int(255) DEFAULT NULL,
+  `sconto_associati` float NOT NULL,
+  PRIMARY KEY (`id_corso`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+-- ----------------------------
+-- Table structure for `#_gg_prezzi_range`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_prezzi_range`;
+CREATE TABLE `#__gg_prezzi_range` (
+  `id_corso` int(11) NOT NULL,
+  `range1` int(11) NOT NULL,
+  `range2` int(11) NOT NULL,
+  `range3` int(11) DEFAULT NULL,
+  `range4` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_corso`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+
+
 -- -------------------------------------------------
 -- vista per summary report
 -- ------------------------------------------------
