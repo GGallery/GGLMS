@@ -42,6 +42,7 @@ class gglmsController extends JControllerLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupon.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupondispenser.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
@@ -62,7 +63,12 @@ class gglmsController extends JControllerLegacy
 
 
             //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
-        if ($this->_user->guest && strpos(JUri::getInstance()->toString(), 'catalogo') === false && strpos(JUri::getInstance()->toString(), 'helpdesk') === false && strpos(JUri::getInstance()->toString(), 'prenota') === false) {
+        if ($this->_user->guest
+            && strpos(JUri::getInstance()->toString(), 'catalogo') === false
+            && strpos(JUri::getInstance()->toString(), 'helpdesk') === false
+            && strpos(JUri::getInstance()->toString(), 'dispenser') === false
+            && strpos(JUri::getInstance()->toString(), 'prenota') === false
+        ) {
             $msg = "Per accedere al corso è necessario loggarsi";
             $uri = JUri::getInstance();
             $return = $uri->toString();
