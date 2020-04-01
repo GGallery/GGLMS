@@ -1,0 +1,21 @@
+/*
+    Document   : webtv
+    Created on : 11-feb-2012, 11.22.25
+    Author     : Tony
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+#box_email_field
+{
+    border-style: solid;
+    border-color: gray;
+    height: 50px !important;
+    width: 500px;
+    font-size:28px;
+    font-family:  serif;
+    padding: 5px;
+    background-color: #9BAEC8;
+
+    -moz-border-radius:5px 5px 5px 5px;
+}

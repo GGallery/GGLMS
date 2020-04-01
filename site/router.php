@@ -95,17 +95,14 @@ class GGlmsRouter extends JComponentRouterBase
             case 'coupondispenser':
                 $vars['view'] = 'coupondispenser';
 
-                print_r($segments);
-
                 $id_iscrizione = $segments[1];
                 $query = $db->getQuery(true)
                     ->select('id')
-                    ->from('#__gg_coupon_dipenser')
-                    ->where('id_iscrizione="' . $id_iscrizione . '"');
+                    ->from('#__gg_coupon_dispenser as c')
+                    ->where('c.id_iscrizione="' . $id_iscrizione . '"');
 
                 $db->setQuery($query);
                 $vars['id'] = $db->loadResult();
-
 
                 break;
 
