@@ -1,8 +1,5 @@
 <?php
 
-require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
-
-
 require_once(JPATH_COMPONENT . '/libraries/pdf/tcpdf/config/lang/ita.php');
 require_once(JPATH_COMPONENT . '/libraries/pdf/tcpdf/tcpdf.php');
 require_once(JPATH_COMPONENT . '/libraries/smarty/EasySmarty.class.php');

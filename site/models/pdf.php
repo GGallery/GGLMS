@@ -57,6 +57,18 @@ class gglmsModelPdf extends JModelLegacy
 
             $template = "file:" . $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $attestato->id . ".tpl";
 
+            $customTemplate = $this->customTemplate(); //check sul campo usergroups_details => attestati_custom. Se == 1 cerco il template con l'alias dell'associato
+            if ($customTemplate) {
+                $customFile = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $customTemplate . ".tpl";
+
+                if (file_exists($customFile)) {
+                    $template = 'file:' . $customFile;
+                } else {
+                    throw new RuntimeException($customTemplate . " NOT EXIST", E_USER_ERROR);
+                }
+            }
+
+
             $pdf->add_data((array)$user);
             $pdf->add_data($info);
 
@@ -82,11 +94,32 @@ class gglmsModelPdf extends JModelLegacy
         return 0;
     }
 
+    private function customTemplate()
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('alias, attestati_custom')
+                ->from('#__usergroups_details as a')
+                ->where('a.dominio = "' . DOMINIO . '"');
+//                ->where('a.dominio = "formazione.assiterminal.it"'); // force example domain
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            return $results['attestati_custom'] == 1 ? $results['alias'] : '';
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'customTemplate');
+        }
+    }
+
     public function _generate_libretto_pdf($data, $user)
     {
 
         try {
-            require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
+            require_once JPATH_COMPONENT . 'components/com_gglms/models/libraries/pdf/certificatePDF.class.php';
             $pdf = new certificatePDF();
 
 
