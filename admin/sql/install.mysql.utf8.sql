@@ -609,6 +609,32 @@ CREATE TABLE `#__gg_prezzi_range` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 
+-- ----------------------------
+-- Table structure for `#__gg_coupon_dispenser`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_coupon_dispenser`;
+CREATE TABLE `#__gg_coupon_dispenser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `titolo` varchar(255) NOT NULL,
+  `alias` varchar(255) NOT NULL,
+  `descrizione` text,
+  `id_iscrizione` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+
+
+-- ----------------------------
+-- Table structure for `#__gg_coupon_dispenser_log`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_coupon_dispenser_log`;
+CREATE TABLE `cis19_gg_coupon_dispenser_log` (
+  `email` varchar(255) NOT NULL,
+  `id_dispenser` int(11) NOT NULL,
+  `coupon` varchar(255) NOT NULL,
+  `date_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`email`,`id_dispenser`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 -- -------------------------------------------------
