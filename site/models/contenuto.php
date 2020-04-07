@@ -164,6 +164,7 @@ class gglmsModelContenuto extends JModelLegacy
             case 5:    //attestato
             case 6: //Testuale HTML
             case 9: //pdfsingolo
+            case 10: //webinar
 
 
                 $url = "index.php?option=com_gglms&view=contenuto&alias=" . $this->alias;
@@ -312,6 +313,7 @@ class gglmsModelContenuto extends JModelLegacy
                 case 4: //scorm
                 case 6: //testuale
                 case 9: //pdfsingolo
+                case 10: //pdfsingolo
                     $data = $this->getStato_scorm($this->_userid);
                     return $data;
                     break;

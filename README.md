@@ -4,8 +4,12 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.4 
+ - G: aggiunta vista webinar
+ - G: aggiunto Coupon Dispenser
+
 4.0.3 
- - G: aggingi campi custom report selezionabili da backend.
+ - G: aggiunti campi custom report selezionabili da backend.
 
 4.0.1
  - B: ordinamento unità backend

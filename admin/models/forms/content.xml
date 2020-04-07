@@ -149,11 +149,11 @@
 		<field
 				name="path"
 				type="text"
-				label="Percorso entryfile"
-				description="Percorso entryfile dello scorm"
+				label="Percorso entryfile/Webinar Id"
+				description="Percorso entryfile dello scorm / Identificativo Webinar"
 				class="inputbox"
 				required=""
-				showon="tipologia:4"
+				showon="tipologia:4[OR]tipologia:10"
 				default=""
 				size="1"
 		>

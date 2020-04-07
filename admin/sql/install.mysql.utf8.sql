@@ -197,6 +197,7 @@ INSERT INTO `#__gg_contenuti_tipology` VALUES ('6', 'testuale', 'Testuale', '6',
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('7', 'quizdeluxe', 'Quiz Deluxe', '7', '1');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('8', 'singlesignon', 'sso', '8', '1');
 INSERT INTO `#__gg_contenuti_tipology` VALUES ('9', 'pdfsingolo', 'Singolo PDF', '9', '1');
+INSERT INTO `#__gg_contenuti_tipology` VALUES ('9', 'webinar', 'Webinar', '3', '1');
 
 -- ----------------------------
 -- Table structure for `#__gg_coupon`
