@@ -629,7 +629,7 @@ CREATE TABLE `#__gg_coupon_dispenser` (
 -- Table structure for `#__gg_coupon_dispenser_log`
 -- ----------------------------
 DROP TABLE IF EXISTS `#__gg_coupon_dispenser_log`;
-CREATE TABLE `cis19_gg_coupon_dispenser_log` (
+CREATE TABLE `#__gg_coupon_dispenser_log` (
   `email` varchar(255) NOT NULL,
   `id_dispenser` int(11) NOT NULL,
   `coupon` varchar(255) NOT NULL,
