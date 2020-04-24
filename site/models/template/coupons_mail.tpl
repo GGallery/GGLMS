@@ -30,5 +30,18 @@
         </p>
         <p>Questa mail è generata automaticamente, si prega di non rispondere.</p>
 
+
+        <a href="mailto:training@consorzioglobal.com">training@consorzioglobal.com</a> </br>
+        Consorzio Global </br>
+        Sede Legale Via A. Cantore 17-1° - 16149 Genova </br>
+        Telefono 010.6445842  Fax 06.56562967 </br>
+        Sede Operativa Via A. Cantore 30B/8 – 16149 Genova </br>
+        Telefono 0100996660 Fax 0656562967 </br></br>
+
+
+
+        <img src="http://fad.consorzioglobal.com/site/logo.jpg" width="150">
+    
+
     </body>
 </html>
