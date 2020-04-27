@@ -335,7 +335,7 @@ _summaryreport = (function ($, my) {
             _loadData();
 
 
-            createNotification('#notification', 5000,true);
+            createNotification('#notification', 5000, true);
 
 
         }
@@ -473,7 +473,7 @@ _summaryreport = (function ($, my) {
 
             $('#cover-spin').hide(0);
 
-
+            // widgets.grid = $("#grid").data('kendoGrid');
             // bind popup
             $("#grid").on("click", ".k-grid-user", _openUserDetails);
 
@@ -1006,21 +1006,18 @@ _summaryreport = (function ($, my) {
             $.when($.get("index.php?option=com_gglms&task=summaryreport.do_delete_coupon", params))
                 .done(function (data) {
                     var d = JSON.parse(data);
-                    if(d.success === 1){
+                    if (d.success === 1) {
 
-                       _loadData();
-                       showNotification('#notification', 'success','Successo', d.message);
-                   }
-                    else
-                    {
-                        showNotification('#notification', 'error','Errore', d.message);
+                        _loadData();
+                        showNotification('#notification', 'success', 'Successo', d.message);
+                    } else {
+                        showNotification('#notification', 'error', 'Errore', d.message);
                     }
-
 
 
                 })
                 .fail(function (data) {
-                    showNotification('#notification', 'error','Errore','Ooops si è verificato un errore');
+                    showNotification('#notification', 'error', 'Errore', 'Ooops si è verificato un errore');
                     // console.log('fail', data);
                     // $('#cover-spin').hide(0);
 
@@ -1037,21 +1034,18 @@ _summaryreport = (function ($, my) {
             $.when($.get("index.php?option=com_gglms&task=summaryreport.do_reset_coupon", params))
                 .done(function (data) {
                     var d = JSON.parse(data);
-                    if(d.success === 1){
+                    if (d.success === 1) {
 
                         _loadData();
-                        showNotification('#notification', 'success','Successo', d.message);
+                        showNotification('#notification', 'success', 'Successo', d.message);
+                    } else {
+                        showNotification('#notification', 'error', 'Errore', d.message);
                     }
-                    else
-                    {
-                        showNotification('#notification', 'error','Errore', d.message);
-                    }
-
 
 
                 })
                 .fail(function (data) {
-                    showNotification('#notification', 'error','Errore','Ooops si è verificato un errore');
+                    showNotification('#notification', 'error', 'Errore', 'Ooops si è verificato un errore');
                     // console.log('fail', data);
                     // $('#cover-spin').hide(0);
 
