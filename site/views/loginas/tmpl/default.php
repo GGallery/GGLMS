@@ -7,7 +7,7 @@ defined('_JEXEC') or die('Restricted access');
 echo "<h1> Pannello Utenti </h1>"; ?>
 
 
-<div class="mc-main">
+<div class="mc-main" style="overflow-x: scroll; font-size: small; margin-left:5px; margin-right: 5px">
     <table>
         <thead>
         <tr>

@@ -94,12 +94,26 @@ defined('_JEXEC') or die;
         </form>
 
         <hr>
-        <?php
-        echo "Report aggiornato al :" . $this->state->get('params')->get('data_sync');
-        ?>
 
-        <!--        <canvas id="myChart" width="100" height="100" style="visibility: hidden"></canvas>-->
+<div id="upd_at">
 
+</div>
+        <script>
+            <?php
+            echo ' convertUTCDateToLocalDate(' . json_encode( $this->state->get('params')->get('data_sync')) . ');';
+            ?>
+
+            // convert utc to local
+            function convertUTCDateToLocalDate(d) {
+
+                var date = new Date( d +' UTC');
+                var localdate =  'Report aggiornato al: ' + date.toLocaleDateString() + ' '+ date.toLocaleTimeString();
+                document.getElementById("upd_at").innerHTML ='<span>' + localdate +'</span>';
+
+
+            }
+
+        </script>
 
     </div>
     <div id="contenitoreprincipale" class="span8">
