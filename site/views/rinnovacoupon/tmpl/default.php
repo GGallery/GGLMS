@@ -13,10 +13,10 @@ defined('_JEXEC') or die('Restricted access');
             jQuery("#waiting_verifica_codice").show();
             jQuery("#report").hide();
 
-            jQuery.get("index.php?option=com_gglms&task=coupon.check_coupon_renew", {coupon: jQuery("#box_coupon_field").val()},
+            jQuery.get("index.php?option=com_gglms&task=coupon.check_coupon_rinnovo", {coupon: jQuery("#box_coupon_field").val()},
                 function (data) {
 
-                console.log(data);
+                    console.log(data);
                     if (data.valido == 1) {
                         jQuery("#button_conferma_codice").show();
                         jQuery("#box_coupon_field").val("");
