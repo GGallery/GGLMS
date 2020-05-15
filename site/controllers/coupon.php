@@ -42,17 +42,17 @@ class gglmsControllerCoupon extends JControllerLegacy
 
 
         if (empty($dettagli_coupon)) {
-            $results['report'] = "<p class='alert-danger alert'> " . $this->_params->get('messaggio_inserimento_wrong') . "</p>";
+            $results['report'] = "<p class='alert-danger alert'> " . JText::_('COM_GGLMS_COUPON_INSERT_WRONG') . "</p>";
             $results['valido'] = 0;
         } else {
             if (!$dettagli_coupon['abilitato']) {
-                $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_pending') . "</p>";
+                $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_PENDING')  . "</p>";
                 $results['valido'] = 0;
             } else {
 
                 if ($model->is_logged_user_tutor()) {
 
-                    $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_tutor') . "</p>";
+                    $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_TUTOR') . "</p>";
                     $results['valido'] = 0;
 
                 } else {
@@ -61,7 +61,7 @@ class gglmsControllerCoupon extends JControllerLegacy
                     if ($model->check_already_enrolled($dettagli_coupon)) {
                         // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente
 
-                        $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_duplicate') . "</p>";
+                        $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_DUPLICATED') . "</p>";
                         $results['valido'] = 0;
                     } else {
                         $model->assegnaCoupon($coupon);
@@ -72,12 +72,12 @@ class gglmsControllerCoupon extends JControllerLegacy
                             $model->setUsergroupUserGroup($dettagli_coupon['id_societa']);
 
                         $results['valido'] = 1;
-                        $results['report'] = "<p class='alert-success alert'> Coupon valido. (COD.04)</p>";
+                        $results['report'] = "<p class='alert-success alert'> " . JText::_('COM_GGLMS_COUPON_INSERT_COUPON_VALID') ."</p>";
 
                         if ($dettagli_coupon['corsi_abilitati'])
                             $results['report'] .= $model->get_listaCorsiFast($dettagli_coupon['corsi_abilitati']);
                         else
-                            $results['report'] = $this->_params->get('messaggio_inserimento_success');
+                            $results['report'] =  JText::_('COM_GGLMS_COUPON_INSERT_SUCCESS') ;
                     }
                 }
 
@@ -114,38 +114,38 @@ class gglmsControllerCoupon extends JControllerLegacy
 
             //CHECK USER
             // utente loggato che sta richiedendo un rinnovo non è tutori di piattaforma, non dovrebbe accedere a rinnova coupon
-            $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_rinnovo_notutor') . "</p>";
+            $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_RENEW_COUPON_NOTUTOR') . "</p>";
             $results['valido'] = 0;
 
         }
 
         if (empty($dettagli_coupon)) {
             // check esistaenza coupon
-            $results['report'] = "<p class='alert-danger alert'> " . $this->_params->get('messaggio_inserimento_wrong') . "</p>";
+            $results['report'] = "<p class='alert-danger alert'> " . JText::_('COM_GGLMS_COUPON_INSERT_WRONG')  . "</p>";
             $results['valido'] = 0;
         } else {
             if (!$dettagli_coupon['abilitato']) {
                 // se non è abilitato non te lo faccio rinnovare
-                $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_inserimento_pending') . "</p>";
+                $results['report'] = "<p class='alert-danger alert'>" .  JText::_('COM_GGLMS_COUPON_INSERT_PENDING')  . "</p>";
                 $results['valido'] = 0;
             } else {
 
                 // check, deve essere associato ad un utente
                 if (!$dettagli_coupon['id_utente'] || !$dettagli_coupon['data_utilizzo']) {
 
-                    $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_rinnovo_nouser') . "</p>";
+                    $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_RENEW_COUPON_NOUSER')   . "</p>";
                     $results['valido'] = 0;
 
                 } else if (!$model->check_id_societa_match_user($dettagli_coupon['id_societa'], $this->_user->id)) {
 
                     // coupon id_societetà deve essere figlia di una delle piattaforme a cui appartiene l'utente
-                    $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_rinnovo_wrong_società') . "</p>";
+                    $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_RENEW_COUPON_WRONG_SOC'). "</p>";
                     $results['valido'] = 0;
 
                 } else if (!$model->is_expired($coupon)) {
 
                     // check il coupon deve essere scaduto
-                    $results['report'] = "<p class='alert-danger alert'>" . $this->_params->get('messaggio_rinnovo_not_expired') . "</p>";
+                    $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_RENEW_COUPON_WRONG_NOTEXPIRED'). "</p>";
                     $results['valido'] = 0;
 
                 } else {
@@ -154,7 +154,7 @@ class gglmsControllerCoupon extends JControllerLegacy
                     // tutti i controlli superati, rinnova coupon
                     if ($model->rinnova_coupon($coupon)) {
                         $results['valido'] = 1;
-                        $results['report'] = "<p class='alert-success alert'>" . $this->_params->get('messaggio_rinnovo_success') . "</p>";
+                        $results['report'] = "<p class='alert-success alert'>" .  JText::_('COM_GGLMS_COUPON_RENEW_COUPON_SUCCESS') . "</p>";
                     }
 
                 }
