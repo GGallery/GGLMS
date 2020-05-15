@@ -23,7 +23,7 @@ if ($this->contenuto->_params->get('abilita_breadcrumbs', 1))
 <div class="g-grid">
     <div class="g-block size-50">
 
-        <?php echo $this->att_scaricabile == 1 ? $this->contenuto->_params->get('testo_invito_scaricare_attestato') : $this->_params->get('testo_attestato_disabilitato'); ?>
+        <?php echo $this->att_scaricabile == 1 ?  JText::_('COM_GGLMS_ATTESTATO_INVITO') : JText::_('COM_GGLMS_ATTESTATO_DISABILITATO')  ?>
 
     </div>
     <div class="g-block size-50">

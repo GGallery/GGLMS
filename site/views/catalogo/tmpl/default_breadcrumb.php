@@ -24,7 +24,7 @@
                        href="<?php
                        if($this->_params->get('customizza_link_primo_item', 0)){
                        echo JRoute::_($this->_params->get('customizza_link_primo_item')) ?>"
-                       class="pathway"><span itemprop="name"><?php echo $this->_params->get('customizza_testo_primo_item'); ?></span></a>
+                       class="pathway"><span itemprop="name"><?php echo JText::_('COM_GGLMS_CUSTOMIZZA_TESTO_PRIMO_ITEM') ?></span></a>
                     <?php
                     }else {
                         echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $item->alias) ?>"
