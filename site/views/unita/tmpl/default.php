@@ -7,7 +7,14 @@ $count = 0;
 if ($this->unita->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
-echo "<h1>" . $this->unita->titolo . "</h1>";
+if( $this->unita->id == 1 )
+{echo "<h1>" . JText::_('COM_GGLMS_GLOBAL_CORSI') . "</h1>";
+}
+else{
+    echo "<h1>" . $this->unita->titolo . "</h1>";
+
+}
+
 
 echo "<h5>" . $this->unita->descrizione . "</h5>";
 
