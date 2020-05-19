@@ -79,7 +79,7 @@ class gglmsControllerMobile extends JControllerLegacy
         $query->where("is_corso=1");
 //        $query->where("id = 191");
         $query->order("ordinamento");
-//        $query->setLimit(3);
+        $query->setLimit(3);
 
 
         $this->_db->setQuery($query);
