@@ -40,3 +40,13 @@ $controller->execute(JFactory::getApplication()->input->get('task')); //RS $cont
 
 
 $controller->redirect();
+
+///// Aggiungi qui le stringhe che devono essere localizzate anche in javascript
+JText::script('COM_GGLMS_GLOBAL_COUPON');
+JText::script('COM_GGLMS_GLOBAL_USER');
+JText::script('COM_GGLMS_GLOBAL_CREATION_DATE');
+JText::script('COM_GGLMS_GLOBAL_USE_DATE');
+JText::script('COM_GGLMS_GLOBAL_VENDITORE');
+JText::script('COM_GGLMS_GLOBAL_CORSO');
+JText::script('COM_GGLMS_GLOBAL_RECORD');
+
