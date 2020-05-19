@@ -49,7 +49,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $data = JRequest::get($_POST);
             $this->generaCoupon->insert_coupon($data);
 
-            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage('Coupon creato/i con successo!', 'Success'));
+            $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage(JText::_('COM_GGLMS_GENERA_COUPON_SUCCESS'), 'Success'));
 
         } catch (Exception $e) {
 
