@@ -494,7 +494,8 @@ defined('_JEXEC') or die;
 
                 jQuery('#grid-basic').empty();
                 jQuery('#totalcount').empty();
-                jQuery('#totalcount').html('record totali:' + data['rowCount']);
+                var totCount = Joomla.JText._('COM_GGLMS_GLOBAL_RECORD');
+                jQuery('#totalcount').html(totCount + ':' + data['rowCount']);
                 viewReportColumns = [];
                 fields = data;
                 maxNofpages = parseInt((data['rowCount'] / loadreportlimit) + 1);
@@ -604,7 +605,7 @@ defined('_JEXEC') or die;
                     break;
             }
             columnname = item.toString();
-            console.log(columnname, 'aaaaaaaaaaaaa');
+            // console.log(columnname, 'aaaaaaaaaaaaa');
             columnname = Joomla.JText._("COM_GGLMS_REPORT_" + item.toString().toUpperCase()) || columnname;
 
 
@@ -627,7 +628,7 @@ defined('_JEXEC') or die;
 
 
             //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
-            if (!columnname.includes('_hidden')) {
+            if (!columnname.includes('_hidden') && !columnname.includes('no_column')) {
                 jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
                 viewReportColumns.push(item);
             }
