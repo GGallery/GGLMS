@@ -4,12 +4,6 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-$mainframe = JFactory::getApplication('site');
-$mainframe->initialise();
-
-$lang = JFactory::getLanguage();
-$lang->load('com_gglms', JPATH_ROOT);
-
 echo "<h1>".  JText::_('COM_GGLMS_MONITORA_COUPON_TITLE'). "</h1>"; ?>
 
 <div class="mc-main">

@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
 <div id="box_coupon_container">
     <div id="box_coupon">
         <h3><?php echo JText::_('COM_GGLMS_COUPON_INSERT'); ?></h3>
-<!--        <p>--><?php //echo $this->coupon->_params->get('descrizione_pagina_coupon') ?><!--</p>-->
+        <p><?php echo $this->coupon->_params->get('descrizione_pagina_coupon') ?></p>
         <p>
             <input class="field" id="box_coupon_field" type="text" name="nome"/>
             <br>
