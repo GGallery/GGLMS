@@ -4,25 +4,25 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
+echo "<h3 style='text-align: center; margin-top: 5px'>". JText::_('COM_GGLMS_REPORT_USER_TITLE') ."</h3>"; ?>
 
 <div id="splitter" class="mc-main">
     <div id="filters-pane">
         <h5 style="text-align: center">
-            Filtri
+            <?php echo JText::_('COM_GGLMS_GLOBAL_FILTRI') ?>
         </h5>
         <form id="theform" class="form-inline" action="index.php">
 
 
             <div class="form-group">
-                <label for="corso_id">Corso:</label><br>
+                <label for="corso_id"><?php echo JText::_('COM_GGLMS_GLOBAL_CORSO') ?>:</label><br>
                 <select id="corso_id" name="corso_id" class="refresh"> </select>
 
             </div>
 
 
             <div class="form-group">
-                <label for="tipo_report">Tipo Report:</label><br>
+                <label for="tipo_report"><?php echo JText::_('COM_GGLMS_REPORT_TIPO') ?>:</label><br>
                 <select id="tipo_report" name="tipo_report" class="refresh"> </select>
             </div>
 
@@ -30,7 +30,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
 <!--            <h5 style="text-align: center">Filtri</h5>-->
 
             <div class="form-group">
-                <label for="usergroups">Azienda:</label><br>
+                <label for="usergroups"><?php echo JText::_('COM_GGLMS_GLOBAL_COMPANY') ?>:</label><br>
                 <select id="usergroups" name="usergroups" class="refresh">
 
                 </select>
@@ -39,24 +39,24 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
             </div>
 
             <div class="form-group" id="searchPhrase_div">
-                <label for="searchPhrase">Cerca:</label><br>
+                <label for="searchPhrase"><?php echo JText::_('COM_GGLMS_GLOBAL_SEARCH') ?>:</label><br>
                 <input  style="width: 90%"  type="text" id="searchPhrase">
             </div>
 
             <div class="form-group" id="filterstatodiv">
-                <label for="filterstato">Stato corso</label>
+                <label for="filterstato"> <?php echo JText::_('COM_GGLMS_GLOBAL_STATO') ?></label><br>
                 <select id="filterstato" name="filterstato" class="refresh">
                 </select>
             </div>
 
             <div class="form-group" id="calendar_startdate_div" style="display:none;">
-                <label for="startdate">Completato dal:</label><br>
+                <label for="startdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?>:</label><br>
                 <input style="width: 90%" id="startdate" name="startdate"/>
 
             </div>
 
             <div class="form-group" id="calendar_finishdate_div" style="display: none;">
-                <label for="finishdate">Completato al:</label><br>
+                <label for="finishdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_TO') ?>:</label><br>
                 <input  style="width: 90%" id="finishdate" name="finishdate"/>
             </div>
 
@@ -65,7 +65,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
             <!--            <input type="hidden" id="task" name="task" value="api.get_csv">-->
             <!---->
                         <div class="form-group">
-                            <button type="button" id="update" class="width100 btn" onclick="loadData()">AGGIORNA DATI</button>
+                            <button type="button" id="update" class="width100 btn" onclick="loadData()"><?php echo JText::_('COM_GGLMS_REPORT_AGGIORNA') ?></button>
 <!--                            <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>-->
                         </div>
             <!--
@@ -86,7 +86,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'> Report Utenti </h3>"; ?>
     </div>
     <div id="gird-pane">
         <h5 style="text-align: center">
-            Dati
+            <?php echo JText::_('COM_GGLMS_GLOBAL_DATA') ?>
         </h5>
         <div id="grid"></div>
 

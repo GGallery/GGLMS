@@ -70,21 +70,29 @@ _reportkendo = (function ($, my) {
             grid: null
         }
     };
-    var filterdata = {
-        corsi: null,
-        usergroups: null,
-        tipo: [{value: 0, text: 'Per Corso'},
-            {value: 1, text: 'Per Unità'},
-            {value: 2, text: 'Per Contenuto'}],
-        stato: [
-            {value: 0, text: 'Qualsiasi stato'},
-            {value: 1, text: 'Solo Completati'},
-            {value: 2, text: 'Solo NON Completati'},
-            {value: 3, text: 'In scadenza'}]
-    };
+
+    var filterdata;
+    // var filterdata = {
+    //     corsi: null,
+    //     usergroups: null,
+    //     tipo: [{value: 0, text: "Per Corso"},
+    //         {value: 1, text: 'Per Unità'},
+    //         {value: 2, text: 'Per Contenuto'}],
+    //     stato: [
+    //         {value: 0, text: 'Qualsiasi stato'},
+    //         {value: 1, text: 'Solo Completati'},
+    //         {value: 2, text: 'Solo NON Completati'},
+    //         {value: 3, text: 'In scadenza'}]
+    // };
 
     // 0:per corso 1:per unita 2:per contenuto
     var current_report_type = 0;
+
+    function getLocalizedLabels(filterdata) {
+
+
+        return Joomla.JText._('COM_GGLMS_REPORT_TIPO_CORSO');
+    }
 
     function _init() {
 
@@ -99,6 +107,19 @@ _reportkendo = (function ($, my) {
         _createFilters();
 
         _get_export_column();
+
+        filterdata = {
+            corsi: null,
+            usergroups: null,
+            tipo: [{value: 0, text: Joomla.JText._('COM_GGLMS_REPORT_TIPO_CORSO')},
+                {value: 1, text: Joomla.JText._('COM_GGLMS_REPORT_TIPO_UNITA')},
+                {value: 2, text: Joomla.JText._('COM_GGLMS_REPORT_TIPO_CONTENUTO')}],
+            stato: [
+                {value: 0, text: Joomla.JText._('COM_GGLMS_GLOBAL_STATO_ANY')},
+                {value: 1, text: Joomla.JText._('COM_GGLMS_REPORT_COMPLETATI')},
+                {value: 2, text: Joomla.JText._('COM_GGLMS_REPORT_NON_COMPLETATI')},
+                {value: 3, text: Joomla.JText._('COM_GGLMS_REPORT_IN_SCADENZA')}]
+        };
 
     }
 
@@ -163,6 +184,7 @@ _reportkendo = (function ($, my) {
     }
 
     function _populateFilters() {
+
 
         populateFilter('#corso_id', 'dropdownlist', filterdata.corsi);
         widgets.filters.corso_id.select(0);
@@ -663,7 +685,7 @@ _reportkendo = (function ($, my) {
                         var field = '["' + item + '"]';
                         var col = {
                             field: field,
-                            title: name_mapping[item] ? name_mapping[item] : item,
+                            title: getColumnTitle(item),
                             width: 200,
                             attributes: {style: null}
                         };
@@ -721,6 +743,18 @@ _reportkendo = (function ($, my) {
 
         return tmp_column;
 
+
+    }
+
+    function getColumnTitle(item) {
+
+
+        console.log(item);
+        return Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) ?
+            Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) :
+            Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase()) ?
+                Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase())
+                : name_mapping[item] ? name_mapping[item] : item;
 
     }
 
