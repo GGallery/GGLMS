@@ -13,7 +13,7 @@ if ($this->contenuto->_params->get('abilita_breadcrumbs', 1))
 
         <?php
         if ($this->contenuto->descrizione == '' && $this->contenuto->abstract == '')
-            echo JText::_('COM_GGLMS_INVITO_DOWNLOAD_PDF_SINGOLO') ;
+             echo "<h3>" .  JText::_('COM_GGLMS_INVITO_DOWNLOAD_PDF_SINGOLO')  . "</h3>";
 
         else {
             echo $this->contenuto->descrizione;
