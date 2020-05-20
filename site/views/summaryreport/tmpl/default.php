@@ -4,7 +4,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-echo "<h3 style='text-align: center; margin-top: 5px'>Monitora Coupon</h3>"; ?>
+echo "<h1>".  JText::_('COM_GGLMS_MONITORA_COUPON_TITLE'). "</h1>"; ?>
 
 <div class="mc-main">
     <div id="grid"></div>
@@ -18,6 +18,7 @@ echo "<h3 style='text-align: center; margin-top: 5px'>Monitora Coupon</h3>"; ?>
 </div>
 
 <script type="application/javascript">
+
     jQuery(document).ready(function () {
          _summaryreport.init();
     });

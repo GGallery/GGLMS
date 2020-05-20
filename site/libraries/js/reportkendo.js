@@ -99,6 +99,8 @@ _reportkendo = (function ($, my) {
         _kendofix();
         console.log('report kendo ready');
         kendo.culture("it-IT");
+
+
         $('#cover-spin').show(0);
 
 
