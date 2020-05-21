@@ -72,26 +72,22 @@ _reportkendo = (function ($, my) {
     };
 
     var filterdata;
-    // var filterdata = {
-    //     corsi: null,
-    //     usergroups: null,
-    //     tipo: [{value: 0, text: "Per Corso"},
-    //         {value: 1, text: 'Per Unità'},
-    //         {value: 2, text: 'Per Contenuto'}],
-    //     stato: [
-    //         {value: 0, text: 'Qualsiasi stato'},
-    //         {value: 1, text: 'Solo Completati'},
-    //         {value: 2, text: 'Solo NON Completati'},
-    //         {value: 3, text: 'In scadenza'}]
-    // };
+
 
     // 0:per corso 1:per unita 2:per contenuto
     var current_report_type = 0;
 
-    function getLocalizedLabels(filterdata) {
+
+    function getLocalizedString(item) {
 
 
-        return Joomla.JText._('COM_GGLMS_REPORT_TIPO_CORSO');
+        return Joomla.JText._(item) ?  Joomla.JText._(item):
+            Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) ?
+                Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) :
+                Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase()) ?
+                    Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase())
+                    : item;
+
     }
 
     function _init() {
@@ -113,14 +109,14 @@ _reportkendo = (function ($, my) {
         filterdata = {
             corsi: null,
             usergroups: null,
-            tipo: [{value: 0, text: Joomla.JText._('COM_GGLMS_REPORT_TIPO_CORSO')},
-                {value: 1, text: Joomla.JText._('COM_GGLMS_REPORT_TIPO_UNITA')},
-                {value: 2, text: Joomla.JText._('COM_GGLMS_REPORT_TIPO_CONTENUTO')}],
+            tipo: [{value: 0, text: getLocalizedString('COM_GGLMS_REPORT_TIPO_CORSO')},
+                {value: 1, text: getLocalizedString('COM_GGLMS_REPORT_TIPO_UNITA')},
+                {value: 2, text:getLocalizedString('COM_GGLMS_REPORT_TIPO_CONTENUTO') }],
             stato: [
-                {value: 0, text: Joomla.JText._('COM_GGLMS_GLOBAL_STATO_ANY')},
-                {value: 1, text: Joomla.JText._('COM_GGLMS_REPORT_COMPLETATI')},
-                {value: 2, text: Joomla.JText._('COM_GGLMS_REPORT_NON_COMPLETATI')},
-                {value: 3, text: Joomla.JText._('COM_GGLMS_REPORT_IN_SCADENZA')}]
+                {value: 0, text: getLocalizedString('COM_GGLMS_GLOBAL_STATO_ANY')},
+                {value: 1, text: getLocalizedString('COM_GGLMS_REPORT_COMPLETATI')},
+                {value: 2, text:getLocalizedString('COM_GGLMS_REPORT_NON_COMPLETATI') },
+                {value: 3, text: getLocalizedString('COM_GGLMS_REPORT_IN_SCADENZA')}]
         };
 
     }
@@ -440,7 +436,7 @@ _reportkendo = (function ($, my) {
         }
 
         _poppulateDetailUserGrid(data);
-        openPopup('#user-details', 'Dettagli Utente', false, true, true)
+        openPopup('#user-details', getLocalizedString('COM_GGLMS_REPORT_USERDETAIL'), false, true, true)
 
 
     }
@@ -460,11 +456,13 @@ _reportkendo = (function ($, my) {
             pageable: false,
             columns: [{
                 field: 'label',
-                title: 'Campo'
+                title: getLocalizedString('COM_GGLMS_GLOBAL_FIELD')
+
 
             }, {
                 field: 'value',
-                title: 'Valore'
+                title:getLocalizedString('COM_GGLMS_GLOBAL_VALUE')
+
 
             }]
         });

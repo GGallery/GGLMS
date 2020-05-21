@@ -606,7 +606,10 @@ defined('_JEXEC') or die;
             }
             columnname = item.toString();
             // console.log(columnname, 'aaaaaaaaaaaaa');
-            columnname = Joomla.JText._("COM_GGLMS_REPORT_" + item.toString().toUpperCase()) || columnname;
+            if (!columnname.includes('_hidden')) {
+
+                columnname = Joomla.JText._("COM_GGLMS_REPORT_" + item.toString().toUpperCase()) || columnname;
+            }
 
 
             // sostituito da localizzazione

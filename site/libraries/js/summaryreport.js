@@ -62,19 +62,19 @@ _summaryreport = (function ($, my) {
         function _init() {
             user_details_fields = {
 
-                "cb_datadinascita": {titolo: "Data di nascita"},
-                "cb_luogodinascita": {titolo: "Luogo di nascita"},
-                "cb_provinciadinascita": {titolo: "Provinxcia di nascita"},
-                "cb_indirizzodiresidenza": {titolo: "Indirizzo di residenza"},
-                "cb_provdiresidenza": {titolo: "Provincia di residenza"},
-                "cb_cap": {titolo: "Cap"},
-                "cb_telefono": {titolo: "Telefono"},
-                "cb_codicefiscale": {titolo: "Codice Fiscale"},
-                "cb_username": {titolo: "Username"},
-                "email": {titolo: "Email"}
+                // "cb_datadinascita": {titolo: "Data di nascita"},
+                "cb_datadinascita": {titolo: getLocalizedString('COM_GGLMS_CB_DATA_NASCITA')},
+                "cb_luogodinascita": {titolo: getLocalizedString('COM_GGLMS_CB_LUOGO_NASCITA')},
+                "cb_provinciadinascita": {titolo: getLocalizedString('COM_GGLMS_CB_PROVINICIA_NASCITA')},
+                "cb_indirizzodiresidenza": {titolo: getLocalizedString('COM_GGLMS_CB_INDIRIZZO')},
+                "cb_provdiresidenza": {titolo: getLocalizedString('COM_GGLMS_CB_PROVINCIA_RESIDENZA')},
+                "cb_cap": {titolo: getLocalizedString('COM_GGLMS_CB_CAP')},
+                "cb_telefono": {titolo: getLocalizedString('COM_GGLMS_CB_TELEFONO')},
+                "cb_codicefiscale": {titolo: getLocalizedString('COM_GGLMS_CB_CODICE_FISCALE')},
+                "cb_username": {titolo:getLocalizedString('COM_GGLMS_CB_USERNAME')},
+                "email": {titolo: getLocalizedString('COM_GGLMS_CB_EMAIL')}
 
             };
-
             columns = [
                 {
                     field: 'coupon',
@@ -326,11 +326,11 @@ _summaryreport = (function ($, my) {
 
                 }
             ];
+
             _get_user_action();
             _kendofix();
 
             console.log('summary report ready');
-
 
             // if(lang.includes('it')){
             //     kendo.culture("it-IT");
@@ -855,11 +855,11 @@ _summaryreport = (function ($, my) {
                 pageable: false,
                 columns: [{
                     field: 'label',
-                    title: 'Campo'
+                    title: getLocalizedString('COM_GGLMS_GLOBAL_FIELD'),
 
                 }, {
                     field: 'value',
-                    title: 'Valore'
+                    title:getLocalizedString('COM_GGLMS_GLOBAL_VALUE'),
 
                 }]
             });
@@ -889,7 +889,7 @@ _summaryreport = (function ($, my) {
                     }
 
                     _poppulateDetailUserGrid(data);
-                    openPopup('#user-details', 'Dettagli Utente', false, true, true)
+                    openPopup('#user-details', getLocalizedString('COM_GGLMS_REPORT_USERDETAIL'), false, true, true)
                 })
                 .fail(function (data) {
                     console.log('fail', data);
