@@ -17,10 +17,10 @@ defined('_JEXEC') or die('Restricted access');
                    value="<?php echo $this->dispenser->id; ?>"/>
 
             <br>
-            <button id="button_conferma_codice" class="btn btn-primary btn-lg">Conferma</button>
+            <button id="button_conferma_codice" class="btn btn-primary btn-lg"><?php echo  JText::_('COM_GGLMS_GLOBAL_CONFERMA') ?></button>
         </p>
         <div id="waiting_verifica_codice" class="hide">
-            <h3>Invio coupon in corso...</h3>
+            <h3><?php echo  JText::_('COM_GGLMS_COUPON_DISPENSER_SENDING') ?></h3>
         </div>
     </div>
 
