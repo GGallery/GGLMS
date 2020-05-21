@@ -21,7 +21,7 @@ $utente=$libretto->get_user();
 <div id="contenitoreprincipale" style="width: 100%">
 
     <div class="row">
-        <div class="span12"><h4>LIBRETTO FORMATIVO DI:
+        <div class="span12"><h4><?php echo  JText::_('COM_GGLMS_REPORT_UTENTE') ?>
             <span style="color: black; font-weight: bold"><?php echo $utente['nome']?> <?php echo $utente['cognome']?></span>
             </h4>
         </div>
@@ -33,8 +33,8 @@ $utente=$libretto->get_user();
             </div>
             <div class="card-block">
                 <h4 class="card-title"><?php echo $row['corso'] ?></h4>
-                <p class="card-text">data fine corso:<?php echo $row['data_fine'] ?> &nbsp &nbsp
-                    durata del corso:<?php echo $row['durata'] ?> giorni</p>
+                <p class="card-text"><?php echo  JText::_('COM_GGLMS_REPORT_UTENTE_FINE_CORSO') ?><?php echo $row['data_fine'] ?> &nbsp &nbsp
+                    <?php echo  JText::_('COM_GGLMS_REPORT_UTENTE_DURATA_CORSO') ?>:<?php echo $row['durata'] ?>  <?php echo  JText::_('COM_GGLMS_REPORT_UTENTE_DURATA_GIORNI') ?></p>
 
             </div>
             <div class="card-footer text-muted">
@@ -44,7 +44,7 @@ $utente=$libretto->get_user();
 
         <div><hr style="border-top: 1px dashed #8c8b8b;"></div>
     <?php } ?>
-    <div style="width: 100%"><a href="index.php?option=com_gglms&task=pdf.generate_libretto&user_id=<?php echo $utente['id_user']; ?>"  class="btn btn-primary" style="margin-left: 45%">SCARICA PDF</a></div>
+    <div style="width: 100%"><a href="index.php?option=com_gglms&task=pdf.generate_libretto&user_id=<?php echo $utente['id_user']; ?>"  class="btn btn-primary" style="margin-left: 45%"><?php echo  JText::_('COM_GGLMS_GLOBAL_DOWNLOAD') ?> PDF</a></div>
 
 
 </div>
