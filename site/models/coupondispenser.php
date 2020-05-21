@@ -60,7 +60,7 @@ class gglmsModelcoupondispenser extends JModelLegacy
             $data = $this->_db->loadObject();
 
             if (empty($data)) {
-                throw new exceptions('Id dispenser non corretto, verificare url');
+                throw new Exception(JText::_('COM_GGLMS_COUPON_DISPENSER_WRONG_ID'));
             }
 
         } catch (Exception $e) {
@@ -89,7 +89,7 @@ class gglmsModelcoupondispenser extends JModelLegacy
             $data = $this->_db->loadResult();
 
             if (empty($data)) {
-                throw new Exception('Non sono più disponibili per questo dispenser');
+                throw new Exception(JText::_('COM_GGLMS_COUPON_DISPENSER_NO_COUPON'));
             }
 
             return $data;

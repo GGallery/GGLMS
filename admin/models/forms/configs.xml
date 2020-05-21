@@ -572,15 +572,15 @@
                 description="Lasciando bianco si ritorna alla pagina di provenienza. Usa questo url per reindirizzare all'inserimento coupon: index.php?option=com_gglms&amp;view=coupon"
         />
 
-        <field
-                name="titolo_pagina_coupon"
-                type="text"
-                class=""
-                label="Testo/titolo pagina coupon"
-                labelclass="control-label"
-                default="Inserisci qui il tuo codice coupon"
-                description=""
-        />
+        <!--<field-->
+                <!--name="titolo_pagina_coupon"-->
+                <!--type="text"-->
+                <!--class=""-->
+                <!--label="Testo/titolo pagina coupon"-->
+                <!--labelclass="control-label"-->
+                <!--default="Inserisci qui il tuo codice coupon"-->
+                <!--description=""-->
+        <!--/>-->
 
 
         <field
@@ -658,163 +658,163 @@
                 description=""
         />
 
-        <field
-                name="messaggio_inserimento_success"
-                type="textarea"
-                class=""
-                label="Messaggio inserimento avvenuto con successo"
-                labelclass="control-label"
-                default="Inserimento effettuato con successo. Torna all'area formativa per accedere ai nuovi corsi."
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_inserimento_success"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio inserimento avvenuto con successo"-->
+                <!--labelclass="control-label"-->
+                <!--default="Inserimento effettuato con successo. Torna all'area formativa per accedere ai nuovi corsi."-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
 
-        <field
-                name="messaggio_inserimento_wrong"
-                type="textarea"
-                class=""
-                label="Messaggio inserimento non valido"
-                labelclass="control-label"
-                default="Il coupon non è valido o è scaduto"
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_inserimento_wrong"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio inserimento non valido"-->
+                <!--labelclass="control-label"-->
+                <!--default="Il coupon non è valido o è scaduto"-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
-        <field
-                name="messaggio_inserimento_duplicate"
-                type="textarea"
-                class=""
-                label="Messaggio inserimento duplicato"
-                labelclass="control-label"
-                default="Hai già inserito un coupon per questo corso. Verifica con i tuoi referenti formazione o sicurezza."
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
-
-
-        <field
-                name="messaggio_inserimento_tutor"
-                type="textarea"
-                class=""
-                label="Messaggio inserimento coupon da parte di un tutor"
-                labelclass="control-label"
-                default="Sembra che tu sia loggato come tutor aziendali. Le credenziali aziendali NON devono essere utilizzate per inserire il coupon o per seguire i corsi, ma solo per effettuare il monitoraggio degli utenti "
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_inserimento_duplicate"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio inserimento duplicato"-->
+                <!--labelclass="control-label"-->
+                <!--default="Hai già inserito un coupon per questo corso. Verifica con i tuoi referenti formazione o sicurezza."-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
 
-        <field
-                name="messaggio_inserimento_pending"
-                type="textarea"
-                class=""
-                label="Messaggio inserimento in attesa di abilitazione"
-                labelclass="control-label"
-                default="Il coupon è in attesa di abilitazione. (COD. 03)"
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_inserimento_tutor"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio inserimento coupon da parte di un tutor"-->
+                <!--labelclass="control-label"-->
+                <!--default="Sembra che tu sia loggato come tutor aziendali. Le credenziali aziendali NON devono essere utilizzate per inserire il coupon o per seguire i corsi, ma solo per effettuare il monitoraggio degli utenti "-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
+
+
+        <!--<field-->
+                <!--name="messaggio_inserimento_pending"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio inserimento in attesa di abilitazione"-->
+                <!--labelclass="control-label"-->
+                <!--default="Il coupon è in attesa di abilitazione. (COD. 03)"-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
 
         <!--inizio rinnova coupon-->
-        <field
-                name="titolo_pagina_rinnova_coupon"
-                type="text"
-                class=""
-                label="Testo/titolo pagina rinnova coupon"
-                labelclass="control-label"
-                default="Inserisci qui il codice coupon da rinnnovare"
-                description=""
-        />
+        <!--<field-->
+                <!--name="titolo_pagina_rinnova_coupon"-->
+                <!--type="text"-->
+                <!--class=""-->
+                <!--label="Testo/titolo pagina rinnova coupon"-->
+                <!--labelclass="control-label"-->
+                <!--default="Inserisci qui il codice coupon da rinnnovare"-->
+                <!--description=""-->
+        <!--/>-->
 
-        <field
-                name="descrizione_pagina_rinnova_coupon"
-                type="textarea"
-                cols="25"
-                rows="5"
-                class=""
-                label="Descrizione rinnova coupon (opzionale)"
-                labelclass="control-label"
-                default="Inserisci il codice coupon da rinnovare. La durata dell'iscrizione al corso è di 60 giorni a partire dal momento del rinnovo."
-                description=""
-        />
+        <!--<field-->
+                <!--name="descrizione_pagina_rinnova_coupon"-->
+                <!--type="textarea"-->
+                <!--cols="25"-->
+                <!--rows="5"-->
+                <!--class=""-->
+                <!--label="Descrizione rinnova coupon (opzionale)"-->
+                <!--labelclass="control-label"-->
+                <!--default="Inserisci il codice coupon da rinnovare. La durata dell'iscrizione al corso è di 60 giorni a partire dal momento del rinnovo."-->
+                <!--description=""-->
+        <!--/>-->
 
-        <field
-                name="messaggio_rinnovo_nouser"
-                type="textarea"
-                class=""
-                label="Messaggio rinnovo coupon non associato ad utente"
-                labelclass="control-label"
-                default="Il coupon non è stato ancora inserito da nessun utente, per ulteriori informazioni contatta il supoorto tecnico"
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_rinnovo_nouser"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio rinnovo coupon non associato ad utente"-->
+                <!--labelclass="control-label"-->
+                <!--default="Il coupon non è stato ancora inserito da nessun utente, per ulteriori informazioni contatta il supoorto tecnico"-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
-        <field
-                name="messaggio_rinnovo_notutor"
-                type="textarea"
-                class=""
-                label="Messaggio rinnovo coupon, utente richiedente non è tutor"
-                labelclass="control-label"
-                default="Ops sembra che tu non sia loggato come utente tutor di piattaforma, non è possibilie effettuare il rinnovo se non sei un tutor di piattaforma"
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_rinnovo_notutor"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio rinnovo coupon, utente richiedente non è tutor"-->
+                <!--labelclass="control-label"-->
+                <!--default="Ops sembra che tu non sia loggato come utente tutor di piattaforma, non è possibilie effettuare il rinnovo se non sei un tutor di piattaforma"-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
-        <field
-                name="messaggio_rinnovo_wrong_società"
-                type="textarea"
-                class=""
-                label="Messaggio rinnovo coupon, utente richiedente non è tutor"
-                labelclass="control-label"
-                default="Ops sembra che il coupon che vuoi rinnovare  sia stato emesso per una società che non afferisce alle tue piattaforme"
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_rinnovo_wrong_società"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio rinnovo coupon, utente richiedente non è tutor"-->
+                <!--labelclass="control-label"-->
+                <!--default="Ops sembra che il coupon che vuoi rinnovare  sia stato emesso per una società che non afferisce alle tue piattaforme"-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
-        <field
-                name="messaggio_rinnovo_not_expired"
-                type="textarea"
-                class=""
-                label="Messaggio rinnovo coupon, il coupon non è scaduto"
-                labelclass="control-label"
-                default="Ops sembra che il coupon che vuoi rinnovare non sia ancora scaduto."
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_rinnovo_not_expired"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio rinnovo coupon, il coupon non è scaduto"-->
+                <!--labelclass="control-label"-->
+                <!--default="Ops sembra che il coupon che vuoi rinnovare non sia ancora scaduto."-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
 
-        <field
-                name="messaggio_rinnovo_success"
-                type="textarea"
-                class=""
-                label="Messaggio rinnovo coupon avvenuto con succcesso"
-                labelclass="control-label"
-                default="Il coupon è stato rinnovao con successo. Scadrà  nuovamente tra 60 giorni."
-                description=""
-                rows="10"
-                cols="5"
-                filter="raw"
-        />
+        <!--<field-->
+                <!--name="messaggio_rinnovo_success"-->
+                <!--type="textarea"-->
+                <!--class=""-->
+                <!--label="Messaggio rinnovo coupon avvenuto con succcesso"-->
+                <!--labelclass="control-label"-->
+                <!--default="Il coupon è stato rinnovao con successo. Scadrà  nuovamente tra 60 giorni."-->
+                <!--description=""-->
+                <!--rows="10"-->
+                <!--cols="5"-->
+                <!--filter="raw"-->
+        <!--/>-->
 
 
         <!--F I N E COUPON -->

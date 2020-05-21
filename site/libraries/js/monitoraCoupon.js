@@ -1,5 +1,6 @@
 _monitoraCoupon = (function ($, my) {
 
+
         var loadreportoffset = 15; // quanti per pagina
         var loadreportlimit = 0;
         var maxNofpages;
@@ -7,33 +8,33 @@ _monitoraCoupon = (function ($, my) {
 
             {
                 field: 'coupon',
-                title: 'Coupon',
+                title: 'COM_GGLMS_GLOBAL_COUPON',
                 type: 'standard'
 
             },
             {
                 field: 'user',
-                title: 'Utente',
+                title: 'COM_GGLMS_GLOBAL_USER',
                 type: 'standard'
             },
             {
                 field: 'creation_time',
-                title: 'Data Creazione',
+                title: 'COM_GGLMS_GLOBAL_CREATION_DATE',
                 type: 'date'
             },
             {
                 field: 'data_utilizzo',
-                title: 'Data Utilizzo',
+                title: 'COM_GGLMS_GLOBAL_USE_DATE',
                 type: 'date'
             },
             {
                 field: 'corso',
-                title: 'Corso',
+                title: 'COM_GGLMS_GLOBAL_CORSO',
                 type: 'standard'
             },
             {
                 field: 'venditore',
-                title: 'Venditore',
+                title: 'COM_GGLMS_GLOBAL_VENDITORE',
                 type: 'standard'
             }
             // ,{
@@ -57,7 +58,6 @@ _monitoraCoupon = (function ($, my) {
 
         function _init() {
 
-
             $.when($.get("index.php?option=com_gglms&task=monitoracoupon.is_tutor_aziendale"))
                 .done(function (data) {
 
@@ -79,7 +79,7 @@ _monitoraCoupon = (function ($, my) {
 
                     $.each(columns, function (i, item) {
 
-                        $(".header-row").append('<th>' + item.title + '</th>')
+                        $(".header-row").append('<th>' +Joomla.JText._(item.title)   + '</th>')
                     });
 
                     $("#form-monitora-coupon select").change(_loadData);
@@ -267,7 +267,7 @@ _monitoraCoupon = (function ($, my) {
             maxNofpages = parseInt((rowCount / loadreportoffset) + 1);
             $('#coupon-table tbody').empty();
             $('#totalcount').empty();
-            $('#totalcount').html('record totali:' + rowCount);
+            $('#totalcount').html(Joomla.JText._('COM_GGLMS_GLOBAL_RECORD') + ":" + rowCount);
         }
 
         function _pagination_click() {

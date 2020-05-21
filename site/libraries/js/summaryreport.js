@@ -17,257 +17,7 @@ _summaryreport = (function ($, my) {
         // 6)disiscrivi utente (solo super admin)
 
         // config griglia principale
-        var columns = [
-            {
-                field: 'coupon',
-                title: 'Coupon',
-                width: 310,
-                hidden: false,
-                filterable: {
-                    cell: {
-                        showOperators: false
-
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'user_',
-                title: 'Utente',
-                width: 200,
-                hidden: false,
-                filterable: {
-                    cell: {
-                        showOperators: false
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'id_user',
-                title: 'Dettagli utente',
-                width: 100,
-                filterable: false,
-                hidden: false,
-                template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
-                attributes: {
-                    style: "text-align: center"
-                },
-                excelExport: false
-
-
-            },
-            {
-                field: 'titolo_corso',
-                title: 'Corso',
-                hidden: false,
-                width: 200,
-                filterable: {
-                    cell: {
-                        showOperators: false
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'data_creazione',
-                title: 'Data Creazione',
-                hidden: false,
-                format: "{0: dd-MM-yyyy HH:mm}",
-                width: 150,
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del"
-                            // , eq: "Uguale"
-                        }
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'data_utilizzo',
-                title: 'Data Utilizzo',
-                width: 150,
-                hidden: false,
-                format: "{0: dd-MM-yyyy HH:mm}",
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del",
-                            isnull: "E' nulla",
-                            isnotnull: "Non è nulla"
-                            // , eq: "Uguale"
-                        }
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'id_piattaforma',
-                title: '',
-                hidden: true,
-                excelExport: false
-
-            },
-            {
-                field: 'id_azienda',
-                title: '',
-                hidden: true,
-                excelExport: false
-
-            },
-            {
-                field: 'azienda',
-                title: 'Azienda',
-                width: 150,
-                filterable: {
-                    cell: {
-                        showOperators: false
-                    }
-                },
-                excelExport: true
-            },
-            {
-                field: 'stato',
-                title: 'Stato',
-                width: 150,
-                hidden: false,
-                filterable: {
-                    cell: {
-                        showOperators: false,
-                        template: function (cell) {
-                            cell.element.kendoDropDownList({
-                                dataSource: [{value: "1", text: "Completato"}, {
-                                    value: "0",
-                                    text: "Non completato"
-                                }, {value: "-1", text: "Liberi"}],
-                                dataTextField: "text",
-                                dataValueField: "value",
-                                valuePrimitive: true,
-                                optionLabel: 'Tutti'
-
-                            });
-                        }
-                    }
-                },
-
-                template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
-                attributes: {
-                    style: "text-align: center; font-size: 18px"
-                },
-                excelExport: true
-
-
-            },
-            {
-                field: 'data_inizio',
-                title: 'Data Inizio',
-                width: 150,
-                hidden: false,
-                format: "{0: dd-MM-yyyy }",
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del",
-                            isnull: "E' nulla",
-                            isnotnull: "Non è nulla"
-                        }
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'data_fine',
-                title: 'Data Fine',
-                hidden: false,
-                width: 150,
-                format: "{0: dd-MM-yyyy}",
-                filterable: {
-                    operators: {
-                        date: {
-                            lte: "Prima o uguale del",
-                            gte: "Dopo o uguale del",
-                            isnull: "E' nulla",
-                            isnotnull: "Non è nulla"
-
-                        }
-                    }
-                },
-                excelExport: true
-
-            },
-            {
-                field: 'id_corso',
-                title: 'Attestati',
-                hidden: false,
-                width: 100,
-                filterable: false,
-                template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
-                attributes: {
-                    style: "text-align: center"
-                },
-                excelExport: false
-
-
-            },
-            {
-                field: 'venditore',
-                title: 'Venditore',
-                width: 120,
-                hidden: false,
-                filterable: {
-                    cell: {
-                        showOperators: false
-
-                    }
-                },
-                excelExport: true,
-                tutor_az: false,
-
-            },
-            {
-                field: 'scaduto',
-                title: 'Scaduto',
-                hidden: true,
-                excelExport: false
-
-
-            },
-            {
-                command: {
-                    text: "Elimina",
-                    click: deleteCoupon
-                },
-                title: "Elimina Coupon ",
-                width: "120px",
-                attributes: {
-                    style: "text-align: center"
-                }
-
-            },
-            {
-                command: {
-                    text: "Reset",
-                    click: resetCoupon
-                },
-                title: "Reset Coupon ",
-                width: "120px",
-                attributes: {
-                    style: "text-align: center"
-                },
-
-            }
-        ];
+        var columns;
         var fields = {
             coupon: {type: "string"},
             data_creazione: {type: "date"},
@@ -287,20 +37,7 @@ _summaryreport = (function ($, my) {
         };
 
         // field da mostrare in poup utente
-        var user_details_fields = {
-
-            "cb_datadinascita": {titolo: "Data di nascita"},
-            "cb_luogodinascita": {titolo: "Luogo di nascita"},
-            "cb_provinciadinascita": {titolo: "Provinxcia di nascita"},
-            "cb_indirizzodiresidenza": {titolo: "Indirizzo di residenza"},
-            "cb_provdiresidenza": {titolo: "Provincia di residenza"},
-            "cb_cap": {titolo: "Cap"},
-            "cb_telefono": {titolo: "Telefono"},
-            "cb_codicefiscale": {titolo: "Codice Fiscale"},
-            "cb_username": {titolo: "Username"},
-            "email": {titolo: "Email"}
-
-        };
+        var user_details_fields = {};
 
         // selectors
         var widgets = {
@@ -323,12 +60,287 @@ _summaryreport = (function ($, my) {
 
 
         function _init() {
+            user_details_fields = {
+
+                // "cb_datadinascita": {titolo: "Data di nascita"},
+                "cb_datadinascita": {titolo: getLocalizedString('COM_GGLMS_CB_DATA_NASCITA')},
+                "cb_luogodinascita": {titolo: getLocalizedString('COM_GGLMS_CB_LUOGO_NASCITA')},
+                "cb_provinciadinascita": {titolo: getLocalizedString('COM_GGLMS_CB_PROVINICIA_NASCITA')},
+                "cb_indirizzodiresidenza": {titolo: getLocalizedString('COM_GGLMS_CB_INDIRIZZO')},
+                "cb_provdiresidenza": {titolo: getLocalizedString('COM_GGLMS_CB_PROVINCIA_RESIDENZA')},
+                "cb_cap": {titolo: getLocalizedString('COM_GGLMS_CB_CAP')},
+                "cb_telefono": {titolo: getLocalizedString('COM_GGLMS_CB_TELEFONO')},
+                "cb_codicefiscale": {titolo: getLocalizedString('COM_GGLMS_CB_CODICE_FISCALE')},
+                "cb_username": {titolo:getLocalizedString('COM_GGLMS_CB_USERNAME')},
+                "email": {titolo: getLocalizedString('COM_GGLMS_CB_EMAIL')}
+
+            };
+            columns = [
+                {
+                    field: 'coupon',
+                    title: 'Coupon',
+                    width: 310,
+                    hidden: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'user_',
+                    title: getLocalizedString('COM_GGLMS_GLOBAL_USER'),
+                    width: 200,
+                    hidden: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'id_user',
+                    title:  getLocalizedString('COM_GGLMS_REPORT_USERDETAIL'),
+                    width: 100,
+                    filterable: false,
+                    hidden: false,
+                    template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    excelExport: false
+
+
+                },
+                {
+                    field: 'titolo_corso',
+                    title: getLocalizedString('COM_GGLMS_GLOBAL_CORSO'),
+                    hidden: false,
+                    width: 200,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'data_creazione',
+                    title: getLocalizedString('COM_GGLMS_GLOBAL_CREATION_DATE'),
+                    hidden: false,
+                    format: "{0: dd-MM-yyyy HH:mm}",
+                    width: 150,
+                    filterable: {
+                        operators: {
+                            date: {
+                                lte: getLocalizedString('COM_GGLMS_REPORT_DATE_LTE'),//"Prima o uguale del",
+                                gte:getLocalizedString('COM_GGLMS_REPORT_DATE_GTE'),// "Dopo o uguale del"
+                                // , eq: "Uguale"
+                            }
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'data_utilizzo',
+                    title:  getLocalizedString('COM_GGLMS_GLOBAL_USE_DATE'),
+                    width: 150,
+                    hidden: false,
+                    format: "{0: dd-MM-yyyy HH:mm}",
+                    filterable: {
+                        operators: {
+                            date: {
+                                lte: getLocalizedString('COM_GGLMS_REPORT_DATE_LTE'),//"Prima o uguale del",
+                                gte:getLocalizedString('COM_GGLMS_REPORT_DATE_GTE'),// "Dopo o uguale del"
+                                isnull: getLocalizedString('COM_GGLMS_REPORT_DATE_ISNULL'),
+                                isnotnull:getLocalizedString('COM_GGLMS_REPORT_DATE_ISNOTNULL'),
+                                // , eq: "Uguale"
+                            }
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'id_piattaforma',
+                    title: '',
+                    hidden: true,
+                    excelExport: false
+
+                },
+                {
+                    field: 'id_azienda',
+                    title: '',
+                    hidden: true,
+                    excelExport: false
+
+                },
+                {
+                    field: 'azienda',
+                    title:  getLocalizedString('COM_GGLMS_GLOBAL_COMPANY'),
+                    width: 150,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+                        }
+                    },
+                    excelExport: true
+                },
+                {
+                    field: 'stato',
+                    title:  getLocalizedString('COM_GGLMS_GLOBAL_STATO'),
+                    width: 150,
+                    hidden: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            template: function (cell) {
+                                cell.element.kendoDropDownList({
+                                    dataSource: [{value: "1", text: getLocalizedString('COM_GGLMS_GLOBAL_COMPLETED')}, {
+                                        value: "0",
+                                        text:  getLocalizedString('COM_GGLMS_GLOBAL_NOT_COMPLETED'),
+                                    }, {value: "-1", text:getLocalizedString('COM_GGLMS_GLOBAL_STATO_LBERI')}],
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    valuePrimitive: true,
+                                    optionLabel: getLocalizedString('COM_GGLMS_GLOBAL_ALL')
+
+                                });
+                            }
+                        }
+                    },
+
+                    template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
+                    attributes: {
+                        style: "text-align: center; font-size: 18px"
+                    },
+                    excelExport: true
+
+
+                },
+                {
+                    field: 'data_inizio',
+                    title:getLocalizedString('COM_GGLMS_REPORT_DATA_INIZIO'),
+                    width: 150,
+                    hidden: false,
+                    format: "{0: dd-MM-yyyy }",
+                    filterable: {
+                        operators: {
+                            date: {
+                                lte: "Prima o uguale del",
+                                gte: "Dopo o uguale del",
+                                isnull: "E' nulla",
+                                isnotnull: "Non è nulla"
+                            }
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'data_fine',
+                    title: getLocalizedString('COM_GGLMS_REPORT_DATA_FINE'),
+                    hidden: false,
+                    width: 150,
+                    format: "{0: dd-MM-yyyy}",
+                    filterable: {
+                        operators: {
+                            date: {
+                                lte: "Prima o uguale del",
+                                gte: "Dopo o uguale del",
+                                isnull: "E' nulla",
+                                isnotnull: "Non è nulla"
+
+                            }
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'id_corso',
+                    title: getLocalizedString('COM_GGLMS_GLOBAL_ATTESTATO'),
+                    hidden: false,
+                    width: 100,
+                    filterable: false,
+                    template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
+                    attributes: {
+                        style: "text-align: center"
+                    },
+                    excelExport: false
+
+
+                },
+                {
+                    field: 'venditore',
+                    title:  getLocalizedString('COM_GGLMS_GLOBAL_VENDITORE'),
+                    width: 120,
+                    hidden: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+
+                        }
+                    },
+                    excelExport: true,
+                    tutor_az: false,
+
+                },
+                {
+                    field: 'scaduto',
+                    title:getLocalizedString('COM_GGLMS_REPORT_USER_SCADUTO'),
+                    hidden: true,
+                    excelExport: false
+
+
+                },
+                {
+                    command: {
+                        text: getLocalizedString('COM_GGLMS_GLOBAL_DELETE'),
+                        click: deleteCoupon
+                    },
+                    title: "Elimina Coupon ",
+                    width: "120px",
+                    attributes: {
+                        style: "text-align: center"
+                    }
+
+                },
+                {
+                    command: {
+                        text: "Reset",
+                        click: resetCoupon
+                    },
+                    title: "Reset Coupon ",
+                    width: "120px",
+                    attributes: {
+                        style: "text-align: center"
+                    },
+
+                }
+            ];
 
             _get_user_action();
             _kendofix();
 
             console.log('summary report ready');
-            kendo.culture("it-IT");
+
+            // if(lang.includes('it')){
+            //     kendo.culture("it-IT");
+            // }
+            // else if(lang.includes('en'))
+            // {
+            //     kendo.culture("en-US");
+            // }
+
+
             $('#cover-spin').show(0);
 
             _createGrid();
@@ -341,14 +353,16 @@ _summaryreport = (function ($, my) {
         }
 
         function _createGrid() {
+
+
             $("#grid").kendoGrid({
                 // toolbar: ["excel"],
                 toolbar: [
                     {
-                        template: '<a  class="k-button"  href="\\#" onclick="return excel_with_details()"><span class="k-icon k-i-excel" style="color: green!important;"></span>Pagina corrente con dettagli</a>'
+                        template: '<a  class="k-button"  href="\\#" onclick="return excel_with_details()"><span class="k-icon k-i-excel" style="color: green!important;"></span>' + getLocalizedString('COM_GGLMS_REPORT_THIS_PAGE') + '</a>'
                     }, {
 
-                        template: '<a class="k-button" href="\\#" onclick="return excel_all_pages()"><span class="k-icon k-i-excel"></span>Tutte le pagine </a>'
+                        template: '<a class="k-button" href="\\#" onclick="return excel_all_pages()"><span class="k-icon k-i-excel"></span>' + getLocalizedString('COM_GGLMS_REPORT_ALL_PAGES')+' </a>'
                     }
                 ],
                 excel: {
@@ -567,15 +581,15 @@ _summaryreport = (function ($, my) {
                         pageable: false,
                         columns: [
                             {field: "id_contenuto", title: "", hidden: true},
-                            {field: "titolo_contenuto", title: "Contenuto", width: 120},
-                            {field: "last_visit", title: "Ultima visita", width: 80},
+                            {field: "titolo_contenuto", title: getLocalizedString('COM_GGLMS_REPORT_CONTENT'), width: 120},
+                            {field: "last_visit", title:  getLocalizedString('COM_GGLMS_REPORT_LAST_VISIT'), width: 80},
                             {
                                 field: "permanenza",
-                                title: "Permanenza",
+                                title: getLocalizedString('COM_GGLMS_REPORT_PERMANENZA'),
                                 width: 80,
                                 template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
                             },
-                            {field: "visualizzazioni", title: "Visualizzazioni", width: 80}
+                            {field: "visualizzazioni", title:getLocalizedString('COM_GGLMS_REPORT_VISUALIZZAZIONI'), width: 80}
                         ],
                         excelExport: function (e) {
                             // Prevent the saving of the file.
@@ -841,11 +855,11 @@ _summaryreport = (function ($, my) {
                 pageable: false,
                 columns: [{
                     field: 'label',
-                    title: 'Campo'
+                    title: getLocalizedString('COM_GGLMS_GLOBAL_FIELD'),
 
                 }, {
                     field: 'value',
-                    title: 'Valore'
+                    title:getLocalizedString('COM_GGLMS_GLOBAL_VALUE'),
 
                 }]
             });
@@ -875,7 +889,7 @@ _summaryreport = (function ($, my) {
                     }
 
                     _poppulateDetailUserGrid(data);
-                    openPopup('#user-details', 'Dettagli Utente', false, true, true)
+                    openPopup('#user-details', getLocalizedString('COM_GGLMS_REPORT_USERDETAIL'), false, true, true)
                 })
                 .fail(function (data) {
                     console.log('fail', data);
@@ -1060,6 +1074,21 @@ _summaryreport = (function ($, my) {
 
 
         //////////////////////////// util ////////////////////////////////////////
+
+        function getLocalizedString(item) {
+
+
+            // console.log('aaaaaaaaaaaaaaaaa','COM_GGLMS_REPORT_' + item.toUpperCase());
+            // console.log('aaaaaaaaaaaaaaaaa','COM_GGLMS_GLOBAL_' + item.toUpperCase());
+
+            return Joomla.JText._(item) ?  Joomla.JText._(item):
+            Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) ?
+                Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) :
+                Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase()) ?
+                    Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase())
+                     : item;
+
+        }
 
 
         function _formatDate(date) {

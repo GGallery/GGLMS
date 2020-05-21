@@ -67,12 +67,14 @@ _scaricaattesati = (function ($, my) {
 
 
             if (diff_days > diff_days_thresold) {
-                 _showMsg("L'intervallo massimo consentito è di " + diff_days_thresold + " giorni" );
+
+                 _showMsg( Joomla.JText._('COM_GGLMS_ATTESTATI_BULK_MAX_LIMIT').replace('{gg}',diff_days_thresold )  );
                 $("#btn-download").addClass('disabled');
             }
 
             if (diff_days < 0) {
-                _showMsg('Seleziona una data di fine maggiore della data di inizio');
+                // _showMsg('Seleziona una data di fine maggiore della data di inizio');
+                _showMsg(Joomla.JText._('COM_GGLMS_ATTESTATI_BULK_MAX_LIMIT'));
                 $("#btn-download").addClass('disabled');
             }
 

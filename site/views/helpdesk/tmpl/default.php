@@ -9,8 +9,7 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
 ?>
 
 <div class="help-desk-container">
-    <h4 class="hd-title">Per informazioni o per l'acquisto rivolgersi
-        a <?php echo $this->info_piattaforma->name ?> </h4>
+    <h4 class="hd-title"><?php echo  JText::_('COM_GGLMS_HELP_DESK_TITLE') ?> <?php echo $this->info_piattaforma->name ?> </h4>
     <div id="info_associazione" class="container-fluid">
 
         <div class="row">
@@ -34,7 +33,7 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
 
                     <span title='email' class='glyphicon glyphicon-shopping-cart info-icon'
 
-                    ></span> <b> <a href="<?php echo $this->info_piattaforma->link_ecommerce ?>">catalogo e-commerce</a></b>
+                    ></span> <b> <a href="<?php echo $this->info_piattaforma->link_ecommerce ?>"><?php echo  JText::_('COM_GGLMS_HELP_DESK_ECOMMERCE_CATALOGO') ?></a></b>
                 </div>
             </div>
         </div>
@@ -42,41 +41,41 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
 
     </div>
     <hr>
-    <h4 class="hd-title">Per ricevere assistenza in merito ai corsi utilizza il seguente modulo:</h4>
+    <h4 class="hd-title"><?php echo  JText::_('COM_GGLMS_HELP_DESK_FORM_DESCRIPTION') ?></h4>
 
     <form action="<?php echo JRoute::_('index.php?option=com_gglms&task=helpDesk.sendMailRequest.php'); ?>"
           method="post" name="contactForm" id="contactForm" class="form-validate">
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label" for="type">Tipologia assistenza:</label>
+            <label class="col-sm-3 col-form-label" for="type"> <?php echo  JText::_('COM_GGLMS_HELP_DESK_REQUEST_TYPE') ?> :</label>
             <div class="col-sm-9">
                 <fieldset class="">
-                    <input type="radio" class="hd" name="request_type"  value="tecnica" checked="checked"> Tecnico
-                    <input type="radio" class="hd" name="request_type"   value="didattica" > Didattico <br>
+                    <input type="radio" class="hd" name="request_type"  value="tecnica" checked="checked"> <?php echo  JText::_('COM_GGLMS_HELP_DESK_REQUEST_TYPE_TECH') ?>
+                    <input type="radio" class="hd" name="request_type"   value="didattica" > <?php echo  JText::_('COM_GGLMS_HELP_DESK_REQUEST_TYPE_DID') ?>  <br>
                 </fieldset>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label" for="nominativo">Nominativo:</label>
+            <label class="col-sm-3 col-form-label" for="nominativo"><?php echo  JText::_('COM_GGLMS_HELP_DESK_NAME') ?> :</label>
             <div class="col-sm-9">
-                <input placeholder="Nominativo" type="text" class="form-control" id="nominativo" name="nominativo" required>
+                <input placeholder="<?php echo  JText::_('COM_GGLMS_HELP_DESK_NAME') ?>" type="text" class="form-control" id="nominativo" name="nominativo" required>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label" for="email">Email:</label>
+            <label class="col-sm-3 col-form-label" for="email"><?php echo  JText::_('COM_GGLMS_GLOBAL_EMAIL') ?> :</label>
             <div class="col-sm-9">
                 <input placeholder="Email" type="email" class="form-control" id="email"
                        name="email" required>
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label" for="question">Domanda:</label>
+            <label class="col-sm-3 col-form-label" for="question"><?php echo  JText::_('COM_GGLMS_HELP_DESK_QUESTION') ?> :</label>
             <div class="col-sm-9">
-                    <textarea placeholder="Scrivi il testo della domanda" class="form-control" id="question" required
+                    <textarea placeholder="<?php echo  JText::_('COM_GGLMS_HELP_DESK_QUESTION_PH') ?> " class="form-control" id="question" required
                               name="question" rows="5"></textarea>
             </div>
         </div>
         <div class="form-group">
-            <button id="btn_invia" type="submit" class="btn-block btn">Invia</button>
+            <button id="btn_invia" type="submit" class="btn-block btn"><?php echo  JText::_('COM_GGLMS_GLOBAL_SEND') ?></button>
         </div>
         <input type="hidden" name="alias" value="<?php echo $this->info_piattaforma->alias?>"/>
     </form>

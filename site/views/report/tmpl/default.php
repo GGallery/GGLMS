@@ -10,7 +10,7 @@ defined('_JEXEC') or die;
 
             <!--            <h3>Corso</h3>-->
             <div class="form-group">
-                <label for="corso_id">Corso:</label><br>
+                <label for="corso_id"><?php echo JText::_('COM_GGLMS_GLOBAL_CORSO') ?>:</label><br>
                 <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
                 <select id="corso_id" name="corso_id" class="refresh">
                     <?php
@@ -25,41 +25,41 @@ defined('_JEXEC') or die;
 
             <!--            <h4>Tipo Report</h4>-->
             <div class="form-group">
-                <label for="tipo_report">Tipo Report:</label><br>
+                <label for="tipo_report"><?php echo JText::_('COM_GGLMS_REPORT_TIPO') ?></label><br>
                 <select id="tipo_report" name="tipo_report" class="refresh">
-                    <option selected value="0">per Corso</option>
-                    <option value="1">per Unità</option>
-                    <option value="2">per Contenuto</option>
+                    <option selected value="0"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_CORSO') ?></option>
+                    <option value="1"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_UNITA') ?></option>
+                    <option value="2"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_CONTENUTO') ?></option>
                 </select>
 
             </div>
 
 
             <hr>
-            <h5 style="text-align: center">Filtri</h5>
+            <h5 style="text-align: center"><?php echo JText::_('COM_GGLMS_GLOBAL_FILTRI') ?></h5>
 
             <div class="form-group">
-                <label for="usergroups">Azienda:</label><br>
+                <label for="usergroups"><?php echo JText::_('COM_GGLMS_GLOBAL_COMPANY') ?>:</label><br>
                 <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2, 'refresh'); ?>
             </div>
 
             <div class="form-group" id="filterstatodiv">
-                <label for="filterstato">Stato corso</label>
+                <label for="filterstato"> <?php echo JText::_('COM_GGLMS_GLOBAL_STATO') ?> </label></br>
                 <select id="filterstato" name="filterstato" class="refresh">
-                    <option value="0">Qualisiasi stato</option>
-                    <option value="1">Solo completati</option>
-                    <option value="2">Solo NON compleati</option>
-<!--                    <option value="3">In scadenza</option>-->
+                    <option value="0"><?php echo JText::_('COM_GGLMS_GLOBAL_STATO_ANY') ?></option>
+                    <option value="1"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI') ?></option>
+                    <option value="2"><?php echo JText::_('COM_GGLMS_REPORT_NON_COMPLETATI') ?></option>
+                    <!--                    <option value="3">In scadenza</option>-->
                 </select>
             </div>
 
             <div class="form-group" id="calendar_startdate_div">
-                <label for="startdate">Completato dal:</label><br>
+                <label for="startdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?>:</label><br>
                 <?php echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d'); ?>
             </div>
 
             <div class="form-group" id="calendar_finishdate_div">
-                <label for="finishdate">Completato al:</label><br>
+                <label for="finishdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_TO') ?>:</label><br>
                 <?php echo JHTML::_('calendar', '', 'finishdate', 'finishdate', '%Y-%m-%d'); ?>
 
 
@@ -67,7 +67,7 @@ defined('_JEXEC') or die;
 
 
             <div class="form-group" id="searchPhrase_div">
-                <label for="searchPhrase">Cerca:</label><br>
+                <label for="searchPhrase"><?php echo JText::_('COM_GGLMS_GLOBAL_SEARCH') ?>:</label><br>
                 <input type="text" id="searchPhrase">
             </div>
 
@@ -76,8 +76,10 @@ defined('_JEXEC') or die;
             <input type="hidden" id="task" name="task" value="api.get_csv">
 
             <div class="form-group">
-                <button type="button" id="update" class="width100 btn" onclick="reload()">AGGIORNA DATI</button>
-                <button type="button" id="get_csv" class="btn width100" onclick="loadCsv()">SCARICA REPORT CSV</button>
+                <button type="button" id="update" class="width100 btn"
+                        onclick="reload()"><?php echo JText::_('COM_GGLMS_REPORT_AGGIORNA') ?></button>
+                <button type="button" id="get_csv" class="btn width100"
+                        onclick="loadCsv()"><?php echo JText::_('COM_GGLMS_GLOBAL_EXPORT_CSV') ?></button>
             </div>
             <!--
             <div class="form-group">
@@ -95,20 +97,20 @@ defined('_JEXEC') or die;
 
         <hr>
 
-<div id="upd_at">
-
-</div>
+        <div id="upd_at">
+            <?php echo JText::_('COM_GGLMS_REPORT_UPDATED_AT') ?>
+        </div>
         <script>
             <?php
-            echo ' convertUTCDateToLocalDate(' . json_encode( $this->state->get('params')->get('data_sync')) . ');';
+            echo ' convertUTCDateToLocalDate(' . json_encode($this->state->get('params')->get('data_sync')) . ');';
             ?>
 
             // convert utc to local
             function convertUTCDateToLocalDate(d) {
 
-                var date = new Date( d +' UTC');
-                var localdate =  'Report aggiornato al: ' + date.toLocaleDateString() + ' '+ date.toLocaleTimeString();
-                document.getElementById("upd_at").innerHTML ='<span>' + localdate +'</span>';
+                var date = new Date(d + ' UTC');
+                var localdate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                document.getElementById("upd_at").innerHTML += '<span>' + ":" + localdate + '</span>';
 
 
             }
@@ -168,15 +170,15 @@ defined('_JEXEC') or die;
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Dettagli utente</h4>
+                <h4 class="modal-title"><?php echo JText::_('COM_GGLMS_REPORT_USERDETAIL') ?></h4>
 
             </div>
             <div class="modal-body">
                 <table id="details_table" class="table table-condensed table-hover table-striped ">
                     <thead>
                     <tr>
-                        <th>Campo</th>
-                        <th>Valore</th>
+                        <th><?php echo JText::_('COM_GGLMS_GLOBAL_FIELD') ?></th>
+                        <th><?php echo JText::_('COM_GGLMS_GLOBAL_VALUE') ?></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -188,7 +190,8 @@ defined('_JEXEC') or die;
                 <!--                        style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo-->
                 <!--                </button>-->
 
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal"><?php echo JText::_('COM_GGLMS_GLOBAL_CLOSE') ?></button>
             </div>
         </div>
 
@@ -342,12 +345,12 @@ defined('_JEXEC') or die;
 
         $("#tipo_report").change(function () {
 
-            if ($("#tipo_report option:selected").val() == 0 ) {
+            if ($("#tipo_report option:selected").val() == 0) {
 
 
                 $("#filterstatodiv").show();
 
-                if( $("#filterstatodiv option:selected").val() == 1){
+                if ($("#filterstatodiv option:selected").val() == 1) {
                     $("#calendar_startdate_div").show();
                     $("#calendar_finishdate_div").show();
                 }
@@ -475,7 +478,6 @@ defined('_JEXEC') or die;
         jQuery('#cover-spin').show(0);
 
 
-
         jQuery.when(jQuery.get(url))
             .done(function (data) {
 
@@ -492,7 +494,8 @@ defined('_JEXEC') or die;
 
                 jQuery('#grid-basic').empty();
                 jQuery('#totalcount').empty();
-                jQuery('#totalcount').html('record totali:' + data['rowCount']);
+                var totCount = Joomla.JText._('COM_GGLMS_GLOBAL_RECORD');
+                jQuery('#totalcount').html(totCount + ':' + data['rowCount']);
                 viewReportColumns = [];
                 fields = data;
                 maxNofpages = parseInt((data['rowCount'] / loadreportlimit) + 1);
@@ -502,8 +505,10 @@ defined('_JEXEC') or die;
 
                     jQuery.each(buttonscolumn, function (i, item) {
 
-                        // console.log(item);
-                        jQuery('#grid-basic').append('<th>' + buttonscolumnname[i] + '</th>');
+                        var text = Joomla.JText._("COM_GGLMS_REPORT_" + buttonscolumnname[i].toString().toUpperCase()) || buttonscolumnname[i];
+                        // console.log('rincomincia da quiiiii', text);
+
+                        jQuery('#grid-basic').append('<th>' + text.toUpperCase() + '</th>');
                         viewReportColumns.push(buttonscolumnname[i]);
                     });
 
@@ -600,12 +605,23 @@ defined('_JEXEC') or die;
                     break;
             }
             columnname = item.toString();
-            for (var i = 0; i < columnmappingname.length; i++) {
+            // console.log(columnname, 'aaaaaaaaaaaaa');
+            if (!columnname.includes('_hidden')) {
 
-                if (columnmappingname[i]['name'] == item) {
-                    columnname = columnmappingname[i]['alias'];
-                }
+                columnname = Joomla.JText._("COM_GGLMS_REPORT_" + item.toString().toUpperCase()) || columnname;
             }
+
+
+            // sostituito da localizzazione
+            // for (var i = 0; i < columnmappingname.length; i++) {
+            //
+            //     // console.log(columnmappingname, 'aaaaaaaaaaa');
+            //
+            //     if (columnmappingname[i]['name'] == item) {
+            //         columnname = columnmappingname[i]['alias'];
+            //     }
+            // }
+
             //if(columnmappingname.filter(c=>c.name==item).length>0){
             //     columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
 
@@ -615,7 +631,7 @@ defined('_JEXEC') or die;
 
 
             //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
-            if (!columnname.includes('_hidden')) {
+            if (!columnname.includes('_hidden') && !columnname.includes('no_column')) {
                 jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
                 viewReportColumns.push(item);
             }
@@ -658,7 +674,7 @@ defined('_JEXEC') or die;
                     var content_title = content_info.split('#')[1];
                     var url = "index.php?option=com_gglms&task=reportutente.generateAttestato&content_id=" + content_id + "&user_id=" + user_id;
                     if (!disabled) {
-                        rowCellData = rowCellData + "<a target='_blank' type='button' title='"+ content_title + "' class='btn btn-xs btn-default command-edit' href='" + url + "' >";
+                        rowCellData = rowCellData + "<a target='_blank' type='button' title='" + content_title + "' class='btn btn-xs btn-default command-edit' href='" + url + "' >";
                     } else {
                         rowCellData = rowCellData + "<a target='_blank' disabled type='button' style='display: none' href='" + url + "' >";
                     }
