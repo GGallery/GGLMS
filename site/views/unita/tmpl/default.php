@@ -95,7 +95,7 @@ if ($this->sottounita) {
                             ?>
                             <div class='g-grid'>
                                 <div class="g-box size-50">
-                                    Durata: <?php echo $unita->get_durata_unita($unita->id); ?></div>
+                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $unita->get_durata_unita($unita->id); ?></div>
                             </div>
                             <?php
                         }
@@ -160,14 +160,14 @@ if ($this->contenuti) {
                             ?>
                             <div class='g-grid'>
                                 <div class="g-box size-100">
-                                    Durata: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></div>
+                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></div>
                             </div>
                             <?php
                         }
                         ?>
 
                         <div class='g-grid'>
-                            <div class="g-box size-100">Stato: <?php echo $stato->descrizione; ?></div>
+                            <div class="g-box size-100"><?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?>: <?php echo $stato->descrizione; ?></div>
                         </div>
 
                     </div>
@@ -178,7 +178,7 @@ if ($this->contenuti) {
 
                     <div class="corner corner_red"></div>
 
-                    <div class="rt-image trasparenza_inaccessibilita" title="Completa i contenuti propedeutici"
+                    <div class="rt-image trasparenza_inaccessibilita" title="<?php echo  JText::_('COM_GGLMS_UNITA_COMPLETA_CONTENUTI') ?>"
                          style="background-image:url(<?php echo $img; ?>)"></div>
                     <div class="title"><b><?php echo $contenuto->titolo; ?></b></div>
 
@@ -188,14 +188,14 @@ if ($this->contenuti) {
                             ?>
                             <div class='g-grid'>
                                 <div class="g-box size-100">
-                                    Durata: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></div>
+                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></div>
                             </div>
                             <?php
                         }
                         ?>
 
                         <div class='g-grid'>
-                            <div class="g-box size-100">Stato: Non ancora disponibile</div>
+                            <div class="g-box size-100"><?php echo  JText::_('COM_GGLMS_UNITA_NON_DISPONIBILE') ?></div>
                         </div>
 
                     </div>
@@ -210,7 +210,8 @@ if ($this->contenuti) {
 }
 
 if (!$count)
-    echo "<h3>Non ci sono contenuti per te visualizzabili in questa unità</h3>";
+    echo "<h3>" .  JText::_('COM_GGLMS_UNITA_CONTENUTI_NON_DISPONIBILI') . "</h3>";
+//    echo "<h3>Non ci sono contenuti per te visualizzabili in questa unità</h3>";
 ?>
 
 
@@ -222,13 +223,13 @@ if (!$count)
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Dettagli del corso</h4>
+                <h4 class="modal-title"><?php echo  JText::_('COM_GGLMS_UNITA_DETTAGLI_CORSO') ?></h4>
             </div>
             <div class="modal-body">
-                Questo corso è scaduto! Rivolgiti al tuo tutor aziendale
+                <?php echo  JText::_('COM_GGLMS_UNITA_CORSO_SCADUTO') ?>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"> <?php echo  JText::_('COM_GGLMS_GLOBAL_CLOSE') ?></button>
             </div>
         </div>
 

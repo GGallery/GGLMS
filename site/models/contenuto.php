@@ -354,7 +354,8 @@ class gglmsModelContenuto extends JModelLegacy
 
         try {
             if ($this->_userid == null) {
-                JFactory::getApplication()->enqueueMessage('Impossibile visualizzare il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+//                JFactory::getApplication()->enqueueMessage('Impossibile visualizzare il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                JFactory::getApplication()->enqueueMessage(JText::_('COM_GGLMS_STATO_NOT_POSSIBLE') . $this->titolo . JText::_('COM_GGLMS_STATO_NOT_LOGGED'), 'error');
                 return 0;
             }
 
@@ -382,12 +383,12 @@ class gglmsModelContenuto extends JModelLegacy
 
         try {
             if ($this->id_quizdeluxe == null && $quiz_id == null) {
-                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '""', 'error');
+                JFactory::getApplication()->enqueueMessage(JText::_('COM_GGLMS_STATO_NOT_POSSIBLE_QUIZ') . $this->titolo . '""', 'error');
                 return 0;
             }
 
             if ($this->_userid == null && $user_id == null) {
-                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                JFactory::getApplication()->enqueueMessage(JText::_('COM_GGLMS_STATO_NOT_POSSIBLE_QUIZ') . $this->titolo . JText::_('COM_GGLMS_STATO_NOT_LOGGED'), 'error');
                 return 0;
             }
 
@@ -421,7 +422,8 @@ class gglmsModelContenuto extends JModelLegacy
         try {
             if ($this->_userid == null) {
 //			COMMENTATO IN FASE DI SVIL☺PO
-                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+//                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                JFactory::getApplication()->enqueueMessage(JText::_('COM_GGLMS_STATO_NOT_POSSIBLE_QUIZ') . $this->titolo . JText::_('COM_GGLMS_STATO_NOT_LOGGED'), 'error');
                 return 0;
             }
 
@@ -453,7 +455,8 @@ class gglmsModelContenuto extends JModelLegacy
             }
 
             if ($user_id == null) {
-                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+//                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
+                JFactory::getApplication()->enqueueMessage(JText::_('COM_GGLMS_STATO_NOT_POSSIBLE_QUIZ') . $this->titolo . JText::_('COM_GGLMS_STATO_NOT_LOGGED'), 'error');
                 return 0;
             }
 
