@@ -1,15 +1,12 @@
-    <?php
+<?php
 defined('_JEXEC') or die('Restricted access');
 
 //BREADCRUMBS
-if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
+if ($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
 //BOOTSTRAP SCORM FILE
-if($this->contenuto->path)
-    $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/'.$this->contenuto->path;
-else
-    $pathscorm = PATH_CONTENUTI.'/'.$this->contenuto->id.'/index_lms_html5.html';
+$pathscorm = $this->contenuto->path;
 
 
 //$pathscorm = 'C:/WAMP64/www/www.carigelearning.it/mediagg/contenuti/'.$this->contenuto->id.'/';
@@ -22,7 +19,7 @@ else
 
 <p style="text-align:center; margin: 100px;">
     <button id="start">
-        <img   src="components/com_gglms/libraries/images/avviatest.jpg">
+        <img src="components/com_gglms/libraries/images/avviatest.jpg">
     </button>
 </p>
 
@@ -44,13 +41,13 @@ else
 
         var SCOInstanceID = '<?php echo $this->contenuto->id; ?>';
 
-        var pathscorm = '<?php echo $pathscorm; ?>';
+        var pathscorm = '<?php echo base64_encode($pathscorm); ?>';
 
         var id_utente = '<?php echo $this->contenuto->_userid; ?>';
 
         var log_status = '<?php echo JFactory::getApplication()->getParams()->get("log_utente")?>';
 
-        var url = '../../../../scorm/webinar.php?SCOInstanceID=' + SCOInstanceID + '&pathscorm=' + pathscorm + '&id_utente=' + id_utente + '&log_status='+ log_status;
+        var url = '../../../../scorm/webinar.php?SCOInstanceID=' + SCOInstanceID + '&pathscorm=' + pathscorm + '&id_utente=' + id_utente + '&log_status=' + log_status;
 
         window.open(url, "", stile);
     });
