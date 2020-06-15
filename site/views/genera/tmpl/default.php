@@ -15,7 +15,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
     <div class="form-group row">
         <label class="col-sm-3 col-form-label" for="username"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA') ?></label>
         <div class="col-sm-5">
-            <input required placeholder="<?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA') ?>" type="number" class="form-control" id="username"
+            <input required placeholder="<?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA') ?>" type="text" class="form-control" id="username"
                    name="username">
             <small id="piva-msg"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA_MISSING') ?> </small>
         </div>
