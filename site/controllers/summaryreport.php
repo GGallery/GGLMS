@@ -92,6 +92,9 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         ////////////////////// filter piattaforma //////////////
 
+        $this->_db->setQuery('SET SQL_BIG_SELECTS=1');
+        $this->_db->execute();
+
 
         $total_count_query = $this->_db->getQuery(true)
             ->select('count(*)')
