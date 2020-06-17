@@ -77,6 +77,7 @@ class gglmsControllerMobile extends JControllerLegacy
         $query->select($this->unitsFields);
         $query->from('#__gg_unit AS a');
         $query->where("is_corso=1");
+        $query->where("mobile=1");
 //        $query->where("id = 191");
         $query->order("ordinamento");
         $query->setLimit(3);
