@@ -50,7 +50,6 @@ class gglmsController extends JControllerLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
 
 
-
         if (file_exists('gglms_custom.css'))
             JHtml::_('stylesheet', 'gglms_custom.css');
 
@@ -58,11 +57,34 @@ class gglmsController extends JControllerLegacy
 
 
         $this->_params = $this->_japp->getParams();
-
         $this->_user = JFactory::getUser();
 
 
-            //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
+//        // CHECK UTENTE é SULLA PIATTAFORMA GIUSTA
+//        $model_user = new gglmsModelUsers();
+//        $info_piattaforma = $model_user->get_user_piattaforme($this->_user->id);
+//
+//        if ($info_piattaforma[0]->dominio !== DOMINIO) {
+//
+//
+//            $uri = JUri::getInstance();
+//            $return = $uri->toString();
+//            $url = "https://" . $info_piattaforma[0]->dominio . '/home/accedi_registrati/accedi.html';
+//
+////            var_dump($url);
+////            header("Location: http://www.yourwebsite.com/user.php");
+////            exit();
+//
+//            $msg = JText::_('PER ACCEDERE ALLA TUA AREA FORMATIVA LOGGATI SULLA TUA PIATTAFORMA DI RIFERIMENTO <a href="' . $url . ' "> cliccando qui </a>');
+//            $url = 'index.php?option=com_users&view=login';
+//            $url .= '&return=' . base64_encode($return);
+//            $this->_japp->redirect(JRoute::_($url), $msg);
+//        }
+//
+//
+//        // FINE CHECK UTENTE PIATTAFORMA
+
+        //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
         if ($this->_user->guest
             && strpos(JUri::getInstance()->toString(), 'catalogo') === false
             && strpos(JUri::getInstance()->toString(), 'helpdesk') === false
@@ -79,8 +101,40 @@ class gglmsController extends JControllerLegacy
             $this->_japp->redirect(JRoute::_($url), $msg);
         }
 
+
+        // CHECK UTENTE é SULLA PIATTAFORMA GIUSTA
+        $model_user = new gglmsModelUsers();
+        $info_piattaforma = $model_user->get_user_piattaforme($this->_user->id);
+        $is_super_admin = $model_user->is_user_superadmin($this->_user->id);
+        $is_tutor_piattaforma = $model_user->is_tutor_piattaforma($this->_user->id);
+
+
+        if (!$is_super_admin && !$is_tutor_piattaforma) {
+
+
+            if (!empty($info_piattaforma) && $info_piattaforma[0]->dominio !== DOMINIO) {
+
+
+                $uri = JUri::getInstance();
+                $return = $uri->toString();
+                $url = "https://" . $info_piattaforma[0]->dominio . '/home/accedi_registrati/accedi.html';
+
+//            var_dump($url);
+//            header("Location: http://www.yourwebsite.com/user.php");
+//            exit();
+
+                $msg = JText::_('PER ACCEDERE ALLA TUA AREA FORMATIVA LOGGATI SULLA TUA PIATTAFORMA DI RIFERIMENTO <a href="' . $url . ' "> cliccando qui </a>');
+                $url = 'index.php?option=com_users&view=login';
+                $url .= '&return=' . base64_encode($return);
+                $this->_japp->redirect(JRoute::_($url), $msg);
+            }
+        }
+
+        // FINE CHECK UTENTE PIATTAFORMA
+
         $this->registerTask('returnfromjoomlaquiz', 'returnfromjoomlaquiz');
         $this->registerTask('attestato', 'attestato');
+
     }
 
 
