@@ -302,7 +302,7 @@ class gglmsModelUsers extends JModelLegacy
             $groupid_list = '(' . implode(',', $user_groups) . ')';
 
             $query = $this->_db->getQuery(true)
-                ->select('g.id as value, d.alias as text')
+                ->select('g.id as value, d.alias as text, dominio as dominio')
                 ->from('#__usergroups as g')
                 ->join('inner', '#__usergroups_details as d ON g.id = d.group_id')
                 ->where("g.parent_id=" . $id_gruppo_piattaforme)
