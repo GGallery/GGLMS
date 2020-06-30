@@ -1,32 +1,30 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 
-if($this->contenuto->_params->get('abilita_breadcrumbs', 1))
+if ($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
-$files= $this->contenuto->getFiles();
+$files = $this->contenuto->getFiles();
 $stato = $this->contenuto->getStato();
 
-echo "<h1>".$this->contenuto->titolo."</h1>";
+echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 ?>
-
 
 
 <script type="text/javascript">
 
 
-
     jQuery(document).ready(function ($) {
 
-        <?php if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+        <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);' ?>
 
         var hasPlayed = false;
         var player;
         var duration = 0;
         var tview = 0;
         var old_tempo;
-        var bookmark=<?php echo $stato->bookmark; ?>;
+        var bookmark =<?php echo $stato->bookmark; ?>;
 
         var id_elemento = <?php echo $this->contenuto->id; ?>;
         var stato = <?php echo $this->contenuto->getStato()->completato; ?>;
@@ -34,13 +32,12 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
         if (stato) {
             features = ['playpause', 'current', 'progress', 'duration', 'volume', 'fullscreen', 'tracks'];
-        }
-        else {
+        } else {
             features = ['playpause', 'current', 'duration', 'volume', 'fullscreen', 'tracks'];
         }
 
         var jumper_attuale = null;
-        var jumper = new Array();
+        var jumper = [];
 
         <?php
         $i = 0;
@@ -49,7 +46,7 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
         jumper[<?php echo $i++; ?>] = {
             'tstart': <?php echo $val['tstart']; ?>,
             'titolo': "<?php echo $val['titolo']; ?>"
-        }
+        };
         <?php
         }
         ?>
@@ -65,7 +62,7 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
                 mediaElement.addEventListener('timeupdate', function (e) {
                     tview = mediaElement.currentTime.toFixed(0);
-                    if(!stato) {
+                    if (!stato) {
                         if (duration && duration - tview < 20)
                             finish(tview);
                     }
@@ -73,14 +70,14 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                     // sliding(time);
                 }, false);
 
-                mediaElement.addEventListener('loadedmetadata', function(e){
+                mediaElement.addEventListener('loadedmetadata', function (e) {
                     console.log("setcurrentetime" + bookmark);
                     mediaElement.setCurrentTime(bookmark);
                     duration = mediaElement.duration;
                 });
 
-                if(!stato){
-                    mediaElement.addEventListener('ended', function(e) {
+                if (!stato) {
+                    mediaElement.addEventListener('ended', function (e) {
                         finish(mediaElement.duration.toFixed(0));
                     }, false);
                 }
@@ -90,7 +87,6 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 console.log('Errore');
             }
         });
-
 
 
         player.play();
@@ -105,12 +101,18 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
         });
 
         //Aggiorno il bookmark quando chiudo la pagina
-        jQuery(window).on('beforeunload',function() {
+        jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
             jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
                 time: tview,
                 id_elemento: id_elemento
             });
+        });
+
+        // prevent context menu (così non possono salvarsi il video)
+        jQuery('#video').bind('contextmenu', function () {
+            console.log('prevent download solo_video');
+            return false;
         });
 
         function sliding(tempo) {
@@ -119,7 +121,7 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 old_tempo = tempo;
                 var currTime = parseInt(tempo);
                 var i = 0;
-                var past_jumper_selector = new Array();
+                var past_jumper_selector = [];
                 while (i < jumper.length && currTime >= parseInt(jumper[i]['tstart'])) {
                     past_jumper_selector[i] = '#' + i;
                     i++;
@@ -139,12 +141,12 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
             }
         }
 
-        function finish(tempo){
+        function finish(tempo) {
             stato = 1;
             jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
-                secondi:tempo,
-                stato:1,
-                id_elemento:id_elemento
+                secondi: tempo,
+                stato: 1,
+                id_elemento: id_elemento
             });
         }
 
@@ -159,8 +161,7 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
                 $(".container-video").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
                 $(".pulsante").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
                 $("#moduli").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
-            }
-            else {
+            } else {
                 $(".sidepanel").removeClass('show').addClass('hide');
                 $("#sidepanel").removeClass('sidepanelhide').addClass('show');
                 $("#panel_jumper").removeClass("hide").addClass('show');
@@ -177,17 +178,22 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 </script>
 
 
-
 <div class="container-videosidepanelhide row">
-    <div class="span3">   </div>
+    <div class="span3"></div>
 
     <div id="boxvideo" class="span6 center-block" style="min-height: 500px; text-align: center;">
 
-        <video  style="width:100%; height:100%; display: inline-block" height="100%" controls="controls" preload="auto" class="img-thumbnail">
-            <source type="video/mp4" src="<?php echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.mp4'; ?>" />
-            <!--            <source type="video/webm" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.webm'; ?><!--" />-->
-            <!--            <source type="video/ogg" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.ogv'; ?><!--" />-->
-            <!--            <track kind="slides" src="--><?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'; ?><!--vtt_slide.vtt" />-->
+        <video id="video" style="width:100%; height:100%; display: inline-block" height="100%" controls
+               controlsList="nodownload"
+               preload="auto" class="img-thumbnail">
+            <source type="video/mp4"
+                    src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.mp4'; ?>"/>
+            <!--            <source type="video/webm" src="-->
+            <?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.webm'; ?><!--" />-->
+            <!--            <source type="video/ogg" src="-->
+            <?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'.$this->contenuto->id.'.ogv'; ?><!--" />-->
+            <!--            <track kind="slides" src="-->
+            <?php //echo PATH_CONTENUTI.'/'.$this->contenuto->id. '/'; ?><!--vtt_slide.vtt" />-->
         </video>
 
         <!--        <div id= "panel_jumper" class="sidepanel  ">-->
@@ -233,7 +239,6 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 </div>
 
 
-
 <div class="g-grid">
     <div class="g-block size-50">
 
@@ -243,14 +248,14 @@ echo "<h1>".$this->contenuto->titolo."</h1>";
 
 </div>
 
-<?php if(!empty($files)): ?>
+<?php if (!empty($files)): ?>
     <div id="files" class="g-grid ">
         <hr>
         <ul>
             <?php
-            foreach($files as $file){
+            foreach ($files as $file) {
                 echo "<li>";
-                echo '<a target="_blank" href="/mediagg/files/'.$file->id.'/'.$file->filename.'">'.$file->name.'</a>';
+                echo '<a target="_blank" href="/mediagg/files/' . $file->id . '/' . $file->filename . '">' . $file->name . '</a>';
                 echo "</li>";
             }
             ?>
