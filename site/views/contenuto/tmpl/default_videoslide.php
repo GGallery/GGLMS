@@ -20,6 +20,11 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);' ?>
 
 
+        jQuery('#video').bind('contextmenu', function () {
+            console.log('prevent download');
+            return false;
+        });
+
         var hasPlayed = false;
         var player;
         var old_tempo;
@@ -164,7 +169,8 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
     <div id="boxvideo" class="g-block size-50 span6">
 
 
-        <video style="width:100%; height:100%; " height="100%" controls="controls" preload="auto" class="img-thumbnail">
+        <video id="video" controlsList="nodownload" style="width:100%; height:100%; " height="100%" controls="controls"
+               preload="auto" class="img-thumbnail">
             <source type="video/mp4"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.mp4'; ?>"/>
             <source type="video/webm"
@@ -253,7 +259,6 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
     </div>
 
 </div>
-
 
 
 <!--
