@@ -217,10 +217,26 @@ class gglmsControllerPdf extends JControllerLegacy
             $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
 
+            //ATECO calcolo codice ateco a partire da utente
+            $user_soc = $model_user->get_user_societa($user->id, true);
+            $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
+            $ateco = '';
+
+            if ($tutor_id) {
+                $query = $db->getQuery(true)
+                    ->select('c.cb_ateco')
+                    ->from('#__comprofiler as c')
+                    ->where('c.user_id =' . $tutor_id);
+                $db->setQuery($query);
+                $ateco = $db->loadResult();
+            }
+
+
+
             if ($generate_pdf == true) {
                 $model = $this->getModel('pdf');
 
-                $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog);
+                $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog,$ateco);
             } else {
 
 
@@ -231,6 +247,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 $result_user->contenuto_verifica = $contenuto_verifica;
                 $result_user->dg = $dg;
                 $result_user->tracklog = $tracklog;
+                $result_user->ateco = $ateco;
                 return $result_user;
 
             }
