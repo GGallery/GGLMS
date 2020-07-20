@@ -102,6 +102,7 @@ class gglmsController extends JControllerLegacy
         }
 
 
+
         // CHECK UTENTE é SULLA PIATTAFORMA GIUSTA
         $model_user = new gglmsModelUsers();
         $info_piattaforma = $model_user->get_user_piattaforme($this->_user->id);

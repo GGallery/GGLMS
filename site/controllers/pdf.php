@@ -52,6 +52,8 @@ class gglmsControllerPdf extends JControllerLegacy
 
         try {
 
+
+
             $generate_pdf = isset($generate_pdf) ? $generate_pdf : true;
 //            var_dump($user_id);
             $db = JFactory::getDbo();
@@ -212,7 +214,11 @@ class gglmsControllerPdf extends JControllerLegacy
                     }
 
                 }
+
             }
+
+
+
 
             $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
