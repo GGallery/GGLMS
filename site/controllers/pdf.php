@@ -53,7 +53,6 @@ class gglmsControllerPdf extends JControllerLegacy
         try {
 
 
-
             $generate_pdf = isset($generate_pdf) ? $generate_pdf : true;
 //            var_dump($user_id);
             $db = JFactory::getDbo();
@@ -128,6 +127,20 @@ class gglmsControllerPdf extends JControllerLegacy
 
                 $corso_obj = $unita;
             }
+
+
+        /// COUPON recupero il coupon a partire da utente e gruppo corso
+            $gac = $unita->get_gruppo_accesso_corso($corso_obj->id);
+
+            $query = $db->getQuery(true)
+                ->select('c.coupon')
+                ->from('#__gg_coupon c')
+                ->where('id_utente = "' . $user_id . '"')
+                ->where('id_gruppi = "' . $gac . '"');
+            $db->setQuery($query);
+            $coupon = $db->loadResult();
+
+
 
             $tracklog = null;
             if ($corso_obj->accesso == 'gruppo') {
@@ -218,8 +231,6 @@ class gglmsControllerPdf extends JControllerLegacy
             }
 
 
-
-
             $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
 
@@ -238,11 +249,10 @@ class gglmsControllerPdf extends JControllerLegacy
             }
 
 
-
             if ($generate_pdf == true) {
                 $model = $this->getModel('pdf');
 
-                $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog,$ateco);
+                $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog, $ateco,$coupon);
             } else {
 
 
