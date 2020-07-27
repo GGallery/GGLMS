@@ -8,12 +8,12 @@ _scaricaattesati = (function ($, my) {
             console.log('init scarica attestati ok');
             $("#btn-download").click(_downloadAttestati);
 
-            $("#btn-download").click(_downloadAttestati);
+
 
             $("#id_corso").change(function () {
 
                 var id_corso = $('#id_corso').val();
-                if (id_corso != -1 && diff_days > 0 && diff_days <= diff_days_thresold) {
+                if (id_corso != -1) {
 
                     $("#btn-download").removeClass('disabled');
                 } else {
@@ -23,8 +23,10 @@ _scaricaattesati = (function ($, my) {
 
             });
 
-            $("#startdate").change(getDays);
-            $("#finishdate").change(getDays)
+            var today = new Date();
+            $("#startdate").val(formatDate(today).split('-')[0] + '-' + formatDate(today).split('-')[1]);
+            // $("#startdate").change(getDays);
+
         }
 
         function _downloadAttestati() {
@@ -35,8 +37,20 @@ _scaricaattesati = (function ($, my) {
             var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso;
 
 
-            url = $("#startdate").val() ? url + "&startdate=" + $("#startdate").val() : url;
-            url = $("#finishdate").val() ? url + "&enddate=" + $("#finishdate").val() : url;
+
+            var start = $("#startdate").val();
+            // console.log(start);
+
+            var date = new Date(start);
+            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            //
+            // console.log(formatDate(firstDay));
+            // console.log(lastDay);
+
+
+            url =  url + "&startdate=" + formatDate(firstDay) ;
+            url = url + "&enddate=" + formatDate(lastDay) ;
 
 
             $("#btn-download").removeClass('disabled');
@@ -45,38 +59,36 @@ _scaricaattesati = (function ($, my) {
 
         }
 
+
+
+       function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
         function _getDays() {
 
             // alert('getDays');
 
             var start = $("#startdate").val();
-            var end = $("#finishdate").val();
+            console.log(start);
 
+            var date = new Date(start);
+            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-            // To set two dates to two variables
-            var date1 = new Date(start);
-            var date2 = end != "" ? new Date(end) : new Date();
+            console.log(firstDay);
+            console.log(lastDay);
 
-            // To calculate the time difference of two dates
-            var Difference_In_Time = date2.getTime() - date1.getTime();
-
-            // To calculate the no. of days between two dates
-            diff_days = Difference_In_Time / (1000 * 3600 * 24);
-
-            console.log('Difference_In_Days', diff_days);
-
-
-            if (diff_days > diff_days_thresold) {
-
-                 _showMsg( Joomla.JText._('COM_GGLMS_ATTESTATI_BULK_MAX_LIMIT').replace('{gg}',diff_days_thresold )  );
-                $("#btn-download").addClass('disabled');
-            }
-
-            if (diff_days < 0) {
-                // _showMsg('Seleziona una data di fine maggiore della data di inizio');
-                _showMsg(Joomla.JText._('COM_GGLMS_ATTESTATI_BULK_MAX_LIMIT'));
-                $("#btn-download").addClass('disabled');
-            }
 
 
         }
