@@ -126,7 +126,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
                     $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, '','',true);
-                    $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
+                    $nome_file = 'attestato_' . $att_id . $data->user->cognome . rand() . '.pdf';
                     $path_file = $this->_folder_location . $nome_file;
 
 
