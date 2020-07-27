@@ -35,7 +35,7 @@ class gglmsModelPdf extends JModelLegacy
     {
     }
 
-    public function _generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog,$ateco , $multi = false )
+    public function _generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog,$ateco , $coupon, $multi = false )
     {
 
 
@@ -57,6 +57,7 @@ class gglmsModelPdf extends JModelLegacy
             $info['dg'] = $dg;
             $info['ateco'] = $ateco;
             $info['tracklog'] = $tracklog;
+            $info['coupon'] = $coupon;
 
 
             $template = "file:" . $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $attestato->id . ".tpl";

@@ -94,6 +94,45 @@ _summaryreport = (function ($, my) {
                     field: 'user_',
                     title: getLocalizedString('COM_GGLMS_GLOBAL_USER'),
                     width: 200,
+                    hidden: true,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'nome',
+                    title:'Nome',
+                    width: 200,
+                    hidden: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'cognome',
+                    title: 'Cognome',
+                    width: 200,
+                    hidden: false,
+                    filterable: {
+                        cell: {
+                            showOperators: false
+                        }
+                    },
+                    excelExport: true
+
+                },
+                {
+                    field: 'cb_codicefiscale',
+                    title: 'Codice Fiscale',
+                    width: 200,
                     hidden: false,
                     filterable: {
                         cell: {

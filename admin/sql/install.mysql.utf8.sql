@@ -661,7 +661,10 @@ SELECT
 		),
 		''
 	) AS `user_`,
+	`ru`.`nome` AS `nome`,
+	`ru`.`cognome` AS `cognome`,
 	`ru`.`id_user` AS `id_user`,
+	`comp`.`cb_codicefiscale` AS `cb_codicefiscale`,
 	(
 		CASE
 		WHEN isnull(`ru`.`id_user`) THEN
@@ -691,41 +694,48 @@ FROM
 				(
 					(
 						(
-							`#__gg_coupon` `coupon`
-							JOIN `#__usergroups` `corsi` ON (
+							(
+								`#__gg_coupon` `coupon`
+								JOIN `#__usergroups` `corsi` ON (
+									(
+										`coupon`.`id_gruppi` = `corsi`.`id`
+									)
+								)
+							)
+							JOIN `#__usergroups` `soc` ON (
 								(
-									`coupon`.`id_gruppi` = `corsi`.`id`
+									`soc`.`id` = `coupon`.`id_societa`
 								)
 							)
 						)
-						JOIN `#__usergroups` `soc` ON (
+						JOIN `#__gg_usergroup_map` `corso_map` ON (
 							(
-								`soc`.`id` = `coupon`.`id_societa`
+								`corso_map`.`idgruppo` = `corsi`.`id`
 							)
 						)
 					)
-					JOIN `#__gg_usergroup_map` `corso_map` ON (
+					LEFT JOIN `#__users` `u` ON (
 						(
-							`corso_map`.`idgruppo` = `corsi`.`id`
+							`coupon`.`id_utente` = `u`.`id`
 						)
 					)
 				)
-				LEFT JOIN `#__users` `u` ON (
+				LEFT JOIN `cis19_gg_report_users` `ru` ON ((`ru`.`id_user` = `u`.`id`))
+			)
+			LEFT JOIN `cis19_gg_view_stato_user_corso` `vuc` ON (
+				(
 					(
-						`coupon`.`id_utente` = `u`.`id`
+						`vuc`.`id_corso` = `corso_map`.`idunita`
+					)
+					AND (
+						`vuc`.`id_anagrafica` = `ru`.`id`
 					)
 				)
 			)
-			LEFT JOIN `#__gg_report_users` `ru` ON ((`ru`.`id_user` = `u`.`id`))
 		)
-		LEFT JOIN `#__gg_view_stato_user_corso` `vuc` ON (
+		LEFT JOIN `cis19_comprofiler` `comp` ON (
 			(
-				(
-					`vuc`.`id_corso` = `corso_map`.`idunita`
-				)
-				AND (
-					`vuc`.`id_anagrafica` = `ru`.`id`
-				)
+				`comp`.`user_id` = `ru`.`id_user`
 			)
 		)
 	)

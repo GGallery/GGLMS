@@ -49,8 +49,15 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             $this->clean_folder();
 
             $data = JRequest::get($_POST);
+
+
             $this->id_corso = $data['id_corso'];
             $this->id_user = $data['user_id'] ? $data['user_id'] : null;
+
+//            var_dump($data['startdate'] );
+//            var_dump($data['enddate'] );
+//            die();
+
 
             $start = $data['startdate'];
             $end = $data['enddate'];
@@ -62,6 +69,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 // UTENTI MULTIPLI (per ora non usato) -> non mi viene passato l'utente
                 // scarico tutti
                 $user_id_list = $this->getUserCompleted($this->id_corso, $start, $end);
+
+
             } else {
 
                 // UTENTE SINGOLO --> chiamato da report kendo
@@ -75,12 +84,12 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso);
             }
 
-//            } else {
-//
-//                //todo --redirect dinamico attestatibulk per ora non utilizzata.
-//                $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
-///
-//            }
+            else {
+
+                //todo --redirect dinamico attestatibulk per ora non utilizzata.
+                $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
+
+            }
 
 
         } catch
@@ -94,6 +103,10 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     ///////////////////////////////////////////////////
     public function do_genereate_attestati_multiple($user_id_list, $id_corso)
     {
+
+
+//        var_dump('1uiiii');
+//        die();
         $pdf_ctrl = new gglmsControllerPdf();
         $model = new gglmsModelPdf();
         $file_list = array();
@@ -101,6 +114,9 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
         if (count($attestati_corso) > 1 || count($user_id_list) > 1) {
             // ho più di un attestato per il corso, oppure più utenti per lo stesso corso --> salvo in tmp, zippo e download
+
+//            var_dump($attestati_corso);
+//            die();
             foreach ($attestati_corso as $att_id) {
 
                 $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
@@ -109,11 +125,13 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 foreach ($data_att as $data) {
 
 
-                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, true);
-                    $nome_file = 'attestato_' . $att_id . $data->user->nome . rand() . '.pdf';
+                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, '','',true);
+                    $nome_file = 'attestato_' . $att_id . $data->user->cognome . rand() . '.pdf';
                     $path_file = $this->_folder_location . $nome_file;
 
 
+//                    var_dump($path_file);
+//                    die();
                     // save file in folder
                     $pdf->Output($path_file, 'F');
 
