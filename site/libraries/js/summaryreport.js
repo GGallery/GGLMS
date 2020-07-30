@@ -313,7 +313,8 @@ _summaryreport = (function ($, my) {
                     attributes: {
                         style: "text-align: center"
                     },
-                    excelExport: false
+                    excelExport: false,
+                    tutor_az: true
 
 
                 },
@@ -329,7 +330,7 @@ _summaryreport = (function ($, my) {
                         }
                     },
                     excelExport: true,
-                    tutor_az: false,
+                    tutor_az: false
 
                 },
                 {
@@ -988,13 +989,13 @@ _summaryreport = (function ($, my) {
                     console.log(user_action);
 
                     if (!user_action.reset || user_action.tutor_az) {
-                        // nascondo colonna reset
-                        widgets.grid.hideColumn(16);
+                        // nascondo colonna reset --> L'ultima -2
+                        widgets.grid.hideColumn(widgets.grid.columns.length -2 );
                     }
 
                     if (!user_action.delete || user_action.tutor_az) {
-                        // nascondo colonna delete
-                        widgets.grid.hideColumn(15);
+                        // nascondo colonna delete --> L'ultima -1
+                        widgets.grid.hideColumn(widgets.grid.columns.length -1 );
 
 
                     }
