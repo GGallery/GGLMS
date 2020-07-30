@@ -82,11 +82,9 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
                 $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso);
-            }
+            } else {
 
-            else {
 
-                //todo --redirect dinamico attestatibulk per ora non utilizzata.
                 $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
 
             }
@@ -105,8 +103,6 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     {
 
 
-//        var_dump('1uiiii');
-//        die();
         $pdf_ctrl = new gglmsControllerPdf();
         $model = new gglmsModelPdf();
         $file_list = array();
@@ -125,13 +121,11 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 foreach ($data_att as $data) {
 
 
-                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, '','',true);
+                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, '', '', true);
                     $nome_file = 'attestato_' . $att_id . $data->user->cognome . rand() . '.pdf';
                     $path_file = $this->_folder_location . $nome_file;
 
 
-//                    var_dump($path_file);
-//                    die();
                     // save file in folder
                     $pdf->Output($path_file, 'F');
 

@@ -108,7 +108,8 @@ defined('_JEXEC') or die;
             // convert utc to local
             function convertUTCDateToLocalDate(d) {
 
-                var date = new Date(d + ' UTC');
+                var date = new Date(d + 'Z');
+
                 var localdate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
                 document.getElementById("upd_at").innerHTML += '<span>' + ":" + localdate + '</span>';
 

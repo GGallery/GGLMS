@@ -4,7 +4,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 
-echo "<h1>".  JText::_('COM_GGLMS_MONITORA_COUPON_TITLE'). "</h1>"; ?>
+echo "<h1>".  JText::_('COM_GGLMS_SUMMARY_REPORT'). "</h1>"; ?>
 
 <div class="mc-main">
     <div id="grid"></div>

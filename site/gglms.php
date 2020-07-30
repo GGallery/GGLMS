@@ -98,6 +98,7 @@ JText::script('COM_GGLMS_CB_USERNAME');
 JText::script('COM_GGLMS_CB_EMAIL');
 JText::script('COM_GGLMS_ATTESTATI_BULK_MAX_LIMIT');
 JText::script('COM_GGLMS_ATTESTATI_BULK_ERROR_MSG');
+JText::script('COM_GGLMS_CB_CAP');
 
 
 
