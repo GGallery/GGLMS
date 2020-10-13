@@ -720,9 +720,9 @@ FROM
 						)
 					)
 				)
-				LEFT JOIN `cis19_gg_report_users` `ru` ON ((`ru`.`id_user` = `u`.`id`))
+				LEFT JOIN `#__gg_report_users` `ru` ON ((`ru`.`id_user` = `u`.`id`))
 			)
-			LEFT JOIN `cis19_gg_view_stato_user_corso` `vuc` ON (
+			LEFT JOIN `#__gg_view_stato_user_corso` `vuc` ON (
 				(
 					(
 						`vuc`.`id_corso` = `corso_map`.`idunita`
@@ -733,7 +733,7 @@ FROM
 				)
 			)
 		)
-		LEFT JOIN `cis19_comprofiler` `comp` ON (
+		LEFT JOIN `#__comprofiler` `comp` ON (
 			(
 				`comp`.`user_id` = `ru`.`id_user`
 			)
