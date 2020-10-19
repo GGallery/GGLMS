@@ -96,7 +96,8 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         jQuery('.jumper.enabled').click(function () {
             var rel = jQuery(this).attr('rel');
             player.setCurrentTime(rel);
-            sliding(time);
+            //sliding(time);
+            sliding(rel);
         });
 
         jQuery('.jumper.disabled').click(function () {
