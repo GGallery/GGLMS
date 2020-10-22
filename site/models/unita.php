@@ -564,7 +564,8 @@ class gglmsModelUnita extends JModelLegacy
 
         if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
 
-            if ($this->is_corso_expired($this) || $this->check_coupon_is_expired($this)) {
+            if ($this->is_corso_expired($this)
+                || $this->check_coupon_is_expired($this)) {
 
                 $retval = 'disabled';
             }
@@ -590,7 +591,7 @@ class gglmsModelUnita extends JModelLegacy
 
                             break;
                         default:
-                            //todo per ora se acesso non è gruppo ritorno tutti i coupon come validi
+                            //todo per ora se accesso non è gruppo ritorno tutti i coupon come validi
                             $retval = false;
 //
                             break;
@@ -598,7 +599,7 @@ class gglmsModelUnita extends JModelLegacy
                 }
             }
         } catch (Exception $e) {
-            DEBUGG::error($e, 'check_coupon_is_expired');
+            DEBUGG::error($e, __FUNCTION__);
         }
 
 

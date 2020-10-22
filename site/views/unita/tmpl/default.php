@@ -35,7 +35,7 @@ if ($this->sottounita) {
                 $unitaObj = new gglmsModelUnita();
 
                 $is_unit_completed = $unitaObj->isUnitacompleta($unita->id);
-                $corso_class= $unita->get_access_class($unita);
+                $corso_class = $unita->get_access_class($unita);
                 $corso_is_disabled = $corso_class == 'disabled';
 
                 ?>

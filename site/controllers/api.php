@@ -234,6 +234,126 @@ class gglmsControllerApi extends JControllerLegacy
         return $result;
     }
 
+    /*
+     * report che estrae il numero di ore per corso degli utenti iscritti
+     * */
+    public function get_report_ore_corso() {
+
+        $data = $this->new_get_ore_corso();
+
+        echo json_encode($data);
+        $this->_japp->close();
+
+    }
+
+    private function new_get_ore_corso() {
+
+        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
+        $alert_days_before = $this->_params->get('alert_days_before');
+        //$tipo_report = $this->_filterparam->tipo_report;
+        $limit = $this->_filterparam->limit;
+        $offset = $this->_filterparam->offset;
+        $filters = array(
+                        'startdate' => $this->_filterparam->startdate,
+                        'finishdate' => $this->_filterparam->finishdate,
+                        //'filterstato' => $this->_filterparam->filterstato,
+                        'searchPhrase' => $this->_filterparam->searchPhrase,
+                        'usergroups' => $this->_filterparam->usergroups
+                    );
+        $columns = array();
+
+        try {
+
+            $query = $this->_db->getQuery(true);
+            $countquery = $this->_db->getQuery(true);
+            $sub_query1 = $this->_db->getQuery(true);
+
+            $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome, IFNULL(UPPER(CP.cb_codicefiscale), "") AS codice_fiscale,
+                            CN.titolo AS titolo_evento, SEC_TO_TIME(CN.durata) AS durata_evento, 
+                            SEC_TO_TIME(SUM(LG.permanenza)) AS tempo_visualizzato');
+            $countquery->select("count(*)");
+
+            $query->from('#__comprofiler CP');
+            $query->join('inner', '#__gg_log LG ON CP.user_id = LG.id_utente');
+            $query->join('inner', '#__gg_contenuti CN ON LG.id_contenuto = CN.id');
+
+            $countquery->from('#__comprofiler CP');
+            $countquery->join('inner', '#__gg_log LG ON CP.user_id = LG.id_utente');
+            $countquery->join('inner', '#__gg_contenuti CN ON LG.id_contenuto = CN.id');
+
+            // join in subquery
+            $sub_query1->select('MAP.idcontenuto');
+            $sub_query1->from('#__gg_unit_map MAP');
+            $sub_query1->join('inner', '#__gg_unit U ON MAP.idunita = U.id');
+            $sub_query1->where('MAP.idunita = ' . $id_corso);
+            $sub_query1->where('U.pubblicato = 1');
+            $sub_query1->where('U.is_corso = 1');
+
+            // filtri su date dei corsi
+            if ($filters['startdate'] != null)
+                $sub_query1->where("U.data_fine > '" . $filters['startdate'] . "'");
+            if ($filters['finishdate'] != null)
+                $sub_query1->where("U.data_fine < '" . $filters['finishdate'] . "'");
+
+            $query->join('inner', '(' . $sub_query1 . ') AS SUB1 ON CN.id = SUB1.idcontenuto');
+            $query->where('CN.pubblicato = 1');
+
+            $countquery->join('inner', '(' . $sub_query1 . ') AS SUB1 ON CN.id = SUB1.idcontenuto');
+            $countquery->where('CN.pubblicato = 1');
+
+            // il limit va impostato nel setQuery
+            //$query->setlimit($offset, $limit);
+
+            if ($filters['searchPhrase'] != null) {
+                $query->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                                    OR CP.cb_codicefiscale LIKE \'%' . $filters['searchPhrase'] . '%\') ');
+                $countquery->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                                    OR CP.cb_codicefiscale LIKE \'%' . $filters['searchPhrase'] . '%\') ');
+            }
+
+            $query->group($this->_db->quoteName('LG.id_utente'));
+            $query->group($this->_db->quoteName('LG.id_contenuto'));
+
+            $countquery->group($this->_db->quoteName('LG.id_utente'));
+            $countquery->group($this->_db->quoteName('LG.id_contenuto'));
+
+            $this->_db->setQuery($query, $offset, $limit);
+            $rows = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($countquery);
+            $count = $this->_db->loadObjectList();
+            $num_rows = count($count);
+
+            // i nomi delle colonne dalla query
+            if ($num_rows> 0) {
+                foreach ($rows as $key => $sub_arr) {
+
+                    foreach ($sub_arr as $kk => $vv) {
+
+                        if (in_array($kk, $columns))
+                            continue;
+
+                        $columns[] = $kk;
+                    }
+                }
+            }
+
+            $result['columns'] = $columns;
+            $result['rowCount'] = $num_rows;
+            $result['rows'] = $rows;
+
+            return $result;
+        }
+        catch (Exception $e) {
+
+            DEBUGG::log('ERRORE DA GET_ORE_CORSO:' . json_encode($e->getMessage()), 'ERRORE DA GET_ORE_CORSO', 1, 1);
+            //DEBUGG::error($e, 'error', 1);
+        }
+    }
+
 /*
      metodo copia di new_get_data che ritorna le colonne del report a seconda dei parametri
     serve nel report kendo per la costruzione di griglie dinamiche nel reportkendo*/
@@ -580,6 +700,18 @@ class gglmsControllerApi extends JControllerLegacy
         echo  json_encode($data);
 */
         //$this->_japp->close();
+    }
+
+    /*
+     * Export CSV per reportistica legata alla visualizzazione di contenuti e relativa durata
+     * */
+    public function get_csv_report_ore_corso() {
+
+        $this->_japp = JFactory::getApplication();
+
+        $data = $this->new_get_ore_corso();
+        $this->createCSV($data['rows'], $id_corso = explode('|', $this->_filterparam->corso_id)[0]);
+
     }
 
     public function createCSV($rows, $corso_id)

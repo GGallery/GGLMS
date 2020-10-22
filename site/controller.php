@@ -83,15 +83,18 @@ class gglmsController extends JControllerLegacy
         // CHECK UTENTE é SULLA PIATTAFORMA GIUSTA
         $model_user = new gglmsModelUsers();
         $info_piattaforma = $model_user->get_user_piattaforme($this->_user->id);
+        // il numero delle piattaforme, che se <= 1 non deve far scattare il controllo della piattaforma
+        $numero_piattaforme = $model_user->get_numero_piattaforme();
         $is_super_admin = $model_user->is_user_superadmin($this->_user->id);
         $is_tutor_piattaforma = $model_user->is_tutor_piattaforma($this->_user->id);
 
-
         if (!$is_super_admin && !$is_tutor_piattaforma) {
 
-
-            if (!empty($info_piattaforma) && $info_piattaforma[0]->dominio !== DOMINIO) {
-
+            // questo controllo vale soltanto se sono definite più piattaforme
+            if (!empty($info_piattaforma)
+                && $info_piattaforma[0]->dominio !== DOMINIO
+                && $numero_piattaforme['tot_rows'] > 1
+            ) {
 
                 $uri = JUri::getInstance();
                 $return = $uri->toString();

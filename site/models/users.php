@@ -290,6 +290,26 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_numero_piattaforme() {
+
+        // ritorna quante piattaforme sono definite nel sistema
+        try {
+
+            $query = $this->_db->getQuery(true);
+            $query->select('COUNT(group_id) as tot_rows');
+            $query->from('#__usergroups_details');
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadAssoc();
+
+            return $data;
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
     public function get_user_piattaforme($id)
     {
         // ritorna id e nonme di tutte le piattaforme associate un utente
