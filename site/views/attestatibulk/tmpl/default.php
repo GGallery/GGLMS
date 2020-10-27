@@ -27,13 +27,40 @@ defined('_JEXEC') or die('Restricted access');
                 </select>
             </div>
         </div>
+        <?php
+        // integrazione scelta azienda nello scaricamento degli attestati
+        if (isset($this->lista_azienda)) : ?>
+            <div class="form-group row">
+                <label class="col-sm-2" for="id_azienda"><?php echo  JText::_('COM_GGLMS_GLOBAL_COMPANY') ?>:</label>
+                <div class="col-sm-10">
+                    <select required placeholder="Azienda" type="text" class="form-control cpn_opt"
+                            id="id_azienda" name="id_azienda">
+                        <option value="">
+                            <?php echo  JText::_('COM_GGLMS_GLOBAL_SCEGLI_AZIENDA') ?>
+                        </option>
+                        <?php foreach ($this->lista_azienda as $key => $az) { ?>
+                            <option value="<?php echo $az['id_gruppo']; ?>">
+                                <?php echo $az['azienda']; ?>
+                            </option>
+                        <?php } ?>
+
+                    </select>
+                </div>
+            </div>
+        <?php endif; ?>
         <div class="form-group row" id="calendar_startdate_div">
             <label class="col-sm-2" for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?></label>
             <div class="col-sm-10">
-                <input type="month" id="startdate" name="startdate"  min="" >
+                <input type="date" id="startdate" name="startdate"  min="" >
             </div>
         </div>
 
+        <div class="form-group row" id="calendar_startdate_div">
+            <label class="col-sm-2" for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_TO') ?></label>
+            <div class="col-sm-10">
+                <input type="date" id="enddate" name="enddate"  min="" >
+            </div>
+        </div>
 
         <div class="form-group row">
             <span id="msg" class="alert alert-danger" style="display: none; width: 100%"></span>

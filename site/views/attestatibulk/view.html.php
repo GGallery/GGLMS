@@ -38,6 +38,10 @@ class gglmsViewAttestatiBulk extends JViewLegacy
 
         $this->lista_corsi = utilityHelper::getIdCorsi();
 
+        // lista aziende
+        $coupon = new gglmsControllerGeneraCoupon();
+        $this->lista_azienda = $coupon->get_lista_piva(false);
+
 
         // Display the view
         parent::display($tpl);

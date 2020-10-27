@@ -2,3 +2,4 @@
 /.idea/*
 /.idea/workspace.xml
 /site/models/cache
+/site/models/tmp

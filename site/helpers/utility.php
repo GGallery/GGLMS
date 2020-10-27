@@ -331,8 +331,15 @@ class utilityHelper
                 $query = $query->where("ud.group_id=" . $id_piattaforma);
 
             } else {
+
+                // per l'ambiente di sviluppo..altrimenti la query non produce risultati per i corsi
+                $_domain = DOMINIO;
+                if (strpos($_domain, 'test.') !== false)
+                    $_domain = str_replace("test.", "web.", $_domain);
+
                 // piattaforma corrente
-                $query = $query->where("ud.dominio='" . DOMINIO . "'");
+                //$query = $query->where("ud.dominio='" . DOMINIO . "'");
+                $query = $query->where("ud.dominio='" . $_domain . "'");
             }
 
             $db->setQuery($query);
@@ -560,6 +567,31 @@ class utilityHelper
         }
 
 
+    }
+
+    // in giorni, mesi, anni ritorna la differenza fra due date
+    public static function get_date_diff_format($date1, $date2, $format = "d") {
+
+        $diff = abs(strtotime($date2)-strtotime($date1));
+        $years = floor($diff / (365*60*60*24));
+        $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+        $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+
+        switch ($format) {
+
+            case 'd':
+                return $days;
+
+            case 'm':
+                return $months;
+
+            case 'y':
+                return $years;
+
+            default:
+                return $days;
+
+        }
     }
 
 

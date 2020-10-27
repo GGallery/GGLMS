@@ -47,7 +47,10 @@ class gglmsControllerPdf extends JControllerLegacy
 
     // se $generate_pdf = false il metodo ritorna id dati per generare il pdf
     // il default == true --> stampa il pdf
-    public function generateAttestato($user_id = null, $id_content = null, $generate_pdf = true)
+    public function generateAttestato($user_id = null,
+                                      $id_content = null,
+                                      $generate_pdf = true,
+                                      $id_corso = null)
     {
 
         try {
@@ -141,6 +144,21 @@ class gglmsControllerPdf extends JControllerLegacy
             $coupon = $db->loadResult();
 
 
+            // DATI CORSO
+            $dati_corso = null;
+            if (!is_null($id_corso)) {
+
+                $query = $db->getQuery(true)
+                    ->select('r.data_inizio, r.data_fine, COALESCE(c.titolo, "") as titolo, COALESCE(c.alias, "") as alias')
+                    ->from('#__gg_view_stato_user_corso as r')
+                    ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
+                    ->join('left', '#__gg_unit as c on r.id_corso = c.id')
+                    ->where('ru.id_user = ' . $user_id)
+                    ->where('r.id_corso = ' . $id_corso);
+
+                $db->setQuery($query);
+                $dati_corso = $db->loadObjectList();
+            }
 
             $tracklog = null;
             if ($corso_obj->accesso == 'gruppo') {
@@ -252,7 +270,16 @@ class gglmsControllerPdf extends JControllerLegacy
             if ($generate_pdf == true) {
                 $model = $this->getModel('pdf');
 
-                $model->_generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog, $ateco,$coupon);
+                $model->_generate_pdf($user,
+                                    $orientamento,
+                                    $attestato,
+                                    $contenuto_verifica,
+                                    $dg,
+                                    $tracklog,
+                                    $ateco,
+                                    $coupon,
+                                    false,
+                                    $dati_corso);
             } else {
 
 
@@ -264,6 +291,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 $result_user->dg = $dg;
                 $result_user->tracklog = $tracklog;
                 $result_user->ateco = $ateco;
+                $result_user->dati_corso = $dati_corso;
                 return $result_user;
 
             }
@@ -295,7 +323,7 @@ class gglmsControllerPdf extends JControllerLegacy
         $this->_japp->close();
     }
 
-    public function getDataForAttestato_multi($user_id_list, $id_content = null)
+    public function getDataForAttestato_multi($user_id_list, $id_content = null, $id_corso = null)
     {
 
 
@@ -307,7 +335,7 @@ class gglmsControllerPdf extends JControllerLegacy
             $result = array();
             foreach ($user_id_list as $user_id) {
 
-                $res = $this->generateAttestato($user_id, $id_content, false);
+                $res = $this->generateAttestato($user_id, $id_content, false, $id_corso);
                 array_push($result, $res);
 
             }

@@ -77,7 +77,12 @@ class gglmsControllerApi extends JControllerLegacy
         $tipo_report = $this->_filterparam->tipo_report;
         $limit = $this->_filterparam->limit;
         $offset = $this->_filterparam->offset;
-        $filters = array('startdate' => $this->_filterparam->startdate, 'finishdate' => $this->_filterparam->finishdate, 'filterstato' => $this->_filterparam->filterstato, 'searchPhrase' => $this->_filterparam->searchPhrase, 'usergroups' => $this->_filterparam->usergroups);
+        $filters = array(
+                        'startdate' => $this->_filterparam->startdate,
+                        'finishdate' => $this->_filterparam->finishdate,
+                        'filterstato' => $this->_filterparam->filterstato,
+                        'searchPhrase' => $this->_filterparam->searchPhrase,
+                        'usergroups' => $this->_filterparam->usergroups);
 
         try {
 
@@ -268,6 +273,7 @@ class gglmsControllerApi extends JControllerLegacy
             $query = $this->_db->getQuery(true);
             $countquery = $this->_db->getQuery(true);
             $sub_query1 = $this->_db->getQuery(true);
+            $sub_query2 = $this->_db->getQuery(true);
 
             $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome, IFNULL(UPPER(CP.cb_codicefiscale), "") AS codice_fiscale,
                             CN.titolo AS titolo_evento, SEC_TO_TIME(CN.durata) AS durata_evento, 
@@ -286,9 +292,23 @@ class gglmsControllerApi extends JControllerLegacy
             $sub_query1->select('MAP.idcontenuto');
             $sub_query1->from('#__gg_unit_map MAP');
             $sub_query1->join('inner', '#__gg_unit U ON MAP.idunita = U.id');
-            $sub_query1->where('MAP.idunita = ' . $id_corso);
+            //$sub_query1->where('MAP.idunita = ' . $id_corso);
+            $sub_query1->where(' (MAP.idunita = ' . $id_corso . ' OR U.unitapadre = ' . $id_corso . ')');
             $sub_query1->where('U.pubblicato = 1');
-            $sub_query1->where('U.is_corso = 1');
+            //$sub_query1->where('U.is_corso = 1');
+
+            $query->join('inner', '(' . $sub_query1 . ') AS SUB1 ON CN.id = SUB1.idcontenuto');
+            $countquery->join('inner', '(' . $sub_query1 . ') AS SUB1 ON CN.id = SUB1.idcontenuto');
+
+            // filtro su azienda
+            if ($filters['usergroups'] != null) {
+                $sub_query2->select('user_id')
+                            ->from('#__user_usergroup_map')
+                            ->where('group_id = ' . $filters['usergroups']);
+
+                $query->join('inner', '(' . $sub_query2 . ') AS SUB2 ON LG.id_utente = SUB2.user_id');
+                $countquery->join('inner', '(' . $sub_query2 . ') AS SUB2 ON LG.id_utente = SUB2.user_id');
+            }
 
             // filtri su date dei corsi
             if ($filters['startdate'] != null)
@@ -296,10 +316,7 @@ class gglmsControllerApi extends JControllerLegacy
             if ($filters['finishdate'] != null)
                 $sub_query1->where("U.data_fine < '" . $filters['finishdate'] . "'");
 
-            $query->join('inner', '(' . $sub_query1 . ') AS SUB1 ON CN.id = SUB1.idcontenuto');
             $query->where('CN.pubblicato = 1');
-
-            $countquery->join('inner', '(' . $sub_query1 . ') AS SUB1 ON CN.id = SUB1.idcontenuto');
             $countquery->where('CN.pubblicato = 1');
 
             // il limit va impostato nel setQuery

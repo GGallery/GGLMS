@@ -24,8 +24,12 @@ _scaricaattesati = (function ($, my) {
             });
 
             var today = new Date();
-            $("#startdate").val(formatDate(today).split('-')[0] + '-' + formatDate(today).split('-')[1]);
+            // $("#startdate").val(formatDate(today).split('-')[0] + '-' + formatDate(today).split('-')[1]);
             // $("#startdate").change(getDays);
+            var g_start = formatDate(today);
+            var g_end = formatDate(today, "end");
+            $("#startdate").val(g_start);
+            $("#enddate").val(g_end);
 
         }
 
@@ -33,25 +37,31 @@ _scaricaattesati = (function ($, my) {
 
 
             var id_corso = $('#id_corso').val();
+            var id_azienda = "";
 
-            var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso;
+            if ($('#id_azienda').length > 0)
+                id_azienda = $('#id_azienda').val();
 
+            var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso + '&id_azienda=' + id_azienda;
 
-
-            var start = $("#startdate").val();
+            //var start = $("#startdate").val();
             // console.log(start);
 
-            var date = new Date(start);
-            var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-            var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            //var date = new Date(start);
+            //var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            //var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             //
             // console.log(formatDate(firstDay));
             // console.log(lastDay);
 
+            var startdate = $("#startdate").val();
+            var enddate = $("#enddate").val();
 
-            url =  url + "&startdate=" + formatDate(firstDay) ;
-            url = url + "&enddate=" + formatDate(lastDay) ;
+            //url =  url + "&startdate=" + formatDate(firstDay) ;
+            //url = url + "&enddate=" + formatDate(lastDay) ;
 
+            url =  url + "&startdate=" + startdate;
+            url = url + "&enddate=" + enddate;
 
             $("#btn-download").removeClass('disabled');
             $("#btn-download").attr("href", url);
@@ -61,11 +71,14 @@ _scaricaattesati = (function ($, my) {
 
 
 
-       function formatDate(date) {
-            var d = new Date(date),
-                month = '' + (d.getMonth() + 1),
-                day = '' + d.getDate(),
-                year = d.getFullYear();
+       function formatDate(date, when) {
+            var d = new Date(date);
+            var month = '' + (d.getMonth() + 1);
+            if (when == "end")
+                month = '' + (d.getMonth() + 3);
+
+            day = '' + d.getDate();
+            year = d.getFullYear();
 
             if (month.length < 2)
                 month = '0' + month;
@@ -73,6 +86,7 @@ _scaricaattesati = (function ($, my) {
                 day = '0' + day;
 
             return [year, month, day].join('-');
+            //return [day, month, year].join('/');
         }
 
         function _getDays() {
@@ -88,8 +102,6 @@ _scaricaattesati = (function ($, my) {
 
             console.log(firstDay);
             console.log(lastDay);
-
-
 
         }
 

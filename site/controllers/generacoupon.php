@@ -185,7 +185,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     }
 
 
-    function get_lista_piva()
+    function get_lista_piva($ret_json = true)
     {
 
         try {
@@ -206,8 +206,9 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
 
             $db = JFactory::getDbo();
+            // estratto anche l'id dell'azienda
             $query = $db->getQuery(true)
-                ->select(' distinct u.name as azienda , u.username as piva ')
+                ->select(' distinct u.name as azienda , u.username as piva, u.id as id_azienda, piattaforme.id as id_gruppo ')
                 ->from('#__users as u')
                 ->join('inner', '#__user_usergroup_map as map on map.user_id = u.id')
                 ->join('inner', '#__usergroups as ug on ug.id = map.group_id')
@@ -217,11 +218,19 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
                 ->order('u.name asc');
 
             $db->setQuery($query);
-            $piva_list = $db->loadObjectList();
 
+            // se richiamati da ajax restituisco un json
+            if ($ret_json) {
+                $piva_list = $db->loadObjectList();
+                echo json_encode($piva_list);
+                $japp->close();
+            }
+            // altrimenti restituisco un array in modo "silente"
+            else {
+                $piva_list = $db->loadAssocList();
+                return $piva_list;
+            }
 
-            echo json_encode($piva_list);
-            $japp->close();
         } catch (Exception $e) {
             DEBUGG::error($e, 'getListaPiva');
         }

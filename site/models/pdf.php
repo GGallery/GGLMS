@@ -35,7 +35,16 @@ class gglmsModelPdf extends JModelLegacy
     {
     }
 
-    public function _generate_pdf($user, $orientamento, $attestato, $contenuto_verifica, $dg, $tracklog,$ateco , $coupon, $multi = false )
+    public function _generate_pdf($user,
+                                  $orientamento,
+                                  $attestato,
+                                  $contenuto_verifica,
+                                  $dg,
+                                  $tracklog,
+                                  $ateco ,
+                                  $coupon,
+                                  $multi = false,
+                                  $dati_corso = null)
     {
 
 
@@ -72,7 +81,6 @@ class gglmsModelPdf extends JModelLegacy
                     throw new RuntimeException($customTemplate . " NOT EXIST", E_USER_ERROR);
                 }
             }
-
 
             $pdf->add_data((array)$user);
             $pdf->add_data($info);

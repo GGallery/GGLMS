@@ -28,12 +28,17 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     public $_folder_location = JPATH_COMPONENT . '/models/tmp/';
     public $id_user;
     public $id_corso;
+    // integrazione id_azienda nello scaricamento degli attestati
+    public $id_azienda;
+    //public $arr_data_fine;
+    public $report_month_limit;
 
     public function __construct($config = array())
     {
         parent::__construct($config);
         $this->_japp = JFactory::getApplication();
         $this->_db = JFactory::getDbo();
+        $this->report_month_limit = 2;
 
     }
 
@@ -52,6 +57,12 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
             $this->id_corso = $data['id_corso'];
+
+            $this->id_azienda = $data['id_azienda'];
+            if ($this->id_azienda == ""
+                || empty($this->id_azienda))
+                $this->id_azienda = null;
+
             $this->id_user = $data['user_id'] ? $data['user_id'] : null;
 
 //            var_dump($data['startdate'] );
@@ -63,13 +74,19 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             $end = $data['enddate'];
             $user_id_list = array();
 
+            $date_validation = $this->date_validation($start, $end);
+
+            if ($date_validation != "tuttook")
+                $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage($date_validation, 'Warning'));
 
             if ($this->id_user == null) {
 
                 // UTENTI MULTIPLI (per ora non usato) -> non mi viene passato l'utente
                 // scarico tutti
-                $user_id_list = $this->getUserCompleted($this->id_corso, $start, $end);
-
+                $user_id_list = $this->getUserCompleted($this->id_corso,
+                                                        $start,
+                                                        $end,
+                                                        $this->id_azienda);
 
             } else {
 
@@ -77,13 +94,10 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 array_push($user_id_list, $this->id_user);
             }
 
-
             if (count($user_id_list) > 0) {
-
 
                 $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso);
             } else {
-
 
                 $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
 
@@ -98,6 +112,32 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
     }
 
+
+    // controllo delle data inputate
+    private function date_validation($start, $end) {
+
+        // date non valorizzate
+        if (is_null($start)
+            || $start == ""
+            || empty($start)
+            || is_null($end)
+            || empty($end)
+            || $end == "")
+            return "Date non correttamente valorizzate";
+
+        // data fine maggiore di data inizio
+        if ($end < $start)
+            return "La data di fine non può essere precedente alla data di inizio";
+
+        $diff_in_days = utilityHelper::get_date_diff_format($end, $start);
+
+        if ($diff_in_days > $this->report_month_limit)
+            return "L'intervallo temporale fra date non può essere maggiore di " . $this->report_month_limit . " mesi";
+
+        return "tuttook";
+
+    }
+
     ///////////////////////////////////////////////////
     public function do_genereate_attestati_multiple($user_id_list, $id_corso)
     {
@@ -108,23 +148,40 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         $file_list = array();
         $attestati_corso = $this->getAttestati($id_corso); //[3,4]
 
-        if (count($attestati_corso) > 1 || count($user_id_list) > 1) {
+        if (count($attestati_corso) > 1
+            || count($user_id_list) > 1) {
             // ho più di un attestato per il corso, oppure più utenti per lo stesso corso --> salvo in tmp, zippo e download
 
 //            var_dump($attestati_corso);
 //            die();
             foreach ($attestati_corso as $att_id) {
 
-                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id);
+                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id, $id_corso);
 
 
                 foreach ($data_att as $data) {
 
-
-                    $pdf = $model->_generate_pdf($data->user, $data->orientamento, $data->attestato, $data->contenuto_verifica, $data->dg, $data->tracklog, '', '', true);
+                    // per data corso $data->dati_corso[0]
+                    $pdf = $model->_generate_pdf(
+                                                $data->user,
+                                                $data->orientamento,
+                                                $data->attestato,
+                                                $data->contenuto_verifica,
+                                                $data->dg,
+                                                $data->tracklog,
+                                                '',
+                                                '',
+                                                true);
                     $nome_file = 'attestato_' . $att_id . $data->user->cognome . rand() . '.pdf';
+                    /*
+                    $nome_file = 'attestato_' . $data->user->cognome .
+                                    '_' . $data->user->nome .
+                                    '_' . $data->user->cb_codicefiscale .
+                                    '_' . $data->dati_corso[0]->data_fine .
+                                    '_' . $data->dati_corso[0]->alias .
+                                    '.pdf';
+                    */
                     $path_file = $this->_folder_location . $nome_file;
-
 
                     // save file in folder
                     $pdf->Output($path_file, 'F');
@@ -138,21 +195,34 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             }
             $this->zip_and_download($file_list);
         } else {
-
-            $pdf_ctrl->generateAttestato($this->id_user, $attestati_corso[0], true);
+            $pdf_ctrl->generateAttestato($this->id_user, $attestati_corso[0], true, $id_corso);
         }
 
     }
 
     // ritorna array di id_utente che hanno completato il corso
-    public function getUserCompleted($id_corso, $start = null, $end = null)
+    // aggiunto filtro anche per azienda (o gruppo azienda)
+    public function getUserCompleted($id_corso,
+                                     $start = null,
+                                     $end = null,
+                                     $id_azienda = null)
     {
 
         try {
 
             $query = $this->_db->getQuery(true);
-            $query->select(' ru.id_user')
-                ->select('ru.id_user, ru.nome, ru.cognome, r.data_inizio, r.data_fine')
+            $sub_query = null;
+
+            if (!is_null($id_azienda)
+                && $id_azienda != "") {
+                $sub_query = $this->_db->getQuery(true);
+                $sub_query->select('user_id');
+                $sub_query->from('#__user_usergroup_map');
+                $sub_query->where('group_id = \'' . $id_azienda . '\'');
+            }
+
+            //$query->select(' ru.id_user')
+            $query->select('ru.id_user, ru.nome, ru.cognome, r.data_inizio, r.data_fine')
                 ->from('#__gg_view_stato_user_corso as r')
                 ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
                 ->where("r.stato = 1")
@@ -166,6 +236,10 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 $query->where("data_fine <= '" . $end . "'");
             }
 
+            // scatta il filtro sull'azienda
+            if (!is_null($sub_query)) {
+                $query->where('ru.id_user IN (' . $sub_query . ')');
+            }
 
             $this->_db->setQuery($query);
             $users = $this->_db->loadAssocList();
@@ -174,6 +248,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             $user_id_list = array();
             foreach ($users as $u) {
                 array_push($user_id_list, $u["id_user"]);
+                // oltre agli id memorizzo anche la data in cui il corso è stato completato
+                // $this->arr_data_fine[$u["id_user"]] = $u["data_fine"];
             }
 
 
