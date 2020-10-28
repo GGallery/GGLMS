@@ -63,6 +63,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
 
+
             // check for attestato
             if (!$this->_config->getConfigValue('check_coupon_attestato')) {
                 // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
@@ -454,11 +455,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         if (!$mailer->Send()) {
 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-            utilityHelper::logMail('coupons_mail', $sender, $recipients["to"]->email, 0, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
+            utilityHelper::logMail('coupons_mail', $sender, implode(",",$recipients["to"]->email), 0, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
         }
 
         //log mail sent
-        utilityHelper::logMail('coupons_mail', $sender, $recipients["to"]->email, 1, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
+        utilityHelper::logMail('coupons_mail', $sender, implode(",",$recipients["to"]->email), 1, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
         return true;
 
     }
