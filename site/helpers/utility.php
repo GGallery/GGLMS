@@ -239,7 +239,7 @@ class utilityHelper
 
     // metodi per dropdown report, monitora coupon, generacoupon
 
-    public static function getGruppiCorsi($id_piattaforma = null)
+    public static function getGruppiCorsi($id_piattaforma = null, $mobile = false)
     {
 
         // carico i gruppi dei corsi, filtrati per piattaforma
@@ -258,6 +258,11 @@ class utilityHelper
                 ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
                 ->where(" u.pubblicato=1")
                 ->order('u.titolo');
+
+
+            if($mobile){
+                $query = $query->where("u.mobile = 1");
+            }
 
 
             if ($id_piattaforma != null) {
