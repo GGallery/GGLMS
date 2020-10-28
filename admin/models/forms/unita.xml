@@ -197,6 +197,21 @@
         >
         </field>
 
+        <field
+                name="mobile"
+                type="radio"
+                label="Mobile"
+                description="Rende disponibile questo corso sulla app mobile. ATTENZIONE: Solo per corsi con contenuti VIDEO"
+                class="btn-group"
+                showon="is_corso:1"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+
+
 
         <field
                 name="id_contenuto_completamento"

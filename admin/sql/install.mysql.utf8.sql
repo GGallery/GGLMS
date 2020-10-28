@@ -444,6 +444,7 @@ CREATE TABLE `#__gg_unit` (
   `data_inizio` date DEFAULT NULL,
   `data_fine` date DEFAULT NULL,
   `prefisso_coupon` varchar(10) DEFAULT NULL,
+  `mobile` int(10) DEFAULT '0',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=MyISAM AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
