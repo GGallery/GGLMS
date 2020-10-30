@@ -48,7 +48,7 @@ defined('_JEXEC') or die;
                     <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2, 'refresh'); ?>
                 </div>
                 <?php else : ?>
-                <input type="hidden" name="usergroups" value="<?php echo $this->usergroups[0]->id; ?>" />
+                <input type="hidden" name="usergroups" id="usergroups" value="<?php echo $this->usergroups[0]->id; ?>" />
                 <?php endif;
 
                 endif;?>
