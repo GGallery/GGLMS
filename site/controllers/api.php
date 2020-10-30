@@ -254,9 +254,6 @@ class gglmsControllerApi extends JControllerLegacy
     private function new_get_ore_corso() {
 
         $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
-        $alert_days_before = $this->_params->get('alert_days_before');
-        //$tipo_report = $this->_filterparam->tipo_report;
         $limit = $this->_filterparam->limit;
         $offset = $this->_filterparam->offset;
         $filters = array(
