@@ -59,25 +59,48 @@ HTML;
             </div>
         <?php endif; ?>
         <div class="form-group row" id="calendar_startdate_div">
-            <label class="col-sm-2" for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?></label>
-            <div class="col-sm-10">
-                <input type="date" id="startdate" name="startdate"  min="" >
+            <label class="col-sm-2" for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_GEN') ?>:*</label>
+            <!--
+            <div class="col-sm-4">
+                <input type="date" id="startdate" name="startdate"  min="" />
+            </div>
+            <div class="col-sm-4">
+                <input type="date" id="enddate" name="enddate"  min="" />
+            </div>
+            -->
+            <div class="form-group col-sm-4">
+                <label for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM_SHORT') ?></label>
+                <input type="date" class="form-control" id="startdate" min="" />
+            </div>
+            <div class="form-group col-sm-4">
+                <label for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_TO_SHORT') ?></label>
+                <input type="date" class="form-control" id="enddate" min="" />
             </div>
         </div>
 
+        <div class="form-group row">
+            <div class="col-sm-2">
+                &nbsp;
+            </div>
+            <div class="col-sm-6">
+                <small>*<?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_ADV') ?></small>
+            </div>
+        </div>
+
+        <?php /*
         <div class="form-group row" id="calendar_startdate_div">
             <label class="col-sm-2" for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_TO') ?></label>
             <div class="col-sm-10">
                 <input type="date" id="enddate" name="enddate"  min="" >
             </div>
-        </div>
+        </div>*/?>
 
         <div class="form-group row" id="calendar_startdate_div">
-            <label class="col-sm-2" for="enddate">Salva attestato con nome</label>
+            <label class="col-sm-2" for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_SALVA_CON_NOME') ?></label>
             <div class="col-sm-10">
-                <textarea id="salva_come" name="salva_come" cols="8" rows="5" placeholder="Se non compilato i file verranno rinominati con il nome di Default"></textarea><br />
+                <textarea id="salva_come" name="salva_come" cols="8" rows="5" placeholder="<?php echo  JText::_('COM_GGLMS_REPORT_SALVA_CON_NOME_PLC') ?>"></textarea><br />
                 <p><code>Default: attestato_IDATTESTATO_COGNOME_NUMERORANDOM</code></p>
-                <p>Digita i valori nell'ordine desiderato, scegliendo fra TAG sottostanti</p>
+                <p><?php echo  JText::_('COM_GGLMS_REPORT_SALVA_CON_NOME_LGD') ?></p>
                 <p><code>"nome", "cognome", "codice_fiscale", "codice_corso", "data_inizio_corso", "data_fine_corso"</code></p>
             </div>
         </div>
