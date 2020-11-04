@@ -30,6 +30,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     public $id_corso;
     // integrazione id_azienda nello scaricamento degli attestati
     public $id_azienda;
+    // integrazione scelta nome file per salvataggio report
+    public $salva_come;
     //public $arr_data_fine;
     public $report_month_limit;
 
@@ -62,6 +64,16 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
             if ($this->id_azienda == ""
                 || empty($this->id_azienda))
                 $this->id_azienda = null;
+
+            // tolgo spazi inutile
+            $this->salva_come = trim($data['salva_come']);
+            // rimuovo virgola se ultimo carattere
+            if (substr(rtrim($this->salva_come), -1) == ",")
+                $this->salva_come = substr($this->salva_come, 0, -1);
+
+            if ($this->salva_come == ""
+                || empty($this->salva_come))
+                $this->salva_come = null;
 
             $this->id_user = $data['user_id'] ? $data['user_id'] : null;
 
@@ -96,7 +108,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             if (count($user_id_list) > 0) {
 
-                $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso);
+                $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso, $this->salva_come);
             } else {
 
                 $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
@@ -139,9 +151,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     }
 
     ///////////////////////////////////////////////////
-    public function do_genereate_attestati_multiple($user_id_list, $id_corso)
+    public function do_genereate_attestati_multiple($user_id_list, $id_corso, $salva_come = null)
     {
-
 
         $pdf_ctrl = new gglmsControllerPdf();
         $model = new gglmsModelPdf();
@@ -158,7 +169,6 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
                 $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id, $id_corso);
 
-
                 foreach ($data_att as $data) {
 
                     // per data corso $data->dati_corso[0]
@@ -172,15 +182,15 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                                                 '',
                                                 '',
                                                 true);
+
                     $nome_file = 'attestato_' . $att_id . $data->user->cognome . rand() . '.pdf';
-                    /*
-                    $nome_file = 'attestato_' . $data->user->cognome .
-                                    '_' . $data->user->nome .
-                                    '_' . $data->user->cb_codicefiscale .
-                                    '_' . $data->dati_corso[0]->data_fine .
-                                    '_' . $data->dati_corso[0]->alias .
-                                    '.pdf';
-                    */
+
+                    // se da form lo richiedo salvo il nome secondo la nomenclatura prescelta
+                    if (!is_null($salva_come)
+                            && $salva_come != "") {
+                        $nome_file = utilityHelper::build_nome_file_attestato($data, $salva_come);
+                    }
+
                     $path_file = $this->_folder_location . $nome_file;
 
                     // save file in folder

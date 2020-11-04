@@ -33,10 +33,15 @@ class gglmsViewAttestatiBulk extends JViewLegacy
     function display($tpl = null)
     {
 
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/scaricaattestati.js');
-//        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/scaricaattestati.css');
+        $document = JFactory::getDocument();
+        $document->addStyleSheet('https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css', array('version' => 'auto'));
+        JHtml::_('script', 'https://momentjs.com/downloads/moment.min.js', array('version' => 'auto', 'relative' => true));
+        JHtml::_('script', 'https://code.jquery.com/ui/1.9.2/jquery-ui.min.js', array('version' => 'auto', 'relative' => true));
 
-        $this->lista_corsi = utilityHelper::getIdCorsi();
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/scaricaattestati.js');
+
+        // abilito il filtro azienda anche per i corsi
+        $this->lista_corsi = utilityHelper::getIdCorsi(null, true);
 
         // lista aziende
         $coupon = new gglmsControllerGeneraCoupon();

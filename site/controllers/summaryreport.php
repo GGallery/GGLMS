@@ -107,7 +107,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         $tutor_az = $this->model_user->is_tutor_aziendale($this->_user->id);
         if ($tutor_az) {
-            // se è tutor aziendale sggiungo filtro per società
+            // se è tutor aziendale aggiungo filtro per società
             $total_count_query->where("id_azienda  in (" . implode(', ', $this->lista_aziende) . ")");
         }
 

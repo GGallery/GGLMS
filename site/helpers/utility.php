@@ -11,6 +11,8 @@ defined('_JEXEC') or die;
 class utilityHelper
 {
 
+    public static $white_cf = '----------------';
+
     public static function getGGlmsParam()
     {
         try {
@@ -41,6 +43,15 @@ class utilityHelper
 
     public static function conformita_cf($cf)
     {
+
+        // forzatura per consentire la gestione del codice fiscale per stranieri
+        if ($cf == self::$white_cf) {
+            $res['valido'] = 1;
+            $res['msg'] = '';
+            $res['cf'] = $cf;
+
+            return $res;
+        }
 
         $cf = strtoupper($cf);
 
@@ -311,7 +322,8 @@ class utilityHelper
         return $corsi;
     }
 
-    public static function getIdCorsi($id_piattaforma = null)
+    // filtro azienda se tutor aziendale
+    public static function getIdCorsi($id_piattaforma = null, $filtro_azienda = null)
     {
 
         // carico i gruppi dei corsi, filtrati per piattaforma
@@ -326,7 +338,55 @@ class utilityHelper
                 ->join('inner', '#__gg_usergroup_map AS gm ON g.id = gm.idgruppo')
                 ->join('inner', '#__gg_unit AS u ON u.id = gm.idunita')
                 ->join('inner', '#__gg_piattaforma_corso_map  AS pcm ON pcm.id_unita = u.id')
-                ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma')
+                ->join('inner', '#__usergroups_details  AS ud ON ud.group_id = pcm.id_gruppo_piattaforma');
+
+
+            // gestione filtro per azienda
+            if (!is_null($filtro_azienda)) {
+
+                // al volo includo il model users
+                require_once JPATH_COMPONENT . '/models/users.php';
+
+                // utente corrente
+                $user = JFactory::getUser();
+                $user_id = $user->get('id');
+
+                // verifico se è tutor aziendale
+                $model_user = new gglmsModelUsers();
+                $tutor_az = $model_user->is_tutor_aziendale($user_id);
+
+                // utente è tutor aziendale
+                if ($tutor_az) {
+
+                    /*
+                    $id_piattaforma = $model_user->get_user_piattaforme($user_id);
+
+                    $id_piattaforma_array = array();
+                    foreach ($id_piattaforma as $p) {
+                        array_push($id_piattaforma_array, $p->value);
+                    }
+
+
+                    $sub_query->select("DISTINCT id_gruppi")
+                        ->from('#__gg_coupon')
+                        ->where('gruppo IN (' . implode(", ", $id_piattaforma_array) . ')');
+                    */
+
+                    $lista_aziende = $model_user->get_user_societa($user_id, true);
+
+                    // applico filtro soltanto se ci sono società associate al tutor aziendale
+                    if (count($lista_aziende) > 0) {
+                        $sub_query = $db->getQuery(true);
+                        $sub_query->select("DISTINCT id_gruppi")
+                            ->from('#__gg_coupon')
+                            ->where("id_societa in (" . implode(', ', self::get_id_aziende($lista_aziende)) . ")");
+
+                        $query->join('inner', '(' . $sub_query . ') AS sub1 ON g.id = sub1.id_gruppi');
+                    }
+                }
+            }
+
+            $query
                 ->where(" g.parent_id=" . $id_gruppo_accesso_corsi)
                 ->where(" u.pubblicato=1")
                 ->order('u.titolo');
@@ -338,9 +398,7 @@ class utilityHelper
             } else {
 
                 // per l'ambiente di sviluppo..altrimenti la query non produce risultati per i corsi
-                $_domain = DOMINIO;
-                if (strpos($_domain, 'test.') !== false)
-                    $_domain = str_replace("test.", "web.", $_domain);
+                $_domain = self::filtra_dominio_per_test(DOMINIO);
 
                 // piattaforma corrente
                 //$query = $query->where("ud.dominio='" . DOMINIO . "'");
@@ -373,199 +431,6 @@ class utilityHelper
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
         }
-    }
-
-    public static function setProgressBarStyle($perc_bar) {
-
-        switch ($perc_bar) {
-
-            case ($perc_bar <= 10):
-                return "bg-danger";
-
-            case ($perc_bar > 10 && $perc_bar <= 50):
-                return "bg-warning";
-
-            case ($perc_bar > 50 && $perc_bar <= 75):
-                return "bg-info";
-
-            case ($perc_bar > 75 && $perc_bar <= 100):
-                return "bg-success";
-
-            default:
-                return "";
-        }
-
-    }
-
-    public static function getRowTotaleCorso($totale_durata, $totale_visualizzazione) {
-
-        $_html = "";
-        $perc_completamento = 0;
-
-        if ($totale_durata > 0
-            && $totale_visualizzazione <= $totale_durata) {
-            $perc_completamento = ($totale_visualizzazione / $totale_durata) * 100;
-            // rendo int la %
-            $perc_completamento = round($perc_completamento);
-            // bg della barra in base a %
-        }
-
-        $style_barra = self::setProgressBarStyle($perc_completamento);
-
-        $_cell_title = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR3');
-        $_html .= <<<HTML
-        <div class="row">
-            <div class="col-xs-6">
-                <h5><strong>{$_cell_title}</strong></h5>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-10">
-                <div class="progress" style="height: 25px;">
-                    <div class="progress-bar {$style_barra}" 
-                        role="progressbar" 
-                        style="width: {$perc_completamento}%; height: 100%; color: black; font-weight: bold;" aria-valuenow="{$perc_completamento}" aria-valuemin="0" aria-valuemax="100">{$perc_completamento}%</div>
-                </div>
-            </div>
-        </div>
-HTML;
-
-        return $_html;
-
-    }
-
-    public static function getDettaglioVisione($durata = 0, $tempo_visualizzato) {
-
-        $_html = "";
-        // calcolo la % completamento su progress bar
-        if ($durata > 0
-            && $tempo_visualizzato <= $durata) {
-            $perc_completamento = ($tempo_visualizzato/$durata)*100;
-            // rendo int la %
-            $perc_completamento = round($perc_completamento);
-            // bg della barra in base a %
-            $style_barra = self::setProgressBarStyle($perc_completamento);
-            $_cell_title1 = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR4');
-            $_cell_title2 = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR5');
-            $durata_ore = gmdate("H:i:s", $durata);
-            $_html = <<<HTML
-            <div class="row">
-                <div class="col-xs-6"><strong>{$_cell_title1}:</strong> {$durata_ore}</div>
-            </div>
-            <div class="row">
-                <div class="col-xs-6"><strong>{$_cell_title2}</strong></div>
-            </div>
-            <div class="row">
-                <div class="col-xs-10">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped {$style_barra}" 
-                            role="progressbar" 
-                            style="width: {$perc_completamento}%; height: 100% !important; color: black; font-weight: bold;" aria-valuenow="{$perc_completamento}" aria-valuemin="0" aria-valuemax="100">{$perc_completamento}%</div>
-                    </div>
-                </div>
-            </div>
-HTML;
-
-        }
-        // converto in ore i secondi
-        else {
-            $ore_visualizzazione = gmdate("H:i:s", $tempo_visualizzato);
-            $_cell_title = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR2');
-            $_html = <<<HTML
-            <div class="col-xs-6">{$_cell_title}:</div>
-            <div class="col-xs-3">{$ore_visualizzazione}</div>
-HTML;
-        }
-
-        return $_html;
-    }
-
-    public static function buildRowsDettaglioCorsi($arr_corsi, $arr_dettaglio_corsi) {
-
-        try {
-
-            $cards = 0;
-            $semaforo_totale = true;
-            $totale_durata  = 0;
-            $totale_visualizzazione = 0;
-            $corsi = 0;
-
-            // se ci sono più corsi visualizzerò un riga in più con i totali delle durate dei singoli corsi e delle visualizzazioni
-            if (count($arr_dettaglio_corsi) > 1) {
-                $semaforo_totale = true;
-            }
-
-            $_html = <<<HTML
-            <div id="accordion">
-HTML;
-            foreach ($arr_dettaglio_corsi as $id_padre => $sub_corso) {
-
-                $titolo_padre = self::getTitoloCorsoPadre($id_padre, $arr_corsi);
-
-                $_html .= <<<HTML
-                <div class="card">
-                    <div class="card-header" id="heading-{$cards}">
-                        <h5 class="mb-0">
-                            <button class="btn btn-link" 
-                                    data-toggle="collapse" 
-                                    data-target="#collapse-{$cards}" 
-                                    aria-expanded="true" 
-                                    aria-controls="collapse-{$cards}" 
-                                    style="background: #fff; color: red; line-height: inherit;">
-                                <strong>{$titolo_padre}</strong>
-                            </button>
-                        </h5>
-                    </div>
-                    <div id="collapse-{$cards}" 
-                         class="collapse show" 
-                         aria-labelledby="heading-{$cards}" 
-                         data-parent="#accordion">
-                        <div class="card-body">
-HTML;
-                foreach ($sub_corso as $key => $corso) {
-
-                    // se anche uno dei corsi ha durata 0 non visualizzo la barra dei totale
-                    if ($corso['durata_evento'] == 0)
-                        $semaforo_totale = false;
-
-                    $dettaglio_visione = self::getDettaglioVisione($corso['durata_evento'], $corso['tempo_visualizzato']);
-
-                    $_html .= <<<HTML
-                       <div class="row">
-                            <div class="col-xs-6">
-                                <h6><strong>{$corso['titolo_evento']}</strong></h6>
-                            </div>
-                       </div>
-                       {$dettaglio_visione}
-HTML;
-
-                    $totale_durata += $corso['durata_evento'];
-                    $totale_visualizzazione += $corso['tempo_visualizzato'];
-                    $corsi++;
-                }
-
-                if ($semaforo_totale
-                    && $corsi > 1)
-                    $_html .= self::getRowTotaleCorso($totale_durata, $totale_visualizzazione);
-
-                $_html .= <<<HTML
-                        </div><!-- card-body -->
-                    </div> <!-- collapse show -->
-                </div> <!-- card -->
-HTML;
-                $cards++;
-            }
-
-            $_html .= <<<HTML
-            </div> <!-- accordion -->
-HTML;
-
-            return $_html;
-
-        } catch (Exception $e) {
-            DEBUGG::error($e, __FUNCTION__);
-        }
-
     }
 
     public static function getDettaglioDurataByCorso($id_corso, $user_id = null) {
@@ -881,5 +746,70 @@ HTML;
         }
     }
 
+    // da oggetto azienda ad array con lista id
+    public static function get_id_aziende($azienda)
+    {
+
+        $a_list = array();
+        foreach ($azienda as $a) {
+            array_push($a_list, $a->id);
+        }
+
+        return $a_list;
+
+    }
+
+    // in base a dei valori predefiniti imposto il nome del file con il quale un attestato verrà scaricato
+    public static function build_nome_file_attestato($data, $salva_come) {
+
+        $arr_salva = explode(",", $salva_come);
+        $nome_file = 'attestato';
+
+        foreach ($arr_salva as $indice) {
+
+            switch (trim($indice)) {
+
+                case 'nome':
+                    $nome_file .= '_' . $data->user->nome;
+                    break;
+
+                case 'cognome':
+                    $nome_file .= '_' . $data->user->cognome;
+                    break;
+
+                case 'codice_fiscale':
+                    $nome_file .= '_' . $data->user->cb_codicefiscale;
+                    break;
+
+                case 'codice_corso':
+                    $nome_file .= '_' . $data->dati_corso[0]->codice_corso;
+                    break;
+
+                case 'data_inizio_corso':
+                    $nome_file .= '_' . $data->dati_corso[0]->data_inizio;
+                    break;
+
+                case 'data_fine_corso':
+                    $nome_file .= '_' . $data->dati_corso[0]->data_fine;
+                    break;
+
+            }
+        }
+
+        $nome_file .= '_' . rand() . '.pdf';
+        //$nome_file .= '.pdf';
+        return $nome_file;
+
+    }
+
+    // per sviluppo filtro DOMAIN - di default i siti che in produzione iniziano per web. in sviluppo saranno test.
+    function filtra_dominio_per_test($_domain) {
+
+        if (strpos($_domain, 'test.') !== false)
+            $_domain = str_replace("test.", "web.", $_domain);
+
+        return $_domain;
+
+    }
 
 }

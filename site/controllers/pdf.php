@@ -149,7 +149,8 @@ class gglmsControllerPdf extends JControllerLegacy
             if (!is_null($id_corso)) {
 
                 $query = $db->getQuery(true)
-                    ->select('r.data_inizio, r.data_fine, COALESCE(c.titolo, "") as titolo, COALESCE(c.alias, "") as alias')
+                    ->select('r.data_inizio, r.data_fine, COALESCE(c.titolo, "") as titolo, 
+                                COALESCE(c.prefisso_coupon, "") as codice_corso')
                     ->from('#__gg_view_stato_user_corso as r')
                     ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
                     ->join('left', '#__gg_unit as c on r.id_corso = c.id')

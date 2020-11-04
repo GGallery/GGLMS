@@ -29,7 +29,7 @@ defined('_JEXEC') or die;
 
     <?php else : ?>
 
-        <?php echo utilityHelper::buildRowsDettaglioCorsi($this->corsi, $this->dettaglio_corsi); ?>
+        <?php echo outputHelper::buildRowsDettaglioCorsi($this->corsi, $this->dettaglio_corsi); ?>
 
         <!-- se esistenti esplodo i collapse -->
         <script type="text/javascript">

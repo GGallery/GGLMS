@@ -88,11 +88,16 @@ class gglmsController extends JControllerLegacy
         $is_super_admin = $model_user->is_user_superadmin($this->_user->id);
         $is_tutor_piattaforma = $model_user->is_tutor_piattaforma($this->_user->id);
 
-        if (!$is_super_admin && !$is_tutor_piattaforma) {
+        // per l'ambiente di sviluppo..altrimenti la query non produce risultati per i corsi
+        $_domain = utilityHelper::filtra_dominio_per_test(DOMINIO);
+
+        if (!$is_super_admin
+            && !$is_tutor_piattaforma) {
 
             // questo controllo vale soltanto se sono definite più piattaforme
+            //&& $info_piattaforma[0]->dominio !== DOMINIO
             if (!empty($info_piattaforma)
-                && $info_piattaforma[0]->dominio !== DOMINIO
+                && $info_piattaforma[0]->dominio !== $_domain
                 && $numero_piattaforme['tot_rows'] > 1
             ) {
 

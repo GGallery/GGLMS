@@ -189,7 +189,6 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
-
     function get_lista_piva($ret_json = true)
     {
 
@@ -200,6 +199,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $user_id = $this->_user->id;
             $_config = new gglmsModelConfig();
             $id_gruppo_tutor_aziendale = $_config->getConfigValue('id_gruppo_tutor_aziendale');
+            $_filtro_azienda = " = " . $id_gruppo_tutor_aziendale;
 
             $model_user = new gglmsModelUsers();
             $id_piattaforma = $model_user->get_user_piattaforme($user_id);
@@ -209,6 +209,16 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
                 array_push($id_piattaforma_array, $p->value);
             }
 
+            // applico il filtro per il tutor aziendale, per il momento limitato soltanto allo scarica report
+            $tutor_az = $model_user->is_tutor_aziendale($user_id);
+            if ($tutor_az
+                && !$ret_json) {
+                $lista_aziende = $model_user->get_user_societa($user_id, true);
+
+                // applico filtro soltanto se ci sono società associate al tutor aziendale
+                if (count($lista_aziende) > 0)
+                    $_filtro_azienda = " in (" . implode(', ', utilityHelper::get_id_aziende($lista_aziende)) . ")";
+            }
 
             $db = JFactory::getDbo();
             // estratto anche l'id dell'azienda
@@ -218,7 +228,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
                 ->join('inner', '#__user_usergroup_map as map on map.user_id = u.id')
                 ->join('inner', '#__usergroups as ug on ug.id = map.group_id')
                 ->join('inner', '#__usergroups as  piattaforme on piattaforme.title = u.name')
-                ->where(" ug.id=" . $id_gruppo_tutor_aziendale)
+                //->where(" ug.id = " . $id_gruppo_tutor_aziendale)
+                ->where(" ug.id " . $_filtro_azienda)
                 ->where('piattaforme.parent_id IN (' . implode(", ", $id_piattaforma_array) . ')')
                 ->order('u.name asc');
 

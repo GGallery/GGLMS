@@ -23,11 +23,13 @@ _scaricaattesati = (function ($, my) {
 
             });
 
-            var today = new Date();
+            //var today = new Date();
             // $("#startdate").val(formatDate(today).split('-')[0] + '-' + formatDate(today).split('-')[1]);
             // $("#startdate").change(getDays);
-            var g_start = formatDate(today);
-            var g_end = formatDate(today, "end");
+
+            var g_start = moment().format('YYYY-MM-DD');
+            var g_end = moment(g_start).add(2,'months').format('YYYY-MM-DD');
+
             $("#startdate").val(g_start);
             $("#enddate").val(g_end);
 
@@ -38,11 +40,16 @@ _scaricaattesati = (function ($, my) {
 
             var id_corso = $('#id_corso').val();
             var id_azienda = "";
+            var salva_come = "";
 
             if ($('#id_azienda').length > 0)
                 id_azienda = $('#id_azienda').val();
 
-            var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso + '&id_azienda=' + id_azienda;
+            if ($('#salva_come').length > 0)
+                salva_come = $('#salva_come').val();
+            var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso
+                                    + '&id_azienda=' + id_azienda
+                                    + '&salva_come=' + salva_come;
 
             //var start = $("#startdate").val();
             // console.log(start);
@@ -74,8 +81,13 @@ _scaricaattesati = (function ($, my) {
        function formatDate(date, when) {
             var d = new Date(date);
             var month = '' + (d.getMonth() + 1);
-            if (when == "end")
-                month = '' + (d.getMonth() + 3);
+            if (when == "end") {
+                var e_month = d.getMonth() + 3;
+                if (e_month > 12)
+                    e_month = 12;
+
+                month = '' + e_month;
+            }
 
             day = '' + d.getDate();
             year = d.getFullYear();
