@@ -10,50 +10,23 @@ defined('_JEXEC') or die;
             <!--            <h3>Corso</h3>-->
             <div class="form-group">
                 <label for="corso_id"><?php echo JText::_('COM_GGLMS_GLOBAL_CORSO') ?>:</label><br>
-                <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
                 <select id="corso_id" name="corso_id" class="refresh">
                     <?php
-                    foreach ($this->corsi as $corso) {
-
-                        echo '<option value="' . $corso->id . '|' . $corso->id_contenuto_completamento . '">' . $corso->titolo . "</option>";
+                    foreach ($this->lista_corsi as $key => $corso) {
+                        echo '<option value="' . $corso->value . '">' . $corso->text . "</option>";
                     }
                     ?>
                 </select>
 
             </div>
 
-            <?php /*
-            <!--            <h4>Tipo Report</h4>-->
-            <div class="form-group">
-                <label for="tipo_report"><?php echo JText::_('COM_GGLMS_REPORT_TIPO') ?></label><br>
-                <select id="tipo_report" name="tipo_report" class="refresh">
-                    <option selected value="0"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_CORSO') ?></option>
-                    <option value="1"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_UNITA') ?></option>
-                    <option value="2"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_CONTENUTO') ?></option>
-                </select>
-
-            </div>
-            */?>
-
-
             <hr>
             <h5 style="text-align: center"><?php echo JText::_('COM_GGLMS_GLOBAL_FILTRI') ?></h5>
 
             <?php
-             // mostro il select azienda soltanto se ho multiple istanze
-            echo outputHelper::buildFiltroAzienda($this->usergroups);
-
-             /*
-            <div class="form-group" id="filterstatodiv">
-                <label for="filterstato"> <?php echo JText::_('COM_GGLMS_GLOBAL_STATO') ?> </label></br>
-                <select id="filterstato" name="filterstato" class="refresh">
-                    <option value="0"><?php echo JText::_('COM_GGLMS_GLOBAL_STATO_ANY') ?></option>
-                    <option value="1"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI') ?></option>
-                    <option value="2"><?php echo JText::_('COM_GGLMS_REPORT_NON_COMPLETATI') ?></option>
-                    <!--                    <option value="3">In scadenza</option>-->
-                </select>
-            </div>
-            */?>
+                // mostro il select azienda soltanto se ho multiple istanze
+                echo outputHelper::buildFiltroAzienda($this->usergroups);
+                ?>
 
             <div class="form-group" id="calendar_startdate_div">
                 <label for="startdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?>:</label><br>
@@ -69,7 +42,7 @@ defined('_JEXEC') or die;
 
             <div class="form-group" id="searchPhrase_div">
                 <label for="searchPhrase"><?php echo JText::_('COM_GGLMS_GLOBAL_SEARCH') ?>:</label><br>
-                <input type="text" id="searchPhrase" placeholder="<?php echo JText::_('COM_GGLMS_REPORT_ORE_CERCA_PER') ?>">
+                <input type="text" id="searchPhrase" placeholder="<?php echo JText::_('COM_GGLMS_QUIZ_ORE_CERCA_PER') ?>">
             </div>
 
 
@@ -79,8 +52,6 @@ defined('_JEXEC') or die;
             <div class="form-group">
                 <button type="button" id="update" class="width100 btn"
                         onclick="reload()"><?php echo JText::_('COM_GGLMS_REPORT_AGGIORNA') ?></button>
-                <button type="button" id="get_csv" class="btn width100"
-                        onclick="loadCsv()"><?php echo JText::_('COM_GGLMS_GLOBAL_EXPORT_CSV') ?></button>
             </div>
 
         </form>
@@ -141,9 +112,12 @@ defined('_JEXEC') or die;
     var loadreportlimit = 15;
 
     var actualminpage = 1;
-    var columnfilter = [];//CAMPI DA NON MOSTRARE IN TABELLA
+    var columnfilter = ['quiz_ref', 'quiz_id', 'student_id'];//CAMPI DA NON MOSTRARE IN TABELLA
     var columnmappingname = [{name: 'data_inizio', alias: 'data inizio'},
         {name: 'data_fine', alias: 'data fine'}];
+    var buttonscolumn = ['quiz_id'];//CAMPO CHE SI TRASFORMA IN PULSANTE
+    var buttonscolumnname = ['ANNULLA'];//CAMPO CHE DA IL NOME AL PULSANTE
+    var buttonkeyidfield = ['quiz_id'];//CHIAVE DI ASSOCIAZIONE AL PULSANTE
 
     var maxNofpages;
     var viewReportColumns;
@@ -153,9 +127,9 @@ defined('_JEXEC') or die;
 
         window.console.log('document ready');
         // default is by corso
-        jQuery('#filterstatodiv').show();
-        jQuery('#calendar_startdate_div').hide();
-        jQuery('#calendar_finishdate_div').hide();
+        //jQuery('#filterstatodiv').show();
+        //jQuery('#calendar_startdate_div').hide();
+        //jQuery('#calendar_finishdate_div').hide();
         loadData(null);
 
         //  TABELLA
@@ -166,6 +140,7 @@ defined('_JEXEC') or die;
             loadData(null);
         });
 
+        /*
         $("#tipo_report").change(function () {
 
             if ($("#tipo_report option:selected").val() == 0) {
@@ -185,7 +160,9 @@ defined('_JEXEC') or die;
             }
 
         });
+        */
 
+        /*
         $("#filterstato").change(function () {
 
 
@@ -198,6 +175,7 @@ defined('_JEXEC') or die;
                 $("#calendar_finishdate_div").hide();
             }
         });
+        */
 
         $("#startdate").bind('change', function () {
 
@@ -271,12 +249,10 @@ defined('_JEXEC') or die;
     function loadData(sender) {
 
 
-        var url = "index.php?option=com_gglms&task=api.get_report_ore_corso&corso_id=" + jQuery("#corso_id").val();
+        var url = "index.php?option=com_gglms&task=api.get_user_quiz_per_azienda_corso&corso_id=" + jQuery("#corso_id").val();
         url = url + "&startdate=" + jQuery("#startdate").val();
         url = url + "&finishdate=" + jQuery("#finishdate").val();
-        //url = url + "&filterstato=" + jQuery("#filterstato").val();
         url = url + "&usergroups=" + jQuery("#usergroups").val();
-        //url = url + "&tipo_report=" + jQuery("#tipo_report").val();
         url = url + "&searchPhrase=" + jQuery("#searchPhrase").val();
 
         if (sender != 'pagination') {
@@ -318,6 +294,19 @@ defined('_JEXEC') or die;
                 maxNofpages = parseInt((data['rowCount'] / loadreportlimit) + 1);
                 data['columns'].forEach(addColumn);
 
+                if (buttonscolumn.length > 0) {
+
+                    jQuery.each(buttonscolumn, function (i, item) {
+
+                        var text = Joomla.JText._("COM_GGLMS_REPORT_" + buttonscolumnname[i].toString().toUpperCase()) || buttonscolumnname[i];
+                        // console.log('rincomincia da quiiiii', text);
+
+                        jQuery('#grid-basic').append('<th>' + text.toUpperCase() + '</th>');
+                        viewReportColumns.push(buttonscolumnname[i]);
+                    });
+
+                }
+
                 for (i = 0; i < data['rows'].length; i++) {
 
                     var row = data['rows'][i];
@@ -340,6 +329,35 @@ defined('_JEXEC') or die;
 
             });
 
+    }
+
+    function removeUserQuiz(delCid, callback) {
+
+        var url = "index.php?option=com_gglms&task=api.del_user_quiz&cid=" + delCid;
+        jQuery.when(jQuery.get(url))
+            .done(function (data) {
+
+            })
+            .fail(function (data) {
+
+            })
+            .then(function (data) {
+
+                var j = JSON.parse(data);
+                var errMsg = "";
+                var infoMsg = "";
+
+                if (j.errors != undefined) {
+                    errMsg = j.errors;
+                }
+                if (j.messages != undefined) {
+                    jQuery.each(j.messages, function(i, item) {
+                        infoMsg += j.messages[i] + '\n';
+                    });
+                }
+
+                callback(errMsg, infoMsg);
+            });
     }
 
     function defineRowBootClass(row) {
@@ -378,6 +396,10 @@ defined('_JEXEC') or die;
             rowCellData = ""
         }
 
+        if (jQuery.inArray(dataColumns[columIndex], buttonscolumnname) > -1) {
+            rowCellData = addButtonsCell(row, jQuery.inArray(dataColumns[columIndex], buttonscolumnname));
+        }
+
         switch (viewType) {
 
             case '0':
@@ -411,7 +433,7 @@ defined('_JEXEC') or die;
             // console.log(columnname, 'aaaaaaaaaaaaa');
             if (!columnname.includes('_hidden')) {
 
-                columnname = Joomla.JText._("COM_GGLMS_REPORT_" + item.toString().toUpperCase()) || columnname;
+                columnname = Joomla.JText._("COM_GGLMS_QUIZ_" + item.toString().toUpperCase()) || columnname;
             }
 
             //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
@@ -423,21 +445,45 @@ defined('_JEXEC') or die;
         }
     }
 
+    function addButtonsCell(row, _index) {
+
+        rowCellData = '';
+
+
+        var btnColumnName = buttonscolumnname[_index];
+        if (btnColumnName == "ANNULLA") {
+            rowCellData = rowCellData + "<button id='columnbutton'";
+            rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
+            rowCellData = rowCellData + "\" onclick=playbutton(" + row[buttonkeyidfield[_index]] + ",'" + buttonscolumn[_index] + "') ><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
+        }
+
+        return rowCellData;
+
+    }
+
     function reload() {
         loadData(null);
     }
 
-    function loadCsv() {
-        var url = "index.php?option=com_gglms&task=api.get_csv_report_ore_corso&corso_id=" + jQuery("#corso_id").val();
-        url = url + "&startdate=" + jQuery("#startdate").val();
-        url = url + "&finishdate=" + jQuery("#finishdate").val();
-        //url = url + "&filterstato=" + jQuery("#filterstato").val();
-        url = url + "&usergroups=" + jQuery("#usergroups").val();
-        //url = url + "&tipo_report=" + jQuery("#tipo_report").val();
-        url = url + "&searchPhrase=" + jQuery("#searchPhrase").val();
+    function playbutton(delCid, field) {
 
-        location.href = url;
+        var confText = Joomla.JText._('COM_GGLMS_QUIZ_RIMOZIONE_UTENTE');
+        var r = confirm(confText);
+        if (r) {
+            jQuery('#cover-spin').show(0);
+            removeUserQuiz(delCid, function(errMsg, infoMsg) {
+                jQuery('#cover-spin').hide(0);
 
+                if (errMsg != "")
+                    alert(errMsg);
+                else {
+                    if (infoMsg != "")
+                        alert(infoMsg);
+
+                    loadData();
+                }
+            });
+        }
     }
 
 

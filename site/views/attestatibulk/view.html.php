@@ -13,7 +13,6 @@
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.view');
-
 jimport('joomla.application.component.helper');
 
 require_once JPATH_COMPONENT . '/controllers/generacoupon.php';
@@ -24,6 +23,7 @@ class gglmsViewAttestatiBulk extends JViewLegacy
 
     protected $params;
     public $lista_corsi;
+    public $lista_azienda;
     public $societa_venditrici;
     public $check_coupon_attestato;
     public $is_durata_standard;

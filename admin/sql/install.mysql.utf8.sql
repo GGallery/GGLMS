@@ -254,10 +254,13 @@ CREATE TABLE `#__gg_csv_report` (
 -- ----------------------------
 -- Table structure for `#__gg_error_log`
 -- ----------------------------
+-- colonne modificate:
+-- `messaggio` varchar(250) DEFAULT NULL,
+--
 DROP TABLE IF EXISTS `#__gg_error_log`;
 CREATE TABLE `#__gg_error_log` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `messaggio` varchar(250) DEFAULT NULL,
+  `messaggio` TEXT DEFAULT NULL,
   `timestamp` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

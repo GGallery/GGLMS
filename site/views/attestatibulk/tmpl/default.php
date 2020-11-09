@@ -58,6 +58,7 @@ HTML;
                 </div>
             </div>
         <?php endif; ?>
+
         <div class="form-group row" id="calendar_startdate_div">
             <label class="col-sm-2" for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_GEN') ?>:*</label>
             <!--

@@ -26,8 +26,13 @@ class gglmsViewGenera extends JViewLegacy
     public $lista_corsi;
     public $societa_venditrici;
     public $check_coupon_attestato;
+    public $specifica_durata;
+    public $specifica_abilitazione;
     public $is_durata_standard;
     public $show_trial = 0;
+    public $label_ragione_sociale;
+    public $label_email_tutor_aziendale;
+    public $genera_coupon_visualizza_venditore = 1;
 
 
     function display($tpl = null)
@@ -58,6 +63,23 @@ class gglmsViewGenera extends JViewLegacy
         // se == 1 mostro la checkbox nel form
         // se == 0 coupon generati abilitati di default
         $this->specifica_abilitazione = $_config->getConfigValue('coupon_active_default');
+
+        // leggo parametro genera_coupon_label_ragione_sociale
+        // se impostato sovrascrivo la label associata a Ragione sociale
+        $this->label_ragione_sociale = utilityHelper::get_label_from_configuration('COM_GGLMS_GENERA_COUPON_COMPANYNAME', 'genera_coupon_label_ragione_sociale');
+
+        // leggo parametro genera_coupon_label_email_tutor_aziendale
+        // se impostato sovrascrivo la label associate a Email Tutor Aziendale
+        $this->label_email_tutor_aziendale = utilityHelper::get_label_from_configuration('COM_GGLMS_GENERA_COUPON_EMAIL_TUTOR_AZ', 'genera_coupon_label_email_tutor_aziendale');
+
+        // leggo parametro genera_coupon_visualizza_venditore
+        // se 1 visualizzo il campo se 0 lo nascondo
+        /*$_config_genera_coupon_visualizza_venditore = $_config->getConfigValue('genera_coupon_visualizza_venditore');
+        if (isset($_config_genera_coupon_visualizza_venditore)
+            && !is_null($_config_genera_coupon_visualizza_venditore))
+            $this->genera_coupon_visualizza_venditore = JText::_($_config_genera_coupon_visualizza_venditore);
+        */
+        $this->genera_coupon_visualizza_venditore = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_venditore, 'genera_coupon_visualizza_venditore');
 
 
         // checkbox trial la mostro solo se l'utente super user perchè sblocca tutto il corso.

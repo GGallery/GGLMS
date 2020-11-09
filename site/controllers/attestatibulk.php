@@ -141,9 +141,9 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         if ($end < $start)
             return "La data di fine non può essere precedente alla data di inizio";
 
-        $diff_in_days = utilityHelper::get_date_diff_format($end, $start);
+        $diff_in_months = utilityHelper::get_date_diff_format($end, $start, "m");
 
-        if ($diff_in_days > $this->report_month_limit)
+        if ($diff_in_months > $this->report_month_limit)
             return "L'intervallo temporale fra date non può essere maggiore di " . $this->report_month_limit . " mesi";
 
         return "tuttook";

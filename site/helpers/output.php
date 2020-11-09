@@ -449,5 +449,65 @@ HTML;
 
     }
 
+    public static function buildListaAzienda($lista_azienda) {
 
+        if (isset($lista_azienda)) {
+            $_selected = "";
+            $_default = "";
+            if (count($lista_azienda) == 1)
+                $_selected = "selected";
+            else {
+                $_option_label = JText::_('COM_GGLMS_GLOBAL_SCEGLI_AZIENDA');
+                $_default = <<<HTML
+                <option value="">{$_option_label}</option>
+HTML;
+            }
+            $_company_label = JText::_('COM_GGLMS_GLOBAL_COMPANY');
+            echo <<<HTML
+                <div class="form-group row">
+                    <label class="col-sm-2" for="id_azienda">{$_company_label}:</label>
+                    <div class="col-sm-10">
+                        <select required placeholder="Azienda" type="text" class="form-control cpn_opt"
+                                id="id_azienda" name="id_azienda">
+                            {$_default}
+HTML;
+
+                            foreach ($lista_azienda as $key => $az) {
+                                echo <<<HTML
+                                <option value="{$az['id_gruppo']}" {$_selected}>
+                                    {$az['azienda']}
+                                </option>
+HTML;
+                            }
+            echo <<<HTML
+                        </select>
+                    </div>
+                </div>
+HTML;
+        }
+
+    }
+
+    public static function buildFiltroAzienda($usergroups) {
+
+        if (isset ($usergroups)) {
+            if (count($usergroups) > 1) {
+                $_select_output = outputHelper::output_select('usergroups', $usergroups, 'id', 'title', 2, 'refresh');
+                $_company_label = JText::_('COM_GGLMS_GLOBAL_COMPANY');
+                echo <<<HTML
+                <div class="form-group">
+                    <label for="usergroups">{$_company_label}</label><br>
+                    {$_select_output}
+                </div>
+HTML;
+            }
+            else {
+                echo <<<HTML
+                <input type="hidden" name="usergroups" id="usergroups" value="{$usergroups[0]->id}"/>
+HTML;
+            }
+
+        }
+
+    }
 }

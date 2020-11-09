@@ -59,6 +59,12 @@ JHtml::_('formbehavior.chosen', 'select');
             echo JHtml::_('bootstrap.addTab', 'myTab', 'HelpDesk', JText::_('HelpDesk', true));
             include(dirname(__FILE__).DS.'helpDesk.php');
             echo JHtml::_('bootstrap.endTab');
+
+            // gestione personalizzazioni extra
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'Personalizzazione', JText::_('Personalizzazioni', true));
+            include(dirname(__FILE__).DS.'personalizzazioni.php');
+            echo JHtml::_('bootstrap.endTab');
+
             ?>
 
             <input type="hidden" name="task" value=""/>

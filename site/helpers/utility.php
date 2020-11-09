@@ -518,9 +518,10 @@ class utilityHelper
             $usergroups = null;
 
 
-            if ($user->is_tutor_piattaforma($Juser->id) || $user->is_user_superadmin($Juser->id)) {
+            if ($user->is_tutor_piattaforma($Juser->id)
+                || $user->is_user_superadmin($Juser->id)) {
 
-                //  utente loggato  ha ruolo TUTOR PIATTAFORMA, prendo le scoieta figlie di piattaforma
+                //  utente loggato  ha ruolo TUTOR PIATTAFORMA, prendo le società figlie di piattaforma
                 // lo stesso se è super admin
                 $usergroups = $user->get_user_societa($Juser->id, false);
 
@@ -721,6 +722,22 @@ class utilityHelper
 
     }
 
+    // funzione clonata dal componente joomlaquiz per la cancellazione dei quiz di un utente
+    public static function joomla_quiz_delete_items($cids, $path, $event){
+
+        jimport('joomla.filesystem.folder');
+        $folders = JFolder::folders(JPATH_SITE.'/plugins/joomlaquiz/', '.');
+        if(count($folders)){
+            foreach($folders as $folder){
+                if(file_exists(JPATH_SITE.'/plugins/joomlaquiz/'.$folder.'/admin/'.$path.$folder.'.php')){
+                    require_once(JPATH_SITE.'/plugins/joomlaquiz/'.$folder.'/admin/'.$path.$folder.'.php');
+                    $functionName = $event.ucfirst($folder);
+                    call_user_func($functionName, $cids);
+                }
+            }
+        }
+    }
+
     // in giorni, mesi, anni ritorna la differenza fra due date
     public static function get_date_diff_format($date1, $date2, $format = "d") {
 
@@ -803,7 +820,7 @@ class utilityHelper
     }
 
     // per sviluppo filtro DOMAIN - di default i siti che in produzione iniziano per web. in sviluppo saranno test.
-    function filtra_dominio_per_test($_domain) {
+    public static function filtra_dominio_per_test($_domain) {
 
         if (strpos($_domain, 'test.') !== false)
             $_domain = str_replace("test.", "web.", $_domain);
@@ -812,4 +829,57 @@ class utilityHelper
 
     }
 
+    // restituisco un array con il nome delle colonne da query
+    public static function get_nomi_colonne_da_query_results($num_rows, $rows)
+    {
+
+        $columns = array();
+
+        if ($num_rows == 0)
+            return $columns;
+
+        foreach ($rows as $key => $sub_arr) {
+
+            foreach ($sub_arr as $kk => $vv) {
+
+                if (in_array($kk, $columns))
+                    continue;
+
+                $columns[] = $kk;
+            }
+        }
+
+        return $columns;
+    }
+
+    // funzione per gestire il valore delle label di campi
+    // per i quali è stato predisposto un override nella configurazione del componente
+    public static function get_label_from_configuration($_original_label, $_db_label) {
+
+        $_config = new gglmsModelConfig();
+
+        $_label = JText::_($_original_label);
+        $_config_label = $_config->getConfigValue($_db_label);
+
+        if (isset($_config_label)
+            && $_config_label  != ""
+            && !is_null($_config_label)
+            && JText::_($_config_label) != $_config_label)
+            $_label = JText::_($_config_label );
+
+        return $_label;
+    }
+
+    // funzione per gestire la visualizzazione di campi che sono controllati dalla configurazione del componente
+    public static function get_display_from_configuration($_default_value, $_db_label) {
+
+        $_config = new gglmsModelConfig();
+
+        $_config_display = $_config->getConfigValue($_db_label);
+        if (isset($_config_display)
+            && !is_null($_config_display))
+            $_default_value = JText::_($_config_display);
+
+        return $_default_value;
+    }
 }

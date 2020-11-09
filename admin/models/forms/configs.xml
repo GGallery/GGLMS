@@ -857,5 +857,40 @@
 
         <!--F I N E HELPDESK -->
 
+        <!-- INIZIO PERSONALIZZAZIONI -->
+        <field
+                name="genera_coupon_label_ragione_sociale"
+                type="listafieldxlang"
+                class=""
+                label="Label Ragione sociale"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="genera_coupon_label_email_tutor_aziendale"
+                type="listafieldxlang"
+                class=""
+                label="Label Email Tutor Aziendale"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="genera_coupon_visualizza_venditore"
+                type="radio"
+                class="btn-group"
+                label="Visualizza il campo Venditore nel form Genera Coupon"
+                labelclass="control-label"
+                description="OFF per nascondere, ON per visualizzare"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+        <!-- FINE PERSONALIZZAZIONI -->
+
     </fieldset>
 </form>

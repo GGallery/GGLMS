@@ -54,6 +54,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->tipo_report = JRequest::getVar('tipo_report');
         $this->_filterparam->limit = JRequest::getVar('limit');
         $this->_filterparam->offset = JRequest::getVar('offset');
+        $this->_filterparam->cid = JRequest::getVar('cid');
 
     }
 
@@ -240,6 +241,144 @@ class gglmsControllerApi extends JControllerLegacy
     }
 
     /*
+     * Eliminazione dei quiz in riferimento ad un utente
+     */
+    public function del_user_quiz() {
+
+        $_ret = array();
+
+        try {
+            $cid = $this->_filterparam->cid;
+
+            $query = "SELECT c_id FROM #__quiz_r_student_question"
+                . "\n WHERE c_stu_quiz_id = '". $cid ."'";
+            $this->_db->SetQuery($query);
+            $stu_q_id = $this->_db->loadColumn();
+
+            if ((!is_array($stu_q_id)) || empty($stu_q_id))
+                $stu_q_id = array(0);
+
+            $stu_cids = implode( ',', $stu_q_id );
+            utilityHelper::joomla_quiz_delete_items($stu_cids, 'remove/', 'removeResults');
+
+            $query = "DELETE FROM #__quiz_r_student_question"
+                . "\n WHERE c_stu_quiz_id = '". $cid . "'";
+            $this->_db->setQuery($query);
+
+            if (!$this->_db->execute())
+                $_ret['messages'][] = $this->_db->getErrorMsg();
+
+            $query = "DELETE FROM #__quiz_r_student_quiz"
+                . "\n WHERE c_id = '". $cid . "'";
+            $this->_db->setQuery($query);
+
+            if (!$this->_db->execute())
+                $_ret['messages'][] = $this->_db->getErrorMsg();
+
+        }
+        catch (Exception $e) {
+            $_ret['errors'] = $e->getMessage();
+            DEBUGG::log(json_encode($_ret['errors']), 'ERRORE DA ' . __FUNCTION__, 1, 1);
+        }
+
+        echo json_encode($_ret);
+        $this->_japp->close();
+    }
+
+    /*
+     * utenti che hanno svolto quiz per azienda e corso
+     * */
+    public function get_user_quiz_per_azienda_corso() {
+
+        $data = $this->new_get_user_quiz_per_azienda_corso();
+
+        echo json_encode($data);
+        $this->_japp->close();
+
+    }
+
+    private function new_get_user_quiz_per_azienda_corso() {
+
+        try {
+
+            $id_corso = $this->_filterparam->corso_id;
+            $limit = $this->_filterparam->limit;
+            $offset = $this->_filterparam->offset;
+            $filters = array(
+                'startdate' => $this->_filterparam->startdate,
+                'finishdate' => $this->_filterparam->finishdate,
+                'searchPhrase' => $this->_filterparam->searchPhrase,
+                'usergroups' => $this->_filterparam->usergroups
+            );
+
+            $columns = array();
+
+            $query = $this->_db->getQuery(true);
+            $sub_query1 = $this->_db->getQuery(true);
+
+            $sub_query1->select('user_id');
+            $sub_query1->from('#__user_usergroup_map');
+            $sub_query1->where('group_id = ' . $filters['usergroups']);
+
+            $query->from('#__gg_contenuti C');
+            $query->join('inner', '#__quiz_r_student_quiz SQ ON C.id_quizdeluxe = SQ.c_quiz_id');
+            $query->join('inner', '#__quiz_t_quiz TQ ON SQ.c_quiz_id = TQ.c_id');
+            $query->join('inner', '#__gg_unit_map UM ON C.id = UM.idcontenuto');
+            $query->join('inner', '(' . $sub_query1 . ') AS SUB1 ON SQ.c_student_id = SUB1.user_id');
+            $query->join('inner', '#__comprofiler CP ON SQ.c_student_id = CP.user_id');
+            $query->where('UM.idunita = ' . $id_corso);
+            $query->where('TQ.c_passing_score > 0');
+
+            // filtri su date dei corsi
+            if ($filters['startdate'] != null)
+                $query->where("SQ.c_date_time > '" . $filters['startdate'] . "'");
+            if ($filters['finishdate'] != null)
+                $query->where("SQ.c_date_time < '" . $filters['finishdate'] . "'");
+
+            if ($filters['searchPhrase'] != null) {
+                $query->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\'  
+                                    OR CP.cb_codicefiscale LIKE \'%' . $filters['searchPhrase'] . '%\'
+                                    OR TQ.c_title LIKE \'%' . $filters['searchPhrase'] . '%\'
+                                    ) ');
+            }
+
+            // clono la query originale per il conteggio
+            $countquery = clone $query;
+
+            $query->select('CP.cb_nome AS nome, CP.cb_cognome AS cognome, UPPER(CP.cb_codicefiscale) AS codice_fiscale,
+                            TQ.c_title AS titolo, 
+			                DATE_FORMAT(SQ.c_date_time, \'%d/%m/%Y %H:%i\') AS data_completamento, 
+			                SQ.c_passed AS esito, SQ.c_quiz_id AS quiz_ref, 
+			                SQ.c_id AS quiz_id, SQ.c_student_id AS student_id, SQ.c_passing_score AS punteggio');
+
+            $countquery->select("COUNT(*) AS num_rows");
+
+            $query->order('SQ.c_date_time', 'desc');
+            $query->order('SQ.c_student_id', 'asc');
+
+
+            $this->_db->setQuery($query, $offset, $limit);
+            $rows = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($countquery);
+            $count = $this->_db->loadResult();
+
+            $columns = utilityHelper::get_nomi_colonne_da_query_results($count, $rows);
+
+            $result['columns'] = $columns;
+            $result['rowCount'] = $count;
+            $result['rows'] = $rows;
+
+            return $result;
+        }
+        catch (Exception $e) {
+            DEBUGG::log(json_encode($e->getMessage()), 'ERRORE DA ' . __FUNCTION__, 1, 1);
+        }
+
+    }
+
+    /*
      * report che estrae il numero di ore per corso degli utenti iscritti
      * */
     public function get_report_ore_corso() {
@@ -275,7 +414,7 @@ class gglmsControllerApi extends JControllerLegacy
             $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome, IFNULL(UPPER(CP.cb_codicefiscale), "") AS codice_fiscale,
                             CN.titolo AS titolo_evento, SEC_TO_TIME(CN.durata) AS durata_evento, 
                             SEC_TO_TIME(SUM(LG.permanenza)) AS tempo_visualizzato');
-            $countquery->select("count(*)");
+            $countquery->select("COUNT(*)");
 
             $query->from('#__comprofiler CP');
             $query->join('inner', '#__gg_log LG ON CP.user_id = LG.id_utente');
@@ -341,19 +480,7 @@ class gglmsControllerApi extends JControllerLegacy
             $count = $this->_db->loadObjectList();
             $num_rows = count($count);
 
-            // i nomi delle colonne dalla query
-            if ($num_rows> 0) {
-                foreach ($rows as $key => $sub_arr) {
-
-                    foreach ($sub_arr as $kk => $vv) {
-
-                        if (in_array($kk, $columns))
-                            continue;
-
-                        $columns[] = $kk;
-                    }
-                }
-            }
+            $columns = utilityHelper::get_nomi_colonne_da_query_results($num_rows, $rows);
 
             $result['columns'] = $columns;
             $result['rowCount'] = $num_rows;
@@ -362,9 +489,7 @@ class gglmsControllerApi extends JControllerLegacy
             return $result;
         }
         catch (Exception $e) {
-
-            DEBUGG::log('ERRORE DA GET_ORE_CORSO:' . json_encode($e->getMessage()), 'ERRORE DA GET_ORE_CORSO', 1, 1);
-            //DEBUGG::error($e, 'error', 1);
+            DEBUGG::log(json_encode($e->getMessage()), 'ERRORE DA ' . __FUNCTION__, 1, 1);
         }
     }
 

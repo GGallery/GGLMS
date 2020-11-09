@@ -25,18 +25,28 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
             <button type="button" id="change_piva" class="btn btn-sm"> <?php echo  JText::_('COM_GGLMS_GLOBAL_RESET') ?></button>
         </div>
     </div>
+
+    <?php /*
+        JText::_('COM_GGLMS_GENERA_COUPON_COMPANYNAME')
+        JText::_('COM_GGLMS_GENERA_COUPON_COMPANYNAME_PH')
+    */ ?>
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label disabled lbl_company_opt" for="ragioneSociale"> <?php echo  JText::_('COM_GGLMS_GENERA_COUPON_COMPANYNAME') ?> : </label>
+        <label class="col-sm-3 col-form-label disabled lbl_company_opt" for="ragioneSociale"> <?php echo $this->label_ragione_sociale; ?> : </label>
         <div class="col-sm-9">
-            <input required disabled placeholder="<?php echo  JText::_('COM_GGLMS_GENERA_COUPON_COMPANYNAME_PH') ?> " type="text"
+            <input required disabled placeholder="<?php echo $this->label_ragione_sociale; ?> " type="text"
                    class="form-control company_opt" id="ragione_sociale"
                    name="ragione_sociale">
         </div>
     </div>
+
+    <?php /*
+         JText::_('COM_GGLMS_GENERA_COUPON_EMAIL_TUTOR_AZ')
+         JText::_('COM_GGLMS_GENERA_COUPON_EMAIL_TUTOR_AZ_PH')
+    */ ?>
     <div class="form-group row">
-        <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email"> <?php echo  JText::_('COM_GGLMS_GENERA_COUPON_EMAIL_TUTOR_AZ') ?> :</label>
+        <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="email"> <?php echo $this->label_email_tutor_aziendale; ?> :</label>
         <div class="col-sm-9">
-            <input required disabled placeholder="<?php echo  JText::_('COM_GGLMS_GENERA_COUPON_EMAIL_TUTOR_AZ_PH') ?>" type="email"
+            <input required disabled placeholder="<?php echo $this->label_email_tutor_aziendale; ?>" type="email"
                    class="form-control company_opt" id="email"
                    name="email">
         </div>
@@ -101,6 +111,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
         </div>
     <?php } ?>
 
+    <?php if ($this->genera_coupon_visualizza_venditore == 1) { ?>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="venditore"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_SELLER') ?>:</label>
         <div class="col-sm-9">
@@ -109,6 +120,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
                    name="venditore">
         </div>
     </div>
+    <?php } ?>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="venditore"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_RECEIVER') ?></label>
         <div class="col-sm-9">

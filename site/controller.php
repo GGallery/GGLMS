@@ -31,6 +31,26 @@ class gglmsController extends JControllerLegacy
         define('PATH_PRINCIPALE', '../mediagg/');
         define('PATH_CONTENUTI', '../mediagg/contenuti/');
 
+        // controllo della variabile DOMINIO definita in /home/includes/defines.php
+        // che potrebbe non essere impostata perchè non presente nel file sopra
+        if (DOMINIO == ""
+            || DOMINIO == 'DOMINIO') {
+
+            $hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+
+            if (strpos($hostname, 'www.') === 0) {
+                $hostname = substr($hostname, 4);
+            }
+            // già che ci sono gestisco anche l'ambiente di test
+            else if (strpos($hostname, 'test.') === 0) {
+                $hostname = substr($hostname, 5);
+            }
+
+            define('DOMINIO', $hostname);
+
+        }
+
+
         JHtml::_('jquery.framework');
 
 

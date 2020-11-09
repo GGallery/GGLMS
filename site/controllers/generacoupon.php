@@ -75,6 +75,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $result = new stdClass();
             $result->id_iscrizione = $id_iscrizione;
 
+            DEBUGG::log(json_encode($result), 'api_genera_coupon_response', 0, 1, 0 );
+
             echo json_encode($result);
             $this->_japp->close();
 
