@@ -74,11 +74,6 @@ class gglmsViewGenera extends JViewLegacy
 
         // leggo parametro genera_coupon_visualizza_venditore
         // se 1 visualizzo il campo se 0 lo nascondo
-        /*$_config_genera_coupon_visualizza_venditore = $_config->getConfigValue('genera_coupon_visualizza_venditore');
-        if (isset($_config_genera_coupon_visualizza_venditore)
-            && !is_null($_config_genera_coupon_visualizza_venditore))
-            $this->genera_coupon_visualizza_venditore = JText::_($_config_genera_coupon_visualizza_venditore);
-        */
         $this->genera_coupon_visualizza_venditore = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_venditore, 'genera_coupon_visualizza_venditore');
 
 
