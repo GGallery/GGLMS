@@ -34,6 +34,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     public $salva_come;
     //public $arr_data_fine;
     public $report_month_limit;
+    public $from_bulk;
 
     public function __construct($config = array())
     {
@@ -84,9 +85,12 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             $start = $data['startdate'];
             $end = $data['enddate'];
-            $user_id_list = array();
 
-            $date_validation = $this->date_validation($start, $end);
+            $this->from_bulk = isset($data['from_bulk']) ? true : false;
+
+            $user_id_list = array();
+            // il controllo sulle date lo devo fare soltanto se arrivo dal bulk
+            $date_validation = $this->date_validation($start, $end, $this->from_bulk);
 
             if ($date_validation != "tuttook")
                 $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage($date_validation, 'Warning'));
@@ -126,7 +130,10 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
     // controllo delle data inputate
-    private function date_validation($start, $end) {
+    private function date_validation($start, $end, $from_bulk) {
+
+        if (!$from_bulk)
+            return "tuttook";
 
         // date non valorizzate
         if (is_null($start)

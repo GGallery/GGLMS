@@ -49,7 +49,8 @@ _scaricaattesati = (function ($, my) {
                 salva_come = $('#salva_come').val();
             var url = "index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso= " + id_corso
                                     + '&id_azienda=' + id_azienda
-                                    + '&salva_come=' + salva_come;
+                                    + '&salva_come=' + salva_come
+                                    + '&from_bulk=1';
 
             //var start = $("#startdate").val();
             // console.log(start);
