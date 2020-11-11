@@ -13,6 +13,7 @@ jimport('joomla.application.component.view');
 
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/report.php';
+require_once JPATH_COMPONENT . '/controllers/api.php';
 
 class gglmsViewCruscottoCorsi extends JViewLegacy {
 
@@ -23,7 +24,12 @@ class gglmsViewCruscottoCorsi extends JViewLegacy {
         $model = new gglmsModelReport();
 
         $this->corsi = $model->getCorsi(true);
-        $this->dettaglio_corsi = utilityHelper::getDettaglioDurataByCorsi($this->corsi);
+
+        $api_controller = new gglmsControllerApi();
+        $this->arr_date_descrizione = $api_controller->get_date_per_contenuto();
+        $this->con_orari = count($this->arr_date_descrizione) > 0 ? true : false;
+
+        $this->dettaglio_corsi = utilityHelper::getDettaglioDurataByCorsi($this->corsi, $this->arr_date_descrizione);
 
         JHtml::_('stylesheet','https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css');
 

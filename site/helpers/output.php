@@ -256,11 +256,20 @@ class outputHelper {
         return $html;
     }
 
-    public static function getDettaglioVisione($durata = 0, $tempo_visualizzato) {
+    public static function getDettaglioVisione($durata = 0,
+                                               $tempo_visualizzato,
+                                               $con_orari = false,
+                                               $tempo_assenza = null) {
 
         $_html = "";
-        // calcolo la % completamento su progress bar
-        if ($durata > 0
+        // con orari customizzati
+        if ($con_orari
+            && !is_null($tempo_assenza)) {
+
+            $_html = self::buildRowDettagliTemporali($durata, $tempo_visualizzato, $tempo_assenza);
+HTML;
+        } // calcolo la % completamento su progress bar
+        else if ($durata > 0
             && $tempo_visualizzato <= $durata) {
             $perc_completamento = ($tempo_visualizzato/$durata)*100;
             // rendo int la %
@@ -269,7 +278,8 @@ class outputHelper {
             $style_barra = self::setProgressBarStyle($perc_completamento);
             $_cell_title1 = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR4');
             $_cell_title2 = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR5');
-            $durata_ore = gmdate("H:i:s", $durata);
+            //$durata_ore = gmdate("H:i:s", $durata);
+            $durata_ore = utilityHelper::sec_to_hr($durata);
             $_html = <<<HTML
             <div class="row">
                 <div class="col-xs-6"><strong>{$_cell_title1}:</strong> {$durata_ore}</div>
@@ -291,49 +301,99 @@ HTML;
         }
         // converto in ore i secondi
         else {
-            $ore_visualizzazione = gmdate("H:i:s", $tempo_visualizzato);
+            //$ore_visualizzazione = gmdate("H:i:s", $tempo_visualizzato);
+            $ore_visualizzazione = UtilityHelper::sec_to_hr($tempo_visualizzato);
             $_cell_title = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR2');
             $_html = <<<HTML
-            <div class="col-xs-6">{$_cell_title}:</div>
-            <div class="col-xs-3">{$ore_visualizzazione}</div>
+            <div class="row">
+                <div class="col-xs-6">{$_cell_title}:</div>
+                <div class="col-xs-3">{$ore_visualizzazione}</div>
+            </div>
 HTML;
         }
 
         return $_html;
     }
 
-    public static function getRowTotaleCorso($totale_durata, $totale_visualizzazione) {
+    private static function buildRowDettagliTemporali($durata, $visualizzazione, $assenza, $is_totale = false) {
 
         $_html = "";
-        $perc_completamento = 0;
 
-        if ($totale_durata > 0
-            && $totale_visualizzazione <= $totale_durata) {
-            $perc_completamento = ($totale_visualizzazione / $totale_durata) * 100;
-            // rendo int la %
-            $perc_completamento = round($perc_completamento);
-            // bg della barra in base a %
-        }
+        $ore_durata = utilityHelper::sec_to_hr($durata);
+        $ore_visualizzazione = utilityHelper::sec_to_hr($visualizzazione);
+        $ore_assenza = utilityHelper::sec_to_hr($assenza);
+        $_cell_title1 = ($is_totale) ? JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR10') . ' ' : "";
+        $_cell_title1 .= JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR6');
+        $_cell_title2 = ($is_totale) ? JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR10') . ' ' : "";
+        $_cell_title2 .= JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR7');
+        $_cell_title3 = ($is_totale) ? JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR10') . ' ' : "";
+        $_cell_title3 .= JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR8');
+        $_row_style = "";
 
-        $style_barra = self::setProgressBarStyle($perc_completamento);
-
-        $_cell_title = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR3');
-        $_html .= <<<HTML
-        <div class="row">
-            <div class="col-xs-6">
-                <h5><strong>{$_cell_title}</strong></h5>
+        if ($is_totale) {
+            $_html .= <<<HTML
+            <div class="row">
+                &nbsp;
             </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-10">
-                <div class="progress" style="height: 25px;">
-                    <div class="progress-bar {$style_barra}" 
-                        role="progressbar" 
-                        style="width: {$perc_completamento}%; height: 100%; color: black; font-weight: bold;" aria-valuenow="{$perc_completamento}" aria-valuemin="0" aria-valuemax="100">{$perc_completamento}%</div>
+
+HTML;
+            $_row_style = 'style="background: #cce5ff; font-weight: bolder;"';
+        }
+        $_html .= <<<HTML
+            <div class="row" {$_row_style}>
+                <div class="col-xs-2">{$_cell_title1}:</div>
+                <div class="col-xs-2">{$ore_durata}</div>
+                <div class="col-xs-2">{$_cell_title2}:</div>
+                <div class="col-xs-2">{$ore_visualizzazione}</div>
+                <div class="col-xs-2">{$_cell_title3}:</div>
+                <div class="col-xs-2">{$ore_assenza}</div>
+            </div>
+HTML;
+
+        return $_html;
+
+    }
+
+    public static function getRowTotaleCorso($totale_durata,
+                                             $totale_visualizzazione,
+                                             $con_orari = false,
+                                             $totale_assenza = 0) {
+
+        $_html = "";
+        if ($con_orari) {
+            $_html = self::buildRowDettagliTemporali($totale_durata, $totale_visualizzazione, $totale_assenza, true);
+        }
+        else {
+            $perc_completamento = 0;
+
+            if ($totale_durata > 0
+                && $totale_visualizzazione <= $totale_durata) {
+                $perc_completamento = ($totale_visualizzazione / $totale_durata) * 100;
+                // rendo int la %
+                $perc_completamento = round($perc_completamento);
+                // bg della barra in base a %
+            }
+
+            $style_barra = self::setProgressBarStyle($perc_completamento);
+
+            $_cell_title = JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR3');
+            $_html .= <<<HTML
+            <div class="row">
+                <div class="col-xs-6">
+                    <h5><strong>{$_cell_title}</strong></h5>
                 </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="col-xs-10">
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar {$style_barra}" 
+                            role="progressbar" 
+                            style="width: {$perc_completamento}%; height: 100%; color: black; font-weight: bold;" aria-valuenow="{$perc_completamento}" aria-valuemin="0" aria-valuemax="100">{$perc_completamento}%</div>
+                    </div>
+                </div>
+            </div>
 HTML;
+        }
 
         return $_html;
 
@@ -361,7 +421,7 @@ HTML;
 
     }
 
-    public static function buildRowsDettaglioCorsi($arr_corsi, $arr_dettaglio_corsi) {
+    public static function buildRowsDettaglioCorsi($arr_corsi, $arr_dettaglio_corsi, $con_orari) {
 
         try {
 
@@ -369,6 +429,7 @@ HTML;
             $semaforo_totale = true;
             $totale_durata  = 0;
             $totale_visualizzazione = 0;
+            $totale_assenza = 0;
             $corsi = 0;
 
             // se ci sono più corsi visualizzerò un riga in più con i totali delle durate dei singoli corsi e delle visualizzazioni
@@ -379,6 +440,7 @@ HTML;
             $_html = <<<HTML
             <div id="accordion">
 HTML;
+
             foreach ($arr_dettaglio_corsi as $id_padre => $sub_corso) {
 
                 $titolo_padre = utilityHelper::getTitoloCorsoPadre($id_padre, $arr_corsi);
@@ -409,25 +471,37 @@ HTML;
                     if ($corso['durata_evento'] == 0)
                         $semaforo_totale = false;
 
-                    $dettaglio_visione = self::getDettaglioVisione($corso['durata_evento'], $corso['tempo_visualizzato']);
-
+                    $tempo_assenza = (isset($corso['tempo_assenza']) && $con_orari) ? $corso['tempo_assenza'] : null;
+                    $dettaglio_visione = self::getDettaglioVisione($corso['durata_evento'],
+                                                                $corso['tempo_visualizzato'],
+                                                                $con_orari,
+                                                                $tempo_assenza);
+                    $titolo_evento = (!$con_orari) ? $corso['titolo_evento'] : JText::_('COM_GGLMS_CRUSCOTTO_ORE_STR9') . ' ' . $corso['data_accesso'];
                     $_html .= <<<HTML
                        <div class="row">
                             <div class="col-xs-6">
-                                <h6><strong>{$corso['titolo_evento']}</strong></h6>
+                                <h6><strong>{$titolo_evento}</strong></h6>
                             </div>
                        </div>
                        {$dettaglio_visione}
 HTML;
+                    if (!$con_orari)
+                        $totale_durata += $corso['durata_evento'];
+                    else {
+                        $totale_durata = $corso['totale_durata'];
+                        $totale_assenza += $corso['tempo_assenza'];
+                    }
 
-                    $totale_durata += $corso['durata_evento'];
                     $totale_visualizzazione += $corso['tempo_visualizzato'];
                     $corsi++;
                 }
 
                 if ($semaforo_totale
                     && $corsi > 1)
-                    $_html .= self::getRowTotaleCorso($totale_durata, $totale_visualizzazione);
+                    $_html .= self::getRowTotaleCorso($totale_durata,
+                                                    $totale_visualizzazione,
+                                                    $con_orari,
+                                                    $totale_assenza);
 
                 $_html .= <<<HTML
                         </div><!-- card-body -->

@@ -433,17 +433,25 @@ class utilityHelper
         }
     }
 
-    public static function getDettaglioDurataByCorso($id_corso, $user_id = null) {
+    public static function getDettaglioDurataByCorso($id_corso, $user_id = null, $arr_date_descrizione = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+
+            $con_orari = false;
+            if (count($arr_date_descrizione) > 0)
+                $con_orari = true;
 
             $query = $db->getQuery(true);
             $sub_query1 = $db->getQuery(true);
 
             $query->select('CN.titolo AS titolo_evento, CN.durata AS durata_evento, 
                                 SUM(LG.permanenza) AS tempo_visualizzato');
+
+            if ($con_orari)
+                $query->select('CN.durata AS totale_durata, CN.id AS id_contenuto, DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\') AS data_accesso');
+
             $query->from('#__comprofiler CP');
             $query->join('inner', '#__gg_log LG ON CP.user_id = LG.id_utente');
             $query->join('inner', '#__gg_contenuti CN ON LG.id_contenuto = CN.id');
@@ -464,8 +472,32 @@ class utilityHelper
             $query->group($db->quoteName('LG.id_utente'));
             $query->group($db->quoteName('LG.id_contenuto'));
 
+            if ($con_orari)
+                $query->group('DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\')');
+
             $db->setQuery($query);
             $rows = $db->loadAssocList();
+
+            if ($con_orari) {
+
+                $_tmp_arr = array();
+                foreach ($rows as $rr => $row) {
+                    if (isset($arr_date_descrizione[$row['id_contenuto']][$row['data_accesso']])) {
+                        $durata_evento = $arr_date_descrizione[$row['id_contenuto']][$row['data_accesso']];
+                        $row['durata_evento'] = $durata_evento;
+                        $tempo_assenza = ($durata_evento-$row['tempo_visualizzato']);
+                        $tempo_assenza = ($tempo_assenza < 0) ? 0 : $tempo_assenza;
+                        $row['tempo_assenza'] = $tempo_assenza;
+                        $row['tempo_visualizzato'] = ($row['tempo_visualizzato'] > $durata_evento) ? $durata_evento : $row['tempo_visualizzato'];
+                        $row['data_accesso'] = date("d/m/Y", strtotime($row['data_accesso']));
+                        $_tmp_arr[] = $row;
+                    }
+                }
+
+                if (count($_tmp_arr) > 0)
+                    $rows = $_tmp_arr;
+
+            }
 
             return $rows;
 
@@ -475,7 +507,7 @@ class utilityHelper
         }
     }
 
-    public static function getDettaglioDurataByCorsi($arr_corsi = array()) {
+    public static function getDettaglioDurataByCorsi($arr_corsi = array(), $arr_date_descrizione = array()) {
 
         try {
 
@@ -488,7 +520,7 @@ class utilityHelper
 
             foreach ($arr_corsi as $key => $corso) {
 
-                $dettagli = self::getDettaglioDurataByCorso($corso->id, $Juser->id);
+                $dettagli = self::getDettaglioDurataByCorso($corso->id, $Juser->id, $arr_date_descrizione);
                 if (!is_array($dettagli)
                     || count($dettagli) == 0)
                     continue;
@@ -870,6 +902,18 @@ class utilityHelper
         return $_label;
     }
 
+    public static function normalizza_contenuto_array($rows) {
+
+        $_ret = array();
+
+        foreach ($rows as $key => $row) {
+            $_ret[$row['id_contenuto']] = $row['descrizione'];
+        }
+
+        return $_ret;
+
+    }
+
     // funzione per gestire la visualizzazione di campi che sono controllati dalla configurazione del componente
     public static function get_display_from_configuration($_default_value, $_db_label) {
 
@@ -881,5 +925,85 @@ class utilityHelper
             $_default_value = JText::_($_config_display);
 
         return $_default_value;
+    }
+
+    // estrapolo tabella HTML
+    public static function get_html_table($_table) {
+
+        $_ret = array();
+        $dom = new domDocument;
+        $dom->loadHTML($_table);
+        $dom->preserveWhiteSpace = false;
+        $tables = $dom->getElementsByTagName('table');
+
+        // se non trovo tabelle esco
+        if ($tables->length < 1)
+            return $_ret;
+
+        $rows = $tables->item(0)->getElementsByTagName('tr');
+        // se non trovo righe esco
+        if ($rows->length < 1)
+            return $_ret;
+
+        foreach ($rows as $row) {
+            $cols = $row->getElementsByTagName('td');
+
+            // se non ci sono colonne esco
+            if ($cols->length < 1) {
+                return $_ret;
+            }
+
+            $cells = 0;
+            $_key = "";
+
+            foreach ($cols as $node) {
+
+                if ($cells == 0)
+                    $_key = $node->nodeValue;
+
+                if ($cells > 0)
+                    $_ret[$_key] = self::convert_hours_to_seconds($node->nodeValue);
+
+                $cells++;
+            }
+        }
+
+        return $_ret;
+
+    }
+
+    // estrapolo la tabella html riferita allo specchietto orario in base al contenuto di riferimento
+    public static function elabora_array_date_id_contenuto($rows) {
+
+        $_ret = array();
+
+        if (count($rows) == 0)
+            return $_ret;
+
+        foreach ($rows as $key => $_table) {
+
+            $_ret[$_table['id_contenuto']] = self::get_html_table($_table['descrizione']);
+
+        }
+
+        return $_ret;
+    }
+
+    // conversione di ore in secondi
+    public static function convert_hours_to_seconds($hours) {
+
+        return $hours*3600;
+
+    }
+
+    // conversione secondi in ore
+    public static function sec_to_hr($seconds) {
+        $hours = floor($seconds / 3600);
+        $hours = $hours < 10 ? "0" . $hours : $hours;
+        $minutes = floor(($seconds / 60) % 60);
+        $minutes = $minutes < 10 ? "0" . $minutes : $minutes;
+        $seconds = $seconds % 60;
+        $seconds = $seconds < 10 ? "0" . $seconds : $seconds;
+        return "$hours:$minutes:$seconds";
     }
 }

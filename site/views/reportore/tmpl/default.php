@@ -141,7 +141,7 @@ defined('_JEXEC') or die;
     var loadreportlimit = 15;
 
     var actualminpage = 1;
-    var columnfilter = [];//CAMPI DA NON MOSTRARE IN TABELLA
+    var columnfilter = ['id_contenuto'];//CAMPI DA NON MOSTRARE IN TABELLA
     var columnmappingname = [{name: 'data_inizio', alias: 'data inizio'},
         {name: 'data_fine', alias: 'data fine'}];
 

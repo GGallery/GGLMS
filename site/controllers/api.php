@@ -390,6 +390,44 @@ class gglmsControllerApi extends JControllerLegacy
 
     }
 
+    public function get_date_per_contenuto() {
+
+        $_ret = array();
+        $arr_date_descrizione = $this->get_descrizione_contenuto();
+        if (count($arr_date_descrizione) == 0)
+            return $_ret;
+
+        //$normalizza_contenuto = UtilityHelper::normalizza_contenuto_array($arr_date_descrizione);
+        $_ret = UtilityHelper::elabora_array_date_id_contenuto($arr_date_descrizione);
+
+        return $_ret;
+
+    }
+
+    // se presente la descrizione in HTML che definisce le date in cui il corso si sviluppa
+    private function get_descrizione_contenuto() {
+
+        try {
+
+            $query = $this->_db->getQuery(true);
+            $query->select('id AS id_contenuto, descrizione')
+                    ->from('#__gg_contenuti')
+                    ->where('descrizione IS NOT NULL')
+                    ->where('descrizione != ""')
+                    ->where('pubblicato = 1')
+                    ->where('durata > 0');
+
+            $this->_db->setQuery($query);
+            $rows = $this->_db->loadAssocList();
+
+            return $rows;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::log(json_encode($e->getMessage()), 'ERRORE DA ' . __FUNCTION__, 1, 1);
+        }
+    }
+
     private function new_get_ore_corso() {
 
         $id_corso = explode('|', $this->_filterparam->corso_id)[0];
@@ -404,6 +442,11 @@ class gglmsControllerApi extends JControllerLegacy
                     );
         $columns = array();
 
+        $con_orari = false;
+        $arr_date_descrizione = $this->get_date_per_contenuto();
+        if (count($arr_date_descrizione) > 0)
+            $con_orari = true;
+
         try {
 
             $query = $this->_db->getQuery(true);
@@ -411,10 +454,16 @@ class gglmsControllerApi extends JControllerLegacy
             $sub_query1 = $this->_db->getQuery(true);
             $sub_query2 = $this->_db->getQuery(true);
 
-            $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome, IFNULL(UPPER(CP.cb_codicefiscale), "") AS codice_fiscale,
-                            CN.titolo AS titolo_evento, SEC_TO_TIME(CN.durata) AS durata_evento, 
-                            SEC_TO_TIME(SUM(LG.permanenza)) AS tempo_visualizzato');
-            $countquery->select("COUNT(*)");
+            $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome, 
+                            IFNULL(UPPER(CP.cb_codicefiscale), "") AS codice_fiscale,
+                            CN.id AS id_contenuto, CN.titolo AS titolo_evento');
+
+            if (!$con_orari)
+                $query->select('SEC_TO_TIME(CN.durata) AS durata_evento, SEC_TO_TIME(SUM(LG.permanenza)) AS tempo_visualizzato');
+            else
+                $query->select('DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\') AS data_accesso, SEC_TO_TIME(CN.durata) AS durata_evento, SUM(LG.permanenza) AS tempo_visualizzato');
+
+            $countquery->select("COUNT(*) AS per_contenuto, CN.id AS id_contenuto, DATE_FORMAT(LG.data_accesso, '%Y-%m-%d') AS data_accesso");
 
             $query->from('#__comprofiler CP');
             $query->join('inner', '#__gg_log LG ON CP.user_id = LG.id_utente');
@@ -473,13 +522,56 @@ class gglmsControllerApi extends JControllerLegacy
             $countquery->group($this->_db->quoteName('LG.id_utente'));
             $countquery->group($this->_db->quoteName('LG.id_contenuto'));
 
+            if ($con_orari) {
+                $query->group('DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\')');
+                $query->order('DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\')');
+
+                $countquery->group('DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\')');
+                $countquery->order('DATE_FORMAT(LG.data_accesso, \'%Y-%m-%d\')');
+            }
+
             $this->_db->setQuery($query, $offset, $limit);
             $rows = $this->_db->loadAssocList();
 
             $this->_db->setQuery($countquery);
-            $count = $this->_db->loadObjectList();
-            $num_rows = count($count);
+            $counts = $this->_db->loadAssocList();
 
+            // elaborazione dell'array in base alle date evento (se previsto)
+            if ($con_orari) {
+                $_tmp_arr = array();
+                $_tmp_count_arr = array();
+                foreach ($rows as $rr => $row) {
+                    if (isset($arr_date_descrizione[$row['id_contenuto']][$row['data_accesso']])) {
+                        $durata_evento = $arr_date_descrizione[$row['id_contenuto']][$row['data_accesso']];
+                        //$row['durata_evento'] = gmdate("H:i:s", $durata_evento);
+                        $row['durata_evento'] = UtilityHelper::sec_to_hr($durata_evento);
+                        $tempo_assenza = ($durata_evento-$row['tempo_visualizzato']);
+                        $tempo_assenza = ($tempo_assenza < 0) ? 0 : $tempo_assenza;
+                        //$row['tempo_assenza'] = gmdate("H:i:s", $tempo_assenza);
+                        $row['tempo_assenza'] = UtilityHelper::sec_to_hr($tempo_assenza);
+                        //$row['tempo_visualizzato'] = ($row['tempo_visualizzato'] > $durata_evento) ? gmdate("H:i:s", $durata_evento) : gmdate("H:i:s", $row['tempo_visualizzato']);
+                        $row['tempo_visualizzato'] = ($row['tempo_visualizzato'] > $durata_evento) ? UtilityHelper::sec_to_hr($durata_evento) : UtilityHelper::sec_to_hr($row['tempo_visualizzato']);
+                        $row['data_accesso'] = date("d/m/Y", strtotime($row['data_accesso']));
+                        $_tmp_arr[] = $row;
+                    }
+                }
+
+                if (count($_tmp_arr) > 0) {
+                    $rows = $_tmp_arr;
+
+                    foreach ($counts as $cc => $count) {
+                        if (isset($arr_date_descrizione[$count['id_contenuto']][$count['data_accesso']])) {
+                            $_tmp_count_arr[] = $count;
+                        }
+                    }
+
+                    if (count($_tmp_count_arr) > 0) {
+                        $counts = $_tmp_count_arr;
+                    }
+                }
+            }
+
+            $num_rows = count($counts);
             $columns = utilityHelper::get_nomi_colonne_da_query_results($num_rows, $rows);
 
             $result['columns'] = $columns;
