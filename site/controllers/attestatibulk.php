@@ -50,7 +50,6 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     public function dwnl_attestati_by_corso()
     {
 
-
         try {
 
             // delete all files from tmp folder
@@ -190,7 +189,16 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                                                 '',
                                                 true);
 
-                    $nome_file = 'attestato_' . $att_id . $data->user->cognome . rand() . '.pdf';
+                    // il rand non serve più dopo aver adottato il controllo dell'esistenza file multipla
+                    //$nome_file = 'attestato_' . $att_id . '_' .$data->user->cognome . rand() . '.pdf';
+                    $nome_file = 'attestato_' . $att_id . '_' . $data->user->cognome;
+
+                    // se in modalità salva nome modifico il nome di default del file usando il codice coupon ed eliminando il numero randomico
+                    if (isset($data->dati_corso[0]->codice_corso)) {
+                        $nome_file = 'attestato_' . $data->dati_corso[0]->codice_corso . '_' . $data->user->cognome;
+                    }
+
+                    $nome_file = strtoupper($nome_file) . '.pdf';
 
                     // se da form lo richiedo salvo il nome secondo la nomenclatura prescelta
                     if (!is_null($salva_come)
@@ -198,7 +206,12 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                         $nome_file = utilityHelper::build_nome_file_attestato($data, $salva_come);
                     }
 
+                    // controllo se il file è già esistente..metodo che mi torna utile per il loop di creazione file
+                    // così da eliminare il rand()
+                    $nome_file = UtilityHelper::rename_file_recursive($this->_folder_location, $nome_file);
                     $path_file = $this->_folder_location . $nome_file;
+
+                    //DEBUGG::log(json_encode($path_file), "nome pdf", 0, 1);
 
                     // save file in folder
                     $pdf->Output($path_file, 'F');
@@ -207,9 +220,11 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                     $file_obj->path = $path_file;
                     $file_obj->nome = $nome_file;
                     array_push($file_list, $file_obj);
+
                 }
 
             }
+
             $this->zip_and_download($file_list);
         } else {
             $pdf_ctrl->generateAttestato($this->id_user, $attestati_corso[0], true, $id_corso);

@@ -68,14 +68,16 @@ HTML;
             <div class="col-sm-4">
                 <input type="date" id="enddate" name="enddate"  min="" />
             </div>
+            firefox bug con questa classe negli input??
+            class="form-control"
             -->
             <div class="form-group col-sm-4">
                 <label for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM_SHORT') ?></label>
-                <input type="date" class="form-control" id="startdate" min="" />
+                <input type="date" id="startdate" min="" />
             </div>
             <div class="form-group col-sm-4">
                 <label for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_TO_SHORT') ?></label>
-                <input type="date" class="form-control" id="enddate" min="" />
+                <input type="date" id="enddate" min="" />
             </div>
         </div>
 
@@ -100,7 +102,7 @@ HTML;
             <label class="col-sm-2" for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_SALVA_CON_NOME') ?></label>
             <div class="col-sm-10">
                 <textarea id="salva_come" name="salva_come" cols="8" rows="5" placeholder="<?php echo  JText::_('COM_GGLMS_REPORT_SALVA_CON_NOME_PLC') ?>"></textarea><br />
-                <p><code>Default: attestato_IDATTESTATO_COGNOME_NUMERORANDOM</code></p>
+                <p><code>Default: attestato_CODICECORSO_COGNOME</code></p>
                 <p><?php echo  JText::_('COM_GGLMS_REPORT_SALVA_CON_NOME_LGD') ?></p>
                 <p><code>"nome", "cognome", "codice_fiscale", "codice_corso", "data_inizio_corso", "data_fine_corso"</code></p>
             </div>

@@ -808,45 +808,87 @@ class utilityHelper
 
     }
 
+    // controllo se un file esiste e nel qual caso provo a rinominarlo fino a quando il nuovo nome non esiste
+    public static function rename_file_recursive($folder_location, $nome_file) {
+
+        echo $folder_location . $nome_file;
+
+        if (!file_exists($folder_location . $nome_file))
+            return $nome_file;
+
+        $actual_name = pathinfo($nome_file, PATHINFO_FILENAME);
+        $original_name = $actual_name;
+        $extension = pathinfo($nome_file, PATHINFO_EXTENSION);
+
+        $i = 1;
+        while(file_exists($folder_location . $actual_name . "." . $extension))
+        {
+            $actual_name = (string)$original_name . "_" . $i;
+            $nome_file = $actual_name . "." . $extension;
+            $i++;
+        }
+
+        return $nome_file;
+    }
+
+    public static function is_valid_file_name($file_name, $alt_name, $replace_spaces = false) {
+
+        $_ret = (isset($file_name) && $file_name != "" && !is_null($file_name)) ? $file_name : $alt_name;
+        if ($replace_spaces)
+            $_ret = preg_replace('/\s+/', '_', $_ret);
+
+        return $_ret;
+
+    }
+
     // in base a dei valori predefiniti imposto il nome del file con il quale un attestato verrà scaricato
     public static function build_nome_file_attestato($data, $salva_come) {
 
         $arr_salva = explode(",", $salva_come);
-        $nome_file = 'attestato';
+        //$nome_file = 'attestato';
+        // per nome custom non deve iniziare con attestato_
+        $nome_file = '';
 
         foreach ($arr_salva as $indice) {
 
             switch (trim($indice)) {
 
                 case 'nome':
-                    $nome_file .= '_' . $data->user->nome;
+                    $nome_file .= ($nome_file != "") ? '_' : '';
+                    $nome_file .= self::is_valid_file_name($data->user->nome, trim($indice), true);
                     break;
 
                 case 'cognome':
-                    $nome_file .= '_' . $data->user->cognome;
+                    $nome_file .= ($nome_file != "") ? '_' : '';
+                    $nome_file .= self::is_valid_file_name($data->user->cognome, trim($indice), true);
                     break;
 
                 case 'codice_fiscale':
-                    $nome_file .= '_' . $data->user->cb_codicefiscale;
+                    $nome_file .= ($nome_file != "") ? '_' : '';
+                    $nome_file .= self::is_valid_file_name($data->user->cb_codicefiscale, trim($indice));
                     break;
 
                 case 'codice_corso':
-                    $nome_file .= '_' . $data->dati_corso[0]->codice_corso;
+                    $nome_file .= ($nome_file != "") ? '_' : '';
+                    $nome_file .= self::is_valid_file_name($data->dati_corso[0]->codice_corso, trim($indice), true);
                     break;
 
                 case 'data_inizio_corso':
-                    $nome_file .= '_' . $data->dati_corso[0]->data_inizio;
+                    $nome_file .= ($nome_file != "") ? '_' : '';
+                    $_tmp = (isset($data->dati_corso[0]->data_inizio) && $data->dati_corso[0]->data_inizio != "") ? date("Ymd", strtotime($data->dati_corso[0]->data_inizio)) : "";
+                    $nome_file .= self::is_valid_file_name($_tmp, trim($indice));
                     break;
 
                 case 'data_fine_corso':
-                    $nome_file .= '_' . $data->dati_corso[0]->data_fine;
+                    $nome_file .= ($nome_file != "") ? '_' : '';
+                    $_tmp = (isset($data->dati_corso[0]->data_fine) && $data->dati_corso[0]->data_fine != "") ? date("Ymd", strtotime($data->dati_corso[0]->data_fine)) : "";
+                    $nome_file .= self::is_valid_file_name($_tmp, trim($indice));
                     break;
 
             }
         }
 
-        $nome_file .= '_' . rand() . '.pdf';
-        //$nome_file .= '.pdf';
+        $nome_file = strtoupper($nome_file) . '.pdf';
         return $nome_file;
 
     }
