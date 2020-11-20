@@ -195,6 +195,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         } catch (Exception $ex) {
 
+            DEBUGG::log(json_encode($ex->getMessage()), 'insert_coupon_exception_error', 0, 1, 0 );
             DEBUGG::error($ex, 'insert_coupon');
 
         }
@@ -397,13 +398,16 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
         if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon))) {
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non ci sono tutor piattaforma configurati per questa piattaforma', 'Error'));
-
+            $_msg['data'] = 'Non ci sono tutor piattaforma configurati per questa piattaforma';
+            DEBUGG::log(json_encode($_msg['data']), 'api_genera_coupon_no_tutor_piattaforma', 0, 1, 0 );
+            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg['data'] , 'Error'));
         }
 
         // get sender
         if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non è configurato un indirizzo mail di piattaforma', 'Error'));
+            $_msg['data'] = 'Non è configurato un indirizzo mail di piattaforma';
+            DEBUGG::log(json_encode($_msg['data']), 'api_genera_coupon_no_sender', 0, 1, 0 );
+            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg['data'], 'Error'));
 
         }
 
@@ -453,13 +457,25 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
         $mailer->isHTML(true);
 
+        // rimosso il riferimento a $recipients["to"]->email
         if (!$mailer->Send()) {
 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-            utilityHelper::logMail('coupons_mail', $sender, implode(",",$recipients["to"]->email), 0, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
+            utilityHelper::logMail('coupons_mail_send_error',
+                                    $sender,
+                                    implode(",", $to),
+                                    0,
+                                    implode(", ", $recipients['cc']),
+                                    $this->_info_corso["idgruppo"]);
         }
 
         //log mail sent
-        utilityHelper::logMail('coupons_mail', $sender, implode(",",$recipients["to"]->email), 1, implode(", ", $recipients['cc']), $this->_info_corso["idgruppo"]);
+        // rimosso il riferimento a $recipients["to"]->email
+        utilityHelper::logMail('coupons_mail',
+                                $sender,
+                                implode(",", $to),
+                                1,
+                                implode(", ", $recipients['cc']),
+                                $this->_info_corso["idgruppo"]);
         return true;
 
     }

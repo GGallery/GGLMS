@@ -66,8 +66,60 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             $data = JRequest::get($_POST);
 
-//            todo add $data check
+            /*
+             * required
+             * username: stringa
+             * ragione_sociale: stringa
+             * email: stringa / email
+             * id_piattaforma: numerico
+             * gruppo_corsi: numerico
+             * qty: numerico
+             *
+             * */
 
+            // controllo username
+            if (!isset($data['username'])
+                || !preg_match('/^[a-zA-Z0-9_]+$/', $data['username'])) {
+                $_msg = "username is not in a valid format";
+                throw new Exception($_msg, E_USER_ERROR);
+            }
+
+            // controllo ragione sociale
+            if (!isset($data['ragione_sociale'])
+                || $data['ragione_sociale'] == "") {
+                $_msg = "ragione_sociale is not in a valid format";
+                throw new Exception($_msg, E_USER_ERROR);
+            }
+
+            // controllo email
+            if (!isset($data['email'])
+                || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $_msg = "email is not in a valid format";
+                throw new Exception($_msg, E_USER_ERROR);
+            }
+
+            // controllo id_piattaforma
+            if (!isset($data['id_piattaforma'])
+                || !preg_match('/^[1-9][0-9]*$/', $data['id_piattaforma'])) {
+                $_msg = "id_piattaforma is not in a valid format";
+                throw new Exception($_msg, E_USER_ERROR);
+            }
+
+            // controllo gruppo_corsi
+            if (!isset($data['gruppo_corsi'])
+                || !preg_match('/^[1-9][0-9]*$/', $data['gruppo_corsi'])) {
+                $_msg = "gruppo_corsi is not in a valid format";
+                throw new Exception($_msg, E_USER_ERROR);
+            }
+
+            // controllo qty
+            if (!isset($data['qty'])
+                || !preg_match('/^[1-9][0-9]*$/', $data['qty'])) {
+                $_msg  = "qty is not in a valid format";
+                throw new Exception($_msg, E_USER_ERROR);
+            }
+
+            // log dei paramentri ricevuti
             DEBUGG::log(json_encode($data), 'api_genera_coupon', 0, 1, 0 );
 
             $id_iscrizione = $this->generaCoupon->insert_coupon($data);
@@ -75,6 +127,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $result = new stdClass();
             $result->id_iscrizione = $id_iscrizione;
 
+            // log risposta api
             DEBUGG::log(json_encode($result), 'api_genera_coupon_response', 0, 1, 0 );
 
             echo json_encode($result);
@@ -82,7 +135,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
         } catch (Exception $e) {
 
-            DEBUGG::error($e, 'generaCoupon');
+            DEBUGG::log(json_encode($e->getMessage()), 'api_genera_coupon_exception_error', 0, 1, 0 );
+            DEBUGG::error($e, 'generaCoupon', 1, true);
         }
 
     }

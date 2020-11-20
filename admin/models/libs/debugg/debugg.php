@@ -72,7 +72,13 @@ class DEBUGG
 
     }
 
-    public static function error($object, $label, $die = 0){
+    public static function error($object, $label, $die = 0, $in_json = false){
+
+        if ($in_json) {
+            $_msg['error'] = $object->getMessage();
+            echo json_encode($_msg);
+            die();
+        }
 
         if($label)
             echo "<label>". $label ."</label>";
