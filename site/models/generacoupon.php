@@ -62,8 +62,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         try {
 
-
-
             // check for attestato
             if (!$this->_config->getConfigValue('check_coupon_attestato')) {
                 // se il controllo è spento, creo tutti i copon con campo attesato =1 ;
@@ -95,6 +93,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $new_societa = false;
 
             if (empty($user_id)) {
+
+                // prima di procedere controllo se lo usergroups è già esistente visto che viene inizializzato come la ragione sociale e joomla non accetta gruppi con lo stesso nome
+                $check_usergroups = $this->_check_usergroups((string)$data['ragione_sociale']);
+                if (!is_null($check_usergroups))
+                    throw new RuntimeException("duplicate user_groups", E_USER_ERROR);
+
                 $new_societa = true;
                 $company_user = $this->create_new_company_user($data);
 
@@ -147,7 +151,19 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, creation_time, abilitato, id_iscrizione, data_abilitazione, durata ,attestato, id_societa, id_gruppi, stampatracciato, trial, venditore,gruppo) VALUES ' . join(',', $values);
+            $query = 'INSERT INTO #__gg_coupon (coupon, 
+                                                creation_time, 
+                                                abilitato, 
+                                                id_iscrizione, 
+                                                data_abilitazione, 
+                                                durata,
+                                                attestato, 
+                                                id_societa, 
+                                                id_gruppi, 
+                                                stampatracciato, 
+                                                trial, 
+                                                venditore,
+                                                gruppo) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
@@ -196,7 +212,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         } catch (Exception $ex) {
 
             DEBUGG::log(json_encode($ex->getMessage()), 'insert_coupon_exception_error', 0, 1, 0 );
-            DEBUGG::error($ex, 'insert_coupon');
+            DEBUGG::error($ex, 'insert_coupon', 0, true);
 
         }
 
@@ -320,6 +336,18 @@ class gglmsModelgeneracoupon extends JModelLegacy
         return isset($results[0]) ? $results[0] : null;
     }
 
+    private function _check_usergroups($usergroup) {
+
+        $query = "SELECT id FROM #__usergroups WHERE title = '" . $usergroup . "'";
+        $this->_db->setQuery($query);
+
+        if (false === ($results = $this->_db->loadRow())) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+
+        return isset($results[0]) ? $results[0] : null;
+
+    }
 
     private function _generate_pwd($l = 8)
     {

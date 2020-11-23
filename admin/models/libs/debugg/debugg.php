@@ -74,7 +74,8 @@ class DEBUGG
 
     public static function error($object, $label, $die = 0, $in_json = false){
 
-        if ($in_json) {
+        if ($in_json
+            && $object->getMessage() != "") {
             $_msg['error'] = $object->getMessage();
             echo json_encode($_msg);
             die();
