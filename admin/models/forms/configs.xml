@@ -890,6 +890,29 @@
             <option value="0">OFF</option>
             <option value="1">ON</option>
         </field>
+
+        <field
+                name="genera_coupon_visualizza_ateco"
+                type="radio"
+                class="btn-group"
+                label="Visualizza il campo codice Ateco nel form Genera Coupon"
+                labelclass="control-label"
+                description="OFF per nascondere, ON per visualizzare"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field name="summary_report_nascondi_colonne"
+               type="listacolssummaryreport"
+               label="Scegli le colonne che saranno nascoste nel Summary Report"
+               description=""
+               class="inputbox"
+               multiple="true"
+               size="10"
+               default=""
+        />
         <!-- FINE PERSONALIZZAZIONI -->
 
     </fieldset>

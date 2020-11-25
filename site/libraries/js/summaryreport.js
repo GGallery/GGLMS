@@ -75,8 +75,11 @@ _summaryreport = (function ($, my) {
                 "email": {titolo: getLocalizedString('COM_GGLMS_CB_EMAIL')}
 
             };
-            columns = [
-                {
+
+            //columns = [
+            columns = [];
+
+            var objCoupon =  {
                     field: 'coupon',
                     title: 'Coupon',
                     width: 310,
@@ -88,9 +91,12 @@ _summaryreport = (function ($, my) {
                         }
                     },
                     excelExport: true
+            };
+            if (!hide_columns_var.includes("coupon"))
+                    columns.push(objCoupon)
 
-                },
-                {
+
+            var objUser_ = {
                     field: 'user_',
                     title: getLocalizedString('COM_GGLMS_GLOBAL_USER'),
                     width: 200,
@@ -101,9 +107,10 @@ _summaryreport = (function ($, my) {
                         }
                     },
                     excelExport: true
+            };
+            columns.push(objUser_);
 
-                },
-                {
+            var objNome = {
                     field: 'nome',
                     title:'Nome',
                     width: 200,
@@ -114,22 +121,27 @@ _summaryreport = (function ($, my) {
                         }
                     },
                     excelExport: true
+            };
+            if (!hide_columns_var.includes("nome"))
+                columns.push(objNome);
 
-                },
-                {
-                    field: 'cognome',
-                    title: 'Cognome',
-                    width: 200,
-                    hidden: false,
-                    filterable: {
-                        cell: {
-                            showOperators: false
-                        }
-                    },
-                    excelExport: true
+            var objCognome = {
+                        field: 'cognome',
+                        title: 'Cognome',
+                        width: 200,
+                        hidden: false,
+                        filterable: {
+                            cell: {
+                                showOperators: false
+                            }
+                        },
+                        excelExport: true
 
-                },
-                {
+            };
+            if (!hide_columns_var.includes("cognome"))
+                columns.push(objCognome);
+
+            var objCf = {
                     field: 'cb_codicefiscale',
                     title: 'Codice Fiscale',
                     width: 200,
@@ -141,87 +153,104 @@ _summaryreport = (function ($, my) {
                     },
                     excelExport: true
 
-                },
-                {
-                    field: 'id_user',
-                    title:  getLocalizedString('COM_GGLMS_REPORT_USERDETAIL'),
-                    width: 100,
-                    filterable: false,
-                    hidden: false,
-                    template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
-                    attributes: {
-                        style: "text-align: center"
-                    },
-                    excelExport: false
+            };
+            if (!hide_columns_var.includes("cb_codicefiscale"))
+                columns.push(objCf);
+
+             var objIdUser =   {
+                            field: 'id_user',
+                            title:  getLocalizedString('COM_GGLMS_REPORT_USERDETAIL'),
+                            width: 100,
+                            filterable: false,
+                            hidden: false,
+                            template: "<button class='k-button k-grid-button k-grid-user'><span class='glyphicon glyphicon-user'></span></button>",
+                            attributes: {
+                                style: "text-align: center"
+                            },
+                            excelExport: false
 
 
-                },
-                {
-                    field: 'titolo_corso',
-                    title: getLocalizedString('COM_GGLMS_GLOBAL_CORSO'),
-                    hidden: false,
-                    width: 200,
-                    filterable: {
-                        cell: {
-                            showOperators: false
-                        }
-                    },
-                    excelExport: true
+             };
+            if (!hide_columns_var.includes("id_user"))
+                columns.push(objIdUser);
 
-                },
-                {
-                    field: 'data_creazione',
-                    title: getLocalizedString('COM_GGLMS_GLOBAL_CREATION_DATE'),
-                    hidden: false,
-                    format: "{0: dd-MM-yyyy HH:mm}",
-                    width: 150,
-                    filterable: {
-                        operators: {
-                            date: {
-                                lte: getLocalizedString('COM_GGLMS_REPORT_DATE_LTE'),//"Prima o uguale del",
-                                gte:getLocalizedString('COM_GGLMS_REPORT_DATE_GTE'),// "Dopo o uguale del"
-                                // , eq: "Uguale"
+             var objTitoloCorso = {
+                        field: 'titolo_corso',
+                        title: getLocalizedString('COM_GGLMS_GLOBAL_CORSO'),
+                        hidden: false,
+                        width: 200,
+                        filterable: {
+                            cell: {
+                                showOperators: false
                             }
-                        }
-                    },
-                    excelExport: true
+                        },
+                        excelExport: true
 
-                },
-                {
-                    field: 'data_utilizzo',
-                    title:  getLocalizedString('COM_GGLMS_GLOBAL_USE_DATE'),
-                    width: 150,
-                    hidden: false,
-                    format: "{0: dd-MM-yyyy HH:mm}",
-                    filterable: {
-                        operators: {
-                            date: {
-                                lte: getLocalizedString('COM_GGLMS_REPORT_DATE_LTE'),//"Prima o uguale del",
-                                gte:getLocalizedString('COM_GGLMS_REPORT_DATE_GTE'),// "Dopo o uguale del"
-                                isnull: getLocalizedString('COM_GGLMS_REPORT_DATE_ISNULL'),
-                                isnotnull:getLocalizedString('COM_GGLMS_REPORT_DATE_ISNOTNULL'),
-                                // , eq: "Uguale"
+             };
+            if (!hide_columns_var.includes("titolo_corso"))
+                columns.push(objTitoloCorso);
+
+             var objDataCreazione = {
+                        field: 'data_creazione',
+                        title: getLocalizedString('COM_GGLMS_GLOBAL_CREATION_DATE'),
+                        hidden: false,
+                        format: "{0: dd-MM-yyyy HH:mm}",
+                        width: 150,
+                        filterable: {
+                            operators: {
+                                date: {
+                                    lte: getLocalizedString('COM_GGLMS_REPORT_DATE_LTE'),//"Prima o uguale del",
+                                    gte:getLocalizedString('COM_GGLMS_REPORT_DATE_GTE'),// "Dopo o uguale del"
+                                    // , eq: "Uguale"
+                                }
                             }
-                        }
-                    },
-                    excelExport: true
+                        },
+                        excelExport: true
 
-                },
-                {
+             };
+            if (!hide_columns_var.includes("data_creazione"))
+                columns.push(objDataCreazione);
+
+             var objDataUtilizzo = {
+                        field: 'data_utilizzo',
+                        title:  getLocalizedString('COM_GGLMS_GLOBAL_USE_DATE'),
+                        width: 150,
+                        hidden: false,
+                        format: "{0: dd-MM-yyyy HH:mm}",
+                        filterable: {
+                            operators: {
+                                date: {
+                                    lte: getLocalizedString('COM_GGLMS_REPORT_DATE_LTE'),//"Prima o uguale del",
+                                    gte:getLocalizedString('COM_GGLMS_REPORT_DATE_GTE'),// "Dopo o uguale del"
+                                    isnull: getLocalizedString('COM_GGLMS_REPORT_DATE_ISNULL'),
+                                    isnotnull:getLocalizedString('COM_GGLMS_REPORT_DATE_ISNOTNULL'),
+                                    // , eq: "Uguale"
+                                }
+                            }
+                        },
+                        excelExport: true
+
+             };
+            if (!hide_columns_var.includes("data_utilizzo"))
+                columns.push(objDataUtilizzo);
+
+             var objIdPiattaforma = {
                     field: 'id_piattaforma',
                     title: '',
                     hidden: true,
                     excelExport: false
+             };
+            columns.push(objIdPiattaforma);
 
-                },
-                {
+             var objIdAzienda = {
                     field: 'id_azienda',
                     title: '',
                     hidden: true,
                     excelExport: false
+             };
+            columns.push(objIdAzienda);
 
-                },
-                {
+             var objAzienda = {
                     field: 'azienda',
                     title:  getLocalizedString('COM_GGLMS_GLOBAL_COMPANY'),
                     width: 150,
@@ -231,94 +260,109 @@ _summaryreport = (function ($, my) {
                         }
                     },
                     excelExport: true
-                },
-                {
-                    field: 'stato',
-                    title:  getLocalizedString('COM_GGLMS_GLOBAL_STATO'),
-                    width: 150,
-                    hidden: false,
-                    filterable: {
-                        cell: {
-                            showOperators: false,
-                            template: function (cell) {
-                                cell.element.kendoDropDownList({
-                                    dataSource: [{value: "1", text: getLocalizedString('COM_GGLMS_GLOBAL_COMPLETED')}, {
-                                        value: "0",
-                                        text:  getLocalizedString('COM_GGLMS_GLOBAL_NOT_COMPLETED'),
-                                    }, {value: "-1", text:getLocalizedString('COM_GGLMS_GLOBAL_STATO_LBERI')}],
-                                    dataTextField: "text",
-                                    dataValueField: "value",
-                                    valuePrimitive: true,
-                                    optionLabel: getLocalizedString('COM_GGLMS_GLOBAL_ALL')
+                };
+            if (!hide_columns_var.includes("azienda"))
+                columns.push(objAzienda);
 
-                                });
+             var objStato = {
+                        field: 'stato',
+                        title:  getLocalizedString('COM_GGLMS_GLOBAL_STATO'),
+                        width: 150,
+                        hidden: false,
+                        filterable: {
+                            cell: {
+                                showOperators: false,
+                                template: function (cell) {
+                                    cell.element.kendoDropDownList({
+                                        dataSource: [{value: "1", text: getLocalizedString('COM_GGLMS_GLOBAL_COMPLETED')}, {
+                                            value: "0",
+                                            text:  getLocalizedString('COM_GGLMS_GLOBAL_NOT_COMPLETED'),
+                                        }, {value: "-1", text:getLocalizedString('COM_GGLMS_GLOBAL_STATO_LBERI')}],
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        valuePrimitive: true,
+                                        optionLabel: getLocalizedString('COM_GGLMS_GLOBAL_ALL')
+
+                                    });
+                                }
                             }
-                        }
-                    },
+                        },
 
-                    template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
-                    attributes: {
-                        style: "text-align: center; font-size: 18px"
-                    },
-                    excelExport: true
+                        template: '<span  class=" #= stato == 1 ? "glyphicon glyphicon-ok" : ( stato == 0 ) ? "glyphicon glyphicon-log-in"   : "" # "" ></span>',
+                        attributes: {
+                            style: "text-align: center; font-size: 18px"
+                        },
+                        excelExport: true
 
 
-                },
-                {
-                    field: 'data_inizio',
-                    title:getLocalizedString('COM_GGLMS_REPORT_DATA_INIZIO'),
-                    width: 150,
-                    hidden: false,
-                    format: "{0: dd-MM-yyyy }",
-                    filterable: {
-                        operators: {
-                            date: {
-                                lte: "Prima o uguale del",
-                                gte: "Dopo o uguale del",
-                                isnull: "E' nulla",
-                                isnotnull: "Non è nulla"
+             };
+            if (!hide_columns_var.includes("stato"))
+                columns.push(objStato);
+
+             var objDataInzio = {
+                        field: 'data_inizio',
+                        title:getLocalizedString('COM_GGLMS_REPORT_DATA_INIZIO'),
+                        width: 150,
+                        hidden: false,
+                        format: "{0: dd-MM-yyyy }",
+                        filterable: {
+                            operators: {
+                                date: {
+                                    lte: "Prima o uguale del",
+                                    gte: "Dopo o uguale del",
+                                    isnull: "E' nulla",
+                                    isnotnull: "Non è nulla"
+                                }
                             }
-                        }
-                    },
-                    excelExport: true
+                        },
+                        excelExport: true
 
-                },
-                {
-                    field: 'data_fine',
-                    title: getLocalizedString('COM_GGLMS_REPORT_DATA_FINE'),
-                    hidden: false,
-                    width: 150,
-                    format: "{0: dd-MM-yyyy}",
-                    filterable: {
-                        operators: {
-                            date: {
-                                lte: "Prima o uguale del",
-                                gte: "Dopo o uguale del",
-                                isnull: "E' nulla",
-                                isnotnull: "Non è nulla"
+             };
+            if (!hide_columns_var.includes("data_inizio"))
+                columns.push(objDataInzio);
 
+             var objDataFine = {
+                        field: 'data_fine',
+                        title: getLocalizedString('COM_GGLMS_REPORT_DATA_FINE'),
+                        hidden: false,
+                        width: 150,
+                        format: "{0: dd-MM-yyyy}",
+                        filterable: {
+                            operators: {
+                                date: {
+                                    lte: "Prima o uguale del",
+                                    gte: "Dopo o uguale del",
+                                    isnull: "E' nulla",
+                                    isnotnull: "Non è nulla"
+
+                                }
                             }
-                        }
-                    },
-                    excelExport: true
+                        },
+                        excelExport: true
 
-                },
-                {
-                    field: 'id_corso',
-                    title: getLocalizedString('COM_GGLMS_GLOBAL_ATTESTATO'),
-                    hidden: false,
-                    width: 100,
-                    filterable: false,
-                    template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
-                    attributes: {
-                        style: "text-align: center"
-                    },
-                    excelExport: false,
-                    tutor_az: true
+             };
+            if (!hide_columns_var.includes("data_fine"))
+                columns.push(objDataFine);
+
+             var objIdCorso = {
+                        field: 'id_corso',
+                        title: getLocalizedString('COM_GGLMS_GLOBAL_ATTESTATO'),
+                        hidden: false,
+                        width: 100,
+                        filterable: false,
+                        template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
+                        attributes: {
+                            style: "text-align: center"
+                        },
+                        excelExport: false,
+                        tutor_az: true
 
 
-                },
-                {
+             };
+            if (!hide_columns_var.includes("id_corso"))
+                columns.push(objIdCorso);
+
+             var objVenditore = {
                     field: 'venditore',
                     title:  getLocalizedString('COM_GGLMS_GLOBAL_VENDITORE'),
                     width: 120,
@@ -331,17 +375,20 @@ _summaryreport = (function ($, my) {
                     },
                     excelExport: true,
                     tutor_az: false
+             };
+            if (!hide_columns_var.includes("venditore"))
+                columns.push(objVenditore);
 
-                },
-                {
+             var objScaduto = {
                     field: 'scaduto',
                     title:getLocalizedString('COM_GGLMS_REPORT_USER_SCADUTO'),
                     hidden: true,
                     excelExport: false
+             };
+            if (!hide_columns_var.includes("scaduto"))
+                columns.push(objScaduto);
 
-
-                },
-                {
+             var objDelete = {
                     command: {
                         text: getLocalizedString('COM_GGLMS_GLOBAL_DELETE'),
                         click: deleteCoupon
@@ -352,8 +399,10 @@ _summaryreport = (function ($, my) {
                         style: "text-align: center"
                     }
 
-                },
-                {
+             };
+            columns.push(objDelete);
+
+             var objReset = {
                     command: {
                         text: "Reset",
                         click: resetCoupon
@@ -364,8 +413,11 @@ _summaryreport = (function ($, my) {
                         style: "text-align: center"
                     },
 
-                }
-            ];
+             };
+            columns.push(objReset);
+
+            //];
+
 
             _get_user_action();
             _kendofix();

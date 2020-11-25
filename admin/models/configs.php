@@ -48,7 +48,11 @@ class gglmsModelconfigs extends JModelAdmin {
 
                 $data->$key = $value;
 
-                if($key=='id_gruppi_visibili' || $key=='alert_lista_corsi' || $key=='campi_csv' || $key=='campicustom_report')
+                if($key=='id_gruppi_visibili'
+                    || $key=='alert_lista_corsi'
+                    || $key=='campi_csv'
+                    || $key=='campicustom_report'
+                    || $key=='summary_report_nascondi_colonne')
                     $data->$key = explode(",", $value);
 
 

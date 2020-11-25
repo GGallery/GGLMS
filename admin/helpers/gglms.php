@@ -566,5 +566,51 @@ class gglmsHelper
         return $res;
     }
 
+    public function GetSummaryReportColumns() {
+
+        /*
+         * coupon => Coupon
+         * nome => COM_GGLMS_REPORT_NOME
+         * cognome => COM_GGLMS_REPORT_COGNOME
+         * cb_codicefiscale => Codice fiscale
+         * id_user => COM_GGLMS_REPORT_USERDETAIL
+         * titolo_corso => COM_GGLMS_GLOBAL_CORSO
+         * data_creazione => COM_GGLMS_GLOBAL_CREATION_DATE
+         * data_utilizzo => COM_GGLMS_GLOBAL_USE_DATE
+         * azienda => COM_GGLMS_GLOBAL_COMPANY
+         * stato => COM_GGLMS_GLOBAL_STATO
+         * data_inizio => COM_GGLMS_REPORT_DATA_INIZIO
+         * data_fine => COM_GGLMS_REPORT_DATA_FINE
+         * id_corso => COM_GGLMS_GLOBAL_ATTESTATO
+         * venditore => COM_GGLMS_GLOBAL_VENDITORE
+         * scaduto => COM_GGLMS_REPORT_USER_SCADUTO
+         *
+         * */
+
+        // localizzazione
+        $lang = JFactory::getLanguage();
+        // file di traduzione del componente
+        $lang->load('com_gglms', JPATH_SITE . '/components/com_gglms', $lang->getTag(), true);
+
+        $columns = array(
+            array('text' => 'Coupon', 'value' => 'coupon'),
+            array('text' => JText::_('COM_GGLMS_REPORT_NOME'), 'value' => 'nome'),
+            array('text' => JText::_('COM_GGLMS_REPORT_COGNOME'), 'value' => 'cognome'),
+            array('text' => JText::_('COM_GGLSM_REPORT_CODICE_FISCALE'), 'value' => 'cb_codicefiscale'),
+            array('text' => JText::_('COM_GGLMS_REPORT_USERDETAIL'), 'value' => 'id_user'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_CORSO'), 'value' => 'titolo_corso'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_CREATION_DATE'), 'value' => 'data_creazione'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_USE_DATE'), 'value' => 'data_utilizzo'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_COMPANY'), 'value' => 'azienda'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_STATO'), 'value' => 'stato'),
+            array('text' => JText::_('COM_GGLMS_REPORT_DATA_INIZIO'), 'value' => 'data_inizio'),
+            array('text' => JText::_('COM_GGLMS_REPORT_DATA_FINE'), 'value' => 'data_fine'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_ATTESTATO'), 'value' => 'id_corso'),
+            array('text' => JText::_('COM_GGLMS_GLOBAL_VENDITORE'), 'value' => 'venditore'),
+            array('text' => JText::_('COM_GGLMS_REPORT_USER_SCADUTO'), 'value' => 'scaduto')
+        );
+
+        return $columns;
+    }
 
 }

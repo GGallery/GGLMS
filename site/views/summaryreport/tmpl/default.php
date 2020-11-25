@@ -19,6 +19,8 @@ echo "<h1>".  JText::_('COM_GGLMS_SUMMARY_REPORT'). "</h1>"; ?>
 
 <script type="application/javascript">
 
+    var hide_columns_var = <?php echo $this->hide_columns_var; ?>;
+    
     jQuery(document).ready(function () {
          _summaryreport.init();
     });

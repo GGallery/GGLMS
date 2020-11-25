@@ -24,5 +24,19 @@
         <?php echo $this->form->renderField('genera_coupon_visualizza_venditore'); ?>
     </div>
 
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_coupon_visualizza_ateco'); ?>
+    </div>
+
 </div>
 
+<!-- Summary report -->
+<div class="row-fluid">
+
+    <h4>Summary report</h4>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('summary_report_nascondi_colonne'); ?>
+    </div>
+
+</div>

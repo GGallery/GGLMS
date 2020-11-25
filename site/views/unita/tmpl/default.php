@@ -43,8 +43,18 @@ if ($this->sottounita) {
                     <div class="g-block interno">
 
                         <?php
+                        // revisione caricamento immagini di background delle unità
+                        /*
                         if (file_exists('../mediagg/images/unit/' . $unita->id . '.jpg'))
                             $img = '../mediagg/images/unit/' . $unita->id . '.jpg';
+                        else
+                            $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+                        */
+                        $u_path = '/mediagg/images/unit/' . $unita->id . '.jpg';
+                        $u_file = JPATH_ROOT . $u_path;
+                        // carico l'immagine per indirizzo assoluto
+                        if (file_exists($u_file))
+                            $img = JURI::base() . $u_path;
                         else
                             $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
@@ -129,8 +139,18 @@ if ($this->contenuti) {
             <div class="g-block interno">
 
                 <?php
+                // revisione caricamento immagini di background dei contenuti
+                /*
                 if (file_exists('../mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg'))
                     $img = '../mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
+                else
+                    $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+                */
+                $c_path = '/mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
+                $c_file = JPATH_ROOT . $c_path;
+                // carico l'immagine da indirizzo assoluto
+                if (file_exists($c_file))
+                    $img = JURI::base() . $c_path;
                 else
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 

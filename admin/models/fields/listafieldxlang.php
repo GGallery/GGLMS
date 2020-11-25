@@ -41,9 +41,22 @@ class JFormFieldlistafieldxlang extends JFormFieldList {
 
         try {
 
-            $f = JPATH_ROOT . '\components\com_gglms\language\it-IT\it-IT.com_gglms.ini';
-            if (!file_exists($f))
-                throw new Exception("Dictionary file not found!", 1);
+            // localizzazione
+            $lang = JFactory::getLanguage();
+            $f = JPATH_ROOT . '\components\com_gglms\language\\' . $lang->getTag() . '\\' . $lang->getTag() . '.com_gglms.ini';
+            if (!file_exists($f)) {
+                // se il file non esiste provo anche sostituendo le \ con /
+                $f = str_replace('\\', '/', $f);
+
+                // proprio non esiste
+                if (!file_exists($f)) {
+
+                    echo <<<HTML
+                <p style="color: red;">File {$f} non esistente!</p>
+HTML;
+                    throw new Exception("Dictionary file not found!", 1);
+                }
+            }
 
             $content = explode("\n", file_get_contents($f));
             $content = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\r\n", $content);

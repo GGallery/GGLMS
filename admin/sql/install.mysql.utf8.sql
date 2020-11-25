@@ -68,10 +68,14 @@ INSERT INTO `#__gg_configs` VALUES ('4', 'verifica_cf', '0');
 INSERT INTO `#__gg_configs` VALUES ('5', 'campo_event_booking_controllo_cf', 'value');
 INSERT INTO `#__gg_configs` VALUES ('6', 'campo_community_builder_controllo_cf', 'cb_codicefiscale');
 INSERT INTO `#__gg_configs` VALUES ('7', 'id_gruppo_corsi', '10');
-INSERT INTO `#__gg_configs` VALUES ('8', 'id_gruppo_venditori', '54');
-INSERT INTO `#__gg_configs` VALUES ('9', 'id_gruppo_piattaforme', '31');
-INSERT INTO `#__gg_configs` VALUES ('10', 'id_gruppo_tutor_piattaforma', '61');
-INSERT INTO `#__gg_configs` VALUES ('11', 'id_gruppo_tutor_aziendale', '55');
+/*INSERT INTO `#__gg_configs` VALUES ('8', 'id_gruppo_venditori', '54');*/
+INSERT INTO `#__gg_configs` VALUES ('8', 'id_gruppo_venditori', '15');
+/*INSERT INTO `#__gg_configs` VALUES ('9', 'id_gruppo_piattaforme', '31');*/
+INSERT INTO `#__gg_configs` VALUES ('9', 'id_gruppo_piattaforme', '12');
+/*INSERT INTO `#__gg_configs` VALUES ('10', 'id_gruppo_tutor_piattaforma', '61');*/
+INSERT INTO `#__gg_configs` VALUES ('10', 'id_gruppo_tutor_piattaforma', '14');
+/*INSERT INTO `#__gg_configs` VALUES ('11', 'id_gruppo_tutor_aziendale', '55');*/
+INSERT INTO `#__gg_configs` VALUES ('11', 'id_gruppo_tutor_aziendale', '13');
 INSERT INTO `#__gg_configs` VALUES ('12', 'campo_community_builder_nome', 'cb_nome');
 INSERT INTO `#__gg_configs` VALUES ('13', 'campo_community_builder_cognome', 'cb_cognome');
 INSERT INTO `#__gg_configs` VALUES ('14', 'campo_event_booking_nome', 'value');
@@ -101,7 +105,8 @@ INSERT INTO `#__gg_configs` VALUES ('37', 'alert_days_before', '7');
 INSERT INTO `#__gg_configs` VALUES ('38', 'alert_mail_object', 'Avviso scadenza corso Carige Learning');
 INSERT INTO `#__gg_configs` VALUES ('39', 'alert_mail_text', 'Buongiorno, inviamo questa mail come promemoria per la scadenza prossima del corso');
 INSERT INTO `#__gg_configs` VALUES ('40', 'campi_csv', 'user_id,firstname,lastname,cb_codicefiscale,cb_datadinascita,cb_luogodinascita,cb_provinciadinascita,cb_indirizzodiresidenza,cb_provdiresidenza,cb_cap,cb_telefono');
-INSERT INTO `#__gg_configs` VALUES ('41', 'log_utente', '0');
+/*INSERT INTO `#__gg_configs` VALUES ('41', 'log_utente', '0');*/
+INSERT INTO `#__gg_configs` VALUES ('41', 'log_utente', '1');
 INSERT INTO `#__gg_configs` VALUES ('42', 'colonne_somme_tempi', '0');
 INSERT INTO `#__gg_configs` VALUES ('43', 'testo_invito_scaricare_pdfsingolo', '<h3>Scarica il file PDF cliccando sull\'icona</h3>');
 INSERT INTO `#__gg_configs` VALUES ('44', 'url_redirect_on_access_deny', '');
@@ -1136,6 +1141,84 @@ INSERT INTO `#__comprofiler_field_values` (`fieldid`, `fieldtitle`, `fieldlabel`
 	(70, 'Veterinario/Igiene, produzione, trasformazione, commercializzazione conservazione e trasporto alimenti di origine animale e derivati', '', 0, 0, 0),
 	(70, 'Veterinario/Sanità animale', '', 0, 0, 0),
 	(70, 'Altro / NON ECM', '', 0, 0, 0);
+
+-- gruppi utente
+	-- 10
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (2, 11, 86, '_ACCESSO_CORSI');
+	-- 11
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (2, 551, 552, 'ReportTutor');
+	-- 12
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (2, 87, 540, '_PIATTAFORME');
+	-- 13
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (2, 541, 542, '_TUTOR_AZ');
+	-- 14
+	INSERT INTO `#__usergroups` (`parent_id` ,`lft` ,`rgt` ,`title`) VALUES (2, 543, 544, '_TUTOR_P');
+	-- 15
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (1, 2, 3, '_VENDITORE');
+	-- 16
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (12, 545, 546, 'GruppoPiattaforma');
+	-- 17
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (16, 547, 548, 'GGallery');
+	-- 18
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (10, 549, 550, 'Corso');
+	-- 19
+	INSERT INTO `#__usergroups` (`parent_id`, `lft`, `rgt`, `title`) VALUES (16, 551, 552, '000000');
+
+	-- livelli visualizzazione basati su gruppi utente
+	INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES ('tutor_report_nonusato', 0, '[11,8]');
+	INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES ('Venditori', 0, '[15]');
+	INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES ('Tutti i tutor e amministratori', 0, '[7,13,14,3,8]');
+	INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES ('solo_tutor_PIATTAFORMA', 0, '[14]');
+	INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES ('solo_tutor_AZIENDALE', 0, '[13]');
+	INSERT INTO `#__viewlevels` (`title`, `ordering`, `rules`) VALUES ('Venditori_E_TutorP', 0, '[15,14]');
+
+	-- user_groups_details
+	-- rif id 16 GruppoPiattaforma
+	INSERT INTO `#__usergroups_details` (
+										`group_id`,
+										`is_default`,
+										`name`,
+										`dg`,
+										`logo`,
+										`nomi_tutor`,
+										`email_tutor`,
+										`email_riferimento`,
+										`link_ecommerce`,
+										`telefono`,
+										`attivo`,
+										`dominio`,
+										`patrocinio`,
+										`footer`,
+										`final_test`,
+										`welcome`,
+										`corsi_visbili_catalogo`,
+										`testo_intro_homepage`,
+										`attestati_custom`,
+										`alias`
+										)
+										VALUES (
+											16,
+											1,
+											'GruppoPiattaforma',
+											'',
+											'',
+											'Tutor piattaforma',
+											'francesca@ggallery.it',
+											'francesca@ggallery.it',
+											NULL,
+											NULL,
+											1,
+											'ggallery.it',
+											'',
+											'',
+											NULL,
+											'',
+											NULL,
+											'',
+											NULL,
+											'GruppoPiattaforma'
+											);
+
 
 
 -- -------------------------------------------------

@@ -25,6 +25,8 @@ class gglmsViewsummaryreport extends JViewLegacy
     protected $params;
     public $societa;
     public $lista_corsi;
+    public $hide_columns = null;
+    public $hide_columns_var = "[]";
 
 
     function display($tpl = null)
@@ -52,7 +54,13 @@ class gglmsViewsummaryreport extends JViewLegacy
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/summaryreport.js');
 
 
-
+        // esclusione colonne
+        $_config = new gglmsModelConfig();
+        $this->hide_columns = $_config->getConfigValue('summary_report_nascondi_colonne');
+        if (isset($this->hide_columns)
+            && !is_null($this->hide_columns)
+            && $this->hide_columns != "")
+            $this->hide_columns_var = json_encode(explode(",", $this->hide_columns));
 
 
         // Display the view

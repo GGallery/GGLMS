@@ -51,6 +51,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
                    name="email">
         </div>
     </div>
+    <?php if ($this->genera_coupon_visualizza_ateco == 1) { ?>
     <div class="form-group row">
         <label disabled class="col-sm-3 col-form-label disabled lbl_company_opt" for="ateco"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_ATECO') ?> :</label>
         <div class="col-sm-9">
@@ -58,6 +59,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
                    name="ateco">
         </div>
     </div>
+    <?php } ?>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_company_opt" for="id_piattaforma"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIATTAFORMA') ?> :</label>
         <div class="col-sm-9">

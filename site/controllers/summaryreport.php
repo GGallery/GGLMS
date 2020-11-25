@@ -165,7 +165,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             $result['total'] = 0;
         }
 
-
         echo json_encode($result);
         $this->_japp->close();
 
