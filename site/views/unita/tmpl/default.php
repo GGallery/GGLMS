@@ -4,6 +4,9 @@
 defined('_JEXEC') or die('Restricted access');
 $count = 0;
 
+$arr_url = parse_url(JURI::base());
+$url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
+
 if ($this->unita->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
@@ -51,12 +54,10 @@ if ($this->sottounita) {
                             $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
                         */
                         $u_path = '/mediagg/images/unit/' . $unita->id . '.jpg';
-                        $u_file = JPATH_ROOT . $u_path;
-                        $u_file = str_replace("/home", "", $u_file);
+                        $u_file = $_SERVER['DOCUMENT_ROOT'] . $u_path;
                         // carico l'immagine per indirizzo assoluto
                         if (file_exists($u_file)) {
-                            $img = JURI::base() . $u_path;
-                            $img = str_replace("/home/", "", $img);
+                            $img = $url_base . $u_path;
                         }
                         else
                             $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
@@ -150,12 +151,10 @@ if ($this->contenuti) {
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
                 */
                 $c_path = '/mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
-                $c_file = JPATH_ROOT . $c_path;
-                $c_file = str_replace("/home", "", $c_file);
+                $c_file = $_SERVER['DOCUMENT_ROOT'] . $c_path;
                 // carico l'immagine da indirizzo assoluto
                 if (file_exists($c_file)) {
-                    $img = JURI::base() . $c_path;
-                    $img = str_replace("/home/", "", $img);
+                    $img = $url_base . $c_path;
                 }
                 else
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
