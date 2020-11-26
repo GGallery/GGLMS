@@ -56,7 +56,7 @@ if ($this->sottounita) {
                         // carico l'immagine per indirizzo assoluto
                         if (file_exists($u_file)) {
                             $img = JURI::base() . $u_path;
-                            $img = str_replace("/home", "", $img);
+                            $img = str_replace("/home/", "", $img);
                         }
                         else
                             $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
@@ -155,7 +155,7 @@ if ($this->contenuti) {
                 // carico l'immagine da indirizzo assoluto
                 if (file_exists($c_file)) {
                     $img = JURI::base() . $c_path;
-                    $img = str_replace("/home", "", $img);
+                    $img = str_replace("/home/", "", $img);
                 }
                 else
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
