@@ -52,9 +52,12 @@ if ($this->sottounita) {
                         */
                         $u_path = '/mediagg/images/unit/' . $unita->id . '.jpg';
                         $u_file = JPATH_ROOT . $u_path;
+                        $u_file = str_replace("/home", "", $u_file);
                         // carico l'immagine per indirizzo assoluto
-                        if (file_exists($u_file))
+                        if (file_exists($u_file)) {
                             $img = JURI::base() . $u_path;
+                            $img = str_replace("/home", "", $img);
+                        }
                         else
                             $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
@@ -148,9 +151,12 @@ if ($this->contenuti) {
                 */
                 $c_path = '/mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
                 $c_file = JPATH_ROOT . $c_path;
+                $c_file = str_replace("/home", "", $c_file);
                 // carico l'immagine da indirizzo assoluto
-                if (file_exists($c_file))
+                if (file_exists($c_file)) {
                     $img = JURI::base() . $c_path;
+                    $img = str_replace("/home", "", $img);
+                }
                 else
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
