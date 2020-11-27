@@ -584,4 +584,42 @@ HTML;
         }
 
     }
+
+    // panel_jumper output
+    public static function buildPanelJumperBox($obj_jumper, $obj_contenuto) {
+
+        $i = 0;
+        $lista_jumper = "";
+        foreach ($obj_jumper as $var) {
+            $_titolo = $var['titolo'];
+            $_tstart = $var['tstart'];
+
+            //Genero il minutaggio del Jumper
+            $h = floor($_tstart / 3600);
+            $m = floor(($_tstart % 3600) / 60);
+            $s = ($_tstart % 3600) % 60;
+            $_durata = sprintf('%02d:%02d:%02d', $h, $m, $s);
+
+            //DIV ID del jumper che serve poi impostare il colore di background
+            $_jumper_div_id = $i;
+
+            //Anteprima Jumper
+            $_id_contenuto = JRequest::getInt('id', 0);
+
+            $_img_contenuto = $obj_contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
+            $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";
+//            $class = ($this->elemento['track']['cmi.core.lesson_status'] == 'completed') ? 'enabled' : 'disabled';
+            $class = ($obj_contenuto->getStato()->completato) ? 'enabled' : 'disabled';
+
+            $jumper = '<div class="jumper ' . $class . '" id="' . $_jumper_div_id . '" rel="' . $_tstart . '">';
+            // $jumper.='<div class="anteprima_jumper" style="' . $_background . '"></div>';
+            $jumper .= $_durata . "<br>" . $_titolo;
+            $jumper .= '</div>';
+            //echo $jumper;
+            $lista_jumper .= $jumper;
+            $i++;
+        }
+
+        return $lista_jumper;
+    }
 }

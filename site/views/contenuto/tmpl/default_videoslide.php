@@ -185,35 +185,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         <!--    mobile-->
         <div id="panel_jumper" class="sidepanel layout-sm ">
             <?php
-            $i = 0;
-            foreach ($this->jumper as $var) {
-                $_titolo = $var['titolo'];
-                $_tstart = $var['tstart'];
-
-                //Genero il minutaggio del Jumper
-                $h = floor($_tstart / 3600);
-                $m = floor(($_tstart % 3600) / 60);
-                $s = ($_tstart % 3600) % 60;
-                $_durata = sprintf('%02d:%02d:%02d', $h, $m, $s);
-
-                //DIV ID del jumper che serve poi impostare il colore di background
-                $_jumper_div_id = $i;
-
-                //Anteprima Jumper
-                $_id_contenuto = JRequest::getInt('id', 0);
-
-                $_img_contenuto = $this->contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
-                $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";
-//            $class = ($this->elemento['track']['cmi.core.lesson_status'] == 'completed') ? 'enabled' : 'disabled';
-                $class = ($this->contenuto->getStato()->completato) ? 'enabled' : 'disabled';
-
-                $jumper = '<div class="jumper ' . $class . '" id="' . $_jumper_div_id . '" rel="' . $_tstart . '">';
-                // $jumper.='<div class="anteprima_jumper" style="' . $_background . '"></div>';
-                $jumper .= $_durata . "<br>" . $_titolo;
-                $jumper .= '</div>';
-                echo $jumper;
-                $i++;
-            }
+                echo outputHelper::buildPanelJumperBox($this->jumper, $this->contenuto);
             ?>
         </div>
 
@@ -227,35 +199,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
     <!--desktop-->
     <div id="panel_jumper" class="sidepanel layout-desktop  ">
         <?php
-        $i = 0;
-        foreach ($this->jumper as $var) {
-            $_titolo = $var['titolo'];
-            $_tstart = $var['tstart'];
-
-            //Genero il minutaggio del Jumper
-            $h = floor($_tstart / 3600);
-            $m = floor(($_tstart % 3600) / 60);
-            $s = ($_tstart % 3600) % 60;
-            $_durata = sprintf('%02d:%02d:%02d', $h, $m, $s);
-
-            //DIV ID del jumper che serve poi impostare il colore di background
-            $_jumper_div_id = $i;
-
-            //Anteprima Jumper
-            $_id_contenuto = JRequest::getInt('id', 0);
-
-            $_img_contenuto = $this->contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
-            $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";
-//            $class = ($this->elemento['track']['cmi.core.lesson_status'] == 'completed') ? 'enabled' : 'disabled';
-            $class = ($this->contenuto->getStato()->completato) ? 'enabled' : 'disabled';
-
-            $jumper = '<div class="jumper ' . $class . '" id="' . $_jumper_div_id . '" rel="' . $_tstart . '">';
-            // $jumper.='<div class="anteprima_jumper" style="' . $_background . '"></div>';
-            $jumper .= $_durata . "<br>" . $_titolo;
-            $jumper .= '</div>';
-            echo $jumper;
-            $i++;
-        }
+            echo outputHelper::buildPanelJumperBox($this->jumper, $this->contenuto);
         ?>
     </div>
 
