@@ -375,7 +375,9 @@ class gglmsModelReport extends JModelLegacy
             $this->_db->execute();
 
             return true;
-        } catch (exceptions $ex) {
+
+        } catch (Exception $ex) {
+            DEBUGG::log('QUERY: ' . $insertquery . ' ERR: ' . $ex->getMessage(),__FUNCTION__,0,1);
             return false;
         }
 
@@ -390,9 +392,11 @@ class gglmsModelReport extends JModelLegacy
 
             $this->_db->setQuery($updatequery);
             $this->_db->execute();
-            return true;
-        } catch (exceptions $ex) {
 
+            return true;
+
+        } catch (Exception $ex) {
+            DEBUGG::log('QUERY: ' . $updatequery . ' ERR: ' . $ex->getMessage(),__FUNCTION__,0,1);
             return false;
         }
 
