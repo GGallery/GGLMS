@@ -156,6 +156,7 @@ CREATE TABLE `#__gg_contenuti` (
   `id_completed_data` int(10) DEFAULT NULL,
   `attestato_path` varchar(255) DEFAULT NULL,
   `orientamento` varchar(1) DEFAULT NULL,
+  `path_pdf` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -226,6 +227,7 @@ CREATE TABLE `#__gg_coupon` (
   `id_gruppi` varchar(11) DEFAULT NULL,
   `stampatracciato` int(1) DEFAULT NULL,
   `venditore` varchar(255) DEFAULT NULL,
+  `template` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   PRIMARY KEY (`coupon`(20))
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -453,6 +455,7 @@ CREATE TABLE `#__gg_unit` (
   `data_fine` date DEFAULT NULL,
   `prefisso_coupon` varchar(10) DEFAULT NULL,
   `mobile` int(10) DEFAULT '0',
+  `attestato` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=MyISAM AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -460,7 +463,7 @@ CREATE TABLE `#__gg_unit` (
 -- ----------------------------
 -- Records of #__gg_unit
 -- ----------------------------
-INSERT INTO `#__gg_unit` VALUES ('1', 'Corsi', 'corsi', '', '0', '0', '1', '0', 'Accesso libero', '1', '0', '2019-11-14', '2019-11-14', null, 0);
+INSERT INTO `#__gg_unit` VALUES ('1', 'Corsi', 'corsi', '', '0', '0', '1', '0', 'Accesso libero', '1', '0', '2019-11-14', '2019-11-14', null, 0, null);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`
