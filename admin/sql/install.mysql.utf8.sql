@@ -208,6 +208,7 @@ INSERT INTO `#__gg_contenuti_tipology` VALUES ('10', 'webinar', 'Webinar', '3', 
 -- ----------------------------
 -- Table structure for `#__gg_coupon`
 -- ----------------------------
+-- la lunghezza della primary key coupon incrementata alla lunghezza della colonna 20 -> 100
 DROP TABLE IF EXISTS `#__gg_coupon`;
 CREATE TABLE `#__gg_coupon` (
   `coupon` varchar(100) NOT NULL DEFAULT '',
@@ -228,7 +229,7 @@ CREATE TABLE `#__gg_coupon` (
   `stampatracciato` int(1) DEFAULT NULL,
   `venditore` varchar(255) DEFAULT NULL,
   `template` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
-  PRIMARY KEY (`coupon`(20))
+  PRIMARY KEY (`coupon`(100))
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -671,7 +672,14 @@ ALTER TABLE `#__comprofiler`
 	ADD COLUMN `cb_numeroiscrizione` text,
 	ADD COLUMN `cb_reclutamento` text,
 	ADD COLUMN `cb_ateco` text,
-	ADD COLUMN `cb_codicereclutamento` text;
+	ADD COLUMN `cb_codicereclutamento` text,
+	ADD COLUMN `cb_professione` text,
+	ADD COLUMN `cb_profiloprofessionale` text,
+	ADD COLUMN `cb_settore` text,
+	ADD COLUMN `cb_societa` text,
+	ADD COLUMN `cb_rischio` text,
+	ADD COLUMN `cb_privacy` tinyint(3)
+
 
 INSERT INTO `#__comprofiler_fields` (`fieldid`, `name`, `tablecolumns`, `table`, `title`, `description`, `type`, `maxlength`, `size`, `required`, `tabid`, `ordering`, `cols`, `rows`, `value`, `default`, `published`, `registration`, `edit`, `profile`, `readonly`, `searchable`, `calculated`, `sys`, `pluginid`, `cssclass`, `params`) VALUES
 (55, 'cb_cognome', 'cb_cognome', '#__comprofiler', 'Cognome', '', 'text', 0, 0, 1, 11, 5, NULL, NULL, NULL, '', 1, 1, 1, 1, 0, 1, 0, 0, 1, '', '{\"fieldLayout\":\"\",\"fieldLayoutEdit\":\"\",\"fieldLayoutList\":\"\",\"fieldLayoutSearch\":\"\",\"fieldLayoutRegister\":\"\",\"fieldLayoutContentPlugins\":\"0\",\"fieldLayoutIcons\":\"\",\"fieldLayoutInputDesc\":\"1\",\"fieldPlaceholder\":\"\",\"fieldMinLength\":\"0\",\"fieldValidateExpression\":\"\",\"pregexp\":\"\\/^.*$\\/\",\"pregexperror\":\"Not a valid input\",\"fieldValidateForbiddenList_register\":\"http:,https:,mailto:,\\/\\/.[url],<a,<\\/a>,&#\",\"fieldValidateForbiddenList_edit\":\"\"}'),
@@ -690,8 +698,13 @@ INSERT INTO `#__comprofiler_fields` (`fieldid`, `name`, `tablecolumns`, `table`,
 (72, 'cb_numeroiscrizione', 'cb_numeroiscrizione', '#__comprofiler', 'Numero iscrizione all\'albo', '', 'text', 0, 0, 1, 11, 17, NULL, NULL, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, '', '{\"fieldLayout\":\"\",\"fieldLayoutEdit\":\"\",\"fieldLayoutList\":\"\",\"fieldLayoutSearch\":\"\",\"fieldLayoutRegister\":\"\",\"fieldLayoutContentPlugins\":\"0\",\"fieldLayoutIcons\":\"\",\"fieldLayoutInputDesc\":\"1\",\"fieldPlaceholder\":\"\",\"fieldMinLength\":\"0\",\"fieldValidateExpression\":\"\",\"pregexp\":\"\\/^.*$\\/\",\"pregexperror\":\"Not a valid input\",\"fieldValidateForbiddenList_register\":\"http:,https:,mailto:,\\/\\/.[url],<a,<\\/a>,&#\",\"fieldValidateForbiddenList_edit\":\"\"}'),
 (73, 'cb_reclutamento', 'cb_reclutamento', '#__comprofiler', 'Reclutamento sponsor', '', 'select', NULL, 0, 1, 11, 18, NULL, NULL, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, '', '{\"fieldLayout\":\"\",\"fieldLayoutEdit\":\"\",\"fieldLayoutList\":\"\",\"fieldLayoutSearch\":\"\",\"fieldLayoutRegister\":\"\",\"fieldLayoutContentPlugins\":\"0\",\"fieldLayoutIcons\":\"\",\"fieldLayoutInputDesc\":\"1\"}'),
 (74, 'cb_ateco', 'cb_ateco', '#__comprofiler', 'ateco', '', 'text', 0, 0, 0, 11, 21, NULL, NULL, NULL, '', 0, 1, 1, 1, 0, 0, 0, 0, 1, '', '{\"fieldLayout\":\"\",\"fieldLayoutEdit\":\"\",\"fieldLayoutList\":\"\",\"fieldLayoutSearch\":\"\",\"fieldLayoutRegister\":\"\",\"fieldLayoutContentPlugins\":\"0\",\"fieldLayoutIcons\":\"\",\"fieldLayoutInputDesc\":\"1\",\"fieldPlaceholder\":\"\",\"fieldMinLength\":\"0\",\"fieldValidateExpression\":\"\",\"pregexp\":\"\\/^.*$\\/\",\"pregexperror\":\"Not a valid input\",\"fieldValidateForbiddenList_register\":\"http:,https:,mailto:,\\/\\/.[url],<a,<\\/a>,&#\",\"fieldValidateForbiddenList_edit\":\"\"}'),
-(75, 'cb_codicereclutamento', 'cb_codicereclutamento', '#__comprofiler', 'Codice reclutamento', '', 'text', 0, 0, 0, 11, 19, NULL, NULL, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, '', '{\"fieldLayout\":\"\",\"fieldLayoutEdit\":\"\",\"fieldLayoutList\":\"\",\"fieldLayoutSearch\":\"\",\"fieldLayoutRegister\":\"\",\"fieldLayoutContentPlugins\":\"0\",\"fieldLayoutIcons\":\"\",\"fieldLayoutInputDesc\":\"1\",\"fieldPlaceholder\":\"\",\"fieldMinLength\":\"0\",\"fieldValidateExpression\":\"\",\"pregexp\":\"\\/^.*$\\/\",\"pregexperror\":\"Not a valid input\",\"fieldValidateForbiddenList_register\":\"http:,https:,mailto:,\\/\\/.[url],<a,<\\/a>,&#\",\"fieldValidateForbiddenList_edit\":\"\"}');
-
+(75, 'cb_codicereclutamento', 'cb_codicereclutamento', '#__comprofiler', 'Codice reclutamento', '', 'text', 0, 0, 0, 11, 19, NULL, NULL, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, '', '{\"fieldLayout\":\"\",\"fieldLayoutEdit\":\"\",\"fieldLayoutList\":\"\",\"fieldLayoutSearch\":\"\",\"fieldLayoutRegister\":\"\",\"fieldLayoutContentPlugins\":\"0\",\"fieldLayoutIcons\":\"\",\"fieldLayoutInputDesc\":\"1\",\"fieldPlaceholder\":\"\",\"fieldMinLength\":\"0\",\"fieldValidateExpression\":\"\",\"pregexp\":\"\\/^.*$\\/\",\"pregexperror\":\"Not a valid input\",\"fieldValidateForbiddenList_register\":\"http:,https:,mailto:,\\/\\/.[url],<a,<\\/a>,&#\",\"fieldValidateForbiddenList_edit\":\"\"}'),
+(76, 'cb_professione', 'cb_professione', '#__comprofiler', 'Professione', '', 'text', 0, 0, 1, 11, -20, 0, 0, NULL, '', 0, 1, 1, 1, 0, 0, 0, 0, 1, NULL, 'fieldMinLength=0\nfieldValidateExpression=\npregexp=/^.*$/\nfieldValidateInBrowser=1\npregexperror=Not a valid input\nfieldValidateForbiddenList_register=http:,https:,mailto:,//.[url],<a,</a>,&#\nfieldValidateForbiddenList_edit='),
+(77, 'cb_profiloprofessionale', 'cb_profiloprofessionale', '#__comprofiler', 'Profilo professionale', 'Descrizioni dei contenuti \"tipici\" delle attività di specifiche categorie di lavoratori.', 'text', 0, 0, 1, 11, -19, 0, 0, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, NULL, 'fieldMinLength=0\nfieldValidateExpression=\npregexp=/^.*$/\nfieldValidateInBrowser=1\npregexperror=Not a valid input\nfieldValidateForbiddenList_register=http:,https:,mailto:,//.[url],<a,</a>,&#\nfieldValidateForbiddenList_edit='),
+(78, 'cb_settore', 'cb_settore', '#__comprofiler', 'Settore', '', 'text', 0, 0, 1, 11, -18, 0, 0, NULL, '', 1, 0, 1, 1, 0, 0, 0, 0, 1, NULL, 'fieldMinLength=0\nfieldValidateExpression=\npregexp=/^.*$/\nfieldValidateInBrowser=1\npregexperror=Not a valid input\nfieldValidateForbiddenList_register=http:,https:,mailto:,//.[url],<a,</a>,&#\nfieldValidateForbiddenList_edit='),
+(79, 'cb_societa', 'cb_societa', '#__comprofiler', 'Società', '', 'text', 0, 0, 1, 11, 0, 0, 0, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, NULL, 'fieldMinLength=0\nfieldValidateExpression=\npregexp=/^.*$/\nfieldValidateInBrowser=1\npregexperror=Not a valid input\nfieldValidateForbiddenList_register=http:,https:,mailto:,//.[url],<a,</a>,&#\nfieldValidateForbiddenList_edit='),
+(80, 'cb_rischio', 'cb_rischio', '#__comprofiler', 'Rischio', '', 'text', 0, 0, 0, 20, 2, 0, 0, NULL, '', 0, 0, 1, 0, 0, 0, 0, 0, 1, NULL, 'fieldMinLength=0\nfieldValidateExpression=\npregexp=/^.*$/\nfieldValidateInBrowser=1\npregexperror=Not a valid input\nfieldValidateForbiddenList_register=http:,https:,mailto:,//.[url],<a,</a>,&#\nfieldValidateForbiddenList_edit='),
+(81, 'cb_privacy', 'cb_privacy', '#__comprofiler', 'Ho letto l\'<a href=\"index.php?option=com_content&view=article&id=75\" target=\"_blank\">informativa privacy</a> e do il consenso al trattamento dei miei dati', '', 'checkbox', 0, 0, 1, 11, 1, 0, 0, NULL, '', 1, 1, 1, 1, 0, 0, 0, 0, 1, NULL, 'fieldMinLength=0\r\nfieldValidateExpression=\r\npregexp=/^.*$/\r\nfieldValidateInBrowser=1\r\npregexperror=Not a valid input\r\nfieldValidateForbiddenList_register=http:,https:,mailto:,//.[url],<a,</a>,&#\r\nfieldValidateForbiddenList_edit=');
 
 INSERT INTO `#__comprofiler_field_values` (`fieldid`, `fieldtitle`, `fieldlabel`, `fieldgroup`, `ordering`, `sys`) VALUES
 	(62, 'BG', '', 0, 11, 0),
