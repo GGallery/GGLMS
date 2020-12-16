@@ -678,7 +678,7 @@ ALTER TABLE `#__comprofiler`
 	ADD COLUMN `cb_settore` text,
 	ADD COLUMN `cb_societa` text,
 	ADD COLUMN `cb_rischio` text,
-	ADD COLUMN `cb_privacy` tinyint(3)
+	ADD COLUMN `cb_privacy` tinyint(3);
 
 
 INSERT INTO `#__comprofiler_fields` (`fieldid`, `name`, `tablecolumns`, `table`, `title`, `description`, `type`, `maxlength`, `size`, `required`, `tabid`, `ordering`, `cols`, `rows`, `value`, `default`, `published`, `registration`, `edit`, `profile`, `readonly`, `searchable`, `calculated`, `sys`, `pluginid`, `cssclass`, `params`) VALUES
