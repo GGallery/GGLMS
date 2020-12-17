@@ -858,6 +858,27 @@
         <!--F I N E HELPDESK -->
 
         <!-- INIZIO PERSONALIZZAZIONI -->
+
+        <field
+                name="genera_coupon_label_partita_iva"
+                type="listafieldxlang"
+                class=""
+                label="Label Partita iva"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="genera_coupon_label_partita_iva_missing"
+                type="listafieldxlang"
+                class=""
+                label="Label Partita iva non specificata"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
         <field
                 name="genera_coupon_label_ragione_sociale"
                 type="listafieldxlang"

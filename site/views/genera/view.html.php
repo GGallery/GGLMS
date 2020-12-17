@@ -30,6 +30,8 @@ class gglmsViewGenera extends JViewLegacy
     public $specifica_abilitazione;
     public $is_durata_standard;
     public $show_trial = 0;
+    public $label_partita_iva;
+    public $label_partita_iva_missing;
     public $label_ragione_sociale;
     public $label_email_tutor_aziendale;
     public $genera_coupon_visualizza_venditore = 1;
@@ -64,6 +66,15 @@ class gglmsViewGenera extends JViewLegacy
         // se == 1 mostro la checkbox nel form
         // se == 0 coupon generati abilitati di default
         $this->specifica_abilitazione = $_config->getConfigValue('coupon_active_default');
+
+        // leggo parametro genera_coupon_label_partita_iva
+        // se impostato sovrascrivo la label associata a Partita iva
+        $this->label_partita_iva = utilityHelper::get_label_from_configuration('COM_GGLMS_GENERA_COUPON_PIVA', 'genera_coupon_label_partita_iva');
+
+        // leggo parametro genera_coupon_label_partita_iva_missing
+        // se impostato sovrascrivo la label associata a Partita iva non specificata
+        $this->label_partita_iva_missing = utilityHelper::get_label_from_configuration('COM_GGLMS_GENERA_COUPON_PIVA_MISSING', 'genera_coupon_label_partita_iva_missing');
+
 
         // leggo parametro genera_coupon_label_ragione_sociale
         // se impostato sovrascrivo la label associata a Ragione sociale

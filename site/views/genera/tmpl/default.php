@@ -13,11 +13,11 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
       method="post" name="generaCouponForm" id="adminForm" class="form-validate">
 
     <div class="form-group row">
-        <label class="col-sm-3 col-form-label" for="username"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA') ?></label>
+        <label class="col-sm-3 col-form-label" for="username"><?php echo $this->label_partita_iva; ?></label>
         <div class="col-sm-5">
-            <input required placeholder="<?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA') ?>" type="text" class="form-control" id="username"
+            <input required placeholder="<?php echo $this->label_partita_iva; ?>" type="text" class="form-control" id="username"
                    name="username">
-            <small id="piva-msg"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_PIVA_MISSING') ?> </small>
+            <small id="piva-msg"><?php echo $thi->label_partita_iva_missing; ?> </small>
         </div>
         <div class="col-sm-4">
             <button onclick="openModal" type="button" title="Cerca Partita Iva" id="search_piva" class="btn btn-xs"> <span class="glyphicon glyphicon-zoom-in"></span></button>

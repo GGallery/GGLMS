@@ -13,6 +13,14 @@
     <h4>Genera coupon</h4>
 
     <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_coupon_label_partita_iva'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_coupon_label_partita_iva_missing'); ?>
+    </div>
+
+    <div class="row-fluid">
         <?php echo $this->form->renderField('genera_coupon_label_ragione_sociale'); ?>
     </div>
 
