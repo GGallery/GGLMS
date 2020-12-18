@@ -890,8 +890,34 @@ class gglmsModelgeneracoupon extends JModelLegacy
         $description = $headerdesc = '';//'Forum di discussione della corso ' . $titolo_corso;
         $params = '{"access_post":["6","2","8"],"access_reply":["6","2","8"],"display":{"index":{"parent":"3","children":"3"}}}'; //todo check access post e access reply
 
-        $query = 'INSERT INTO #__kunena_categories (parent_id, name, alias, accesstype, access, pub_access, pub_recurse, admin_access , admin_recurse , published, description, headerdesc, params)';
-        $query = $query . 'VALUES ( ' . $parent_id . ', \'' . $titolo_corso . '\', \'' . $alias . '\', \'' . $access_type . '\', ' . $access . ',' . $pub_access . ',' . $pub_recurse . ',' . $admin_access . ',' . $admin_recurse . ',' . $published . ', \'' . $description . '\', \'' . $headerdesc . '\', \'' . $params . '\')';
+        // inserimento titolo, alias, description, $headerdesc fix apici
+        $query = 'INSERT INTO #__kunena_categories (parent_id, 
+                                                    name, 
+                                                    alias, 
+                                                    accesstype, 
+                                                    access, 
+                                                    pub_access, 
+                                                    pub_recurse, 
+                                                    admin_access , 
+                                                    admin_recurse , 
+                                                    published, 
+                                                    description, 
+                                                    headerdesc, 
+                                                    params)';
+        $query = $query . 'VALUES (' . $parent_id . ', 
+                                   \'' . addslashes($titolo_corso) . '\', 
+                                   \'' . addslashes($alias) . '\', 
+                                   \'' . $access_type . '\', 
+                                   ' . $access . ',
+                                   ' . $pub_access . ',
+                                   ' . $pub_recurse . ',
+                                   ' . $admin_access . ',
+                                   ' . $admin_recurse . ',
+                                   ' . $published . ', 
+                                   \'' . addslashes($description) . '\', 
+                                   \'' . addslashes($headerdesc) . '\', 
+                                   \'' . $params . '\'
+                                   )';
 
 
         $this->_db->setQuery($query);
@@ -912,9 +938,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
 
         // inserisco nella tabella alias altrimento il link al forum non è cliccabile
+        // fix preventivo alias per eventuali singolo apici di troppo
         $alias_type = 'catid';
         $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
-        $query = $query . 'VALUES ( \'' . $alias . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
+        $query = $query . 'VALUES ( \'' . addslashes($alias) . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
         $this->_db->setQuery($query);
         if (false === ($results = $this->_db->query())) {
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
