@@ -81,7 +81,7 @@ _summaryreport = (function ($, my) {
 
             var objCoupon =  {
                     field: 'coupon',
-                    title: 'Coupon',
+                    title: getLocalizedString('COM_GGLMS_REPORT_COUPON', label_coupon),
                     width: 310,
                     hidden: false,
                     filterable: {
@@ -112,7 +112,7 @@ _summaryreport = (function ($, my) {
 
             var objNome = {
                     field: 'nome',
-                    title:'Nome',
+                    title: getLocalizedString('COM_GGLMS_REPORT_NOME', label_nome),
                     width: 200,
                     hidden: false,
                     filterable: {
@@ -127,7 +127,7 @@ _summaryreport = (function ($, my) {
 
             var objCognome = {
                         field: 'cognome',
-                        title: 'Cognome',
+                        title: getLocalizedString('COM_GGLMS_REPORT_COGNOME', label_cognome),
                         width: 200,
                         hidden: false,
                         filterable: {
@@ -143,7 +143,7 @@ _summaryreport = (function ($, my) {
 
             var objCf = {
                     field: 'cb_codicefiscale',
-                    title: 'Codice Fiscale',
+                    title: getLocalizedString('COM_GGLMS_REPORT_CODICE_FISCALE', label_codice_fiscale),
                     width: 200,
                     hidden: false,
                     filterable: {
@@ -176,7 +176,7 @@ _summaryreport = (function ($, my) {
 
              var objTitoloCorso = {
                         field: 'titolo_corso',
-                        title: getLocalizedString('COM_GGLMS_GLOBAL_CORSO'),
+                        title: getLocalizedString('COM_GGLMS_GLOBAL_CORSO', label_corso),
                         hidden: false,
                         width: 200,
                         filterable: {
@@ -252,7 +252,7 @@ _summaryreport = (function ($, my) {
 
              var objAzienda = {
                     field: 'azienda',
-                    title:  getLocalizedString('COM_GGLMS_GLOBAL_COMPANY'),
+                    title:  getLocalizedString('COM_GGLMS_GLOBAL_COMPANY', label_azienda),
                     width: 150,
                     filterable: {
                         cell: {
@@ -266,7 +266,7 @@ _summaryreport = (function ($, my) {
 
              var objStato = {
                         field: 'stato',
-                        title:  getLocalizedString('COM_GGLMS_GLOBAL_STATO'),
+                        title:  getLocalizedString('COM_GGLMS_GLOBAL_STATO', label_stato),
                         width: 150,
                         hidden: false,
                         filterable: {
@@ -346,7 +346,7 @@ _summaryreport = (function ($, my) {
 
              var objIdCorso = {
                         field: 'id_corso',
-                        title: getLocalizedString('COM_GGLMS_GLOBAL_ATTESTATO'),
+                        title: getLocalizedString('COM_GGLMS_GLOBAL_ATTESTATO', label_attestato),
                         hidden: false,
                         width: 100,
                         filterable: false,
@@ -364,7 +364,7 @@ _summaryreport = (function ($, my) {
 
              var objVenditore = {
                     field: 'venditore',
-                    title:  getLocalizedString('COM_GGLMS_GLOBAL_VENDITORE'),
+                    title:  getLocalizedString('COM_GGLMS_GLOBAL_VENDITORE', label_venditore),
                     width: 120,
                     hidden: false,
                     filterable: {
@@ -1167,19 +1167,21 @@ _summaryreport = (function ($, my) {
 
         //////////////////////////// util ////////////////////////////////////////
 
-        function getLocalizedString(item) {
+        function getLocalizedString(item, extra) {
 
+            var labelStr = Joomla.JText._(item) ?  Joomla.JText._(item):
+                                Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) ?
+                                    Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) :
+                                        Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase()) ?
+                                            Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase())
+                                            : item;
 
-            // console.log('aaaaaaaaaaaaaaaaa','COM_GGLMS_REPORT_' + item.toUpperCase());
-            // console.log('aaaaaaaaaaaaaaaaa','COM_GGLMS_GLOBAL_' + item.toUpperCase());
+            if (typeof extra != "undefined"
+                && extra != "") {
+                labelStr = extra;
+            }
 
-            return Joomla.JText._(item) ?  Joomla.JText._(item):
-            Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) ?
-                Joomla.JText._('COM_GGLMS_REPORT_' + item.toUpperCase()) :
-                Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase()) ?
-                    Joomla.JText._('COM_GGLMS_GLOBAL_' + item.toUpperCase())
-                     : item;
-
+            return labelStr;
         }
 
 

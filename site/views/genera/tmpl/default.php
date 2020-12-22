@@ -143,6 +143,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
                 <?php echo  JText::_('COM_GGLMS_GENERA_COUPON_ABILITATI') ?></label>
         <?php } ?>
 
+        <?php if ($this->genera_coupon_visualizza_stampa_tracciato == 1) { ?>
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt " for="stampatracciato"><input class="cpn_opt"
                                                                                                   disabled
                                                                                                   type="checkbox"
@@ -150,6 +151,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
                                                                                                   name="stampatracciato">
             <?php echo  JText::_('COM_GGLMS_GENERA_COUPON_TRACKLOG') ?>
          </label>
+        <?php } ?>
 
         <?php if ($this->check_coupon_attestato == 1) { ?>
             <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="attestato"><input class="cpn_opt" disabled

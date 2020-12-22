@@ -36,6 +36,7 @@ class gglmsViewGenera extends JViewLegacy
     public $label_email_tutor_aziendale;
     public $genera_coupon_visualizza_venditore = 1;
     public $genera_coupon_visualizza_ateco = 1;
+    public $genera_coupon_visualizza_stampa_tracciato = 1;
 
 
     function display($tpl = null)
@@ -91,6 +92,10 @@ class gglmsViewGenera extends JViewLegacy
         // leggo parametro genera_coupon_visualizza_ateco
         // se 1 visualizzo il campo se 0 lo nascondo
         $this->genera_coupon_visualizza_ateco = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_ateco, 'genera_coupon_visualizza_ateco');
+
+        // leggo parametro genera_coupon_visualizza_stampa_tracciato
+        // se 1 visualizzo il campo se 0 lo nascondo
+        $this->genera_coupon_visualizza_stampa_tracciato = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_stampa_tracciato, 'genera_coupon_visualizza_stampa_tracciato');
 
 
         // checkbox trial la mostro solo se l'utente super user perchè sblocca tutto il corso.

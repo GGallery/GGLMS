@@ -944,6 +944,24 @@ class utilityHelper
         return $_label;
     }
 
+    // restituisco un valore soltanto se il valore di default è bypassato
+    public static function get_only_extra_label($_original_label, $_db_label) {
+
+        $_config = new gglmsModelConfig();
+
+        $_label = JText::_($_original_label);
+        $_config_label = $_config->getConfigValue($_db_label);
+
+        if (isset($_config_label)
+            && $_config_label  != ""
+            && !is_null($_config_label)
+            && JText::_($_config_label) != $_config_label)
+            return JText::_($_config_label );
+
+        return "";
+
+    }
+
     public static function normalizza_contenuto_array($rows) {
 
         $_ret = array();

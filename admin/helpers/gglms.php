@@ -566,7 +566,7 @@ class gglmsHelper
         return $res;
     }
 
-    public function GetSummaryReportColumns() {
+    public static function GetSummaryReportColumns() {
 
         /*
          * coupon => Coupon

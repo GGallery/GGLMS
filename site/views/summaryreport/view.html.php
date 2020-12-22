@@ -62,7 +62,26 @@ class gglmsViewsummaryreport extends JViewLegacy
             && $this->hide_columns != "")
             $this->hide_columns_var = json_encode(explode(",", $this->hide_columns));
 
-
+        // leggo parametro summary_report_label_coupon
+        // se impostato sovrascrivo la label associata a Coupon
+        $this->label_coupon = utilityHelper::get_only_extra_label('COM_GGLMS_REPORT_COUPON', 'summary_report_label_coupon');
+        // se impostato sovrascrivo la label associata a Nome
+        $this->label_nome = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_NOME', 'summary_report_label_nome');
+        // se impostato sovrascrivo la label associata a Cognome
+        $this->label_cognome = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_COGNOME', 'summary_report_label_cognome');
+        // se impostato sovrascrivo la label associata a Codice fiscale
+        $this->label_codice_fiscale = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_CODICE_FISCALE', 'summary_report_label_cf');
+        // se impostato sovrascrivo la label associata a Corso
+        $this->label_corso = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_CORSO', 'summary_report_label_corso');
+        // se impostato sovrascrivo la label associata a Azienda
+        $this->label_azienda = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_AZIENDA', 'summary_report_label_azienda');
+        // se impostato sovrascrivo la label associata a Stato
+        $this->label_stato = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_STATO', 'summary_report_label_stato');
+        // se impostato sovrascrivo la label associata a Attestato
+        $this->label_attestato = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_ATTESTATO', 'summary_report_label_attestato');
+        // se impostato sovrascrivo la label associata a Venditore
+        $this->label_venditore = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_VENDITORE', 'summary_report_label_venditore');
+        
         // Display the view
         parent::display($tpl);
 

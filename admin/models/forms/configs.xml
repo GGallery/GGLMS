@@ -925,6 +925,19 @@
             <option value="1">ON</option>
         </field>
 
+        <field
+                name="genera_coupon_visualizza_stampa_tracciato"
+                type="radio"
+                class="btn-group"
+                label="Visualizza il checkbox Stampa tracciato nel form Genera Coupon"
+                labelclass="control-label"
+                description="OFF per nascondere, ON per visualizzare"
+                default="1"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
         <field name="summary_report_nascondi_colonne"
                type="listacolssummaryreport"
                label="Scegli le colonne che saranno nascoste nel Summary Report"
@@ -934,6 +947,97 @@
                size="10"
                default=""
         />
+
+        <field
+                name="summary_report_label_coupon"
+                type="listafieldxlang"
+                class=""
+                label="Label Coupon"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_nome"
+                type="listafieldxlang"
+                class=""
+                label="Label Nome"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_cognome"
+                type="listafieldxlang"
+                class=""
+                label="Label Cognome"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_cf"
+                type="listafieldxlang"
+                class=""
+                label="Label Codice fiscale"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_corso"
+                type="listafieldxlang"
+                class=""
+                label="Label Corso"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_azienda"
+                type="listafieldxlang"
+                class=""
+                label="Label Azienda"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_stato"
+                type="listafieldxlang"
+                class=""
+                label="Label Stato"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_attestato"
+                type="listafieldxlang"
+                class=""
+                label="Label Attestato"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
+        <field
+                name="summary_report_label_venditore"
+                type="listafieldxlang"
+                class=""
+                label="Label Venditore"
+                labelclass="control-label"
+                description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
+                default=""
+        />
+
         <!-- FINE PERSONALIZZAZIONI -->
 
     </fieldset>
