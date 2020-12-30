@@ -10,7 +10,33 @@
 <!-- Genera coupon -->
 <div class="row-fluid">
 
+    <h4>Associa coupon</h4>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('url_redirect_on_access_deny'); ?>
+    </div>
+
     <h4>Genera coupon</h4>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('mail_coupon_acitve'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('coupon_active_default'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('specifica_durata_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('durata_standard_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_forum'); ?>
+    </div>
 
     <div class="row-fluid">
         <?php echo $this->form->renderField('genera_coupon_label_partita_iva'); ?>
@@ -41,6 +67,8 @@
     </div>
 
 </div>
+
+<hr />
 
 <!-- Summary report -->
 <div class="row-fluid">

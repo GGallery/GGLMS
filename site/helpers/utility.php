@@ -630,6 +630,139 @@ class utilityHelper
         }
     }
 
+    // controlla esistenza usergroups per nome
+    public static function check_usergroups_by_name($usergroup) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                    ->select('id')
+                    ->from('#__usergroups')
+                    ->where("title = '" . trim($usergroup) . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadRow())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results[0]) ? $results[0] : null;
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // inserisco nuovo usergroups
+    public static function insert_new_usergroups($usergroup, $parent_id=0) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = "INSERT INTO #__usergroups (parent_id, title) 
+                        VALUES (
+                              '" . $parent_id . "',
+                              '" . addslashes(trim($usergroup)) . "'
+                        )";
+
+            $db->setQuery($query);
+            $db->execute();
+            $new_group_id = $db->insertid();
+
+            // rebuild per indici lft, rgt
+            $JTUserGroup = new JTableUsergroup($db);
+            $JTUserGroup->rebuild();
+
+            return $new_group_id;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // inserisco nuovo utente in comprofiler
+    public static function insert_new_cp_user_with_query($insert_query) {
+
+        try {
+
+            $_ret = array();
+            $db = JFactory::getDbo();
+
+            $db->setQuery($insert_query);
+            $db->execute();
+
+            $_ret['success'] = $db->insertid();
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // controllo esistenza utente su username
+    public static function check_user_by_username($username) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id')
+                ->from('#__users')
+                ->where("username = '" . $username . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadRow())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results[0]) ? $results[0] : null;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    public static function get_comprofiler_fields_type() {
+
+        try {
+
+            $_ret = array();
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                    ->select('name, type')
+                    ->from('#__comprofiler_fields')
+                    ->where("name LIKE 'cb_%'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssocList())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+            
+            // elaboro i risultati in un array di tipo chiave/valore
+            foreach ($results as $index => $sub_arr) {
+
+                $_ret[$sub_arr['name']] = $sub_arr['type'];
+
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+    }
+
     public static function logMail($template, $sender, $recipient, $status, $cc = null, $id_gruppo_corso = null)
     {
         try {
@@ -1065,5 +1198,114 @@ class utilityHelper
         $seconds = $seconds % 60;
         $seconds = $seconds < 10 ? "0" . $seconds : $seconds;
         return "$hours:$minutes:$seconds";
+    }
+
+    // json_decode errore
+    public static function get_json_decode_error($config_content, $assoc=true) {
+
+        $_err = "";
+        $_ret = json_decode($config_content, $assoc);
+
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                $_err = "";
+                break;
+            case JSON_ERROR_DEPTH:
+                $_err = 'Maximum stack depth exceeded';
+                break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $_err =  'Underflow or the modes mismatch';
+                break;
+            case JSON_ERROR_CTRL_CHAR:
+                $_err = 'Unexpected control character found';
+                break;
+            case JSON_ERROR_SYNTAX:
+                $_err = 'Syntax error, malformed JSON';
+                break;
+            case JSON_ERROR_UTF8:
+                $_err = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+                break;
+            default:
+                $_err = 'Unknown error';
+                break;
+        }
+
+        if ($_err != "")
+            return $_err;
+
+        return $_ret;
+
+    }
+
+    // decodifica dei numeri colonna in lettere (xls)
+    public static function get_name_from_number($num, $a_zero = true) {
+
+        $numeric = $a_zero ? $num % 26 : ($num - 1) % 26;
+        $letter = chr(65 + $numeric);
+        $num2 = $a_zero ? intval($num / 26) : intval(($num - 1) / 26);
+        if ($num2 > 0) {
+            return $a_zero ? self::get_name_from_number($num2 - 1) . $letter : getNameFromNumber($num2) . $letter;
+        } else {
+            return $letter;
+        }
+    }
+
+    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z
+    public static function get_cp_insert_query($_new_user_cp) {
+
+        $query = "INSERT INTO #__comprofiler ";
+        $_cols = array();
+        $_values = array();
+
+        foreach ($_new_user_cp as $key => $value) {
+
+            if (is_null($value) || $value === "")
+                continue;
+
+            $_cols[] = $key;
+            $_values[] = $value;
+        }
+
+        $query .= "(" . implode(",", $_cols) . ")";
+        $query .= " VALUES ('" . implode( "','", $_values ) . "')";
+
+        return $query;
+    }
+
+    // controllo la completezza dei dati per l'inserimento di un nuovo utente
+    public static function check_new_user_array($_new_user) {
+        /*
+         * name
+         * username
+         * password
+         * email
+         */
+
+        $_check = "";
+
+        if (!isset($_new_user['name'])
+            || $_new_user['name'] == "")
+            $_check = " name missing";
+
+        if (!isset($_new_user['username'])
+            || $_new_user['username'] == "") {
+            $_check .= ($_check != "") ? ", " : "";
+            $_check .= " username missing";
+        }
+
+        if (!isset($_new_user['password'])
+            || $_new_user['password'] == "") {
+            $_check .= ($_check != "") ? ", " : "";
+            $_check .= " password missing";
+        }
+
+        if (!isset($_new_user['email'])
+            || $_new_user['email'] == "") {
+            $_check .= ($_check != "") ? ", " : "";
+            $_check .= " email missing";
+        }
+
+        return $_check;
+
     }
 }

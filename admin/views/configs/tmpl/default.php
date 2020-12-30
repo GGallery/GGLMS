@@ -52,9 +52,13 @@ JHtml::_('formbehavior.chosen', 'select');
             include(dirname(__FILE__).DS.'contenuto.php');
             echo JHtml::_('bootstrap.endTab');
 
+            /**
+            * Rimosso a favore di Personalizzazione
             echo JHtml::_('bootstrap.addTab', 'myTab', 'Coupon', JText::_('Coupon', true));
             include(dirname(__FILE__).DS.'coupon.php');
             echo JHtml::_('bootstrap.endTab');
+             *
+             */
 
             echo JHtml::_('bootstrap.addTab', 'myTab', 'HelpDesk', JText::_('HelpDesk', true));
             include(dirname(__FILE__).DS.'helpDesk.php');
