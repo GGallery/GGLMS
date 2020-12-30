@@ -316,7 +316,7 @@ class gglmsControllerUsers extends JControllerLegacy
                                 foreach ($_arr_xls as $_sub_xls => $_sub_xls_col) {
 
                                     $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($_sub_xls_col);
-                                    $col_index -= 1;
+                                    $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
                                     $_row_value = trim($_riga_xls[$col_index]);
 
                                     if ($_user_value != $_row_value)
@@ -326,7 +326,7 @@ class gglmsControllerUsers extends JControllerLegacy
                             }
                             else {
                                 $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($xls_col);
-                                $col_index -= 1;
+                                $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
                                 $_user_value = addslashes(trim($_riga_xls[$col_index]));
                             }
 
@@ -384,7 +384,7 @@ class gglmsControllerUsers extends JControllerLegacy
                             foreach ($_groups as $db_col => $xls_col) {
 
                                 $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($xls_col);
-                                $col_index -= 1;
+                                $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
                                 $_group_value = $_riga_xls[$col_index];
 
                                 // controllo esistenza gruppo
@@ -442,7 +442,7 @@ class gglmsControllerUsers extends JControllerLegacy
                                 $_arr_xls = explode("_", $xls_col);
                                 foreach ($_arr_xls as $_sub_xls => $_sub_xls_col) {
                                     $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($_sub_xls_col);
-                                    $col_index -= 1;
+                                    $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
                                     $_row_value = trim($_riga_xls[$col_index]);
 
                                     if ($_group_value_cp != $_row_value)
@@ -452,7 +452,7 @@ class gglmsControllerUsers extends JControllerLegacy
                             else {
 
                                 $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($xls_col);
-                                $col_index -= 1;
+                                $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
                                 $_group_value_cp = trim($_riga_xls[$col_index]);
 
                             }
@@ -461,7 +461,8 @@ class gglmsControllerUsers extends JControllerLegacy
                             if (isset($cb_fields_type[$db_col])) {
 
                                 if (
-                                    ($cb_fields_type[$db_col] == "text"  || $cb_fields_type[$db_col] == "select")
+                                    ($cb_fields_type[$db_col] == "text"
+                                        || $cb_fields_type[$db_col] == "select")
                                     && $_group_value_cp != ""
                                 ){
 
@@ -495,6 +496,9 @@ class gglmsControllerUsers extends JControllerLegacy
                                 }
 
                             }
+                            else if ($db_col == "firstname"
+                                        || $db_col == "lastname")
+                                $_group_value_cp = addslashes($_group_value_cp);
 
                             $_new_user_cp[$db_col] = $_group_value_cp;
 
