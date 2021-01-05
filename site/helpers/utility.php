@@ -685,7 +685,7 @@ class utilityHelper
     }
 
     // inserisco nuovo utente in comprofiler
-    public static function insert_new_cp_user_with_query($insert_query) {
+    public static function insert_new_with_query($insert_query, $ret_last_id = true) {
 
         try {
 
@@ -695,12 +695,13 @@ class utilityHelper
             $db->setQuery($insert_query);
             $db->execute();
 
-            $_ret['success'] = $db->insertid();
+            $_ret['success'] = ($ret_last_id) ? $db->insertid() : 1;
             return $_ret;
 
         }
         catch (Exception $e) {
-            DEBUGG::error($e, __FUNCTION__);
+            //DEBUGG::error($e, __FUNCTION__);
+            return __FUNCTION__ . ": " . $e->getMessage();
         }
 
     }
@@ -1251,9 +1252,9 @@ class utilityHelper
     }
 
     // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z
-    public static function get_cp_insert_query($_new_user_cp) {
+    public static function get_insert_query($_table, $_new_user_cp) {
 
-        $query = "INSERT INTO #__comprofiler ";
+        $query = "INSERT INTO #__" . $_table;
         $_cols = array();
         $_values = array();
 
@@ -1307,5 +1308,41 @@ class utilityHelper
 
         return $_check;
 
+    }
+
+    // scrivo su di un file ad in un determinato path
+    public static function write_file_to($filename, $content, $append=true) {
+
+        try {
+
+            if ($append) {
+                file_put_contents($filename, $content . "\r\n", FILE_APPEND);
+                return;
+            }
+
+            file_put_contents($filename, $content . "\r\n");
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // cript & decrypt stringhe
+    public static function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
+        $output = false;
+        $encrypt_method = "AES-256-CBC";
+        // hash
+        $key = hash('sha256', $secret_key);
+
+        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+        }
+        return $output;
     }
 }

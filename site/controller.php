@@ -82,11 +82,13 @@ class gglmsController extends JControllerLegacy
 
         
         //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
+        // aggiunto nella whitelist rinnovoquote - direi che funziona!
         if ($this->_user->guest
             && strpos(JUri::getInstance()->toString(), 'catalogo') === false
             && strpos(JUri::getInstance()->toString(), 'helpdesk') === false
             && strpos(JUri::getInstance()->toString(), 'dispenser') === false
             && strpos(JUri::getInstance()->toString(), 'prenota') === false
+            && strpos(JUri::getInstance()->toString(), 'rinnovoquote') === false
         ) {
 //            $msg = "Per accedere al corso è necessario loggarsi";
             $msg = JText::_('COM_GGLMS_NOT_LOGGED');

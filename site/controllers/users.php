@@ -9,13 +9,8 @@
 
 defined('_JEXEC') or die;
 
-
-//require_once JPATH_COMPONENT . '/libraries/xls/phpspreadsheet.php';
-require_once JPATH_COMPONENT . '/libraries/xls/vendor/autoload.php';
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Reader\Csv;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
+require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
  * Controller for single contact view
@@ -134,6 +129,40 @@ class gglmsControllerUsers extends JControllerLegacy
 
     }
 
+    public function check_user($username, $password) {
+
+        try {
+
+            $_ret = array();
+
+            // Get a database object
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, password')
+                ->from('#__users')
+                ->where('username = ' . $db->quote($username));
+
+            $db->setQuery($query);
+            $result = $db->loadObject();
+
+            if (!$result)
+                return "User not exist!";
+
+            $match = JUserHelper::verifyPassword($password, $result->password, $result->id);
+
+            if (!$match)
+                return "Password mismatch";
+
+            $_ret['success'] = $result->id;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     public function sendMail($destinatari, $oggetto, $body ){
 
         $mailer = JFactory::getMailer();
@@ -185,12 +214,12 @@ class gglmsControllerUsers extends JControllerLegacy
 
     public function _import() {
 
+        ini_set('max_execution_time', 0);
+
         $app = JFactory::getApplication();
         $db = JFactory::getDbo();
 
         try {
-
-            require_once JPATH_COMPONENT . '/libraries/xls/phpspreadsheet.php';
 
             // leggo il file di configurazione
             $config_file = JPATH_ROOT . '/tmp/_import.conf';
@@ -218,18 +247,20 @@ class gglmsControllerUsers extends JControllerLegacy
             if (!file_exists($target_file))
                 throw new Exception($target_file . " non trovato", 1);
 
+            $log_file = JPATH_ROOT . '/tmp/_log_' . $json_config['file_name'] . '_' . time();
             $reader = null;
+
             switch ($file_ext) {
                 case 'csv':
-                    $reader = new PhpOffice\PhpSpreadsheet\Reader\Csv();
+                    $reader = ReaderEntityFactory::createCSVReader();
                     break;
 
                 case 'xlsx':
-                    $reader = new PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+                    $reader = ReaderEntityFactory::createXLSXReader();
                     break;
 
-                case 'xls':
-                    $reader = new PhpOffice\PhpSpreadsheet\Reader\Xls();
+                default:
+                    $reader = ReaderEntityFactory::createXLSXReader();
                     break;
             }
 
@@ -261,13 +292,6 @@ class gglmsControllerUsers extends JControllerLegacy
 
             $_test_users_exists = isset($json_config['cols_schema']['test_users_exists']) ? (int)$json_config['cols_schema']['test_users_exists'] : 0;
 
-            /*
-            $_test_cols_profiler = null;
-            if (isset($json_config['cols_schema']['test_cols']['profiler'])
-                && count($json_config['cols_schema']['test_cols']['profiler']) > 0)
-                $_test_cols_profiler = $json_config['cols_schema']['test_cols']['profiler'];
-            */
-
             // se la sezione users non è compilata non proseguo
             if (is_null($_users))
                 throw new Exception("Nessuna configurazione per la sezione users", 1);
@@ -279,30 +303,42 @@ class gglmsControllerUsers extends JControllerLegacy
             // tipo dei campi per effettuare un controllo sui valori prima dell'inserimento
             $cb_fields_type = UtilityHelper::get_comprofiler_fields_type();
 
-            $spreadsheet = $reader->load($target_file);
+            $reader->open($target_file); //open the file
             $import_report = array();
 
             $db->transactionStart();
-
-            if ($file_ext == 'xlsx' || $file_ext == 'xls') {
+            $i=0;
+            if ($file_ext == 'xlsx'
+                || $file_ext == 'xls') {
 
                 // controllo quanti sheet ci sono nel file (> 1 vado in errore)
-                $sheets_num = $spreadsheet->getSheetCount();
+                $sheets_num = count($reader->getSheetIterator());
                 if ($sheets_num > 1)
                     throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
 
-                $sheet_data =  $spreadsheet->getActiveSheet()->toArray();
-                $num_rows = ($numero_prima_riga > 0) ? count($sheet_data) : count($sheet_data)-1;
+                $sheet_data = null;
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    if ($sheet->getIndex() === 0) {
+                        $sheet_data = $sheet->getRowIterator();
+                        break;
+                    }
+                }
 
-                for ($i=$numero_prima_riga; $i<=$num_rows; $i++) {
+                $import_report['row_existing'] = (count($sheet_data)-$numero_prima_riga);
+
+                foreach ($sheet_data as $row) {
 
                     $_new_user = array();
                     $_new_user_groups = array();
                     $_new_user_cp = array();
 
-                    // array riga
-                    $_riga_xls = $sheet_data[$i];
+                    if ($i<$numero_prima_riga) {
+                        $i++;
+                        continue;
+                    }
 
+                    // do stuff with the row
+                    $_riga_xls = $row->getCells();
                     foreach ($_riga_xls as $num_cell => $value_cell) {
 
                         $_multiple_emails = array();
@@ -311,12 +347,12 @@ class gglmsControllerUsers extends JControllerLegacy
                         foreach ($_users as $db_col => $xls_col) {
 
                             $_user_value = "";
+
                             if (strpos($xls_col, "_") !== false) {
                                 $_arr_xls = explode("_", $xls_col);
                                 foreach ($_arr_xls as $_sub_xls => $_sub_xls_col) {
 
-                                    $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($_sub_xls_col);
-                                    $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
+                                    $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($_sub_xls_col . $i);
                                     $_row_value = trim($_riga_xls[$col_index]);
 
                                     if ($_user_value != $_row_value)
@@ -325,15 +361,16 @@ class gglmsControllerUsers extends JControllerLegacy
                                 }
                             }
                             else {
-                                $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($xls_col);
-                                $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
-                                $_user_value = addslashes(trim($_riga_xls[$col_index]));
+                                if ($db_col != "block") {
+                                    $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
+                                    $_user_value = addslashes(trim($_riga_xls[$col_index]));
+                                }
+                                else
+                                    $_user_value = (int) trim($xls_col);
                             }
 
                             if ($db_col == "password")
                                 $_user_value = JUserHelper::hashPassword($_user_value);
-                            else if ($db_col == "block")
-                                $_user_value = (int) trim($xls_col);
                             else if ($db_col == "email") {
                                 // gestione di eventuali email multiple separate da virgole o punto e virgola
                                 // le inserisco nel campo cb_altraemail di CP
@@ -363,18 +400,24 @@ class gglmsControllerUsers extends JControllerLegacy
                             }
 
                             $_new_user[$db_col] = $_user_value;
+
                         }
 
                         // verifico l'esistenza delle colonne minimali per l'inserimento utente
                         $_test_users_fields = UtilityHelper::check_new_user_array($_new_user);
-                        if ($_test_users_fields != "")
-                            throw new Exception("Mancano i seguenti campi necessari per inserire un nuovo utente:" . $_test_users_fields);
+                        if ($_test_users_fields != "") {
+                            // throw new Exception("Mancano i seguenti campi necessari per inserire un nuovo utente:" . $_test_users_fields);
+                            UtilityHelper::write_file_to($log_file . '_missing_fields.log', "MISSING FIELDS: " . ($i+$numero_prima_riga) . ":" . $_new_user['username'] . " Mancano i seguenti campi necessari per inserire un nuovo utente:" . $_test_users_fields,true);
+                            $import_report['missing_fields'][] = $_new_user['username'];
+                            continue 2;
+                        }
 
                         // controllo esistenza utente su username
                         if ($_test_users_exists) {
                             if (UtilityHelper::check_user_by_username($_new_user['username'])) {
-                                $import_report['existing'][] = ($i+$numero_prima_riga) . ":" . $_new_user['username'];
-                                continue;
+                                UtilityHelper::write_file_to($log_file . '_existing.log', "EXISTING: " . ($i+$numero_prima_riga) . ":" . $_new_user['username'],true);
+                                $import_report['existing'][] = $_new_user['username'];
+                                continue 2;
                             }
                         }
 
@@ -383,8 +426,7 @@ class gglmsControllerUsers extends JControllerLegacy
 
                             foreach ($_groups as $db_col => $xls_col) {
 
-                                $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($xls_col);
-                                $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
+                                $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
                                 $_group_value = $_riga_xls[$col_index];
 
                                 // controllo esistenza gruppo
@@ -413,25 +455,38 @@ class gglmsControllerUsers extends JControllerLegacy
                         if (count($_new_user_groups) == 0) {
                             $_new_user_groups[] = $_registered_group;
                         }
-                        $_new_user['groups'] = $_new_user_groups;
+                        // $_new_user['groups'] = $_new_user_groups;
 
                         // creazione utente
+                        /*
                         $user = new JUser;
                         $user->bind($_new_user);
+
                         if (!$user->save()) {
-                            //throw new Exception("Errore durante l'inserimento utente. Riga: " . $i . " - " . print_r($_new_user, true));
-                            $import_report['not_inserted'][] = ($i+$numero_prima_riga) . ":" . $_new_user['username'];
-                            continue;
+                        */
+
+                        $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
+                        $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+
+                        if (!is_array($_user_insert_query_result)) {
+                            UtilityHelper::write_file_to($log_file . '_not_inserted.log', "NOT INSERTED: " . ($i+$numero_prima_riga) . ":" . $_new_user['username'] . " -> " . $_user_insert_query_result,true);
+                            $import_report['not_inserted'][] = $_new_user['username'];
+                            continue 2;
                         }
 
-                        $_new_user_id = $user->id;
+                        //$_new_user_id = $user->id;
+                        $_new_user_id = $_user_insert_query_result['success'];
 
-                        $import_report['inserted'][] = $_new_user_id . ":" . $_new_user['username'];
+                        // associo utente a gruppi
+                        JUserHelper::setUserGroups($_new_user_id, $_new_user_groups);
+
+                        UtilityHelper::write_file_to($log_file . '_inserted.log', "INSERTED: " . $_new_user_id . ":" . $_new_user['username'],true);
+                        $import_report['inserted'][] = $_new_user['username'];
 
                         // se non valorizzato non compilo CP
                         if (is_null($_profiler)) {
                             $db->transactionCommit();
-                            continue;
+                            continue 2;
                         }
 
                         // profiler
@@ -441,8 +496,7 @@ class gglmsControllerUsers extends JControllerLegacy
                             if (strpos($xls_col, "_") !== false) {
                                 $_arr_xls = explode("_", $xls_col);
                                 foreach ($_arr_xls as $_sub_xls => $_sub_xls_col) {
-                                    $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($_sub_xls_col);
-                                    $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
+                                    $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($_sub_xls_col . $i);
                                     $_row_value = trim($_riga_xls[$col_index]);
 
                                     if ($_group_value_cp != $_row_value)
@@ -451,8 +505,7 @@ class gglmsControllerUsers extends JControllerLegacy
                             }
                             else {
 
-                                $col_index = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($xls_col);
-                                $col_index = ($col_index > 0) ? $col_index-1 : $col_index;
+                                $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
                                 $_group_value_cp = trim($_riga_xls[$col_index]);
 
                             }
@@ -487,7 +540,7 @@ class gglmsControllerUsers extends JControllerLegacy
                                     $_group_value_cp = addslashes($_group_value_cp);
                                 }
                                 else if ($cb_fields_type[$db_col] == "date"
-                                        && $_group_value_cp != "") {
+                                    && $_group_value_cp != "") {
                                     $_date = DateTime::createFromFormat('d/m/Y', $_group_value_cp);
                                     $_group_value_cp = $_date->format('Y-m-d');
                                 }
@@ -497,7 +550,7 @@ class gglmsControllerUsers extends JControllerLegacy
 
                             }
                             else if ($db_col == "firstname"
-                                        || $db_col == "lastname")
+                                || $db_col == "lastname")
                                 $_group_value_cp = addslashes($_group_value_cp);
 
                             $_new_user_cp[$db_col] = $_group_value_cp;
@@ -509,25 +562,262 @@ class gglmsControllerUsers extends JControllerLegacy
                         $_new_user_cp['user_id'] = $_new_user_id;
 
                         // inserimento utente in CP
-                        $_cp_insert_query = UtilityHelper::get_cp_insert_query($_new_user_cp);
-                        $_cp_insert_query_result = UtilityHelper::insert_new_cp_user_with_query($_cp_insert_query);
+                        $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                        $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
                         if (!is_array($_cp_insert_query_result))
                             throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", 1);
 
-                        $import_report['inserted_cp'][] = $_new_user_id . ":" . $_new_user['username'];
+                        UtilityHelper::write_file_to($log_file . '_inserted_cp.log', "INSERTED CP: " . $_new_user_id . ":" . $_new_user['username'],true);
+                        $import_report['inserted_cp'][] = $_new_user['username'];
 
                         $db->transactionCommit();
 
+                        continue 2;
+
                     }
 
+                    $i++;
                 }
-
-                echo "<pre>";
-                    print_r($import_report);
-                echo "</pre>";
 
             }
 
+            $row_existing = count($import_report['row_existing']);
+            $inserted = count($import_report['inserted']);
+            $inserted_cp = count($import_report['inserted_cp']);
+            $not_inserted = count($import_report['not_inserted']);
+            $missing_fields = count($import_report['missing_fields']);
+            $existing = count($import_report['existing']);
+            $_finish_date = date('d/m/Y H:i:s');
+
+            echo <<<HTML
+                <pre>
+                {$_finish_date} <br />
+                Importazione terminata! <br />
+                Righe totali {$row_existing} <br />
+                Inserite users {$inserted} righe <br />
+                Inserite profiler {$inserted_cp} righe <br />
+                Non inserite per campi non conformi (es. email non valida) {$not_inserted} righe <br />
+                Non inserite per campi necessari mancanti {$missing_fields} righe <br />
+                Non inserite perchè già esistenti {$existing} righe <br />
+                File logs disponibile qui: {$log_file}_*.log
+                </pre>
+HTML;
+
+        }
+        catch (Exception $e) {
+            $db->transactionRollback();
+            echo __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+        $app->close();
+    }
+
+    public function _import_quote_sinpe() {
+
+        ini_set('max_execution_time', 0);
+
+        $app = JFactory::getApplication();
+        $db = JFactory::getDbo();
+
+        try {
+
+            // leggo il file di configurazione
+            $config_file = JPATH_ROOT . '/tmp/_import_sinpe.conf';
+
+            // il file di configurazione non esiste
+            if (!file_exists($config_file))
+                throw new Exception("file _import.conf non trovato", 1);
+
+            $config_content = file_get_contents($config_file);
+            if (!$config_content)
+                throw new Exception("file _import.conf non leggibile", 1);
+
+            $json_config = utilityHelper::get_json_decode_error($config_content, true);
+            if (!is_array($json_config))
+                throw new Exception($json_config, 1);
+
+            // target file
+            $file_ext = isset($json_config['file_type']) ? $json_config['file_type'] : null;
+            $target_file = isset($json_config['file_name']) ? JPATH_ROOT . '/tmp/' . $json_config['file_name'] : null;
+
+            if (is_null($target_file))
+                throw new Exception("Nessun file di importazione definito", 1);
+
+            // il file da leggere non esiste
+            if (!file_exists($target_file))
+                throw new Exception($target_file . " non trovato", 1);
+
+            $log_file = JPATH_ROOT . '/tmp/_log_' . $json_config['file_name'] . '_' . date('YmdHis');
+            $reader = ReaderEntityFactory::createXLSXReader();
+
+            // indice da cui partirà il loop sul foglio
+            $numero_prima_riga = isset($json_config['cols_schema']['numero_prima_riga']) ? (int)$json_config['cols_schema']['numero_prima_riga'] : 0;
+
+            $_users_quote = null;
+            if (isset($json_config['cols_schema']['quote'])
+                && count($json_config['cols_schema']['quote']) > 0)
+                $_users_quote = $json_config['cols_schema']['quote'];
+
+            $_users_espen = null;
+            if (isset($json_config['cols_schema']['espen'])
+                && count($json_config['cols_schema']['espen']) > 0)
+                $_users_espen = $json_config['cols_schema']['espen'];
+
+            // se la sezione users non è compilata non proseguo
+            if (is_null($_users_quote))
+                throw new Exception("Nessuna configurazione per la sezione users_quote", 1);
+
+            if (is_null($_users_espen))
+                throw new Exception("Nessuna configurazione per la sezione users_espen", 1);
+
+            $reader->open($target_file); //open the file
+            $log_file = JPATH_ROOT . '/tmp/_log_' . $json_config['file_name'] . '_' . time();
+
+            $import_report = array();
+
+            $db->transactionStart();
+
+            // creo tabella che conterrà i riferimenti per le iscrizione degli anni passati
+            $_create_table_iscrizioni = "CREATE TABLE IF NOT EXISTS `#__gg_quote_iscrizioni`
+                                          ( `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+                                          `user_id` INT(11) UNSIGNED NOT NULL ,
+                                          `anno` INT(4) NOT NULL ,
+                                          `tipo_quota` VARCHAR(20) NOT NULL ,
+                                          PRIMARY KEY (`id`), INDEX (`user_id`))
+                                          ENGINE = InnoDB;";
+
+            $_create_table_iscrizioni_result = UtilityHelper::insert_new_with_query($_create_table_iscrizioni);
+            if (!is_array($_create_table_iscrizioni_result)) {
+                throw new Exception("Impossibile creare tabella quote: " . $_create_table_iscrizioni_result, 1);
+            }
+
+            $i=0;
+
+            // controllo quanti sheet ci sono nel file (> 1 vado in errore)
+            $sheets_num = count($reader->getSheetIterator());
+            if ($sheets_num > 1)
+                throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
+
+            $sheet_data = null;
+            foreach ($reader->getSheetIterator() as $sheet) {
+                if ($sheet->getIndex() === 0) {
+                    $sheet_data = $sheet->getRowIterator();
+                    break;
+                }
+            }
+
+            foreach ($sheet_data as $row) {
+
+                if ($i<$numero_prima_riga) {
+                    $i++;
+                    continue;
+                }
+
+                // do stuff with the row
+                $_insert_quote_users = "INSERT INTO #__gg_quote_iscrizioni 
+                                              (
+                                                user_id,
+                                                anno,
+                                                tipo_quota
+                                              )
+                                              VALUES ";
+                $_riga_xls = $row->getCells();
+
+                foreach ($_riga_xls as $num_cell => $value_cell) {
+
+                    $_row_quota = array();
+                    $_user_id = null;
+
+                    // inserimento parte quote per utente
+                    foreach ($_users_quote as $db_col => $xls_col) {
+
+                        if ($db_col == "id") {
+                            $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
+                            $_user_id = trim($_riga_xls[$col_index]);
+                        }
+                        else {
+
+                            $_user_anno = (int) trim($db_col);
+
+                            $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
+                            $_user_value = trim($_riga_xls[$col_index]);
+
+                            if ($_user_value > 0) {
+                                $_row_quota['quota'][] = $_user_anno;
+                            }
+                        }
+
+                    }
+
+                    // inserimento parte espen per utente
+                    foreach ($_users_espen as $db_col => $xls_col) {
+
+                        if ($db_col == "id") {
+                            $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
+                            $_user_id = trim($_riga_xls[$col_index]);
+                        }
+                        else {
+
+                            $_user_anno = (int) trim($db_col);
+
+                            $col_index = Box\Spout\Reader\XLSX\Helper\CellHelper::getColumnIndexFromCellIndex($xls_col . $i);
+                            $_user_value = trim($_riga_xls[$col_index]);
+
+                            if ($_user_value > 0) {
+                                $_row_quota['espen'][] = $_user_anno;
+                            }
+                        }
+
+                    }
+
+                    // tutto a zero nulla da inserire
+                    if (count($_row_quota) == 0)
+                        continue 2;
+
+                    // inserimento quote per utente
+                    foreach ($_row_quota as $tipo => $sub_tipo) {
+
+                        foreach ($sub_tipo as $sub_anno => $anno) {
+
+                            $_insert_quote_users .= " ('" . $_user_id . "', '" . $anno . "', '" . $tipo . "'), ";
+
+                        }
+
+                    }
+
+                    // esecuzione query inserimento
+                    $_insert_quote_users = rtrim(trim($_insert_quote_users), ",");
+                    $_insert_quote_users_result = UtilityHelper::insert_new_with_query($_insert_quote_users);
+                    if (!is_array($_insert_quote_users_result)) {
+                        $import_report['not_inserted'][] = $_user_id;
+                        UtilityHelper::write_file_to($log_file . '_not_inserted.log', $_insert_quote_users . " errore durante inserimento: " . $_insert_quote_users_result,true);
+                        continue 2;
+                    }
+
+                    $import_report['inserted'][] = $_user_id;
+                    UtilityHelper::write_file_to($log_file . '_inserted.log', "INSERTED: " . $_user_id . " -> " . print_r($_row_quota, true),true);
+
+                    $db->transactionCommit();
+
+                    continue 2;
+
+                }
+
+            }
+
+            $inserted = count($import_report['inserted']);
+            $not_inserted = count($import_report['not_inserted']);
+            $_finish_date = date('d/m/Y H:i:s');
+
+            echo <<<HTML
+                <pre>
+                {$_finish_date} <br />
+                Importazione terminata! <br />
+                Inserite {$inserted} righe <br />
+                Non inserite per campi non conformi (es. email non valida) {$not_inserted} righe <br />
+                File logs disponibile qui: {$log_file}_*.log
+                </pre>
+HTML;
         }
         catch (Exception $e) {
             $db->transactionRollback();
