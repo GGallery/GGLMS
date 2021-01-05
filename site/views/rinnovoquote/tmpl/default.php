@@ -14,7 +14,7 @@ defined('_JEXEC') or die;
 
     <div class="row">
         <div class="col-12">
-            <h4><span style="color: black; font-weight: bold">Ciao!! <?php echo $_REQUEST['ammazzati']; ?></span></h4>
+            <h4><span style="color: black; font-weight: bold">Ciao!!</span></h4>
         </div>
     </div>
 
