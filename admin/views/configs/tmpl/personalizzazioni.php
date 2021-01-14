@@ -66,6 +66,14 @@
         <?php echo $this->form->renderField('genera_coupon_visualizza_stampa_tracciato'); ?>
     </div>
 
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_coupon_visualizza_tipo_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_coupon_tipi_coupon'); ?>
+    </div>
+
 </div>
 
 <hr />

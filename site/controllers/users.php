@@ -163,6 +163,179 @@ class gglmsControllerUsers extends JControllerLegacy
 
     }
 
+    public function get_user_quote($user_id) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('tipo_quota, anno')
+                ->from('#__gg_quote_iscrizioni')
+                ->where("user_id = '" . $user_id . "'")
+                ->group($db->quoteName('tipo_quota'))
+                ->group($db->quoteName('anno'))
+                ->order('anno DESC', 'DESC');
+
+            $db->setQuery($query);
+            $result = $db->loadAssocList();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function get_user_details_cb($user_id) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                    ->select('cb_professionedisciplina as professione,
+                                cb_laureain as tipo_laurea, 
+                                cb_laureanno as anno_laurea, 
+                                cb_datadinascita as data_nascita,
+                                firstname as nome_utente,
+                                lastname as cognome_utente,
+                                cb_codicefiscale as codice_fiscale')
+                    ->from('#__comprofiler')
+                    ->where("user_id = '" . $user_id . "'");
+
+            $db->setQuery($query);
+            $result = $db->loadAssoc();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function update_ultimo_anno_pagato($user_id, $ultimo_anno_pagato) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+
+            $query = $db->getQuery(true);
+            $query->update("#__comprofiler");
+            $query->set("cb_ultimoannoinregola = '" . $ultimo_anno_pagato . "'");
+            $query->where("user_id = " . $user_id);
+
+            $db->setQuery($query);
+            $db->execute();
+
+            $_ret['success'] = 'tuttook';
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function insert_user_quote_anno($user_id,
+                                           $_anno_quota,
+                                           $_data_creazione,
+                                           $_order_details,
+                                           $gruppi_online,
+                                           $gruppi_moroso,
+                                           $gruppi_decaduto,
+                                           $totale_sinpe,
+                                           $totale_espen=0) {
+
+        $db = JFactory::getDbo();
+
+        try {
+
+            $_ret = array();
+            $db->transactionStart();
+
+            // inserisco le righe riferite agli anni
+            //$query = $db->getQuery(true);
+            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
+                                                                anno, 
+                                                                tipo_quota, 
+                                                                tipo_pagamento, 
+                                                                data_pagamento, 
+                                                                totale, 
+                                                                dettagli_transazione) 
+                            VALUES ";
+
+            $query .= "(
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'quota',
+                               'paypal',
+                               '" . $_data_creazione . "',
+                               '" . $totale_sinpe . "',
+                               '" . addslashes($_order_details) . "'
+                            )";
+
+            if ($totale_espen)
+                $query .= ", (
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'espen',
+                               'paypal',
+                               '" . $_data_creazione . "',
+                               '" . $totale_espen . "',
+                               NULL
+                            )";
+
+            $query .= ";";
+
+            $db->setQuery($query);
+            $db->execute();
+
+            // aggiorno ultimo anno pagato
+            $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
+            if (!is_array($_ultimo_anno))
+                throw new Exception($_ultimo_anno, 1);
+
+            // inserisco l'utente nel gruppo online
+            UtilityHelper::set_usergroup_online($user_id,
+                $gruppi_online,
+                $gruppi_moroso,
+                $gruppi_decaduto);
+
+            $db->transactionCommit();
+
+            $_ret['success'] = "tuttook";
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $db->transactionRollback();
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     public function sendMail($destinatari, $oggetto, $body ){
 
         $mailer = JFactory::getMailer();
@@ -212,6 +385,22 @@ class gglmsControllerUsers extends JControllerLegacy
         $app->close();
     }
 
+    // rebuild degli indici usergroups
+    public function rebuild_ugs() {
+
+        $app = JFactory::getApplication();
+
+        $db = JFactory::getDbo();
+        // rebuild per indici lft, rgt
+        $JTUserGroup = new JTableUsergroup($db);
+        $JTUserGroup->rebuild();
+
+        echo "Rebuild done";
+
+        $app->close();
+    }
+
+    // importazione utenti da file xls / csv
     public function _import() {
 
         ini_set('max_execution_time', 0);
@@ -679,12 +868,17 @@ HTML;
 
             // creo tabella che conterrà i riferimenti per le iscrizione degli anni passati
             $_create_table_iscrizioni = "CREATE TABLE IF NOT EXISTS `#__gg_quote_iscrizioni`
-                                          ( `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
-                                          `user_id` INT(11) UNSIGNED NOT NULL ,
-                                          `anno` INT(4) NOT NULL ,
-                                          `tipo_quota` VARCHAR(20) NOT NULL ,
-                                          PRIMARY KEY (`id`), INDEX (`user_id`))
-                                          ENGINE = InnoDB;";
+                                          ( 
+                                              `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+                                              `user_id` INT(11) UNSIGNED NOT NULL ,
+                                              `anno` INT(4) NOT NULL ,
+                                              `tipo_quota` VARCHAR(20) NOT NULL ,
+                                              `tipo_pagamento` VARCHAR(50) NULL,
+                                              `data_pagamento` DATETIME NULL,
+                                              `totale` DECIMAL(6,2) NULL,
+                                              `dettagli_transazione` TEXT NULL,
+                                              PRIMARY KEY (`id`), INDEX (`user_id`)
+                                          ) ENGINE = InnoDB;";
 
             $_create_table_iscrizioni_result = UtilityHelper::insert_new_with_query($_create_table_iscrizioni);
             if (!is_array($_create_table_iscrizioni_result)) {

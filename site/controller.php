@@ -36,8 +36,21 @@ class gglmsController extends JControllerLegacy
         if (DOMINIO == ""
             || DOMINIO == 'DOMINIO') {
 
-            $hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+            //$hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+            $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+            $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
 
+            $_arr_host = explode(".", $hostname);
+            // indirizzi tipo https://dominio.it
+            if (count($_arr_host) < 3) {
+                $hostname = $_arr_host[0] . "." . $_arr_host[1];
+            }
+            // altri tipo www.dominio.it oppure terzo.dominio.it
+            else {
+                $hostname = $_arr_host[1] . "." . $_arr_host[2];
+            }
+
+            /*
             if (strpos($hostname, 'www.') === 0) {
                 $hostname = substr($hostname, 4);
             }
@@ -45,6 +58,10 @@ class gglmsController extends JControllerLegacy
             else if (strpos($hostname, 'test.') === 0) {
                 $hostname = substr($hostname, 5);
             }
+            else if (strpos($hostname, 'master.') === 0) {
+                $hostname = substr($hostname, 7);
+            }
+            */
 
             define('DOMINIO', $hostname);
 
@@ -89,6 +106,7 @@ class gglmsController extends JControllerLegacy
             && strpos(JUri::getInstance()->toString(), 'dispenser') === false
             && strpos(JUri::getInstance()->toString(), 'prenota') === false
             && strpos(JUri::getInstance()->toString(), 'rinnovoquote') === false
+            && strpos(JUri::getInstance()->toString(), 'paypal') === false
         ) {
 //            $msg = "Per accedere al corso è necessario loggarsi";
             $msg = JText::_('COM_GGLMS_NOT_LOGGED');

@@ -132,11 +132,12 @@ class gglmsControllerPdf extends JControllerLegacy
             }
 
 
-        /// COUPON recupero il coupon a partire da utente e gruppo corso
+            /// COUPON recupero il coupon a partire da utente e gruppo corso
+            /// recupero anche l'ipotetica tipologia del coupon per forza un template a seconda del ruolo
             $gac = $unita->get_gruppo_accesso_corso($corso_obj->id);
 
             $query = $db->getQuery(true)
-                ->select('c.coupon')
+                ->select("c.coupon, COALESCE(c.tipologia_coupon, 'nonimpostato') AS tipologia_coupon")
                 ->from('#__gg_coupon c')
                 ->where('id_utente = "' . $user_id . '"')
                 ->where('id_gruppi = "' . $gac . '"');
@@ -293,6 +294,8 @@ class gglmsControllerPdf extends JControllerLegacy
                 $result_user->tracklog = $tracklog;
                 $result_user->ateco = $ateco;
                 $result_user->dati_corso = $dati_corso;
+                // per modifica tipologia coupon
+                $result_user->coupon = $coupon;
                 return $result_user;
 
             }

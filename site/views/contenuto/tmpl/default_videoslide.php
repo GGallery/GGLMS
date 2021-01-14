@@ -167,6 +167,13 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 
 <div class="container-videosidepanelhide g-grid span12">
+
+    <?php if (!is_null($this->slide_pdf)) { ?>
+    <div class="g-block size-100 span12 text-right">
+        <a href="<?php echo $this->slide_pdf; ?>" target="_blank"><h5><?php echo JText::_('COM_GGLMS_ELEMENTO_STR10'); ?></h5></a>
+    </div>
+    <?php } ?>
+
     <div id="boxvideo" class="g-block size-50 span6">
 
 
@@ -174,10 +181,12 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                preload="auto" class="img-thumbnail">
             <source type="video/mp4"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.mp4'; ?>"/>
+            <?php /*
             <source type="video/webm"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.webm'; ?>"/>
             <source type="video/ogg"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.ogv'; ?>"/>
+            */?>
             <track kind="slides" src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/'; ?>vtt_slide.vtt"/>
         </video>
 

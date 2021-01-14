@@ -83,6 +83,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
             $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
+            $data['genera_coupon_tipi_coupon'] = isset($data['genera_coupon_tipi_coupon']) ? $data['genera_coupon_tipi_coupon'] : NULL;
 
 
             // se non esiste crea utente ( tutor ) legato alla company
@@ -131,7 +132,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 // se abilitato -> dataabilitazione = now
 
-                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d)",
+                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d, '%s')",
                     $coupons[$i],
                     date('Y-m-d H:i:s', time()), //  time(), //creation_time
                     $data['abilitato'],
@@ -144,7 +145,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $data['stampatracciato'],
                     $data['trial'],
                     $data['venditore'],
-                    $data['id_piattaforma']
+                    $data['id_piattaforma'],
+                    $data['genera_coupon_tipi_coupon']
                 );
 
             }
@@ -163,7 +165,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                                 stampatracciato, 
                                                 trial, 
                                                 venditore,
-                                                gruppo) VALUES ' . join(',', $values);
+                                                gruppo,
+                                                tipologia_coupon) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

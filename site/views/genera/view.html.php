@@ -37,6 +37,8 @@ class gglmsViewGenera extends JViewLegacy
     public $genera_coupon_visualizza_venditore = 1;
     public $genera_coupon_visualizza_ateco = 1;
     public $genera_coupon_visualizza_stampa_tracciato = 1;
+    public $genera_coupon_visualizza_tipo_coupon = 0;
+    public $genera_coupon_tipi_coupon;
 
 
     function display($tpl = null)
@@ -97,6 +99,12 @@ class gglmsViewGenera extends JViewLegacy
         // se 1 visualizzo il campo se 0 lo nascondo
         $this->genera_coupon_visualizza_stampa_tracciato = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_stampa_tracciato, 'genera_coupon_visualizza_stampa_tracciato');
 
+        // leggo parametro genera_coupon_visualizza_tipo_coupon
+        // se 1 visualizzo il campo se 0 lo nascondo
+        $this->genera_coupon_visualizza_tipo_coupon = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_tipo_coupon, 'genera_coupon_visualizza_stampa_tracciato');
+
+        // leggo parametro genera_coupon_tipi_coupon
+        $this->genera_coupon_tipi_coupon = $this->genera_coupon_visualizza_tipo_coupon == 1 ? utilityHelper::get_lista_tipo_coupon('genera_coupon_tipi_coupon', 'disabled required class="form-control cpn_opt"') : "";
 
         // checkbox trial la mostro solo se l'utente super user perchè sblocca tutto il corso.
         $user = JFactory::getUser();
@@ -105,9 +113,6 @@ class gglmsViewGenera extends JViewLegacy
         if ($is_super_admin == 1) {
             $this->show_trial = 1;
         }
-
-
-
 
         // Display the view
         parent::display($tpl);

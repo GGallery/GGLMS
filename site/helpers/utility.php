@@ -1027,6 +1027,120 @@ class utilityHelper
 
     }
 
+    // imposto il form del pagamento alternativo per il rinnovo delle quote sinpe
+    public static function get_pagamento_alternativo_from_plugin() {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                    ->select('params')
+                    ->from('#__comprofiler_plugin')
+                    ->where("element = 'cb.checksoci'");
+
+            $db->setQuery($query);
+            $result = $db->loadAssoc();
+
+            if (is_null($result))
+                return $_ret;
+
+            $_ret['success'] = $result['params'];
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
+
+    // calcolo tariffa socio per parametri pre impostati
+    public static function calcola_quota_socio($_tipo_laurea,
+                                               $_anno_laurea,
+                                               $_anzianita,
+                                               $_data_nascita,
+                                               $_tipo='sinpe') {
+
+        /* Tariffe SINPE
+         *  € 70,00 Medici e farmacisti con anzianità di laurea superiore a 5 anni
+            € 25,00 Medici e farmacisti con anzianità di laurea fino a 5 anni
+            € 25,00 Dietisti
+            € 25,00 Infermieri
+            € 70,00 Biologi
+            € 25,00 Altre professioni
+         **/
+
+        /* Tariffe ESPEN
+         *  € 40,00 JUNIOR Blockmembership (under 35)
+            € 40,00 SENIOR Blockmembership (over 65)
+            € 90,00 REGULAR Blockmembership
+         *
+         */
+
+        $_tariffa = 0;
+        if ($_tipo == 'sinpe') {
+
+            // se medico o farmacista
+            if (
+                strpos($_tipo_laurea, 'Medicina') !== false
+                || strpos($_tipo_laurea, 'Farmacia') !== false
+            ) {
+                $_tariffa = ($_anzianita > 5) ? 70 : 25;
+            }
+            // se biologo
+            else if (strpos($_tipo_laurea, 'Biologia') !== false) {
+                $_tariffa = 70;
+            }
+        }
+        else if ($_tipo == 'espen') {
+
+            $_tariffa = 90;
+
+            $_eta = self::calcolo_eta_da_nascita($_data_nascita);
+            if ($_eta < 35 || $_eta > 65)
+                $_tariffa = 40;
+
+        }
+
+        return $_tariffa;
+
+    }
+
+    // restituisco da array l'ultimo anno di pagamento di una quota
+    public static function get_ultimo_anno_quota($_user_quote) {
+
+        $_ultimo_anno_pagato = "";
+        $_tmp_quota = array();
+        $dt = new DateTime();
+        $_ultimo_anno_pagato = $dt->format('Y')-1;
+
+        // utente non ha mai pagato parto dalla quota di quest'anno
+        if (count($_user_quote) == 0) {
+            return $_ultimo_anno_pagato;
+        }
+        else {
+
+            foreach ($_user_quote as $key => $quota) {
+
+                if (!isset($_tmp_quota[$quota['tipo_quota']])) {
+                    $_tmp_quota[$quota['tipo_quota']] = $quota['anno'];
+                    continue;
+                }
+
+            }
+        }
+
+        if (count($_tmp_quota) == 0
+            || !isset($_tmp_quota['quota']))
+            return $_ultimo_anno_pagato;
+
+        return $_tmp_quota['quota'];
+
+    }
+
     // per sviluppo filtro DOMAIN - di default i siti che in produzione iniziano per web. in sviluppo saranno test.
     public static function filtra_dominio_per_test($_domain) {
 
@@ -1105,6 +1219,49 @@ class utilityHelper
         }
 
         return $_ret;
+
+    }
+
+    // funzione per gestire la visualizzazione di una lista di tipologie coupon chiave|valore;
+    public static function get_lista_tipo_coupon($_db_label, $_lista_extra) {
+
+        $_config = new gglmsModelConfig();
+        $_lista_row = $_config->getConfigValue($_db_label);
+        $_lista_html = "";
+
+        $_config_arr = explode(";", trim($_lista_row));
+
+        if (count($_config_arr) == 0)
+            return $_lista_html;
+
+        $_lista_options = "";
+        foreach ($_config_arr as $key => $pair) {
+
+            // esplodo le singole coppie per |
+            if ($pair == "")
+                continue;
+
+            $_single_row = explode("|", trim($pair));
+            if (count($_single_row) == 0
+                || count($_single_row) < 2)
+                continue;
+
+            $_lista_options .= <<<HTML
+                <option value="{$_single_row[1]}">{$_single_row[0]}</option>
+HTML;
+
+        }
+
+        if ($_lista_options == "")
+            return $_lista_html;
+
+        $_lista_html = <<<HTML
+            <select id="{$_db_label}" name="{$_db_label}" {$_lista_extra}>
+                {$_lista_options}
+            </select>
+HTML;
+
+        return $_lista_html;
 
     }
 
@@ -1344,5 +1501,69 @@ class utilityHelper
             $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
         }
         return $output;
+    }
+
+    // calcolo età da anno di nascita
+    public static function calcolo_eta_da_nascita($dt_nascita) {
+
+        $_dtn = new DateTime($dt_nascita);
+        $_now = new DateTime();
+        $_interval = $_now->diff($_dtn);
+
+        return $_interval->y;
+
+    }
+
+    public function get_usergroup_id($ug_list) {
+
+        $_ret = array();
+        $ug_arr = explode(',', $ug_list);
+        foreach ($ug_arr as $ug) {
+            $_ret[] = $ug;
+        }
+
+        return $_ret;
+    }
+
+    public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
+
+        $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso));
+        $_arr_add = self::get_usergroup_id($ug_online);
+
+        foreach ($_arr_remove as $key => $d_group_id) {
+            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+        }
+
+        foreach ($_arr_add as $key => $a_group_id) {
+            JUserHelper::addUserToGroup($user_id, $a_group_id);
+        }
+    }
+
+    public static function set_usergroup_decaduto($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
+
+        $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso));
+        $_arr_add = self::get_usergroup_id($ug_decaduto);
+
+        foreach ($_arr_remove as $key => $d_group_id) {
+            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+        }
+
+        foreach ($_arr_add as $key => $a_group_id) {
+            JUserHelper::addUserToGroup($user_id, $a_group_id);
+        }
+    }
+
+    public static function set_usergroup_moroso($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
+
+        $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto));
+        $_arr_add = self::get_usergroup_id($ug_moroso);
+
+        foreach ($_arr_remove as $key => $d_group_id) {
+            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+        }
+
+        foreach ($_arr_add as $key => $a_group_id) {
+            JUserHelper::addUserToGroup($user_id, $a_group_id);
+        }
     }
 }

@@ -22,6 +22,7 @@ class gglmsViewUnita extends JViewLegacy
 {
 
     protected $params;
+    protected $url_base;
 
     function display($tpl = null)
     {
@@ -30,6 +31,9 @@ class gglmsViewUnita extends JViewLegacy
 
         //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb, lo so è una vaccata
         $this->_params = $this->unita->_params;
+
+        $arr_url = parse_url(JURI::base());
+        $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
 
         if (!$this->unita->access()) {
             $app = JFactory::getApplication();

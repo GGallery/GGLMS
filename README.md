@@ -4,6 +4,14 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.5
+- F: aggiunta tipologia coupon per la gestione di template customizzati in Genera coupon
+- D: aggiunta della colonna tipologia_coupon nella tabella gg_coupon
+- D: aggiunta della colonna template nella tabella gg_coupon
+- D: aggiunta della colonna attestato nella tabella gg_unit
+- D: aggiunta della colonna path_pdf nella tabella gg_contenuti
+- D: modifica della colonna messaggio in text nella tabella gg_error_log
+
 4.0.4 
  - G: aggiunta vista webinar
  - G: aggiunto Coupon Dispenser

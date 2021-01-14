@@ -93,6 +93,15 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
             </select>
         </div>
     </div>
+    <?php if ($this->genera_coupon_visualizza_stampa_tracciato == 1
+        && $this->genera_coupon_tipi_coupon != "") { ?>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="genera_coupon_tipi_coupon"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_TIPOLOGIA_COUPON') ?> :</label>
+            <div class="col-sm-9">
+                <?php echo $this->genera_coupon_tipi_coupon; ?>
+            </div>
+        </div>
+    <?php } ?>
     <div class="form-group row">
         <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="qty"><?php echo  JText::_('COM_GGLMS_GENERA_COUPON_QTY') ?> :</label>
         <div class="col-sm-9">

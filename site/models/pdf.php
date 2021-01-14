@@ -68,12 +68,19 @@ class gglmsModelPdf extends JModelLegacy
             $info['tracklog'] = $tracklog;
             $info['coupon'] = $coupon;
 
+            // modifica per integrare il template in base alla tipologia
+            $_tipologia_coupon_ext = (isset($coupon[1]) && $coupon[1] != '' && $coupon[1] != 'nonimpostato') ? $coupon[1] : "";
 
-            $template = "file:" . $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $attestato->id . ".tpl";
+            // se vengo da una generazione multipla di coupon ritorno coupon vuoto come da comportamento originale
+            if ($multi)
+                $info['coupon'] = '';
+
+            $template = "file:" . $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $attestato->id . $_tipologia_coupon_ext . ".tpl";
 
             $customTemplate = $this->customTemplate(); //check sul campo usergroups_details => attestati_custom. Se == 1 cerco il template con l'alias dell'associato
+            // modifica in base alla tipologia anche per i custom template
             if ($customTemplate) {
-                $customFile = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $customTemplate . ".tpl";
+                $customFile = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . "/" . $customTemplate . $_tipologia_coupon_ext . ".tpl";
 
                 if (file_exists($customFile)) {
                     $template = 'file:' . $customFile;

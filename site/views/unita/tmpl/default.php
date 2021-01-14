@@ -4,18 +4,15 @@
 defined('_JEXEC') or die('Restricted access');
 $count = 0;
 
-$arr_url = parse_url(JURI::base());
-$url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
-
 if ($this->unita->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
 if( $this->unita->id == 1 )
-{echo "<h1>" . JText::_('COM_GGLMS_GLOBAL_CORSI') . "</h1>";
+{
+    echo "<h1>" . JText::_('COM_GGLMS_GLOBAL_CORSI') . "</h1>";
 }
 else{
     echo "<h1>" . $this->unita->titolo . "</h1>";
-
 }
 
 
@@ -32,7 +29,9 @@ if ($this->sottounita) {
     foreach ($this->sottounita as $unita) {
         if ($this->unita->_params->get('visualizza_solo_mieicorsi') && !$unita->access()) {
 //            echo "non puoi vedere". $unita->titolo;
-        } elseif (($unita->is_corso == 1 && $unita->is_visibile_today($unita)) || $unita->is_corso != 1) {
+        } elseif (
+                    ($unita->is_corso == 1 && $unita->is_visibile_today($unita))
+                    || $unita->is_corso != 1) {
             try {
                 $count++;
                 $unitaObj = new gglmsModelUnita();
@@ -57,7 +56,7 @@ if ($this->sottounita) {
                         $u_file = $_SERVER['DOCUMENT_ROOT'] . $u_path;
                         // carico l'immagine per indirizzo assoluto
                         if (file_exists($u_file)) {
-                            $img = $url_base . $u_path;
+                            $img = $this->url_base . $u_path;
                         }
                         else
                             $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
@@ -154,7 +153,7 @@ if ($this->contenuti) {
                 $c_file = $_SERVER['DOCUMENT_ROOT'] . $c_path;
                 // carico l'immagine da indirizzo assoluto
                 if (file_exists($c_file)) {
-                    $img = $url_base . $c_path;
+                    $img = $this->url_base . $c_path;
                 }
                 else
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';

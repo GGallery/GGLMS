@@ -23,6 +23,8 @@ class gglmsViewContenuto extends JViewLegacy
 {
 
     protected $params;
+    protected $url_base;
+    protected $slide_pdf;
 
     function display($tpl = null)
     {
@@ -36,10 +38,22 @@ class gglmsViewContenuto extends JViewLegacy
         $user = JFactory::getUser();
         $this->id_utente = $user->get('id');
 
+        $arr_url = parse_url(JURI::base());
+        $this->slide_pdf = null;
+        $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
+
         switch ($this->contenuto->tipologia_contenuto) {
             case 'videoslide':
                 $this->jumper = $this->contenuto->getJumperXML();
                 $this->contenuto->createVTT_slide($this->jumper);
+                // scaricamento delle slide in formato pdf se file presente
+                $_slide_pdf = null;
+                $c_path = '/mediagg/contenuti/' . $this->contenuto->id . '/slide.pdf';
+                $c_file = $_SERVER['DOCUMENT_ROOT'] . $c_path;
+                // carico l'immagine da indirizzo assoluto
+                if (file_exists($c_file)) {
+                    $this->slide_pdf = $this->url_base . $c_path;
+                }
                 break;
 
             case 'solovideo':

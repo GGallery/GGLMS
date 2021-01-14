@@ -1,4 +1,4 @@
-<?php
+getData<?php
 /**
  * @package     Joomla.Site
  * @subpackage  com_contact

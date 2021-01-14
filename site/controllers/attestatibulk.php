@@ -178,6 +178,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 foreach ($data_att as $data) {
 
                     // per data corso $data->dati_corso[0]
+                    // gestione tipologia_coupon passo anche il parametro $coupon che in questo caso sarebbe ''
                     $pdf = $model->_generate_pdf(
                                                 $data->user,
                                                 $data->orientamento,
@@ -186,7 +187,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                                                 $data->dg,
                                                 $data->tracklog,
                                                 '',
-                                                '',
+                                                $data->coupon,
                                                 true);
 
                     // il rand non serve più dopo aver adottato il controllo dell'esistenza file multipla

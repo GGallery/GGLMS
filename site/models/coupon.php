@@ -250,8 +250,9 @@ class gglmsModelcoupon extends JModelLegacy
 
         } catch (Exception $e) {
 
-            var_dump($e);
-            DEBUGG::error($e, 'is_coupon_expired_by_corso');
+            //var_dump($e);
+            //DEBUGG::error($e, 'is_coupon_expired_by_corso');
+            DEBUGG::error($e->getMessage(), 'is_coupon_expired_by_corso');
         }
 
         return false;
