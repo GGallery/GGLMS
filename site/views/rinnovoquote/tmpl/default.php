@@ -197,14 +197,16 @@ defined('_JEXEC') or die;
                 return false;
 
             var amount = parseFloat(jQuery('#amount').val());
-            var amountEspen = parseFloat(jQuery('#amount_espen').val());
+            var amountEspen = parseFloat(jQuery('#tariffa_espen').val());
             var description = jQuery('#description').val();
 
             var nuovoTotale = 0;
+            var totaleEspen = 0;
             var nuovaDescription = "";
 
             if (jQuery(this).attr("checked")) {
-                nuovoTotale = amount + amountEspen
+                nuovoTotale = amount + amountEspen;
+                totaleEspen = amountEspen;
                 nuovaDescription = description + jQuery.trim(jQuery('#anni_da_pagare_espen').attr("data-descr"));
             }
             else {
@@ -213,6 +215,7 @@ defined('_JEXEC') or die;
             }
 
             jQuery('#amount').val(nuovoTotale);
+            jQuery('#amount_espen').val(totaleEspen);
             jQuery('#amount_span').html(nuovoTotale);
             jQuery('#description').val(nuovaDescription);
 

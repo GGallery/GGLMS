@@ -60,12 +60,13 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 throw new Exception("Nessun gruppo moroso specificato", 1);
 
             if (!isset($_arr_decr[5])
-                || $_arr_decr[4] == "")
+                || $_arr_decr[5] == "")
                 throw new Exception("Nessun gruppo decaduto specificato", 1);
 
             $this->gruppi_online = $_arr_decr[3];
             $this->gruppi_moroso = $_arr_decr[4];
             $this->gruppi_decaduto = $_arr_decr[5];
+
 
             // controllo esistenza utente
             $_user = new gglmsControllerUsers();

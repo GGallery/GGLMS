@@ -261,11 +261,11 @@ class gglmsControllerUsers extends JControllerLegacy
                                            $_anno_quota,
                                            $_data_creazione,
                                            $_order_details,
-                                           $gruppi_online,
-                                           $gruppi_moroso,
-                                           $gruppi_decaduto,
                                            $totale_sinpe,
-                                           $totale_espen=0) {
+                                           $totale_espen=0,
+                                           $gruppi_online="",
+                                           $gruppi_moroso="",
+                                           $gruppi_decaduto="") {
 
         $db = JFactory::getDbo();
 
@@ -317,6 +317,9 @@ class gglmsControllerUsers extends JControllerLegacy
                 throw new Exception($_ultimo_anno, 1);
 
             // inserisco l'utente nel gruppo online
+            if ($gruppi_online != ""
+                && $gruppi_moroso != ""
+                && $gruppi_decaduto != "")
             UtilityHelper::set_usergroup_online($user_id,
                 $gruppi_online,
                 $gruppi_moroso,

@@ -692,9 +692,9 @@ HTML;
                                                       $_ultimo_anno_pagato,
                                                       $_anno_corrente,
                                                       $_user_details,
-                                                      $_gruppi_online,
-                                                      $_gruppi_moroso,
-                                                      $_gruppi_decaduto) {
+                                                      $_gruppi_online="",
+                                                      $_gruppi_moroso="",
+                                                      $_gruppi_decaduto="") {
 
         try {
 
@@ -727,12 +727,11 @@ HTML;
             $_cognome_utente = $_user_details['cognome_utente'];
             $_codice_fiscale = $_user_details['codice_fiscale'];
             //$_descrizione_hidden = "USERNAME: " . $_username . "\n";
-            $_descrizione_hidden = (!is_null($_nome_utente) && $_nome_utente != "") ? "NOME: " . $_nome_utente . "\n" : "";
-            $_descrizione_hidden .= (!is_null($_cognome_utente) && $_cognome_utente != "") ? "COGNOME: " . $_cognome_utente . "\n" : "";
-            $_descrizione_hidden .= (!is_null($_codice_fiscale) && $_codice_fiscale != "") ? "CF/PIVA: " . $_codice_fiscale . "\n" : "";
+            //$_descrizione_hidden = (!is_null($_nome_utente) && $_nome_utente != "") ? "NOME: " . $_nome_utente . "\n" : "";
+            //$_descrizione_hidden .= (!is_null($_cognome_utente) && $_cognome_utente != "") ? "COGNOME: " . $_cognome_utente . "\n" : "";
+            //$_descrizione_hidden .= (!is_null($_codice_fiscale) && $_codice_fiscale != "") ? "CF/PIVA: " . $_codice_fiscale . "\n" : "";
             $_tariffa = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anno_laurea, $_anzianita, $_data_nascita);
             $_tariffa_espen = 0;
-            $_totale_da_pagare = 0;
             $_diff_anni = $_anno_corrente-$_ultimo_anno_pagato;
 
             if ($_tariffa == 0)
@@ -756,7 +755,7 @@ HTML;
             $_descr_checkbox_sinpe = "Rinnovo quote SINPE per annualit&agrave; " . $_anni_da_pagare;
 
             //$_descrizione_hidden .= $_descr_checkbox_sinpe . "\n";
-            $_descrizione_hidden .= $_descr_attr_sinpe . "\n";
+            $_descrizione_hidden = $_descr_attr_sinpe . "\n";
 
             $_html .= <<<HTML
                     <tr>
@@ -812,7 +811,8 @@ HTML;
                 </table>
                 
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$_tariffa}" />
-                <input style="display: none;" type="number" id="amount_espen" name="amount_espen" value="{$_tariffa_espen}" />
+                <input style="display: none;" type="number" id="amount_espen" name="amount_espen" value="0" />
+                <input style="display: none;" type="number" id="tariffa_espen" name="tariffa_espen" value="{$_tariffa_espen}" />
                 <input style="display: none;" type="text" id="anni_sinpe" value="{$_anni_da_pagare}" />
                 <input type="hidden" id="gruppi_online" value="{$_gruppi_online}" />
                 <input type="hidden" id="gruppi_moroso" value="{$_gruppi_moroso}" />

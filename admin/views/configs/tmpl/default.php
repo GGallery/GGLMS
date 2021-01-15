@@ -69,6 +69,10 @@ JHtml::_('formbehavior.chosen', 'select');
             include(dirname(__FILE__).DS.'personalizzazioni.php');
             echo JHtml::_('bootstrap.endTab');
 
+            // gestione paypal
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'PayPal', JText::_('PayPal', true));
+            include(dirname(__FILE__).DS.'paypal.php');
+            echo JHtml::_('bootstrap.endTab');
             ?>
 
             <input type="hidden" name="task" value=""/>

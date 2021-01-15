@@ -57,9 +57,10 @@ class gglmsViewPaypal extends JViewLegacy {
                 $totale_sinpe = JRequest::getVar('totale_sinpe');
                 $totale_espen = JRequest::getVar('totale_espen');
 
-                $this->client_id = "AWdDjczaEoOB5Spoq38YV0G18vyVuMfhuwvF-OKK2dcjfpVRAznlMAroXI3lWCSlwHVREqOUerql9xtX";
-                $this->client_secret = "EJ3QuMT_-5t-R2OI3G6mCWUInqtaVvZkQN9C0bb5kYAblrG1v72Zp8POpeXAwQpQgiv2o5PmKmqU0Cur";
-                $this->is_production = 0;
+                $_config = new gglmsModelConfig();
+                $this->client_id = $_config->getConfigValue('paypal_client_id');
+                $this->client_secret = $_config->getConfigValue('paypal_client_secret');
+                $this->is_production = (int) $_config->getConfigValue('paypal_modalita_lavoro');
 
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale_sinpe, $totale_espen), true);
@@ -73,11 +74,11 @@ class gglmsViewPaypal extends JViewLegacy {
                     $new_order['anno_quota'],
                     $new_order['data_creazione'],
                     $new_order['order_details'],
+                    $new_order['totale_sinpe'],
+                    $new_order['totale_espen'],
                     $gruppi_online,
                     $gruppi_moroso,
-                    $gruppi_decaduto,
-                    $new_order['totale_sinpe'],
-                    $new_order['totale_espen']);
+                    $gruppi_decaduto);
 
                 if (!is_array($_insert_quote))
                     $this->call_result = $_insert_quote;

@@ -1065,5 +1065,43 @@
 
         <!-- FINE PERSONALIZZAZIONI -->
 
+        <!-- INIZIO PAYPAL -->
+
+        <field
+                name="paypal_modalita_lavoro"
+                type="radio"
+                class="btn-group"
+                label="La modalità di lavoro dell'applicazione"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">Test</option>
+            <option value="1">Produzione</option>
+        </field>
+
+        <field
+                name="paypal_client_id"
+                class="inputbox"
+                label="Client ID dell'applicazione"
+                type="textarea"
+                cols="25"
+                rows="3"
+                default=""
+                description="Client ID associata all'applicazione PayPal disponibile nella Dashboard di developer.paypal.com"
+        />
+
+        <field
+                name="paypal_client_secret"
+                class="inputbox"
+                label="Client secret dell'applicazione"
+                type="textarea"
+                cols="25"
+                rows="3"
+                default=""
+                description="Client secret associata all'applicazione PayPal disponibile nella Dashboard di developer.paypal.com"
+        />
+
+        <!-- FINE PAYPAL -->
+
     </fieldset>
 </form>
