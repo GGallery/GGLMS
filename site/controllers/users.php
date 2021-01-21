@@ -262,10 +262,7 @@ class gglmsControllerUsers extends JControllerLegacy
                                            $_data_creazione,
                                            $_order_details,
                                            $totale_sinpe,
-                                           $totale_espen=0,
-                                           $gruppi_online="",
-                                           $gruppi_moroso="",
-                                           $gruppi_decaduto="") {
+                                           $totale_espen=0) {
 
         $db = JFactory::getDbo();
 
@@ -317,13 +314,21 @@ class gglmsControllerUsers extends JControllerLegacy
                 throw new Exception($_ultimo_anno, 1);
 
             // inserisco l'utente nel gruppo online
-            if ($gruppi_online != ""
-                && $gruppi_moroso != ""
-                && $gruppi_decaduto != "")
+            $_params = utilityHelper::get_params_from_plugin();
+            $ug_categoria = utilityHelper::get_ug_from_object($_params, "ug_categoria");
+            $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+            $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+            $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
             UtilityHelper::set_usergroup_online($user_id,
                 $gruppi_online,
                 $gruppi_moroso,
                 $gruppi_decaduto);
+
+            // controllo se l'utente è in uno dei gruppi di categoria
+            $_check_ug = utilityHelper::check_user_into_ug($user_id, explode(",", $ug_categoria));
+            if (!$_check_ug) {
+
+            }
 
             $db->transactionCommit();
 

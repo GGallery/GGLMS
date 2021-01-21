@@ -1028,7 +1028,7 @@ class utilityHelper
     }
 
     // imposto il form del pagamento alternativo per il rinnovo delle quote sinpe
-    public static function get_pagamento_alternativo_from_plugin() {
+    public static function get_params_from_plugin($plugin = 'cb.checksoci') {
 
         try {
 
@@ -1038,7 +1038,7 @@ class utilityHelper
             $query = $db->getQuery(true)
                     ->select('params')
                     ->from('#__comprofiler_plugin')
-                    ->where("element = 'cb.checksoci'");
+                    ->where("element = '" . $plugin . "'");
 
             $db->setQuery($query);
             $result = $db->loadAssoc();
@@ -1059,7 +1059,6 @@ class utilityHelper
 
     // calcolo tariffa socio per parametri pre impostati
     public static function calcola_quota_socio($_tipo_laurea,
-                                               $_anno_laurea,
                                                $_anzianita,
                                                $_data_nascita,
                                                $_tipo='sinpe') {
@@ -1080,7 +1079,7 @@ class utilityHelper
          *
          */
 
-        $_tariffa = 0;
+        $_tariffa = 25;
         if ($_tipo == 'sinpe') {
 
             // se medico o farmacista
@@ -1514,10 +1513,11 @@ HTML;
 
     }
 
-    public function get_usergroup_id($ug_list) {
+    // converto una stringa di usergroups in un array
+    public function get_usergroup_id($ug_list, $delimiter = ',') {
 
         $_ret = array();
-        $ug_arr = explode(',', $ug_list);
+        $ug_arr = explode($delimiter, $ug_list);
         foreach ($ug_arr as $ug) {
             $_ret[] = $ug;
         }
@@ -1525,6 +1525,7 @@ HTML;
         return $_ret;
     }
 
+    // inserisco un utente nel gruppo online
     public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
         $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso));
@@ -1539,6 +1540,7 @@ HTML;
         }
     }
 
+    // inserisco un utente nel gruppo decaduto
     public static function set_usergroup_decaduto($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
         $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso));
@@ -1553,6 +1555,7 @@ HTML;
         }
     }
 
+    // inserisco un utente nel gruppo moroso
     public static function set_usergroup_moroso($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
         $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto));
@@ -1565,5 +1568,54 @@ HTML;
         foreach ($_arr_add as $key => $a_group_id) {
             JUserHelper::addUserToGroup($user_id, $a_group_id);
         }
+    }
+
+    // ottengo la lista degli usergroup specifici dai parametri del plugin
+    public static function get_ug_from_object($_ret, $param) {
+
+        $ug_list = self::get_params_from_object($_ret, $param);
+
+        if ($ug_list != "") {
+            $_implode_ug = self::get_usergroup_id($ug_list, '|*|');
+            return implode(",", $_implode_ug);
+        }
+
+        return "";
+    }
+
+    // decodifica dell'oggetto passato dalla query per recepire i parametri da un plugin specifico
+    public static function get_params_from_object($_ret, $param) {
+
+        if (!is_array($_ret))
+            return "";
+
+        $_json_decode = json_decode($_ret['success'], true);
+
+        if (!isset($_json_decode[$param])
+            || $_json_decode[$param] == "")
+            return "";
+
+        return $_json_decode[$param];
+
+    }
+
+    // controllo se utente si trova in gruppi specifici
+    public static function check_user_into_ug($user_id, $ug_check=array()) {
+
+        $user = JFactory::getUser($user_id);
+
+        if (!is_array($ug_check)
+            || count($ug_check) == 0)
+            return false;
+
+        foreach ($ug_check as $group) {
+
+            if (in_array($group, $user->groups))
+                return true;
+
+        }
+
+        return false;
+
     }
 }

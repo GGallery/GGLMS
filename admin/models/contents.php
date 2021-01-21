@@ -101,6 +101,13 @@ class gglmsModelContents extends JModelList {
         $this->setState('corsi', $state);
 
         parent::populateState('c.ordinamento', 'asc');
+
+        // override default page limit - prende come riferimento quello impostanto nella configurazione globale del sito Limite liste predefinito
+        $limit = $this->getUserStateFromRequest('global.list.limit', 'limit', $app->get('list_limit'));
+        $this->setState('list.limit', $limit);
+
+        $limitstart = $this->getUserStateFromRequest('limitstart', 'limitstart', 0);
+        $this->setState('list.start', $limitstart);
     }
 
     public function getCorsi(){

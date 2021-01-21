@@ -730,7 +730,7 @@ HTML;
             //$_descrizione_hidden = (!is_null($_nome_utente) && $_nome_utente != "") ? "NOME: " . $_nome_utente . "\n" : "";
             //$_descrizione_hidden .= (!is_null($_cognome_utente) && $_cognome_utente != "") ? "COGNOME: " . $_cognome_utente . "\n" : "";
             //$_descrizione_hidden .= (!is_null($_codice_fiscale) && $_codice_fiscale != "") ? "CF/PIVA: " . $_codice_fiscale . "\n" : "";
-            $_tariffa = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anno_laurea, $_anzianita, $_data_nascita);
+            $_tariffa = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita);
             $_tariffa_espen = 0;
             $_diff_anni = $_anno_corrente-$_ultimo_anno_pagato;
 
@@ -775,7 +775,7 @@ HTML;
 
             // se l'utente è in regola con la quota dell'anno scorso gli presento anche il rinnovo ESPEN
             if ($_diff_anni == 1) {
-                $_tariffa_espen = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anno_laurea, $_anzianita, $_data_nascita, 'espen');
+                $_tariffa_espen = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita, 'espen');
                 $_descr_attr_espen = "rinnovo_quote_espen_" . $_anno_corrente;
                 $_descr_checkbox_espen = "Rinnovo quota ESPEN per annualit&agrave; " . $_anno_corrente ." (facoltativo)";
                 $_html .= <<<HTML
@@ -814,13 +814,24 @@ HTML;
                 <input style="display: none;" type="number" id="amount_espen" name="amount_espen" value="0" />
                 <input style="display: none;" type="number" id="tariffa_espen" name="tariffa_espen" value="{$_tariffa_espen}" />
                 <input style="display: none;" type="text" id="anni_sinpe" value="{$_anni_da_pagare}" />
-                <input type="hidden" id="gruppi_online" value="{$_gruppi_online}" />
-                <input type="hidden" id="gruppi_moroso" value="{$_gruppi_moroso}" />
-                <input type="hidden" id="gruppi_decaduto" value="{$_gruppi_decaduto}" />
                 <input type="hidden" id="user_id" value="{$user_id}" />
                 <input type="hidden" id="anno_corrente" value="{$_anno_corrente}" />
                 <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
 HTML;
+
+            if ($_gruppi_online != "")
+                $_html .= <<<HTML
+                <input type="hidden" id="gruppi_online" value="{$_gruppi_online}" />
+HTML;
+            if ($_gruppi_moroso != "")
+                $_html .= <<<HTML
+                <input type="hidden" id="gruppi_moroso" value="{$_gruppi_moroso}" />
+HTML;
+            if ($_gruppi_decaduto != "")
+                $_html .= <<<HTML
+                <input type="hidden" id="gruppi_decaduto" value="{$_gruppi_decaduto}" />
+HTML;
+
             $_ret['success'] = $_html;
             return $_ret;
 
@@ -836,20 +847,13 @@ HTML;
 
         // elaboro l'html o il testo del metodo di pagamento alternativo
         $_html = "";
+        $_testo_pagamento_bonifico = utilityHelper::get_params_from_object($_ret, 'testo_pagamento_bonifico');
 
-        if (!is_array($_ret))
-            return $_html;
-
-        $_json_decode = json_decode($_ret['success'], true);
-        if (!isset($_json_decode['testo_pagamento_bonifico'])
-            || $_json_decode['testo_pagamento_bonifico'] == "")
-            return $_html;
-
-        if ($_ret != "")
+        if ($_testo_pagamento_bonifico != "")
             $_html = <<<HTML
                 <div class="row">
                     <div class="col-12">
-                        {$_json_decode['testo_pagamento_bonifico']}
+                        {$_testo_pagamento_bonifico}
                     </div>
                 </div>
 HTML;

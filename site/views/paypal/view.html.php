@@ -51,9 +51,11 @@ class gglmsViewPaypal extends JViewLegacy {
 
                 $order_id = JRequest::getVar('order_id');
                 $user_id = JRequest::getVar('user_id');
+                /*
                 $gruppi_online = JRequest::getVar('gruppi_online');
                 $gruppi_moroso = JRequest::getVar('gruppi_moroso');
                 $gruppi_decaduto = JRequest::getVar('gruppi_decaduto');
+                */
                 $totale_sinpe = JRequest::getVar('totale_sinpe');
                 $totale_espen = JRequest::getVar('totale_espen');
 
@@ -75,10 +77,7 @@ class gglmsViewPaypal extends JViewLegacy {
                     $new_order['data_creazione'],
                     $new_order['order_details'],
                     $new_order['totale_sinpe'],
-                    $new_order['totale_espen'],
-                    $gruppi_online,
-                    $gruppi_moroso,
-                    $gruppi_decaduto);
+                    $new_order['totale_espen']);
 
                 if (!is_array($_insert_quote))
                     $this->call_result = $_insert_quote;
