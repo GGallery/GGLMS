@@ -69,7 +69,14 @@ class gglmsModelPdf extends JModelLegacy
             $info['coupon'] = $coupon;
 
             // modifica per integrare il template in base alla tipologia
-            $_tipologia_coupon_ext = (isset($coupon[1]) && $coupon[1] != '' && $coupon[1] != 'nonimpostato') ? $coupon[1] : "";
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select("COALESCE(c.tipologia_coupon, 'nonimpostato') AS tipologia_coupon")
+                ->from('#__gg_coupon c')
+                ->where("coupon = '" . $coupon . "'");
+            $db->setQuery($query);
+            $_tipologia = $db->loadResult();
+            $_tipologia_coupon_ext = (!is_null($_tipologia) && $_tipologia != '' && $_tipologia != 'nonimpostato') ? $_tipologia : "";
 
             // se vengo da una generazione multipla di coupon ritorno coupon vuoto come da comportamento originale
             if ($multi)
