@@ -16,7 +16,7 @@ jimport('joomla.application.component.view');
 jimport('joomla.application.component.helper');
 
 require_once JPATH_COMPONENT . '/controllers/paypal.php';
-require_once JPATH_COMPONENT . '/controllers/users.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 
 class gglmsViewPaypal extends JViewLegacy {
 
@@ -71,18 +71,26 @@ class gglmsViewPaypal extends JViewLegacy {
                     throw new Exception($new_order['error'], 1);
 
                 // inserisco le quote per l'utente selezionato
-                $_user_quote = new gglmsControllerUsers();
+                $_user_quote = new gglmsModelUsers();
+
+                $_user_details = $_user_quote->get_user_details_cb($user_id);
+                if (!is_array($_user_details))
+                    throw new Exception($_user_details, 1);
+
                 $_insert_quote = $_user_quote->insert_user_quote_anno($user_id,
                     $new_order['anno_quota'],
                     $new_order['data_creazione'],
                     $new_order['order_details'],
                     $new_order['totale_sinpe'],
-                    $new_order['totale_espen']);
+                    $new_order['totale_espen'],
+                    $_user_details,
+                    true);
 
                 if (!is_array($_insert_quote))
                     $this->call_result = $_insert_quote;
                 else
                     $this->call_result = "tuttook";
+
 
             }
 

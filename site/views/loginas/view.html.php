@@ -17,7 +17,6 @@ jimport('joomla.application.component.view');
 jimport('joomla.application.component.helper');
 
 require_once JPATH_COMPONENT . '/models/users.php';
-require_once JPATH_COMPONENT . '/models/users.php';
 
 
 class gglmsViewLoginAs extends JViewLegacy

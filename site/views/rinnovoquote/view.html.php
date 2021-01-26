@@ -15,7 +15,8 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.application.component.view');
 jimport('joomla.application.component.helper');
 
-require_once JPATH_COMPONENT . '/controllers/users.php';
+//require_once JPATH_COMPONENT . '/controllers/users.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 
 class gglmsViewRinnovoQuote extends JViewLegacy {
 
@@ -54,7 +55,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             $this->nome_servizio = $_arr_decr[2];
 
             // controllo esistenza utente
-            $_user = new gglmsControllerUsers();
+            $_user = new gglmsModelUsers();
             $_check_user = $_user->check_user($_username, $_password);
 
             if (!is_array($_check_user))
@@ -69,8 +70,9 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                     || $_arr_decr[3] == "")
                     throw new Exception("Ultimo anno di pagamento non definito", 1);
 
-                $this->ultimo_anno_pagato = $_arr_decr[3];
                 $_anno_corrente = $dt->format('Y');
+                // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
+                $this->ultimo_anno_pagato = $_arr_decr[3] > 0 ? $_arr_decr[3] : $_anno_corrente;
 
                 // controllo esistenza quote
                 $this->user_id = $_check_user['success'];

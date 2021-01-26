@@ -861,4 +861,92 @@ HTML;
         return $_html;
 
     }
+
+    // tabella riassuntiva delle quote per utente
+    public static function get_dettaglio_pagamento_quote($_quote) {
+
+        $_label_header = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR8');
+
+        $_html = <<<HTML
+        <div class="page-header">
+            <h3>{$_label_header}</h3>
+        </div>
+HTML;
+
+        if (is_null($_quote)
+            || count($_quote) == 0) {
+            $_label = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR1');
+            $_html .= <<<HTML
+            <div class="jumbotron">
+                <p>{$_label}</p>
+            </div>
+HTML;
+
+        }
+        else {
+
+            $_label_tipo_quota = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR2');
+            $_label_tipo_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR3');
+            $_label_anno = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR4');
+            $_label_totale = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR5');
+            $_label_data_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR6');
+            $_label_dettagli = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR7');
+            $_html .= <<<HTML
+
+            <table 
+                data-toggle="table"
+                data-pagination="true"
+                data-search="true"
+                >
+              <thead>
+                <tr>
+                    <th data-field="id_pagamento" data-sortable="true">#</th>
+                    <th data-field="tipo_quota">{$_label_tipo_quota}</th>
+                    <th data-field="tipo_pagamento">{$_label_tipo_pagamento}</th>
+                    <th data-field="anno" data-sortable="true">{$_label_anno}</th>
+                    <th data-field="totale" data-sortable="true">{$_label_totale}</th>
+                    <th data-field="data_pagamento">{$_label_data_pagamento}</th>
+                    <th data-field="dettagli_transazione">{$_label_dettagli}</th>
+                </tr>
+               </thead>
+               <tbody>
+HTML;
+
+            foreach ($_quote as $_quota) {
+
+                $_tipo_quota = (!is_null($_quota['tipo_quota'])) ? strtoupper($_quota['tipo_quota']) : "";
+                $_tipo_pagamento = (!is_null($_quota['tipo_pagamento'])) ? strtolower($_quota['tipo_pagamento']) : "";
+
+                $_fab_pagamento = $_tipo_pagamento == "paypal" ?  "fab fa-paypal" : "fas fa-university";
+
+                if (is_null($_tipo_pagamento)
+                    || $_tipo_pagamento == "")
+                    $_fab_pagamento = "fas fa-question";
+
+                $_icon_pagamento = <<<HTML
+                    <i class="{$_fab_pagamento} fa-2x"></i>
+HTML;
+                $_html .= <<<HTML
+                <tr>
+                    <td class="center">{$_quota['id_pagamento']}</td>
+                    <td class="center">{$_tipo_quota}</td>
+                    <td class="center">{$_icon_pagamento}</td>
+                    <td class="center">{$_quota['anno']}</td>
+                    <td class="center">{$_quota['totale']}</td>
+                    <td class="center">{$_quota['data_pagamento']}</td>
+                    <td>{$_quota['dettagli_transazione']}</td>
+                </tr>
+HTML;
+            }
+        }
+            
+            $_html .=<<<HTML
+          </tbody>
+        </table>
+HTML;
+
+        return $_html;
+
+
+    }
 }

@@ -386,7 +386,7 @@ class gglmsModelUsers extends JModelLegacy
                 ->from('#__user_usergroup_map AS ug1')
                 ->join('inner', '#__user_usergroup_map AS ug2 ON  ug1.user_id = ug2.user_id')
                 ->where("ug1.group_id =" . $id_gruppo_societa)
-                ->where("ug2.group_id=" . $id_gruppo_tutor_aziendale);
+                ->where("ug2.group_id =" . $id_gruppo_tutor_aziendale);
 
 
             $this->_db->setQuery($query);
@@ -456,6 +456,281 @@ class gglmsModelUsers extends JModelLegacy
         } else
             return $rows;
 
+    }
+
+    public function check_user($username, $password) {
+
+        try {
+
+            $_ret = array();
+
+            // Get a database object
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, password')
+                ->from('#__users')
+                ->where('username = ' . $db->quote($username));
+
+            $db->setQuery($query);
+            $result = $db->loadObject();
+
+            if (!$result)
+                return "User not exist!";
+
+            $match = JUserHelper::verifyPassword($password, $result->password, $result->id);
+
+            if (!$match)
+                return "Password mismatch";
+
+            $_ret['success'] = $result->id;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function get_user_quote($user_id) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('tipo_quota, anno')
+                ->from('#__gg_quote_iscrizioni')
+                ->where("user_id = '" . $user_id . "'")
+                ->group($db->quoteName('tipo_quota'))
+                ->group($db->quoteName('anno'))
+                ->order('anno DESC');
+
+            $db->setQuery($query);
+            $result = $db->loadAssocList();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function get_user_details_cb($user_id) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('cb_professionedisciplina as professione,
+                                cb_laureain as tipo_laurea, 
+                                cb_laureanno as anno_laurea, 
+                                cb_datadinascita as data_nascita,
+                                firstname as nome_utente,
+                                lastname as cognome_utente,
+                                cb_codicefiscale as codice_fiscale')
+                ->from('#__comprofiler')
+                ->where("user_id = '" . $user_id . "'");
+
+            $db->setQuery($query);
+            $result = $db->loadAssoc();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function update_ultimo_anno_pagato($user_id, $ultimo_anno_pagato) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+
+            $query = $db->getQuery(true);
+            $query->update("#__comprofiler");
+            $query->set("cb_ultimoannoinregola = '" . $ultimo_anno_pagato . "'");
+            $query->where("user_id = " . $user_id);
+
+            $db->setQuery($query);
+            $db->execute();
+
+            $_ret['success'] = 'tuttook';
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function insert_user_quote_anno($user_id,
+                                           $_anno_quota,
+                                           $_data_creazione,
+                                           $_order_details,
+                                           $totale_sinpe,
+                                           $totale_espen=0,
+                                           $_user_details = array(),
+                                           $send_email = true) {
+
+        $db = JFactory::getDbo();
+
+        try {
+
+            $_ret = array();
+            $db->transactionStart();
+
+            // inserisco le righe riferite agli anni
+            //$query = $db->getQuery(true);
+            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
+                                                                anno, 
+                                                                tipo_quota, 
+                                                                tipo_pagamento, 
+                                                                data_pagamento, 
+                                                                totale, 
+                                                                dettagli_transazione) 
+                            VALUES ";
+
+            $query .= "(
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'quota',
+                               'paypal',
+                               '" . $_data_creazione . "',
+                               '" . $totale_sinpe . "',
+                               '" . addslashes($_order_details) . "'
+                            )";
+
+            if ($totale_espen)
+                $query .= ", (
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'espen',
+                               'paypal',
+                               '" . $_data_creazione . "',
+                               '" . $totale_espen . "',
+                               NULL
+                            )";
+
+            $query .= ";";
+
+            $db->setQuery($query);
+            $db->execute();
+
+            // aggiorno ultimo anno pagato
+            $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
+            if (!is_array($_ultimo_anno))
+                throw new Exception($_ultimo_anno, 1);
+
+            // estrapolo i parametri dal plugin
+            $_params = utilityHelper::get_params_from_plugin();
+            $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+            $ug_categoria = utilityHelper::get_ug_from_object($_params, "ug_categoria");
+            $ug_default = utilityHelper::get_ug_from_object($_params, "ug_default");
+            $ug_extra = utilityHelper::get_ug_from_object($_params, "ug_extra");
+            $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+            $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+            $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+
+            // inserisco l'utente nel gruppo online
+            $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
+            if (!is_array($_ins_online))
+                throw new Exception($_ins_online, 1);
+
+            // inserisco l'utente nel gruppo categoria corretto
+            $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
+            if (!is_array($_ins_categoria))
+                throw new Exception($_ins_categoria, 1);
+
+            $db->transactionCommit();
+
+            // $oggetto, $body, $destinatari=array(), $is_html=true
+            if ($send_email)
+                utilityHelper::send_sinpe_email_pp($email_default,
+                    $_data_creazione,
+                    $_order_details,
+                    $_anno_quota,
+                    $_user_details,
+                    $totale_sinpe,
+                    $totale_espen);
+
+            $_ret['success'] = "tuttook";
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $db->transactionRollback();
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    // dettaglio pagamento quote per soci SINPE
+    public function get_quote_iscrizione($user_id = null, $anno = null, $tipo_quota = null) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                    ->select('id AS id_pagamento,
+                                anno,
+                                tipo_quota,
+                                tipo_pagamento,
+                                COALESCE(DATE_FORMAT(data_pagamento, "%d-%m-%Y %H:%i:%s"), "") AS data_pagamento,
+                                TRUNCATE(totale, 2) AS totale,
+                                dettagli_transazione
+                            ')
+                    ->from('#__gg_quote_iscrizioni');
+
+            if (!is_null($user_id))
+                $query = $query->where("user_id = '" . $user_id . "'");
+
+            if (!is_null($anno))
+                $query = $query->where("anno = '" . $anno . "'");
+
+            if (!is_null($tipo_quota))
+                $query = $query->where("tipo_quota = '" . $tipo_quota . "'");
+
+            $query = $query->order('anno desc, tipo_quota asc');
+            $db->setQuery($query);
+            $result = $db->loadAssocList();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
     }
 
 

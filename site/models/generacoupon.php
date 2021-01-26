@@ -229,7 +229,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = $this->_db->getQuery(true)
                 ->select('u.id')
                 ->from('#__users as u')
-                ->where('username="' . $piva . '"');
+                ->where('username="' . $this->_db->escape($piva) . '"');
 
 
             $this->_db->setQuery($query);
@@ -269,7 +269,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $crypt = JUserHelper::getCryptedPassword($password, $salt) . ':' . $salt;
 
             // creo nuovo user
-            $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $data['ragione_sociale'], $data['username'], $crypt, $data['email']);
+            $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $this->_db->escape($data['ragione_sociale']), $this->_db->escape($data['username']), $crypt, $data['email']);
             $this->_db->setQuery($query);
             if (false === $this->_db->query())
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
@@ -292,7 +292,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = 'INSERT INTO #__comprofiler (id, user_id, cb_cognome, cb_ateco) VALUES (
                 ' . $user_id . ',
                 ' . $user_id . ',
-                \'' . $data['ragione_sociale'] . '\' ,
+                \'' . $this->_db->escape($data['ragione_sociale']) . '\' ,
                 \'' . $data['ateco'] . '\'
                 )';
 
@@ -330,7 +330,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     private function _check_username($username)
     {
-        $query = 'SELECT id FROM #__users WHERE username=\'' . $username . '\' LIMIT 1';
+        $query = 'SELECT id FROM #__users WHERE username=\'' . $this->_db->escape($username) . '\' LIMIT 1';
         $this->_db->setQuery($query);
         if (false === ($results = $this->_db->loadRow())) {
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
@@ -341,7 +341,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     private function _check_usergroups($usergroup) {
 
-        $query = "SELECT id FROM #__usergroups WHERE title = '" . $usergroup . "'";
+        $query = "SELECT id FROM #__usergroups WHERE title = '" . $this->_db->escape($usergroup) . "'";
         $this->_db->setQuery($query);
 
         if (false === ($results = $this->_db->loadRow())) {
@@ -375,7 +375,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $insertquery_group = $insertquery_group . $piattaforma_group_id . ',';
             $insertquery_group = $insertquery_group . '0' . ',';
             $insertquery_group = $insertquery_group . '0' . ',';
-            $insertquery_group = $insertquery_group . '\'' . $company_name . '\'' . ')';
+            $insertquery_group = $insertquery_group . '\'' . $this->_db->escape($company_name) . '\'' . ')';
 
             //echo $insertquery; die;
             $this->_db->setQuery($insertquery_group);
@@ -407,8 +407,28 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     private function _generate_coupon($prefisso_coupon, $nome_societa)
     {
+        // controllo lunghezza del nome della società
+        $_check_len = strlen($nome_societa);
+        if ($_check_len < 3) {
+            for ($i = $_check_len; $i < 3; $i++) {
+                $nome_societa .= "s";
+            }
+        }
 
-        $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
+        // prende il nome società fino al quarto carattere - quindi se la prima parola è UN' nel codice coupon finisce '
+        // tolgo dal prefisso tutto ciò che non è lettera
+        $_prefisso_az = preg_replace('~[^a-zA-Z]~i', '', substr($nome_societa, 0, 3));
+        // controllo la lunghezza della stringa
+        $_str_leng = strlen($_prefisso_az);
+        // se minore di 3 caratteri accodo "s"
+        if ($_str_leng < 3) {
+            for ($i = $_str_leng; $i < 3; $i++) {
+                $_prefisso_az .= "s";
+            }
+        }
+
+        //$var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
+        $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . $_prefisso_az;
         $var_2 = str_replace('.', 'p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
 
         return str_replace(' ', '_', $var_1 . $var_2);
@@ -748,7 +768,19 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $params = '{"display":{"index":{"parent":"3","children":"3"}}}';
 
             $query = 'INSERT INTO #__kunena_categories (parent_id, name, alias, accesstype, access, pub_access, pub_recurse, admin_access , admin_recurse , published, description, headerdesc, params)';
-            $query = $query . 'VALUES ( ' . $parent_id . ', \'' . $forum_name . '\', \'' . $alias . '\', \'' . $access_type . '\', ' . $access . ',' . $pub_access . ',' . $pub_recurse . ',' . $admin_access . ',' . $admin_recurse . ',' . $published . ', \'' . $description . '\', \'' . $headerdesc . '\', \'' . $params . '\')';
+            $query = $query . 'VALUES ( ' . $parent_id . ', 
+                                            \'' . $this->_db->escape($forum_name) . '\', 
+                                            \'' . $this->_db->escape($alias) . '\', 
+                                            \'' . $access_type . '\', 
+                                            ' . $access . ',
+                                            ' . $pub_access . ',
+                                            ' . $pub_recurse . ',
+                                            ' . $admin_access . ',
+                                            ' . $admin_recurse . ',
+                                            ' . $published . ', 
+                                            \'' . $this->_db->escape($description) . '\', 
+                                            \'' . $this->_db->escape($headerdesc) . '\', 
+                                            \'' . $params . '\')';
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
@@ -768,7 +800,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // inserisco nella tabella alias altrimento il link al forum non è cliccabile
             $alias_type = 'catid';
             $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
-            $query = $query . 'VALUES ( \'' . $alias . '\', \'' . $alias_type . '\',' . $company_forum_id . ')';
+            $query = $query . 'VALUES ( \'' . $this->_db->escape($alias) . '\', \'' . $alias_type . '\',' . $company_forum_id . ')';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
@@ -908,8 +940,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                                     headerdesc, 
                                                     params)';
         $query = $query . 'VALUES (' . $parent_id . ', 
-                                   \'' . addslashes($titolo_corso) . '\', 
-                                   \'' . addslashes($alias) . '\', 
+                                   \'' . $this->_db->escape($titolo_corso) . '\', 
+                                   \'' . $this->_db->escape($alias) . '\', 
                                    \'' . $access_type . '\', 
                                    ' . $access . ',
                                    ' . $pub_access . ',
@@ -917,8 +949,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                    ' . $admin_access . ',
                                    ' . $admin_recurse . ',
                                    ' . $published . ', 
-                                   \'' . addslashes($description) . '\', 
-                                   \'' . addslashes($headerdesc) . '\', 
+                                   \'' . $this->_db->escape($description) . '\', 
+                                   \'' . $this->_db->escape($headerdesc) . '\', 
                                    \'' . $params . '\'
                                    )';
 
@@ -944,7 +976,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         // fix preventivo alias per eventuali singolo apici di troppo
         $alias_type = 'catid';
         $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
-        $query = $query . 'VALUES ( \'' . addslashes($alias) . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
+        $query = $query . 'VALUES ( \'' . $this->_db->escape($alias) . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
         $this->_db->setQuery($query);
         if (false === ($results = $this->_db->query())) {
             throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

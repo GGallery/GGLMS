@@ -26,7 +26,6 @@ class gglmsViewCatalogo extends JViewLegacy
     function display($tpl = null)
     {
 
-
         $box = JRequest::getVar('box');
 
         $this->id_piattaforma = JRequest::getVar('piattaforma_id');
@@ -39,14 +38,9 @@ class gglmsViewCatalogo extends JViewLegacy
             $this->catalogo = $this->catalogoModel->getCatalogo_prenota( $this->id_piattaforma );
         }
         else{
-
             // template per piattaforme che non hanno ecommerce
             $this->catalogo = $this->catalogoModel->getCatalogo(DOMINIO, $box);
-
         }
-
-
-
 
 
         parent::display($tpl);

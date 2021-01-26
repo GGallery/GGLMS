@@ -1079,6 +1079,11 @@ class utilityHelper
          *
          */
 
+        /* Tariffe straordinari - non applico automaticamente
+         * € 25,00 per professioni diverse da Medici, Infermieri, Dietisti e Farmacisti
+         * € 70,00 per Biologi
+         * */
+
         $_tariffa = 25;
         if ($_tipo == 'sinpe') {
 
@@ -1484,6 +1489,53 @@ HTML;
 
     }
 
+    // invia email relativa all'esito del pagamento per il rinnovo delle quote sinpe
+    public static function send_sinpe_email_pp($email_default,
+                                               $_data_creazione,
+                                               $_order_details,
+                                               $_anno_quota,
+                                               $_user_details,
+                                               $totale_sinpe,
+                                               $totale_espen=0) {
+
+        $_nominativo = "";
+        $_cf = "";
+        if (isset($_user_details['nome_utente'])
+            && $_user_details['nome_utente'] != "")
+            $_nominativo .= $_user_details['nome_utente'];
+
+        if (isset($_user_details['cognome_utente'])
+            && $_user_details['cognome_utente'] != "") {
+            $_nominativo .= ($_nominativo != "") ? " " : "";
+            $_nominativo .= $_user_details['cognome_utente'];
+        }
+
+        if (isset($_user_details['codice_fiscale'])
+            && $_user_details['codice_fiscale'] != "")
+            $_cf .= $_user_details['codice_fiscale'];
+
+        $dt = new DateTime($_data_creazione);
+
+        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
+        $body = <<<HTML
+                <br /><br />
+                <p>Nominativo: <b>{$_nominativo}</b></p>
+                <p>Codice fiscale: {$_cf}</p>
+                <p>Anno di riferimento: {$_anno_quota}</p>
+                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                <p>Dettagli ordine: {$_order_details}</p>
+                <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
+                <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+HTML;
+
+        $_destinatario = array();
+        if ($email_default != "")
+            $_destinatario[] = $email_default;
+
+        return self::send_email($oggetto, $body, $_destinatario, true, true);
+
+    }
+
     // cript & decrypt stringhe
     public static function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
         $output = false;
@@ -1525,11 +1577,91 @@ HTML;
         return $_ret;
     }
 
-    // inserisco un utente nel gruppo online
-    public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
+    public static function get_tipo_socio($_user_details) {
 
-        $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso));
-        $_arr_add = self::get_usergroup_id($ug_online);
+        try {
+            // controllo campi necessari per il calcolo delle tariffe
+            // tipo_laurea
+            if (!isset($_user_details['tipo_laurea'])
+                || $_user_details['tipo_laurea'] == "")
+                throw new Exception("Impossibile stabilire la tipologia di affiliazione, tipo di laurea non specificato");
+
+            $_ret = array();
+            $_tipo_quota = "";
+
+            if (strpos($_user_details['tipo_laurea'], 'Medicina') !== false
+                || strpos($_user_details['tipo_laurea'], 'Infermieristica') !== false
+                || strpos($_user_details['tipo_laurea'], 'Dietistica') !== false
+                || strpos($_user_details['tipo_laurea'], 'Farmacia') !== false
+                )
+                $_tipo_quota = "ordinario";
+            else
+                $_tipo_quota = "extra";
+
+
+            $_ret['success'] = $_tipo_quota;
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
+    public static function set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details) {
+
+        $_ret = array();
+
+        try {
+            // controllo se l'utente è iscritto perchè inserito in uno dei gruppi di categoria
+            $_check_ug = self::check_user_into_ug($user_id, explode(",", $ug_categoria));
+            // verifico il tipo di socio in base al ruolo
+            $_tipo_socio = self::get_tipo_socio($_user_details);
+            if (!is_array($_tipo_socio))
+                throw new Exception($_tipo_socio, 1);
+
+            // il socio è già iscritto ed inserito in un gruppo specifico
+            if ($_check_ug) {
+
+                // controllo se è straordinario
+                $_check_extra = self::check_user_into_ug($user_id, explode(",", $ug_extra));
+
+                // lo tolgo dal gruppo straordinario altrimenti non faccio nulla
+                if ($_check_extra
+                    && $_tipo_socio != 'extra') {
+                    self::set_usergroup_default($user_id, $ug_default, $ug_categoria);
+                }
+
+            // se non lo è significa che si tratta di un nuovo associato e lo inserisco in un gruppo in base alla professione
+            } else {
+
+                // socio straordinario
+                if ($_tipo_socio['success'] == 'extra') {
+                    self::set_usergroup_default($user_id, $ug_extra, $ug_categoria);
+                }
+                else { // socio ordinario
+                    self::set_usergroup_default($user_id, $ug_default, $ug_categoria);
+                }
+
+            }
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
+    // inserisco un utente in un gruppo specifico
+    public static function set_usergroup_default($user_id, $ug_default, $ug_categoria) {
+
+        $_arr_remove = self::get_usergroup_id($ug_categoria);
+        $_arr_add = self::get_usergroup_id($ug_default);
 
         foreach ($_arr_remove as $key => $d_group_id) {
             JUserHelper::removeUserFromGroup($user_id, $d_group_id);
@@ -1537,6 +1669,33 @@ HTML;
 
         foreach ($_arr_add as $key => $a_group_id) {
             JUserHelper::addUserToGroup($user_id, $a_group_id);
+        }
+
+    }
+
+    // inserisco un utente nel gruppo online
+    public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
+
+        try {
+
+            $_ret = array();
+
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto, '|*|'), self::get_usergroup_id($ug_moroso, '|*|'));
+            $_arr_add = self::get_usergroup_id($ug_online, '|*|');
+
+            foreach ($_arr_remove as $key => $d_group_id) {
+                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            }
+
+            foreach ($_arr_add as $key => $a_group_id) {
+                JUserHelper::addUserToGroup($user_id, $a_group_id);
+            }
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
         }
     }
 
@@ -1616,6 +1775,53 @@ HTML;
         }
 
         return false;
+
+    }
+
+    public static function arr_to_json($_obj) {
+
+        return json_encode($_obj);
+
+    }
+
+    public static function send_email($oggetto,
+                                      $body,
+                                      $destinatari=array(),
+                                      $is_html=true,
+                                      $with_logo=false,
+                                      $mail_from=null,
+                                      $from_name=null) {
+
+        $mailer = JFactory::getMailer();
+
+        if (!is_array($destinatari)
+            || count($destinatari) == 0)
+            return false;
+
+        $config = JFactory::getConfig();
+        $_from = (!is_null($mail_from)) ? $mail_from : $config->get( 'mailfrom' );
+        $_from_name = (!is_null($from_name)) ? $from_name : $config->get( 'mailfrom' );
+
+        $sender = array(
+            $_from,
+            $_from_name
+        );
+        $mailer->setSender($sender);
+
+
+        $mailer->addRecipient($destinatari);
+        $mailer->setSubject($oggetto);
+        $mailer->isHtml($is_html);
+        $mailer->Encoding = 'base64';
+        $mailer->setBody($body);
+        // logo se richiesto
+        if ($with_logo)
+            $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
+
+
+        $send = $mailer->Send();
+
+        return $send;
 
     }
 }

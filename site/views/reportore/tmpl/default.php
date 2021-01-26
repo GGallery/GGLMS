@@ -9,7 +9,7 @@ defined('_JEXEC') or die;
 
             <!--            <h3>Corso</h3>-->
             <div class="form-group">
-                <label for="corso_id"><?php echo JText::_('COM_GGLMS_GLOBAL_CORSO') ?>:</label><br>
+                <label for="corso_id"><?php echo JText::_('COM_GGLMS_GLOBAL_CORSO'); ?>:</label><br>
                 <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
                 <select id="corso_id" name="corso_id" class="refresh">
                     <?php

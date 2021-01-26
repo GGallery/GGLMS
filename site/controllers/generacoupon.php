@@ -135,6 +135,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
         } catch (Exception $e) {
 
+            // loggo anche l'oggetto POST ricevuto per maggiori dettagli
+            DEBUGG::log(json_encode(JRequest::get($_POST)), 'api_genera_coupon_exception_post_obj', 0, 1, 0 );
             DEBUGG::log(json_encode($e->getMessage()), 'api_genera_coupon_exception_error', 0, 1, 0 );
             DEBUGG::error($e, 'generaCoupon', 1, true);
         }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="Dettaglio utente vista selezionabile" option="com_gglms">
+		<message>Dettaglio utente vista selezionabile</message>
+	</layout>
+
+	<fields name="request">
+		<fieldset name="request">
+
+			<field name="template" type="list" default="quota_sinpe_anno" label="Template pagina" description="">
+				<option value="quota_sinpe_anno">Dettaglio pagamento quote SINPE per utente</option>
+			</field>
+
+		</fieldset>
+	</fields>
+
+
+</metadata>
+
+
+
