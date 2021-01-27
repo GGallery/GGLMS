@@ -10,6 +10,7 @@ defined('_JEXEC') or die;
 
 ?>
 
+<?php if ($this->in_error == 0) : ?>
 <script src="https://www.paypal.com/sdk/js?client-id=AWdDjczaEoOB5Spoq38YV0G18vyVuMfhuwvF-OKK2dcjfpVRAznlMAroXI3lWCSlwHVREqOUerql9xtX&currency=EUR" data-sdk-integration-source="button-factory"></script>
 
 <div class="container-fluid">
@@ -225,3 +226,8 @@ defined('_JEXEC') or die;
 
 </script>
 
+<?php else:
+    echo $this->payment_form;
+    ?>
+
+<?php endif; ?>

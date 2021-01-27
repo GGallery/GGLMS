@@ -29,6 +29,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
     protected $gruppi_decaduto;
     protected $payment_form;
     protected $payment_extra_form;
+    protected $in_error;
 
     function display($tpl = null)
     {
@@ -38,6 +39,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
             JHtml::_('script', '/components/com_gglms/libraries/js/bootstrap.min.js');
 
+            /*
             // campi encoded dalla chiamata
             $pp = JRequest::getVar('pp');
             $_decripted_params = UtilityHelper::encrypt_decrypt('decrypt', $pp, 'GGallery00!', 'GGallery00!');
@@ -60,55 +62,64 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
 
             if (!is_array($_check_user))
                 throw new Exception($_check_user, 1);
+            */
+
+            $_current_user = JFactory::getUser();
+            $this->user_id = $_current_user->id;
+
+            // dettagli utente
+            $_user = new gglmsModelUsers();
+            $_user_details = $_user->get_user_details_cb($this->user_id);
+
+            if (!is_array($_user_details))
+                throw new Exception($_user_details, 1);
 
             $dt = new DateTime();
 
             // funzionialità diverse a seconda del servizio invocato
-            if ($this->nome_servizio == "sinpe") {
+            //if ($this->nome_servizio == "sinpe") {
 
-                if (!isset($_arr_decr[3])
-                    || $_arr_decr[3] == "")
+            if (!isset($_user_details['ultimo_anno_pagato'])
+                    || $_user_details['ultimo_anno_pagato'] == "")
                     throw new Exception("Ultimo anno di pagamento non definito", 1);
 
                 $_anno_corrente = $dt->format('Y');
                 // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
-                $this->ultimo_anno_pagato = $_arr_decr[3] > 0 ? $_arr_decr[3] : $_anno_corrente;
+                $this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);
 
+                /*
                 // controllo esistenza quote
                 $this->user_id = $_check_user['success'];
                 $_user_quote = $_user->get_user_quote($this->user_id);
 
                 if (!is_array($_user_quote))
                     throw new Exception($_user_quote, 1);
-
-                // dettagli utente
-                $_user_details = $_user->get_user_details_cb($this->user_id);
-                if (!is_array($_user_details))
-                    throw new Exception($_user_details, 1);
+                */
 
                 //$this->ultimo_anno_pagato = UtilityHelper::get_ultimo_anno_quota($_user_quote);
                 $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
-                    $_username,
                     $this->ultimo_anno_pagato,
                     $_anno_corrente,
                     $_user_details);
+
                 if (!is_array($_payment_form))
                     throw new Exception($_payment_form);
 
                 $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
 
                 // verifico se esiste l'indicazione per il metodo di pagamento alternativi
                 $_extra_pay = utilityHelper::get_params_from_plugin();
                 $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
-            }
-
-            parent::display($tpl);
-
+            //}
 
         } catch (Exception $e){
-            die("Access denied: " . $e->getMessage());
+            //die("Access denied: " . $e->getMessage());
+            $this->payment_form = outputHelper::get_payment_form_error($e->getMessage());
+            $this->in_error = 1;
         }
 
+        parent::display($tpl);
     }
 
 

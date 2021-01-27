@@ -538,7 +538,8 @@ class gglmsModelUsers extends JModelLegacy
                                 cb_datadinascita as data_nascita,
                                 firstname as nome_utente,
                                 lastname as cognome_utente,
-                                cb_codicefiscale as codice_fiscale')
+                                cb_codicefiscale as codice_fiscale,
+                                cb_ultimoannoinregola as ultimo_anno_pagato')
                 ->from('#__comprofiler')
                 ->where("user_id = '" . $user_id . "'");
 
@@ -683,6 +684,54 @@ class gglmsModelUsers extends JModelLegacy
         }
         catch (Exception $e) {
             $db->transactionRollback();
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    // lista dei soci in un determinato gruppo
+    public function get_soci_iscritti($ug_list=null) {
+
+        try {
+
+            $_ret = array();
+            $sub_q = null;
+
+            $db = JFactory::getDbo();
+
+            if (!is_null($ug_list)
+                ) {
+                $sub_q = $db->getQuery(true)
+                    ->select('user_id')
+                    ->from('#__user_usergroup_map')
+                    ->where('group_id IN (' . implode("," , $ug_list) . ')');
+            }
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                    ->select('u.username, u.email, 
+                    cp.cb_nome AS nome, cp.cb_cognome AS cognome, 
+                    cp.cb_codicefiscale AS codice_fiscale, cp.cb_ultimoannoinregola AS ultimo_anno')
+                    ->from('#__users u')
+                    ->join('inner', '#__comprofiler cp ON u.id = cp.user_id');
+
+            if (!is_null($sub_q))
+                $query = $query->where($db->quoteName('u.id') . ' IN (' . $sub_q->__toString() . ')');
+
+            $query = $query->order('ud.id DESC');
+
+            $db->setQuery($query);
+            $result = $db->loadAssocList();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
 

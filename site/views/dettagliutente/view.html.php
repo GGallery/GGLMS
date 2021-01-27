@@ -24,6 +24,7 @@ class gglmsViewdettagliutente extends JViewLegacy
 
     protected $params;
     protected $_quote_iscrizione;
+    protected $_soci;
     protected $_html;
     protected $current_lang;
 
@@ -32,25 +33,35 @@ class gglmsViewdettagliutente extends JViewLegacy
 
         try {
             JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css');
             JHtml::_('script', '/components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
 
-            $layout = JRequest::getWord('template', '');
             $lang = JFactory::getLanguage();
             $this->current_lang = $lang->getTag();
+            JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.js');
+            JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.1/dist/locale/bootstrap-table-' . $this->current_lang . '.min.js');
+
+
+            $layout = JRequest::getWord('template', '');
+            $this->setLayout($layout);
+
+            $_user = new gglmsModelUsers();
 
             if ($layout == 'quota_sinpe_anno') {
 
-                JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css');
-                JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.js');
-                JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.1/dist/locale/bootstrap-table-' . $this->current_lang . '.min.js');
-
-                $_user = new gglmsModelUsers();
                 $_current_user = JFactory::getUser();
-                $this->quote_iscrizione = $_user->get_quote_iscrizione($_current_user->id);
+
+                // per admin vedo tutto
+                $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
+
+                $this->quote_iscrizione = $_user->get_quote_iscrizione($_user_id);
                 $this->_html = outputHelper::get_dettaglio_pagamento_quote($this->quote_iscrizione);
 
-                $this->setLayout("quota_sinpe_anno");
+            }
+            else if ($layout == 'gestione_soci_sinpe') {
+
+                $this->_soci = $_user->get_soci_iscritti();
 
             }
 

@@ -686,9 +686,22 @@ HTML;
 
     }
 
+    // messaggio di errore in ingresso al form di pagamento
+    public static function get_payment_form_error($msg) {
+
+        $_html = <<<HTML
+            <script>
+                alert('{$msg}');
+                window.location.href = "index.php";
+            </script>
+HTML;
+
+        return $_html;
+
+    }
+
     // form di pagamento da prensentare al login dell'utente
     public static function get_payment_form_from_year($user_id,
-                                                      $_username,
                                                       $_ultimo_anno_pagato,
                                                       $_anno_corrente,
                                                       $_user_details,
@@ -701,41 +714,59 @@ HTML;
             $_ret = array();
             $_html = "";
 
+            // controllo se l'ultimo anno di pagamento è uguale a quello corrente
+            // se così non produco nessun form di pagamento
+            // qui si potrebbero inserire pagamenti alternativi (ESPEN?)
+            if ($_ultimo_anno_pagato == $_anno_corrente) {
+
+                $_html = <<<HTML
+                <div class="jumbotron">
+                    <h4>Tutto ok!</h4>
+                    <p>Nessuna azione richiesta, sei in regola con i pagamenti delle quote per l'anno {$_anno_corrente}</p>
+                </div>
+HTML;
+                return $_html;
+            }
+
+            $_msg_extra = " Si prega di compilare i campi mancanti nella pagina del proprio profilo";
+
             // controllo campi necessari per il calcolo delle tariffe
             // tipo_laurea
             if (!isset($_user_details['tipo_laurea'])
                 || $_user_details['tipo_laurea'] == "")
-                throw new Exception("Impossibile calcolare il tariffario, tipo di laurea non specificato");
+                throw new Exception("Impossibile calcolare il tariffario, tipo di laurea non specificato." . $_msg_extra, 1);
 
             // anno di laurea
             if (!isset($_user_details['anno_laurea'])
                 || $_user_details['anno_laurea'] == ""
                 || (int) $_user_details['anno_laurea'] == 0
                 || (int) $_user_details['anno_laurea'] < 1900)
-                throw new Exception("Impossibile calcolare il tariffario, anno di laurea non correttamente specificato");
+                throw new Exception("Impossibile calcolare il tariffario, anno di laurea non correttamente specificato." . $_msg_extra,1);
 
             // anno di nascita
             if (!isset($_user_details['data_nascita'])
                 || $_user_details['data_nascita'] == "")
-                throw new Exception("Impossibile calcolare il tariffario, data di nascita non specificata");
+                throw new Exception("Impossibile calcolare il tariffario, data di nascita non specificata." . $_msg_extra, 1);
 
             $_tipo_laurea = $_user_details['tipo_laurea'];
             $_anno_laurea = (int) $_user_details['anno_laurea'];
             $_anzianita = $_anno_corrente-$_anno_laurea;
             $_data_nascita = $_user_details['data_nascita'];
-            $_nome_utente = $_user_details['nome_utente'];
-            $_cognome_utente = $_user_details['cognome_utente'];
-            $_codice_fiscale = $_user_details['codice_fiscale'];
+
+            //$_nome_utente = $_user_details['nome_utente'];
+            //$_cognome_utente = $_user_details['cognome_utente'];
+            //$_codice_fiscale = $_user_details['codice_fiscale'];
             //$_descrizione_hidden = "USERNAME: " . $_username . "\n";
             //$_descrizione_hidden = (!is_null($_nome_utente) && $_nome_utente != "") ? "NOME: " . $_nome_utente . "\n" : "";
             //$_descrizione_hidden .= (!is_null($_cognome_utente) && $_cognome_utente != "") ? "COGNOME: " . $_cognome_utente . "\n" : "";
             //$_descrizione_hidden .= (!is_null($_codice_fiscale) && $_codice_fiscale != "") ? "CF/PIVA: " . $_codice_fiscale . "\n" : "";
+
             $_tariffa = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita);
             $_tariffa_espen = 0;
             $_diff_anni = $_anno_corrente-$_ultimo_anno_pagato;
 
             if ($_tariffa == 0)
-                throw new Exception("Impossibile calcolare il tariffario, non è stato possibile determinare i prezzi da applicare");
+                throw new Exception("Impossibile calcolare il tariffario, non è stato possibile determinare i prezzi da applicare. Si prega di contattare l'assistenza", 1);
 
             $_anni_da_pagare = "";
             $_html = <<<HTML
@@ -839,7 +870,8 @@ HTML;
         catch (Exception $e) {
             $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
             DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
-            return __FUNCTION__ . ": " . $e->getMessage();
+            //return __FUNCTION__ . ": " . $e->getMessage();
+            return $e->getMessage();
         }
     }
 

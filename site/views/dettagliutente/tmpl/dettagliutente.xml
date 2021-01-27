@@ -9,6 +9,7 @@
 
 			<field name="template" type="list" default="quota_sinpe_anno" label="Template pagina" description="">
 				<option value="quota_sinpe_anno">Dettaglio pagamento quote SINPE per utente</option>
+				<option value="gestione_soci_sinpe">Gestione dei soci SINPE</option>
 			</field>
 
 		</fieldset>

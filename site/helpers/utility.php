@@ -276,7 +276,9 @@ class utilityHelper
             }
 
 
-            if ($id_piattaforma != null) {
+            //if ($id_piattaforma != null) {
+            if (!is_null($id_piattaforma)
+                && trim($id_piattaforma) != "") {
 
                 // specifica piattaforma, serve nel form genera coupon qunado un super admin vede due piattaforme
                 $query = $query->where("ud.group_id=" . $id_piattaforma);

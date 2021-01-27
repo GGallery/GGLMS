@@ -134,6 +134,7 @@ INSERT INTO `#__gg_configs` VALUES ('65', 'campicustom_report', '');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------
+-- da MyISAM a InnoDB
 DROP TABLE IF EXISTS `#__gg_contenuti`;
 CREATE TABLE `#__gg_contenuti` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -158,7 +159,7 @@ CREATE TABLE `#__gg_contenuti` (
   `orientamento` varchar(1) DEFAULT NULL,
   `path_pdf` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of #__gg_contenuti
@@ -209,6 +210,7 @@ INSERT INTO `#__gg_contenuti_tipology` VALUES ('10', 'webinar', 'Webinar', '3', 
 -- Table structure for `#__gg_coupon`
 -- ----------------------------
 -- la lunghezza della primary key coupon incrementata alla lunghezza della colonna 20 -> 100
+-- da MyISAM a InnoDB
 DROP TABLE IF EXISTS `#__gg_coupon`;
 CREATE TABLE `#__gg_coupon` (
   `coupon` varchar(100) NOT NULL DEFAULT '',
@@ -230,7 +232,7 @@ CREATE TABLE `#__gg_coupon` (
   `venditore` varchar(255) DEFAULT NULL,
   `template` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   PRIMARY KEY (`coupon`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_coupon
@@ -314,6 +316,7 @@ CREATE TABLE `#__gg_files_map` (
 -- ----------------------------
 -- Table structure for `#__gg_log`
 -- ----------------------------
+-- da MyISAM a InnoDB
 DROP TABLE IF EXISTS `#__gg_log`;
 CREATE TABLE `#__gg_log` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -325,7 +328,7 @@ CREATE TABLE `#__gg_log` (
   `uniqid` varchar(30) DEFAULT NULL,
   `permanenza` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_log
