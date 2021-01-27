@@ -165,9 +165,9 @@ defined('_JEXEC') or die;
                                         + '&pp=sinpe'
                                         + '&order_id=' + details.id
                                         + '&user_id=' + jQuery('#user_id').val()
-                                        + '&gruppi_online=' + jQuery('#gruppi_online').val()
-                                        + '&gruppi_moroso=' + jQuery('#gruppi_moroso').val()
-                                        + '&gruppi_decaduto=' + jQuery('#gruppi_decaduto').val()
+                                        //+ '&gruppi_online=' + jQuery('#gruppi_online').val()
+                                        //+ '&gruppi_moroso=' + jQuery('#gruppi_moroso').val()
+                                        //+ '&gruppi_decaduto=' + jQuery('#gruppi_decaduto').val()
                                         + '&totale_sinpe=' + jQuery('#amount').val()
                                         + '&totale_espen=' + jQuery('#amount_espen').val();
 
