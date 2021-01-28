@@ -1672,12 +1672,12 @@ HTML;
         $_arr_remove = self::get_usergroup_id($ug_categoria);
         $_arr_add = self::get_usergroup_id($ug_default);
 
-        foreach ($_arr_add as $key => $a_group_id) {
-            JUserHelper::addUserToGroup($user_id, $a_group_id);
-        }
-
         foreach ($_arr_remove as $key => $d_group_id) {
             JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+        }
+
+        foreach ($_arr_add as $key => $a_group_id) {
+            JUserHelper::addUserToGroup($user_id, $a_group_id);
         }
 
     }
@@ -1689,8 +1689,8 @@ HTML;
 
             $_ret = array();
 
-            $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto, '|*|'), self::get_usergroup_id($ug_moroso, '|*|'));
-            $_arr_add = self::get_usergroup_id($ug_online, '|*|');
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso));
+            $_arr_add = self::get_usergroup_id($ug_online);
 
             foreach ($_arr_add as $key => $a_group_id) {
                 JUserHelper::addUserToGroup($user_id, $a_group_id);
