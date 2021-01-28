@@ -813,4 +813,157 @@ HTML;
 
         $app->close();
     }
+
+    public function inserisci_pagamento_moroso() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $user_id = $params["user_id"];
+            $totale = $params["totale"];
+
+            $dt = new DateTime();
+            $_anno_quota = $dt->format('Y');
+
+            $_user = new gglmsModelUsers();
+
+            $_bonifico = $_user->insert_unser_quote_anno_bonifico($user_id,
+                                                                $_anno_quota,
+                                                                $totale,
+                                                                true);
+
+            if (!is_array($_bonifico))
+                throw new Exception($_bonifico, 1);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+    }
+
+    // sposto un socio decaduto nel gruppo moroso
+    public function riabilita_decaduto() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $user_id = $params["user_id"];
+            $dt = new DateTime();
+            // non anno corrente perchè da moroso deve pagare partendo dall'ultimo anno
+            $_anno_quota = $dt->format('Y')-1;
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Id utente mancante", 1);
+
+            $_params = utilityHelper::get_params_from_plugin();
+            $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+            $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+            $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+
+            // inserisco utente nel gruppo moroso
+            $_check = utilityHelper::set_usergroup_moroso($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
+            if (!is_array($_check))
+                throw new Exception($_check, 1);
+
+            // aggiorno ultimo anno pagato
+            $_user = new gglmsModelUsers();
+            $_ultimo_anno = $_user->update_ultimo_anno_pagato($user_id, $_anno_quota);
+            if (!is_array($_ultimo_anno))
+                throw new Exception($_ultimo_anno, 1);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
+    public function get_soci_iscritti() {
+
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $app = JFactory::getApplication();
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+            $_tipo_socio = (isset($_call_params['tipo_socio']) && $_call_params['tipo_socio'] != "") ? $_call_params['tipo_socio'] : null;
+
+            $_user = new gglmsModelUsers();
+            $_plugin_params = utilityHelper::get_params_from_plugin();
+            $gruppi_online = utilityHelper::get_ug_from_object($_plugin_params, "ug_online");
+            $gruppi_decaduto = utilityHelper::get_ug_from_object($_plugin_params, "ug_decaduto");
+            $gruppi_moroso = utilityHelper::get_ug_from_object($_plugin_params, "ug_moroso");
+            $_label_attiva = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR11');
+            $_label_paga = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR20');
+            $_ref_ug = "";
+
+            // se non specificato carico online
+            if (is_null($_tipo_socio))
+                $_ref_ug .= ($gruppi_online != "") ? (($_ref_ug != "") ? "," . $gruppi_online : $gruppi_online) : "";
+            else
+                $_ref_ug = $_tipo_socio;
+
+            $_soci = $_user->get_soci_iscritti($_ref_ug, $_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($_soci['rows'])) {
+
+                $_total_rows = $_soci['total_rows'];
+
+                foreach ($_soci['rows'] as $_key_socio => $_socio) {
+
+                    foreach ($_socio as $key => $value) {
+
+                        if ($key == "id_group") {
+
+                            $_azione_btn = "";
+                            if (in_array($value, explode(",", $gruppi_decaduto)))
+                                $_azione_btn = '<a href="#" class="btn btn-success" onclick="riabilitaDecaduto(' . $_socio['user_id'] . ')">' . $_label_attiva . '</a>';
+                            else if (in_array($value, explode(",", $gruppi_moroso)))
+                                $_azione_btn = '<a href="#" class="btn btn-success" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
+
+                            $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
+                        }
+
+                        $_ret[$_key_socio][$key] = $value;
+                    }
+
+                    unset($_ret[$_key_socio]['id_group']);
+                }
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+    }
 }

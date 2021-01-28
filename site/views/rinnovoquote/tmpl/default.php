@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 ?>
 
 <?php if ($this->in_error == 0) : ?>
-<script src="https://www.paypal.com/sdk/js?client-id=AWdDjczaEoOB5Spoq38YV0G18vyVuMfhuwvF-OKK2dcjfpVRAznlMAroXI3lWCSlwHVREqOUerql9xtX&currency=EUR" data-sdk-integration-source="button-factory"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=<?php echo $this->client_id; ?>&currency=EUR" data-sdk-integration-source="button-factory"></script>
 
 <div class="container-fluid">
 
@@ -83,23 +83,6 @@ defined('_JEXEC') or die;
 
             },
 
-            /*
-            onInit: function (data, actions) {
-                actions.disable();
-
-                elArr.forEach(function (item) {
-                    item.addEventListener('keyup', function (event) {
-                        var result = elArr.every(validate);
-                        if (result) {
-                            actions.enable();
-                        } else {
-                            actions.disable();
-                        }
-                    });
-                });
-            },
-            */
-
             onClick: function () {
 
                 if (description.value.length < 1) {
@@ -133,34 +116,7 @@ defined('_JEXEC') or die;
 
             onApprove: function (data, actions) {
                 return actions.order.capture().then(function (details) {
-                    /*
-                    paymentError.style.display = 'hidden';
 
-                    paymentSuccess.style.display = 'block';
-
-                    var successString = "";
-
-                    if (typeof details.id != "undefined"
-                        && details.id != "")
-                        successString += "ID: " + details.id + "\n";
-
-                    if (typeof details.status != "undefined"
-                        && details.status != "")
-                        successString += "Status: " + details.status + "\n";
-
-                    if (typeof details.payer.name.given_name != "undefined"
-                        && details.payer.name.given_name != ""
-                        && typeof details.payer.name.surname != "undefined"
-                        && details.payer.name.surname != "")
-                        successString += "Da: " + details.payer.name.given_name + ' ' + details.payer.name.surname + "\n"
-
-                    if (typeof details.create_time != "undefined"
-                        && details.create_time != "")
-                        successString += 'Data creazione: ' + details.create_time
-
-                    paymentSuccessDetails.value = successString;
-
-                    */
                     window.location.href = 'index.php?option=com_gglms&view=paypal'
                                         + '&pp=sinpe'
                                         + '&order_id=' + details.id

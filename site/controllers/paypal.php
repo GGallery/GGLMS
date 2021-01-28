@@ -29,6 +29,8 @@ class gglmsControllerPaypal extends JControllerLegacy {
         $this->is_production = $is_production;
     }
 
+    // pagamento quote sinpe / espen da form
+    // adattato anche per acquisizione servizi extra da area riservata (Es. ESPEN in un secondo tempo)
     public function quote_sinpe_store_payment($ordine_id, $user_id, $totale_sinpe, $totale_espen=0) {
 
         $_ret = array();
@@ -84,7 +86,7 @@ class gglmsControllerPaypal extends JControllerLegacy {
             $_ret['anno_quota'] = $dt->format('Y');
             $_ret['data_creazione'] = $_data_creazione;
             $_ret['order_details'] = $_order_details;
-            $_ret['totale_sinpe'] = $totale_sinpe;
+            $_ret['totale'] = $totale_sinpe;
             $_ret['totale_espen'] = $totale_espen;
 
         }

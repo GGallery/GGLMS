@@ -8,8 +8,9 @@
 		<fieldset name="request">
 
 			<field name="template" type="list" default="quota_sinpe_anno" label="Template pagina" description="">
-				<option value="quota_sinpe_anno">Dettaglio pagamento quote SINPE per utente</option>
-				<option value="gestione_soci_sinpe">Gestione dei soci SINPE</option>
+				<option value="quota_sinpe_anno">SINPE - Dettaglio pagamento quote per utente</option>
+				<option value="gestione_soci_sinpe">SINPE - Gestione dei soci</option>
+				<option value="pagamenti_servizi_extra">SINPE - Pagamento servizi extra (es. ESPEN)</option>
 			</field>
 
 		</fieldset>

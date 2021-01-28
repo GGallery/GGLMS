@@ -624,15 +624,17 @@ HTML;
     }
 
     // costruisco la vista da presentare dopo aver effettuato l'operazione di pagamento
-    public static function get_result_view($target, $call_result) {
+    public static function get_result_view($target, $call_result, $redirect=null) {
 
         $_html = "";
         $_result_class = "success";
         $_result_icon = "fa-check";
         $_result_msg = "L'operazione è andata a buon fine, puoi effettura il login alla tua area riservata";
         $_result_extra = "";
+        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
 
-        if ($target == "sinpe") {
+        if ($target == "sinpe"
+            || $target == "servizi_extra") {
 
             $_result_extra = <<<HTML
             <p class="text-center">
@@ -640,7 +642,7 @@ HTML;
             </p>
             <script>
                  setTimeout(function(){
-                    window.location.href = 'index.php';
+                    window.location.href = "{$_href}";
                  }, 5000);
             </script>
 HTML;
@@ -687,12 +689,14 @@ HTML;
     }
 
     // messaggio di errore in ingresso al form di pagamento
-    public static function get_payment_form_error($msg) {
+    public static function get_payment_form_error($msg, $redirect=null) {
+
+        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
 
         $_html = <<<HTML
             <script>
                 alert('{$msg}');
-                window.location.href = "index.php";
+                window.location.href = "{$_href}";
             </script>
 HTML;
 
@@ -805,7 +809,8 @@ HTML;
 HTML;
 
             // se l'utente è in regola con la quota dell'anno scorso gli presento anche il rinnovo ESPEN
-            if ($_diff_anni == 1) {
+            // sempre proposto a prescindere
+            //if ($_diff_anni == 1) {
                 $_tariffa_espen = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita, 'espen');
                 $_descr_attr_espen = "rinnovo_quote_espen_" . $_anno_corrente;
                 $_descr_checkbox_espen = "Rinnovo quota ESPEN per annualit&agrave; " . $_anno_corrente ." (facoltativo)";
@@ -825,7 +830,7 @@ HTML;
                     </tr>
                     <input style="display: none;" type="text" id="anni_espen" value="{$_anno_corrente}" />
 HTML;
-            }
+            //}
 
             $_html .= <<<HTML
                     <tr>
@@ -894,6 +899,114 @@ HTML;
 
     }
 
+    // vista dei pagamenti extra per utente
+    public static function get_pagamenti_servizi_extra($user_id) {
+
+        $_html = "";
+        $_corpo_tabella = "";
+        $dt = new DateTime();
+        $_anno_corrente = $dt->format('Y');
+
+        // dettagli utente
+        $_user = new gglmsModelUsers();
+        $_user_details = $_user->get_user_details_cb($user_id);
+        $_user_quote = $_user->get_user_quote($user_id, $_anno_corrente, 'espen');
+
+        $_msg_extra = " Si prega di compilare i campi mancanti nella pagina del proprio profilo";
+
+        // controllo campi necessari per il calcolo delle tariffe
+        // tipo_laurea
+        if (!isset($_user_details['tipo_laurea'])
+            || $_user_details['tipo_laurea'] == "")
+            throw new Exception("Impossibile calcolare il tariffario, tipo di laurea non specificato." . $_msg_extra, 1);
+
+        // anno di laurea
+        if (!isset($_user_details['anno_laurea'])
+            || $_user_details['anno_laurea'] == ""
+            || (int) $_user_details['anno_laurea'] == 0
+            || (int) $_user_details['anno_laurea'] < 1900)
+            throw new Exception("Impossibile calcolare il tariffario, anno di laurea non correttamente specificato." . $_msg_extra,1);
+
+        // anno di nascita
+        if (!isset($_user_details['data_nascita'])
+            || $_user_details['data_nascita'] == "")
+            throw new Exception("Impossibile calcolare il tariffario, data di nascita non specificata." . $_msg_extra, 1);
+
+        $_html = <<<HTML
+            <table style="width: 100%;">
+HTML;
+
+        $_tipo_laurea = $_user_details['tipo_laurea'];
+        $_anno_laurea = (int) $_user_details['anno_laurea'];
+        $_anzianita = $_anno_corrente-$_anno_laurea;
+        $_data_nascita = $_user_details['data_nascita'];
+
+        // inizializzazione totali
+        $_tariffa = 0;
+        $_tariffa_espen = 0;
+        $_descrizione_hidden = "";
+
+        // controllo se ho già pagato ESPEN
+        if (is_null($_user_quote)
+            || !is_array($_user_quote)
+            || count($_user_quote) == 0) {
+            // sezione ESPEN
+            $_tariffa_espen = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita, 'espen');
+            //$_tariffa += $_tariffa_espen;
+
+            $_descr_attr_espen = "rinnovo_quote_espen_" . $_anno_corrente;
+            //$_descrizione_hidden .= $_descr_attr_espen;
+            $_descr_checkbox_espen = "Rinnovo quota ESPEN per annualit&agrave; " . $_anno_corrente . " (facoltativo)";
+
+            $_corpo_tabella .= <<<HTML
+                        <tr>
+                            <td>
+                                <input class="form-check-input" type="checkbox" value="{$_tariffa_espen}" id="anni_da_pagare_espen" data-descr="{$_descr_attr_espen}" />
+                            </td>
+                            <td>&nbsp;</td>
+                            <td id="cella_espen">
+                                {$_descr_checkbox_espen}
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>
+                                <h5>€ <b>{$_tariffa_espen}</b></h5>
+                            </td>
+                        </tr>
+                        <input style="display: none;" type="text" id="anni_espen" value="{$_anno_corrente}" />
+HTML;
+        }
+
+        if ($_corpo_tabella != "") {
+            $_html .= $_corpo_tabella;
+            $_html .= <<<HTML
+                    <tr>
+                        <td colspan="2">&nbsp;</td>
+                        <td><h5><b>TOTALE</b></h5></td>
+                        <td>&nbsp;</td>
+                        <td><h5>€ <b><span id="amount_span">{$_tariffa}</span></b></h5></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            <span id="paypal-button-container"></span>
+                        </td>
+                    </tr>
+                </table>
+                
+                <input style="display: none;" type="number" id="amount" name="amount" value="{$_tariffa}" />
+                <input style="display: none;" type="number" id="amount_espen" name="amount_espen" value="0" />
+                <input style="display: none;" type="number" id="tariffa_espen" name="tariffa_espen" value="{$_tariffa_espen}" />
+                <input type="hidden" id="user_id" value="{$user_id}" />
+                <input type="hidden" id="anno_corrente" value="{$_anno_corrente}" />
+                <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
+HTML;
+        }
+        else
+            return "";
+
+        return $_html;
+
+    }
+
     // tabella riassuntiva delle quote per utente
     public static function get_dettaglio_pagamento_quote($_quote) {
 
@@ -923,6 +1036,7 @@ HTML;
             $_label_totale = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR5');
             $_label_data_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR6');
             $_label_dettagli = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR7');
+            $_label_status = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR9');
             $_html .= <<<HTML
 
             <table 
@@ -935,6 +1049,7 @@ HTML;
                     <th data-field="id_pagamento" data-sortable="true">#</th>
                     <th data-field="tipo_quota">{$_label_tipo_quota}</th>
                     <th data-field="tipo_pagamento">{$_label_tipo_pagamento}</th>
+                    <th data-field="check_pagamento">{$_label_status}</th>
                     <th data-field="anno" data-sortable="true">{$_label_anno}</th>
                     <th data-field="totale" data-sortable="true">{$_label_totale}</th>
                     <th data-field="data_pagamento">{$_label_data_pagamento}</th>
@@ -953,16 +1068,17 @@ HTML;
 
                 if (is_null($_tipo_pagamento)
                     || $_tipo_pagamento == "")
-                    $_fab_pagamento = "fas fa-question";
+                    $_fab_pagamento = "fas fa-dollar-sign";
 
                 $_icon_pagamento = <<<HTML
-                    <i class="{$_fab_pagamento} fa-2x"></i>
+                    <i class="{$_fab_pagamento}"></i>
 HTML;
                 $_html .= <<<HTML
                 <tr>
                     <td class="center">{$_quota['id_pagamento']}</td>
                     <td class="center">{$_tipo_quota}</td>
                     <td class="center">{$_icon_pagamento}</td>
+                    <td class="center" style="background: darkseagreen;"><i class="fas fa-check"></i></td>
                     <td class="center">{$_quota['anno']}</td>
                     <td class="center">{$_quota['totale']}</td>
                     <td class="center">{$_quota['data_pagamento']}</td>

@@ -1498,7 +1498,8 @@ HTML;
                                                $_anno_quota,
                                                $_user_details,
                                                $totale_sinpe,
-                                               $totale_espen=0) {
+                                               $totale_espen=0,
+                                               $template="rinnovo") {
 
         $_nominativo = "";
         $_cf = "";
@@ -1519,6 +1520,12 @@ HTML;
         $dt = new DateTime($_data_creazione);
 
         $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
+
+        if ($template == "servizi_extra")
+            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PP";
+        else if ($template == "bonifico")
+            $oggetto = "SINPE - -Effettuato nuovo pagamento quota a mezzo bonifico";
+
         $body = <<<HTML
                 <br /><br />
                 <p>Nominativo: <b>{$_nominativo}</b></p>
@@ -1665,12 +1672,12 @@ HTML;
         $_arr_remove = self::get_usergroup_id($ug_categoria);
         $_arr_add = self::get_usergroup_id($ug_default);
 
-        foreach ($_arr_remove as $key => $d_group_id) {
-            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
-        }
-
         foreach ($_arr_add as $key => $a_group_id) {
             JUserHelper::addUserToGroup($user_id, $a_group_id);
+        }
+
+        foreach ($_arr_remove as $key => $d_group_id) {
+            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
         }
 
     }
@@ -1685,12 +1692,12 @@ HTML;
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto, '|*|'), self::get_usergroup_id($ug_moroso, '|*|'));
             $_arr_add = self::get_usergroup_id($ug_online, '|*|');
 
-            foreach ($_arr_remove as $key => $d_group_id) {
-                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
-            }
-
             foreach ($_arr_add as $key => $a_group_id) {
                 JUserHelper::addUserToGroup($user_id, $a_group_id);
+            }
+
+            foreach ($_arr_remove as $key => $d_group_id) {
+                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
             }
 
             $_ret['success'] = "tuttook";
@@ -1704,31 +1711,55 @@ HTML;
     // inserisco un utente nel gruppo decaduto
     public static function set_usergroup_decaduto($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
-        $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso));
-        $_arr_add = self::get_usergroup_id($ug_decaduto);
+        try {
 
-        foreach ($_arr_remove as $key => $d_group_id) {
-            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            $_ret = array();
+
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso));
+            $_arr_add = self::get_usergroup_id($ug_decaduto);
+
+            foreach ($_arr_add as $key => $a_group_id) {
+                JUserHelper::addUserToGroup($user_id, $a_group_id);
+            }
+
+            foreach ($_arr_remove as $key => $d_group_id) {
+                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            }
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
         }
-
-        foreach ($_arr_add as $key => $a_group_id) {
-            JUserHelper::addUserToGroup($user_id, $a_group_id);
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
         }
     }
 
     // inserisco un utente nel gruppo moroso
     public static function set_usergroup_moroso($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
-        $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto));
-        $_arr_add = self::get_usergroup_id($ug_moroso);
+        try {
 
-        foreach ($_arr_remove as $key => $d_group_id) {
-            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            $_ret = array();
+
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto));
+            $_arr_add = self::get_usergroup_id($ug_moroso);
+
+            foreach ($_arr_add as $key => $a_group_id) {
+                JUserHelper::addUserToGroup($user_id, $a_group_id);
+            }
+
+            foreach ($_arr_remove as $key => $d_group_id) {
+                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            }
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
         }
 
-        foreach ($_arr_add as $key => $a_group_id) {
-            JUserHelper::addUserToGroup($user_id, $a_group_id);
-        }
     }
 
     // ottengo la lista degli usergroup specifici dai parametri del plugin

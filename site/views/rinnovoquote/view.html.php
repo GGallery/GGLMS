@@ -30,6 +30,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
     protected $payment_form;
     protected $payment_extra_form;
     protected $in_error;
+    protected $client_id;
 
     function display($tpl = null)
     {
@@ -66,6 +67,13 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
 
             $_current_user = JFactory::getUser();
             $this->user_id = $_current_user->id;
+
+            // pp client_id
+            $_config = new gglmsModelConfig();
+            $this->client_id = $_config->getConfigValue('paypal_client_id');
+            if (is_null($this->client_id)
+                || $this->client_id == "")
+                throw new Exception("Client ID di PayPal non valorizzato!", 1);
 
             // dettagli utente
             $_user = new gglmsModelUsers();
@@ -114,7 +122,6 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             //}
 
         } catch (Exception $e){
-            //die("Access denied: " . $e->getMessage());
             $this->payment_form = outputHelper::get_payment_form_error($e->getMessage());
             $this->in_error = 1;
         }
