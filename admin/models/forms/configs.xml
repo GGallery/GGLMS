@@ -1103,5 +1103,12 @@
 
         <!-- FINE PAYPAL -->
 
+        <!-- INZIO EXTRA -->
+
+        <field name="extra_index_redirect" type="url" default="" label="Puntamento alternativo della pagina index.php" description="Per reindirizzare l'utente in Home page e questa ha un indirizzo diverso da index.php es. index.php?option=com_sppagebuilder&amp;view=page&amp;id=1" size="10" />
+
+        <!-- FINE EXTRA -->
+
+
     </fieldset>
 </form>

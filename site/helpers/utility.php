@@ -1857,4 +1857,20 @@ HTML;
         return $send;
 
     }
+
+    public static function set_index_redirect_url($redirect=null) {
+
+        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+
+        // controllo se è impostato il valore di rendirizzamento a index
+        $_config = new gglmsModelConfig();
+        $extra_index = $_config->getConfigValue('extra_index_redirect');
+
+        if ($_href == "index.php") {
+            $_href = (!is_null($extra_index) && $extra_index != "" && isset($extra_index)) ? $extra_index : $_href;
+        }
+
+        return $_href;
+
+    }
 }

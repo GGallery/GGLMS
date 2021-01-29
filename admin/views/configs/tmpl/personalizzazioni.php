@@ -74,6 +74,12 @@
         <?php echo $this->form->renderField('genera_coupon_tipi_coupon'); ?>
     </div>
 
+    <h4>Extra</h4>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('extra_index_redirect'); ?>
+    </div>
+
 </div>
 
 <hr />

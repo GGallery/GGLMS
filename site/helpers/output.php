@@ -631,7 +631,8 @@ HTML;
         $_result_icon = "fa-check";
         $_result_msg = "L'operazione è andata a buon fine, puoi effettura il login alla tua area riservata";
         $_result_extra = "";
-        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        //$_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        $_href = utilityHelper::set_index_redirect_url($redirect);
 
         if ($target == "sinpe"
             || $target == "servizi_extra") {
@@ -691,7 +692,8 @@ HTML;
     // messaggio di errore in ingresso al form di pagamento
     public static function get_payment_form_error($msg, $redirect=null) {
 
-        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        //$_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        $_href = utilityHelper::set_index_redirect_url($redirect);
 
         $_html = <<<HTML
             <script>
