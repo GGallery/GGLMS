@@ -119,7 +119,14 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
 //                    var_dump($data->permanenza_tot);
 
-                    if (!isset($data->id_unita)) continue;
+                    /*
+                     * magari bastasse..se mi ritorna 0 va in errore cosa capitata dal 19/01/2020 e che ha bloccato i report oltre che generato una marea di problemi a catena
+                     * */
+                    //if (!isset($data->id_unita)) continue;
+                    if (!isset($data->id_unita)
+                        || $data->id_unita == 0)
+                        continue;
+
                     $modelunita = new gglmsModelUnita();
                     $unita = $modelunita->getUnita($data->id_unita);
 

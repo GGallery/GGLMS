@@ -123,6 +123,9 @@ class gglmsModelUsers extends JModelLegacy
 
                 $extrafieldfields = $this->get_user_field_eb($registrants['id']);
 
+                // per puntare l'id utente interno a gglms (report & c)
+                $registrants['id'] = $id;
+
                 if ($extrafieldfields)
                     $registrants = (object)array_merge($registrants, $extrafieldfields);
             }
@@ -378,8 +381,13 @@ class gglmsModelUsers extends JModelLegacy
     {
         try {
 
-            $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
+            // se non impostato $id_gruppo_societa evito di eseguire una query che andrà in errore
+            if (is_null($id_gruppo_societa)
+                || $id_gruppo_societa == ""
+                || !isset($id_gruppo_societa))
+                return null;
 
+            $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
 
             $query = $this->_db->getQuery(true)
                 ->select('ug1.user_id')
