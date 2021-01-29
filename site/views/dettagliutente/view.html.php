@@ -65,7 +65,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
 
                 $this->quote_iscrizione = $_user->get_quote_iscrizione($_user_id);
-                $this->_html = outputHelper::get_dettaglio_pagamento_quote($this->quote_iscrizione);
+                $this->_html = outputHelper::get_dettaglio_pagamento_quote($this->quote_iscrizione, $_user_id);
 
             }
             else if ($layout == 'gestione_soci_sinpe') {

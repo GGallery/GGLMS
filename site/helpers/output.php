@@ -1010,9 +1010,23 @@ HTML;
     }
 
     // tabella riassuntiva delle quote per utente
-    public static function get_dettaglio_pagamento_quote($_quote) {
+    public static function get_dettaglio_pagamento_quote($_quote, $user_id=null) {
 
         $_label_header = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR8');
+        $_label_tipo_quota = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR2');
+        $_label_tipo_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR3');
+        $_label_anno = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR4');
+        $_label_totale = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR5');
+        $_label_data_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR6');
+        $_label_dettagli = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR7');
+        $_label_status = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR9');
+        $_label_username = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR10');
+        $_label_nome = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR11');
+        $_label_cognome = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR12');
+        $_label_cf = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR13');
+
+        $_extra_cols = "";
+        $_extra_body = "";
 
         $_html = <<<HTML
         <div class="page-header">
@@ -1032,13 +1046,15 @@ HTML;
         }
         else {
 
-            $_label_tipo_quota = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR2');
-            $_label_tipo_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR3');
-            $_label_anno = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR4');
-            $_label_totale = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR5');
-            $_label_data_pagamento = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR6');
-            $_label_dettagli = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR7');
-            $_label_status = JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR9');
+            if (is_null($user_id))
+                $_extra_cols = <<<HTML
+                <th data-field="username" data-sortable="true">{$_label_username}</th>
+                <th data-field="nome" data-sortable="true">{$_label_nome}</th>
+                <th data-field="cognome" data-sortable="true">{$_label_cognome}</th>
+                <th data-field="codice_fiscale" data-sortable="true">{$_label_cf}</th>
+HTML;
+
+
             $_html .= <<<HTML
 
             <table 
@@ -1049,6 +1065,7 @@ HTML;
               <thead>
                 <tr>
                     <th data-field="id_pagamento" data-sortable="true">#</th>
+                    {$_extra_cols}
                     <th data-field="tipo_quota">{$_label_tipo_quota}</th>
                     <th data-field="tipo_pagamento">{$_label_tipo_pagamento}</th>
                     <th data-field="check_pagamento">{$_label_status}</th>
@@ -1075,9 +1092,19 @@ HTML;
                 $_icon_pagamento = <<<HTML
                     <i class="{$_fab_pagamento}"></i>
 HTML;
+
+                if (is_null($user_id))
+                    $_extra_body = <<<HTML
+                    <td class="center">{$_quota['username']}</td>
+                    <td class="center">{$_quota['nome']}</td>
+                    <td class="center">{$_quota['cognome']}</td>
+                    <td class="center">{$_quota['codice_fiscale']}</td>
+HTML;
+
                 $_html .= <<<HTML
                 <tr>
                     <td class="center">{$_quota['id_pagamento']}</td>
+                    {$_extra_body} 
                     <td class="center">{$_tipo_quota}</td>
                     <td class="center">{$_icon_pagamento}</td>
                     <td class="center" style="background: darkseagreen;"><i class="fas fa-check"></i></td>

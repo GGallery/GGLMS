@@ -969,29 +969,41 @@ class gglmsModelUsers extends JModelLegacy
         try {
 
             $_ret = array();
-
             $db = JFactory::getDbo();
+
+            $_join_sel = "";
+
+            // utente amministratore
+            if (is_null($user_id)) {
+                $_join_sel = ", u.username, cp.cb_nome AS nome, cp.cb_cognome  AS cognome, cp.cb_codicefiscale AS codice_fiscale";
+            }
+
             $query = $db->getQuery(true)
-                    ->select('id AS id_pagamento,
-                                anno,
-                                tipo_quota,
-                                tipo_pagamento,
-                                COALESCE(DATE_FORMAT(data_pagamento, "%d-%m-%Y %H:%i:%s"), "") AS data_pagamento,
-                                TRUNCATE(totale, 2) AS totale,
-                                dettagli_transazione
-                            ')
-                    ->from('#__gg_quote_iscrizioni');
+                    ->select('qi.id AS id_pagamento,
+                                qi.anno,
+                                qi.tipo_quota,
+                                qi.tipo_pagamento,
+                                COALESCE(DATE_FORMAT(qi.data_pagamento, "%d-%m-%Y %H:%i:%s"), "") AS data_pagamento,
+                                TRUNCATE(qi.totale, 2) AS totale,
+                                qi.dettagli_transazione
+                            ' . $_join_sel)
+                    ->from('#__gg_quote_iscrizioni qi');
+
+            // utente amministratore
+            if (is_null($user_id))
+                $query = $query->join('inner', '#__users u ON qi.user_id = u.id')
+                                ->join('inner', '#__comprofiler cp ON u.id = cp.user_id');
 
             if (!is_null($user_id))
-                $query = $query->where("user_id = '" . $user_id . "'");
+                $query = $query->where("qi.user_id = '" . $user_id . "'");
 
             if (!is_null($anno))
-                $query = $query->where("anno = '" . $anno . "'");
+                $query = $query->where("qi.anno = '" . $anno . "'");
 
             if (!is_null($tipo_quota))
-                $query = $query->where("tipo_quota = '" . $tipo_quota . "'");
+                $query = $query->where("qi.tipo_quota = '" . $tipo_quota . "'");
 
-            $query = $query->order('anno desc, tipo_quota asc');
+            $query = $query->order('qi.anno desc, qi.tipo_quota asc');
             $db->setQuery($query);
             $result = $db->loadAssocList();
 
