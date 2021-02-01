@@ -30,8 +30,10 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $online;
     protected $moroso;
     protected $decaduto;
+    protected $preiscritto;
     protected $in_error;
     protected $client_id;
+    protected $user_id;
 
     function display($tpl = null)
     {
@@ -58,14 +60,14 @@ class gglmsViewdettagliutente extends JViewLegacy
             $this->online = utilityHelper::get_ug_from_object($_params, "ug_online");
             $this->moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
             $this->decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+            $_params_2 = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
+            $this->preiscritto = utilityHelper::get_ug_from_object($_params_2, "ug_destinazione");
 
             if ($layout == 'quota_sinpe_anno') {
 
                 // per admin vedo tutto
                 $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
-
-                $this->quote_iscrizione = $_user->get_quote_iscrizione($_user_id);
-                $this->_html = outputHelper::get_dettaglio_pagamento_quote($this->quote_iscrizione, $_user_id);
+                $this->user_id = $_user_id;
 
             }
             else if ($layout == 'gestione_soci_sinpe') {

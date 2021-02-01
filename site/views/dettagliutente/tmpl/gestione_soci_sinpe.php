@@ -20,6 +20,7 @@ defined('_JEXEC') or die('Restricted access');
                     <option value="<?php echo $this->online; ?>"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR17');?></option>
                     <option value="<?php echo $this->moroso; ?>"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR18');?></option>
                     <option value="<?php echo $this->decaduto; ?>"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR19');?></option>
+                    <option value="<?php echo $this->preiscritto; ?>"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR25');?></option>
                 </select>
             </div>
             <button id="ok" type="submit" class="btn btn-primary">OK</button>
@@ -99,65 +100,120 @@ defined('_JEXEC') or die('Restricted access');
             });
         }
 
-        function impostaPagato(userId) {
+        // utente riabilitato al pagamento (moroso di un anno)
+        function impostaMoroso(userId) {
 
-            var pTotale = prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR21'); ?>");
+            var c = confirm("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR27'); ?>");
 
-            if (pTotale != null
-                && pTotale != ""
-                && parseInt(pTotale) > 0) {
+            if (c) {
 
-                // controllo se è un numero
-                var pTest = pTotale % 1;
-                if (isNaN(pTest)) {
-                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
-                    return;
-                }
-                else {
+                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
+                    .done(function(results) {
 
-                    jQuery.get( "index.php?option=com_gglms&task=users.inserisci_pagamento_moroso", { user_id: userId, totale: pTotale} )
-                        .done(function(results) {
+                        // risposta non conforme
+                        if (typeof results != "string"
+                            || results == "") {
+                            alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                            return;
+                        }
+                        else {
 
-                            // risposta non conforme
-                            if (typeof results != "string"
-                                || results == "") {
-                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                            // errore
+                            var objRes = JSON.parse(results);
+                            if (typeof objRes.error != "undefined") {
+                                alert(objRes.error);
                                 return;
                             }
+                            // successo
+                            else if (typeof objRes.success != "undefined") {
+                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR28'); ?>");
+                                //window.location.reload();
+                                pTable.bootstrapTable('refresh');
+                            }
+                            // errore non gestito
                             else {
-
-                                // errore
-                                var objRes = JSON.parse(results);
-                                if (typeof objRes.error != "undefined") {
-                                    alert(objRes);
-                                    return;
-                                }
-                                // successo
-                                else if (typeof objRes.success != "undefined") {
-                                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR23'); ?>");
-                                    window.location.reload();
-                                }
-                                // errore non gestito
-                                else {
-                                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
-                                }
-
-
+                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
                             }
 
-                        }).fail(function() {
-                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
-                    });
 
-                }
+                        }
 
-            }
-            else {
-                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR24'); ?>");
+                    }).fail(function() {
+                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+                });
+
             }
 
         }
 
+        // inserimento del pagamento della quota a mezzo bonifico
+        function impostaPagato(userId) {
+
+            var c = confirm("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR21'); ?>");
+
+            if (c) {
+
+                var pTotale = prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR29'); ?>");
+
+                if (pTotale != null
+                    && pTotale != ""
+                    && parseInt(pTotale) > 0) {
+
+                    // controllo se è un numero
+                    var pTest = pTotale % 1;
+                    if (isNaN(pTest)) {
+                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
+                        return;
+                    } else {
+
+                        jQuery.get("index.php?option=com_gglms&task=users.inserisci_pagamento_moroso", {
+                            user_id: userId,
+                            totale: pTotale
+                        })
+                            .done(function (results) {
+
+                                // risposta non conforme
+                                if (typeof results != "string"
+                                    || results == "") {
+                                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                                    return;
+                                } else {
+
+                                    // errore
+                                    var objRes = JSON.parse(results);
+                                    if (typeof objRes.error != "undefined") {
+                                        alert(objRes.error);
+                                        return;
+                                    }
+                                    // successo
+                                    else if (typeof objRes.success != "undefined") {
+                                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR23'); ?>");
+                                        //window.location.reload();
+                                        pTable.bootstrapTable('refresh');
+                                    }
+                                    // errore non gestito
+                                    else {
+                                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
+                                    }
+
+
+                                }
+
+                            }).fail(function () {
+                            alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+                        });
+
+                    }
+
+                } else {
+                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR24'); ?>");
+                }
+
+            }
+
+        }
+
+        // utente riabilitato al pagamento (moroso di un anno)
         function riabilitaDecaduto(userId) {
 
             var c = confirm("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR12'); ?>");
@@ -178,13 +234,14 @@ defined('_JEXEC') or die('Restricted access');
                             // errore
                             var objRes = JSON.parse(results);
                             if (typeof objRes.error != "undefined") {
-                                alert(objRes);
+                                alert(objRes.error);
                                 return;
                             }
                             // successo
                             else if (typeof objRes.success != "undefined") {
                                 alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR15'); ?>");
-                                window.location.reload();
+                                //window.location.reload();
+                                pTable.bootstrapTable('refresh');
                             }
                             // errore non gestito
                             else {

@@ -825,6 +825,15 @@ HTML;
             $user_id = $params["user_id"];
             $totale = $params["totale"];
 
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", 1);
+
+            if (!isset($totale)
+                || $totale == ""
+                || $totale == 0)
+                throw new Exception("Missing totale", 1);
+
             $dt = new DateTime();
             $_anno_quota = $dt->format('Y');
 
@@ -859,13 +868,14 @@ HTML;
 
             $params = JRequest::get($_GET);
             $user_id = $params["user_id"];
-            $dt = new DateTime();
-            // non anno corrente perchè da moroso deve pagare partendo dall'ultimo anno
-            $_anno_quota = $dt->format('Y')-1;
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Id utente mancante", 1);
+                throw new Exception("Missing user id", 1);
+
+            $dt = new DateTime();
+            // non anno corrente perchè da moroso deve pagare partendo dall'ultimo anno
+            $_anno_quota = $dt->format('Y')-1;
 
             $_params = utilityHelper::get_params_from_plugin();
             $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
@@ -895,15 +905,92 @@ HTML;
 
     }
 
-    public function get_soci_iscritti() {
+    public function get_quote_iscrizione() {
 
+        $app = JFactory::getApplication();
         $_rows = array();
         $_ret = array();
         $_total_rows = 0;
 
         try {
 
-            $app = JFactory::getApplication();
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $_current_user = JFactory::getUser();
+            $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
+            $this->user_id = $_user_id;
+
+            $_user = new gglmsModelUsers();
+            $_quote = $this->quote_iscrizione = $_user->get_quote_iscrizione($_user_id, $_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($_quote['rows'])) {
+
+                $_total_rows = $_quote['total_rows'];
+
+                foreach ($_quote['rows'] as $_key_quota => $_quota) {
+
+                    $_fab_pagamento = "";
+
+                    foreach ($_quota as $key => $value) {
+
+                        $_icon_tipo_quota = "";
+                        $_icon_check = <<<HTML
+                            <i class="fas fa-check"></i>
+HTML;
+                        if ($key == "tipo_quota") {
+
+                            $_tipo_quota = (!is_null($value)) ? strtoupper($value) : "";
+                            $_tipo_pagamento = (!is_null($_quota['tipo_pagamento'])) ? strtolower($_quota['tipo_pagamento']) : "";
+
+                            $_fab_pagamento = ($_tipo_pagamento == "paypal") ? "fab fa-paypal" : "fas fa-university";
+
+                            if (is_null($_tipo_pagamento)
+                                || $_tipo_pagamento == "")
+                                $_fab_pagamento = "fas fa-dollar-sign";
+
+                            $_icon_tipo_quota = <<<HTML
+                                    <i class="{$_fab_pagamento}"></i>
+HTML;
+                            $_ret[$_key_quota]['icon_pagamento'] = trim($_icon_tipo_quota);
+
+                        }
+
+                        $_ret[$_key_quota]['check_pagamento'] = trim($_icon_check);
+                        $_ret[$_key_quota][$key] = $value;
+
+                    }
+
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+
+    }
+
+    public function get_soci_iscritti() {
+
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
             $_call_params = JRequest::get($_GET);
             $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
             $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
@@ -917,8 +1004,12 @@ HTML;
             $gruppi_online = utilityHelper::get_ug_from_object($_plugin_params, "ug_online");
             $gruppi_decaduto = utilityHelper::get_ug_from_object($_plugin_params, "ug_decaduto");
             $gruppi_moroso = utilityHelper::get_ug_from_object($_plugin_params, "ug_moroso");
+            $_plugin_params_2 = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
+            $gruppi_preiscritto = utilityHelper::get_ug_from_object($_plugin_params_2, "ug_destinazione");
+
             $_label_attiva = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR11');
             $_label_paga = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR20');
+            $_label_iscrivi = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR26');
             $_ref_ug = "";
 
             // se non specificato carico online
@@ -944,6 +1035,8 @@ HTML;
                                 $_azione_btn = '<a href="#" class="btn btn-success" onclick="riabilitaDecaduto(' . $_socio['user_id'] . ')">' . $_label_attiva . '</a>';
                             else if (in_array($value, explode(",", $gruppi_moroso)))
                                 $_azione_btn = '<a href="#" class="btn btn-success" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
+                            else if (in_array($value, explode(",", $gruppi_preiscritto)))
+                                $_azione_btn = '<a href="#" class="btn btn-success" onclick="impostaMoroso(' . $_socio['user_id'] . ')">' . $_label_iscrivi . '</a>';
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
                         }

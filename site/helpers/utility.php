@@ -1656,6 +1656,11 @@ HTML;
 
             }
 
+            // per sicurezza rimuovo l'utente da eventuali inserimenti nello usergroup preiscritto
+            $_params_2 = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_2, "ug_destinazione");
+            self::remove_user_from_usergroup($user_id, $ug_preiscritto);
+
             $_ret['success'] = "tuttook";
             return $_ret;
 
@@ -1682,6 +1687,15 @@ HTML;
 
     }
 
+    // rimuovo l'utente da un gruppo specifico passando gli id gruppo in un array
+    public static function remove_user_from_usergroup($user_id, $ug_list_arr) {
+
+        foreach ($ug_list_arr as $key => $d_group_id) {
+            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+        }
+
+    }
+
     // inserisco un utente nel gruppo online
     public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
@@ -1689,7 +1703,11 @@ HTML;
 
             $_ret = array();
 
-            $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso));
+            // gestione globale del preiscritto
+            $_params_extra = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_extra, "ug_destinazione");
+
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
 
             foreach ($_arr_add as $key => $a_group_id) {
@@ -1715,7 +1733,11 @@ HTML;
 
             $_ret = array();
 
-            $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso));
+            // gestione globale del preiscritto
+            $_params_extra = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_extra, "ug_destinazione");
+
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_decaduto);
 
             foreach ($_arr_add as $key => $a_group_id) {
@@ -1741,7 +1763,11 @@ HTML;
 
             $_ret = array();
 
-            $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto));
+            // gestione globale del preiscritto
+            $_params_extra = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_extra, "ug_destinazione");
+
+            $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_moroso);
 
             foreach ($_arr_add as $key => $a_group_id) {

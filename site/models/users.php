@@ -879,7 +879,6 @@ class gglmsModelUsers extends JModelLegacy
                     ->where('group_id IN (' . $ug_list . ')');
             }
 
-            $db = JFactory::getDbo();
             $query = $db->getQuery(true)
                     ->select('u.id AS user_id, u.username, u.email, 
                     cp.cb_nome AS nome, cp.cb_cognome AS cognome, 
@@ -964,7 +963,7 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // dettaglio pagamento quote per soci SINPE
-    public function get_quote_iscrizione($user_id = null, $anno = null, $tipo_quota = null) {
+    public function get_quote_iscrizione($user_id = null, $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
 
         try {
 
@@ -989,30 +988,73 @@ class gglmsModelUsers extends JModelLegacy
                             ' . $_join_sel)
                     ->from('#__gg_quote_iscrizioni qi');
 
+            $count_query = $db->getQuery(true)
+                    ->select('COUNT(*)')
+                    ->from('#__gg_quote_iscrizioni qi');
+
             // utente amministratore
-            if (is_null($user_id))
+            if (is_null($user_id)) {
                 $query = $query->join('inner', '#__users u ON qi.user_id = u.id')
                                 ->join('inner', '#__comprofiler cp ON u.id = cp.user_id');
+                $count_query = $count_query->join('inner', '#__users u ON qi.user_id = u.id')
+                                            ->join('inner', '#__comprofiler cp ON u.id = cp.user_id');
+            }
 
-            if (!is_null($user_id))
+            if (!is_null($user_id)) {
                 $query = $query->where("qi.user_id = '" . $user_id . "'");
+                $count_query = $count_query->where("qi.user_id = '" . $user_id . "'");
+            }
 
-            if (!is_null($anno))
-                $query = $query->where("qi.anno = '" . $anno . "'");
+            // ricerca
+            if (!is_null($_search)) {
 
-            if (!is_null($tipo_quota))
-                $query = $query->where("qi.tipo_quota = '" . $tipo_quota . "'");
+                $_admin_search = "";
+                if (is_null($user_id)) {
+                    $_admin_search = ' OR u.username LIKE \'%' . $_search . '%\'
+                                            OR cp.cb_nome LIKE \'%' . $_search . '%\'
+                                            OR cp.cb_cognome LIKE \'%' . $_search . '%\'
+                                            OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'';
+                }
 
-            $query = $query->order('qi.anno desc, qi.tipo_quota asc');
-            $db->setQuery($query);
+                $query = $query->where('(qi.anno LIKE \'%' . $_search . '%\'
+                                           OR qi.tipo_pagamento LIKE \'%' . $_search . '%\'
+                                           OR qi.data_pagamento LIKE \'%' . $_search . '%\'
+                                           OR qi.dettagli_transazione LIKE \'%' . $_search . '%\' 
+                                        ' . $_admin_search . ')');
+
+                $count_query = $count_query->where('(qi.anno LIKE \'%' . $_search . '%\'
+                                           OR qi.tipo_pagamento LIKE \'%' . $_search . '%\'
+                                           OR qi.data_pagamento LIKE \'%' . $_search . '%\'
+                                           OR qi.dettagli_transazione LIKE \'%' . $_search . '%\'
+                                        ' . $_admin_search . ')');
+
+
+            }
+
+            // ordinamento per colonna - di default per id utente
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('qi.anno desc, qi.tipo_quota asc');
+
+
+            $db->setQuery($query, $_offset, $_limit);
             $result = $db->loadAssocList();
+
+            $db->setQuery($count_query);
+            $result_count = $db->loadResult();
 
             // se nessun risultato restituisco un array vuoto
             if (!$result) {
                 return $_ret;
             }
 
-            return $result;
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return $_ret;
 
         }
         catch (Exception $e) {
