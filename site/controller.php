@@ -3,7 +3,8 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
-require_once 'administrator/components/com_gglms/models/libs/debugg/debugg.php';
+//require_once 'administrator/components/com_gglms/models/libs/debugg/debugg.php';
+require_once JPATH_ADMINISTRATOR . '/components/com_gglms/models/libs/debugg/debugg.php';
 require_once JPATH_COMPONENT . '/helpers/output.php';
 require_once JPATH_COMPONENT . '/helpers/utility.php';
 require_once JPATH_COMPONENT . '/models/contenuto.php';
