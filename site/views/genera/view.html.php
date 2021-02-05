@@ -101,7 +101,7 @@ class gglmsViewGenera extends JViewLegacy
 
         // leggo parametro genera_coupon_visualizza_tipo_coupon
         // se 1 visualizzo il campo se 0 lo nascondo
-        $this->genera_coupon_visualizza_tipo_coupon = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_tipo_coupon, 'genera_coupon_visualizza_stampa_tracciato');
+        $this->genera_coupon_visualizza_tipo_coupon = utilityHelper::get_display_from_configuration($this->genera_coupon_visualizza_tipo_coupon, 'genera_coupon_visualizza_tipo_coupon');
 
         // leggo parametro genera_coupon_tipi_coupon
         $this->genera_coupon_tipi_coupon = $this->genera_coupon_visualizza_tipo_coupon == 1 ? utilityHelper::get_lista_tipo_coupon('genera_coupon_tipi_coupon', 'disabled required class="form-control cpn_opt"') : "";

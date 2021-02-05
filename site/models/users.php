@@ -33,15 +33,22 @@ class gglmsModelUsers extends JModelLegacy
     }
 
 
-    public function get_user($id = null, $integration_element_id = null)
+    public function get_user($id = null,
+                             $integration_element_id = null,
+                             $integrazione = null,
+                             $campo_nome = null,
+                             $campo_cognome = null)
     {
-        switch ($this->_params->get('integrazione')) {
+        $_integrazione_ref = (!is_null($integrazione)) ? $integrazione : $this->_params->get('integrazione');
+
+        //switch ($this->_params->get('integrazione')) {
+        switch ($_integrazione_ref) {
             case 'cb':
-                $data = $this->get_user_cb($id);
+                $data = $this->get_user_cb($id, $campo_nome, $campo_cognome);
                 break;
 
             case 'eb':
-                $data = $this->get_user_eb($id, $integration_element_id);
+                $data = $this->get_user_eb($id, $integration_element_id, $campo_nome, $campo_cognome);
                 break;
 
             default:
@@ -73,12 +80,14 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    private function get_user_cb($id)
+    private function get_user_cb($id, $campo_nome = null, $campo_cognome = null)
     {
 
-        $colonna_nome = $this->_app->getParams()->get('campo_community_builder_nome');
-        $colonna_cognome = $this->_app->getParams()->get('campo_community_builder_cognome');
+        //$colonna_nome = $this->_app->getParams()->get('campo_community_builder_nome');
+        //$colonna_cognome = $this->_app->getParams()->get('campo_community_builder_cognome');
 
+        $colonna_nome = (!is_null($campo_nome)) ? $campo_nome : $this->_app->getParams()->get('campo_community_builder_nome');
+        $colonna_cognome = (!is_null($campo_cognome)) ? $campo_cognome : $this->_app->getParams()->get('campo_community_builder_cognome');
 
         try {
 
@@ -99,12 +108,14 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    private function get_user_eb($id, $id_eb)
+    private function get_user_eb($id, $id_eb, $campo_nome=null, $campo_cognome=null)
     {
 
-        $colonna_nome = $this->_app->getParams()->get('campo_event_booking_nome');
-        $colonna_cognome = $this->_app->getParams()->get('campo_event_booking_cognome');
+        //$colonna_nome = $this->_app->getParams()->get('campo_event_booking_nome');
+        //$colonna_cognome = $this->_app->getParams()->get('campo_event_booking_cognome');
 
+        $colonna_nome = (!is_null($campo_nome)) ? $campo_nome :  $this->_app->getParams()->get('campo_event_booking_nome');
+        $colonna_cognome = (!is_null($campo_cognome)) ? $campo_cognome : $this->_app->getParams()->get('campo_event_booking_cognome');
 
         try {
             $query = $this->_db->getQuery(true)
@@ -279,7 +290,6 @@ class gglmsModelUsers extends JModelLegacy
                     ->select('id, title')
                     ->from('#__usergroups')
                     ->where($this->_db->quoteName('parent_id') . ' IN (' . $subQuery->__toString() . ')');
-
                 $this->_db->setQuery($query_P);
                 $res = $this->_db->loadObjectList();
             }

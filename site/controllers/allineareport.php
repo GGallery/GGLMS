@@ -37,15 +37,27 @@ class gglmsControllerAllineaReport extends JControllerAdmin
 
         
         foreach ($result as $row){
-        echo 'procedo con '.$row['id'];
+        echo 'allinea -> procedo con '.$row['id'];
             $db = JFactory::getDbo();
             $query = $db->getQuery(true);
+
+            if (
+                !isset($row['id_quizdeluxe'])
+                || $row['id_quizdeluxe'] == 0
+                || $row['id_quizdeluxe'] == "") {
+                echo "salto id_quizdeluxe per contenuto " . $row['id'];
+                continue;
+            }
+
             $query='update #__gg_report set stato = 1 where id_utente in (select anagrafica.id_user from #__quiz_r_student_quiz as q
                     inner join #__gg_report_users as anagrafica on q.c_student_id=anagrafica.id_user
                     where  q.c_quiz_id='.$row['id_quizdeluxe'].' and q.c_passed=1)
                     and id_contenuto='.$row['id'].'
                     and stato=0';
             $db->setQuery($query);
+
+            echo $query;
+
             $result=$db->execute();
             $num=$db->getAffectedRows();
             if($result==1 && $num>0){
@@ -65,7 +77,7 @@ class gglmsControllerAllineaReport extends JControllerAdmin
 
         $result=$db->loadAssocList();
         foreach ($result as $row){
-            echo 'procedo con '.$row['id'];
+            echo 'allinea scorm -> procedo con '.$row['id'];
             $db = JFactory::getDbo();
             $query = $db->getQuery(true);
             $query='update #__gg_report set stato=1 where id_utente in (select s.userid from #__gg_unit as u inner join #__gg_contenuti as c on c.id=u.id_contenuto_completamento 

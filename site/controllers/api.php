@@ -109,6 +109,7 @@ class gglmsControllerApi extends JControllerLegacy
                             $queryGeneralCube = $arrayresult[2];
                             $queryGeneralCubeCount = $arrayresult[3];
                             $result['secondaryCubeQuery'] = (string)$query;
+                            echo $query; die();
                             $datas = $this->buildPrimaryDataCube($query);
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "stato", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_inizio", 'outer');

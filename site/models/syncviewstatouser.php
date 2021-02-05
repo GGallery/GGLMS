@@ -64,7 +64,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
     }
 
-    public function syncViewStatoUser($offset, $limit, $maxts,$typeofcall)
+    public function syncViewStatoUser($offset, $limit, $maxts, $typeofcall)
     {
 
         switch ($typeofcall) {
@@ -91,7 +91,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
         $datauserunit=$this->deltaReport($offset,$limit,$maxts);
 
         if(count($datauserunit)>0){
-            $this->insertViewUnita($datauserunit);
+            //$this->insertViewUnita($datauserunit);
             $this->insertViewCorso($datauserunit);
             $result = true;
             DEBUGG::log('FINE PROCEDURA CON TRUE', ' ',0,1,0);
@@ -156,7 +156,14 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                     $datafine=$dateiniziofine[1];
                 }
 
-                $query = 'INSERT into #__gg_view_stato_user_unita (id_anagrafica, id_unita, id_corso, stato, data_inizio, data_fine, timestamp) VALUES (';
+                $query = 'INSERT into #__gg_view_stato_user_unita (id_anagrafica, 
+                                                                    id_unita, 
+                                                                    id_corso, 
+                                                                    stato, 
+                                                                    data_inizio, 
+                                                                    data_fine, 
+                                                                    timestamp) 
+                                                                    VALUES (';
                 $query=$query. $record->id_anagrafica . ',' . $record->id_unita . ',' . $record->id_corso . ',' . $completed . ',\'' . $datainizio. '\',\'' . $datafine. '\',NOW()) ON DUPLICATE KEY UPDATE stato=' . $completed.' , data_inizio=\''.$datainizio.'\', data_fine=\''.$datafine.'\'';
                 //echo $query;
                 $this->_db->setQuery($query);
@@ -204,7 +211,13 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
 
 
-                $query = 'INSERT into #__gg_view_stato_user_corso (id_anagrafica, id_corso, stato, data_inizio, data_fine,timestamp) VALUES (';
+                $query = 'INSERT into #__gg_view_stato_user_corso (id_anagrafica, 
+                                                                  id_corso, 
+                                                                  stato, 
+                                                                  data_inizio, 
+                                                                  data_fine,
+                                                                  timestamp) 
+                                                                  VALUES (';
                 $query=$query. $record->id_anagrafica . ',' . $record->id_corso . ',' . $completed .',\'' . $datainizio. '\',\'' . $datafine. '\',NOW()) ON DUPLICATE KEY UPDATE stato=' . $completed.' , data_inizio=\''.$datainizio.'\', data_fine=\''.$datafine.'\'';
                 //DEBUGG::log('inserisco '.$query, 'insertData',0,1,0);
                 $this->_db->setQuery($query);

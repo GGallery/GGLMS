@@ -82,6 +82,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 ->where('config_key = "data_sync"');
             $this->_db->setQuery($query);
             $this->_db->execute();
+            // salva data_sync anche in #__extensions
             utilityHelper::setComponentParam('data_sync', date('Y-m-d G:i:s'));
             DEBUGG::log('update_config', 'update_config', 0, 1, 0);
             return "1";
@@ -91,13 +92,13 @@ class gglmsModelSyncdatareport extends JModelLegacy
     }
 
     //REPORT TRACCIAMENTO
-    public function sync_report($limit, $offset)
+    public function sync_report($limit, $offset, $data_sync)
     {
         DEBUGG::log('inizio sync_report', 'inizio sync_report limit:' . $limit . ' offset:' . $offset, 0, 1, 0);
         //ini_set('max_execution_time', 6000);
         try {
-            $scormvar_list = $this->_getScormvarsVariation($limit, $offset);
-            $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit, $offset);
+            $scormvar_list = $this->_getScormvarsVariation($limit, $offset, $data_sync);
+            $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit, $offset, $data_sync);
             $list = array_merge($scormvar_list, $quizdeluxe_list);
             //if($limit==200){$list=null;} //SIMULAZIONE DI FINE
             if (count($list) > 0) {
@@ -158,12 +159,12 @@ class gglmsModelSyncdatareport extends JModelLegacy
         }
     }
 
-    public function sync_report_count()
+    public function sync_report_count($data_sync = null)
     {
 
         try {
-            $scormvar_list = $this->_getScormvarsVariation(0, 0);
-            $quizdeluxe_list = $this->_getQuizDeluxeVariation(0, 0);
+            $scormvar_list = $this->_getScormvarsVariation(0, 0, $data_sync);
+            $quizdeluxe_list = $this->_getQuizDeluxeVariation(0, 0, $data_sync);
             $list = ($quizdeluxe_list == null) ? $scormvar_list : array_merge($scormvar_list, $quizdeluxe_list);
             DEBUGG::log('sync_report_count', 'procedura per caricare: ' . count($list) . ' records:' . count($scormvar_list) . ' scorm; ' . count($quizdeluxe_list) . ' quiz', 0, 1, 0);
             return count($list);
@@ -175,16 +176,23 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
     }
 
-    private function _getScormvarsVariation($limit, $offset)
+    private function _getScormvarsVariation($limit, $offset, $data_sync = null)
     {
 
         try {
+
+            $_dt_ref = (!is_null($data_sync)) ? $data_sync : $this->params->get('data_sync');
+
             $query = $this->_db->getQuery(true)
                 ->select('DISTINCT s.scoid as id_contenuto, s.userid as id_utente')
                 ->from('#__gg_scormvars as s');
 
+            /*
             if ($this->params->get('data_sync') > '1900-01-01')
                 $query->where('timestamp > "' . $this->params->get('data_sync') . '"');
+            */
+            if ($_dt_ref > '1900-01-01')
+                $query->where('timestamp > "' . $_dt_ref . '"');
 
             $query->setLimit($offset, $limit);
 
@@ -199,17 +207,25 @@ class gglmsModelSyncdatareport extends JModelLegacy
         }
     }
 
-    private function _getQuizDeluxeVariation($limit, $offset)
+    private function _getQuizDeluxeVariation($limit, $offset, $data_sync = null)
     {
 
         try {
+
+            $_dt_ref = (!is_null($data_sync)) ? $data_sync : $this->params->get('data_sync');
+
             $query = $this->_db->getQuery(true)
                 ->select('DISTINCT  c.id as id_contenuto, q.c_student_id as id_utente')
                 ->from('#__quiz_r_student_quiz as q')
                 ->join('inner', '#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe');
 
+            /*
             if ($this->params->get('data_sync'))
                 $query->where('q.timestamp > "' . $this->params->get('data_sync') . '"');
+            */
+            // la colonna q.timestamp non esiste in #__quiz_r_student_quiz
+            if ($_dt_ref)
+                $query->where('q.c_date_time > "' . $_dt_ref . '"');
 
             $query->setLimit($offset, $limit);
 
@@ -256,8 +272,26 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
 
             $query = "
-    INSERT INTO #__gg_report (id_corso, id_event_booking,id_unita, id_contenuto,  id_utente , id_anagrafica, stato, visualizzazioni,permanenza_tot, data ) 
-    VALUES ($data->id_corso, $data->id_event_booking, $data->id_unita,$data->id_contenuto,$data->id_utente,$data->id_anagrafica,$data->stato, $data->visualizzazioni,  $data->permanenza_tot ,'$data->data')";
+    INSERT INTO #__gg_report (id_corso, 
+                              id_event_booking,
+                              id_unita, 
+                              id_contenuto,  
+                              id_utente , 
+                              id_anagrafica, 
+                              stato, 
+                              visualizzazioni,
+                              permanenza_tot, 
+                              data ) 
+                      VALUES ($data->id_corso, 
+                          $data->id_event_booking, 
+                          $data->id_unita,
+                          $data->id_contenuto,
+                          $data->id_utente,
+                          $data->id_anagrafica,
+                          $data->stato, 
+                          $data->visualizzazioni,  
+                          $data->permanenza_tot ,
+                          '$data->data')";
             $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data' , permanenza_tot= " . $data->permanenza_tot;
             $this->_db->setQuery($query);
             $this->_db->execute();
@@ -272,14 +306,15 @@ class gglmsModelSyncdatareport extends JModelLegacy
     }
 
     //REPORT UTENTI
-    public function sync_report_users()
+    public function sync_report_users($data_sync=null, $integrazione=null, $campo_nome=null, $campo_cognome=null)
     {
 
 
         try {
+            $_dt_ref = !is_null($data_sync) ? $data_sync : $this->params->get('data_sync');
 
-            $users = $this->get_users_id($this->params->get('data_sync'));
-
+            //$users = $this->get_users_id($this->params->get('data_sync'));
+            $users = $this->get_users_id($_dt_ref, $integrazione);
 
             foreach ($users as $user) {
                 $modelUser = new gglmsModelUsers();
@@ -287,7 +322,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 if (!$user->event_id)
                     $user->event_id = 0;
 
-                $tmpuser = $modelUser->get_user($user->id, $user->event_id);
+                $tmpuser = $modelUser->get_user($user->id, $user->event_id, $integrazione, $campo_nome, $campo_cognome);
 
                 $tmp = new stdClass();
                 $tmp->id = $user->id;
@@ -309,9 +344,12 @@ class gglmsModelSyncdatareport extends JModelLegacy
         }
     }
 
-    public function get_users_id($from_date = null)
+    public function get_users_id($from_date = null, $integrazione = null)
     {
-        switch ($this->params->get('integrazione')) {
+        $_integrazione_ref = (!is_null($integrazione)) ? $integrazione : $this->params->get('integrazione');
+
+        //switch ($this->params->get('integrazione')) {
+        switch ($_integrazione_ref) {
             case 'cb':
                 $data = $this->get_users_cb($from_date);
                 break;
@@ -397,8 +435,16 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
         try {
             $query = "
-            INSERT INTO #__gg_report_users (id_event_booking,id_user, nome, cognome, fields) 
-            VALUES ($data->id_event_booking, $data->id_user, $data->nome,$data->cognome,$data->fields)";
+            INSERT INTO #__gg_report_users (id_event_booking,
+                                          id_user, 
+                                          nome, 
+                                          cognome, 
+                                          fields) 
+                        VALUES ($data->id_event_booking, 
+                                $data->id_user, 
+                                $data->nome,
+                                $data->cognome,
+                                $data->fields)";
             $query .= " ON DUPLICATE KEY UPDATE fields = $data->fields";
             $this->_db->setQuery($query);
 

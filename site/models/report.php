@@ -333,7 +333,6 @@ class gglmsModelReport extends JModelLegacy
 
         }
         $query->order('a.titolo');
-
         $this->_db->setQuery($query);
         $corsi = $this->_db->loadObjectList();
 
