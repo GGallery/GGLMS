@@ -193,6 +193,202 @@ class gglmsControllerUsers extends JControllerLegacy
         $app->close();
     }
 
+    // importazione rinnovi effettuati manualmente
+    public function _import_rinnovi() {
+
+        ini_set('max_execution_time', 0);
+
+        $app = JFactory::getApplication();
+        $db = JFactory::getDbo();
+
+        $_user = new gglmsModelUsers();
+
+        try {
+
+            // leggo il file di configurazione
+            $config_file = JPATH_ROOT . '/tmp/_import.conf';
+
+            // il file di configurazione non esiste
+            if (!file_exists($config_file))
+                throw new Exception("file _import.conf non trovato", 1);
+
+            $config_content = file_get_contents($config_file);
+            if (!$config_content)
+                throw new Exception("file _import.conf non leggibile", 1);
+
+            $json_config = utilityHelper::get_json_decode_error($config_content, true);
+            if (!is_array($json_config))
+                throw new Exception($json_config, 1);
+
+            // target file
+            $file_ext = isset($json_config['file_type']) ? $json_config['file_type'] : null;
+            $target_file = isset($json_config['file_name']) ? JPATH_ROOT . '/tmp/' . $json_config['file_name'] : null;
+
+            if (is_null($target_file))
+                throw new Exception("Nessun file di importazione definito", 1);
+
+            // il file da leggere non esiste
+            if (!file_exists($target_file))
+                throw new Exception($target_file . " non trovato", 1);
+
+            $log_file = JPATH_ROOT . '/tmp/_log_' . $json_config['file_name'] . '_' . time();
+            $reader = ReaderEntityFactory::createXLSXReader();
+            $reader->setShouldFormatDates(true);
+
+            if (is_null($reader))
+                throw new Exception('Nessun formato file impostato');
+
+            // indice da cui partirà il loop sul foglio
+            $numero_prima_riga = isset($json_config['cols_schema']['numero_prima_riga']) ? (int)$json_config['cols_schema']['numero_prima_riga'] : 0;
+
+            $reader->open($target_file); //open the file
+            $import_report = array();
+            $dt = new DateTime();
+
+            $db->transactionStart();
+            $i=0;
+            if ($file_ext == 'xlsx'
+                || $file_ext == 'xls') {
+
+                // controllo quanti sheet ci sono nel file (> 1 vado in errore)
+                $sheets_num = count($reader->getSheetIterator());
+                if ($sheets_num > 1)
+                    throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
+
+                $sheet_data = null;
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    if ($sheet->getIndex() === 0) {
+                        $sheet_data = $sheet->getRowIterator();
+                        break;
+                    }
+                }
+
+                $import_report['row_existing'] = (count($sheet_data)-$numero_prima_riga);
+
+                foreach ($sheet_data as $row) {
+
+                    if ($i<$numero_prima_riga) {
+                        $i++;
+                        continue;
+                    }
+
+                    // do stuff with the row
+                    $_riga_xls = $row->getCells();
+
+                    $codice_fiscale = null;
+                    $data_pagamento = null;
+                    $quota = null;
+                    $espen = null;
+                    $modalita_pagamento = null;
+                    $importo_pagato = 0;
+
+                    foreach ($_riga_xls as $num_cell => $value_cell) {
+
+                        $_row_value = trim($value_cell->getValue());
+
+                        if ($num_cell == 1) {
+                            $codice_fiscale = ($_row_value != "") ? $_row_value : $codice_fiscale;
+                        }
+
+                        if ($num_cell == 2) {
+
+                            if ($_row_value != "") {
+                                $dt = new DateTime($_row_value);
+                                $data_pagamento = $dt->format('Y-m-d H:i:s');
+                            }
+
+                        }
+
+                        if ($num_cell == 3) {
+                            $quota = ($_row_value != "") ? $_row_value : $quota;
+                        }
+
+                        if ($num_cell == 4) {
+                            $espen = ($_row_value != "") ? $_row_value : $espen;
+                        }
+
+                        if ($num_cell == 5) {
+                            $modalita_pagamento = ($_row_value != "") ? $_row_value : $modalita_pagamento;
+                        }
+
+                        if ($num_cell == 6) {
+                            $importo_pagato = ($_row_value != "") ? $_row_value : $importo_pagato;
+                        }
+
+                    }  // level 2
+
+                    // se non c'è codice fiscale non faccio nulla
+                    if (is_null($codice_fiscale))
+                        continue;
+
+                    // altrimenti devo abilitare il socio
+                    // id socio da codice fiscale
+                    // inserimento utente in gruppo online
+                    $_get_user = $_user->get_user_by_field('cb_codicefiscale', $codice_fiscale, '=', 'cb');
+                    // l'utente non esiste oppure si è verificato un errore
+                    if (!is_array($_get_user)
+                        || is_null($_get_user)
+                        || !isset($_get_user['id'])) {
+                        UtilityHelper::write_file_to($log_file . '_missing_user.log', "MISSING USER: " . ($i+$numero_prima_riga . ', CF: ' . $codice_fiscale),true);
+                        $import_report['missing_user'][] = $codice_fiscale;
+                        continue;
+                    }
+
+                    $_dettagli_transazione = 'QUOTA SINPE ' . str_replace("-", ",", $quota);
+                    $_dettagli_transazione .= (!is_null($espen) && $espen != "") ? " QUOTA ESPEN " . $espen : "";
+
+                    // inserimento quote pagamenti
+                    $_pagamento = $_user->insert_user_quote_anno_bonifico($_get_user['id'],
+                                                                            $dt->format('Y'),
+                                                                            $importo_pagato,
+                                                                            $_dettagli_transazione,
+                                                                            $data_pagamento,
+                                                                            strtolower($modalita_pagamento),
+                                                                            false);
+
+                    if (!is_array($_pagamento)) {
+                        UtilityHelper::write_file_to($log_file . '_payment_failed.log', "PAYMENT FAILED: " . ($i+$numero_prima_riga . ', CF: ' . $codice_fiscale . ', ERR: ' . $_pagamento),true);
+                        $import_report['payment_failed'][] = $codice_fiscale;
+                        continue;
+                    }
+                    else {
+                        $j_user = JFactory::getUser($_get_user['id']);
+                        $_ug = implode("," , $j_user->groups);
+                        UtilityHelper::write_file_to($log_file . '_payment_success.log', "PAYMENT SUCCESS: " . ($i+$numero_prima_riga . ', USER_ID: ' . $_get_user['id'] . ', CF: ' . $codice_fiscale . ' UG: ' . $_ug),true);
+                        $import_report['payment_success'][] = $codice_fiscale;
+                    }
+
+                    $i++;
+                } // level 1
+
+            }
+
+            $inserted = count($import_report['payment_success']);
+            $not_inserted = count($import_report['payment_failed']);
+            $missing = count($import_report['missing_user']);
+            $_finish_date = date('d/m/Y H:i:s');
+
+            echo <<<HTML
+                <pre>
+                {$_finish_date} <br />
+                Importazione terminata! <br />
+                Inserite {$inserted} righe <br />
+                Non inserite per errore {$not_inserted} righe <br />
+                CF non trovati {$missing} <br />
+                File logs disponibile qui: {$log_file}_*.log
+                </pre>
+HTML;
+
+        }
+        catch (Exception $e) {
+            $db->transactionRollback();
+            echo __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+        $app->close();
+
+    }
+
     // importazione utenti da file xls / csv
     public function _import() {
 
@@ -839,9 +1035,12 @@ HTML;
 
             $_user = new gglmsModelUsers();
 
-            $_bonifico = $_user->insert_unser_quote_anno_bonifico($user_id,
+            $_bonifico = $_user->insert_user_quote_anno_bonifico($user_id,
                                                                 $_anno_quota,
                                                                 $totale,
+                                                                "",
+                                                                null,
+                                                                null,
                                                                 true);
 
             if (!is_array($_bonifico))

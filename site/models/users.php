@@ -154,6 +154,33 @@ class gglmsModelUsers extends JModelLegacy
         return $fields;
     }
 
+    public function get_user_by_field($_field, $_valore, $_operatore = '=', $integrazione = 'cb') {
+
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('u.*')
+                ->from('#__users u');
+
+            switch ($integrazione) {
+                case 'cb':
+                default:
+                    $query = $query->join('inner', '#__comprofiler cb ON u.id = cb.user_id');
+                    break;
+            }
+
+            $query = $query->where($_field . ' ' . $_operatore . ' ' . $this->_db->quote($_valore));
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+
+            return $result;
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////
 
     public function is_tutor_piattaforma($id)
@@ -671,9 +698,12 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // pagamento quota da bonifico (area riservata)
-    public function insert_unser_quote_anno_bonifico($user_id,
+    public function insert_user_quote_anno_bonifico($user_id,
                                                     $_anno_quota,
                                                     $_totale,
+                                                    $_dettagli_transazione = "",
+                                                    $_data_pagamento = null,
+                                                    $_modalita_pagamento = null,
                                                     $send_email=true) {
 
         $db = JFactory::getDbo();
@@ -682,7 +712,8 @@ class gglmsModelUsers extends JModelLegacy
 
             $_ret = array();
             $dt = new DateTime();
-            $_data_creazione = $dt->format('Y-m-d H:i:s');
+            $_data_creazione = (is_null($_data_pagamento)) ? $dt->format('Y-m-d H:i:s') : $_data_pagamento;
+            $_pagamento = (is_null($_modalita_pagamento)) ? 'bonifico' : $_modalita_pagamento;
 
             $db->transactionStart();
 
@@ -692,7 +723,8 @@ class gglmsModelUsers extends JModelLegacy
                                                           tipo_quota, 
                                                           tipo_pagamento, 
                                                           data_pagamento, 
-                                                          totale
+                                                          totale,
+                                                          dettagli_transazione
                                                           ) 
                             VALUES ";
 
@@ -700,9 +732,10 @@ class gglmsModelUsers extends JModelLegacy
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
                                'quota',
-                               'bonifico',
+                               '" . $_pagamento . "',
                                '" . $_data_creazione . "',
-                               '" . $_totale . "'
+                               '" . $_totale . "',
+                               '" . $_dettagli_transazione . "'
                             )";
 
             $db->setQuery($query);
