@@ -36,12 +36,18 @@ _monitoraCoupon = (function ($, my) {
                 field: 'venditore',
                 title: 'COM_GGLMS_GLOBAL_VENDITORE',
                 type: 'standard'
+            },
+            {
+                field: 'disattiva',
+                title: 'COM_GGLMS_GLOBAL_DISATTIVA',
+                type: 'js'
             }
             // ,{
             //     field: 'mailto',
             //     title: 'Invia',
             //     type: 'action'
             // }
+
 
         ];
         //per aggiungere una colonna basta aggiungere all'array columns
@@ -55,13 +61,13 @@ _monitoraCoupon = (function ($, my) {
             "</br> Il tutor ";
         var subject_mail = "Iscrizione corso {{corso}}";
 
-
         function _init() {
 
-            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.is_tutor_aziendale"))
+            //$.when($.get("index.php?option=com_gglms&task=monitoracoupon.is_tutor_aziendale"))
+            $.when($.get("index.php?option=com_gglms&task=monitoracoupon.get_var_monitora_coupon"))
                 .done(function (data) {
 
-
+                    /*
                     if (data == "true") {
                         // utente collegato ? tutor aziendale nascondo le info relative a venditore
                         columns = columns.filter(function (obj) {
@@ -74,6 +80,43 @@ _monitoraCoupon = (function ($, my) {
                         columns = columns.filter(function (obj) {
                             return obj.field !== 'mailto';
                         });
+                    }
+                    */
+
+                    if (data == "") {
+                        alert("Parameter object is not valid");
+                        return;
+                    }
+                    else {
+
+                        data = JSON.parse(data);
+
+                        // gestione tutor aziendale
+                        var pIsTutor = data.is_tutor_aziendale;
+
+                        if (pIsTutor == "true") {
+                            // utente collegato ? tutor aziendale nascondo le info relative a venditore
+                            columns = columns.filter(function (obj) {
+                                return obj.field !== 'venditore';
+                            });
+
+                            $("#venditore").hide();
+                            $("label[for=venditore]").hide();
+                        } else {
+                            columns = columns.filter(function (obj) {
+                                return obj.field !== 'mailto';
+                            });
+                        }
+
+                        // gestione disattiva coupon
+                        var pDisattivaCoupon = data.show_disattiva_coupon;
+
+                        if (parseInt(pDisattivaCoupon) != 1) {
+                            columns = columns.filter(function (obj) {
+                                return obj.field !== 'disattiva';
+                            });
+                        }
+
                     }
 
 
@@ -90,6 +133,7 @@ _monitoraCoupon = (function ($, my) {
 
                     $("#btn_export_csv").click(loadCsv);
                     $('.button-page').on('click', _pagination_click);
+                    //$('.disattiva-coupon').on('click', _disattivaCoupon);
 
                     _toggle_table(false);
                     _loadData(null);
@@ -212,12 +256,17 @@ _monitoraCoupon = (function ($, my) {
 
                                 console.log(item);
                                 if (!item['user']) {
-
-                                    new_row.append('<td><button class="btn btn-envelope" data-coupon="' + item['coupon'] + '"  data-corso = "' + item['corso'] + '" data-durata="' + item["durata"] + '" type="button" title="Invia coupon" class="btn btn-xs btn-default command-edit"><span class="glyphicon glyphicon-envelope"></span></button> </td>');
+                                    // class="btn btn-envelope"
+                                    new_row.append('<td><button class="btn btn-xs btn-default command-edit" data-coupon="' + item['coupon'] + '"  data-corso = "' + item['corso'] + '" data-durata="' + item["durata"] + '" type="button" title="Invia coupon"><span class="glyphicon glyphicon-envelope"></span></button> </td>');
                                 } else {
                                     new_row.append('<td></td>');
                                 }
 
+                                break;
+                            case 'js':
+                                if (c.field == 'disattiva') {
+                                    new_row.append('<td><button class="btn btn-xs btn-default" onclick="_disattivaCoupon(\'' + item['coupon'] + '\')"><span class="glyphicon glyphicon-minus-sign"></span></button></td>');
+                                }
                                 break;
                             case 'standard':
                             default:
@@ -269,6 +318,9 @@ _monitoraCoupon = (function ($, my) {
             $('#totalcount').empty();
             $('#totalcount').html(Joomla.JText._('COM_GGLMS_GLOBAL_RECORD') + ":" + rowCount);
         }
+
+
+
 
         function _pagination_click() {
 
@@ -326,14 +378,20 @@ _monitoraCoupon = (function ($, my) {
         function loadCsv() {
 
 
-            console.log('columns', columns);
+            var pCols = columns.filter(function (obj) {
+                return obj.field !== 'disattiva';
+            });
+
+            //console.log('columns', columns);
+            console.log('columns', pCols);
 
             var url = "index.php?option=com_gglms&task=monitoracoupon.exportCsv";
             url = url + "&id_gruppo_azienda=" + $("#id_gruppo_azienda").val();
             url = url + "&id_gruppo_corso=" + $("#id_gruppo_corso").val();
             url = url + "&stato=" + $("#stato_coupon").val();
             url = url + "&coupon=" + $("#coupon").val();
-            url = url + "&columns=" + columns.map(function (c) { // colonne da esportare
+            //url = url + "&columns=" + columns.map(function (c) { // colonne da esportare
+            url = url + "&columns=" + pCols.map(function (c) { // colonne da esportare
                 return c.field
             }).toString();
 
@@ -371,3 +429,51 @@ _monitoraCoupon = (function ($, my) {
 
 )(jQuery, this);
 
+function _disattivaCoupon(couponCode) {
+
+    var c = confirm(Joomla.JText._('COM_GGLMS_GLOBAL_CONFIRM_DISATTIVA'));
+
+    var param = {
+        codice_coupon : couponCode
+    };
+
+    if (c) {
+        jQuery.get("index.php?option=com_gglms&task=monitoracoupon.disattivazione_coupon", param)
+            .done(function (data) {
+
+                // controllo errore
+                if (data == ""
+                    || typeof data != "string") {
+                    alert(Joomla.JText._('COM_GGLMS_GLOBAL_ERROR_DISATTIVA') + ' ' + data);
+                    return;
+                }
+                else {
+
+                    data = JSON.parse(data);
+
+                    if (typeof data != "object") {
+                        alert(Joomla.JText._('COM_GGLMS_GLOBAL_ERROR_DISATTIVA') + ' ' + data);
+                        return;
+                    }
+                    else if (typeof data.error != "undefined"
+                        || data.error != undefined) {
+                        alert(data.error);
+                        return;
+                    }
+                    else {
+
+                        alert(Joomla.JText._('COM_GGLMS_GLOBAL_SUCCESS_DISATTIVA'));
+                        _monitoraCoupon.init();
+                    }
+
+                }
+
+            })
+            .fail(function (data) {
+                alert(Joomla.JText._('COM_GGLMS_GLOBAL_ERROR_DISATTIVA') + ' ' + data);
+                return;
+            });
+
+    }
+
+}

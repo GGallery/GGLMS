@@ -14,7 +14,7 @@ class gglmsControllerMt extends JControllerLegacy {
         try {
             $app = JFactory::getApplication();
 
-            $user_id = 1211;
+            $user_id = 3739;
 
             $user = JFactory::getUser($user_id);
             echo implode(",", $user->groups) . "<br />";
@@ -26,6 +26,7 @@ class gglmsControllerMt extends JControllerLegacy {
             if (!is_array($_user_details))
                 throw new Exception($_user_details, 1);
 
+            // estrapolo i parametri dal plugin
             $_params = utilityHelper::get_params_from_plugin();
             $email_default = utilityHelper::get_params_from_object($_params, "email_default");
             $ug_categoria = utilityHelper::get_ug_from_object($_params, "ug_categoria");
@@ -35,9 +36,6 @@ class gglmsControllerMt extends JControllerLegacy {
             $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
             $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
 
-            utilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-
-                /*
             // inserisco l'utente nel gruppo online
             $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
             if (!is_array($_ins_online))
@@ -46,7 +44,7 @@ class gglmsControllerMt extends JControllerLegacy {
             // inserisco l'utente nel gruppo categoria corretto
             $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
             if (!is_array($_ins_categoria))
-                throw new Exception($_ins_categoria, 1);*/
+                throw new Exception($_ins_categoria, 1);
 
             echo "OK!";
         }

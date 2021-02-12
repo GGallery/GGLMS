@@ -344,4 +344,31 @@ class gglmsModelcoupon extends JModelLegacy
         }
 
     }
+
+    public function disattiva_coupon($codice_coupon) {
+
+        try {
+
+            $_ret = array();
+            $dt = new DateTime();
+            $query = $this->_db->getQuery(true);
+            $query->update('#__gg_coupon')
+                        ->set('durata = 0')
+                        ->where('coupon = ' . $this->_db->quote($codice_coupon));
+            $this->_db->setQuery($query);
+            $result = $this->_db->execute();
+
+            if (!$result)
+                throw new Exception("Update query failed", 1);
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
 }

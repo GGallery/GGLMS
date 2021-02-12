@@ -1063,6 +1063,19 @@
                 default=""
         />
 
+        <field
+                name="monitora_coupon_disattiva_coupon"
+                type="radio"
+                class="btn-group"
+                label="Permette di disabilitare un Coupon dai risultati di Monitora coupon"
+                labelclass="control-label"
+                description="OFF per nascondere colonna, ON per visualizzare colonna"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
         <!-- FINE PERSONALIZZAZIONI -->
 
         <!-- INIZIO PAYPAL -->
