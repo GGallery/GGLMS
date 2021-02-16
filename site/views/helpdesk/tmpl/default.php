@@ -74,10 +74,39 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
                               name="question" rows="5"></textarea>
             </div>
         </div>
+
+        <?php if ($this->richiesta_privacy == 1) : ?>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <input type="checkbox" value="1" id="accetta_privacy" name="accetta_privacy" /><?php echo $this->richiesta_privacy_link; ?>
+                </div>
+            </div>
+
+            <hr />
+        <?php endif; ?>
+
         <div class="form-group">
             <button id="btn_invia" type="submit" class="btn-block btn"><?php echo  JText::_('COM_GGLMS_GLOBAL_SEND') ?></button>
         </div>
         <input type="hidden" name="alias" value="<?php echo $this->info_piattaforma->alias?>"/>
     </form>
 </div>
+
+<?php if ($this->richiesta_privacy == 1) : ?>
+
+<script type="text/javascript">
+
+    jQuery('#contactForm').on('submit', function (e) {
+        e.preventDefault();
+        var pChecked = jQuery('#accetta_privacy').attr('checked');
+
+        if (pChecked != "checked")
+            alert(Joomla.JText._('COM_GGLMS_HELP_DESK_PRIVACY'));
+        else
+            jQuery('#contactForm')[0].submit();
+    })
+
+</script>
+
+<?php endif; ?>
 

@@ -21,6 +21,12 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('mail_richiesta_didattica'); ?>
             </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('richiesta_privacy'); ?>
+            </div>
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('richiesta_privacy_link'); ?>
+            </div>
         </div>
     </div>
 </div>

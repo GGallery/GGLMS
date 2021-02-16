@@ -56,9 +56,7 @@ class gglmsControllerHelpDesk extends JControllerLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
-
             $this->_japp->redirect(JRoute::_('/home/helpdesk'), $this->_japp->enqueueMessage(JText::_('COM_GGLMS_HELP_DESK_SUCCESS'), 'Success'));
-
 
         } catch (Exception $e) {
 

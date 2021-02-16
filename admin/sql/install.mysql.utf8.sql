@@ -120,7 +120,7 @@ INSERT INTO `#__gg_configs` VALUES ('51', 'mail_coupon_acitve', '0');
 INSERT INTO `#__gg_configs` VALUES ('52', 'specifica_durata_coupon', '0');
 INSERT INTO `#__gg_configs` VALUES ('53', 'durata_standard_coupon', '60');
 INSERT INTO `#__gg_configs` VALUES ('54', 'genera_forum', '1');
-INSERT INTO `#__gg_configs` VALUES ('55', 'titolo_pagina_rinnova_coupon', 'Inserisci qui il codice coupon da rinnnovare');
+INSERT INTO `#__gg_configs` VALUES ('55', 'titolo_pagina_rinnova_coupon', 'Inserisci qui il codice coupon da rinnovare');
 INSERT INTO `#__gg_configs` VALUES ('56', 'descrizione_pagina_rinnova_coupon', 'Inserisci il codice coupon da rinnovare. La durata dell\'iscrizione al corso è di 60 giorni a partire dal momento del rinnovo.');
 INSERT INTO `#__gg_configs` VALUES ('57', 'messaggio_rinnovo_nouser', 'Il coupon non è stato ancora inserito da nessun utente, per ulteriori informazioni contatta il supporto tecnico');
 INSERT INTO `#__gg_configs` VALUES ('58', 'messaggio_rinnovo_notutor', 'Ops sembra che tu non sia loggato come utente tutor di piattaforma. Non è possibilie effettuare il rinnovo se non sei un tutor di piattaforma');

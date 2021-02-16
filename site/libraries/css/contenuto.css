@@ -57,6 +57,10 @@
     background-position: center;
 }
 
+.slide-download {
+    padding-top: 2%;
+}
+
 
 #panel_jumper {
     height: 300px;

@@ -203,6 +203,13 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
     <div id="boxslide" class="g-block size-50 span6 ">
         <div class="mejs-slides-player-slides img-thumbnail"></div>
+
+        <!-- ICONE - PULSANTI-->
+        <?php if (!is_null($this->slide_pdf)) { ?>
+            <div class="g-block size-100 span12 text-right slide-download">
+                <button id="file-download" name="file-download" title="<?php echo JText::_('COM_GGLMS_ELEMENTO_STR10'); ?>" class="tooltip-button" data-href="<?php echo $this->slide_pdf; ?>"></button>
+            </div>
+        <?php } ?>
     </div>
 
     <!--desktop-->
@@ -213,13 +220,8 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
     </div>
 
 
+
 </div>
-<!-- ICONE - PULSANTI-->
-<?php if (!is_null($this->slide_pdf)) { ?>
-    <div class="g-block size-100 span12 text-right">
-        <button id="file-download" name="file-download" title="<?php echo JText::_('COM_GGLMS_ELEMENTO_STR10'); ?>" class="tooltip-button" data-href="<?php echo $this->slide_pdf; ?>"></button>
-    </div>
-<?php } ?>
 
 
 

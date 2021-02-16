@@ -734,7 +734,7 @@
                 <!--class=""-->
                 <!--label="Testo/titolo pagina rinnova coupon"-->
                 <!--labelclass="control-label"-->
-                <!--default="Inserisci qui il codice coupon da rinnnovare"-->
+                <!--default="Inserisci qui il codice coupon da rinnovare"-->
                 <!--description=""-->
         <!--/>-->
 
@@ -839,7 +839,7 @@
                 class=""
                 label="Mail unificata per richiesta tecnica"
                 labelclass="control-label"
-                default="helpdesk@ausindfad.it"
+                default=""
                 description=""
                 showon="mail_riferimento_specifica:1"
         />
@@ -850,9 +850,33 @@
                 class=""
                 label="Mail unificata per richiesta didattica"
                 labelclass="control-label"
-                default="silvia.alcozer@ausind.it"
+                default=""
                 description=""
                 showon="mail_riferimento_specifica:1"
+        />
+
+        <field
+                name="richiesta_privacy"
+                type="radio"
+                class="btn-group"
+                label="Richiesta di accettazione privacy"
+                labelclass="control-label"
+                description="OFF per nascondere la spunta, ON per visualizzare la spunta"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="richiesta_privacy_link"
+                type="text"
+                class=""
+                label="La pagina di visualizzazione della privacy"
+                labelclass="control-label"
+                default=""
+                description="Es. https://www.miosito.it/privacy.html"
+                showon="richiesta_privacy:1"
         />
 
         <!--F I N E HELPDESK -->
