@@ -198,6 +198,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // leggo da configurazione se creare o meno forum
             $genera_forum = $this->_config->getConfigValue('genera_forum');
             if ($genera_forum == 1) {
+
                 $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
 
                 if (empty($forum_corso)) {
@@ -633,11 +634,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias, ud.mail_from_default as mail_from_default')
+                ->select('ug.id as id , ug.title as name, 
+                        ud.dominio as dominio, 
+                        ud.alias as alias, ud.mail_from_default as mail_from_default')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('id=' . $id_piattaforma);
-
 
             $this->_db->setQuery($query);
             $info_piattaforma = $this->_db->loadAssoc();
@@ -953,7 +955,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                    \'' . $this->_db->escape($headerdesc) . '\', 
                                    \'' . $params . '\'
                                    )';
-
 
         $this->_db->setQuery($query);
         if (false === ($results = $this->_db->query()))

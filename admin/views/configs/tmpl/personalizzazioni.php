@@ -84,6 +84,19 @@
 
 <hr />
 
+<!-- Monitora coupon -->
+<div class="row-fluid">
+
+    <h4>Monitora coupon</h4>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('monitora_coupon_disattiva_coupon'); ?>
+    </div>
+
+</div>
+
+<hr />
+
 <!-- Summary report -->
 <div class="row-fluid">
 

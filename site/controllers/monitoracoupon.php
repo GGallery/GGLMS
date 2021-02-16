@@ -26,6 +26,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     public $_params;
     public $_db;
     public $model;
+    public $_config;
 
 
     public function __construct($config = array())
@@ -36,6 +37,8 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
         $this->_user = JFactory::getUser();
         $this->_db = JFactory::getDbo();
+        $this->_config = new gglmsModelConfig();
+        $this->_config = new gglmsModelConfig();
 
 
     }
@@ -207,6 +210,54 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $this->_japp->close();
 
         // is_tutor_aziendale
+
+    }
+
+    public function get_var_monitora_coupon() {
+
+        $_ret = array();
+
+        $model = new gglmsModelUsers();
+        $is_tutor_az = $model->is_tutor_aziendale($this->_user->id);
+
+        $_ret['is_tutor_aziendale'] = $is_tutor_az;
+
+        $show_disattiva_coupon = $this->_config->getConfigValue('monitora_coupon_disattiva_coupon');
+        $_ret['show_disattiva_coupon'] = $show_disattiva_coupon;
+
+        echo json_encode($_ret);
+        $this->_japp->close();
+
+    }
+
+    public function disattivazione_coupon() {
+
+        $_ret = array();
+        $filter_params = JRequest::get($_GET);
+
+        try {
+
+            if (!isset($filter_params["codice_coupon"])
+                || $filter_params["codice_coupon"] == "")
+                throw new Exception("Nessun codice coupon specificato!", 1);
+
+            $coupon = new gglmsModelcoupon();
+            $_disattiva = $coupon->disattiva_coupon($filter_params["codice_coupon"]);
+
+            if (!is_array($_disattiva))
+                throw new Exception($_disattiva, 1);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_msg = __FUNCTION__ . " errore: " . $e->getMessage();
+            $_ret['error'] = $_msg;
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+        }
+
+        echo json_encode($_ret);
+        $this->_japp->close();
 
     }
 

@@ -72,7 +72,7 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
                 <?php } ?>
 
             </select>
-            <div id="piattaforma_warning" style="display: none" class="alert alert-warning">
+            <div id="abilitato" style="display: none" class="alert alert-warning">
                 <?php echo  JText::_('COM_GGLMS_GENERA_COUPON_COMPANY_DUPLICATED') ?>
             </div>
 
@@ -148,7 +148,8 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
             <label class="col-sm-3 col-form-label disabled lbl_cpn_opt" for="abilitato"><input class="cpn_opt" disabled
                                                                                                type="checkbox"
                                                                                                id="abilitato"
-                                                                                               name="abilitato">
+                                                                                               name="abilitato"
+                                                                                                checked="checked" />
                 <?php echo  JText::_('COM_GGLMS_GENERA_COUPON_ABILITATI') ?></label>
         <?php } ?>
 
