@@ -49,6 +49,14 @@
     margin-top: -8px !important;
 }
 
+#file-download {
+    width: 80px;
+    height: 80px;
+    background: url("../images/download_pdf.png") no-repeat;
+    border:none;
+    background-position: center;
+}
+
 
 #panel_jumper {
     height: 300px;

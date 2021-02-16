@@ -25,6 +25,12 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             return false;
         });
 
+        jQuery('#file-download').click(function() {
+            var pHref = jQuery(this).attr("data-href");
+            //window.location = pHref;
+            window.open(pHref, '_blank');
+        });
+
         var hasPlayed = false;
         var player;
         var old_tempo;
@@ -168,12 +174,6 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 <div class="container-videosidepanelhide g-grid span12">
 
-    <?php if (!is_null($this->slide_pdf)) { ?>
-    <div class="g-block size-100 span12 text-right">
-        <a href="<?php echo $this->slide_pdf; ?>" target="_blank"><h5><?php echo JText::_('COM_GGLMS_ELEMENTO_STR10'); ?></h5></a>
-    </div>
-    <?php } ?>
-
     <div id="boxvideo" class="g-block size-50 span6">
 
 
@@ -212,7 +212,17 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         ?>
     </div>
 
+
 </div>
+<!-- ICONE - PULSANTI-->
+<?php if (!is_null($this->slide_pdf)) { ?>
+    <div class="g-block size-100 span12 text-right">
+        <button id="file-download" name="file-download" title="<?php echo JText::_('COM_GGLMS_ELEMENTO_STR10'); ?>" class="tooltip-button" data-href="<?php echo $this->slide_pdf; ?>"></button>
+    </div>
+<?php } ?>
+
+
+
 
 
 <!--

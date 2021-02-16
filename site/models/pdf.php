@@ -56,11 +56,33 @@ class gglmsModelPdf extends JModelLegacy
             if ($datetest === null || $datetest == '0000-00-00')
                 throw new RuntimeException('L\'utente non ha superato l\'esame o lo ha fatto in data ignota', E_USER_ERROR);
 
-
             $info['data_superamento'] = $datetest;
             $info['path_id'] = $attestato->id;
             $info['path'] = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/';
             $info['content_path'] = $info['path'] . $info['path_id'];
+
+            // non va troppo bene
+            if (DOMINIO == ""
+                || DOMINIO == 'DOMINIO') {
+
+                //$hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+                $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+                $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+
+                $_arr_host = explode(".", $hostname);
+                // indirizzi tipo https://dominio.it
+                if (count($_arr_host) < 3) {
+                    $hostname = $_arr_host[0] . "." . $_arr_host[1];
+                }
+                // altri tipo www.dominio.it oppure terzo.dominio.it
+                else {
+                    $hostname = $_arr_host[1] . "." . $_arr_host[2];
+                }
+
+                define('DOMINIO', $hostname);
+
+            }
+
             $info['logo'] = DOMINIO;
             $info['firma'] = DOMINIO;
             $info['dg'] = $dg;
@@ -111,7 +133,9 @@ class gglmsModelPdf extends JModelLegacy
             } else {
                 //altrimenti lo scarico
                 ob_end_clean();
-                $pdf->Output($nomefile . '.pdf', 'D');
+                // così facendo rinomina due volte .pdf
+                //$pdf->Output($nomefile . '.pdf', 'D');
+                $pdf->Output($nomefile, 'D');
                 return 1;
             }
 

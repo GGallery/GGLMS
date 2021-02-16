@@ -244,13 +244,21 @@ _monitoraCoupon = (function ($, my) {
                         switch (c.type) {
                             case'date':
 
+                                // controllo valori non consoni alla conversione per evitare valore del tipo Invalid Date
+                                var itemRef = item[c.field];
+                                var itemRefLower = itemRef.toLowerCase();
                                 // convert data from utc to local
-                                if (item[c.field] !== null) {
-                                    var utc = new Date(item[c.field]);
+                                if (itemRef !== null
+                                    && itemRef != '0000-00-00 00:00:00'
+                                    && itemRefLower.indexOf('invalid') == -1) {
+                                    var utc = new Date(itemRef);
                                     utc.setMinutes(utc.getMinutes() - offset);
-                                    item[c.field] = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
+                                    itemRef = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
                                 }
-                                new_row.append('<td>' + item[c.field] + '</td>');
+                                else
+                                    itemRef = '';
+
+                                new_row.append('<td>' + itemRef + '</td>');
                                 break;
                             case'action':
 
@@ -270,7 +278,15 @@ _monitoraCoupon = (function ($, my) {
                                 break;
                             case 'standard':
                             default:
-                                new_row.append('<td>' + item[c.field] + '</td>');
+                                var itemRef = item[c.field];
+
+                                if (itemRef == null
+                                    || itemRef == "null"
+                                    || itemRef == undefined
+                                    || itemRef == "undefined")
+                                    itemRef = '';
+
+                                new_row.append('<td>' + itemRef + '</td>');
                                 break;
                         }
 
