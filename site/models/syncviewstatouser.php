@@ -91,7 +91,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
         $datauserunit=$this->deltaReport($offset,$limit,$maxts);
 
         if(count($datauserunit)>0){
-            //$this->insertViewUnita($datauserunit);
+            $this->insertViewUnita($datauserunit);
             $this->insertViewCorso($datauserunit);
             $result = true;
             DEBUGG::log('FINE PROCEDURA CON TRUE', ' ',0,1,0);
