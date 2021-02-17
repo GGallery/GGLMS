@@ -92,10 +92,13 @@ class gglmsModelSyncdatareport extends JModelLegacy
     }
 
     //REPORT TRACCIAMENTO
-    public function sync_report($limit, $offset, $data_sync)
+    public function sync_report($limit, $offset, $data_sync = null, $colonna_datetime = null)
     {
         DEBUGG::log('inizio sync_report', 'inizio sync_report limit:' . $limit . ' offset:' . $offset, 0, 1, 0);
         //ini_set('max_execution_time', 6000);
+
+        // $_extra_date = !is_null($colonna_datetime) ? $colonna_datetime : $this->params->get('colonna_datetime');
+
         try {
             $scormvar_list = $this->_getScormvarsVariation($limit, $offset, $data_sync);
             $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit, $offset, $data_sync);
@@ -113,6 +116,10 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
                     $stato = $contenuto->getStato($data->id_utente);
                     $data->data = $stato->data;
+
+                    // data in formato Y-m-d H:i:s
+                    $data->data_extra = $stato->data_extra;
+
                     $data->stato = $stato->completato;
                     $data->visualizzazioni =  $stato->visualizzazioni;
                     $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
@@ -269,10 +276,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
         try {
 
-
-
-            $query = "
-    INSERT INTO #__gg_report (id_corso, 
+            // aggiunta della colonna data_extra che viene memorizzata nel formato Y-m-d H:i:s
+            $query = "INSERT INTO #__gg_report (id_corso, 
                               id_event_booking,
                               id_unita, 
                               id_contenuto,  
@@ -281,7 +286,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
                               stato, 
                               visualizzazioni,
                               permanenza_tot, 
-                              data ) 
+                              data,
+                              data_extra) 
                       VALUES ($data->id_corso, 
                           $data->id_event_booking, 
                           $data->id_unita,
@@ -291,8 +297,14 @@ class gglmsModelSyncdatareport extends JModelLegacy
                           $data->stato, 
                           $data->visualizzazioni,  
                           $data->permanenza_tot ,
-                          '$data->data')";
-            $query .= "ON DUPLICATE KEY UPDATE stato = $data->stato , visualizzazioni= $data->visualizzazioni, data='$data->data' , permanenza_tot= " . $data->permanenza_tot;
+                          '$data->data',
+                          '$data->data_extra')";
+            $query .= "ON DUPLICATE KEY UPDATE 
+                                    stato = $data->stato , 
+                                    visualizzazioni = $data->visualizzazioni, 
+                                    data = '$data->data',
+                                    data_extra = '$data->data_extra',
+                                    permanenza_tot = " . $data->permanenza_tot;
             $this->_db->setQuery($query);
             $this->_db->execute();
 

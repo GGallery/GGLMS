@@ -31,6 +31,9 @@ defined('_JEXEC') or die('Restricted access');
         </p>
     </div>
 
+    <?php // informazioni relative al bonificoco ulteriori indicazioni
+        echo $this->payment_extra_form; ?>
+
     <div class="alert alert-danger" role="alert" id="paymentError" style="display: none;">
         <?php echo JText::_('COM_PAYPAL_SINPE_STR4') ?> <br />
         <p>

@@ -193,6 +193,19 @@
         </field>
 
         <field
+                name="colonna_datetime"
+                type="radio"
+                class="btn-group"
+                label="Attiva formato date dd/mm/yyyy H:i:s"
+                labelclass="control-label"
+                default="0"
+                description="Visualizza sul report i tempi di inizio e fine nel formato 01/01/1970 00:00:00"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
                 name="nomenclatura_moduli"
                 type="text"
                 class=""

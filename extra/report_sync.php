@@ -56,6 +56,7 @@ class reportSync extends JApplicationCli {
 
             $params = JComponentHelper::getParams('com_gglms');
             $data_sync = $params->get('data_sync');
+            $colonna_datetime = $params->get('colonna_datetime');
             $integrazione = $params->get('integrazione');
             $campo_nome = $params->get('campo_community_builder_nome');
             $campo_cognome = $params->get('campo_community_builder_cognome');
@@ -84,7 +85,7 @@ class reportSync extends JApplicationCli {
             if ($result_2 == -1)
                 throw new Exception("Report ko sync_report_count", 1);
 
-            $result_3 = $syncdatareport->sync_report(null, null, $data_sync);
+            $result_3 = $syncdatareport->sync_report(null, null, $data_sync, $colonna_datetime);
 
             if (!$result_3)
                 throw new Exception("Report ko sync_report", 1);

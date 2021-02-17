@@ -360,7 +360,7 @@ class gglmsModelContenuto extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                ->select('varName, varValue')
+                ->select('varName, varValue, DATE(timestamp) as TimeStamp')
                 ->from('#__gg_scormvars as s')
                 ->where('scoid = ' . $this->id)
                 ->where('s.userid = ' . $this->_userid);
@@ -421,14 +421,13 @@ class gglmsModelContenuto extends JModelLegacy
 
         try {
             if ($this->_userid == null) {
-//			COMMENTATO IN FASE DI SVIL☺PO
 //                JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id del quiz per il contentuo "' . $this->titolo . '" senza essere loggati', 'error');
                 JFactory::getApplication()->enqueueMessage(JText::_('COM_GGLMS_STATO_NOT_POSSIBLE_QUIZ') . $this->titolo . JText::_('COM_GGLMS_STATO_NOT_LOGGED'), 'error');
                 return 0;
             }
 
             $query = $this->_db->getQuery(true)
-                ->select('varName, varValue')
+                ->select('varName, varValue, DATE(timestamp) as TimeStamp')
                 ->from('#__gg_scormvars as s')
                 ->where('scoid = ' . $this->id)
                 ->where('s.userid = ' . $this->_userid);

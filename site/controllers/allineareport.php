@@ -23,14 +23,14 @@ require_once JPATH_COMPONENT . '/models/report.php';
 class gglmsControllerAllineaReport extends JControllerAdmin
 {
 
-    //ALLINEA QUIZ DE LUXE
-    public function allinea(){
+    // ALLINEA QUIZ DELUXE
+    public function allinea() {
 
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
         $query->select('id as id, id_quizdeluxe as id_quizdeluxe');
         $query->from('#__gg_contenuti');
-        $query->where('tipologia=7');
+        $query->where('tipologia = 7');
         $db->setQuery($query);
 
         $result=$db->loadAssocList();
@@ -49,11 +49,15 @@ class gglmsControllerAllineaReport extends JControllerAdmin
                 continue;
             }
 
-            $query='update #__gg_report set stato = 1 where id_utente in (select anagrafica.id_user from #__quiz_r_student_quiz as q
-                    inner join #__gg_report_users as anagrafica on q.c_student_id=anagrafica.id_user
-                    where  q.c_quiz_id='.$row['id_quizdeluxe'].' and q.c_passed=1)
-                    and id_contenuto='.$row['id'].'
-                    and stato=0';
+            $query = 'update #__gg_report set stato = 1 
+                        where id_utente in (
+                                            select anagrafica.id_user from #__quiz_r_student_quiz as q
+                                            inner join #__gg_report_users as anagrafica on q.c_student_id=anagrafica.id_user
+                                            where  q.c_quiz_id = '.$row['id_quizdeluxe'].' 
+                                            and q.c_passed = 1
+                                            )
+                        and id_contenuto = '.$row['id'].'
+                        and stato = 0';
             $db->setQuery($query);
 
             echo $query;
@@ -80,10 +84,19 @@ class gglmsControllerAllineaReport extends JControllerAdmin
             echo 'allinea scorm -> procedo con '.$row['id'];
             $db = JFactory::getDbo();
             $query = $db->getQuery(true);
-            $query='update #__gg_report set stato=1 where id_utente in (select s.userid from #__gg_unit as u inner join #__gg_contenuti as c on c.id=u.id_contenuto_completamento 
-                    inner join #__gg_scormvars as s on s.scoid=c.id
-                    where u.is_corso=1 and c.tipologia=4 and s.varName=\'cmi.core.lesson_status\' and s.varValue in (\'completed\',\'passed\') and c.id='.$row['id'].')
-                    and id_contenuto='.$row['id'].' and stato=0';
+            $query='update #__gg_report set stato = 1 
+                    where id_utente in (
+                                        select s.userid 
+                                        from #__gg_unit as u 
+                                        inner join #__gg_contenuti as c on c.id=u.id_contenuto_completamento 
+                                        inner join #__gg_scormvars as s on s.scoid=c.id
+                                        where u.is_corso=1 
+                                        and c.tipologia=4 
+                                        and s.varName=\'cmi.core.lesson_status\' 
+                                        and s.varValue in (\'completed\',\'passed\') 
+                                        and c.id='.$row['id'].'
+                                        )
+                                        and id_contenuto='.$row['id'].' and stato=0';
             $db->setQuery($query);
             $result=$db->execute();
             $num=$db->getAffectedRows();
@@ -95,13 +108,14 @@ class gglmsControllerAllineaReport extends JControllerAdmin
 
           $this->allinea_vista_con_report();
 
-      }
+    }
 
-      public function allinea_vista_con_report(){
+    // gestione delle tempistiche extra per date in formato Y-m-d H:i:s
+    public function allinea_vista_con_report(){
 
           $db = JFactory::getDbo();
           $query = $db->getQuery(true);
-          $query->select('report.id_anagrafica, u.id,report.data');
+          $query->select('report.id_anagrafica, u.id, report.data, report.data_extra');
           $query->from('#__gg_unit as u inner join #__gg_contenuti as c on c.id=u.id_contenuto_completamento');
           $query->join('inner','#__gg_report as report on c.id=report.id_contenuto');
           $query->join('inner','#__gg_view_stato_user_corso as v on v.id_corso=u.id and v.id_anagrafica=report.id_anagrafica');
@@ -112,8 +126,12 @@ class gglmsControllerAllineaReport extends JControllerAdmin
           foreach ($result as $row) {
 
               $query = $db->getQuery(true);
-              $query='update #__gg_view_stato_user_corso set stato=1, data_fine=\''.$row['data'].'\' where 
-                      id_anagrafica='.$row['id_anagrafica'].' and id_corso='.$row['id']
+              $query='update #__gg_view_stato_user_corso 
+                              set stato = 1, 
+                              data_fine = \''.$row['data'].'\',
+                              data_fine_extra = \''.$row['data_extra'].'\' 
+                              where id_anagrafica = '.$row['id_anagrafica'].' 
+                              and id_corso = '.$row['id']
                    ;
               $db->setQuery($query);
               //echo $query;
@@ -121,10 +139,11 @@ class gglmsControllerAllineaReport extends JControllerAdmin
 
           }
 
-            echo count($result);
+          echo count($result);
           $this->insert_vista_con_report();
-      }
+    }
 
+    // gestione delle tempistiche extra per date in formato Y-m-d H:i:s
     public function insert_vista_con_report(){
 
         $db = JFactory::getDbo();
@@ -139,9 +158,25 @@ class gglmsControllerAllineaReport extends JControllerAdmin
 
             if ($row['id_contenuto_completamento']!=null && $row['id_contenuto_completamento']!=30) {
                 //insert into #__gg_view_stato_user_corso
-                $query = 'insert ignore into #__gg_view_stato_user_corso select id_anagrafica, id_corso, 1 as \'stato\', data as \'data_inizio\', data as \'data_fine\',now() as `timestamp` 
-                    from #__gg_report where id_contenuto=' . $row['id_contenuto_completamento'] . ' and stato=1 and id_anagrafica not in 
-                    (select id_anagrafica from #__gg_view_stato_user_corso where id_corso=' . $row['id'] . ' and stato=1)';
+                $query = 'insert ignore into #__gg_view_stato_user_corso 
+                            select id_anagrafica, 
+                                    id_corso, 
+                                    1 as \'stato\', 
+                                    data as \'data_inizio\', 
+                                    data as \'data_fine\',
+                                    now() as `timestamp`,
+                                    data_extra as \'data_inizio_extra\',
+                                    data_extra as \'data_fine_extra\'
+                            from #__gg_report 
+                            where id_contenuto = ' . $row['id_contenuto_completamento'] . ' 
+                            and stato = 1 
+                            and id_anagrafica not in  (
+                                                        select id_anagrafica 
+                                                        from #__gg_view_stato_user_corso 
+                                                        where id_corso = ' . $row['id'] . ' 
+                                                        and stato = 1
+                                                       )
+                                                       ';
                 $db->setQuery($query);
                 //$result_=$db->loadAssocList();
                 echo $query . ';<br>';
@@ -157,17 +192,17 @@ class gglmsControllerAllineaReport extends JControllerAdmin
 
             }
 
-
         }
 
-
-        $query_="update #__gg_view_stato_user_corso set data_fine=date(#__gg_view_stato_user_corso.`timestamp`) where stato=1 and data_fine='0000-00-00'";
+        $query_ = "update #__gg_view_stato_user_corso 
+                    set data_fine = date(#__gg_view_stato_user_corso.`timestamp`),
+                    data_fine_extra = #__gg_view_stato_user_corso.`timestamp`
+                    where stato = 1
+                    and data_fine = '0000-00-00'
+                    ";
         $db->setQuery($query_);
         $result__=$db->execute();
-        echo "data fine 0000: ".$db->getAffectedRows();
-
-
-
+        echo "data fine 0000: " . $db->getAffectedRows();
 
     }
 

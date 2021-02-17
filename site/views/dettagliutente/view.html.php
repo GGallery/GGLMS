@@ -34,6 +34,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $in_error;
     protected $client_id;
     protected $user_id;
+    protected $payment_extra_form;
 
     function display($tpl = null)
     {
@@ -92,6 +93,10 @@ class gglmsViewdettagliutente extends JViewLegacy
                 // nessun servizio extra
                 if ($this->_html == "")
                     throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_PAGAMENTI_EXTRA_STR2'), 1);
+
+                // verifico se esiste l'indicazione per il metodo di pagamento alternativi
+                $_extra_pay = utilityHelper::get_params_from_plugin();
+                $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
             }
         }
         catch (Exception $e){
