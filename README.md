@@ -4,6 +4,13 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.6
+- D: aggiunta della colonna data_extra nella tabella gg_report
+- D: aggiunta della colonna data_inizio_extra nella tabella gg_view_stato_user_unita
+- D: aggiunta della colonna data_fine_extra nella tabella gg_view_stato_user_unita
+- D: aggiunta della colonna data_inizio_extra nella tabella gg_view_stato_user_corso
+- D: aggiunta della colonna data_fine_extra nella tabella gg_view_stato_user_corso
+
 4.0.5
 - F: aggiunta tipologia coupon per la gestione di template customizzati in Genera coupon
 - D: aggiunta della colonna tipologia_coupon nella tabella gg_coupon
