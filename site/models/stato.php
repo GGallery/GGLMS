@@ -76,7 +76,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = ($data['cmi.core.last_visit_date']->varValue != null && strtotime($data['cmi.core.last_visit_date']->varValue) != false) ? $data['cmi.core.last_visit_date']->varValue : $data['cmi.core.lesson_status']->TimeStamp;
 
                 // colonna data extra
-                $this->data_extra = ($data['cmi.core.last_visit_date']->varValue != null && strtotime($data['cmi.core.last_visit_date']->varValue) != false) ? $data['cmi.core.last_visit_date']->TimeStamp : $data['cmi.core.lesson_status']->TimeStamp;
+                $this->data_extra = ($data['cmi.core.last_visit_date']->varValue != null && strtotime($data['cmi.core.last_visit_date']->varValue) != false) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $data['cmi.core.lesson_status']->TimeStampExtra;
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
@@ -88,7 +88,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';//$data['cmi.core.last_visit_date']->varValue;
 
                 // colonna data extra
-                $this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStamp : '0000-00-00 00:00:00';//$data['cmi.core.last_visit_date']->varValue;
+                $this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';//$data['cmi.core.last_visit_date']->varValue;
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
@@ -122,7 +122,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '';
 
                 // colonna data extra
-                $this->data_extra = $this->data != '' ? $data['cmi.core.last_visit_date']->TimeStamp : '0000-00-00 00:00:00';
+                $this->data_extra = $this->data != '' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = 0;
@@ -134,7 +134,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
 
                 // colonna data extra
-                $this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStamp : '0000-00-00 00:00:00';
+                $this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStampExtra : '0000-00-00 00:00:00';
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = 0;
@@ -167,7 +167,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';
 
                 // colonna data extra
-                $this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStamp : '0000-00-00 00:00:00';
+                $this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';
 
                 $this->permanenza = '0';
                 $this->bookmark = 0;
@@ -179,7 +179,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
 
                 // colonna data extra
-                $this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStamp : '0000-00-00 00:00:00';
+                $this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStampExtra : '0000-00-00 00:00:00';
 
                 $this->permanenza = '0';
                 $this->bookmark = 0;

@@ -360,7 +360,7 @@ class gglmsModelContenuto extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                ->select('varName, varValue, DATE(timestamp) as TimeStamp')
+                ->select('varName, varValue, DATE(timestamp) as TimeStamp, timestamp AS TimeStampExtra')
                 ->from('#__gg_scormvars as s')
                 ->where('scoid = ' . $this->id)
                 ->where('s.userid = ' . $this->_userid);
@@ -427,7 +427,7 @@ class gglmsModelContenuto extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                ->select('varName, varValue, DATE(timestamp) as TimeStamp')
+                ->select('varName, varValue, DATE(timestamp) as TimeStamp, timestamp AS TimeStampExtra')
                 ->from('#__gg_scormvars as s')
                 ->where('scoid = ' . $this->id)
                 ->where('s.userid = ' . $this->_userid);
@@ -460,7 +460,7 @@ class gglmsModelContenuto extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                ->select('varName, varValue, DATE(timestamp) as TimeStamp')
+                ->select('varName, varValue, DATE(timestamp) as TimeStamp, timestamp AS TimeStampExtra')
                 ->from('#__gg_scormvars as s')
                 ->where('scoid = ' . $this->id)
                 ->where('s.userid = ' . $user_id);

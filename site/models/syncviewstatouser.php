@@ -296,7 +296,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
     private function dataInizioDataFine($type,$id, $id_utente){
 
         try {
-            $query_data_inizio = "select `data`, `data_extra`,
+            $query_data_inizio = "select `data`, `data_extra`
                                     from #__gg_report 
                                     where id_utente = " . $id_utente . " 
                                     and " . $type . " = " . $id . " 
@@ -310,7 +310,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
             $data_inizio = $arr_inizio['data'];
             $data_inizio_extra = $arr_inizio['data_extra'];
 
-            $query_data_fine = "select `data`, `data_extra`,
+            $query_data_fine = "select `data`, `data_extra`
                                   from #__gg_report 
                                   where id_utente = " . $id_utente . " 
                                   and " . $type . " = " . $id . " 
