@@ -39,13 +39,16 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
             $this->completato = ($data->c_passed == 1) ? 1 : 0;
 
+            // colonna data extra
+            $this->data_extra = $data->c_date_time;
+
             $time = strtotime($data->c_date_time);
             $data = date("Y-m-d", $time);
 
             $this->data = ($data) ? $data : null;
 
-            // colonna data extra
-            $this->data_extra = !is_null($this->data) ? $data->c_date_time : '0000-00-00 00:00:00';
+            if (is_null($this->data))
+                $this->data_extra = '0000-00-00 00:00:00';
 
             $this->visualizzazioni = 0;
 
