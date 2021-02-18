@@ -9,6 +9,27 @@ defined('_JEXEC') or die;
 
 class gglmsControllerMt extends JControllerLegacy {
 
+    public static function test_path() {
+
+        $app = JFactory::getApplication();
+
+        echo "JPATH_ROOT -> " . JPATH_ROOT;
+        echo "<hr />";
+        echo "JPATH_SITE -> " . JPATH_SITE;
+        echo "<hr />";
+        echo "JPATH_INSTALLATION -> " . JPATH_INSTALLATION;
+        echo "<hr />";
+        echo JUri::root();
+        echo "<hr />";
+        $arr_url = parse_url(JURI::base());
+        echo $arr_url['scheme'] . '://' . $arr_url['host'];
+        echo "<hr />";
+        echo $_SERVER['DOCUMENT_ROOT'];
+
+        $app->close();
+
+    }
+
     public static function test_ug() {
 
         try {

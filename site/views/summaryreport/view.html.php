@@ -27,6 +27,16 @@ class gglmsViewsummaryreport extends JViewLegacy
     public $lista_corsi;
     public $hide_columns = null;
     public $hide_columns_var = "[]";
+    public $label_coupon;
+    public $label_nome;
+    public $label_cognome;
+    public $label_codice_fiscale;
+    public $label_corso;
+    public $label_azienda;
+    public $label_stato;
+    public $label_attestato;
+    public $label_venditore;
+    public $colonna_datetime;
 
 
     function display($tpl = null)
@@ -81,6 +91,9 @@ class gglmsViewsummaryreport extends JViewLegacy
         $this->label_attestato = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_ATTESTATO', 'summary_report_label_attestato');
         // se impostato sovrascrivo la label associata a Venditore
         $this->label_venditore = utilityHelper::get_only_extra_label('COM_GGLMS_EXTRA_SUMMARY_REPORT_VENDITORE', 'summary_report_label_venditore');
+
+        // visualizza data inizio / data fine in formato esteso
+        $this->colonna_datetime = $_config->getConfigValue('colonna_datetime');
         
         // Display the view
         parent::display($tpl);

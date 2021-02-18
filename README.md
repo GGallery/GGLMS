@@ -4,6 +4,10 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.7
+- D: aggiunta della colonna data_inizio_extra nella vista _view_report
+- D: aggiunta della colonna data_fine_extra nella vista _view_report
+
 4.0.6
 - D: aggiunta della colonna data_extra nella tabella gg_report
 - D: aggiunta della colonna data_inizio_extra nella tabella gg_view_stato_user_unita

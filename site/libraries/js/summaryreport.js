@@ -36,6 +36,8 @@ _summaryreport = (function ($, my) {
             stato: {type: "number"},
             data_inizio: {type: "date"},
             data_fine: {type: "date"},
+            data_inizio_extra: {type: "date"},
+            data_fine_extra: {type: "date"},
             venditore: {type: "string"},
             scaduto: {type: "number"}
         };
@@ -62,8 +64,22 @@ _summaryreport = (function ($, my) {
 
         var user_action = null; // azioni permesse a utente
 
+        var field_data_inizio = 'data_inizio';
+        var field_data_fine = 'data_fine';
+        var format_data_inizio = '{0: dd-MM-yyyy }';
+        var format_data_fine = '{0: dd-MM-yyyy }';
+
 
         function _init() {
+
+
+            if (parseInt(colonna_datetime) == 1) {
+                field_data_inizio = 'data_inizio_extra';
+                field_data_fine = 'data_fine_extra';
+                format_data_inizio = '{0: dd-MM-yyyy HH:mm}';
+                format_data_fine = '{0: dd-MM-yyyy HH:mm}';
+            }
+
             user_details_fields = {
 
                 // "cb_datadinascita": {titolo: "Data di nascita"},
@@ -304,11 +320,13 @@ _summaryreport = (function ($, my) {
                 columns.push(objStato);
 
              var objDataInzio = {
-                        field: 'data_inizio',
+                        //field: 'data_inizio',
+                        field: field_data_inizio,
                         title:getLocalizedString('COM_GGLMS_REPORT_DATA_INIZIO'),
                         width: 150,
                         hidden: false,
-                        format: "{0: dd-MM-yyyy }",
+                        //format: "{0: dd-MM-yyyy }",
+                        format: format_data_inizio,
                         filterable: {
                             operators: {
                                 date: {
@@ -326,11 +344,13 @@ _summaryreport = (function ($, my) {
                 columns.push(objDataInzio);
 
              var objDataFine = {
-                        field: 'data_fine',
+                        //field: 'data_fine',
+                        field: field_data_fine,
                         title: getLocalizedString('COM_GGLMS_REPORT_DATA_FINE'),
                         hidden: false,
                         width: 150,
-                        format: "{0: dd-MM-yyyy}",
+                        //format: "{0: dd-MM-yyyy}",
+                        format: format_data_fine,
                         filterable: {
                             operators: {
                                 date: {

@@ -29,6 +29,7 @@ echo "<h1>".  JText::_('COM_GGLMS_SUMMARY_REPORT'). "</h1>"; ?>
     var label_stato = '<?php echo $this->label_stato; ?>';
     var label_attestato = '<?php echo $this->label_attestato; ?>';
     var label_venditore = '<?php echo $this->label_venditore; ?>';
+    var colonna_datetime = '<?php echo $this->colonna_datetime; ?>';
     
     jQuery(document).ready(function () {
          _summaryreport.init();

@@ -1343,6 +1343,8 @@ SELECT
 	) AS `stato`,
 	`vuc`.`data_inizio` AS `data_inizio`,
 	`vuc`.`data_fine` AS `data_fine`,
+	`vuc`.`data_inizio_extra` AS `data_inizio_extra`,
+	`vuc`.`data_fine_extra` AS `data_fine_extra`,
 	(
 		CASE
 		WHEN (
