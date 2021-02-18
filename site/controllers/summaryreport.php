@@ -217,7 +217,11 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         // questa query tira fuori solo i titoli dei contenuti visitati, a me servono tutti
         $query = $this->_db->getQuery(true)
-            ->select('r.id_contenuto, r.data as last_visit ,r.permanenza_tot as permanenza ,r.visualizzazioni as visualizzazioni,contenuti.titolo as titolo_contenuto')
+            ->select('r.id_contenuto, 
+                        r.data as last_visit,
+                        r.permanenza_tot as permanenza,
+                        r.visualizzazioni as visualizzazioni,
+                        contenuti.titolo as titolo_contenuto')
             ->from('#__gg_view_stato_user_corso as report')
             ->join('inner', '#__gg_unit AS c ON report.id_corso = c.id')
             ->join('inner', '#__gg_report_users AS u ON report.id_anagrafica = u.id')
@@ -234,7 +238,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $data = $this->_db->loadAssocList();
         $data1 = $this->_db->loadAssocList('titolo_contenuto');
 
-        // contenuti del corso mai visualizzati dall'utente,nella query non li becco perchè in __gg_report ci sono solo quelli dove l'utente ha fatto almeno un accesso
+        // contenuti del corso mai visualizzati dall'utente, nella query non li becco perchè in __gg_report ci sono solo quelli dove l'utente ha fatto almeno un accesso
         foreach ($columns as $c) {
             if (!array_key_exists($c, $data1)) {
 

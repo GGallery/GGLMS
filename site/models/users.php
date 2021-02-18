@@ -444,7 +444,6 @@ class gglmsModelUsers extends JModelLegacy
         }
     }
 
-
     public function set_user_forum_moderator($user_id, $forum_id)
     {
 

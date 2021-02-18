@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/models/report.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/config.php';
+require_once JPATH_COMPONENT . '/models/generacoupon.php';
 
 /**
  * Controller for single contact view
@@ -1221,6 +1222,96 @@ class gglmsControllerApi extends JControllerLegacy
 
         return $att_id_string;
     }
+
+    // procedura di emergenza per impostare tutti i form dei corsi per azienda
+    public function crea_gruppi_form() {
+
+        try {
+
+            $this->_db->setQuery('SET sql_mode=\'\'');
+            $this->_db->execute();
+
+            $query = $this->_db->getQuery(true);
+            $query = $query->select('c.id_societa AS id_gruppo_societa, 
+                                    c.id_gruppi AS gruppo_corsi, 
+                                    c.gruppo AS id_piattaforma, 
+                                    ug.title AS nome_societa')
+                            ->from('#__gg_coupon c')
+                            ->join('inner', '#__usergroups ug ON c.id_societa = ug.id')
+                            //->where('c.gruppo != ' . $this->_db->quote(''))
+                            ->group('c.id_gruppi')
+                            ->order('c.id_societa, c.id_gruppi');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (count($results) == 0)
+                throw new Exception("Nessuna azienda disponibile, nessun forum verrà creato", 1);
+
+            $_model_coupon = new gglmsModelgeneracoupon();
+            $_model_user = new gglmsModelUsers();
+
+            foreach ($results as $key => $company) {
+
+                $this->_db->transactionStart();
+
+                // controllo se esiste il form aziendale
+                $parent_id = $_model_coupon->_get_company_forum($company['id_gruppo_societa']);
+                // creo il form aziendale se non esiste
+                if (null === $parent_id) {
+
+                    // prima di tentare la creazione verifico se l'azienda ha un tutor aziendale, altrimenti non creo nulla perchè la query si spacca
+                    $tutor_id = $_model_user->get_tutor_aziendale($company['id_gruppo_societa']);
+                    if (is_null($tutor_id)
+                        || $tutor_id == "") {
+                        DEBUGG::log($company['nome_societa'] . ' non ha tutor aziendale. Impossibile inserire il form azienda', __FUNCTION__, 0, 1, 0);
+                        continue;
+                    }
+
+                    $_insert_c = $_model_coupon->_create_company_forum($company['id_gruppo_societa'], $company['nome_societa']);
+                    // se fallisce per ovvie motivazioni vado avanti
+                    if (!$_insert_c) {
+                        DEBUGG::log($company['nome_societa'] . ' inserimento form aziendale non riuscito', __FUNCTION__, 0, 1, 0);
+                        continue;
+                    }
+                }
+
+                // mi serve per il modello, controlla il titolo in base al coupon
+                $_info_corso = $_model_coupon->get_info_corso($company['gruppo_corsi']);
+                if (!isset($_info_corso['titolo'])
+                    || $_info_corso['titolo'] == ""
+                    || is_null($_info_corso['titolo'])) {
+                    DEBUGG::log($company['nome_societa']  . " titolo del corso non impostato per corso id: ". $company['gruppo_corsi'], __FUNCTION__, 0, 1, 0);
+                    // salvo almeno l'inserimento del form aziendale se avvenuto
+                    $this->_db->transactionCommit();
+                    continue;
+                }
+
+                $forum_corso = $_model_coupon->_check_corso_forum($company['id_gruppo_societa'], $company['gruppo_corsi']);
+                if (empty($forum_corso))
+                    $_insert_f = $_model_coupon->_create_corso_forum($company['id_gruppo_societa'],
+                                                                    $company['gruppo_corsi'],
+                                                                    $company['nome_societa'],
+                                                                    $_info_corso);
+                if (!$_insert_f)
+                    DEBUGG::log($company['nome_societa'] . ' forum non creato per corso ' . $company['gruppo_corsi'], __FUNCTION__, 0, 1, 0);
+
+
+                $this->_db->transactionCommit();
+            }
+
+            echo "Operazione terminata: " . date('d/m/Y H:i:s');
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            echo __FUNCTION__  . " error: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);

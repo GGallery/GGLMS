@@ -614,7 +614,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             if (false === ($result = $this->_db->loadAssoc())) {
-
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
@@ -753,7 +752,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     ////////////////////////////////////// FORUM ////////////////////
 
-    public function _create_company_forum($company_group_id, $company_name, $id_piattaforma)
+    public function _create_company_forum($company_group_id, $company_name, $id_piattaforma = null)
     {
 
 
@@ -814,11 +813,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $tutor_id = $mu->get_tutor_aziendale($company_group_id);
             $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
 
+            return true;
 
         } catch (Exception $e) {
-            DEBUGG::error($e, '_create_company_forum');
+            DEBUGG::error($e, __FUNCTION__);
             return false;
-
 
         }
 
@@ -835,7 +834,6 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 ->from('#__kunena_categories as c')
                 ->where("c.parent_id = " . 0)
                 ->where("c.pub_access =" . $company_group_id);
-
             $this->_db->setQuery($query);
 
 
@@ -893,104 +891,116 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function _create_corso_forum($id_societa, $id_gruppo_corso, $nome_societa)
+    public function _create_corso_forum($id_societa, $id_gruppo_corso, $nome_societa, $_info_corso = null)
     {
 
-        // il forum del corso è figlio del forum aziendale
-        $parent_id = $this->_get_company_forum($id_societa);
-        if (null === $parent_id) {
-            // se sono arrivato qui il company forum deve esistere
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        try {
+            // il forum del corso è figlio del forum aziendale
+            $parent_id = $this->_get_company_forum($id_societa);
+            if (null === $parent_id) {
+                // se sono arrivato qui il company forum deve esistere
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            //        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso)["title"])) {
+            //            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            //
+            //        }
+
+            // se impostato $_info_corso significa che non arrivato da questo model ma da fuori
+            $_check_titolo_corso = $this->_info_corso["titolo"];
+            if (!is_null($_info_corso))
+                $_check_titolo_corso = $_info_corso["titolo"];
+
+            //if (false == ($titolo_corso = $this->_info_corso["titolo"])) {
+            if (false == ($titolo_corso = $_check_titolo_corso)) {
+                //throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Missing titolo corso id_societa:" . $id_societa . " id_gruppo_corso: " . $id_gruppo_corso, E_USER_ERROR);
+            }
+
+            // alias deve essere combinazione di nome corso, nome società perchè kunena lo vuole unique nella tabella alias
+            $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
+
+
+            $alias = str_replace(' ', '-', filter_var(strtolower($titolo_corso . ' - ' . $nome_societa), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
+            $access_type = 'joomla.group';
+            $access = 1;
+            $pub_access = $id_gruppo_corso;
+            $admin_access = $id_gruppo_tutor_aziendale;
+            $pub_recurse = $admin_recurse = 0;
+            $published = 1;
+            $description = $headerdesc = '';//'Forum di discussione della corso ' . $titolo_corso;
+            $params = '{"access_post":["6","2","8"],"access_reply":["6","2","8"],"display":{"index":{"parent":"3","children":"3"}}}'; //todo check access post e access reply
+
+            // inserimento titolo, alias, description, $headerdesc fix apici
+            $query = 'INSERT INTO #__kunena_categories (parent_id, 
+                                                        name, 
+                                                        alias, 
+                                                        accesstype, 
+                                                        access, 
+                                                        pub_access, 
+                                                        pub_recurse, 
+                                                        admin_access , 
+                                                        admin_recurse , 
+                                                        published, 
+                                                        description, 
+                                                        headerdesc, 
+                                                        params)';
+            $query = $query . 'VALUES (' . $parent_id . ', 
+                                       \'' . $this->_db->escape($titolo_corso) . '\', 
+                                       \'' . $this->_db->escape($alias) . '\', 
+                                       \'' . $access_type . '\', 
+                                       ' . $access . ',
+                                       ' . $pub_access . ',
+                                       ' . $pub_recurse . ',
+                                       ' . $admin_access . ',
+                                       ' . $admin_recurse . ',
+                                       ' . $published . ', 
+                                       \'' . $this->_db->escape($description) . '\', 
+                                       \'' . $this->_db->escape($headerdesc) . '\', 
+                                       \'' . $params . '\'
+                                       )';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
+            // ID della categoria del forum appena creata
+            $query = 'SELECT LAST_INSERT_ID() AS id';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $corso_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
+            if (empty($corso_forum_id)) {
+                throw new RuntimeException('Cannot get forum ID from database', E_USER_ERROR);
+            }
+
+            // inserisco nella tabella alias altrimento il link al forum non è cliccabile
+            // fix preventivo alias per eventuali singolo apici di troppo
+            $alias_type = 'catid';
+            $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
+            $query = $query . 'VALUES ( \'' . $this->_db->escape($alias) . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+
+            //tutor aziendale diventa  il moderatore del forum
+            $mu = new gglmsModelUsers();
+            $tutor_id = $mu->get_tutor_aziendale($id_societa);
+            $mu->set_user_forum_moderator($tutor_id, $corso_forum_id);
+
+            return true;
+
         }
-
-//        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso)["title"])) {
-//            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-//
-//        }
-
-        if (false == ($titolo_corso = $this->_info_corso["titolo"])) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-
+        catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return false;
         }
-
-        // alias deve essere combinazione di nome corso, nome società perchè kunena lo vuole unique nella tabella alias
-        $id_gruppo_tutor_aziendale = $this->_config->getConfigValue('id_gruppo_tutor_aziendale');
-
-
-        $alias = str_replace(' ', '-', filter_var(strtolower($titolo_corso . ' - ' . $nome_societa), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH));
-        $access_type = 'joomla.group';
-        $access = 1;
-        $pub_access = $id_gruppo_corso;
-        $admin_access = $id_gruppo_tutor_aziendale;
-        $pub_recurse = $admin_recurse = 0;
-        $published = 1;
-        $description = $headerdesc = '';//'Forum di discussione della corso ' . $titolo_corso;
-        $params = '{"access_post":["6","2","8"],"access_reply":["6","2","8"],"display":{"index":{"parent":"3","children":"3"}}}'; //todo check access post e access reply
-
-        // inserimento titolo, alias, description, $headerdesc fix apici
-        $query = 'INSERT INTO #__kunena_categories (parent_id, 
-                                                    name, 
-                                                    alias, 
-                                                    accesstype, 
-                                                    access, 
-                                                    pub_access, 
-                                                    pub_recurse, 
-                                                    admin_access , 
-                                                    admin_recurse , 
-                                                    published, 
-                                                    description, 
-                                                    headerdesc, 
-                                                    params)';
-        $query = $query . 'VALUES (' . $parent_id . ', 
-                                   \'' . $this->_db->escape($titolo_corso) . '\', 
-                                   \'' . $this->_db->escape($alias) . '\', 
-                                   \'' . $access_type . '\', 
-                                   ' . $access . ',
-                                   ' . $pub_access . ',
-                                   ' . $pub_recurse . ',
-                                   ' . $admin_access . ',
-                                   ' . $admin_recurse . ',
-                                   ' . $published . ', 
-                                   \'' . $this->_db->escape($description) . '\', 
-                                   \'' . $this->_db->escape($headerdesc) . '\', 
-                                   \'' . $params . '\'
-                                   )';
-
-        $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->query()))
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-
-
-        // ID della categoria del forum appena creata
-        $query = 'SELECT LAST_INSERT_ID() AS id';
-        $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->loadAssoc())) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-        }
-
-        $corso_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
-        if (empty($corso_forum_id)) {
-            throw RuntimeException('Cannot get forum ID from database', E_USER_ERROR);
-        }
-
-        // inserisco nella tabella alias altrimento il link al forum non è cliccabile
-        // fix preventivo alias per eventuali singolo apici di troppo
-        $alias_type = 'catid';
-        $query = 'INSERT INTO #__kunena_aliases (alias, type, item)';
-        $query = $query . 'VALUES ( \'' . $this->_db->escape($alias) . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
-        $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->query())) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-
-        }
-
-
-        //tutor aziendale diventa  il moderatore del forum
-        $mu = new gglmsModelUsers();
-        $tutor_id = $mu->get_tutor_aziendale($id_societa);
-        $mu->set_user_forum_moderator($tutor_id, $corso_forum_id);
-
-
     }
 
 //    public function _set_tutor_aziendale_forum_moderator($company_group_id, $company_forum_id)

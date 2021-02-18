@@ -363,6 +363,8 @@ class gglmsControllerUsers extends JControllerLegacy
 
             }
 
+            $db->transactionCommit();
+
             $inserted = count($import_report['payment_success']);
             $not_inserted = count($import_report['payment_failed']);
             $missing = count($import_report['missing_user']);

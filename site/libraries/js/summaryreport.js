@@ -17,9 +17,13 @@ _summaryreport = (function ($, my) {
         // 6)disiscrivi utente (solo super admin)
 
         // config griglia principale
+        // fix mancavano un serie di colonna che mandavano in errore la ricerca
         var columns;
         var fields = {
             coupon: {type: "string"},
+            nome: {type: "string"},
+            cognome: {type: "string"},
+            cb_codicefiscale: {type: "string"},
             data_creazione: {type: "date"},
             data_utilizzo: {type: "date"},
             id_corso: {type: "number"},
