@@ -36,8 +36,8 @@ class com_gglmsInstallerScript {
 
             JFile::move($temp_dir . '/extra/' . $cli_script_1, JPATH_SITE . '/cli/' . $cli_script_1);
             JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_2);
-            JFolder::move($temp_dir . '/' . $scorm_folder, JPATH_SITE . '/' . $scorm_folder);
-
+            //JFolder::move($temp_dir . '/' . $scorm_folder, JPATH_SITE . '/' . $scorm_folder);
+            JFolder::move($temp_dir . '/' . $scorm_folder, $_SERVER['DOCUMENT_ROOT'] . '/' . $scorm_folder);
         }
 
     }

@@ -293,7 +293,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
     }
 
     // modificata per ritornare anche i valori temporali extra in formato Y-m-d H:i:s
-    private function dataInizioDataFine($type,$id, $id_utente){
+    private function dataInizioDataFine($type, $id, $id_utente){
 
         try {
             $query_data_inizio = "select `data`, `data_extra`
