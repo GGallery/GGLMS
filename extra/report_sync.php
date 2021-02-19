@@ -118,7 +118,7 @@ class reportSync extends JApplicationCli {
             $this->out('Script ended at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         }
         catch (Exception $e) {
-            $this->out('ERRORE: ' . $e->getMessage());
+            $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }
 
     }
