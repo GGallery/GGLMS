@@ -73,6 +73,11 @@ JHtml::_('formbehavior.chosen', 'select');
             echo JHtml::_('bootstrap.addTab', 'myTab', 'PayPal', JText::_('PayPal', true));
             include(dirname(__FILE__).DS.'paypal.php');
             echo JHtml::_('bootstrap.endTab');
+
+            // gestione zoom
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'Zoom', JText::_('Zoom', true));
+            include(dirname(__FILE__).DS.'zoom.php');
+            echo JHtml::_('bootstrap.endTab');
             ?>
 
             <input type="hidden" name="task" value=""/>

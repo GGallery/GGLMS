@@ -12,6 +12,7 @@ require_once JPATH_COMPONENT . '/models/report.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
+require_once JPATH_COMPONENT . '/controllers/zoom.php';
 
 /**
  * Controller for single contact view
@@ -56,6 +57,10 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->limit = JRequest::getVar('limit');
         $this->_filterparam->offset = JRequest::getVar('offset');
         $this->_filterparam->cid = JRequest::getVar('cid');
+        $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
+        $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
+        $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
+        $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
 
     }
 
@@ -1308,6 +1313,165 @@ class gglmsControllerApi extends JControllerLegacy
             echo __FUNCTION__  . " error: " . $e->getMessage();
         }
 
+        $this->_japp->close();
+
+    }
+
+    // interazione con API zoom
+    function get_local_events() {
+
+        $_ret = array();
+
+        try {
+
+            $_zoom_model = new gglmsModelZoom();
+            $_events = $_zoom_model->get_local_events($this->_filterparam->zoom_event_id);
+
+            if (is_null($_events)
+                || !isset($_events['success']))
+                throw new Exception("Non è stato salvato nessun evento", 1);
+
+            // devo salvare il report
+            if (isset($this->_filterparam->zoom_event_id)
+                && $this->_filterparam->zoom_event_id != "") {
+
+                if (!isset($_events['success'])
+                    || !isset($_events['success'][0]['response'])
+                    || $_events['success'][0]['response'] == "")
+                    throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
+
+                $_event_json = json_decode($_events['success'][0]['response']);
+                $_event_arr = (array) $_event_json;
+
+                $_csv_cols = utilityHelper::get_cols_from_array((array) $_event_arr[0]);
+                $_participants = $_event_arr;
+
+                $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, $this->_filterparam->zoom_event_id . '.csv');
+                $this->_japp->close();
+
+            }
+
+            $_ret['success'] = $_events['success'];
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $this->_japp->close();
+
+    }
+
+    function get_event_participants() {
+
+        $_ret = array();
+
+        try {
+
+            $_config = new gglmsModelConfig();
+            $api_key = $_config->getConfigValue('zoom_api_key');
+            $api_secret = $_config->getConfigValue('zoom_api_secret');
+            $api_endpoint = $_config->getConfigValue('zoom_api_endpoint');
+            $api_version = $_config->getConfigValue('zoom_api_version');
+            $api_scadenza_token = $_config->getConfigValue('zoom_api_scadenza_token');
+            $_csv_cols = null;
+            $_participants = null;
+
+            $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
+            $_events = $zoom_call->get_event_participants($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo);
+
+            if (isset($_events['error']))
+                throw new Exception($_events['error'], 1);
+
+            if (!isset($_events['success'])
+                || $_events['success'] == "")
+                throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
+
+            $_event_json = json_decode($_events['success']);
+
+            if (!isset($_event_json->participants)
+                || count($_event_json->participants) == 0)
+                throw new Exception("Nessun dettaglio disponibile per l'evento selezionato", 1);
+
+            // inserisco l'evento a database se non è già presente
+            $_zoom_model = new gglmsModelZoom();
+            $_get_event = $_zoom_model->get_event($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo);
+
+            if (is_null($_get_event)
+                || !is_array($_get_event)) {
+                $_store_event = $_zoom_model->store_events($this->_filterparam->zoom_event_id,
+                                                            $this->_filterparam->zoom_tipo,
+                                                            $this->_filterparam->zoom_event_label,
+                                                            $_event_json->participants);
+                if (!is_array($_store_event))
+                    throw new Exception($_store_event, 1);
+
+                // ricavo le colonne dall'oggetto
+                $_csv_cols = utilityHelper::get_cols_from_array((array) $_event_json->participants[0]);
+                $_participants = $_event_json->participants;
+            }
+            else {
+                $_json = $_get_event['success']['response'];
+                $_participants = json_decode($_json);
+                $_csv_cols = $_participants[0];
+            }
+
+            $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, $this->_filterparam->zoom_event_id . '.csv');
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+            //echo $_html;
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
+    function get_event_list() {
+
+        $_ret = array();
+
+        try {
+
+            $_config = new gglmsModelConfig();
+            $api_key = $_config->getConfigValue('zoom_api_key');
+            $api_secret = $_config->getConfigValue('zoom_api_secret');
+            $api_endpoint = $_config->getConfigValue('zoom_api_endpoint');
+            $api_version = $_config->getConfigValue('zoom_api_version');
+            $api_scadenza_token = $_config->getConfigValue('zoom_api_scadenza_token');
+
+            $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
+            $_events = $zoom_call->get_events($this->_filterparam->zoom_user, $this->_filterparam->zoom_tipo);
+
+            if (isset($_events['error']))
+                throw new Exception($_events['error'], 1);
+
+            if (!isset($_events['success'])
+                || $_events['success'] == "")
+                throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
+
+            $_event_json = json_decode($_events['success']);
+            $_event_arr = (array) $_event_json;
+
+            if (!isset($_event_arr[$this->_filterparam->zoom_tipo]))
+                throw new Exception("Nessun " . $this->_filterparam->zoom_tipo . " disponbile");
+
+            $_ret['success'] = $_event_arr[$this->_filterparam->zoom_tipo];
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
         $this->_japp->close();
 
     }

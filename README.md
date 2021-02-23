@@ -4,6 +4,11 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.8
+- D: aggiunta tabella gg_zoom
+- D: aggiunta tabella gg_zoom_events
+- G: aggiunta integrazione report Zoom per Meeting e Webinar
+
 4.0.7
 - D: aggiunta della colonna data_inizio_extra nella vista _view_report
 - D: aggiunta della colonna data_fine_extra nella vista _view_report

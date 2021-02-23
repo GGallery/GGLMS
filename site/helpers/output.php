@@ -1009,4 +1009,35 @@ HTML;
 
     }
 
+    public static function get_zoom_users_options($_response) {
+
+        $_html = <<<HTML
+        <option value="">Seleziona utente Zoom</option>
+HTML;
+
+        if (!isset($_response['success'])
+            || $_response['success'] == "")
+            return "";
+
+        $_obj_decoded = json_decode($_response['success']);
+
+        if (!isset($_obj_decoded->users)
+            || count($_obj_decoded->users) == 0)
+            return "";
+
+        foreach ($_obj_decoded->users as $user_key) {
+
+            $user_arr = (array) $user_key;
+
+            $_str_name = isset($user_arr['first_name']) ? $user_arr['first_name'] : "";
+            $_str_name .= isset($user_arr['last_name']) ? (($_str_name != "") ? " " : "") . $user_arr['last_name'] : "";
+
+            $_html .= <<<HTML
+            <option value="{$user_arr['id']}">{$user_arr['email']} ({$_str_name})</option>
+HTML;
+        }
+
+        return $_html;
+    }
+
 }

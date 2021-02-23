@@ -883,7 +883,9 @@
 
         <field
                 name="richiesta_privacy_link"
-                type="text"
+                type="textarea"
+                cols="25"
+                rows="3"
                 class=""
                 label="La pagina di visualizzazione della privacy"
                 labelclass="control-label"
@@ -1152,6 +1154,57 @@
         />
 
         <!-- FINE PAYPAL -->
+
+        <!-- INIZIO ZOOM -->
+
+        <field
+                name="zoom_api_key"
+                class="inputbox"
+                label="API Key dell'applicazione"
+                type="textarea"
+                cols="25"
+                rows="3"
+                default=""
+                description="API Key associata all'applicazione Zoom disponibile nel marketplace di zoom.us"
+        />
+
+        <field
+                name="zoom_api_secret"
+                class="inputbox"
+                label="API Secret dell'applicazione"
+                type="textarea"
+                cols="25"
+                rows="3"
+                default=""
+                description="API Secret associata all'applicazione Zoom disponibile nel marketplace di zoom.us"
+        />
+
+        <field
+                name="zoom_api_endpoint"
+                class="inputbox"
+                label="Url API"
+                type="textarea"
+                cols="25"
+                rows="3"
+                default=""
+                description="L'Url di chiamata delle API zoom (es. https://api.zoom.us)"
+        />
+
+        <field name="zoom_api_version"
+               type="text"
+               label="Numero di versione delle API Zoom"
+               description="Es. 2"
+               default="2"
+        />
+
+        <field name="zoom_api_scadenza_token"
+               type="text"
+               label="Scadenza token (secondi)"
+               description="Specifica in secondi la durata del token di accesso alle API. Es. 3600"
+               default="3600"
+        />
+
+        <!-- FINE ZOOM -->
 
         <!-- INZIO EXTRA -->
 

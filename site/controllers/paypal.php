@@ -21,7 +21,6 @@ class gglmsControllerPaypal extends JControllerLegacy {
         parent::__construct($config);
 
         $this->_japp = JFactory::getApplication();
-        //$this->_params = $this->_japp->getParams();
         $this->_db = JFactory::getDbo();
 
         $this->client_id = $client_id;

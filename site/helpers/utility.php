@@ -8,6 +8,10 @@
 // No direct access to this file
 defined('_JEXEC') or die;
 
+require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Common\Entity\Row;
+
 class utilityHelper
 {
 
@@ -888,6 +892,55 @@ class utilityHelper
         }
 
 
+    }
+
+    // da un array ricavo i nomi delle colonne che saranno poi usati in esportazione
+    function get_cols_from_array($arr_values)  {
+
+        $_ret = array();
+
+        if (!is_array($arr_values)
+            || count($arr_values) == 0)
+            return $_ret;
+
+        foreach ($arr_values as $key => $value) {
+            $_ret[] = $key;
+        }
+
+        return $_ret;
+
+    }
+
+    // esporta in CSV basandosi sulla libreria SPOUT
+    function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
+
+        $writer = WriterEntityFactory::createCSVWriter();
+        $writer->openToBrowser($dest_filename);
+        $writer->setFieldDelimiter(';');
+
+        // celle header
+        $h_cells = array();
+        foreach ($arr_cols as $colonna) {
+            $h_cells[] = WriterEntityFactory::createCell($colonna);
+        }
+
+        $riga_titolo = WriterEntityFactory::createRow($h_cells);
+        $writer->addRow($riga_titolo);
+
+        // celle risultati
+        $multi_rows = array();
+        foreach ($arr_values as $k_valore => $valore) {
+
+            if (!isset($valore)
+                || count($valore) == 0)
+                continue;
+
+            $valore_array = (array) $valore;
+            $multi_rows[] = WriterEntityFactory::createRowFromArray($valore_array);
+        }
+
+        $writer->addRows($multi_rows);
+        $writer->close();
     }
 
     // funzione clonata dal componente joomlaquiz per la cancellazione dei quiz di un utente

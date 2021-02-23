@@ -24,3 +24,5 @@
         <?php echo $this->form->renderField('paypal_client_secret'); ?>
     </div>
 
+</div>
+

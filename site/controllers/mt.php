@@ -30,6 +30,27 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public static function test_arr() {
+
+        $_config = array(
+            'base_uri' => 'https://api.zoom.us',
+        );
+
+        $_config['curl'] = array(CURLOPT_SSL_VERIFYPEER => false);
+        $_config['verify'] = false;
+
+        var_dump($_config);
+
+        $_config_alt = [
+            'base_uri' => 'https://api.zoom.us',
+            'curl'  => array(CURLOPT_SSL_VERIFYPEER => false),
+            'verify' => false
+        ];
+
+        var_dump($_config_alt);
+
+    }
+
     public static function test_ug() {
 
         try {
