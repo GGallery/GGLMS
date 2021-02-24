@@ -68,6 +68,7 @@ _summaryreport = (function ($, my) {
         var field_data_fine = 'data_fine';
         var format_data_inizio = '{0: dd-MM-yyyy }';
         var format_data_fine = '{0: dd-MM-yyyy }';
+        var extra_data_primo_accesso_hide = true;
 
 
         function _init() {
@@ -78,6 +79,7 @@ _summaryreport = (function ($, my) {
                 field_data_fine = 'data_fine_extra';
                 format_data_inizio = '{0: dd-MM-yyyy HH:mm}';
                 format_data_fine = '{0: dd-MM-yyyy HH:mm}';
+                extra_data_primo_accesso_hide = false;
             }
 
             user_details_fields = {
@@ -705,7 +707,8 @@ _summaryreport = (function ($, my) {
                                 width: 80,
                                 template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
                             },
-                            {field: "visualizzazioni", title:getLocalizedString('COM_GGLMS_REPORT_VISUALIZZAZIONI'), width: 80}
+                            {field: "visualizzazioni", title: getLocalizedString('COM_GGLMS_REPORT_VISUALIZZAZIONI'), width: 80},
+                            {field: "data_primo_accesso", title:  getLocalizedString('COM_GGLMS_REPORT_PRIMO_ACCESSO'), width: 80, hidden: extra_data_primo_accesso_hide}
                         ],
                         excelExport: function (e) {
                             // Prevent the saving of the file.
@@ -909,10 +912,27 @@ _summaryreport = (function ($, my) {
             var deferred = $.Deferred();
 
             detailExportPromises.push(deferred);
+            var export_colums = [];
 
+            var objTitoloContenuto = { field: "titolo_contenuto", title: getLocalizedString('COM_GGLMS_REPORT_CONTENT') };
+            export_colums.push(objTitoloContenuto);
+
+            var objLastVisit = { field: "last_visit", title: getLocalizedString('COM_GGLMS_REPORT_LAST_VISIT') };
+            export_colums.push(objLastVisit);
+
+            var objPermanenza = { field: "permanenza", title: getLocalizedString('COM_GGLMS_REPORT_PERMANENZA')};
+            export_colums.push(objPermanenza);
+
+            var objVisualizzazioni = { field: "visualizzazioni", title: getLocalizedString('COM_GGLMS_REPORT_VISUALIZZAZIONI') };
+            export_colums.push(objVisualizzazioni);
+
+            if (parseInt(colonna_datetime) == 1) {
+                var objPrimoAccesso = { field: "data_primo_accesso", title: getLocalizedString('COM_GGLMS_REPORT_PRIMO_ACCESSO') };
+                export_colums.push(objPrimoAccesso);
+            }
 
             var exporter = new kendo.ExcelExporter({
-                columns: [{
+                /*columns: [{
                     field: "titolo_contenuto",
                     title: 'Contenuto'
                 }, {
@@ -924,7 +944,8 @@ _summaryreport = (function ($, my) {
                 }, {
                     field: "visualizzazioni",
                     title: 'Visualizzazioni'
-                }],
+                }],*/
+                columns: export_colums,
                 dataSource: details_ds[coupon]
             });
 

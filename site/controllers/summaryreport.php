@@ -214,14 +214,19 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         $columns = $this->buildColumnsforContenutiView($id_corso);
 
+        // integrazione data primo accesso e data contenuti estesa
+        $_config = new gglmsModelConfig();
+        $colonna_datetime = (int) $_config->getConfigValue('colonna_datetime');
 
         // questa query tira fuori solo i titoli dei contenuti visitati, a me servono tutti
+        $_col_date = $colonna_datetime == 0 ? 'DATE_FORMAT(r.data, "%d/%m/%Y")' : 'COALESCE(DATE_FORMAT(r.data_extra, "%d/%m/%Y %H:%i:%s"), "")';
         $query = $this->_db->getQuery(true)
             ->select('r.id_contenuto, 
-                        r.data as last_visit,
+                        ' . $_col_date . ' as last_visit,
                         r.permanenza_tot as permanenza,
                         r.visualizzazioni as visualizzazioni,
-                        contenuti.titolo as titolo_contenuto')
+                        contenuti.titolo as titolo_contenuto,
+                        COALESCE(DATE_FORMAT(r.data_primo_accesso, "%d/%m/%Y %H:%i:%s"), "") AS data_primo_accesso')
             ->from('#__gg_view_stato_user_corso as report')
             ->join('inner', '#__gg_unit AS c ON report.id_corso = c.id')
             ->join('inner', '#__gg_report_users AS u ON report.id_anagrafica = u.id')
@@ -232,7 +237,6 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->where('um.group_id =' . $id_gruppo_societa)
             ->where('c.id =' . $id_corso)
             ->where('u.id_user =' . $id_user);
-
 
         $this->_db->setQuery($query);
         $data = $this->_db->loadAssocList();
@@ -248,6 +252,9 @@ class gglmsControllerSummaryReport extends JControllerLegacy
                 $obj->permanenza = 0;
                 $obj->visualizzazioni = 0;
                 $obj->titolo_contenuto = $c;
+                if ($colonna_datetime == 1)
+                    $obj->data_primo_accesso;
+
                 array_push($data, $obj);
             }
         }

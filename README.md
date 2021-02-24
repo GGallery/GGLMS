@@ -7,6 +7,7 @@ F:Frontend, B:Backend, D:Database, G:Generale
 4.0.8
 - D: aggiunta tabella gg_zoom
 - D: aggiunta tabella gg_zoom_events
+- D: aggiunta della colonna data_primo_accesso nella tabella gg_report
 - G: aggiunta integrazione report Zoom per Meeting e Webinar
 
 4.0.7

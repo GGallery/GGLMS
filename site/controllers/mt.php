@@ -9,92 +9,65 @@ defined('_JEXEC') or die;
 
 class gglmsControllerMt extends JControllerLegacy {
 
-    public static function test_path() {
+    private $_user;
+    private $_japp;
+    public $_params;
+    public $_db;
 
-        $app = JFactory::getApplication();
+    public function __construct($config = array())
+    {
+        parent::__construct($config);
+        $this->_japp = JFactory::getApplication();
+        $this->_params = $this->_japp->getParams();
 
-        echo "JPATH_ROOT -> " . JPATH_ROOT;
-        echo "<hr />";
-        echo "JPATH_SITE -> " . JPATH_SITE;
-        echo "<hr />";
-        echo "JPATH_INSTALLATION -> " . JPATH_INSTALLATION;
-        echo "<hr />";
-        echo JUri::root();
-        echo "<hr />";
-        $arr_url = parse_url(JURI::base());
-        echo $arr_url['scheme'] . '://' . $arr_url['host'];
-        echo "<hr />";
-        echo $_SERVER['DOCUMENT_ROOT'];
+        $this->_user = JFactory::getUser();
+        $this->_db = &JFactory::getDbo();
 
-        $app->close();
 
     }
 
-    public static function test_arr() {
-
-        $_config = array(
-            'base_uri' => 'https://api.zoom.us',
-        );
-
-        $_config['curl'] = array(CURLOPT_SSL_VERIFYPEER => false);
-        $_config['verify'] = false;
-
-        var_dump($_config);
-
-        $_config_alt = [
-            'base_uri' => 'https://api.zoom.us',
-            'curl'  => array(CURLOPT_SSL_VERIFYPEER => false),
-            'verify' => false
-        ];
-
-        var_dump($_config_alt);
-
-    }
-
-    public static function test_ug() {
+    public function get_last_insert_coupon() {
 
         try {
-            $app = JFactory::getApplication();
 
-            $user_id = 3739;
+            $_ret = array();
 
-            $user = JFactory::getUser($user_id);
-            echo implode(",", $user->groups) . "<br />";
+            $query = $this->_db->getQuery(true)
+                    ->select('messaggio')
+                    ->from('#__gg_error_log')
+                    ->where('messaggio LIKE ' . $this->_db->quote('%api_genera_coupon_response%'))
+                    ->order('id DESC');
 
-            // inserisco le quote per l'utente selezionato
-            $_user_quote = new gglmsModelUsers();
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
 
-            $_user_details = $_user_quote->get_user_details_cb($user_id);
-            if (!is_array($_user_details))
-                throw new Exception($_user_details, 1);
+            if (is_null($result)
+                || !isset($result['messaggio'])
+                || $result['messaggio'] == "")
+                throw new Exception("Nessun riferimento trovato", 1);
 
-            // estrapolo i parametri dal plugin
-            $_params = utilityHelper::get_params_from_plugin();
-            $email_default = utilityHelper::get_params_from_object($_params, "email_default");
-            $ug_categoria = utilityHelper::get_ug_from_object($_params, "ug_categoria");
-            $ug_default = utilityHelper::get_ug_from_object($_params, "ug_default");
-            $ug_extra = utilityHelper::get_ug_from_object($_params, "ug_extra");
-            $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
-            $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
-            $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+            $_response = preg_replace('/\s/', '', $result['messaggio']);
+            $_response = str_replace("api_genera_coupon_response:", "", $_response);
 
-            // inserisco l'utente nel gruppo online
-            $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_ins_online))
-                throw new Exception($_ins_online, 1);
+            $_decode = json_decode($_response);
 
-            // inserisco l'utente nel gruppo categoria corretto
-            $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
-            if (!is_array($_ins_categoria))
-                throw new Exception($_ins_categoria, 1);
+            if (
+                (is_object($_decode) && !isset($_decode->id_iscrizione))
+                    || (is_array($_decode) && !isset($_decode['id_iscrizione']))
+                )
+                throw new Exception("Il riferimento ha un valore non valido", 1);
 
-            echo "OK!";
+
+            $_ret['success'] = (is_object($_decode)) ? $_decode->id_iscrizione : $_decode['id_iscrizione'];
+
         }
         catch (Exception $e) {
-            echo $e->getMessage();
+            $_ret['error'] = $e->getMessage();
         }
 
-        $app->close();
+        echo json_encode($_ret);
+        $this->_japp->close();
+
     }
 
 }

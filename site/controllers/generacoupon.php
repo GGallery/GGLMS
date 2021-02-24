@@ -42,6 +42,50 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
     }
 
+    public function get_last_insert_coupon() {
+
+        try {
+
+            $_ret = array();
+
+            $query = $this->_db->getQuery(true)
+                ->select('messaggio')
+                ->from('#__gg_error_log')
+                ->where('messaggio LIKE ' . $this->_db->quote('%api_genera_coupon_response%'))
+                ->order('id DESC');
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+            if (is_null($result)
+                || !isset($result['messaggio'])
+                || $result['messaggio'] == "")
+                throw new Exception("Nessun riferimento trovato", 1);
+
+            $_response = preg_replace('/\s/', '', $result['messaggio']);
+            $_response = str_replace("api_genera_coupon_response:", "", $_response);
+
+            $_decode = json_decode($_response);
+
+            if (
+                (is_object($_decode) && !isset($_decode->id_iscrizione))
+                || (is_array($_decode) && !isset($_decode['id_iscrizione']))
+            )
+                throw new Exception("Il riferimento ha un valore non valido", 1);
+
+
+            $_ret['success'] = (is_object($_decode)) ? $_decode->id_iscrizione : $_decode['id_iscrizione'];
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $this->_japp->close();
+
+    }
+
     public function generacoupon()
     {
         try {

@@ -13,4 +13,6 @@ CREATE TABLE `#__gg_zoom_events` (
   `response`  text NOT NULL ,
   `data_registrazione`  datetime NOT NULL ,
   PRIMARY KEY (`id`)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__gg_report` ADD COLUMN `data_primo_accesso` datetime NULL;

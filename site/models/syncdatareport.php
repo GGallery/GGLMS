@@ -287,7 +287,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
                               visualizzazioni,
                               permanenza_tot, 
                               data,
-                              data_extra) 
+                              data_extra,
+                              data_primo_accesso) 
                       VALUES ($data->id_corso, 
                           $data->id_event_booking, 
                           $data->id_unita,
@@ -298,6 +299,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                           $data->visualizzazioni,  
                           $data->permanenza_tot ,
                           '$data->data',
+                          '$data->data_extra',
                           '$data->data_extra')";
             $query .= "ON DUPLICATE KEY UPDATE 
                                     stato = $data->stato , 
