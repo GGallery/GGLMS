@@ -8,6 +8,20 @@ F:Frontend, B:Backend, D:Database, G:Generale
 - D: aggiunta tabella gg_zoom
 - D: aggiunta tabella gg_zoom_events
 - D: aggiunta della colonna data_primo_accesso nella tabella gg_report
+- D: aggiunta della colonna on_sale alla tabella gg_unit
+- D: aggiunta della colonna disponibile_dal alla tabella gg_unit
+- D: aggiunta della colonna disponibile_al alla tabella gg_unit
+- D: aggiunta della colonna prezzo alla tabella gg_unit
+- D: aggiunta della colonna sc_a_data alla tabella gg_unit
+- D: aggiunta della colonna sc_valore_data alla tabella gg_unit
+- D: aggiunta della colonna sc_a_data_gruppi alla tabella gg_unit
+- D: aggiunta della colonna sc_valore_data_gruppi alla tabella gg_unit
+- D: aggiunta della colonna sc_a_gruppi alla tabella gg_unit
+- D: aggiunta della colonna sc_valore_gruppi alla tabella gg_unit
+- D: aggiunta della colonna sc_da_data alla tabella gg_unit
+- D: aggiunta della colonna sc_custom_cb alla tabella gg_unit
+- D: aggiunta della colonna sc_semaforo_custom_cb alla tabella gg_unit
+- D: aggiunta della colonna sc_valore_custom_cb alla tabella gg_unit
 - G: aggiunta integrazione report Zoom per Meeting e Webinar
 
 4.0.7
