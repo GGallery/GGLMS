@@ -310,8 +310,9 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 // controllo esistenza utente su username
                 if (UtilityHelper::check_user_by_username($_new_user['username'])) {
-                    throw new Exception("USERNAME ESISTENTE: ". $_new_user['username'], 1);
-
+                    //throw new Exception("USERNAME ESISTENTE: ". $_new_user['username'], 1);
+                    // aggiungo dei numeri randomici
+                    $_new_user['username'] = $_new_user['username'] . rand(1, 999);
                 }
 
                 // inserimento utente
@@ -340,8 +341,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", 1);
 
                 // invio email registrazione
-                $_email_from = self::get_params_from_object($_params, 'email_from');
-                $_email_to  = self::get_params_from_object($_params, 'email_default');
+                $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
+                $_email_to  = UtilityHelper::get_params_from_object($_params, 'email_default');
                 $_event_title = "";
 
                 // mi servono informazioni sull'unita
@@ -358,7 +359,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                 $_new_user['name'],
                                                                                 $_new_user['username'],
                                                                                 $_new_user['email'],
-                                                                                $_new_user['password'],
+                                                                                $password_utente,
                                                                                 $_email_from);
 
                 $this->_ret['success'] = "tuttook";
