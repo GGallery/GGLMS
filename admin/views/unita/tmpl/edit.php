@@ -163,8 +163,6 @@ JHtml::_('formbehavior.chosen', 'select');
                         echo $this->form->renderField('mobile'); ?>
                 </div>
 
-
-
             </div>
 
             <div class="span4">
@@ -196,6 +194,7 @@ JHtml::_('formbehavior.chosen', 'select');
         </div>
     </div>
     <?php echo JHtml::_('bootstrap.endTab'); ?>
+
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'Advanced', JText::_('COM_GGLMS_UNITA_ADVANCEDPANEL', true)); ?>
     <div class="row-fluid">
         <div class="span12">
@@ -237,6 +236,7 @@ JHtml::_('formbehavior.chosen', 'select');
     </div>
 
     <?php echo JHtml::_('bootstrap.endTab'); ?>
+
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'ordering', 'Ordinamento', true); ?>
 
     <div class="row-fluid">
@@ -281,6 +281,87 @@ JHtml::_('formbehavior.chosen', 'select');
                     </tr>
                 <?php endforeach; ?>
             </table>
+        </div>
+    </div>
+
+    <?php echo JHtml::_('bootstrap.endTab'); ?>
+
+    <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'Vendita', JText::_('COM_GGLMS_UNITA_SALE', true)); ?>
+
+    <div class="row-fluid">
+        <div class="span12">
+
+            <div class="span4">
+
+                <h4>Generale</h4>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('on_sale'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('disponibile_dal'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('disponibile_al'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('prezzo'); ?>
+                </div>
+
+                <h4>Scontistica per data</h4>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_da_data'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_a_data'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_valore_data'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_a_data_gruppi'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_valore_data_gruppi'); ?>
+                </div>
+
+                <h4>Scontistica per gruppo</h4>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_a_gruppi'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_valore_gruppi'); ?>
+                </div>
+
+                <h4>Scontistica per campo integrazione (CB/EB)</h4>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_custom_cb'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_semaforo_custom_cb'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sc_valore_custom_cb'); ?>
+                </div>
+
+
+            </div>
+
         </div>
     </div>
 

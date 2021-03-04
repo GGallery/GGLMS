@@ -31,6 +31,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $moroso;
     protected $decaduto;
     protected $preiscritto;
+    protected $conferma_acquisto;
     protected $in_error;
     protected $client_id;
     protected $user_id;
@@ -42,8 +43,14 @@ class gglmsViewdettagliutente extends JViewLegacy
         try {
             JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
             JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css');
+            JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
+            JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
+
             JHtml::_('script', '/components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
+            JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
+
+
 
             $lang = JFactory::getLanguage();
             $this->current_lang = $lang->getTag();
@@ -57,12 +64,17 @@ class gglmsViewdettagliutente extends JViewLegacy
             $_user = new gglmsModelUsers();
             $_current_user = JFactory::getUser();
 
+            // parametri dal plugin di gestione soci
             $_params = utilityHelper::get_params_from_plugin();
             $this->online = utilityHelper::get_ug_from_object($_params, "ug_online");
             $this->moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
             $this->decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
             $_params_2 = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
             $this->preiscritto = utilityHelper::get_ug_from_object($_params_2, "ug_destinazione");
+
+            // parametri dal plugin di gestione acquisto corsi
+            $_params_module = UtilityHelper::get_params_from_module();
+            $this->conferma_acquisto = UtilityHelper::get_ug_from_object($_params_module, "ug_conferma_acquisto", true);
 
             if ($layout == 'quota_sinpe_anno') {
 

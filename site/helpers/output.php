@@ -635,7 +635,8 @@ HTML;
         $_href = utilityHelper::set_index_redirect_url($redirect);
 
         if ($target == "sinpe"
-            || $target == "servizi_extra") {
+            || $target == "servizi_extra"
+            || $target == "acquistaevento") {
 
             $_result_extra = <<<HTML
             <p class="text-center">
@@ -703,6 +704,432 @@ HTML;
 HTML;
 
         return $_html;
+
+    }
+
+    public static function get_user_registration_form_acquisto_evento($unit_prezzo,
+                                                                      $unit_id,
+                                                                      $user_id,
+                                                                      $sconto_data,
+                                                                      $sconto_custom,
+                                                                      $in_groups,
+                                                                      $_params) {
+
+        try {
+
+            $_ret = array();
+
+            $_title_advise = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR6');
+            $_cb_nome  = UtilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
+            $_cb_cognome = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
+            $_cb_cf = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cf', 'name');
+            $_cb_data_nascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name');
+            $_cb_telefono = UtilityHelper::get_cb_field_name($_params, 'campo_cb_telefono', 'name');
+            $_cb_anno_laurea = UtilityHelper::get_cb_field_name($_params, 'campo_cb_annolaurea', 'name');
+            $_cb_professione_disciplina = UtilityHelper::get_cb_field_name($_params, 'campo_cb_professione_disciplina', 'name');
+            $_cb_laureain = UtilityHelper::get_cb_field_name($_params, 'campo_cb_laureain', 'name');
+            $_cb_citta = UtilityHelper::get_cb_field_name($_params, 'campo_cb_citta', 'name');
+            $_cb_provinciadinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
+            // lista options da community builder
+            $_cb_professione_disciplina_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_professione_disciplina');
+            $_cb_professione_disciplina_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_professione_disciplina');
+            $_cb_laureain_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_laureain');
+            $_cb_laureain_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_laureain');
+            $_cb_provinciadinascita_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provinciadinascita');
+            $_cb_provinciadinascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
+
+            $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
+
+            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+            $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_request');
+
+            $_html = <<<HTML
+            <div class="row">
+                <div class="col-12">
+                    <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-xs-3">
+                    Nome<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="text" id="nome_utente" data-campo="{$_cb_nome}"  value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Cognome<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="text" id="cognome_utente"  data-campo="{$_cb_cognome}" value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Codice fiscale<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="text" id="cf_utente" maxlength="16" data-campo="{$_cb_cf}" value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Città di nascita<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="text" id="citta_utente" style="width: 220px;"  value="" data-campo="{$_cb_citta}" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Provincia di nascita<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <select id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
+                        <option value="">-</option>
+                        {$_cb_provinciadinascita_options}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Data di nascita<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="date" id="data_nascita_utente" style="width: 220px;"  value="" data-campo="{$_cb_data_nascita}" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Email<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="email" id="email_utente" style="width: 220px;" value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Telefono<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Professione<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                  <select id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
+                    <option value="">-</option>
+                    {$_cb_professione_disciplina_options}
+                  </select>  
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Laurea in<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <select id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
+                        <option value="">-</option>
+                        {$_cb_laureain_options}
+                    </select>  
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Anno di laurea<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Password<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    Ripeti password<span style="color: red">*</span>:
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                </div>
+            </div>
+            <input type="hidden" id="token" value="{$token}" />
+HTML;
+            $_ret['success'] = $_html;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+    }
+
+    // avverte l'utente della buona riuscita della registrazione e lo reindirizza in home page
+    public static function get_user_registration_confirm_acquisto_evento($unit_prezzo,
+                                                                         $unit_id,
+                                                                         $user_id,
+                                                                         $sconto_data,
+                                                                         $in_groups,
+                                                                         $_params) {
+
+        try {
+
+            $_ret = array();
+
+            $_href = utilityHelper::set_index_redirect_url();
+            $_ref_accedi = "index.php?option=com_comprofiler&view=login";
+
+            $_html = <<<HTML
+                <div class="jumbotron">
+                    <h4>Grazie!</h4>
+                    <p>La tua registrazione è andata a buon fine
+                        <br />
+                        Riceverai una E-Mail all'indirizzo indicato durante la registrazione con i tuoi dati
+                        <br />
+                        Accedi alla pagina di <a href="{$_ref_accedi}">LOGIN</a> 
+                        Oppure tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                        </p>
+                </div>
+
+                <script>
+                    setTimeout(function () {
+                        window.location.href = "{$_href}";     
+                    }, 10000);
+                   
+                </script>
+HTML;
+            $_ret['success'] = $_html;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+
+    }
+
+    // reindirizza l'utente al login oppure ad una registrazione molto rapida per consetire di usufruire soltanto dell'evento
+    public static function get_user_action_request_form_acquisto_evento($unit_prezzo,
+                                                                          $unit_id,
+                                                                          $user_id,
+                                                                          $sconto_data,
+                                                                          $sconto_custom,
+                                                                          $in_groups,
+                                                                          $_params) {
+        try {
+
+            $_ret = array();
+
+            $_title_advise = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR3');
+            $_label_accedi = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR4');
+            $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
+            $_ref_accedi = "index.php?option=com_comprofiler&view=login";
+
+            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+            $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'new_user_request');
+
+            $_html = <<<HTML
+            <div class="row">
+                <div class="col-12">
+                    <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-xs-6 text-center">
+                    <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_accedi}">{$_label_accedi}</button>
+                </div>
+                <div class="col-xs-6 text-center">
+                    <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                </div>
+            </div>
+HTML;
+
+            $_ret['success'] = $_html;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+
+    }
+
+    // semplice messaggio che informa l'utente che la sua richiesta di pagamento sarà elaborata post ricezione bonifico
+    public static function get_payment_form_acquisto_evento_bonifico($user_id, $_event_title, $totale, $_params) {
+
+        try {
+
+            $_ret = array();
+
+            $_email_to  = UtilityHelper::get_params_from_object($_params, 'email_default');
+            $_href = utilityHelper::set_index_redirect_url();
+            $_html = <<<HTML
+                <div class="jumbotron">
+                    <h4>Grazie!</h4>
+                    <p>Per confermare l'iscrizione all'evento  <b>{$_event_title}</b> invia una copia della ricevuta a <b>{$_email_to}</b> 
+                        con le seguenti indicazioni: <br />
+                        <b>Nome</b> e <b>Cognome</b> - <b>Titolo del corso acquistato</b> - <b>Codice fiscale</b> - <b>Recapito telefonico</b>
+                        <br />
+                        Tra 20 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                        </p>
+                </div>
+
+                <script>
+                    setTimeout(function () {
+                        window.location.href = "{$_href}";     
+                    }, 20000);
+                   
+                </script>
+HTML;
+            $_ret['success'] = $_html;
+            return $_ret;
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+    }
+
+    // form di pagamento per acquisto di un evento a calendario
+    public static function get_payment_form_acquisto_evento($unit_prezzo,
+                                                            $unit_id,
+                                                            $user_id,
+                                                            $sconto_data,
+                                                            $sconto_custom,
+                                                            $in_groups,
+                                                            $_params) {
+
+        try {
+
+            $_ret = array();
+            $_html = "";
+
+            // controllo se il prezzo è valido
+            if ($unit_prezzo == ""
+                || $unit_prezzo == 0)
+                throw new Exception("Il prezzo indicato per la transazione non è valido", 1);
+
+            // controllo se l'unita indicata è valida
+            if ($unit_id == ""
+                || $unit_id == 0)
+                throw new Exception("L'unità indicata per la transazione non è valida", 1);
+
+            // mi servono informazioni sull'unita
+            $unit_model = new gglmsModelUnita();
+            $_unit = $unit_model->getUnita($unit_id);
+
+            $dt = new DateTime($_unit->data_inizio);
+            $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento($sconto_data, $sconto_custom, $in_groups, $_unit);
+
+            $_descr_checkbox_evento = "Acquisto " . $_unit->titolo . " del " . $dt->format('d/m/Y');
+            $_descr_checkbox_evento .= $_tipo_sconto['descrizione_sconto'] != "" ? ' ' . $_tipo_sconto['descrizione_sconto'] : '';
+
+            $_style_totale = $_tipo_sconto['label_sconto'] != "" ? 'style="text-decoration: line-through;"' : '';
+
+            $_descr_attr_evento = $_unit->alias;
+            $_descr_attr_evento .= ($sconto_data == 1) ? '-sc_data' : '';
+            $_descr_attr_evento .= ($in_groups == 1) ? '-sc_gruppo' : '';
+
+            $_descrizione_hidden = $_descr_attr_evento;
+
+            $_testo_pagamento_paypal = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR1');
+            $_testo_pagamento_bonifico_btn = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR2');
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_row_pagamento_bonfico = "";
+
+            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+            $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
+
+            if ($_testo_pagamento_bonifico != "")
+
+                $_row_pagamento_bonfico = <<<HTML
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            {$_testo_pagamento_bonifico}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            <button class="btn btn-primary" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
+                        </td>
+                    </tr>
+HTML;
+
+
+            $_html = <<<HTML
+                    <table style="width: 100%;">
+HTML;
+
+            $_html .= <<<HTML
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            <h4><span style="color: black; font-weight: bold">{$_testo_pagamento_paypal}</span></h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" value="{$unit_prezzo}" id="evento_da_pagare" data-descr="{$_descr_attr_evento}" checked />
+                        </td>
+                        <td>&nbsp;</td>
+                        <td id="cella_evento">
+                            {$_descr_checkbox_evento}
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <h5>€ <b>{$unit_prezzo}</b></h5>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td colspan="2">&nbsp;</td>
+                        <td><h5><b>TOTALE</b></h5></td>
+                        <td>&nbsp;</td>
+                        <td><h5>€ <b><span id="amount_span" {$_style_totale}>{$_unit->prezzo}</span> {$_tipo_sconto['label_sconto']}</b></h5></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            <span id="paypal-button-container"></span>
+                        </td>
+                    </tr>
+                    {$_row_pagamento_bonfico}
+                </table>
+                
+                <input style="display: none;" type="number" id="amount" name="amount" value="{$unit_prezzo}" />
+                <input type="hidden" id="token" value="{$token}" />
+                <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
+HTML;
+
+            $_ret['success'] = $_html;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
 
     }
 
@@ -842,7 +1269,7 @@ HTML;
                         <td><h5>€ <b><span id="amount_span">{$_tariffa}</span></b></h5></td>
                     </tr>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="5" style="text-align: center;">
                             <span id="paypal-button-container"></span>
                         </td>
                     </tr>
@@ -877,7 +1304,6 @@ HTML;
         catch (Exception $e) {
             $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
             DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
-            //return __FUNCTION__ . ": " . $e->getMessage();
             return $e->getMessage();
         }
     }

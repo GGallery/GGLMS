@@ -606,6 +606,27 @@ class gglmsModelUnita extends JModelLegacy
         return $retval;
     }
 
+    public function get_id_gruppo_unit($id_unita) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                        ->select('idgruppo')
+                        ->from('#__gg_usergroup_map')
+                        ->where('idunita = ' . $this->_db->quote($id_unita));
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+
+    }
+
     public function get_gruppo_accesso_corso($id_corso)
     {
 

@@ -577,6 +577,36 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // tutte le colonne dell'utente community builder
+    public function get_user_full_details_cb($user_id) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler')
+                ->where("user_id = '" . $user_id . "'");
+
+            $db->setQuery($query);
+            $result = $db->loadAssoc();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     public function get_user_details_cb($user_id) {
 
         try {
@@ -613,21 +643,17 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function update_ultimo_anno_pagato($user_id, $ultimo_anno_pagato) {
+    public function update_tipo_quota_iscrizione($id_pagamento, $tipo_quota) {
 
         try {
 
-            $_ret = array();
+            $query = $this->_db->getQuery(true);
+            $query->update("#__gg_quote_iscrizioni");
+            $query->set("tipo_quota = " . $this->_db->quote($tipo_quota));
+            $query->where("id = " . $this->_db->quote($id_pagamento));
 
-            $db = JFactory::getDbo();
-
-            $query = $db->getQuery(true);
-            $query->update("#__comprofiler");
-            $query->set("cb_ultimoannoinregola = '" . $ultimo_anno_pagato . "'");
-            $query->where("user_id = " . $user_id);
-
-            $db->setQuery($query);
-            $db->execute();
+            $this->_db->setQuery($query);
+            $this->_db->execute();
 
             $_ret['success'] = 'tuttook';
 
@@ -640,22 +666,54 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    // inserisco pagamento servizi extra
+    public function update_ultimo_anno_pagato($user_id, $ultimo_anno_pagato) {
+
+        try {
+
+            $_ret = array();
+
+            $query = $this->_db->getQuery(true);
+            $query->update("#__comprofiler");
+            $query->set("cb_ultimoannoinregola = " . $this->_db->quote($ultimo_anno_pagato));
+            $query->where("user_id = " . $user_id);
+
+            $this->_db->setQuery($query);
+            $this->_db->execute();
+
+            $_ret['success'] = 'tuttook';
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    // inserisco pagamento servizi extra e acquisto eventi
     public function insert_user_servizi_extra($user_id,
                                               $_anno_quota,
                                               $_data_creazione,
                                               $_order_details,
                                               $totale,
-                                              $totale_espen=0,
                                               $_user_details = array(),
-                                              $send_email = true) {
-
-        $db = JFactory::getDbo();
+                                              $_template = 'servizi_extra',
+                                              $send_email = true,
+                                              $unit_id = null,
+                                              $unit_gruppo = null) {
 
         try {
 
             $_ret = array();
-            $db->transactionStart();
+            $this->_db->transactionStart();
+
+            $_extra_col = "";
+            $_extra_insert = "";
+            if (!is_null($unit_gruppo)) {
+                $_extra_col = ', gruppo_corso';
+                $_extra_insert = ", " . $this->_db->quote($unit_gruppo);
+            }
 
             // inserisco le righe riferite agli anni
             $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
@@ -664,43 +722,79 @@ class gglmsModelUsers extends JModelLegacy
                                                                 tipo_pagamento, 
                                                                 data_pagamento, 
                                                                 totale, 
-                                                                dettagli_transazione) 
+                                                                dettagli_transazione
+                                                                " . $_extra_col ."
+                                                                ) 
                             VALUES ";
 
+            $_tipo_quota = 'espen';
+            $_tipo_pagamento = 'paypal';
+
+            if ($_template == 'acquistaevento')
+                $_tipo_quota = 'evento';
+            else if ($_template == 'bb_buy_request') {
+                $_tipo_quota = 'evento_nc';
+                $_tipo_pagamento = 'bonifico';
+            }
+
             $query .= "(
-                        '" . $user_id . "',
-                        '" . $_anno_quota . "',
-                        'espen',
-                        'paypal',
-                        '" . $_data_creazione . "',
-                        '" . $totale_espen . "',
-                        '" . addslashes($_order_details) . "'
+                        " . $this->_db->quote($user_id) . ",
+                        " . $this->_db->quote($_anno_quota) . ",
+                        " . $this->_db->quote($_tipo_quota) . ",
+                        " . $this->_db->quote($_tipo_pagamento) . ",
+                        " . $this->_db->quote($_data_creazione) . ",
+                        " . $this->_db->quote($totale) . ",
+                        " . $this->_db->quote(addslashes($_order_details)) . "
+                        $_extra_insert
                        )";
 
-            $db->setQuery($query);
-            $db->execute();
+            $this->_db->setQuery($query);
+            $this->_db->execute();
 
-            $_params = utilityHelper::get_params_from_plugin();
-            $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+            // invio email
+            if ($_template == 'servizi_extra') {
 
-            $db->transactionCommit();
+                $_params = utilityHelper::get_params_from_plugin();
+                $email_default = utilityHelper::get_params_from_object($_params, "email_default");
 
-            if ($send_email)
-                utilityHelper::send_sinpe_email_pp($email_default,
-                                                    $_data_creazione,
-                                                    $_order_details,
-                                                    $_anno_quota,
-                                                    $_user_details,
-                                                    $totale,
-                                                    $totale_espen,
-                                                    "servizi_extra");
+                if ($send_email)
+                    utilityHelper::send_sinpe_email_pp($email_default,
+                        $_data_creazione,
+                        $_order_details,
+                        $_anno_quota,
+                        $_user_details,
+                        0,
+                        $totale,
+                        $_template);
+
+            }
+            else if ($_template == 'acquistaevento'
+                        || $_template == 'bb_buy_request') {
+
+                // precarico i params del modulo
+                $_params = UtilityHelper::get_params_from_module();
+                $ug_group = ($_template == 'bb_buy_request') ? 'ug_conferma_acquisto' : '';
+
+                UtilityHelper::processa_acquisto_evento($unit_id,
+                                                        $user_id,
+                                                        $totale,
+                                                        $_template,
+                                                        $ug_group,
+                                                        $_params,
+                                                        $unit_gruppo);
+
+            }
+
+            $this->_db->transactionCommit();
+
+
 
             $_ret['success'] = "tuttook";
 
             return $_ret;
         }
         catch (Exception $e) {
-            $db->transactionRollback();
+            $this->_db->transactionRollback();
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
 
@@ -715,8 +809,6 @@ class gglmsModelUsers extends JModelLegacy
                                                     $_modalita_pagamento = null,
                                                     $send_email=true) {
 
-        $db = JFactory::getDbo();
-
         try {
 
             $_ret = array();
@@ -724,7 +816,7 @@ class gglmsModelUsers extends JModelLegacy
             $_data_creazione = (is_null($_data_pagamento)) ? $dt->format('Y-m-d H:i:s') : $_data_pagamento;
             $_pagamento = (is_null($_modalita_pagamento)) ? 'bonifico' : $_modalita_pagamento;
 
-            $db->transactionStart();
+            $this->_db->transactionStart();
 
             $query = "INSERT INTO #__gg_quote_iscrizioni (
                                                           user_id, 
@@ -747,8 +839,8 @@ class gglmsModelUsers extends JModelLegacy
                                '" . $_dettagli_transazione . "'
                             )";
 
-            $db->setQuery($query);
-            $db->execute();
+            $this->_db->setQuery($query);
+            $this->_db->execute();
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
@@ -778,7 +870,7 @@ class gglmsModelUsers extends JModelLegacy
             if (!is_array($_ins_categoria))
                 throw new Exception($_ins_categoria, 1);
 
-            $db->transactionCommit();
+            $this->_db->transactionCommit();
 
             if ($send_email)
                 utilityHelper::send_sinpe_email_pp($email_default,
@@ -796,7 +888,7 @@ class gglmsModelUsers extends JModelLegacy
 
         }
         catch (Exception $e) {
-            $db->transactionRollback();
+            $this->_db->transactionRollback();
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
 
@@ -812,12 +904,10 @@ class gglmsModelUsers extends JModelLegacy
                                            $_user_details = array(),
                                            $send_email = true) {
 
-        $db = JFactory::getDbo();
-
         try {
 
             $_ret = array();
-            $db->transactionStart();
+            $this->_db->transactionStart();
 
             // inserisco le righe riferite agli anni
             $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
@@ -852,8 +942,8 @@ class gglmsModelUsers extends JModelLegacy
 
             $query .= ";";
 
-            $db->setQuery($query);
-            $db->execute();
+            $this->_db->setQuery($query);
+            $this->_db->execute();
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
@@ -880,7 +970,7 @@ class gglmsModelUsers extends JModelLegacy
             if (!is_array($_ins_categoria))
                 throw new Exception($_ins_categoria, 1);
 
-            $db->transactionCommit();
+            $this->_db->transactionCommit();
 
             if ($send_email)
                 utilityHelper::send_sinpe_email_pp($email_default,
@@ -897,7 +987,7 @@ class gglmsModelUsers extends JModelLegacy
 
         }
         catch (Exception $e) {
-            $db->transactionRollback();
+            $this->_db->transactionRollback();
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
 
@@ -911,23 +1001,21 @@ class gglmsModelUsers extends JModelLegacy
             $_ret = array();
             $sub_q = null;
 
-            $db = JFactory::getDbo();
-
             if (!is_null($ug_list)
                 ) {
-                $sub_q = $db->getQuery(true)
+                $sub_q = $this->_db->getQuery(true)
                     ->select('user_id')
                     ->from('#__user_usergroup_map')
                     ->where('group_id IN (' . $ug_list . ')');
             }
 
-            $query = $db->getQuery(true)
+            $query = $this->_db->getQuery(true)
                     ->select('u.id AS user_id, u.username, u.email, 
-                    cp.cb_nome AS nome, cp.cb_cognome AS cognome, 
-                    cp.cb_codicefiscale AS codice_fiscale, cp.cb_ultimoannoinregola AS ultimo_anno,
-                    ug.title AS tipo_socio, ug.id AS id_group');
+                                    cp.cb_nome AS nome, cp.cb_cognome AS cognome, 
+                                    cp.cb_codicefiscale AS codice_fiscale, cp.cb_ultimoannoinregola AS ultimo_anno,
+                                    ug.title AS tipo_socio, ug.id AS id_group');
 
-            $count_query = $db->getQuery(true)
+            $count_query = $this->_db->getQuery(true)
                     ->select('COUNT(*)');
 
             $query = $query
@@ -944,9 +1032,9 @@ class gglmsModelUsers extends JModelLegacy
 
 
             if (!is_null($sub_q)) {
-                $query = $query->where($db->quoteName('u.id') . ' IN (' . $sub_q->__toString() . ')')
+                $query = $query->where($this->_db->quoteName('u.id') . ' IN (' . $sub_q->__toString() . ')')
                             ->where('ug.id IN (' . $ug_list . ')');
-                $count_query = $count_query->where($db->quoteName('u.id') . ' IN (' . $sub_q->__toString() . ')')
+                $count_query = $count_query->where($this->_db->quoteName('u.id') . ' IN (' . $sub_q->__toString() . ')')
                     ->where('ug.id IN (' . $ug_list . ')');
             }
 
@@ -981,11 +1069,11 @@ class gglmsModelUsers extends JModelLegacy
             else
                 $query = $query->order('u.id DESC');
 
-            $db->setQuery($query, $_offset, $_limit);
-            $result = $db->loadAssocList();
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
 
-            $db->setQuery($count_query);
-            $result_count = $db->loadResult();
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
 
             // se nessun risultato restituisco un array vuoto
             if (!$result) {
@@ -1005,32 +1093,39 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // dettaglio pagamento quote per soci SINPE
-    public function get_quote_iscrizione($user_id = null, $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
+    public function get_quote_iscrizione($user_id = null,
+                                         $_offset=0,
+                                         $_limit=10,
+                                         $_search=null,
+                                         $_sort=null,
+                                         $_order=null,
+                                         $ug_acquisto="") {
 
         try {
 
             $_ret = array();
-            $db = JFactory::getDbo();
 
             $_join_sel = "";
+            $_extra_col = ($ug_acquisto != "") ? ", qi.gruppo_corso, un.titolo as titolo_corso" : "";
 
             // utente amministratore
             if (is_null($user_id)) {
                 $_join_sel = ", u.username, cp.cb_nome AS nome, cp.cb_cognome  AS cognome, cp.cb_codicefiscale AS codice_fiscale";
             }
 
-            $query = $db->getQuery(true)
-                    ->select('qi.id AS id_pagamento,
+            $query = $this->_db->getQuery(true)
+                    ->select('qi.user_id,
+                                qi.id AS id_pagamento,
                                 qi.anno,
                                 qi.tipo_quota,
                                 qi.tipo_pagamento,
                                 COALESCE(DATE_FORMAT(qi.data_pagamento, "%d-%m-%Y %H:%i:%s"), "") AS data_pagamento,
                                 TRUNCATE(qi.totale, 2) AS totale,
                                 qi.dettagli_transazione
-                            ' . $_join_sel)
+                            ' . $_extra_col . $_join_sel)
                     ->from('#__gg_quote_iscrizioni qi');
 
-            $count_query = $db->getQuery(true)
+            $count_query = $this->_db->getQuery(true)
                     ->select('COUNT(*)')
                     ->from('#__gg_quote_iscrizioni qi');
 
@@ -1040,6 +1135,16 @@ class gglmsModelUsers extends JModelLegacy
                                 ->join('inner', '#__comprofiler cp ON u.id = cp.user_id');
                 $count_query = $count_query->join('inner', '#__users u ON qi.user_id = u.id')
                                             ->join('inner', '#__comprofiler cp ON u.id = cp.user_id');
+            }
+
+            // gruppo corso
+            if ($_extra_col != "") {
+
+                $query = $query->join('left', '#__gg_usergroup_map gm on qi.gruppo_corso = gm.idgruppo')
+                                ->join('left', '#__gg_unit un on gm.idunita = un.id');
+
+                $count_query = $count_query->join('left', '#__gg_usergroup_map gm on qi.gruppo_corso = gm.idgruppo')
+                                            ->join('left', '#__gg_unit un on gm.idunita = un.id');
             }
 
             if (!is_null($user_id)) {
@@ -1081,12 +1186,11 @@ class gglmsModelUsers extends JModelLegacy
             else
                 $query = $query->order('qi.anno desc, qi.tipo_quota asc');
 
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
 
-            $db->setQuery($query, $_offset, $_limit);
-            $result = $db->loadAssocList();
-
-            $db->setQuery($count_query);
-            $result_count = $db->loadResult();
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
 
             // se nessun risultato restituisco un array vuoto
             if (!$result) {

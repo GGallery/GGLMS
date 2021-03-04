@@ -509,6 +509,32 @@ class gglmsHelper
         return $res;
     }
 
+    public static function GetScontoGruppi($item, $col = 'sc_a_gruppi') {
+
+        $db = JFactory::getDBO();
+
+        $res = array();
+        if (!$item->id)
+            return $res;
+
+        try {
+            $query = $db->getQuery(true);
+            $query->select($col);
+            $query->from('#__gg_unit');
+            $query->where('id=' . $item->id);
+
+            $db->setQuery((string)$query);
+            //$res = $db->loadColumn();
+            $res = $db->loadResult();
+            $res = explode(",", $res);
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore GetScontoGruppi");
+        }
+        return $res;
+
+    }
 
     public static function GetMappaAccessoPiattaforme($item)
     {
@@ -533,6 +559,29 @@ class gglmsHelper
             die("Errore GetMappaAccessoPiattaforme");
         }
         return $res;
+    }
+
+    public static function SetScontoGruppi($item, $request, $col = 'sc_a_gruppi') {
+
+        try {
+
+            $db = JFactory::getDBO();
+
+            $unitid = $item['id'];
+            $list_gruppi = implode(",", $request);
+
+            $query = "UPDATE #__gg_unit 
+                      SET " . $col . " = '" . $list_gruppi . "'
+                      WHERE id = '" . $unitid . "'";
+
+            $db->setQuery((string)$query);
+            $db->execute();
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore SetScontoGruppi");
+        }
+
     }
 
     public static function SetMappaAccessoPiattaforme($item)

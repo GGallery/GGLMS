@@ -224,11 +224,13 @@ class gglmsModelcoupon extends JModelLegacy
 
 
             // calcolo data_scadenza_calc come data_scadenza + durata
+            // aggiunto order by data scadenza così da prendere il coupon con la data di scadenza meno prossima in caso di corrispondenza multiple
             $query = $this->_db->getQuery(true)
                 ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc , c.data_utilizzo')
                 ->from('#__gg_coupon AS c')
                 ->where('c.id_utente = ' . $this->_user->id)
-                ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')');
+                ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')')
+                ->order('data_scadenza_calc desc');
 
             $this->_db->setQuery($query);
 

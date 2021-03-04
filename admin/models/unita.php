@@ -76,6 +76,8 @@ class gglmsModelunita extends JModelAdmin
             $item->id_gruppi_abilitati = gglmsHelper::GetMappaAccessoGruppi($item);
             $item->id_box = gglmsHelper::GetBoxId($item);
             $item->id_piattaforme_abilitate = gglmsHelper::GetMappaAccessoPiattaforme($item);
+            $item->sc_a_gruppi = gglmsHelper::GetScontoGruppi($item, 'sc_a_gruppi');
+            $item->sc_a_data_gruppi = gglmsHelper::GetScontoGruppi($item, 'sc_a_data_gruppi');
 
         }
 

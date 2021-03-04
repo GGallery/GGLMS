@@ -211,8 +211,6 @@
         </field>
 
 
-
-
         <field
                 name="id_contenuto_completamento"
                 type="listacontenuti"
@@ -260,6 +258,194 @@
 
         >
         </field>
+
+        <!-- Vendita INZIO -->
+
+        <field
+                name="on_sale"
+                type="radio"
+                label="Acquistabile"
+                description="Se abilitato crea un catalogo di acquisto per i corsi (necessaria installazione del modulo di Acquisto corsi"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+        <field name="disponibile_dal"
+               type="calendar"
+               default=""
+               label="Seleziona data di inizio disponibilità del corso"
+               description="Se non impostato il Corso risulterà sempre disponibile"
+               class="input-small"
+               showon="on_sale:1"
+               filter="user_utc"
+               showtime="false"
+               todaybutton="true"
+               filltable="false"
+               translateformat="true"
+        />
+
+        <field name="disponibile_al"
+               type="calendar"
+               default=""
+               label="Seleziona data di fine disponibilità del corso"
+               description="Se non impostato il Corso risulterà sempre disponibile"
+               class="input-small"
+               showon="on_sale:1"
+               filter="user_utc"
+               showtime="false"
+               todaybutton="true"
+               filltable="false"
+               translateformat="true"
+        />
+
+        <field
+                name="prezzo"
+                type="text"
+                label="Prezzo corso"
+                description="Il prezzo pieno del corso separato da punti in caso di decimali es. 99.90"
+                size="20"
+                class="inputbox"
+                showon="on_sale:1"
+                default="99.90"
+        />
+
+        <!-- sconto per data -->
+
+        <field name="sc_da_data"
+               type="calendar"
+               default=""
+               label="Seleziona da quando verrà applicato lo sconto"
+               description="Lo Sconto verrà applicato fino alla data impostata ed avrà la precedenza sulla scontistica per gruppo. Per non applicare nessuna data lasciare vuoto"
+               class="input-small"
+               showon="on_sale:1"
+               filter="user_utc"
+               showtime="false"
+               todaybutton="true"
+               filltable="false"
+               translateformat="true"
+        />
+
+        <field name="sc_a_data"
+               type="calendar"
+               default=""
+               label="Seleziona fino a quando verrà applicato lo sconto"
+               description="Lo Sconto verrà applicato fino alla data impostata ed avrà la precedenza sulla scontistica per gruppo. Per non applicare nessuna data lasciare vuoto"
+               class="input-small"
+               showon="on_sale:1"
+               filter="user_utc"
+               showtime="false"
+               todaybutton="true"
+               filltable="false"
+               translateformat="true"
+        />
+
+        <field
+                name="sc_valore_data"
+                type="text"
+                label="Sconto €"
+                description="Lo sconto applicato al Prezzo corso in base alla data (es 10.00). Per non applicare nessuno sconto impostare a 0"
+                size="20"
+                class="inputbox"
+                showon="on_sale:1"
+                default="0"
+                key_field="value"
+        />
+
+        <field
+                name="sc_a_data_gruppi"
+                type="listagruppi"
+                label="Seleziona Gruppo/i"
+                description="Seleziona i gruppo/i per i quali sarà applicato lo sconto. Per non applicare sconti a gruppo/i lasciare vuoto"
+                class="inputbox"
+                showon="on_sale:1"
+                default=""
+                multiple="true"
+                size="20"
+        >
+
+        </field>
+
+        <field
+                name="sc_valore_data_gruppi"
+                type="text"
+                label="Sconto €"
+                description="Lo sconto applicato al Prezzo corso per gruppo/i (es. 10.00). Per non applicare nessuno sconto impostare a 0"
+                size="20"
+                class="inputbox"
+                showon="on_sale:1"
+                default="0"
+        />
+
+        <!-- sconto per gruppo -->
+        <field
+                name="sc_a_gruppi"
+                type="listagruppi"
+                label="Seleziona Gruppo/i"
+                description="Seleziona i gruppo/i per i quali sarà applicato lo sconto che avrà sempre validità con una priorità minore rispetto alla scontistica per data. Per non applicare sconti a gruppo/i lasciare vuoto"
+                class="inputbox"
+                showon="on_sale:1"
+                default=""
+                multiple="true"
+                size="20"
+        >
+
+        </field>
+
+        <field
+                name="sc_valore_gruppi"
+                type="text"
+                label="Sconto €"
+                description="Lo sconto applicato al Prezzo corso per gruppo/i (es. 10.00). Per non applicare nessuno sconto impostare a 0"
+                size="20"
+                class="inputbox"
+                showon="on_sale:1"
+                default="0"
+        />
+
+        <!-- sconto per campi custom -->
+        <field
+                name="sc_custom_cb"
+                type="sql"
+                class="inputbox"
+                default=""
+                label="Sconto per campo Custom di CB"
+                description="Selezionare un campo dalla lista per attivare lo sconto su di un particolare valore del campo CB"
+                showon="on_sale:1[AND]accesso:gruppo"
+                required=""
+                query="SELECT name as value, name as text
+                        FROM #__comprofiler_fields
+                        WHERE published = 1
+                        ORDER BY name"
+        />
+
+        <field
+                name="sc_semaforo_custom_cb"
+                type="sql"
+                class="inputbox"
+                default=""
+                label="Valore del campo Custom di CB che accede allo sconto"
+                showon="on_sale:1[AND]accesso:gruppo[AND]sc_custom_cb!:"
+                query="SELECT fieldtitle AS value, fieldtitle AS sc_semaforo_custom_cb
+                       FROM #__comprofiler_field_values
+                       ORDER BY fieldid, ordering"
+        />
+
+        <field
+                name="sc_valore_custom_cb"
+                type="text"
+                label="Sconto €"
+                description="Lo sconto applicato al Prezzo corso se si verifica la condizione di Valore campo Custom (es. 10.00). Per non applicare nessuno sconto impostare a 0"
+                size="20"
+                class="inputbox"
+                showon="on_sale:1[AND]accesso:gruppo[AND]sc_custom_cb!:"
+                default="0"
+        />
+
+        <!-- Vendita FINE -->
 
     </fieldset>
 </form>

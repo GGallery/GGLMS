@@ -1059,6 +1059,63 @@ HTML;
         $app->close();
     }
 
+    public function conferma_acquisto_evento() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $id_pagamento = $params["id_pagamento"];
+            $user_id = $params["user_id"];
+            $gruppo_corso = $params["gruppo_corso"];
+
+            // parametri dal plugin di gestione acquisto corsi
+            $_params_module = UtilityHelper::get_params_from_module();
+            $ug_conferma_acquisto = UtilityHelper::get_ug_from_object($_params_module, "ug_conferma_acquisto", true);
+
+            if (!isset($id_pagamento)
+                || $id_pagamento == "")
+                throw new Exception("Missing payment id", 1);
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", 1);
+
+            if (!isset($gruppo_corso)
+                || $gruppo_corso == "")
+                throw new Exception("Missing user group", 1);
+
+            // l'utente va inserito nel gruppo corso
+            $_check_add = UtilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
+            if (!is_array($_check_add))
+                throw new Exception($_check_add, 1);
+
+            // l'utente va rimosso dal gruppo dell'acquisto sospeso
+            $_check_remove = UtilityHelper::remote_usergroup_generic($user_id, $ug_conferma_acquisto);
+            if (!is_array($_check_remove))
+                throw new Exception($_check_remove, 1);
+
+            // aggiorno la quota di iscrizione impostando la tipologia
+            // aggiorno ultimo anno pagato
+            $_user = new gglmsModelUsers();
+            $_check_conferma = $_user->update_tipo_quota_iscrizione($id_pagamento, "evento");
+            if (!is_array($_check_conferma))
+                throw new Exception($_check_conferma, 1);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
     // sposto un socio decaduto nel gruppo moroso
     public function riabilita_decaduto() {
 
@@ -1126,8 +1183,21 @@ HTML;
             $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
             $this->user_id = $_user_id;
 
+            // parametri dal plugin di gestione acquisto corsi
+            $_params_module = UtilityHelper::get_params_from_module();
+            $gruppo_conferma_acquisto = UtilityHelper::get_ug_from_object($_params_module, "ug_conferma_acquisto", true);
+
             $_user = new gglmsModelUsers();
-            $_quote = $this->quote_iscrizione = $_user->get_quote_iscrizione($_user_id, $_offset, $_limit, $_search, $_sort, $_order);
+            $_quote = $this->quote_iscrizione = $_user->get_quote_iscrizione($_user_id,
+                                                                            $_offset,
+                                                                            $_limit,
+                                                                            $_search,
+                                                                            $_sort,
+                                                                            $_order,
+                                                                            $gruppo_conferma_acquisto);
+
+            $_label_conferma_acquisto = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR31');
+            $_label_conferma_acquisto_user = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR33');
 
             if (isset($_quote['rows'])) {
 
@@ -1136,13 +1206,14 @@ HTML;
                 foreach ($_quote['rows'] as $_key_quota => $_quota) {
 
                     $_fab_pagamento = "";
-
+                    $_icon_check = <<<HTML
+                            <i class="fas fa-check"></i>
+HTML;
+                    $payment_ko = false;
                     foreach ($_quota as $key => $value) {
 
                         $_icon_tipo_quota = "";
-                        $_icon_check = <<<HTML
-                            <i class="fas fa-check"></i>
-HTML;
+
                         if ($key == "tipo_quota") {
 
                             $_tipo_quota = (!is_null($value)) ? strtoupper($value) : "";
@@ -1154,10 +1225,32 @@ HTML;
                                 || $_tipo_pagamento == "")
                                 $_fab_pagamento = "fas fa-dollar-sign";
 
+                            if ($_tipo_quota == "EVENTO_NC") {
+
+                                if (is_null($_user_id))
+                                    $value = <<<HTML
+                                    <a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="confermaAcquistaEvento({$_quota['id_pagamento']}, {$_quota['user_id']}, {$_quota['gruppo_corso']})">{$_label_conferma_acquisto} {$_quota['titolo_corso']}</a>
+HTML;
+                                else
+                                    $value = $_label_conferma_acquisto_user . ' ' . $_quota['titolo_corso'];
+
+                                $payment_ko = true;
+                            }
+                            else if ($_tipo_quota == "EVENTO") {
+                                $value = $_quota['titolo_corso'];
+                            }
+
                             $_icon_tipo_quota = <<<HTML
                                     <i class="{$_fab_pagamento}"></i>
 HTML;
                             $_ret[$_key_quota]['icon_pagamento'] = trim($_icon_tipo_quota);
+
+                        }
+
+                        if ($payment_ko) {
+                            $_icon_check = <<<HTML
+                                <i class="fas fa-times"></i>
+HTML;
 
                         }
 
@@ -1233,11 +1326,11 @@ HTML;
 
                             $_azione_btn = "";
                             if (in_array($value, explode(",", $gruppi_decaduto)))
-                                $_azione_btn = '<a href="#" class="btn btn-success" onclick="riabilitaDecaduto(' . $_socio['user_id'] . ')">' . $_label_attiva . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="riabilitaDecaduto(' . $_socio['user_id'] . ')">' . $_label_attiva . '</a>';
                             else if (in_array($value, explode(",", $gruppi_moroso)))
-                                $_azione_btn = '<a href="#" class="btn btn-success" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
                             else if (in_array($value, explode(",", $gruppi_preiscritto)))
-                                $_azione_btn = '<a href="#" class="btn btn-success" onclick="impostaMoroso(' . $_socio['user_id'] . ')">' . $_label_iscrivi . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaMoroso(' . $_socio['user_id'] . ')">' . $_label_iscrivi . '</a>';
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
                         }

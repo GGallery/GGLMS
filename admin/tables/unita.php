@@ -29,8 +29,11 @@ class gglmsTableunita extends JTable
      */
     public function bind($array, $ignore = '')
     {
+        //var_dump($_REQUEST); die();
+        //var_dump($array); die();
 
         if (isset($array['id_gruppi_abilitati'])) {
+
             if (is_array($array['id_gruppi_abilitati']))
                 $array['id_gruppi_abilitati'] = implode(',', $array['id_gruppi_abilitati']);
 
@@ -47,6 +50,16 @@ class gglmsTableunita extends JTable
         if (isset($array['id_piattaforme_abilitate'])) {
             gglmsHelper::SetMappaAccessoPiattaforme($array);
 
+        }
+
+        if (isset($array['sc_a_gruppi'])
+            && isset($_REQUEST['jform']['sc_a_gruppi'])) {
+            gglmsHelper::SetScontoGruppi($array, $_REQUEST['jform']['sc_a_gruppi'], 'sc_a_gruppi');
+        }
+
+        if (isset($array['sc_a_data_gruppi'])
+            && isset($_REQUEST['jform']['sc_a_data_gruppi'])) {
+            gglmsHelper::SetScontoGruppi($array, $_REQUEST['jform']['sc_a_data_gruppi'], 'sc_a_data_gruppi');
         }
 
         // Blocco unita padre per unita root

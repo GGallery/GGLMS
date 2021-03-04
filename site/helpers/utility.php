@@ -636,6 +636,84 @@ class utilityHelper
         }
     }
 
+    // informazioni per un campo community builder da id
+    public static function get_cb_field($field_id) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler_fields')
+                ->where("fieldid = '" . trim($field_id) . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $results;
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // lista di valori per un determino fieldid di un campo community builder
+    public static function get_cb_field_values_list($field_id) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler_field_values')
+                ->where("fieldid = '" . trim($field_id) . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssocList())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $results;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // valore da lista field per fieldid e fieldvalueid
+    public static function get_cb_fieldtitle_values($field_id, $field_value_id) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler_field_values')
+                ->where("fieldid = " . $db->quote(trim($field_id)))
+                ->where("fieldvalueid = " . $db->quote(trim($field_value_id)));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $results;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
     // controlla esistenza usergroups per nome
     public static function check_usergroups_by_name($usergroup) {
 
@@ -1082,7 +1160,36 @@ class utilityHelper
 
     }
 
-    // imposto il form del pagamento alternativo per il rinnovo delle quote sinpe
+    // query diretta sui parametri di un modulo
+    public static function get_params_from_module($module = 'mod_compra_corsi') {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('params')
+                ->from('#__modules')
+                ->where("module = '" . $module . "'");
+
+            $db->setQuery($query);
+            $result = $db->loadAssoc();
+
+            if (is_null($result))
+                return $_ret;
+
+            $_ret['success'] = $result['params'];
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
+    // query diretta sui parametri di un plugin di community builder
     public static function get_params_from_plugin($plugin = 'cb.checksoci') {
 
         try {
@@ -1544,6 +1651,147 @@ HTML;
 
     }
 
+    // procedura standard di acquisto ordine ed inserimento gruppo
+    public static function processa_acquisto_evento($unit_id,
+                                                    $user_id,
+                                                    $unit_prezzo,
+                                                    $action,
+                                                    $ug_group,
+                                                    $_params,
+                                                    $unit_gruppo = null,
+                                                    $send_email = true) {
+
+        // mi servono informazioni sull'unita
+        $unit_model = new gglmsModelUnita();
+        $_unit = $unit_model->getUnita($unit_id);
+
+        $_user = new gglmsModelUsers();
+        $_user_details = $_user->get_user_full_details_cb($user_id);
+
+        // l'integrazione dei campi extra al momento è soltanto per community builder
+        $_config = new gglmsModelConfig();
+        $_dettagli_utente['nome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_nome')];
+        $_dettagli_utente['cognome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_cognome')];
+        $_dettagli_utente['codice_fiscale'] = $_user_details[$_config->getConfigValue('campo_community_builder_controllo_cf')];
+
+        $_email_from = self::get_params_from_object($_params, 'email_from');
+        $_email_to  = self::get_params_from_object($_params, 'email_default');
+
+        // inserimento dell'utente nel gruppo
+        // se acquistaevento l'utente ha effettivamente acquistato il corso per cui lo inserirò nel gruppo corso
+        // se l'utente non ha acquista il corso lo inserisco in un gruppo specifico letto dalla configurazione del modulo
+        if ($action == 'acquistaevento')
+            $ug_destinazione = $unit_gruppo;
+        else
+            $ug_destinazione = self::get_ug_from_object($_params, $ug_group, true);
+
+        $_check = self::set_usergroup_generic($user_id, $ug_destinazione);
+        if (!is_array($_check))
+            throw new Exception($_check, 1);
+
+        if ($send_email)
+            self::send_acquisto_evento_email($_email_to,
+                                            $_unit->titolo,
+                                            $_dettagli_utente,
+                                            $unit_prezzo,
+                                null,
+                                            $action,
+                                            $_email_from);
+
+    }
+
+    // invia email relativa alla registrazione di un nuovo utente per l'acquisto di un evento
+    public static function send_acquisto_evento_email_new_user($email_default,
+                                                                $_event_title,
+                                                                $_name,
+                                                                $_username,
+                                                                $_email_user,
+                                                                $_password,
+                                                                $_email_from) {
+
+        $oggetto = "Nuova registrazione per acquisto evento " . $_event_title;
+        $dt = new DateTime();
+
+        $body = <<<HTML
+                <br /><br />
+                <p>Nome: <b>{$_name}</b></p>
+                <p>Username: <b>{$_username}</b></p>
+                <p>Email: <b>{$_email_user}</b></p>
+                <p>Password: <b>{$_password}</b></p>
+                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+HTML;
+
+        $_destinatario = array();
+        $_destinatario[] = $email_default;
+        $_destinatario[] = $_email_user;
+
+        return self::send_email($oggetto, $body, $_destinatario, true, true, $_email_from);
+
+    }
+
+    // invia email relativa alle richieste relative all'acquisto di un evento
+    public static function send_acquisto_evento_email($email_default,
+                                                      $_event_title,
+                                                      $_user_details,
+                                                      $totale = 0,
+                                                      $_data_creazione = null,
+                                                      $template="bb_buy_request",
+                                                      $mail_from = null) {
+
+        $_nominativo = "";
+        $_cf = "";
+        if (isset($_user_details['nome_utente'])
+            && $_user_details['nome_utente'] != "")
+            $_nominativo .= $_user_details['nome_utente'];
+
+        if (isset($_user_details['cognome_utente'])
+            && $_user_details['cognome_utente'] != "") {
+            $_nominativo .= ($_nominativo != "") ? " " : "";
+            $_nominativo .= $_user_details['cognome_utente'];
+        }
+
+        if (isset($_user_details['codice_fiscale'])
+            && $_user_details['codice_fiscale'] != "")
+            $_cf .= $_user_details['codice_fiscale'];
+
+        $dt = null;
+        if (!is_null($_data_creazione))
+            $dt = new DateTime($_data_creazione);
+        else
+            $dt = new DateTime();
+
+        $oggetto = "Acquisto evento " . $_event_title;
+        $_label_pagato = "pagato";
+        $_label_extra = "";
+
+        if ($template == 'bb_buy_request') {
+            $oggetto .= " - Richiesta pagamento con bonifico";
+            $_label_pagato .= "da pagare";
+            $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />
+                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale 
+                                e contatto telefonico allegando la ricevta del bonifico";
+        }
+        else if ($template == 'acquistaevento')
+            $oggetto .= " - Conferma pagamento con PayPal";
+
+        $body = <<<HTML
+                <br /><br />
+                <p>Nominativo: <b>{$_nominativo}</b></p>
+                <p>Codice fiscale: {$_cf}</p>
+                <p>Evento di riferimento: {$_event_title}</p>
+                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                <p>Totale {$_label_pagato}: &euro; <b>{$totale}</b></p>
+                {$_label_extra}
+HTML;
+
+        $_destinatario = array();
+        if ($email_default != "")
+            $_destinatario[] = $email_default;
+
+        return self::send_email($oggetto, $body, $_destinatario, true, true, $mail_from);
+
+    }
+
     // invia email relativa all'esito del pagamento per il rinnovo delle quote sinpe
     public static function send_sinpe_email_pp($email_default,
                                                $_data_creazione,
@@ -1571,7 +1819,6 @@ HTML;
             $_cf .= $_user_details['codice_fiscale'];
 
         $dt = new DateTime($_data_creazione);
-
         $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
 
         if ($template == "servizi_extra")
@@ -1841,10 +2088,54 @@ HTML;
 
     }
 
+    public static function set_usergroup_generic($user_id, $ug_list) {
+
+        try {
+
+            $_ret = array();
+            $_arr_add = self::get_usergroup_id($ug_list);
+
+            foreach ($_arr_add as $key => $a_group_id) {
+                JUserHelper::addUserToGroup($user_id, $a_group_id);
+            }
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+    }
+
+    // va passato user_id ed ug_list sotto forma di stringa separata da virgole
+    public static function remote_usergroup_generic($user_id, $ug_list) {
+
+        try {
+
+            $_ret = array();
+            $_arr_remove = self::get_usergroup_id($ug_list);
+
+            foreach ($_arr_remove as $key => $d_group_id) {
+                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            }
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
     // ottengo la lista degli usergroup specifici dai parametri del plugin
-    public static function get_ug_from_object($_ret, $param) {
+    public static function get_ug_from_object($_ret, $param, $is_array=false) {
 
         $ug_list = self::get_params_from_object($_ret, $param);
+
+        if ($is_array) {
+            return implode(",", $ug_list);
+        }
 
         if ($ug_list != "") {
             $_implode_ug = self::get_usergroup_id($ug_list, '|*|');
@@ -1951,5 +2242,109 @@ HTML;
 
         return $_href;
 
+    }
+
+    public static function get_tipo_sconto_evento($sconto_data, $sconto_custom, $in_groups, $obj_unit) {
+
+        $_ret = array();
+        $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
+        $_descrizione_sconto = "";
+        $_tipo_sconto = "";
+        $dt = (isset($obj_unit->sc_a_data) && !is_null($obj_unit->sc_a_data) && $obj_unit->sc_a_data != "") ? new DateTime($obj_unit->sc_a_data) : null;
+
+        // sconto per campo custom
+        if ($sconto_custom != "") {
+            $_tipo_sconto = <<< HTML
+                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_custom_cb}</span>
+HTML;
+            $_descrizione_sconto = " sconto " . $sconto_custom;
+        }
+        else if ($sconto_data == 1
+            && $in_groups == 1) { // sconto data per gruppo
+            $_tipo_sconto = <<< HTML
+                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_data_gruppi}</span>
+HTML;
+            $_descrizione_sconto = " sconto Soci acquisto prima del " . $dt->format('d/m/Y');
+
+        }
+        else if ($sconto_data == 1
+            && $in_groups == 0) { // sconto per data senza gruppo
+            $_tipo_sconto = <<< HTML
+                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_data}</span>
+HTML;
+            $_descrizione_sconto = " sconto acquisto prima del " . $dt->format('d/m/Y');
+        }
+        else if ($sconto_data == 0
+            && $in_groups == 1) { // sconto per gruppo
+            $_tipo_sconto = <<< HTML
+                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_gruppi}</span>
+HTML;
+            $_descrizione_sconto = " sconto Soci";
+        }
+
+        $_ret['label_sconto'] = $_tipo_sconto;
+        $_ret['descrizione_sconto'] = $_descrizione_sconto;
+
+        return $_ret;
+
+    }
+
+    // costruizione del token per l'url encodato
+    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!') {
+
+        $b_url = $unit_prezzo . '|==|' . $unit_id . '|==|' . $user_id . '|==|' . $sconto_data . '|==|' . $sconto_custom . '|==|' . $in_groups;
+        $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
+
+        return $token;
+    }
+
+    // costruizione del link encodato per i vari passaggi di acquisto evento
+    public static function build_encoded_link($token, $view='acquistaevento', $action='buy') {
+
+        return 'index.php?option=com_gglms&view=' . $view . '&action=' . $action . '&pp=' . $token;
+
+    }
+
+    // proprietà da riga di comprofiler_fields
+    public static function get_cb_field_property($cb_arr, $p_name) {
+
+        if (!is_array($cb_arr)
+            || !isset($cb_arr[$p_name]))
+            return "";
+
+        return $cb_arr[$p_name];
+
+    }
+
+    // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare
+    public static function get_cb_field_name($_params, $_label, $_prop) {
+
+        $_cb = self::get_params_from_object($_params, $_label);
+        $_cb_arr = UtilityHelper::get_cb_field($_cb);
+
+        return self::get_cb_field_property($_cb_arr, $_prop);
+
+    }
+
+    // per i campi di tipo select ottengo la lista di option
+    public static function get_cb_field_select($_params, $_label) {
+
+        $_options = "";
+
+        $_cb = self::get_params_from_object($_params, $_label);
+        $_cb_arr = UtilityHelper::get_cb_field_values_list($_cb);
+
+        if (!is_array($_cb_arr)
+            || count($_cb_arr) == 0)
+            return "";
+
+        foreach ($_cb_arr as $sub_key => $sub_values) {
+
+            $_options .= <<<HTML
+                <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>
+HTML;
+        }
+
+        return $_options;
     }
 }

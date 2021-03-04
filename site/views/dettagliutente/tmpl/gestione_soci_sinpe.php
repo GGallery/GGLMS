@@ -60,6 +60,27 @@ defined('_JEXEC') or die('Restricted access');
             })
         });
 
+        function customConfirm(pTitle, pMsg, pUserId, pCallbackOk) {
+
+            alertify.confirm()
+                .setting({
+                    'title': pTitle,
+                    'label':'OK',
+                    'message': pMsg ,
+                    'onok' : pCallbackOk(pUserId)
+                }).show();
+
+        }
+
+        function customAlertifyAlertSimple(pMsg) {
+            alertify.alert()
+                .setting({
+                    'title': 'Attenzione!',
+                    'label':'OK',
+                    'message': pMsg
+                }).show();
+        }
+
         function ajaxRequest(params) {
 
             // data you may need
@@ -100,12 +121,21 @@ defined('_JEXEC') or die('Restricted access');
             });
         }
 
-        // utente riabilitato al pagamento (moroso di un anno)
         function impostaMoroso(userId) {
 
-            var c = confirm("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR27'); ?>");
+            alertify.confirm()
+                .setting({
+                    'title': 'Attenzione!',
+                    'label': 'OK',
+                    'message': "<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR27'); ?>"
+                })
+                .set('onok', function(closeEvent){ eseguiImpostaMoroso(userId) } )
+                .show();
 
-            if (c) {
+        }
+
+        // utente riabilitato al pagamento (moroso di un anno)
+        function eseguiImpostaMoroso(userId) {
 
                 jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
                     .done(function(results) {
@@ -113,7 +143,7 @@ defined('_JEXEC') or die('Restricted access');
                         // risposta non conforme
                         if (typeof results != "string"
                             || results == "") {
-                            alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                            customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
                             return;
                         }
                         else {
@@ -121,18 +151,18 @@ defined('_JEXEC') or die('Restricted access');
                             // errore
                             var objRes = JSON.parse(results);
                             if (typeof objRes.error != "undefined") {
-                                alert(objRes.error);
+                                customAlertifyAlertSimple(objRes.error);
                                 return;
                             }
                             // successo
                             else if (typeof objRes.success != "undefined") {
-                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR28'); ?>");
+                                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR28'); ?>");
                                 //window.location.reload();
                                 pTable.bootstrapTable('refresh');
                             }
                             // errore non gestito
                             else {
-                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
+                                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
                             }
 
 
@@ -142,16 +172,23 @@ defined('_JEXEC') or die('Restricted access');
                     alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
                 });
 
-            }
+        }
+
+        function impostaPagato(userId) {
+
+            alertify.confirm()
+                .setting({
+                    'title': 'Attenzione!',
+                    'label': 'OK',
+                    'message': "<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR21'); ?>"
+                })
+                .set('onok', function(closeEvent){ eseguiImpostaPagato(userId) } )
+                .show();
 
         }
 
         // inserimento del pagamento della quota a mezzo bonifico
-        function impostaPagato(userId) {
-
-            var c = confirm("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR21'); ?>");
-
-            if (c) {
+        function eseguiImpostaPagato(userId) {
 
                 var pTotale = prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR29'); ?>");
 
@@ -162,7 +199,7 @@ defined('_JEXEC') or die('Restricted access');
                     // controllo se è un numero
                     var pTest = pTotale % 1;
                     if (isNaN(pTest)) {
-                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
+                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
                         return;
                     } else {
 
@@ -175,50 +212,57 @@ defined('_JEXEC') or die('Restricted access');
                                 // risposta non conforme
                                 if (typeof results != "string"
                                     || results == "") {
-                                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
                                     return;
                                 } else {
 
                                     // errore
                                     var objRes = JSON.parse(results);
                                     if (typeof objRes.error != "undefined") {
-                                        alert(objRes.error);
+                                        customAlertifyAlertSimple(objRes.error);
                                         return;
                                     }
                                     // successo
                                     else if (typeof objRes.success != "undefined") {
-                                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR23'); ?>");
+                                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR23'); ?>");
                                         //window.location.reload();
                                         pTable.bootstrapTable('refresh');
                                     }
                                     // errore non gestito
                                     else {
-                                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
+                                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
                                     }
 
 
                                 }
 
                             }).fail(function () {
-                            alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+                            customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
                         });
 
                     }
 
                 } else {
-                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR24'); ?>");
+                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR24'); ?>");
                 }
 
-            }
+        }
+
+        function riabilitaDecaduto(userId) {
+
+            alertify.confirm()
+                .setting({
+                    'title': 'Attenzione!',
+                    'label': 'OK',
+                    'message': "<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR12'); ?>"
+                })
+                .set('onok', function(closeEvent){ eseguiRiabilitaDecaduto(userId) } )
+                .show();
 
         }
 
         // utente riabilitato al pagamento (moroso di un anno)
-        function riabilitaDecaduto(userId) {
-
-            var c = confirm("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR12'); ?>");
-
-            if (c) {
+        function eseguiRiabilitaDecaduto(userId) {
 
                 jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
                     .done(function(results) {
@@ -226,7 +270,7 @@ defined('_JEXEC') or die('Restricted access');
                         // risposta non conforme
                         if (typeof results != "string"
                                 || results == "") {
-                            alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                            customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
                             return;
                         }
                         else {
@@ -234,28 +278,26 @@ defined('_JEXEC') or die('Restricted access');
                             // errore
                             var objRes = JSON.parse(results);
                             if (typeof objRes.error != "undefined") {
-                                alert(objRes.error);
+                                customAlertifyAlertSimple(objRes.error);
                                 return;
                             }
                             // successo
                             else if (typeof objRes.success != "undefined") {
-                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR15'); ?>");
+                                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR15'); ?>");
                                 //window.location.reload();
                                 pTable.bootstrapTable('refresh');
                             }
                             // errore non gestito
                             else {
-                                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
+                                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
                             }
 
 
                         }
 
                     }).fail(function() {
-                        alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
                     });
-
-            }
 
         }
 

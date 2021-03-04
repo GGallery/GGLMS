@@ -51,19 +51,6 @@ class gglmsController extends JControllerLegacy
                 $hostname = $_arr_host[1] . "." . $_arr_host[2];
             }
 
-            /*
-            if (strpos($hostname, 'www.') === 0) {
-                $hostname = substr($hostname, 4);
-            }
-            // già che ci sono gestisco anche l'ambiente di test
-            else if (strpos($hostname, 'test.') === 0) {
-                $hostname = substr($hostname, 5);
-            }
-            else if (strpos($hostname, 'master.') === 0) {
-                $hostname = substr($hostname, 7);
-            }
-            */
-
             define('DOMINIO', $hostname);
 
         }
@@ -100,7 +87,6 @@ class gglmsController extends JControllerLegacy
 
         
         //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
-        // aggiunto nella whitelist rinnovoquote - direi che funziona!
         if ($this->_user->guest
             && strpos(JUri::getInstance()->toString(), 'catalogo') === false
             && strpos(JUri::getInstance()->toString(), 'helpdesk') === false
@@ -108,6 +94,7 @@ class gglmsController extends JControllerLegacy
             && strpos(JUri::getInstance()->toString(), 'prenota') === false
             && strpos(JUri::getInstance()->toString(), 'rinnovoquote') === false
             && strpos(JUri::getInstance()->toString(), 'paypal') === false
+            && strpos(JUri::getInstance()->toString(), 'acquistaevento') === false
         ) {
 //            $msg = "Per accedere al corso è necessario loggarsi";
             $msg = JText::_('COM_GGLMS_NOT_LOGGED');
