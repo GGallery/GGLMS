@@ -121,6 +121,105 @@ defined('_JEXEC') or die('Restricted access');
             });
         }
 
+
+        // pagamento extra con bonifico (es. espen)
+        function impostaPagamentoExtra(userId) {
+
+            alertify.prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR29'); ?>",
+                '',
+                function (evt, pTotale) {
+                    setTimeout(function () {
+                        impostaPagamentoExtraTipo(userId, pTotale);
+                    }, 500);
+                })
+                .setting({
+                    'title' : 'Attenzione!'
+                })
+                .show();
+
+        }
+
+        function impostaPagamentoExtraTipo(userId, pTotale) {
+
+            alertify.prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR35'); ?>",
+                '',
+                function (evt, pTipoQuota) {
+                    setTimeout(function () {
+                        eseguiPagamentoExtra(userId, pTotale, pTipoQuota);
+                    }, 500);
+                })
+                .setting({
+                    'title' : 'Attenzione!'
+                })
+                .show();
+
+        }
+
+        function eseguiPagamentoExtra(userId, pTotale, pTipoQuota) {
+
+            if (pTotale != null
+                && pTotale != ""
+                && parseInt(pTotale) > 0) {
+
+                // controllo se è un numero
+                var pTest = pTotale % 1;
+                if (isNaN(pTest)) {
+                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
+                    return;
+                } else if (pTipoQuota != 'espen') {
+                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR37'); ?>")
+                        return;
+                }
+                else {
+
+                    jQuery.get("index.php?option=com_gglms&task=users.inserisci_pagamento_extra", {
+                        user_id: userId,
+                        totale: pTotale,
+                        tipo_quota: pTipoQuota
+                    })
+                        .done(function (results) {
+
+                            // risposta non conforme
+                            if (typeof results != "string"
+                                || results == "") {
+                                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                                return;
+                            } else {
+
+                                // errore
+                                var objRes = JSON.parse(results);
+                                if (typeof objRes.error != "undefined") {
+                                    customAlertifyAlertSimple(objRes.error);
+                                    return;
+                                }
+                                // successo
+                                else if (typeof objRes.success != "undefined") {
+                                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR23'); ?>");
+                                    //window.location.reload();
+                                    pTable.bootstrapTable('refresh');
+                                }
+                                // errore non gestito
+                                else {
+                                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
+                                }
+
+
+                            }
+
+                        }).fail(function () {
+                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+                    });
+
+                }
+
+
+            } else {
+                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR24'); ?>");
+            }
+
+        }
+
+        // da decaduto a moroso
         function impostaMoroso(userId) {
 
             alertify.confirm()
@@ -174,6 +273,7 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
+        // da moroso ad online
         function impostaPagato(userId) {
 
             alertify.confirm()
@@ -187,10 +287,25 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
-        // inserimento del pagamento della quota a mezzo bonifico
         function eseguiImpostaPagato(userId) {
 
-                var pTotale = prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR29'); ?>");
+            alertify.prompt("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR29'); ?>",
+                            '',
+                            function (evt, pTotale) {
+                                setTimeout(function () {
+                                    eseguiPagamento(userId, pTotale);
+                                }, 500);
+
+                            })
+                            .setting({
+                                'title' : 'Attenzione!'
+                            })
+                            .show();
+
+        }
+
+        // inserimento del pagamento della quota a mezzo bonifico
+        function eseguiPagamento(userId, pTotale) {
 
                 if (pTotale != null
                     && pTotale != ""

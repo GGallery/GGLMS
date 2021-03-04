@@ -344,6 +344,7 @@ class gglmsControllerUsers extends JControllerLegacy
                                                                             $_dettagli_transazione,
                                                                             $data_pagamento,
                                                                             strtolower($modalita_pagamento),
+                                                                            null,
                                                                             false);
 
                     if (!is_array($_pagamento)) {
@@ -1012,6 +1013,60 @@ HTML;
         $app->close();
     }
 
+    public function inserisci_pagamento_extra() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $user_id = $params["user_id"];
+            $totale = $params["totale"];
+            $tipo_quota = $params["tipo_quota"];
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", 1);
+
+            if (!isset($totale)
+                || $totale == ""
+                || $totale == 0)
+                throw new Exception("Missing totale", 1);
+
+            if (!isset($tipo_quota)
+                || $tipo_quota == "")
+                throw new Exception("Missing service type", 1);
+
+            $dt = new DateTime();
+            $_anno_quota = $dt->format('Y');
+
+            $_user = new gglmsModelUsers();
+
+            $_bonifico = $_user->insert_user_quote_anno_bonifico($user_id,
+                                                                $_anno_quota,
+                                                                $totale,
+                                                                "",
+                                                                null,
+                                                                null,
+                                                                $tipo_quota,
+                                                                true);
+
+            if (!is_array($_bonifico))
+                throw new Exception($_bonifico, 1);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
     public function inserisci_pagamento_moroso() {
 
         $app = JFactory::getApplication();
@@ -1041,6 +1096,7 @@ HTML;
                                                                 $_anno_quota,
                                                                 $totale,
                                                                 "",
+                                                                null,
                                                                 null,
                                                                 null,
                                                                 true);
@@ -1229,7 +1285,7 @@ HTML;
 
                                 if (is_null($_user_id))
                                     $value = <<<HTML
-                                    <a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="confermaAcquistaEvento({$_quota['id_pagamento']}, {$_quota['user_id']}, {$_quota['gruppo_corso']})">{$_label_conferma_acquisto} {$_quota['titolo_corso']}</a>
+                                    <a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="confermaAcquistaEvento({$_quota['id_pagamento']}, {$_quota['user_id']}, {$_quota['gruppo_corso']})">{$_label_conferma_acquisto} {$_quota['titolo_corso']}</a>
 HTML;
                                 else
                                     $value = $_label_conferma_acquisto_user . ' ' . $_quota['titolo_corso'];
@@ -1304,6 +1360,7 @@ HTML;
             $_label_attiva = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR11');
             $_label_paga = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR20');
             $_label_iscrivi = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR26');
+            $_label_extra = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR36');
             $_ref_ug = "";
 
             // se non specificato carico online
@@ -1331,6 +1388,8 @@ HTML;
                                 $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
                             else if (in_array($value, explode(",", $gruppi_preiscritto)))
                                 $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaMoroso(' . $_socio['user_id'] . ')">' . $_label_iscrivi . '</a>';
+                            else if (in_array($value, explode(",", $gruppi_online)))
+                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaPagamentoExtra(' . $_socio['user_id'] . ')">' . $_label_extra . '</a>';
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
                         }

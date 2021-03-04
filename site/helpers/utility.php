@@ -790,6 +790,32 @@ class utilityHelper
 
     }
 
+    // controllo esistenza utente per colonna e valore
+    public static function check_user_by_column($target_col, $target_val) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id')
+                ->from('#__users')
+                ->where($target_col . " = " . $db->quote($target_val));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadRow())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results[0]) ? $results[0] : null;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
     // controllo esistenza utente su username
     public static function check_user_by_username($username) {
 

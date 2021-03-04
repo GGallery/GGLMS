@@ -305,7 +305,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 // name e username prima lettera nome + cognome
                 $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
                 $_new_user['username'] = $_new_user['name'];
-                $_new_user['email'] = $email_utente;
+                $_new_user['email'] = trim($email_utente);
                 $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
 
                 // controllo il codice fiscale
@@ -321,6 +321,11 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     throw new Exception($_err, 1);
                 }
 
+                // controllo validità email
+                if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], 1);
+                }
+
                 // verifico l'esistenza delle colonne minimali per l'inserimento utente
                 $_test_users_fields = UtilityHelper::check_new_user_array($_new_user);
                 if ($_test_users_fields != "") {
@@ -332,6 +337,11 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     //throw new Exception("USERNAME ESISTENTE: ". $_new_user['username'], 1);
                     // aggiungo dei numeri randomici
                     $_new_user['username'] = $_new_user['username'] . rand(1, 999);
+                }
+
+                // controllo esistenza email utente
+                if (UtilityHelper::check_user_by_column('email', $_new_user['email'])) {
+                    throw new Exception("EMAIL ESISTENTE: ". $_new_user['email'], 1);
                 }
 
                 // inserimento utente

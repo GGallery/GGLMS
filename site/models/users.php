@@ -807,6 +807,7 @@ class gglmsModelUsers extends JModelLegacy
                                                     $_dettagli_transazione = "",
                                                     $_data_pagamento = null,
                                                     $_modalita_pagamento = null,
+                                                    $_tipo_quota = null,
                                                     $send_email=true) {
 
         try {
@@ -815,6 +816,7 @@ class gglmsModelUsers extends JModelLegacy
             $dt = new DateTime();
             $_data_creazione = (is_null($_data_pagamento)) ? $dt->format('Y-m-d H:i:s') : $_data_pagamento;
             $_pagamento = (is_null($_modalita_pagamento)) ? 'bonifico' : $_modalita_pagamento;
+            $_quota = is_null($_tipo_quota) ? 'quota' : $_tipo_quota;
 
             $this->_db->transactionStart();
 
@@ -830,13 +832,13 @@ class gglmsModelUsers extends JModelLegacy
                             VALUES ";
 
             $query .= "(
-                               '" . $user_id . "',
-                               '" . $_anno_quota . "',
-                               'quota',
-                               '" . $_pagamento . "',
-                               '" . $_data_creazione . "',
-                               '" . $_totale . "',
-                               '" . $_dettagli_transazione . "'
+                               " . $this->_db->quote($user_id) . ",
+                               " . $this->_db->quote($_anno_quota) . ",
+                               " . $this->_db->quote($_quota) . ",
+                               " . $this->_db->quote($_pagamento) . ",
+                               " . $this->_db->quote($_data_creazione) . ",
+                               " . $this->_db->quote($_totale) . ",
+                               " . $this->_db->quote($_dettagli_transazione) . "
                             )";
 
             $this->_db->setQuery($query);
