@@ -750,125 +750,97 @@ HTML;
                 </div>
             </div>
             <hr />
-            <div class="row">
-                <div class="col-xs-3">
-                    Nome<span style="color: red">*</span>:
+            <form>
+            
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="nome_utente">Nome<span style="color: red">*</span></label>
+                        <input class="form-control" type="text" id="nome_utente" data-campo="{$_cb_nome}" placeholder="Nome"/>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="cognome_utente">Cognome<span style="color: red">*</span></label>
+                        <input class="form-control" type="text" id="cognome_utente"  data-campo="{$_cb_cognome}" placeholder="Cognome" />
+                    </div>
                 </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" id="nome_utente" data-campo="{$_cb_nome}"  value="" />
+                
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="password_utente">Password<span style="color: red">*</span></label>
+                        <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="ripeti_password_utente">Ripeti password<span style="color: red">*</span></label>
+                        <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
+                    </div>
+                </div>          
+            
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="cf_utente">Codice fiscale<span style="color: red">*</span></label>
+                        <input class="form-control" type="text" id="cf_utente" maxlength="16" data-campo="{$_cb_cf}" placeholder="Codice fiscale" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="email_utente">Email<span style="color: red">*</span></label>
+                        <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="Email" />
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Cognome<span style="color: red">*</span>:
+                
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="citta_utente">Città di nascita<span style="color: red">*</span></label>
+                        <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="Città di nascita" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="pv_nascita_utente">Provincia di nascita<span style="color: red">*</span></label>
+                        <select id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
+                            <option value="">-</option>
+                            {$_cb_provinciadinascita_options}
+                        </select>
+                    </div>
                 </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" id="cognome_utente"  data-campo="{$_cb_cognome}" value="" />
+                
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="data_nascita_utente">Data di nascita<span style="color: red">*</span></label>
+                        <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Codice fiscale<span style="color: red">*</span>:
+         
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="telefono_utente">Telefono<span style="color: red">*</span></label>
+                        <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="Telefono" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="professione_utente">Professione<span style="color: red">*</span></label>
+                        <select id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
+                            <option value="">-</option>
+                            {$_cb_professione_disciplina_options}
+                        </select>      
+                    </div>
                 </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" id="cf_utente" maxlength="16" data-campo="{$_cb_cf}" value="" />
+                
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="laureain_utente">Laurea in<span style="color: red">*</span></label>
+                        <select id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
+                            <option value="">-</option>
+                            {$_cb_laureain_options}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="anno_laurea_utente">Anno di laurea<span style="color: red">*</span></label>
+                        <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  placeholder="Anno di laurea" />
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Città di nascita<span style="color: red">*</span>:
+           
+                 <div class="form-row">
+                    <div class="col-md-12 text-center">
+                        <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                    </div>
                 </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" id="citta_utente" style="width: 220px;"  value="" data-campo="{$_cb_citta}" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Provincia di nascita<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <select id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
-                        <option value="">-</option>
-                        {$_cb_provinciadinascita_options}
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Data di nascita<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="date" id="data_nascita_utente" style="width: 220px;"  value="" data-campo="{$_cb_data_nascita}" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Email<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="email" id="email_utente" style="width: 220px;" value="" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Telefono<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  value="" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Professione<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                  <select id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
-                    <option value="">-</option>
-                    {$_cb_professione_disciplina_options}
-                  </select>  
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Laurea in<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <select id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
-                        <option value="">-</option>
-                        {$_cb_laureain_options}
-                    </select>  
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Anno di laurea<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  value="" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Password<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">
-                    Ripeti password<span style="color: red">*</span>:
-                </div>
-                <div class="col-xs-6">
-                    <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
-                </div>
-            </div>
-            <input type="hidden" id="token" value="{$token}" />
+                <input type="hidden" id="token" value="{$token}" />
+            </form>
 HTML;
             $_ret['success'] = $_html;
             return $_ret;

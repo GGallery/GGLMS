@@ -168,6 +168,12 @@ defined('_JEXEC') or die;
 
         jQuery(function() {
 
+
+            jQuery('.datepicker').datepicker({
+                language: '<?php echo $this->dp_lang; ?>',
+                format: 'dd/mm/yyyy'
+            });
+
             // inizializza form PayPal
             if (jQuery('#paypal-button-container').length)
                 initPayPalButton();
