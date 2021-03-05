@@ -1065,7 +1065,7 @@ HTML;
             $dt = new DateTime($_unit->data_inizio);
             $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento($sconto_data, $sconto_custom, $in_groups, $_unit);
 
-            $_descr_checkbox_evento = "Acquisto " . $_unit->titolo . " del " . $dt->format('d/m/Y');
+            $_descr_checkbox_evento = "Acquisto " . $_unit->titolo;
             $_descr_checkbox_evento .= $_tipo_sconto['descrizione_sconto'] != "" ? ' ' . $_tipo_sconto['descrizione_sconto'] : '';
 
             $_style_totale = $_tipo_sconto['label_sconto'] != "" ? 'style="text-decoration: line-through;"' : '';
