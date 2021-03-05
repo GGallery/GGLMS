@@ -37,8 +37,8 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
         try {
 
 
-            JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
-            JHtml::_('script', '/components/com_gglms/libraries/js/bootstrap.min.js');
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
 
             /*
             // campi encoded dalla chiamata

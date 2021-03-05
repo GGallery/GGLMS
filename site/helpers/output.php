@@ -745,7 +745,7 @@ HTML;
 
             $_html = <<<HTML
             
-            <link href="/home/components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
+            <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
             
             <div class="row">
                 <div class="col-12">
@@ -823,7 +823,7 @@ HTML;
                       <div class="col-25">
                         <label for="pv_nascita_utente">Provincia di nascita<span style="color: red">*</span></label>
                       </div>
-                      <div class="col-75">
+                      <div class="col-25">
                         <select id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
                                 <option value="">-</option>
                                 {$_cb_provinciadinascita_options}
@@ -853,7 +853,7 @@ HTML;
                       <div class="col-25">
                         <label for="professione_utente">Professione<span style="color: red">*</span></label>
                       </div>
-                      <div class="col-75">
+                      <div class="col-25">
                         <select id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
                                 <option value="">-</option>
                                 {$_cb_professione_disciplina_options}
@@ -865,7 +865,7 @@ HTML;
                       <div class="col-25">
                         <label for="laureain_utente">Laurea in<span style="color: red">*</span></label>
                       </div>
-                      <div class="col-75">
+                      <div class="col-25">
                         <select id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
                                 <option value="">-</option>
                                 {$_cb_laureain_options}

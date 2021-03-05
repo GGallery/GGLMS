@@ -41,12 +41,12 @@ class gglmsViewdettagliutente extends JViewLegacy
     {
 
         try {
-            JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
             JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
 
-            JHtml::_('script', '/components/com_gglms/libraries/js/bootstrap.min.js');
+            JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 

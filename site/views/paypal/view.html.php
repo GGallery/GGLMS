@@ -32,8 +32,8 @@ class gglmsViewPaypal extends JViewLegacy {
         try {
 
 
-            JHtml::_('stylesheet', '/components/com_gglms/libraries/css/bootstrap.min.css');
-            JHtml::_('script', '/components/com_gglms/libraries/js/bootstrap.min.js');
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
 
             // campi encoded dalla chiamata
