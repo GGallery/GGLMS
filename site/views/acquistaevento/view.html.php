@@ -279,6 +279,12 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                         && $request_obj[$sub_key]['campo'] == 'password_utente') {
                         $password_utente = $request_obj[$sub_key]['value'];
                     }
+                    else if (isset($request_obj[$sub_key]['campo'])
+                        && $request_obj[$sub_key]['campo'] == 'data_nascita_utente') {
+                        // format date artigianale
+                        $_tmp_date = date("Y-m-d", strtotime(str_replace('/', '-', trim($request_obj[$sub_key]['value']))));
+                        $request_obj[$sub_key]['value'] = $_tmp_date;
+                    }
 
                     // campi cb
 
