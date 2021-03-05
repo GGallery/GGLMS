@@ -761,7 +761,7 @@ HTML;
                         <label for="nome_utente">Nome<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="nome_utente" data-campo="{$_cb_nome}" placeholder="Nome"/>
+                        <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="Nome" />
                       </div>
                     </div>
                     
@@ -770,7 +770,7 @@ HTML;
                         <label for="cognome_utente">Cognome<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="cognome_utente"  data-campo="{$_cb_cognome}" placeholder="Cognome" />
+                        <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="Cognome" />
                       </div>
                     </div>
                     
@@ -797,7 +797,7 @@ HTML;
                         <label for="cf_utente">Codice fiscale<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="cf_utente" maxlength="16" data-campo="{$_cb_cf}" placeholder="Codice fiscale" />
+                        <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="Codice fiscale" />
                       </div>
                     </div>
                     
@@ -975,6 +975,8 @@ HTML;
                 </div>
             </div>
             <hr />
+            <br />
+            <br />
             <div class="row">
                 <div class="col-xs-6 text-center">
                     <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_accedi}">{$_label_accedi}</button>
