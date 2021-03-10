@@ -1383,13 +1383,13 @@ HTML;
 
                             $_azione_btn = "";
                             if (in_array($value, explode(",", $gruppi_decaduto)))
-                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="riabilitaDecaduto(' . $_socio['user_id'] . ')">' . $_label_attiva . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="riabilitaDecaduto(' . $_socio['user_id'] . ')">' . $_label_attiva . '</a>';
                             else if (in_array($value, explode(",", $gruppi_moroso)))
-                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['user_id'] . ')">' . $_label_paga . '</a>';
                             else if (in_array($value, explode(",", $gruppi_preiscritto)))
-                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaMoroso(' . $_socio['user_id'] . ')">' . $_label_iscrivi . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaMoroso(' . $_socio['user_id'] . ')">' . $_label_iscrivi . '</a>';
                             else if (in_array($value, explode(",", $gruppi_online)))
-                                $_azione_btn = '<a href="javascript:" class="btn btn-default" style="min-height: 50px;" onclick="impostaPagamentoExtra(' . $_socio['user_id'] . ')">' . $_label_extra . '</a>';
+                                $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagamentoExtra(' . $_socio['user_id'] . ')">' . $_label_extra . '</a>';
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
                         }
