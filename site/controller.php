@@ -59,7 +59,9 @@ class gglmsController extends JControllerLegacy
         JHtml::_('jquery.framework');
 
 
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
+        //JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
+        //JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/mediaelement/3.2.4/mediaelement-and-player.min.js');
+        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.min.js');
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');
 
 
@@ -70,7 +72,9 @@ class gglmsController extends JControllerLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupondispenser.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
+        //JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
+        //JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/mediaelement/3.2.4/mediaelementplayer.min.css');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.min.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/helpdesk.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
 

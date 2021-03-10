@@ -82,6 +82,9 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 throw new Exception("Nessun parametro definito", 1);
 
             $dt = new DateTime();
+            // semaforo per la visualizzazione degli errori al lancio di eccezioni
+            $this->show_view = true;
+
             // decodifica dell'attributo pp
             $decode_pp = UtilityHelper::encrypt_decrypt('decrypt', $pp, 'GGallery00!', 'GGallery00!');
             $decode_arr = explode('|==|', $decode_pp);
@@ -94,27 +97,25 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 throw new Exception("La richiesta effettuta non può essere evasa in quanto incompleta", 1);
 
             if (!isset($decode_arr[0])
-                || $decode_arr[0] == ""
-                || filter_var($decode_arr[0], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Missing price", 1);
+                || $decode_arr[0] == "")
+                throw new Exception("Prezzo non disponibile", 1);
 
             if (!isset($decode_arr[1])
                 || $decode_arr[1] == ""
                 || filter_var($decode_arr[1], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Missing unit id", 1);
+                throw new Exception("Nessun identificativo evento", 1);
 
             if (!isset($decode_arr[2])
                 || $decode_arr[2] == ""
                 || filter_var($decode_arr[2], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Nessun utente specificato", 1);
 
             if (!isset($decode_arr[3])
-                || $decode_arr[3] == ""
-                || filter_var($decode_arr[3], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Missing sconto data", 1);
+                || $decode_arr[3] == "")
+                throw new Exception("Nessuno sconto indicato", 1);
 
             if (!isset($decode_arr[4]))
-                throw new Exception("Missing sconto custom", 1);
+                throw new Exception("Nessuno sconto custom indicato", 1);
 
             if (!isset($decode_arr[5])
                 || $decode_arr[5] == ""
@@ -129,7 +130,6 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             $this->in_groups = $decode_arr[5];
 
             $_config = new gglmsModelConfig();
-            $this->show_view = true;
 
             // provengo dal modulo cliccando sul pulsante Acquista
             if ($this->action == 'buy') {
@@ -165,6 +165,15 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     if (is_null($this->client_id)
                         || $this->client_id == "")
                         throw new Exception("Client ID di PayPal non valorizzato!", 1);
+
+                    // devo controlla se l'utente ha già richiesto l'evento
+                    // mi servono informazioni sull'unita
+                    $unit_model = new gglmsModelUnita();
+                    $_unit = $unit_model->getUnita($this->unit_id);
+                    $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+                    $_already_request = utilityHelper::get_acquisto_evento_richiesto($this->user_id, $unit_gruppo);
+                    if ($_already_request)
+                        throw new Exception("Evento acquistato oppure in attesa del bonifico", 1);
 
                     $_payment_form = outputHelper::get_payment_form_acquisto_evento($this->unit_prezzo,
                                                                                     $this->unit_id,
@@ -421,6 +430,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             }
 
         } catch (Exception $e){
+
+            DEBUGG::log($e->getMessage() . ' -> ' . print_r($decode_arr, true), 'acquistaevento', 0, 1, 0);
 
             // echo senza mostrare la vista
             if (!$this->show_view) {

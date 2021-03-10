@@ -1489,4 +1489,42 @@ HTML;
         return $_html;
     }
 
+    public static function check_subtitles_solovideo($check_path, $content_path) {
+
+        /*
+         * <track kind="subtitles" label="English" src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/'; ?>mediaelement.srt" srclang="en">
+         * */
+        $_html = "";
+        $_arr_files = array();
+        $subs_list = UtilityHelper::files_list_from_folder($check_path);
+        if (!is_array($subs_list)
+            || count($subs_list) == 0)
+            return "";
+
+        foreach ($subs_list as $file_key => $file) {
+
+            if (strpos($file, 'subtitle_') !== false)
+                $_arr_files[] = $file;
+
+        }
+
+        if (count($_arr_files) == 0)
+            return "";
+
+        foreach ($_arr_files as $arr_key => $track) {
+
+            $_tmp_arr = explode("_", basename($track, ".srt"));
+            $_label = ucwords($_tmp_arr[1]);
+            $_lang = strtolower(($_tmp_arr[2]));
+            $_src = $content_path . '/' . $track;
+
+            $_html .= <<<HTML
+                <track kind="subtitles" label="{$_label}" src="{$_src}" srclang="{$_lang}" />
+HTML;
+        }
+
+        return $_html;
+
+    }
+
 }

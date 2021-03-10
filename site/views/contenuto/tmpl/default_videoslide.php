@@ -187,7 +187,12 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             <source type="video/ogg"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.ogv'; ?>"/>
             */?>
-            <track kind="slides" src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/'; ?>vtt_slide.vtt"/>
+            <track
+                    kind="slides"
+                    src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/'; ?>vtt_slide.vtt"
+                    label="slides"
+                    srclang="" />
+
         </video>
 
 
@@ -213,7 +218,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
     </div>
 
     <!--desktop-->
-    <div id="panel_jumper" class="sidepanel layout-desktop  ">
+    <div id="panel_jumper" class="sidepanel layout-desktop">
         <?php
             echo outputHelper::buildPanelJumperBox($this->jumper, $this->contenuto);
         ?>

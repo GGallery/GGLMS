@@ -225,8 +225,12 @@ class gglmsModelcoupon extends JModelLegacy
 
             // calcolo data_scadenza_calc come data_scadenza + durata
             // aggiunto order by data scadenza così da prendere il coupon con la data di scadenza meno prossima in caso di corrispondenza multiple
+            // eseguo il test della scandenza tipo mysql
             $query = $this->_db->getQuery(true)
-                ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc , c.data_utilizzo')
+                ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc, 
+                            c.data_utilizzo,
+                            (case when ((c.data_utilizzo + interval c.durata day) < now()) then 1 else 0 end) AS scaduto
+                            ')
                 ->from('#__gg_coupon AS c')
                 ->where('c.id_utente = ' . $this->_user->id)
                 ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')')
@@ -238,8 +242,6 @@ class gglmsModelcoupon extends JModelLegacy
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
 
-
-
             $data_scadenza_calc = strtotime($results['data_scadenza_calc']);
             $today = strtotime(date("Y-m-d"));
 
@@ -247,7 +249,9 @@ class gglmsModelcoupon extends JModelLegacy
 //            die();
 
             // se $data_scadenza_calc è minore di oggi il coupon è expired
-            return $data_scadenza_calc < $today ? true : false;
+            // passo direttamente il risultato della valutazione in mysql
+            //return $data_scadenza_calc < $today ? true : false;
+            return $results['scaduto'];
 
 
         } catch (Exception $e) {

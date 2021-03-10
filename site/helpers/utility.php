@@ -250,6 +250,17 @@ class utilityHelper
         return $result;
     }
 
+    public static function files_list_from_folder($path_folder) {
+
+        $_ret = array();
+        if (!file_exists($path_folder)) {
+            return $_ret;
+        }
+
+        return scandir($path_folder);
+
+    }
+
     /////////////////////////////////////
 
     // metodi per dropdown report, monitora coupon, generacoupon
@@ -867,6 +878,32 @@ class utilityHelper
             }
 
             return $_ret;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+    }
+
+    public static function get_acquisto_evento_richiesto($user_id, $unit_gruppo) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                        ->select('id')
+                        ->from('#__gg_quote_iscrizioni')
+                        ->where('user_id = ' . $db->quote($user_id))
+                        ->where('gruppo_corso = ' . $db->quote($unit_gruppo));
+
+            $db->setQuery($query);
+
+            $results = $db->loadAssocList();
+
+            if (count($results) > 0)
+                return true;
+
+            return false;
 
         }
         catch (Exception $e) {
