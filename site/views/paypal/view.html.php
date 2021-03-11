@@ -137,19 +137,18 @@ class gglmsViewPaypal extends JViewLegacy {
                     throw new Exception("La richiesta effettuta non può essere evasa in quanto incompleta", 1);
 
                 if (!isset($decode_arr[0])
-                    || $decode_arr[0] == ""
-                    || filter_var($decode_arr[0], FILTER_VALIDATE_INT) === false)
-                    throw new Exception("Missing price", 1);
+                    || $decode_arr[0] == "")
+                    throw new Exception("Prezzo non disponibile", 1);
 
                 if (!isset($decode_arr[1])
                     || $decode_arr[1] == ""
                     || filter_var($decode_arr[1], FILTER_VALIDATE_INT) === false)
-                    throw new Exception("Missing unit id", 1);
+                    throw new Exception("Nessun identificativo evento", 1);
 
                 if (!isset($decode_arr[2])
                     || $decode_arr[2] == ""
                     || filter_var($decode_arr[2], FILTER_VALIDATE_INT) === false)
-                    throw new Exception("Missing user id", 1);
+                    throw new Exception("Nessun utente specificato", 1);
 
                 /*
                 if (!isset($decode_arr[3])
@@ -206,6 +205,7 @@ class gglmsViewPaypal extends JViewLegacy {
 
 
         } catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'paypal', 0, 1, 0);
             die("Access denied: " . $e->getMessage());
         }
 

@@ -122,6 +122,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 || filter_var($decode_arr[5], FILTER_VALIDATE_INT) === false)
                 throw new Exception("Missing in groups", 1);
 
+
             $this->unit_prezzo = $decode_arr[0];
             $this->unit_id = $decode_arr[1];
             $this->user_id = $decode_arr[2];
