@@ -824,7 +824,7 @@ HTML;
                         <label for="pv_nascita_utente">Provincia di nascita<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
-                        <select id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
+                        <select class="form-control" id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
                                 <option value="">-</option>
                                 {$_cb_provinciadinascita_options}
                             </select>
@@ -854,7 +854,7 @@ HTML;
                         <label for="professione_utente">Professione<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
-                        <select id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
+                        <select class="form-control" id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
                                 <option value="">-</option>
                                 {$_cb_professione_disciplina_options}
                             </select>
@@ -866,7 +866,7 @@ HTML;
                         <label for="laureain_utente">Laurea in<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
-                        <select id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
+                        <select class="form-control" id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
                                 <option value="">-</option>
                                 {$_cb_laureain_options}
                             </select>
