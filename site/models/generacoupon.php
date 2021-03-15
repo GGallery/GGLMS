@@ -472,6 +472,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
         // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
         $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
 
+        // verifico da impostazione se voglio vedere il name del tutor nel titolo della E-mail di generazione
+        // proprietà company_name Es. Generazione coupon NameTutor
+        $mostra_nome_societa = $this->_config->getConfigValue('nome_azienda_intestazione_email_coupon');
+        if ($mostra_nome_societa == 0)
+            $nome_societa = "";
 
         $mailer = JFactory::getMailer();
         $mailer->setSender($sender);

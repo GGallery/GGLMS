@@ -608,6 +608,7 @@
             <option value="0">OFF</option>
             <option value="1">ON</option>
         </field>
+
         <field
                 name="specifica_durata_coupon"
                 type="radio"
@@ -616,6 +617,19 @@
                 labelclass="control-label"
                 description="Se ON specificare la durata di ogni coupon al momento della generazione. Se OFF tutti i coupon sono generati con la durata standard "
                 default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
+                name="nome_azienda_intestazione_email_coupon"
+                type="radio"
+                class="btn-group"
+                label="Titolo E-mail generazione con name del tutor aziendale"
+                labelclass="control-label"
+                description="Se ON visualizza il name (ragione sociale, colonna name in users) del tutor aziendale nel titolo dell'E-mail di generazione. Default ON"
+                default="1"
         >
             <option value="0">OFF</option>
             <option value="1">ON</option>

@@ -31,6 +31,10 @@
     </div>
 
     <div class="row-fluid">
+        <?php echo $this->form->renderField('nome_azienda_intestazione_email_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
         <?php echo $this->form->renderField('durata_standard_coupon'); ?>
     </div>
 

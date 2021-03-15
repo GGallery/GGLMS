@@ -46,115 +46,287 @@ class allineaGGLog extends JApplicationCli {
 
             $this->out(date('d/m/Y H:i:s') . ' - inizio esecuzione script');
 
-            $query = $db->getQuery(true);
-            $subq = $db->getQuery(true);
+            $scorm_filter_data = $this->input->get('scorm_filter_data', '');
+            $scorm_exe_init = $this->input->get('scorm_exe_init', 0);
 
-            $subq = $subq->select('scoid, userid, varValue, timestamp')
-                ->from('#__gg_scormvars')
-                ->where('varName = \'cmi.core.total_time\'');
+            // reset delle varibili caso mai fossere state abilitate
+            $_tmp_completed_insert = array();
+            $_rand_check = array();
+            $_uniq = null;
 
-            $query = $query->select('r.permanenza_tot AS log_tempo,
-                                    subq.varValue AS scorm_tempo,
-                                    r.id_contenuto AS log_id_contenuto,
-                                    subq.scoid AS scorm_id_contenuto,
-                                    r.id_utente AS log_user,
-                                    subq.userid AS scorm_user,
-                                    subq.timestamp AS scorm_timestamp')
-                ->from('#__gg_report r')
-                ->join('inner', '#__gg_contenuti c ON r.id_contenuto = c.id')
-                ->join('inner', '(' . $subq . ') AS subq ON r.id_contenuto = subq.scoid AND r.id_utente = subq.userid')
-                ->where('c.tipologia != 7')
-                ->where('r.stato = 1')
-                ->where('r.permanenza_tot < subq.varValue')
-                ->where('r.id_utente > 0')
-                ->order('r.permanenza_tot');
+            $_insert_log = "INSERT INTO #__gg_log (
+                                                  id_utente,
+                                                  id_contenuto,
+                                                  data_accesso,
+                                                  uniqid,
+                                                  permanenza)
+                                                  VALUES ";
 
-            $db->setQuery($query, 0, 5);
-            $results = $db->loadAssocList();
-            $rs_num_rows = count($results);
+            $db->setQuery('SET sql_mode=\'\'');
+            $db->execute();
 
-            if ($rs_num_rows == 0)
-                throw new Exception("Nessuna contenuto appare disallineato fra gg_log e gg_scormvars", 1);
+            // seleziono tutti i contenuti in stato init quindi iniziati di cui devo prendere scoid e user_id
+            // per capire quali sono completati
 
-            $_arr_query = array();
-            $counter = 0;
+            if ($scorm_exe_init == 1) {
 
-            foreach ($results as $key => $sub) {
+                $query = $db->getQuery(true)
+                    ->select('*')
+                    ->from('#__gg_scormvars');
 
-                // controllo se i contenuti sono congruenti fra le due tabelle
-                if ($sub['log_user'] != $sub['scorm_user']
-                    || $sub['log_id_contenuto'] != $sub['scorm_id_contenuto'])
-                    continue;
+                if ($scorm_filter_data != '')
+                    $query = $query->where('DATE_FORMAT(timestamp, "%Y-%m-%d") < ' . $db->quote($scorm_filter_data));
 
-                $db->setQuery('SET sql_mode=\'\'');
-                $db->execute();
+                $query = $query->where("varName = 'cmi.core.lesson_status'")
+                    ->where("varValue = 'init'")
+                    ->order("timestamp, scoid, userid");
 
-                // va controllato se in gg_log esiste una corrispondenza
-                /*
-                 * SELECT id AS id_log, id_contenuto, id_utente, SUM(permanenza) AS permanenza_tot
-                 * FROM #__gg_log
-                 * WHERE id_contenuto = $sub['log_id_contenuto'] AND id_utente = $sub['log_user']
-                 * GROUP BY id_contenuto, id_utente
-                   ORDER BY data_accesso DESC
+                $db->setQuery($query);
+                $results_iniziati = $db->loadAssocList();
 
-                - se esiste un riferimento prendo l'ultima aggiungo la differenza fra permanenza_tot e scorm_tempo
-                UPDATE #__gg_log SET permanenza = ($sub['scorm_tempo'] - permanenza_tot) WHERE id = id_log
-                - se non esiste devo inserire la referenza in gg_log
-                INSERT INTO #__gg_log (id_utente, id_contenuto, data_accesso, uniq, permanenza)
-                                VALUES ($sub['log_user'], $sub['log_id_contenuto'], $sub['scorm_timestamp'], rand(), $sub['scorm_tempo'])
-                */
-            }
+                $counter_init = 0;
+                if (count($results_iniziati) > 0) {
 
-            /*
-            $mask_insert = "INSERT INTO #__gg_log (id, permanenza) 
-                              VALUES ";
+                    foreach ($results_iniziati as $k_iniziati => $iniziato) {
 
-            foreach ($results as $key => $sub) {
+                        // controllo anche se è già in gg_log
+                        // nel caso la precedenza è per il dato esistente
+                        $query_log = $db->getQuery(true)
+                            ->select('*')
+                            ->from('#__gg_log')
+                            ->where('id_utente = ' . $db->quote($iniziato['userid']))
+                            ->where('id_contenuto = ' . $db->quote($iniziato['scoid']));
 
-                // controllo se i contenuti sono congruenti fra le due tabelle
-                if ($sub['log_user'] != $sub['scorm_user']
-                    || $sub['log_id_contenuto'] != $sub['scorm_id_contenuto']
-                    || $sub['scorm_value'] != 'completed')
-                    continue;
+                        $db->setQuery($query_log);
+                        $_row_results_log = $db->loadAssocList();
+                        if (count($_row_results_log) > 0) {
+                            $this->out(date('d/m/Y H:i:s') . " content init in gg_log -> 
+                                                                                id_utente " . $iniziato['userid'] . "
+                                                                                id_contenuto " . $iniziato['scoid']);
+                            continue;
+                        }
 
-                $_insert = "(
-                                '" . $sub['log_id'] . "',
-                                '" . $sub['scorm_tempo'] . "'
-                            ), ";
+                        $query = $db->getQuery(true)
+                            ->select('*')
+                            ->from('#__gg_scormvars')
+                            ->where("varName = 'cmi.core.lesson_status'")
+                            ->where("varValue != 'init'")
+                            ->where('scoid = ' . $db->quote($iniziato['scoid']))
+                            ->where('userid = ' . $db->quote($iniziato['userid']));
 
-                $_arr_query[] = $_insert;
-            }
+                        $db->setQuery($query);
+                        $_row_results = $db->loadAssocList();
 
-            $_arr_query_chunked = array_chunk($_arr_query, 500);
+                        // se è completato non lo inserisco
+                        if (count($_row_results) > 0) {
+                            $this->out(date('d/m/Y H:i:s') . " content init completed -> 
+                                                                                id_utente " . $iniziato['userid'] . "
+                                                                                id_contenuto " . $iniziato['scoid']);
+                            continue;
+                        }
 
-            foreach ($_arr_query_chunked as $key => $sub_query) {
+                        while (1) {
+                            $_uniq = mt_rand(10000000, 99999999);
+                            if (!in_array($_uniq, $_rand_check))
+                                break;
+                        }
 
-                $db->transactionStart();
+                        $_rand_check[] = $_uniq;
+                        $_permanenza = rand(5, 10);
 
-                $_executed_query = "";
+                        $_tmp_completed_insert[] = "(
+                                                        " . $db->quote($iniziato['userid']) . ",
+                                                        " . $db->quote($iniziato['scoid']) . ",
+                                                        " . $db->quote($iniziato['timestamp']) . ",
+                                                        " . $db->quote($_uniq) . ",
+                                                        " . $db->quote($_permanenza) . "
+                                                    ), ";
 
-                foreach ($sub_query as $kk => $vv) {
 
-                    $_executed_query .= $vv;
-                    $counter++;
+                        $counter_init++;
+                        $this->out(date('d/m/Y H:i:s') . " content init riga -> " . $counter_init);
+
+                    }
+
+                    // ci sono righe da inserire in gg_log
+                    if (count($_tmp_completed_insert) > 0) {
+
+                        $db->transactionStart();
+
+                        $_arr_query_chunked = array_chunk($_tmp_completed_insert, 500);
+
+                        foreach ($_arr_query_chunked as $key => $sub_query) {
+
+                            $_executed_query = "";
+
+                            foreach ($sub_query as $kk => $vv) {
+
+                                $_executed_query .= $vv;
+
+                            }
+
+                            $_executed_query = (substr(trim($_executed_query), -1) == ",") ? substr(trim($_executed_query), 0, -1) : $_executed_query;
+                            $_row_query = $_insert_log . $_executed_query . ";";
+
+                            $db->setQuery($_row_query);
+                            $insert_result = $db->execute();
+
+                            if (!$insert_result)
+                                throw new Exception("Inserimento non andato a buon fine: " . $_row_query, 1);
+
+                        }
+
+                        $db->transactionCommit();
+
+                    }
 
                 }
 
-                $_executed_query = (substr(trim($_executed_query), -1) == ",") ? substr(trim($_executed_query), 0, -1) : $_executed_query;
-                $_row_query = $mask_insert . $_executed_query . " ON DUPLICATE KEY UPDATE permanenza = VALUES(permanenza);";
+            } // insert init
 
-                $db->setQuery($_row_query);
-                $_row_rs = $db->execute();
+            // reset delle varibili caso mai fossere state abilitate
+            $_tmp_completed_insert = array();
 
-                if (!$_row_rs)
-                    throw new Exception("Si è verifica un problema durante l'aggiornamento dei valori di gg_log. Il procedimento verrà arrestato");
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_scormvars');
+
+            // inserimento dei completati
+            if ($scorm_filter_data != '')
+                $query = $query->where('DATE_FORMAT(timestamp, "%Y-%m-%d") < ' . $db->quote($scorm_filter_data));
+
+            $query = $query->where("varName = 'cmi.core.lesson_status'")
+                            ->where("varValue != 'init'")
+                            ->order("timestamp, scoid, userid");
+
+            $db->setQuery($query);
+            $results_completati = $db->loadAssocList();
+
+            // controllo se degli init sono stati completati
+            if (count($results_completati) == 0)
+                throw new Exception("Nessun contenuto scorm da migrare", 1);
+
+            $counter_completed = 0;
+            foreach ($results_completati as $k_completato => $completato) {
+
+                if ($completato['varValue'] != 'completed') {
+                    $this->out(date('d/m/Y H:i:s') . " completed not completed -> 
+                                                                                id_utente " . $completato['userid'] . "
+                                                                                id_contenuto " . $completato['scoid']);
+                    continue;
+                }
+
+                // controllo anche se è già in gg_log
+                // nel caso la precedenza è per il dato esistente
+                $query_log = $db->getQuery(true)
+                                        ->select('*')
+                                        ->from('#__gg_log')
+                                        ->where('id_utente = ' . $db->quote($completato['userid']))
+                                        ->where('id_contenuto = ' . $db->quote($completato['scoid']));
+
+                $db->setQuery($query_log);
+                $_row_results_log = $db->loadAssocList();
+                if (count($_row_results_log) > 0) {
+                    $this->out(date('d/m/Y H:i:s') . " completed in gg_log -> 
+                                                                                id_utente " . $completato['userid'] . "
+                                                                                id_contenuto " . $completato['scoid']);
+                    continue;
+                }
+
+                // prendo scoid e userid per controllare se esiste il riferimento al total_time
+                $_select_complete = $db->getQuery(true)
+                    ->select('varValue as total_time')
+                    ->from('#__gg_scormvars')
+                    ->where('scoid = ' . $db->quote($completato['scoid']))
+                    ->where('userid = ' . $db->quote($completato['userid']));
+                $db->setQuery($_select_complete);
+                $_permanenza = $db->loadResult();
+
+                // non mi ha trovato il valore total_time, lo prendo allora a da un altro contenuto possibilmente valorizzato
+                if (is_null($_permanenza)
+                    || $_permanenza == ""
+                    || $_permanenza == 0) {
+
+                    $this->out(date('d/m/Y H:i:s') . " completed nessun total_time -> 
+                                                                                id_utente " . $completato['userid'] . "
+                                                                                id_contenuto " . $completato['scoid']);
+
+                    $_select_complete_extra = $db->getQuery(true)
+                        ->select('varValue as total_time')
+                        ->from('#__gg_scormvars')
+                        ->where('scoid = ' . $db->quote($completato['scoid']))
+                        ->where("varName = 'cmi.core.total_time'")
+                        ->where('varValue > 0')
+                        ->group('scoid')
+                        ->order('varValue DESC');
+
+                    $db->setQuery($_select_complete_extra);
+                    $_permanenza_extra = $db->loadResult();
+                    $_permanenza = $_permanenza_extra;
+
+                }
+
+                // controllo nuovamente il valore del total_time
+                if (is_null($_permanenza)
+                    || $_permanenza == "") {
+                    $this->out(date('d/m/Y H:i:s') . " completed total_time forzato a valore di default -> 
+                                                                                id_utente " . $completato['userid'] . "
+                                                                                id_contenuto " . $completato['scoid']);
+                    $_permanenza = rand(1000, 1111);
+                }
+
+                while (1) {
+                    $_uniq = mt_rand(10000000, 99999999);
+                    if (!in_array($_uniq, $_rand_check))
+                        break;
+                }
+
+                $_rand_check[] = $_uniq;
+                $_tmp_completed_insert[] = "(
+                                                        " . $db->quote($completato['userid']) . ",
+                                                        " . $db->quote($completato['scoid']) . ",
+                                                        " . $db->quote($completato['timestamp']) . ",
+                                                        " . $db->quote($_uniq) . ",
+                                                        " . $db->quote($_permanenza) . "
+                                                    ), ";
+
+                $counter_completed++;
+                $this->out(date('d/m/Y H:i:s') . " content completed riga -> " . $counter_completed);
+
+            }
+
+            if (count($_tmp_completed_insert) > 0) {
+
+                $db->transactionStart();
+
+                $_arr_query_chunked = array_chunk($_tmp_completed_insert, 500);
+
+                foreach ($_arr_query_chunked as $key => $sub_query) {
+
+                    $_executed_query = "";
+
+                    foreach ($sub_query as $kk => $vv) {
+
+                        $_executed_query .= $vv;
+
+                    }
+
+                    $_executed_query = (substr(trim($_executed_query), -1) == ",") ? substr(trim($_executed_query), 0, -1) : $_executed_query;
+                    $_row_query = $_insert_log . $_executed_query . ";";
+
+                    $db->setQuery($_row_query);
+                    $insert_result = $db->execute();
+
+                    if (!$insert_result)
+                        throw new Exception("Inserimento non andato a buon fine: " . $_row_query, 1);
+
+                }
 
                 $db->transactionCommit();
 
             }
-            */
 
-            $this->out(date('d/m/Y H:i:s') . " - Procedimento completato sono stati aggiornati " . $counter . " su " . $rs_num_rows . " totali");
+            $this->out(date('d/m/Y H:i:s') . " - Procedimento completato -> init: " . $counter_init . " completed: " . $counter_completed);
 
 
         }
