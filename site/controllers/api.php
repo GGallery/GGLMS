@@ -57,6 +57,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->limit = JRequest::getVar('limit');
         $this->_filterparam->offset = JRequest::getVar('offset');
         $this->_filterparam->cid = JRequest::getVar('cid');
+        $this->_filterparam->user_id = JRequest::getVar('user_id');
         $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
         $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
@@ -1311,6 +1312,244 @@ class gglmsControllerApi extends JControllerLegacy
         catch (Exception $e) {
             $this->_db->transactionRollback();
             echo __FUNCTION__  . " error: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
+    // infilo un utente
+    function completa_corsi_per_utente_iscritto() {
+
+        try {
+
+            if (!isset($this->_filterparam->user_id)
+                || $this->_filterparam->user_id == "")
+                throw new Exception("Nessun utente definito", 1);
+
+            // selezioni tutti i corsi a cui un utente è iscritto
+            $select_coupon = $this->_db->getQuery(true)
+                                            ->select('id_gruppi')
+                                            ->from('#__gg_coupon')
+                                            ->where('id_utente = ' . $this->_db->quote($this->_filterparam->user_id));
+
+            $this->_db->setQuery($select_coupon);
+            $results_coupon = $this->_db->loadAssocList();
+
+            if (count($results_coupon) == 0)
+                throw new Exception("Nessuna corso disponibile per l'utente " . $this->_filterparam->user_id, 1);
+
+            $unit_contents = array();
+            foreach ($results_coupon as $key_coupon => $coupon) {
+
+                $select_map = $this->_db->getQuery(true)
+                                        ->select('um.idcontenuto, um.idunita')
+                                        ->from('#__gg_unit_map um')
+                                        ->join('inner', '#__gg_usergroup_map ug ON um.idunita = ug.idunita AND ug.idgruppo = ' . $this->_db->quote($coupon['id_gruppi']))
+                                        ->order('um.ordinamento');
+
+                $this->_db->setQuery($select_map);
+                $results_map = $this->_db->loadAssocList();
+
+                if (count($results_map) == 0)
+                    continue;
+
+                foreach ($results_map as $key_map => $map) {
+
+                    //$unit_contents[$map['idunita']][] = $map['idcontenuto'];
+                    if (!in_array($map['idcontenuto'], $unit_contents))
+                        $unit_contents[] = $map['idcontenuto'];
+
+                }
+
+            }
+
+            // controllo se ci sono contenuti da scrivere
+            if (count($unit_contents) == 0)
+                throw new Exception("Nessun contenuto da scrivere in scormvars", 1);
+
+            $dt = new DateTime();
+            $_date = $dt->format('Y-m-d');
+            $ts = $dt->format('Y-m-d H:i:s');
+
+            $this->_db->transactionStart();
+
+            foreach ($unit_contents as $content) {
+
+                $insert_scorm_1 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($this->_filterparam->user_id) . ",
+                                    'bookmark',
+                                    0,
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE 
+                                                varValue = 0,
+                                                timestamp = " . $this->_db->quote($ts) . "
+                                                ";
+
+                $insert_scorm_2 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($this->_filterparam->user_id) . ",
+                                    'cmi.core.count_views',
+                                    1,
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE 
+                                                varValue = 1,
+                                                timestamp = " . $this->_db->quote($ts) . "
+                                                ";
+
+                $insert_scorm_3 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($this->_filterparam->user_id) . ",
+                                    'cmi.core.last_visit_date',
+                                    " . $this->_db->quote($_date) . ",
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE 
+                                                varValue = " . $this->_db->quote($_date) . ",
+                                                timestamp = " . $this->_db->quote($ts) . "
+                                                ";
+
+                $insert_scorm_4 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($this->_filterparam->user_id) . ",
+                                    'cmi.core.lesson_status',
+                                    'completed',
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE 
+                                                timestamp = " . $this->_db->quote($ts) . "
+                                                ";
+
+                $insert_scorm_5 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($this->_filterparam->user_id) . ",
+                                    'cmi.core.total_time',
+                                    9999,
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE 
+                                                varValue = 9999,
+                                                timestamp = " . $this->_db->quote($ts) . "
+                                                ";
+
+                $delete_scorm_1 = "DELETE FROM #__gg_scormvars
+                                    WHERE scoid = " . $this->_db->quote($content) . "
+                                    AND userid = " . $this->_db->quote($this->_filterparam->user_id) . "
+                                    AND varValue = 'cmi.core.lesson_status'
+                                    AND varValue = 'init'";
+
+                $this->_db->setQuery($insert_scorm_1);
+                if (!$this->_db->execute())
+                    throw new Exception("Insert query 1 ko -> " . $insert_scorm_1, 1);
+
+                $this->_db->setQuery($insert_scorm_2);
+                if (!$this->_db->execute())
+                    throw new Exception("Insert query 2 ko -> " . $insert_scorm_2, 1);
+
+                $this->_db->setQuery($insert_scorm_3);
+                if (!$this->_db->execute())
+                    throw new Exception("Insert query 3 ko -> " . $insert_scorm_3, 1);
+
+                $this->_db->setQuery($insert_scorm_4);
+                if (!$this->_db->execute())
+                    throw new Exception("Insert query 4 ko -> " . $insert_scorm_4, 1);
+
+                $this->_db->setQuery($insert_scorm_5);
+                if (!$this->_db->execute())
+                    throw new Exception("Insert query 5 ko -> " . $insert_scorm_5, 1);
+
+                $this->_db->setQuery($delete_scorm_1);
+                if (!$this->_db->execute())
+                    throw new Exception("Delete query 1 ko -> " . $delete_scorm_1, 1);
+
+            }
+
+            // seleziono i contenuti init e li aggiorno a completed
+            $select_init = $this->_db->getQuery(true)
+                            ->select('scoid')
+                            ->from('#__gg_scormvars')
+                            ->where("varName = 'cmi.core.lesson_status'")
+                            ->where("varValue = 'init'")
+                            ->where('userid = ' . $this->_db->quote($this->_filterparam->user_id));
+
+            $this->_db->setQuery($select_init);
+            $results_init = $this->_db->loadAssocList();
+
+            // se ci sono contenuti init devo convertirli in completed
+            if (count($results_init) > 0) {
+
+                foreach ($results_init as $key_init => $init) {
+
+                    $update_init_1 = "UPDATE #__gg_scormvars
+                                      SET varValue = 'completed',
+                                      timestamp = " . $this->_db->quote($ts) . "
+                                        WHERE scoid = " . $this->_db->quote($init['scoid']) . "
+                                        AND userid = " . $this->_db->quote($this->_filterparam->user_id) . "
+                                        AND varValue = 'init'
+                                    ";
+
+                    $update_init_2 = "UPDATE #__gg_scormvars
+                                      SET varValue = " . $this->_db->quote($_date) . ",
+                                      timestamp = " . $this->_db->quote($ts) . "
+                                        WHERE scoid = " . $this->_db->quote($init['scoid']) . "
+                                        AND userid = " . $this->_db->quote($this->_filterparam->user_id) . "
+                                        AND varValue = 'cmi.core.last_visit_date'
+                                    ";
+
+                    $insert_scorm_1 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($init['scoid']) . ", 
+                                    " . $this->_db->quote($this->_filterparam->user_id) . ",
+                                    'cmi.core.total_time',
+                                    9999,
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE 
+                                                varValue = 9999,
+                                                timestamp = " . $this->_db->quote($ts) . "
+                                                ";
+
+
+                    $this->_db->setQuery($update_init_1);
+                    if (!$this->_db->execute())
+                        throw new Exception("Update init query 1 ko -> " . $update_init_1, 1);
+
+                    $this->_db->setQuery($update_init_2);
+                    if (!$this->_db->execute())
+                        throw new Exception("Update init query 2 ko -> " . $update_init_2, 1);
+
+                    $this->_db->setQuery($insert_scorm_1);
+                    if (!$this->_db->execute())
+                        throw new Exception("Insert init query 2 ko -> " . $insert_scorm_1, 1);
+
+
+                }
+
+                $this->_db->transactionCommit();
+
+            }
+
+
+            echo "Operazione terminata: " . date('d/m/Y H:i:s');
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            echo __FUNCTION__ . " error: " . $e->getMessage();
         }
 
         $this->_japp->close();
