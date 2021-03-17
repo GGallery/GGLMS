@@ -1318,7 +1318,7 @@ class gglmsControllerApi extends JControllerLegacy
 
     }
 
-    // infilo un utente
+    // prima versione completamento tutti i contenuti per utente
     function completa_corsi_per_utente_iscritto() {
 
         try {
@@ -1332,14 +1332,15 @@ class gglmsControllerApi extends JControllerLegacy
                                             ->select('id_gruppi')
                                             ->from('#__gg_coupon')
                                             ->where('id_utente = ' . $this->_db->quote($this->_filterparam->user_id));
-
             $this->_db->setQuery($select_coupon);
             $results_coupon = $this->_db->loadAssocList();
 
             if (count($results_coupon) == 0)
                 throw new Exception("Nessuna corso disponibile per l'utente " . $this->_filterparam->user_id, 1);
 
+            $unit_arr = array();
             $unit_contents = array();
+
             foreach ($results_coupon as $key_coupon => $coupon) {
 
                 $select_map = $this->_db->getQuery(true)
@@ -1351,14 +1352,71 @@ class gglmsControllerApi extends JControllerLegacy
                 $this->_db->setQuery($select_map);
                 $results_map = $this->_db->loadAssocList();
 
-                if (count($results_map) == 0)
+                if (count($results_map) == 0) {
+
+                    $select_single = $this->_db->getQuery(true)
+                                        ->select('idunita')
+                                        ->from('#__gg_usergroup_map')
+                                        ->where('idgruppo = ' . $this->_db->quote($coupon['id_gruppi']));
+
+                    $this->_db->setQuery($select_single);
+                    $result_single = $this->_db->loadResult();
+
+                    if (!in_array($result_single, $unit_arr)
+                        && !is_null($result_single))
+                        $unit_arr[] = $result_single;
+
+                }
+                else {
+
+                    foreach ($results_map as $key_map => $map) {
+
+                        //$unit_contents[$map['idunita']][] = $map['idcontenuto'];
+                        if (!in_array($map['idcontenuto'], $unit_contents))
+                            $unit_contents[] = $map['idcontenuto'];
+
+                        if (!in_array($map['idunita'], $unit_arr))
+                            $unit_arr[] = $map['idunita'];
+
+                    }
+
+                }
+
+            }
+
+            // in base alle unit recupero i contenuti per le unita figlie delle unita
+            foreach ($unit_arr as $unita) {
+
+                $select_figli = $this->_db->getQuery(true)
+                                    ->select('id as id_unita')
+                                    ->from('#__gg_unit')
+                                    ->where('unitapadre = ' . $this->_db->quote($unita));
+
+                $this->_db->setQuery($select_figli);
+                $results_figli = $this->_db->loadAssocList();
+
+                if (count($results_figli) == 0)
                     continue;
 
-                foreach ($results_map as $key_map => $map) {
+                foreach ($results_figli as $key_figlio => $figlio) {
+                    $select_contenuto_figlio = $this->_db->getQuery(true)
+                                                ->select('idcontenuto')
+                                                ->from('#__gg_unit_map')
+                                                ->where('idunita = ' . $this->_db->quote($figlio['id_unita']))
+                                                ->order('ordinamento');
 
-                    //$unit_contents[$map['idunita']][] = $map['idcontenuto'];
-                    if (!in_array($map['idcontenuto'], $unit_contents))
-                        $unit_contents[] = $map['idcontenuto'];
+                    $this->_db->setQuery($select_contenuto_figlio);
+                    $results_contenuto_figlio = $this->_db->loadAssocList();
+
+                    if (count($results_contenuto_figlio) == 0)
+                        continue 2;
+
+                    foreach ($results_contenuto_figlio as $key_figlio_contenuto => $contenuto) {
+
+                        if (!in_array($contenuto['idcontenuto'], $unit_contents))
+                            $unit_contents[] = $contenuto['idcontenuto'];
+
+                    }
 
                 }
 
