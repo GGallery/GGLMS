@@ -2437,4 +2437,27 @@ HTML;
         return $_ret;
 
     }
+
+    public static function convert_time_to_tz($start_date, $start_tz = 'UTC', $dest_tz = 'Europe/Rome', $ret_format = 'Y-m-d H:i:s') {
+
+        $dt = new DateTime($start_date, new DateTimeZone($start_tz));
+        $dt->setTimezone(new DateTimeZone($dest_tz));
+        return $dt->format($ret_format);
+
+    }
+
+    public static function convert_zoom_response($_response) {
+
+        foreach ($_response->participants as $key => $participant) {
+
+            if (isset($participant->join_time))
+                $participant->join_time = self::convert_time_to_tz($participant->join_time);
+
+            if (isset($participant->leave_time))
+                $participant->leave_time = self::convert_time_to_tz($participant->leave_time);
+
+        }
+
+        return $_response;
+    }
 }

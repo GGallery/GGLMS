@@ -27,6 +27,17 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function get_tz() {
+
+        $oggi = '2020-11-16T07:21:36Z';
+        $dt = new DateTime($oggi, new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone('Europe/Rome'));
+        echo $dt->format('Y-m-d H:i:s');
+
+        $this->_japp->close();
+
+    }
+
     public function batch_responsabili() {
 
         $_ret = array();

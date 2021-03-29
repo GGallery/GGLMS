@@ -1686,11 +1686,14 @@ class gglmsControllerApi extends JControllerLegacy
                 || $_events['success'] == "")
                 throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
 
-            $_event_json = json_decode($_events['success']);
+            $_response = json_decode($_events['success']);
 
-            if (!isset($_event_json->participants)
-                || count($_event_json->participants) == 0)
+            if (!isset($_response->participants)
+                || count($_response->participants) == 0)
                 throw new Exception("Nessun dettaglio disponibile per l'evento selezionato", 1);
+
+            // conversione date nella timezone corretta - zoom registra le date sul meridiano di Greenwich
+            $_event_json = UtilityHelper::convert_zoom_response($_response);
 
             // inserisco l'evento a database se non è già presente
             $_zoom_model = new gglmsModelZoom();
