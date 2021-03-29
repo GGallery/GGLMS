@@ -2410,4 +2410,31 @@ HTML;
 
         return $_options;
     }
+
+    public static function get_past_month_from_date($now, $past_month, $format='Y-m-d') {
+
+        $datetime = new Datetime($now);
+        $datetime->modify('-' . $past_month . ' months');
+
+        return $datetime->format($format);
+
+    }
+
+    public static function get_months_range_from_to($dt_start, $dt_end) {
+
+        $_ret = array();
+
+        $start = $month = strtotime($dt_start);
+        $end = strtotime($dt_end);
+
+        while($month <= $end)
+        {
+            $dt_obj = DateTime::createFromFormat('!m', date('m', $month));
+            $_ret[date('Y-m', $month)] = $dt_obj->format('F') . ' ' . date('Y', $month);
+            $month = strtotime("+1 month", $month);
+        }
+
+        return $_ret;
+
+    }
 }

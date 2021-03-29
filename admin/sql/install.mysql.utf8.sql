@@ -230,6 +230,7 @@ CREATE TABLE `#__gg_coupon` (
   `id_gruppi` varchar(11) DEFAULT NULL,
   `stampatracciato` int(1) DEFAULT NULL,
   `venditore` varchar(255) DEFAULT NULL,
+  `tipologia_coupon` VARCHAR(100) NULL,
   `template` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   PRIMARY KEY (`coupon`(100))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -363,6 +364,8 @@ CREATE TABLE `#__gg_report` (
   `visualizzazioni` int(10) DEFAULT NULL,
   `permanenza_tot` int(10) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `data_extra` datetime NULL,
+  `data_primo_accesso` datetime NULL,
   PRIMARY KEY (`id_contenuto`,`id_utente`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -460,6 +463,20 @@ CREATE TABLE `#__gg_unit` (
   `prefisso_coupon` varchar(10) DEFAULT NULL,
   `mobile` int(10) DEFAULT '0',
   `attestato` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
+  `on_sale` tinyint(1) UNSIGNED DEFAULT '0',
+  `disponibile_dal` date DEFAULT NULL,
+  `disponibile_al` date DEFAULT NULL,
+  `prezzo` decimal(6,2) DEFAULT NULL,
+  `sc_a_data` date DEFAULT NULL,
+  `sc_valore_data` decimal(6,2) DEFAULT NULL,
+  `sc_a_data_gruppi` text,
+  `sc_valore_data_gruppi` decimal(6,2) DEFAULT NULL,
+  `sc_a_gruppi` text,
+  `sc_valore_gruppi` decimal(6,2) DEFAULT NULL,
+  `sc_da_data` date DEFAULT NULL,
+  `sc_custom_cb` varchar(255) NULL,
+  `sc_semaforo_custom_cb` varchar(255) NULL,
+  `sc_valore_custom_cb` decimal(6,2) NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=MyISAM AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -527,6 +544,8 @@ CREATE TABLE `#__gg_view_stato_user_corso` (
   `stato` int(10) NOT NULL,
   `data_inizio` date DEFAULT NULL,
   `data_fine` date DEFAULT NULL,
+  `data_inizio_extra` datetime NULL,
+  `data_fine_extra` datetime NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_anagrafica`,`id_corso`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -546,6 +565,8 @@ CREATE TABLE `#__gg_view_stato_user_unita` (
   `stato` int(10) DEFAULT NULL,
   `data_inizio` date DEFAULT NULL,
   `data_fine` date DEFAULT NULL,
+  `data_inizio_extra` datetime NULL,
+  `data_fine_extra` datetime NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_anagrafica`,`id_unita`,`id_corso`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -653,6 +674,30 @@ CREATE TABLE `#__gg_coupon_dispenser_log` (
   PRIMARY KEY (`email`,`id_dispenser`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- ----------------------------
+-- Table structure for `#__gg_zoom`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_zoom`;
+CREATE TABLE IF NOT EXISTS `#__gg_zoom` (
+  `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `token`  text NOT NULL ,
+  `data_registrazione`  datetime NOT NULL ,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_zoom_events`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_zoom_events`;
+CREATE TABLE IF NOT EXISTS `#__gg_zoom_events` (
+  `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+  `id_evento`  varchar(100) NOT NULL,
+  `tipo_evento`  varchar(50) NOT NULL ,
+  `label_evento`  varchar(200) NOT NULL,
+  `response`  text NOT NULL ,
+  `data_registrazione`  datetime NOT NULL ,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- colonne custom di #__comprofiler

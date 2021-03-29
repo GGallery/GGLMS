@@ -146,14 +146,30 @@ class gglmsControllerZoom extends JControllerLegacy
 
     }
 
-    function get_events($user_id = 'me', $type = 'meetings') {
+    function get_events($user_id = 'me', $type = 'meetings', $mese = '', $report_type = 'past', $page_size = 300) {
 
         $client = new GuzzleHttp\Client($this->config_client);
         $get_token = $this->get_access_token();
         $_json = array();
 
+        /*
         if ($type == 'meetings')
-          $_json = array('type' => 'scheduled');
+          $_json = array(
+                        'type' => 'past',
+                        );
+        */
+        $dt_from = "";
+        $dt_to = "";
+        $report_type = 'past';
+        $dt = new DateTime();
+        if ($mese == '') {
+            $dt_from = $dt->format('Y-m-') . '-01';
+            $dt_to = $dt->format('Y-m-t');
+        }
+        else {
+            $dt_from = $mese . '-01';
+            $dt_to = date("Y-m-t", strtotime($dt_from));
+        }
 
         if (!is_array($get_token))
             throw new Exception($get_token, 1);
@@ -164,7 +180,7 @@ class gglmsControllerZoom extends JControllerLegacy
 
         try {
 
-            $response = $client->request('GET', '/v2/users/' . $user_id . '/' . $type, [
+            $response = $client->request('GET', '/v2/report/users/' . $user_id . '/' . $type .'?type=' . $report_type . '&page_size=' . $page_size . '&to=' . $dt_to . '&from=' . $dt_from, [
                 "headers" => [
                     "Authorization" => "Bearer $this->access_token"
                 ],
@@ -184,7 +200,7 @@ class gglmsControllerZoom extends JControllerLegacy
         $this->_japp->close();
     }
 
-    function get_event_participants($event_id, $type = 'meetings') {
+    function get_event_participants($event_id, $type = 'meetings', $page_size = 300) {
 
         $client = new GuzzleHttp\Client($this->config_client);
         $get_token = $this->get_access_token();
@@ -196,7 +212,7 @@ class gglmsControllerZoom extends JControllerLegacy
         $_ret = array();
         try {
 
-            $response = $client->request('GET', '/v2/report/' . $type . '/' . $event_id . '/participants', [
+            $response = $client->request('GET', '/v2/report/' . $type . '/' . $event_id . '/participants?$page_size=' . $page_size, [
                 "headers" => [
                     "Authorization" => "Bearer $this->access_token"
                 ]

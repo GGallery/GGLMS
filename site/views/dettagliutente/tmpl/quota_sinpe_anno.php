@@ -7,6 +7,10 @@ defined('_JEXEC') or die('Restricted access');
 
 <div class="container-fluid">
 
+    <div id="toolbar" class="select">
+        <button id="export" class="btn btn-sm btn-primary">Export</button>
+    </div>
+
 
     <table
             id="tbl_quote"
@@ -15,7 +19,8 @@ defined('_JEXEC') or die('Restricted access');
             data-ajax="ajaxRequest"
             data-search="true"
             data-side-pagination="server"
-            data-pagination="true">
+            data-pagination="true"
+            data-show-export="true">
         <thead>
             <tr>
                 <th data-field="id_pagamento" data-sortable="true">#</th>
@@ -40,6 +45,17 @@ defined('_JEXEC') or die('Restricted access');
     <script type="text/javascript">
 
         var pTable = jQuery('#tbl_quote');
+
+        jQuery('#export').click(function() {
+            pTable.tableExport({
+                type: 'excel',
+                escape: false,
+                exportDataType: 'all',
+                refreshOptions: {
+                    exportDataType: 'all'
+                }
+            });
+        });
 
         function customAlertifyAlertSimple(pMsg) {
             alertify.alert()

@@ -60,6 +60,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->user_id = JRequest::getVar('user_id');
         $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
         $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
+        $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
 
@@ -1643,7 +1644,7 @@ class gglmsControllerApi extends JControllerLegacy
                 $_csv_cols = utilityHelper::get_cols_from_array((array) $_event_arr[0]);
                 $_participants = $_event_arr;
 
-                $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, $this->_filterparam->zoom_event_id . '.csv');
+                $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, time() . '.csv');
                 $this->_japp->close();
 
             }
@@ -1714,7 +1715,7 @@ class gglmsControllerApi extends JControllerLegacy
                 $_csv_cols = $_participants[0];
             }
 
-            $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, $this->_filterparam->zoom_event_id . '.csv');
+            $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, time() . '.csv');
 
             // chiusura della finestra dopo generazione del report
             $_html = <<<HTML
@@ -1746,7 +1747,7 @@ HTML;
             $api_scadenza_token = $_config->getConfigValue('zoom_api_scadenza_token');
 
             $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
-            $_events = $zoom_call->get_events($this->_filterparam->zoom_user, $this->_filterparam->zoom_tipo);
+            $_events = $zoom_call->get_events($this->_filterparam->zoom_user, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_mese);
 
             if (isset($_events['error']))
                 throw new Exception($_events['error'], 1);

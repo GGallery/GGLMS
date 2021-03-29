@@ -25,7 +25,10 @@ class gglmsViewZoom extends JViewLegacy {
     protected $api_version;
     protected $api_scadenza_token;
     protected $zoom_users;
-
+    protected $dt_today;
+    protected $dt_past;
+    protected $dt_range;
+    protected $select_range_body;
 
     function display($tpl = null)
     {
@@ -45,7 +48,11 @@ class gglmsViewZoom extends JViewLegacy {
 
             $zoom_call = new gglmsControllerZoom($this->api_key, $this->api_secret, $this->api_endpoint, $this->api_version, $this->api_scadenza_token, true);
             $this->zoom_users = $zoom_call->get_users();
-
+            $dt = new DateTime();
+            $this->dt_today = $dt->format('Y-m');
+            $this->dt_past = UtilityHelper::get_past_month_from_date($dt->format('Y-m-d'), 12, 'Y-m');
+            $this->dt_range = UtilityHelper::get_months_range_from_to($this->dt_past . '-01', $this->dt_today . '-01');
+            $this->select_range_body = OutputHelper::get_month_select_body($this->dt_range);
 
             parent::display($tpl);
 

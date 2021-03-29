@@ -1527,4 +1527,22 @@ HTML;
 
     }
 
+    public static function get_month_select_body($arr_range) {
+
+        $_html = <<<HTML
+        <option value="">-</option>
+HTML;
+
+        foreach ($arr_range as $sel_value => $sel_text) {
+            $sel_value = trim($sel_value);
+            $sel_text = trim($sel_text);
+            $_html .= <<<HTML
+                <option value="{$sel_value}">{$sel_text}</option>
+HTML;
+        }
+
+        return $_html;
+
+    }
+
 }

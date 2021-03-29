@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS `#__gg_zoom_events` (
 
 ALTER TABLE `#__gg_report` ADD COLUMN `data_primo_accesso` datetime NULL;
 
-ALTER TABLE `#__gg_unit` ADD COLUMN `on_sale` tinyint(1) UNSIGNED DEFAULT '0',
+ALTER TABLE `#__gg_unit`
+ADD COLUMN `on_sale` tinyint(1) UNSIGNED DEFAULT '0',
 ADD COLUMN `disponibile_dal` date DEFAULT NULL,
 ADD COLUMN `disponibile_al` date DEFAULT NULL,
 ADD COLUMN `prezzo` decimal(6,2) DEFAULT NULL,

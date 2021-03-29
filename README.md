@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.0.9
+- D: modificata colonna id_evento delle tabella gg_zoom_report
+
 4.0.8
 - D: aggiunta tabella gg_zoom
 - D: aggiunta tabella gg_zoom_events

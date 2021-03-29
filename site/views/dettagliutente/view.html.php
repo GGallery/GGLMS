@@ -42,7 +42,7 @@ class gglmsViewdettagliutente extends JViewLegacy
 
         try {
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
-            JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css');
+            JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
 
@@ -54,8 +54,12 @@ class gglmsViewdettagliutente extends JViewLegacy
 
             $lang = JFactory::getLanguage();
             $this->current_lang = $lang->getTag();
-            JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.js');
-            JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.1/dist/locale/bootstrap-table-' . $this->current_lang . '.min.js');
+
+            JHtml::_('script', 'https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js');
+            JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js');
+            JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js');
+            JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js');
+            JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.2/dist/locale/bootstrap-table-' . $this->current_lang . '.min.js');
 
 
             $layout = JRequest::getWord('template', '');

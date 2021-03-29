@@ -49,6 +49,13 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
                 </select>
             </div>
 
+            <div class="form-group to_show_online" id="seleziona_mese" style="display:none;">
+                <label for="zoom_mese">Seleziona mese report</label>
+                <select id="zoom_mese" class="form-control">
+                    <?php echo $this->select_range_body; ?>
+                </select>
+            </div>
+
             <div class="form-group to_show_online" id="seleziona_evento" style="display:none;">
                 <label for="zoom_evento">Seleziona evento</label>
                 <select id="zoom_evento" class="form-control"></select>
@@ -193,6 +200,11 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
 
     });
 
+    // selezione tipo
+    jQuery('#zoom_tipo').on('change', function (e) {
+        jQuery('#seleziona_mese').show();
+    });
+
     // selezione evento
     jQuery('#zoom_evento').on('change', function (e) {
         jQuery('#btn_genera').show();
@@ -226,21 +238,24 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
     });
 
     // selezione tipo report
-    jQuery('#zoom_tipo').on('change', function (e) {
+    jQuery('#zoom_mese').on('change', function (e) {
 
         var pUser = jQuery('#zoom_user').val();
-        var pTipo = jQuery(this).val();
+        var pTipo = jQuery('#zoom_tipo').val();
+        var pMonth = jQuery(this).val();
 
-        if (pTipo == '')
+        if (pTipo == ''
+            || pMonth == '')
             return;
 
+        jQuery('#zoom_evento').html('<option value="">-</option>');
         showLoading('s');
 
         jQuery.ajax({
             type: "GET",
             url: "index.php?option=com_gglms&task=api.get_event_list",
             // You are expected to receive the generated JSON (json_encode($data))
-            data: {"zoom_user" : pUser, "zoom_tipo" : pTipo},
+            data: {"zoom_user" : pUser, "zoom_tipo" : pTipo, "zoom_mese" : pMonth},
             dataType: "json",
             success: function (data) {
 
@@ -274,11 +289,13 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
                             var pSelectList = '<option value="">-</option>';
                             for (var i = 0; i < target.length; i++) {
 
-                                var pEventId = target[i].id;
+                                var pEventId = target[i].uuid;
                                 var pTopic = target[i].topic;
-                                var pCreated = target[i].created_at;
+                                var pStart = target[i].start_time;
+                                var pEnd = target[i].end_time;
+                                var pParticipants = target[i].participants_count;
 
-                                pSelectList += '<option value="' + pEventId + '">' + pCreated + ' - ' + pTopic + '</option>';
+                                pSelectList += '<option value="' + pEventId + '">' + pStart + ' - ' + pEnd + ' - ' + pTopic + ' - ' + pParticipants + ' partecipanti</option>';
                             }
 
                             jQuery('#zoom_evento').html('');
