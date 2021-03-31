@@ -1262,9 +1262,10 @@ HTML;
                 foreach ($_quote['rows'] as $_key_quota => $_quota) {
 
                     $_fab_pagamento = "";
-                    $_icon_check = <<<HTML
+                    /*$_icon_check = <<<HTML
                             <i class="fas fa-check"></i>
-HTML;
+HTML;*/
+                    $_icon_check = "OK";
                     $payment_ko = false;
                     foreach ($_quota as $key => $value) {
 
@@ -1275,11 +1276,14 @@ HTML;
                             $_tipo_quota = (!is_null($value)) ? strtoupper($value) : "";
                             $_tipo_pagamento = (!is_null($_quota['tipo_pagamento'])) ? strtolower($_quota['tipo_pagamento']) : "";
 
-                            $_fab_pagamento = ($_tipo_pagamento == "paypal") ? "fab fa-paypal" : "fas fa-university";
+                            //$_fab_pagamento = ($_tipo_pagamento == "paypal") ? "fab fa-paypal" : "fas fa-university";
+                            $_fab_pagamento = strtoupper($_tipo_pagamento);
 
                             if (is_null($_tipo_pagamento)
-                                || $_tipo_pagamento == "")
-                                $_fab_pagamento = "fas fa-dollar-sign";
+                                || $_tipo_pagamento == "") {
+                                //$_fab_pagamento = "fas fa-dollar-sign";
+                                $_fab_pagamento = "ARCHIVIATO";
+                            }
 
                             if ($_tipo_quota == "EVENTO_NC") {
 
@@ -1296,17 +1300,19 @@ HTML;
                                 $value = $_quota['titolo_corso'];
                             }
 
-                            $_icon_tipo_quota = <<<HTML
+                            /*$_icon_tipo_quota = <<<HTML
                                     <i class="{$_fab_pagamento}"></i>
-HTML;
+HTML;*/
+                            $_icon_tipo_quota = $_fab_pagamento;
                             $_ret[$_key_quota]['icon_pagamento'] = trim($_icon_tipo_quota);
 
                         }
 
                         if ($payment_ko) {
-                            $_icon_check = <<<HTML
+                            /*$_icon_check = <<<HTML
                                 <i class="fas fa-times"></i>
-HTML;
+HTML;*/
+                            $_icon_check = "NO";
 
                         }
 

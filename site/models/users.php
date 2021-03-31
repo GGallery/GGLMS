@@ -1112,7 +1112,14 @@ class gglmsModelUsers extends JModelLegacy
 
             // utente amministratore
             if (is_null($user_id)) {
-                $_join_sel = ", u.username, cp.cb_nome AS nome, cp.cb_cognome  AS cognome, cp.cb_codicefiscale AS codice_fiscale";
+                $_join_sel = ", u.username, 
+                                cp.cb_nome AS nome, 
+                                cp.cb_cognome  AS cognome, 
+                                UPPER(cp.cb_codicefiscale) AS codice_fiscale,
+                                u.email,
+                                cp.cb_indirizzodiresidenza AS indirizzo,
+                                cp.cb_provdiresidenza AS provincia,
+                                cp.cb_cap AS cap";
             }
 
             $query = $this->_db->getQuery(true)
