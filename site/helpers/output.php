@@ -729,14 +729,16 @@ HTML;
             $_cb_professione_disciplina = UtilityHelper::get_cb_field_name($_params, 'campo_cb_professione_disciplina', 'name');
             $_cb_laureain = UtilityHelper::get_cb_field_name($_params, 'campo_cb_laureain', 'name');
             $_cb_citta = UtilityHelper::get_cb_field_name($_params, 'campo_cb_citta', 'name');
-            $_cb_provinciadinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
+            $_cb_provincia = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provincia', 'name');
+            $_cb_indirizzo = UtilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo', 'name');
+            $_cb_cap = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cap', 'name');
             // lista options da community builder
             $_cb_professione_disciplina_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_professione_disciplina');
             $_cb_professione_disciplina_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_professione_disciplina');
             $_cb_laureain_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_laureain');
             $_cb_laureain_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_laureain');
-            $_cb_provinciadinascita_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provinciadinascita');
-            $_cb_provinciadinascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
+            $_cb_provincia_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provincia');
+            $_cb_provincia_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia');
 
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
 
@@ -812,7 +814,16 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="citta_utente">Città di nascita<span style="color: red">*</span></label>
+                        <label for="citta_utente">Indirizzo di residenza<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="Indirizzo di residenza" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="citta_utente">Città di residenza<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
                         <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="Città di nascita" />
@@ -821,13 +832,22 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="pv_nascita_utente">Provincia di nascita<span style="color: red">*</span></label>
+                        <label for="pv_utente">Provincia di residenza<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
-                        <select class="form-control" id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provinciadinascita_id}">
+                        <select class="form-control" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
                                 <option value="">-</option>
-                                {$_cb_provinciadinascita_options}
+                                {$_cb_provincia_options}
                             </select>
+                      </div>
+                    </div>
+                    
+                     <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cap_utente">CAP di residenza<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cap_utente" style="width: 220px;" data-campo="{$_cb_cap}" placeholder="CAP di residenza" />
                       </div>
                     </div>
                     

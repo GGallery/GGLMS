@@ -212,32 +212,50 @@ defined('_JEXEC') or die;
                 }
 
                 var pNomeUtente = jQuery('#nome_utente').val();
-                if (pNomeUtente == "") {
+                if (pNomeUtente.trim() == "") {
                     customAlertifyAlert('Nome', '#nome_utente');
                     return;
                 }
 
                 var pCognomeUtente = jQuery('#cognome_utente').val();
-                if (pCognomeUtente == "") {
+                if (pCognomeUtente.trim() == "") {
                     customAlertifyAlert('Cognome', '#cognome_utente');
                     return;
                 }
 
                 var pCfUtente = jQuery('#cf_utente').val();
-                if (pCfUtente == "") {
+                if (pCfUtente.trim() == "") {
                     customAlertifyAlert('Codice fiscale', '#cf_utente');
                     return;
                 }
 
-                var pCittaNascita = jQuery('#citta_utente').val();
-                if (pCittaNascita == "") {
-                    customAlertifyAlert('Città di nascita', '#citta_utente');
+                var pEmail = jQuery('#email_utente').val();
+                if (pEmail.trim() == "") {
+                    customAlertifyAlert('Email', '#email_utente');
                     return;
                 }
 
-                var pPvNascita = jQuery('#pv_nascita_utente').val();
-                if (pPvNascita  == "") {
-                    customAlertifyAlert('Provincia di nascita', '#pv_nascita_utente');
+                var pIndirizzo = jQuery('#indirizzo_utente').val();
+                if (pIndirizzo.trim() == "") {
+                    customAlertifyAlert('Indirizzo di residenza', '#indirizzo_utente');
+                    return;
+                }
+
+                var pCittaResidenza = jQuery('#citta_utente').val();
+                if (pCittaResidenza.trim() == "") {
+                    customAlertifyAlert('Città di residenza', '#citta_utente');
+                    return;
+                }
+
+                var pPvUtente = jQuery('#pv_utente').val();
+                if (pPvUtente  == "") {
+                    customAlertifyAlert('Provincia di residenza', '#pv_utente');
+                    return;
+                }
+
+                var pCap = jQuery('#cap_utente').val();
+                if (pCap.trim()  == "") {
+                    customAlertifyAlert('CAP di residenza', '#cap_utente');
                     return;
                 }
 
@@ -247,20 +265,14 @@ defined('_JEXEC') or die;
                     return;
                 }
 
-                var pEmail = jQuery('#email_utente').val();
-                if (pEmail == "") {
-                    customAlertifyAlert('Email', '#email_utente');
-                    return;
-                }
-
                 var pTelefono = jQuery('#telefono_utente').val();
-                if (pTelefono == "") {
+                if (pTelefono.trim() == "") {
                     customAlertifyAlert('Telefono', '#telefono_utente');
                     return;
                 }
 
                 var pProfessioneUtente = jQuery('#professione_utente').val();
-                if (pProfessioneUtente == "") {
+                if (pProfessioneUtente.trim() == "") {
                     customAlertifyAlert('Professione', '#professione_utente');
                     return;
                 }
@@ -272,7 +284,7 @@ defined('_JEXEC') or die;
                 }
 
                 var pAnnoLaurea = jQuery('#anno_laurea_utente').val();
-                if (pAnnoLaurea == "") {
+                if (pAnnoLaurea.trim() == "") {
                     customAlertifyAlert('Anno di laurea', '#anno_laurea_utente');
                     return;
                 }
@@ -307,14 +319,22 @@ defined('_JEXEC') or die;
                 var pCfUtenteCB = jQuery('#cf_utente').attr("data-campo");
                 pPropArr.push({ campo: pCfUtenteID, cb: pCfUtenteCB, value: pCfUtente });
 
-                var pCittaNascitaID = jQuery('#citta_utente').attr("id");
-                var pCittaNascitaCB = jQuery('#citta_utente').attr("data-campo");
-                pPropArr.push({ campo: pCittaNascitaID, cb: pCittaNascitaCB, value: pCittaNascita });
+                var pIndirizzoID = jQuery('#indirizzo_utente').attr("id");
+                var pIndirizzoCB = jQuery('#indirizzo_utente').attr("data-campo");
+                pPropArr.push({ campo: pIndirizzoID, cb: pIndirizzoCB, value: pIndirizzo });
 
-                var pPvNascitaID = jQuery('#pv_nascita_utente').attr("id");
-                var pPvNascitaCB = jQuery('#pv_nascita_utente').attr("data-campo");
-                var pPvNascitaIDRef = jQuery('#pv_nascita_utente').attr("data-id-ref");
-                pPropArr.push({ campo: pPvNascitaID, cb: pPvNascitaCB, value: pPvNascita, is_id: pPvNascitaIDRef });
+                var pCittaResidenzaID = jQuery('#citta_utente').attr("id");
+                var pCittaResidenzaCB = jQuery('#citta_utente').attr("data-campo");
+                pPropArr.push({ campo: pCittaResidenzaID, cb: pCittaResidenzaCB, value: pCittaResidenza });
+
+                var pPvUtenteID = jQuery('#pv_utente').attr("id");
+                var pPvUtenteCB = jQuery('#pv_utente').attr("data-campo");
+                var pPvUtenteIDRef = jQuery('#pv_utente').attr("data-id-ref");
+                pPropArr.push({ campo: pPvUtenteID, cb: pPvUtenteCB, value: pPvUtente, is_id: pPvUtenteIDRef });
+
+                var pCapID = jQuery('#cap_utente').attr("id");
+                var pCapCB = jQuery('#cap_utente').attr("data-campo");
+                pPropArr.push({ campo: pCapID, cb: pCapCB, value: pCap });
 
                 var pDataNascitaID = jQuery('#data_nascita_utente').attr("id");
                 var pDataNascitaCB = jQuery('#data_nascita_utente').attr("data-campo");
