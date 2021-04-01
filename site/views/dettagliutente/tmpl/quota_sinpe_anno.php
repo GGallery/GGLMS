@@ -33,6 +33,10 @@ defined('_JEXEC') or die('Restricted access');
                     <th data-field="indirizzo" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR15'); ?></th>
                     <th data-field="provincia" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR16'); ?></th>
                     <th data-field="cap" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR17'); ?></th>
+                    <th data-field="ragione_sociale" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR18'); ?></th>
+                    <th data-field="partita_iva" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR19'); ?></th>
+                    <th data-field="codice_destinatario" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR20'); ?></th>
+                    <th data-field="professione" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR21'); ?></th>
                 <?php endif; ?>
                 <th data-field="tipo_quota"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR2'); ?></th>
                 <th data-field="icon_pagamento" data-align="center"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR3'); ?></th>

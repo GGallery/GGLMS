@@ -195,6 +195,20 @@ defined('_JEXEC') or die;
                 window.location.href = pHref;
             });
 
+            // richiesta fattura
+            jQuery('#check_richiesta_fattura').on('change', function (e) {
+
+                var pChecked = jQuery(this).is(":checked");
+                if (pChecked)
+                    jQuery('#campi_fattura').show();
+                else {
+                    jQuery('#campi_fattura').hide();
+                    jQuery("input.campi_fattura:text").val("");
+                }
+
+
+            });
+
             // form di registrazione
             jQuery('.btn-registrazione').on('click', function (e) {
 
@@ -306,6 +320,10 @@ defined('_JEXEC') or die;
                     return;
                 }
 
+                var pRagioneSociale = jQuery('#ragione_sociale').val();
+                var pPiva = jQuery('#partita_iva').val();
+                var pCodiceDestinatario = jQuery('#codice_destinatario').val();
+
                 // oggetto che crea coppie di valori fra i dati inputati e community builder
                 var pNomeUtenteID = jQuery('#nome_utente').attr("id");
                 var pNomeUtenteCB = jQuery('#nome_utente').attr("data-campo");
@@ -363,6 +381,18 @@ defined('_JEXEC') or die;
 
                 var pPasswordID = jQuery('#password_utente').attr("id");
                 pPropArr.push({ campo: pPasswordID, cb: null, value: pPassword });
+
+                var pRagioneSocialeID = jQuery('#ragione_sociale').attr("id");
+                var pRagioneSocialeCB = jQuery('#ragione_sociale').attr("data-campo");
+                pPropArr.push({ campo: pRagioneSocialeID, cb: pRagioneSocialeCB, value: pRagioneSociale });
+
+                var pPivaID = jQuery('#partita_iva').attr("id");
+                var pPivaCB = jQuery('#partita_iva').attr("data-campo");
+                pPropArr.push({ campo: pPivaID, cb: pPivaCB, value: pPiva });
+
+                var pCodiceDestinatarioID = jQuery('#codice_destinatario').attr("id");
+                var pCodiceDestinatarioCB = jQuery('#codice_destinatario').attr("data-campo");
+                pPropArr.push({ campo: pCodiceDestinatarioID, cb: pCodiceDestinatarioCB, value: pCodiceDestinatario });
 
                 jQuery.ajax({
                     type: "GET",

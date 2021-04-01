@@ -1117,9 +1117,14 @@ class gglmsModelUsers extends JModelLegacy
                                 cp.cb_cognome  AS cognome, 
                                 UPPER(cp.cb_codicefiscale) AS codice_fiscale,
                                 u.email,
-                                cp.cb_indirizzodiresidenza AS indirizzo,
-                                cp.cb_provdiresidenza AS provincia,
-                                cp.cb_cap AS cap";
+                                COALESCE(cp.cb_indirizzodiresidenza, '') AS indirizzo,
+                                COALESCE(cp.cb_provdiresidenza, '') AS provincia,
+                                COALESCE(cp.cb_cap, '') AS cap,
+                                COALESCE(cp.cb_ragionesociale, '') AS ragione_sociale,
+                                COALESCE(cp.cb_partitaiva, '') AS partita_iva,
+                                COALESCE(cp.cb_codicedestinatario, '') AS codice_destinatario,
+                                COALESCE(cp.cb_professionedisciplina, '') AS professione
+                                ";
             }
 
             $query = $this->_db->getQuery(true)

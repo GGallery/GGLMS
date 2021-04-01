@@ -1022,6 +1022,9 @@ HTML;
             $_cb_provincia = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provincia', 'name');
             $_cb_indirizzo = UtilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo', 'name');
             $_cb_cap = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cap', 'name');
+            $_cb_ragionesociale = UtilityHelper::get_cb_field_name($_params, 'campo_cb_ragionesociale', 'name');
+            $_cb_partitaiva = UtilityHelper::get_cb_field_name($_params, 'campo_cb_partitaiva', 'name');
+            $_cb_codicedestinatario = UtilityHelper::get_cb_field_name($_params, 'campo_cb_codicedestinatario', 'name');
             // lista options da community builder
             $_cb_professione_disciplina_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_professione_disciplina');
             $_cb_professione_disciplina_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_professione_disciplina');
@@ -1046,6 +1049,10 @@ HTML;
             $_label_professione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR20');
             $_label_laurea_in = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR21');
             $_label_anno_laurea = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR22');
+            $_label_richiesta_fattura = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR23');
+            $_label_ragione_sociale = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR24');
+            $_label_piva = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR25');
+            $_label_cod_dest =JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR26');
 
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_request');
@@ -1205,6 +1212,44 @@ HTML;
                       <div class="col-75">
                         <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  placeholder="Anno di laurea" />
                       </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="richiesta_fattura">{$_label_richiesta_fattura}</label>
+                        <input class="form-control" type="checkbox" id="check_richiesta_fattura" />
+                      </div>
+                    </div>
+                    
+                    <div id="campi_fattura" style="display: none;">
+                    
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="ragione_sociale">{$_label_ragione_sociale}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_fattura" type="text" id="ragione_sociale" style="width: 220px;" data-campo="{$_cb_ragionesociale}"  placeholder="{$_label_ragione_sociale}" />
+                          </div>
+                        </div>
+                    
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="partita_iva">{$_label_piva}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_fattura" type="text" id="partita_iva" style="width: 220px;" data-campo="{$_cb_partitaiva}"  placeholder="{$_label_piva}" />
+                          </div>
+                        </div>
+                        
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="codice_destinatario">{$_label_cod_dest}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_fattura" type="text" id="codice_destinatario" style="width: 220px;" data-campo="{$_cb_codicedestinatario}"  placeholder="{$_label_cod_dest}" />
+                          </div>
+                        </div>
+                    
                     </div>
                
                      <div class="rowcustom">
