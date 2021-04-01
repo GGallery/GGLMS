@@ -213,91 +213,91 @@ defined('_JEXEC') or die;
 
                 var pNomeUtente = jQuery('#nome_utente').val();
                 if (pNomeUtente.trim() == "") {
-                    customAlertifyAlert('Nome', '#nome_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR8'), '#nome_utente');
                     return;
                 }
 
                 var pCognomeUtente = jQuery('#cognome_utente').val();
                 if (pCognomeUtente.trim() == "") {
-                    customAlertifyAlert('Cognome', '#cognome_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR9'), '#cognome_utente');
                     return;
                 }
 
                 var pCfUtente = jQuery('#cf_utente').val();
                 if (pCfUtente.trim() == "") {
-                    customAlertifyAlert('Codice fiscale', '#cf_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR12'), '#cf_utente');
                     return;
                 }
 
                 var pEmail = jQuery('#email_utente').val();
                 if (pEmail.trim() == "") {
-                    customAlertifyAlert('Email', '#email_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR13'), '#email_utente');
                     return;
                 }
 
                 var pIndirizzo = jQuery('#indirizzo_utente').val();
                 if (pIndirizzo.trim() == "") {
-                    customAlertifyAlert('Indirizzo di residenza', '#indirizzo_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR14'), '#indirizzo_utente');
                     return;
                 }
 
                 var pCittaResidenza = jQuery('#citta_utente').val();
                 if (pCittaResidenza.trim() == "") {
-                    customAlertifyAlert('Città di residenza', '#citta_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR15'), '#citta_utente');
                     return;
                 }
 
                 var pPvUtente = jQuery('#pv_utente').val();
                 if (pPvUtente  == "") {
-                    customAlertifyAlert('Provincia di residenza', '#pv_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR16'), '#pv_utente');
                     return;
                 }
 
                 var pCap = jQuery('#cap_utente').val();
                 if (pCap.trim()  == "") {
-                    customAlertifyAlert('CAP di residenza', '#cap_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR17'), '#cap_utente');
                     return;
                 }
 
                 var pDataNascita = jQuery('#data_nascita_utente').val();
                 if (pDataNascita == "") {
-                    customAlertifyAlert('Data di nascita', '#data_nascita_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR18'), '#data_nascita_utente');
                     return;
                 }
 
                 var pTelefono = jQuery('#telefono_utente').val();
                 if (pTelefono.trim() == "") {
-                    customAlertifyAlert('Telefono', '#telefono_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR19'), '#telefono_utente');
                     return;
                 }
 
                 var pProfessioneUtente = jQuery('#professione_utente').val();
                 if (pProfessioneUtente.trim() == "") {
-                    customAlertifyAlert('Professione', '#professione_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR20'), '#professione_utente');
                     return;
                 }
 
                 var pLaureaIn = jQuery('#laureain_utente').val();
                 if (pLaureaIn == "") {
-                    customAlertifyAlert('Laurea in', '#laureain_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR21'), '#laureain_utente');
                     return;
                 }
 
                 var pAnnoLaurea = jQuery('#anno_laurea_utente').val();
                 if (pAnnoLaurea.trim() == "") {
-                    customAlertifyAlert('Anno di laurea', '#anno_laurea_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR22'), '#anno_laurea_utente');
                     return;
                 }
 
                 var pPassword = jQuery('#password_utente').val();
                 if (pPassword == "") {
-                    customAlertifyAlert('Password', '#password_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR10'), '#password_utente');
                     return;
                 }
 
                 var pRipetiPassword = jQuery('#ripeti_password_utente').val();
                 if (pRipetiPassword == "") {
-                    customAlertifyAlert('Ripeti password', '#ripeti_password_utente');
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR11'), '#ripeti_password_utente');
                     return;
                 }
 

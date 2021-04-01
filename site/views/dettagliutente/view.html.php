@@ -36,24 +36,43 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $client_id;
     protected $user_id;
     protected $payment_extra_form;
+    protected $dp_lang;
+    protected $id_evento_sponsor;
 
     function display($tpl = null)
     {
 
         try {
+
+            $bootstrap_dp = "";
+            $this->dp_lang = "EN";
+            $lang = JFactory::getLanguage();
+            $this->current_lang = $lang->getTag();
+            $lang_locale_arr = $lang->getLocale();
+
+            if (isset($lang_locale_arr[4])
+                && $lang_locale_arr[4] != ""
+                && $lang_locale_arr[4] != "en") {
+                $bootstrap_dp = 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.' . $lang_locale_arr[4] . '.min.js';
+                $this->dp_lang = strtolower($lang_locale_arr[4]);
+            }
+
+
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
             JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
+            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css');
 
             JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
+            JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js');
+
+            if ($bootstrap_dp != "")
+                JHtml::_('script', $bootstrap_dp);
+
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 
-
-
-            $lang = JFactory::getLanguage();
-            $this->current_lang = $lang->getTag();
 
             JHtml::_('script', 'https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js');
             JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js');
@@ -113,6 +132,22 @@ class gglmsViewdettagliutente extends JViewLegacy
                 // verifico se esiste l'indicazione per il metodo di pagamento alternativi
                 $_extra_pay = utilityHelper::get_params_from_plugin();
                 $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
+            }
+            else if ($layout == 'registrazione_utenti_sponsor') {
+
+                $this->id_evento_sponsor = JRequest::getVar('ev');
+                if (!isset($this->id_evento_sponsor)
+                    || $this->id_evento_sponsor == "")
+                    throw new Exception("Nessun evento valido specificato", 1);
+
+                // precarico i params del modulo
+                $_form_registrazione = OutputHelper::get_user_registration_form_sponsor_evento($_params_module, $this->id_evento_sponsor);
+                if (!is_array($_form_registrazione)
+                    || !isset($_form_registrazione['success']))
+                    throw new Exception($_form_registrazione, 1);
+
+                $this->_html = $_form_registrazione['success'];
+
             }
         }
         catch (Exception $e){

@@ -647,6 +647,32 @@ class utilityHelper
         }
     }
 
+    // informazioni per un campo community builder da name
+    public static function get_cb_field_by_name($field_name) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler_fields')
+                ->where("name = '" . trim($field_name) . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $results;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
     // informazioni per un campo community builder da id
     public static function get_cb_field($field_id) {
 
@@ -1770,9 +1796,12 @@ HTML;
                                                                 $_username,
                                                                 $_email_user,
                                                                 $_password,
-                                                                $_email_from) {
+                                                                $_email_from,
+                                                                $_sponsor = false) {
 
-        $oggetto = "Nuova registrazione per acquisto evento " . $_event_title;
+        $_part = (!$_sponsor) ? "acquisto" : "reclutamento SPONSOR";
+        $oggetto = "Nuova registrazione per ". $_part . " evento " . $_event_title;
+
         $dt = new DateTime();
 
         $body = <<<HTML
@@ -2379,13 +2408,47 @@ HTML;
 
     }
 
+    // ottengo il valore di una colonna della tabella comprofiler_fields in base al name del campo da ritornare
+    public static function get_cb_field_col($_field_name, $_target_value) {
+
+        $_cb = self::get_cb_field_by_name($_field_name);
+
+        return $_cb[$_target_value];
+
+    }
+
     // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare
     public static function get_cb_field_name($_params, $_label, $_prop) {
 
         $_cb = self::get_params_from_object($_params, $_label);
-        $_cb_arr = UtilityHelper::get_cb_field($_cb);
+        $_cb_arr = self::get_cb_field($_cb);
 
         return self::get_cb_field_property($_cb_arr, $_prop);
+
+    }
+
+    // per i campi di tipo select ottengo la lista di option da name del cb field
+    public static function get_cb_field_select_by_name($_field_name) {
+
+        $_options = "";
+
+        // id del campo
+        $_cb = self::get_cb_field_col($_field_name, 'fieldid');
+
+        $_cb_arr = self::get_cb_field_values_list($_cb);
+
+        if (!is_array($_cb_arr)
+            || count($_cb_arr) == 0)
+            return "";
+
+        foreach ($_cb_arr as $sub_key => $sub_values) {
+
+            $_options .= <<<HTML
+                <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>
+HTML;
+        }
+
+        return $_options;
 
     }
 
@@ -2395,7 +2458,7 @@ HTML;
         $_options = "";
 
         $_cb = self::get_params_from_object($_params, $_label);
-        $_cb_arr = UtilityHelper::get_cb_field_values_list($_cb);
+        $_cb_arr = self::get_cb_field_values_list($_cb);
 
         if (!is_array($_cb_arr)
             || count($_cb_arr) == 0)

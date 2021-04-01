@@ -429,6 +429,216 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->in_error = 0;
 
             }
+            else if ($this->action == 'user_registration_sponsor_request') {
+
+                $this->_ret = array();
+                $this->show_view = false;
+
+                $request_obj = JRequest::getVar('request_obj');
+                if (!isset($request_obj)
+                    || !is_array($request_obj)
+                    || count($request_obj) == 0) {
+                    throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", 1);
+                }
+
+
+                // i campi necessari per l'inserimento nella tabella users
+                $_new_user = array();
+                $_new_user_cp = array();
+                $nome_utente = null;
+                $cognome_utente = null;
+                $username = null;
+                $email_utente = null;
+                $password_utente = null;
+                $cf_utente = null;
+                $id_evento = null;
+                $_event_title = "";
+
+                foreach ($request_obj as $sub_key => $sub_arr) {
+
+                    if (isset($request_obj[$sub_key]['cb'])
+                        && $request_obj[$sub_key]['cb'] == 'cb_nome') {
+                        $nome_utente = preg_replace("/[^a-zA-Z]/", "", $request_obj[$sub_key]['value']);
+                    }
+                    else if (isset($request_obj[$sub_key]['cb'])
+                        && $request_obj[$sub_key]['cb'] == 'cb_cognome') {
+                        $cognome_utente = preg_replace("/[^a-zA-Z]/", "", $request_obj[$sub_key]['value']);
+                    }
+                    else if (isset($request_obj[$sub_key]['cb'])
+                        && $request_obj[$sub_key]['cb'] == 'cb_codicefiscale') {
+                        $cf_utente = $request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($request_obj[$sub_key]['campo'])
+                        && $request_obj[$sub_key]['campo'] == 'username') {
+                        $username = preg_replace("/[^A-Za-z0-9 ]/", "", $request_obj[$sub_key]['value']);
+                    }
+                    else if (isset($request_obj[$sub_key]['campo'])
+                        && $request_obj[$sub_key]['campo'] == 'email_utente') {
+                        $email_utente = $request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($request_obj[$sub_key]['campo'])
+                        && $request_obj[$sub_key]['campo'] == 'id_evento') {
+                        $id_evento = (int) $request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($request_obj[$sub_key]['campo'])
+                        && $request_obj[$sub_key]['campo'] == 'password_utente') {
+                        $password_utente = $request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($request_obj[$sub_key]['campo'])
+                        && $request_obj[$sub_key]['campo'] == 'data_nascita_utente') {
+                        // format date artigianale
+                        $_tmp_date = date("Y-m-d", strtotime(str_replace('/', '-', trim($request_obj[$sub_key]['value']))));
+                        $request_obj[$sub_key]['value'] = $_tmp_date;
+                    }
+
+                    // campi cb
+
+                    if (isset($request_obj[$sub_key]['cb'])
+                        && $request_obj[$sub_key]['cb'] != ''
+                        && isset($request_obj[$sub_key]['value'])) {
+
+                        $cb_value = $request_obj[$sub_key]['value'];
+
+                        // campi select
+                        if (isset($request_obj[$sub_key]['is_id'])
+                            && $request_obj[$sub_key]['is_id'] != '') {
+                            $row_arr = utilityHelper::get_cb_fieldtitle_values($request_obj[$sub_key]['is_id'], $cb_value);
+                            if (isset($row_arr['fieldtitle']))
+                                $cb_value = $row_arr['fieldtitle'];
+                        }
+
+                        $_new_user_cp[$request_obj[$sub_key]['cb']] = addslashes($cb_value);
+
+                    }
+
+                }
+
+                // name e username prima lettera nome + cognome
+                $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
+                $_new_user['username'] = trim($username);
+                $_new_user['email'] = trim($email_utente);
+                $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
+
+                // controllo il codice fiscale
+                $_cf_check = UtilityHelper::conformita_cf($cf_utente);
+                if (!isset($_cf_check['valido'])
+                    || $_cf_check['valido'] != 1) {
+
+                    $_err = "Problemi con il Codice fiscale";
+                    if (isset($_cf_check['msg'])
+                        && $_cf_check['msg'] != "")
+                        $_err .= " " . $_cf_check['msg'];
+
+                    throw new Exception($_err, 1);
+                }
+
+                // controllo validità email
+                if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], 1);
+                }
+
+                // verifico l'esistenza delle colonne minimali per l'inserimento utente
+                $_test_users_fields = UtilityHelper::check_new_user_array($_new_user);
+                if ($_test_users_fields != "") {
+                    throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, 1);
+                }
+
+                // controllo esistenza utente su username
+                if (UtilityHelper::check_user_by_username($_new_user['username'])) {
+                    //throw new Exception("USERNAME ESISTENTE: ". $_new_user['username'], 1);
+                    // aggiungo dei numeri randomici
+                    $_new_user['username'] = $_new_user['username'] . rand(1, 999);
+                }
+
+                // controllo esistenza email utente
+                if (UtilityHelper::check_user_by_column('email', $_new_user['email'])) {
+                    throw new Exception("EMAIL ESISTENTE: ". $_new_user['email'], 1);
+                }
+
+                // controllo se l'ug dell'evento è valido
+                if ($id_evento == ""
+                    || filter_var($id_evento, FILTER_VALIDATE_INT) === false)
+                    throw new Exception("RIFERIMENTO EVENTO NON VALIDO", 1);
+
+                // inserimento utente
+                $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
+                $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+
+                if (!is_array($_user_insert_query_result)) {
+                    throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, 1);
+                }
+
+                $_new_user_id = $_user_insert_query_result['success'];
+
+                // mi servono informazioni sull'unita
+                if (isset($this->unit_id)
+                    && $this->unit_id != ""
+                    && $this->unit_id > 0) {
+                    $unit_model = new gglmsModelUnita();
+                    $_unit = $unit_model->getUnita($this->unit_id);
+                    $_event_title = $_unit->titolo;
+                    $ug_evento = $unit_model->get_id_gruppo_unit($this->unit_id);
+                }
+
+                // associo utente a gruppi solo eventi e gruppo evento
+                $ug_arr = array();
+                $ug_destinazione = UtilityHelper::get_ug_from_object($_params, "ug_nonsocio", true);
+                if (!is_array($ug_destinazione))
+                    $ug_arr[] = $ug_destinazione;
+                else
+                    $ug_arr = array_merge($ug_arr, $ug_destinazione);
+
+                $ug_arr[] = $ug_evento;
+
+                JUserHelper::setUserGroups($_new_user_id, $ug_arr);
+
+                // riferimento id per CP
+                $_new_user_cp['id'] = $_new_user_id;
+                $_new_user_cp['user_id'] = $_new_user_id;
+
+                // inserimento utente in CP
+                $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
+                if (!is_array($_cp_insert_query_result))
+                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", 1);
+
+                // invio email registrazione
+                $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
+                $_email_to  = UtilityHelper::get_params_from_object($_params, 'email_default');
+
+                $_send_email = UtilityHelper::send_acquisto_evento_email_new_user($_email_to,
+                                                                                    $_event_title,
+                                                                                    $_new_user['name'],
+                                                                                    $_new_user['username'],
+                                                                                    $_new_user['email'],
+                                                                                    $password_utente,
+                                                                                    $_email_from,
+                                                                                    true);
+
+                $this->_ret['success'] = "tuttook";
+                echo json_encode($this->_ret);
+                die();
+
+
+            }
+            else if ($this->action == 'user_registration_sponsor_request_confirm') { // la registrazione dell'utente sponsor è andata a buon fine
+
+                $this->hide_pp = true;
+
+                $_payment_form = outputHelper::get_user_registration_confirm_acquisto_evento($this->unit_prezzo,
+                                                                                            $this->unit_id,
+                                                                                            $this->user_id,
+                                                                                            $this->sconto_data,
+                                                                                            $this->in_groups,
+                                                                                            $_params);
+
+                if (!is_array($_payment_form))
+                    throw new Exception($_payment_form);
+
+                $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
+
+            }
 
         } catch (Exception $e){
 

@@ -707,6 +707,296 @@ HTML;
 
     }
 
+    public static function get_user_registration_form_sponsor_evento($_params, $id_evento) {
+
+        try {
+
+            $_title_advise = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR1');
+            $_cb_nome  = UtilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
+            $_cb_cognome = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
+            $_cb_cf = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cf', 'name');
+            $_cb_data_nascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name');
+            $_cb_luogo_nascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_luogodinascita', 'name');
+            $_cb_provincia_nascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
+            $_cb_indirizzo = UtilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo', 'name');
+            $_cb_citta = UtilityHelper::get_cb_field_name($_params, 'campo_cb_citta', 'name');
+            $_cb_cap = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cap', 'name');
+            $_cb_provincia = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provincia', 'name');
+            $_cb_telefono = UtilityHelper::get_cb_field_name($_params, 'campo_cb_telefono', 'name');
+            $_cb_professione_disciplina = UtilityHelper::get_cb_field_name($_params, 'campo_cb_professione_disciplina', 'name');
+            $_cb_ordine = UtilityHelper::get_cb_field_name($_params, 'campo_cb_ordine', 'name');
+            $_cb_numeroiscrizione = UtilityHelper::get_cb_field_name($_params, 'campo_cb_numeroiscrizione', 'name');
+            $_cb_ruolo = UtilityHelper::get_cb_field_name($_params, 'campo_cb_ruolo', 'name');
+            $_cb_reclutamento = UtilityHelper::get_cb_field_name($_params, 'campo_cb_reclutamento', 'name');
+
+            $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provinciadinascita');
+            $_cb_provincia_nascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
+
+            $_cb_provincia_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provincia');
+            $_cb_provincia_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia');
+
+            $_cb_professione_disciplina_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_professione_disciplina');
+            $_cb_professione_disciplina_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_professione_disciplina');
+
+            $_cb_ordine_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provincia');
+            $_cb_ordine_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia');
+
+            $_cb_ruolo_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_ruolo');
+            $_cb_ruolo_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_ruolo');
+
+            $_cb_reclutamento_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_reclutamento');
+            $_cb_reclutamento_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_reclutamento');
+
+            $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
+            $_label_username = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR2');
+            $_label_password = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR3');
+            $_label_email = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR20');
+            $_label_nome = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR4');
+            $_label_cognome = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR5');
+            $_label_cf = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR6');
+            $_label_dt_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR7');
+            $_label_citta_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8');
+            $_label_pv_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9');
+            $_label_indirizzo = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR10');
+            $_label_citta = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR11');
+            $_label_cap = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR12');
+            $_label_pv = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR13');
+            $_label_telefono = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR14');
+            $_label_professione = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR15');
+            $_label_ruolo = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR16');
+            $_label_ordine = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR17');
+            $_label_iscrizione = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR18');
+            $_label_reclutamento = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR19');
+
+            $token = UtilityHelper::build_token_url(0, $id_evento, 0, 0, 0, 0);
+            $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_sponsor_request');
+
+
+            $_html = <<<HTML
+            <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
+
+            <div class="row">
+                <div class="col-12">
+                    <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                </div>
+            </div>
+            <hr />
+            <div class="container-form">
+                <form>
+                
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="username">{$_label_username}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="username" style="width: 320px;" placeholder="{$_label_username}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="email_utente">{$_label_email}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
+                      </div>
+                    </div>
+                
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="nome_utente">{$_label_nome}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cognome_utente">{$_label_cognome}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
+                      </div>
+                    </div>
+                    
+                     <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cf_utente">{$_label_cf}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="citta_nascita_utente">{$_label_citta_nascita}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="citta_nascita_utente" style="width: 220px;" data-campo="{$_cb_luogo_nascita}" placeholder="{$_label_citta_nascita}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="pv_nascita_utente">{$_label_pv_nascita}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="pv_nascita_utente" data-campo="{$_cb_provincia_nascita}" data-id-ref="{$_cb_provincia_nascita_id}">
+                                <option value="">-</option>
+                                {$_cb_provincia_nascita_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="citta_utente">{$_label_indirizzo}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="citta_utente">{$_label_citta}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cap_utente">{$_label_cap}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cap_utente" style="width: 120px;" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="pv_utente">{$_label_pv}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
+                                <option value="">-</option>
+                                {$_cb_provincia_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="telefono_utente">{$_label_telefono}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="{$_label_telefono}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="professione_utente">{$_label_professione}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
+                                <option value="">-</option>
+                                {$_cb_professione_disciplina_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="ruolo_utente">{$_label_ruolo}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="ruolo_utente" data-campo="{$_cb_ruolo}" data-id-ref="{$_cb_ruolo_id}">
+                                <option value="">-</option>
+                                {$_cb_ruolo_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="ordine_utente">{$_label_ordine}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="ordine_utente" data-campo="{$_cb_ordine}" data-id-ref="{$_cb_ordine_id}">
+                                <option value="">-</option>
+                                {$_cb_ordine_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="iscrizione_albo_utente">{$_label_iscrizione}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="iscrizione_albo_utente" style="width: 220px;" data-campo="{$_cb_numeroiscrizione}"  placeholder="{$_label_iscrizione}" />
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="reclutamento_utente">{$_label_reclutamento}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="reclutamento_utente" data-campo="{$_cb_reclutamento}" data-id-ref="{$_cb_reclutamento_id}">
+                                <option value="">-</option>
+                                {$_cb_reclutamento_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div class="rowcustom">
+                        <div class="col-xs-12 text-center">
+                            <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                        </div>
+                     </div>
+                     <input type="hidden" id="token" value="{$token}" />
+                     <input type="hidden" id="id_evento" value="{$id_evento}" />
+                    
+                </form>
+            </div>
+
+HTML;
+
+            $_ret['success'] = $_html;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+
+    }
+
     public static function get_user_registration_form_acquisto_evento($unit_prezzo,
                                                                       $unit_id,
                                                                       $user_id,
@@ -741,6 +1031,21 @@ HTML;
             $_cb_provincia_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia');
 
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
+            $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
+            $_label_cognome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR9');
+            $_label_password = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR10');
+            $_label_r_password = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR11');
+            $_label_cf = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR12');
+            $_label_email = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR13');
+            $_label_indirizzo = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR14');
+            $_label_citta = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR15');
+            $_label_pv = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR16');
+            $_label_cap = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR17');
+            $_label_dt_nascita = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR18');
+            $_label_tel = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR19');
+            $_label_professione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR20');
+            $_label_laurea_in = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR21');
+            $_label_anno_laurea = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR22');
 
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_request');
@@ -760,25 +1065,25 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="nome_utente">Nome<span style="color: red">*</span></label>
+                        <label for="nome_utente">{$_label_nome}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="Nome" />
+                        <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="cognome_utente">Cognome<span style="color: red">*</span></label>
+                        <label for="cognome_utente">{$_label_cognome}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="Cognome" />
+                        <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="password_utente">Password<span style="color: red">*</span></label>
+                        <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
                         <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
@@ -787,7 +1092,7 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="ripeti_password_utente">Ripeti password<span style="color: red">*</span></label>
+                        <label for="ripeti_password_utente">{$_label_r_password}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
                         <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
@@ -796,43 +1101,43 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="cf_utente">Codice fiscale<span style="color: red">*</span></label>
+                        <label for="cf_utente">{$_label_cf}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="Codice fiscale" />
+                        <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="email_utente">Email<span style="color: red">*</span></label>
+                        <label for="email_utente">{$_label_email}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="Email" />
+                        <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="citta_utente">Indirizzo di residenza<span style="color: red">*</span></label>
+                        <label for="citta_utente">{$_label_indirizzo}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="Indirizzo di residenza" />
+                        <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="citta_utente">Città di residenza<span style="color: red">*</span></label>
+                        <label for="citta_utente">{$_label_citta}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="Città di nascita" />
+                        <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="pv_utente">Provincia di residenza<span style="color: red">*</span></label>
+                        <label for="pv_utente">{$_label_pv}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
                         <select class="form-control" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
@@ -844,16 +1149,16 @@ HTML;
                     
                      <div class="rowcustom">
                       <div class="col-25">
-                        <label for="cap_utente">CAP di residenza<span style="color: red">*</span></label>
+                        <label for="cap_utente">{$_label_cap}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="cap_utente" style="width: 220px;" data-campo="{$_cb_cap}" placeholder="CAP di residenza" />
+                        <input class="form-control" type="text" id="cap_utente" style="width: 120px;" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="data_nascita_utente">Data di nascita<span style="color: red">*</span></label>
+                        <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
                         <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
@@ -862,16 +1167,16 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="telefono_utente">Telefono<span style="color: red">*</span></label>
+                        <label for="telefono_utente">{$_label_tel}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
-                        <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="Telefono" />
+                        <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="{$_label_tel}" />
                       </div>
                     </div>
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="professione_utente">Professione<span style="color: red">*</span></label>
+                        <label for="professione_utente">{$_label_professione}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
                         <select class="form-control" id="professione_utente" data-campo="{$_cb_professione_disciplina}" data-id-ref="{$_cb_professione_disciplina_id}">
@@ -883,7 +1188,7 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="laureain_utente">Laurea in<span style="color: red">*</span></label>
+                        <label for="laureain_utente">{$_label_laurea_in}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-25">
                         <select class="form-control" id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
@@ -895,7 +1200,7 @@ HTML;
                     
                     <div class="rowcustom">
                       <div class="col-25">
-                        <label for="anno_laurea_utente">Anno di laurea<span style="color: red">*</span></label>
+                        <label for="anno_laurea_utente">{$_label_anno_laurea}<span style="color: red">*</span></label>
                       </div>
                       <div class="col-75">
                         <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  placeholder="Anno di laurea" />
@@ -906,8 +1211,8 @@ HTML;
                         <div class="col-xs-12 text-center">
                             <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
                         </div>
-                    </div>
-                    <input type="hidden" id="token" value="{$token}" />
+                     </div>
+                     <input type="hidden" id="token" value="{$token}" />
                 </form>
             </div>
 HTML;
