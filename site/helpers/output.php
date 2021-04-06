@@ -711,6 +711,12 @@ HTML;
 
         try {
 
+            // controllo se l'evento esiste ed è pubblicato
+            $_unit = new gglmsModelUnita();
+            $_check_evento = $_unit->find_corso_pubblicato($id_evento);
+            if (!is_array($_check_evento))
+                throw new Exception($_check_evento, 1);
+
             $_title_advise = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR1');
             $_cb_nome  = UtilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
             $_cb_cognome = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');

@@ -220,6 +220,40 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
+    public function find_corso_pubblicato($unit_id) {
+
+        try {
+
+            if ($unit_id == ""
+                || filter_var($unit_id, FILTER_VALIDATE_INT) === false
+                )
+                throw new Exception("Nessun identificativo valido", 1);
+
+            $_ret = array();
+
+            $query = $this->_db->getQuery(true)
+                ->select('u.id')
+                ->from('#__gg_unit as u')
+                ->where('u.id  = ' . $this->_db->quote($unit_id))
+                ->where('u.pubblicato = 1');
+            $this->_db->setQuery($query);
+
+            $data = $this->_db->loadResult();
+
+            if ($data == 0
+                || is_null($data)
+                )
+                throw new Exception("Nessun riferimento trovato per il corso richiesto", 1);
+
+            $_ret['success'] = "tuttook";
+            return $_ret;
+
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
     public function find_corso($check)
     {
         try {
