@@ -519,14 +519,14 @@ class gglmsModelUsers extends JModelLegacy
             $result = $db->loadObject();
 
             if (!$result)
-                return "User not exist!";
+                return "Utente non esistente!";
 
             $match = JUserHelper::verifyPassword($password, $result->password, $result->id);
 
             if (!$match)
-                return "Password mismatch";
+                return "Password non corretta";
 
-            $_ret['success'] = $result->id;
+            $_ret['success'] = (int) $result->id;
             return $_ret;
 
         }

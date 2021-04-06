@@ -698,12 +698,84 @@ HTML;
 
         $_html = <<<HTML
             <script>
-                alert('{$msg}');
+                alert("{$msg}");
                 window.location.href = "{$_href}";
             </script>
 HTML;
 
         return $_html;
+
+    }
+
+    public static function get_user_insert_confirm_group_sponsor_evento($_titolo_evento) {
+
+        $_ret = array();
+        $_href = utilityHelper::set_index_redirect_url();
+
+        $_html = <<<HTML
+                <div class="jumbotron">
+                    <h4>Grazie!</h4>
+                    <p>La tua registrazione all'evento {$_titolo_evento} è andata a buon fine 
+                        Tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                        </p>
+                </div>
+
+                <script>
+                    setTimeout(function () {
+                        window.location.href = "{$_href}";     
+                    }, 10000);
+                   
+                </script>
+HTML;
+
+        $_ret['success'] = $_html;
+        return $_ret;
+
+    }
+
+    // login utente per accedere ad evento sponsor
+    public static function get_user_login_form_sponsor_evento($id_evento) {
+
+        try {
+
+            $token = UtilityHelper::build_token_url(0, $id_evento, 0, 0, 0, 0);
+            $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_insert_group_sponsor_evento');
+            $_label_username = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR2');
+            $_label_password = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR3');
+            $_label_accedi = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR23');
+            $_html = <<<HTML
+            <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
+            <form>
+                <div class="rowcustom">
+                    <div class="col-75">
+                        <label for="username">{$_label_username}<span style="color: red">*</span></label>
+                        <br />
+                        <input class="form-control" type="text" id="username" style="width: 320px;" placeholder="{$_label_username}" />
+                    </div>
+                </div>
+                
+                <div class="rowcustom">
+                    <div class="col-75">
+                        <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
+                        <br />
+                        <input class="form-control" type="password" id="password_utente" style="width: 320px;" value="" />
+                    </div>
+                </div>
+                
+                <div class="rowcustom">
+                    <button class="btn btn-large btn-primary btn-accedi-sponsor" data-ref="{$_ref_registrazione}">{$_label_accedi}</button>
+                </div>
+                <input type="hidden" id="token" value="{$token}" />
+            </form>
+HTML;
+
+            $_ret['success'] = $_html;
+            return $_ret;
+        }
+        catch (Exception $e) {
+            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
 
     }
 
@@ -981,7 +1053,7 @@ HTML;
                     
                     <div class="rowcustom">
                         <div class="col-xs-12 text-center">
-                            <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                            <button class="btn btn-large btn-primary btn-registrazione-sponsor" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
                         </div>
                      </div>
                      <input type="hidden" id="token" value="{$token}" />
@@ -1324,7 +1396,73 @@ HTML;
 
     }
 
-    // reindirizza l'utente al login oppure ad una registrazione molto rapida per consetire di usufruire soltanto dell'evento
+    // reindirizza l'utente al login oppure ad una registrazione esclusiva per lo sponsor
+    public static function get_user_action_registration_form_sponsor_evento($unit_prezzo,
+                                                                            $unit_id,
+                                                                            $user_id,
+                                                                            $unit_model) {
+        try {
+
+            $_ret = array();
+
+            $_title_advise = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR22');
+            $_label_accedi = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR23');
+            $_label_registrazione = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR24');
+
+            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, 0, 0, 0);
+            $_ref_accedi = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_login_form_sponsor_evento');
+            $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_form_sponsor_evento');
+
+            if ((int) $user_id == 0)
+                $_html = <<<HTML
+                <div class="row">
+                    <div class="col-12">
+                        <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                    </div>
+                </div>
+                <hr />
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-xs-6 text-center">
+                        <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_accedi}">{$_label_accedi}</button>
+                    </div>
+                    <div class="col-xs-6 text-center">
+                        <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                    </div>
+                </div>
+HTML;
+            else {
+                // se già online registro direttamente l'utente all'evento
+                $_unit = $unit_model->getUnita($unit_id);
+                $unit_gruppo = $unit_model->get_id_gruppo_unit($unit_id);
+
+                // controllo se l'utente è già nel gruppo corso
+                $_already_request = utilityHelper::check_user_into_ug($user_id, (array) $unit_gruppo);
+                if ($_already_request)
+                    throw new Exception("Sei già registrato all'evento selezionato", 1);
+
+                $_insert_ug = UtilityHelper::set_usergroup_generic($user_id, $unit_gruppo);
+
+                if (!is_array($_insert_ug))
+                    throw new Exception($_insert_ug, 1);
+
+                $_view = self::get_user_insert_confirm_group_sponsor_evento($_unit->titolo);
+                $_html = $_view['success'];
+            }
+
+            $_ret['success'] = $_html;
+            return $_ret;
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+
+    }
+
+    // reindirizza l'utente al login oppure ad una registrazione molto rapida per consentire di usufruire soltanto dell'evento
     public static function get_user_action_request_form_acquisto_evento($unit_prezzo,
                                                                           $unit_id,
                                                                           $user_id,

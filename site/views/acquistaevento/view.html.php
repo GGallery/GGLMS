@@ -429,6 +429,101 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->in_error = 0;
 
             }
+            else if ($this->action == 'user_insert_confirm_group_sponsor_evento') {
+
+                $this->hide_pp = true;
+
+                $unit_model = new gglmsModelUnita();
+                $_unit = $unit_model->getUnita($this->unit_id);
+                $_event_title = $_unit->titolo;
+
+                $_payment_form = OutputHelper::get_user_insert_confirm_group_sponsor_evento($_event_title);
+                if (!is_array($_payment_form))
+                    throw new Exception($_payment_form);
+
+                $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
+            }
+            else if ($this->action == 'user_insert_group_sponsor_evento') {
+
+                $this->hide_pp = true;
+                $this->show_view = false;
+
+                $request_obj = JRequest::getVar('request_obj');
+                if (!isset($request_obj)
+                    || !is_array($request_obj)
+                    || count($request_obj) == 0
+                    || !isset($request_obj[0]['username'])
+                    || !isset($request_obj[0]['password_utente'])) {
+                    throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", 1);
+                }
+
+                $user_model  = new gglmsModelUsers();
+                $_check_user = $user_model->check_user(trim($request_obj[0]['username']), trim($request_obj[0]['password_utente']));
+
+                if (!is_array($_check_user)
+                    || !isset($_check_user['success']))
+                    throw new Exception($_check_user, 1);
+
+                $this->user_id = $_check_user['success'];
+
+                $unit_model = new gglmsModelUnita();
+                $_unit = $unit_model->getUnita($this->unit_id);
+
+                // controllo esistenza evento
+                $_check_evento = $_unit->find_corso_pubblicato($this->unit_id);
+                if (!is_array($_check_evento))
+                    throw new Exception($_check_evento, 1);
+
+                $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+
+                // controllo se l'utente è già nel gruppo corso
+                $_already_request = utilityHelper::check_user_into_ug($this->user_id, (array) $unit_gruppo);
+                if ($_already_request)
+                    throw new Exception("Sei già registrato all'evento selezionato", 1);
+
+                $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
+
+                if (!is_array($_insert_ug))
+                    throw new Exception($_insert_ug, 1);
+
+                $this->_ret['success'] = "tuttook";
+                echo json_encode($this->_ret);
+                die();
+            }
+            else if ($this->action == 'user_login_form_sponsor_evento') {
+
+                $this->hide_pp = true;
+
+                // controllo esistenza evento
+                $_unit = new gglmsModelUnita();
+                $_check_evento = $_unit->find_corso_pubblicato($this->unit_id);
+                if (!is_array($_check_evento))
+                    throw new Exception($_check_evento, 1);
+
+                $_payment_form = OutputHelper::get_user_login_form_sponsor_evento($this->unit_id);
+                if (!is_array($_payment_form))
+                    throw new Exception($_payment_form);
+
+                $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
+
+            }
+            // form di registrazione utente a evento per sponsor
+            else if ($this->action == 'user_registration_form_sponsor_evento') {
+
+                $this->hide_pp = true;
+
+                $_payment_form = OutputHelper::get_user_registration_form_sponsor_evento($_params,
+                                                                                        $this->unit_id);
+                if (!is_array($_payment_form))
+                    throw new Exception($_payment_form);
+
+                $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
+
+            }
+            // registrazione utente a evento per sponsor
             else if ($this->action == 'user_registration_sponsor_request') {
 
                 $this->_ret = array();
@@ -440,7 +535,6 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     || count($request_obj) == 0) {
                     throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", 1);
                 }
-
 
                 // i campi necessari per l'inserimento nella tabella users
                 $_new_user = array();

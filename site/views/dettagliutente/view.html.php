@@ -140,8 +140,17 @@ class gglmsViewdettagliutente extends JViewLegacy
                     || $this->id_evento_sponsor == "")
                     throw new Exception("Nessun evento valido specificato", 1);
 
+                // controllo esistenza evento
+                $_unit = new gglmsModelUnita();
+                $_check_evento = $_unit->find_corso_pubblicato($this->id_evento_sponsor);
+                if (!is_array($_check_evento))
+                    throw new Exception($_check_evento, 1);
+
                 // precarico i params del modulo
-                $_form_registrazione = OutputHelper::get_user_registration_form_sponsor_evento($_params_module, $this->id_evento_sponsor);
+                $_form_registrazione = OutputHelper::get_user_action_registration_form_sponsor_evento(0,
+                                                                                                    $this->id_evento_sponsor,
+                                                                                                    $_current_user->id,
+                                                                                                    $_unit);
                 if (!is_array($_form_registrazione)
                     || !isset($_form_registrazione['success']))
                     throw new Exception($_form_registrazione, 1);
