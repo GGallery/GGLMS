@@ -491,6 +491,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 echo json_encode($this->_ret);
                 die();
             }
+            // login utente sponsor per iscrizione ad evento
             else if ($this->action == 'user_login_form_sponsor_evento') {
 
                 $this->hide_pp = true;
@@ -715,16 +716,20 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
 
             }
-            else if ($this->action == 'user_registration_sponsor_request_confirm') { // la registrazione dell'utente sponsor è andata a buon fine
+            // la registrazione dell'utente sponsor è andata a buon fine
+            else if ($this->action == 'user_registration_sponsor_request_confirm') {
 
                 $this->hide_pp = true;
+                $unit_model = new gglmsModelUnita();
+                $_unit = $unit_model->getUnita($this->unit_id);
 
                 $_payment_form = outputHelper::get_user_registration_confirm_acquisto_evento($this->unit_prezzo,
                                                                                             $this->unit_id,
                                                                                             $this->user_id,
                                                                                             $this->sconto_data,
                                                                                             $this->in_groups,
-                                                                                            $_params);
+                                                                                            $_params,
+                                                                                            $_unit->titolo);
 
                 if (!is_array($_payment_form))
                     throw new Exception($_payment_form);

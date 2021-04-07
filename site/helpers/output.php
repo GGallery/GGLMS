@@ -716,8 +716,8 @@ HTML;
                 <div class="jumbotron">
                     <h4>Grazie!</h4>
                     <p>La tua registrazione all'evento {$_titolo_evento} è andata a buon fine 
-                        Tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
-                        </p>
+                        <br />Tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                    </p>
                 </div>
 
                 <script>
@@ -1356,7 +1356,8 @@ HTML;
                                                                          $user_id,
                                                                          $sconto_data,
                                                                          $in_groups,
-                                                                         $_params) {
+                                                                         $_params,
+                                                                         $_titolo_evento = "") {
 
         try {
 
@@ -1365,10 +1366,14 @@ HTML;
             $_href = utilityHelper::set_index_redirect_url();
             $_ref_accedi = "index.php?option=com_comprofiler&view=login";
 
+            $_msg = "La tua registrazione è andata a buon fine";
+            if ($_titolo_evento != "")
+                $_msg = "La tua registrazione all'evento " . $_titolo_evento . " è andata a buon fine";
+
             $_html = <<<HTML
                 <div class="jumbotron">
                     <h4>Grazie!</h4>
-                    <p>La tua registrazione è andata a buon fine
+                    <p>{$_msg}
                         <br />
                         Riceverai una E-Mail all'indirizzo indicato durante la registrazione con i tuoi dati
                         <br />
