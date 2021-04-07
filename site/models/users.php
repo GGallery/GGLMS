@@ -1118,6 +1118,7 @@ class gglmsModelUsers extends JModelLegacy
                                 UPPER(cp.cb_codicefiscale) AS codice_fiscale,
                                 u.email,
                                 COALESCE(cp.cb_indirizzodiresidenza, '') AS indirizzo,
+                                COALESCE(cp.cb_citta, '') AS citta,
                                 COALESCE(cp.cb_provdiresidenza, '') AS provincia,
                                 COALESCE(cp.cb_cap, '') AS cap,
                                 COALESCE(cp.cb_ragionesociale, '') AS ragione_sociale,
