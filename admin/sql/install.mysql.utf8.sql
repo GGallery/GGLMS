@@ -484,7 +484,37 @@ CREATE TABLE `#__gg_unit` (
 -- ----------------------------
 -- Records of #__gg_unit
 -- ----------------------------
-INSERT INTO `#__gg_unit` VALUES ('1', 'Corsi', 'corsi', '', '0', '0', '1', '0', 'Accesso libero', '1', '0', '2019-11-14', '2019-11-14', null, 0, null, 0, null, null, null, null, null, null, null, null, null, null, null, null, null);
+INSERT INTO `#__gg_unit` VALUES (
+                                '1',
+                                'Corsi',
+                                'corsi',
+                                '',
+                                '0',
+                                '0',
+                                '1',
+                                '0',
+                                'Accesso libero',
+                                '1',
+                                '0',
+                                '2019-11-14',
+                                '2019-11-14',
+                                null,
+                                0,
+                                null,
+                                0,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`

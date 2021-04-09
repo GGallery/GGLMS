@@ -180,7 +180,12 @@ class gglmsControllerZoom extends JControllerLegacy
 
         try {
 
-            $response = $client->request('GET', '/v2/report/users/' . $user_id . '/' . $type .'?type=' . $report_type . '&page_size=' . $page_size . '&to=' . $dt_to . '&from=' . $dt_from, [
+            $response = $client->request('GET', '/v2/report/users/' . $user_id . '/' . $type
+                                                                        . '?type=' . $report_type
+                                                                        . '&page_size=' . $page_size
+                                                                        . '&to=' . $dt_to
+                                                                        . '&from=' . $dt_from,
+                [
                 "headers" => [
                     "Authorization" => "Bearer $this->access_token"
                 ],
@@ -212,7 +217,7 @@ class gglmsControllerZoom extends JControllerLegacy
         $_ret = array();
         try {
 
-            $response = $client->request('GET', '/v2/report/' . $type . '/' . $event_id . '/participants?$page_size=' . $page_size, [
+            $response = $client->request('GET', '/v2/report/' . $type . '/' . $event_id . '/participants?page_size=' . $page_size, [
                 "headers" => [
                     "Authorization" => "Bearer $this->access_token"
                 ]
