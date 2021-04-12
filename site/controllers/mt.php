@@ -27,6 +27,19 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function test_() {
+
+        $check = null;
+
+        if (!$check)
+            echo "ok";
+        else
+            echo "non ok";
+
+        $this->_japp->close();
+
+    }
+
     public function get_tz() {
 
         $oggi = '2020-11-16T07:21:36Z';

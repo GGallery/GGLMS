@@ -54,6 +54,7 @@ class gglmsControllerContenuto extends JControllerLegacy
 
             echo 1;
         } catch (Exception $e) {
+            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
             echo 0;
         }
         $japp->close();
@@ -82,7 +83,8 @@ class gglmsControllerContenuto extends JControllerLegacy
             $tmp->varValue = $time;
             $modelstato->setStato($tmp);
         } catch (Exception $e) {
-            DEBUGG::loo($e);
+            //DEBUGG::log($e);
+            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
         }
         $japp->close();
     }

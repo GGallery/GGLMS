@@ -2523,4 +2523,11 @@ HTML;
 
         return $_response;
     }
+
+    public static function make_debug_log($_function, $_error_message, $_label) {
+
+        $_msg = $_function . " : " . $_error_message;
+        DEBUGG::log(json_encode($_msg), $_label, 0, 1, 0);
+
+    }
 }

@@ -57,7 +57,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
     // entry point
-    public function insert_coupon($data)
+    public function insert_coupon($data, $from_api=false)
     {
 
         try {
@@ -75,7 +75,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // check durata coupon, se il campo è nel form vince l'input dell'utente
             $durata_coupon = $data["durata"] ? $data["durata"] : $this->_config->getConfigValue('durata_standard_coupon');
             if ($durata_coupon == null) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("durata coupon non specificata", E_USER_ERROR);
             }
 
             // se non è specificato nel form il default è coupon abilitati.
@@ -88,7 +88,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             // se non esiste crea utente ( tutor ) legato alla company
             // esiste gia' l'username (P.iva) ?
-            $user_id = $this->_check_username((string)$data['username']);
+            $user_id = $this->_check_username((string)$data['username'], $from_api);
+            // controllo se il check è andato in errore
+            if (is_array($user_id))
+                throw new RuntimeException("check username in errore:" . $user_id['error'], E_USER_ERROR);
 
             $company_user = null;
             $new_societa = false;
@@ -96,28 +99,49 @@ class gglmsModelgeneracoupon extends JModelLegacy
             if (empty($user_id)) {
 
                 // prima di procedere controllo se lo usergroups è già esistente visto che viene inizializzato come la ragione sociale e joomla non accetta gruppi con lo stesso nome
-                $check_usergroups = $this->_check_usergroups((string)$data['ragione_sociale']);
+                $check_usergroups = $this->_check_usergroups((string)$data['ragione_sociale'], $from_api);
+                if (is_array($check_usergroups))
+                    throw new RuntimeException("check usergroups in errore:" . $check_usergroups['errore'], E_USER_ERROR);
+
                 if (!is_null($check_usergroups))
                     throw new RuntimeException("duplicate user_groups", E_USER_ERROR);
 
                 $new_societa = true;
-                $company_user = $this->create_new_company_user($data);
+                $company_user = $this->create_new_company_user($data, $from_api);
+                // controllo eventuali errori
+                if (is_null($company_user))
+                    throw new RuntimeException("company user creation failed", E_USER_ERROR);
 
             } else {
                 // se l'utente esiste già, la parte del from aziendale e disabilitata
                 // non mi arriva l'id piattaforma
                 // lo ricavo dall'utente partita iva
                 $model_user = new gglmsModelUsers();
-                $data["id_piattaforma"] = $model_user->get_user_piattaforme($user_id)[0]->value;
+                //$data["id_piattaforma"] = $model_user->get_user_piattaforme($user_id, $from_api)[0]->value;
+                $_tmp_id_piattaforma = $model_user->get_user_piattaforme($user_id, $from_api);
+                // controllo eventuali errori
+                if (is_null($_tmp_id_piattaforma))
+                    throw new RuntimeException("no user piattaforme found", E_USER_ERROR);
+
+                $data["id_piattaforma"] = $_tmp_id_piattaforma[0]->value;
                 
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
-            $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["id_piattaforma"]);
+            $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["id_piattaforma"], $from_api);
+            // controllo eventuali errori
+            if (is_null($info_societa)
+                || !is_array($info_societa))
+                throw new RuntimeException("nessun gruppo societa trovato", E_USER_ERROR);
+
             $id_gruppo_societa = $info_societa["id"];
             $nome_societa = $info_societa["name"];
 
-            $this->_info_corso = $this->get_info_corso($data["gruppo_corsi"]);
+            $this->_info_corso = $this->get_info_corso($data["gruppo_corsi"], $from_api);
+            if (is_null($this->_info_corso)
+                || !is_array($this->_info_corso))
+                throw new RuntimeException("nessun info corso trovato", E_USER_ERROR);
+
             $prefisso_coupon = $this->_info_corso["prefisso_coupon"];
 
 
@@ -181,13 +205,23 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 // send new credentials
                 if ($new_societa) {
 
-                    if ($this->send_new_company_user_mail($company_user, $nome_societa, $id_gruppo_societa ,$data["id_piattaforma"], $data['email_coupon']) === false) {
+                    if ($this->send_new_company_user_mail($company_user,
+                            $nome_societa,
+                            $id_gruppo_societa,
+                            $data["id_piattaforma"],
+                            $data['email_coupon'],
+                            $from_api) === false) {
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
                 }
 
-                if ($this->send_coupon_mail($coupons, $data["id_piattaforma"], $nome_societa, $id_gruppo_societa, $data['email_coupon']) === false) {
+                if ($this->send_coupon_mail($coupons,
+                        $data["id_piattaforma"],
+                        $nome_societa,
+                        $id_gruppo_societa,
+                        $data['email_coupon'],
+                        $from_api) === false) {
                     throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                 }
 
@@ -199,11 +233,15 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $genera_forum = $this->_config->getConfigValue('genera_forum');
             if ($genera_forum == 1) {
 
-                $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi']);
+                $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $from_api);
 
                 if (empty($forum_corso)) {
 
-                    if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $nome_societa))) {
+                    if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa,
+                            $data['gruppo_corsi'],
+                            $nome_societa,
+                            null,
+                            $from_api))) {
                         throw new RuntimeException('Error: cannot create forum corso', E_USER_ERROR);
                     }
                 }
@@ -213,16 +251,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             return $id_iscrizione;
 
-        } catch (Exception $ex) {
+        } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
-            DEBUGG::log(json_encode($ex->getMessage()), 'insert_coupon_exception_error', 0, 1, 0 );
-            DEBUGG::error($ex, 'insert_coupon', 0, true);
-
+            DEBUGG::error($e, 'insert_coupon', 0, true);
+            return null;
         }
 
     }
 
-    public function _get_info_gruppo_societa($piva, $id_piattaforma)
+    public function _get_info_gruppo_societa($piva, $id_piattaforma, $from_api=false)
     {
         // prendo utente username= p.iva
 
@@ -254,13 +293,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             return $id_gruppo_societa;
         } catch (Exception $e) {
-            DEBUGG::error($e, '_get_id_gruppo_societa');
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
 
     }
 
-    public function create_new_company_user($data)
+    public function create_new_company_user($data, $from_api=false)
     {
         try {
 
@@ -281,13 +324,18 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // creo nuovo gruppo figlio di piattaforma e lo associo all'utente che ho appena creato
-            if (false === ($company_group_id = $this->_create_company_group($user_id, $data['ragione_sociale'], $data["id_piattaforma"])))
+            if (false === ($company_group_id = $this->_create_company_group($user_id,
+                    $data['ragione_sociale'],
+                    $data["id_piattaforma"],
+                    $from_api)))
                 throw new Exception('Errore nella creazione del gruppo', E_USER_ERROR);
 
 
             $new_user = new gglmsModelUsers();
-            $new_user->set_user_tutor($user_id, 'aziendale');
-
+            // controllo impostazione del tutor aziendale
+            $_set_user_tutor = $new_user->set_user_tutor($user_id, 'aziendale', $from_api);
+            if (!$_set_user_tutor)
+                throw new RuntimeException("imposssibile impostare il tutor aziendale", E_USER_ERROR);
 
             // inserisco in comprofiler
             $query = 'INSERT INTO #__comprofiler (id, user_id, cb_cognome, cb_ateco) VALUES (
@@ -300,14 +348,16 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $this->_db->setQuery($query);
             if (false === $this->_db->query()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-
             }
 
 
             // leggo da configurazione se creare o meno forum compagnia
             $genera_forum = $this->_config->getConfigValue('genera_forum');
             if ($genera_forum == 1) {
-                if (false === $this->_create_company_forum($company_group_id, $data['ragione_sociale'], $data['vendor'])) {
+                if (false === $this->_create_company_forum($company_group_id,
+                        $data['ragione_sociale'],
+                        $data['vendor'],
+                        $from_api)) {
                     throw new Exception('Errore nella creazione del forum', E_USER_ERROR);
                 }
             }
@@ -322,34 +372,56 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             return $res;
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
-            DEBUGG::error($e, 'create_new_company_user');
-
+            DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
-        return false;
+        //return false;
     }
 
-    private function _check_username($username)
+    private function _check_username($username, $from_api=false)
     {
-        $query = 'SELECT id FROM #__users WHERE username=\'' . $this->_db->escape($username) . '\' LIMIT 1';
-        $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->loadRow())) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-        }
+        try {
+            $query = 'SELECT id FROM #__users WHERE username=\'' . $this->_db->escape($username) . '\' LIMIT 1';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadRow())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
 
-        return isset($results[0]) ? $results[0] : null;
+            return isset($results[0]) ? $results[0] : null;
+        }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            $_ret['error'] = $e->getMessage();
+            return $_ret;
+        }
     }
 
-    private function _check_usergroups($usergroup) {
+    private function _check_usergroups($usergroup, $from_api=false) {
 
-        $query = "SELECT id FROM #__usergroups WHERE title = '" . $this->_db->escape($usergroup) . "'";
-        $this->_db->setQuery($query);
+        try {
 
-        if (false === ($results = $this->_db->loadRow())) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            $query = "SELECT id FROM #__usergroups WHERE title = '" . $this->_db->escape($usergroup) . "'";
+            $this->_db->setQuery($query);
+
+            if (false === ($results = $this->_db->loadRow())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results[0]) ? $results[0] : null;
         }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
-        return isset($results[0]) ? $results[0] : null;
+            $_ret['error'] = $e->getMessage();
+            return $_ret;
+
+        }
 
     }
 
@@ -365,9 +437,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
      * @param int $company_id
      * @param string $company_name
      * @param  int $piattaforma_group_id
-     * @return int Ritorn l'ID del gruppo appena creato o FALSE in caso di errore.
+     * @param boolean $from_api
+     * @return int Ritorna l'ID del gruppo appena creato o FALSE in caso di errore.
      */
-    private function _create_company_group($company_id, $company_name, $piattaforma_group_id)
+    private function _create_company_group($company_id, $company_name, $piattaforma_group_id, $from_api=false)
     {
 
         try {
@@ -395,10 +468,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             return $new_group_id;
 
-        } catch (Exception $ex) {
+        } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+            else
+                DEBUGG::error($e, __FUNCTION__);
 
-            var_dump($ex);
-            echo 'errore in _create_company_group';
+            //var_dump($e);
+            //echo 'errore in _create_company_group';
             return false;
 
 
@@ -438,107 +515,130 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     private function _generate_id_iscrizione($id_piattaforma)
     {
-       $created_by=  $this->_userid === null ? '0' :  $this->_userid;
+        $created_by=  $this->_userid === null ? '0' :  $this->_userid;
         return $id_piattaforma . '_' . uniqid(time()) . '_' . $created_by  ;
     }
 
 //////////////////////////////  MAIL   /////////////////////
 
     // MAIL COUPON
-    public function send_coupon_mail($coupons, $id_piattaforma, $nome_societa, $id_gruppo_societa, $email_coupon = '')
+    public function send_coupon_mail($coupons,
+                                     $id_piattaforma,
+                                     $nome_societa,
+                                     $id_gruppo_societa,
+                                     $email_coupon = '',
+                                     $from_api=false)
     {
 
-        // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
-        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon))) {
-            $_msg['data'] = 'Non ci sono tutor piattaforma configurati per questa piattaforma';
-            DEBUGG::log(json_encode($_msg['data']), 'api_genera_coupon_no_tutor_piattaforma', 0, 1, 0 );
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg['data'] , 'Error'));
+        try {
+            // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
+            if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon, $from_api))) {
+                $_msg = 'Non ci sono tutor piattaforma configurati per questa piattaforma';
+                if (!$from_api)
+                    $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg, 'Error'));
+                else
+                    throw new RuntimeException($_msg, E_USER_ERROR);
+            }
+
+            // get sender
+            if (false == ($sender = $this->get_mail_sender($id_piattaforma, $from_api))) {
+                $_msg = 'Non è configurato un indirizzo mail di piattaforma';
+                if (!$from_api)
+                    $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg, 'Error'));
+                else
+                    throw new RuntimeException($_msg, E_USER_ERROR);
+
+            }
+
+            // get data
+            $info_piattaforma = $this->get_info_piattaforma($id_piattaforma, $from_api);
+            if (is_null($info_piattaforma)
+                || !is_array($info_piattaforma))
+                throw new RuntimeException("nessun info piattaforma", E_USER_ERROR);
+
+            // send mail
+            $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
+
+            // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
+            $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
+
+            // verifico da impostazione se voglio vedere il name del tutor nel titolo della E-mail di generazione
+            // proprietà company_name Es. Generazione coupon NameTutor
+            $mostra_nome_societa = $this->_config->getConfigValue('nome_azienda_intestazione_email_coupon');
+            if ((int)$mostra_nome_societa == 0
+                && !is_null($mostra_nome_societa))
+                $nome_societa = "";
+
+            $mailer = JFactory::getMailer();
+            $mailer->setSender($sender);
+            $mailer->addRecipient($to);
+            $mailer->addCc($recipients["cc"]);
+            $mailer->setSubject('Coupon corso ' . $this->_info_corso["titolo"]);
+
+
+            //        // modidifca custom per ausind, da cambiare in piattaforma hidden!!
+            //        if ($id_piattaforma == '141') {
+            //            $info_piattaforma["alias"] = "Ausind";
+            //        }
+
+            if ($info_piattaforma['mail_from_default'] == 1) {
+
+                //            ricavo alias e name dalla piattaforma di default
+                $piattaforma_default = $this->get_info_piattaforma_default($from_api);
+                if (is_null($piattaforma_default)
+                    || !is_array($piattaforma_default))
+                    throw new RuntimeException("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+                $info_piattaforma["alias"] = $piattaforma_default['alias'];
+                $info_piattaforma["name"] = $piattaforma_default['name'];
+                $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
+                //
+            }
+
+            $smarty = new EasySmarty();
+            $smarty->assign('coupons', $coupons);
+            $smarty->assign('coupons_count', count($coupons));
+            $smarty->assign('course_name', $this->_info_corso["titolo"]);
+            $smarty->assign('company_name', $nome_societa);
+            $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
+            $smarty->assign('recipient_name', $recipients["to"]->name);
+            $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
+
+
+            $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+            $mailer->isHTML(true);
+
+            // rimosso il riferimento a $recipients["to"]->email
+            if (!$mailer->Send()) {
+                //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+                utilityHelper::logMail('coupons_mail_send_error',
+                    $sender,
+                    implode(",", $to),
+                    0,
+                    implode(", ", $recipients['cc']),
+                    $this->_info_corso["idgruppo"]);
+            }
+
+            //log mail sent
+            // rimosso il riferimento a $recipients["to"]->email
+            utilityHelper::logMail('coupons_mail',
+                $sender,
+                implode(",", $to),
+                1,
+                implode(", ", $recipients['cc']),
+                $this->_info_corso["idgruppo"]);
+            return true;
         }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
-        // get sender
-        if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
-            $_msg['data'] = 'Non è configurato un indirizzo mail di piattaforma';
-            DEBUGG::log(json_encode($_msg['data']), 'api_genera_coupon_no_sender', 0, 1, 0 );
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg['data'], 'Error'));
-
+            return false;
         }
-
-        // get data
-        $info_piattaforma = $this->get_info_piattaforma($id_piattaforma);
-
-        // send mail
-        $template = JPATH_COMPONENT . '/models/template/coupons_mail.tpl';
-
-        // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
-        $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
-
-        // verifico da impostazione se voglio vedere il name del tutor nel titolo della E-mail di generazione
-        // proprietà company_name Es. Generazione coupon NameTutor
-        $mostra_nome_societa = $this->_config->getConfigValue('nome_azienda_intestazione_email_coupon');
-        if ((int) $mostra_nome_societa == 0
-            && !is_null($mostra_nome_societa))
-            $nome_societa = "";
-
-        $mailer = JFactory::getMailer();
-        $mailer->setSender($sender);
-        $mailer->addRecipient($to);
-        $mailer->addCc($recipients["cc"]);
-        $mailer->setSubject('Coupon corso ' . $this->_info_corso["titolo"]);
-
-
-//        // modidifca custom per ausind, da cambiare in piattaforma hidden!!
-//        if ($id_piattaforma == '141') {
-//            $info_piattaforma["alias"] = "Ausind";
-//        }
-
-        if ($info_piattaforma['mail_from_default'] == 1) {
-
-//            ricavo alias e name dalla piattaforma di default
-            $piattaforma_default = $this->get_info_piattaforma_default();
-
-            $info_piattaforma["alias"] =$piattaforma_default['alias'];
-            $info_piattaforma["name"] = $piattaforma_default['name'];
-            $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
-//
-        }
-
-        $smarty = new EasySmarty();
-        $smarty->assign('coupons', $coupons);
-        $smarty->assign('coupons_count', count($coupons));
-        $smarty->assign('course_name', $this->_info_corso["titolo"]);
-        $smarty->assign('company_name', $nome_societa);
-        $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
-        $smarty->assign('recipient_name', $recipients["to"]->name);
-        $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
-
-
-        $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
-        $mailer->isHTML(true);
-
-        // rimosso il riferimento a $recipients["to"]->email
-        if (!$mailer->Send()) {
-//            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-            utilityHelper::logMail('coupons_mail_send_error',
-                                    $sender,
-                                    implode(",", $to),
-                                    0,
-                                    implode(", ", $recipients['cc']),
-                                    $this->_info_corso["idgruppo"]);
-        }
-
-        //log mail sent
-        // rimosso il riferimento a $recipients["to"]->email
-        utilityHelper::logMail('coupons_mail',
-                                $sender,
-                                implode(",", $to),
-                                1,
-                                implode(", ", $recipients['cc']),
-                                $this->_info_corso["idgruppo"]);
-        return true;
 
     }
 
-    public function get_mail_sender($id_piattaforma)
+    public function get_mail_sender($id_piattaforma, $from_api=false)
     {
 
         try {
@@ -555,43 +655,66 @@ class gglmsModelgeneracoupon extends JModelLegacy
             return $data;
 
         } catch (Exception $e) {
-            DEBUGG::query($query);
-            DEBUGG::log($e, 'get_coupon_sender', 1);
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
+            DEBUGG::query($query);
+            DEBUGG::log($e, __FUNCTION__, 1);
+
+            return false;
         }
 
 
     }
 
-    public function get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon = '')
+    public function get_coupon_mail_recipients($id_piattaforma,
+                                               $id_gruppo_societa,
+                                               $email_coupon = '',
+                                               $from_api=false)
     {
 
-        // TO = tutor aziendale
-        // CC = tutor di piattaforma
+        try {
+            // TO = tutor aziendale
+            // CC = tutor di piattaforma
 
-        // utente loggato
-        $to = null;
-        $cc = array();
+            // utente loggato
+            $to = null;
+            $cc = array();
 
-        $user = new gglmsModelUsers();
-        $tutor_piattaforma_id_list = $user->get_all_tutor_piattaforma($id_piattaforma);
+            $user = new gglmsModelUsers();
+            $tutor_piattaforma_id_list = $user->get_all_tutor_piattaforma($id_piattaforma, $from_api);
+            // controllo integrità tutor piattaforma
+            if (is_null($tutor_piattaforma_id_list)
+                || !is_array($tutor_piattaforma_id_list))
+                throw new RuntimeException("nessun tutor piattaforma trovato", E_USER_ERROR);
 
-        foreach ($tutor_piattaforma_id_list as $tutor_id) {
-            array_push($cc, $this->get_user_info($tutor_id, 'email'));
+            foreach ($tutor_piattaforma_id_list as $tutor_id) {
+                array_push($cc, $this->get_user_info($tutor_id, 'email'));
+            }
+
+            $tutor_az = $user->get_tutor_aziendale($id_gruppo_societa, $from_api);
+            // controllo integrità tutor azienda
+            if (is_null($tutor_az))
+                throw new RuntimeException("nessun tutor aziendale trovato", E_USER_ERROR);
+
+
+            $to->email = $email_coupon == '' ? $this->get_user_info($tutor_az, 'email') : $email_coupon;
+            $to->name = $this->get_user_info($tutor_az, 'name');
+
+            //        $to->email = $this->get_user_info($this->_userid, 'email');
+            //        $to->name = $this->get_user_info($this->_userid, 'name');
+
+
+            $result = array('to' => $to, 'cc' => $cc);
+
+            return empty($to) || empty($cc) ? false : $result;
         }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
-
-        $tutor_az = $user->get_tutor_aziendale($id_gruppo_societa);
-        $to->email = $email_coupon == '' ? $this->get_user_info($tutor_az, 'email') : $email_coupon;
-        $to->name = $this->get_user_info($tutor_az, 'name');
-
-//        $to->email = $this->get_user_info($this->_userid, 'email');
-//        $to->name = $this->get_user_info($this->_userid, 'name');
-
-
-        $result = array('to' => $to, 'cc' => $cc);
-
-        return empty($to) || empty($cc) ? false : $result;
+            return false;
+        }
 
     }
 
@@ -603,7 +726,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         return $info;
     }
 
-    public function get_info_corso($id_gruppo_corso)
+    public function get_info_corso($id_gruppo_corso, $from_api=false)
     {
 
         try {
@@ -626,13 +749,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
             return $result;
 
         } catch (Exception $e) {
-            DEBUGG::error($e, 'get_info_corso');
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
 
     }
 
-    public function get_info_piattaforma($id_piattaforma)
+    public function get_info_piattaforma($id_piattaforma, $from_api=false)
     {
 
 
@@ -652,14 +779,19 @@ class gglmsModelgeneracoupon extends JModelLegacy
             return $info_piattaforma;
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            DEBUGG::log(json_encode($e->getMessage()), 'api_genera_coupon_response_' . __FUNCTION__ . '_error', 0, 1, 0 );
             DEBUGG::error($e, 'get_info_piattaforma');
+            return null;
         }
 
 
     }
 
 
-    public function get_info_piattaforma_default()
+    public function get_info_piattaforma_default($from_api=false)
     {
 
 
@@ -678,7 +810,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
             return $info_piattaforma;
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
             DEBUGG::error($e, 'get_info_piattaforma');
+            return null;
         }
 
 
@@ -686,7 +822,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     // MAIL REGISTRAZIONE NUOVA SOCIETA'
 
-    public function send_new_company_user_mail($company_user, $nome_societa, $id_gruppo_societa, $id_piattaforma, $email_coupon = '')
+    public function send_new_company_user_mail($company_user,
+                                               $nome_societa,
+                                               $id_gruppo_societa,
+                                               $id_piattaforma,
+                                               $email_coupon = '',
+                                               $from_api=false)
     {
 
         // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
@@ -695,70 +836,96 @@ class gglmsModelgeneracoupon extends JModelLegacy
 //            DEBUGG::log($recipients, 'send_new_company_user_mail');
 //        }
 
+        try {
+            // get recipients --> tutor piattaforma (cc) + tutor aziendale (to) --
+            if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma,
+                    $id_gruppo_societa,
+                    $email_coupon,
+                    $from_api))) {
+                $_msg = 'Non ci sono tutor piattaforma configurati per questa piattaforma';
+                if (!$from_api)
+                    $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg, 'Error'));
+                else
+                    throw new Exception($_msg, 1);
 
-        // get recipients --> tutor piattaforma (cc) + tutor aziendale (to) --
-        if (false == ($recipients = $this->get_coupon_mail_recipients($id_piattaforma, $id_gruppo_societa, $email_coupon))) {
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non ci sono tutor piattaforma configurati per questa piattaforma', 'Error'));
+            }
 
+
+            // get sender
+            if (false == ($sender = $this->get_mail_sender($id_piattaforma, $from_api))) {
+                $_msg = 'Non è configurato un indirizzo mail di piattaforma';
+                if (!$from_api)
+                    $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage($_msg, 'Error'));
+                else
+                    throw new Exception($_msg, 1);
+
+            }
+
+            $info_piattaforma = $this->get_info_piattaforma($id_piattaforma, $from_api);
+            if (is_null($info_piattaforma)
+                || !is_array($info_piattaforma))
+                throw new RuntimeException("nessun info piattaforma", E_USER_ERROR);
+
+            $template = JPATH_COMPONENT . '/models/template/new_tutor_mail.tpl';
+
+            //         modidifca custom per ausind,
+            if ($info_piattaforma['mail_from_default'] == 1) {
+
+                //            ricavo alias e name dalla piattaforma di default
+                $piattaforma_default = $this->get_info_piattaforma_default($from_api);
+                if (is_null($piattaforma_default)
+                    || !is_array($piattaforma_default))
+                    throw new RuntimeException("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+                $info_piattaforma["alias"] = $piattaforma_default['alias'];
+                $info_piattaforma["name"] = $piattaforma_default['name'];
+                $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
+            }
+
+            // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
+            $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
+
+
+            $mailer = JFactory::getMailer();
+            $mailer->setSender($sender);
+            //        $mailer->addRecipient($recipients);
+            $mailer->addRecipient($to);
+            $mailer->addCc($recipients["cc"]);
+            $mailer->setSubject('Registrazione  ' . $info_piattaforma["alias"]);
+
+
+            $smarty = new EasySmarty();
+            $smarty->assign('company_name', $nome_societa);
+            $smarty->assign('user_name', $company_user["piva"]);
+            $smarty->assign('user_password', $company_user["password"]);
+            $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
+            $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
+
+
+            $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+            $mailer->isHTML(true);
+
+            if (!$mailer->Send()) {
+                //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
+                utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 0);
+
+            }
+
+            utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 1);
+            return true;
         }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
-        // get sender
-        if (false == ($sender = $this->get_mail_sender($id_piattaforma))) {
-            $this->_japp->redirect(JRoute::_('/home/genera-coupon'), $this->_japp->enqueueMessage('Non è configurato un indirizzo mail di piattaforma', 'Error'));
-
+            return false;
         }
-
-        $info_piattaforma = $this->get_info_piattaforma($id_piattaforma);
-        $template = JPATH_COMPONENT . '/models/template/new_tutor_mail.tpl';
-
-//         modidifca custom per ausind,
-        if ($info_piattaforma['mail_from_default'] == 1) {
-
-//            ricavo alias e name dalla piattaforma di default
-            $piattaforma_default = $this->get_info_piattaforma_default();
-
-            $info_piattaforma["alias"] =$piattaforma_default['alias'];
-            $info_piattaforma["name"] = $piattaforma_default['name'];
-            $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
-        }
-
-        // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
-        $to = $email_coupon != '' ? $email_coupon : $recipients["to"]->email;
-
-
-        $mailer = JFactory::getMailer();
-        $mailer->setSender($sender);
-//        $mailer->addRecipient($recipients);
-        $mailer->addRecipient($to);
-        $mailer->addCc($recipients["cc"]);
-        $mailer->setSubject('Registrazione  ' . $info_piattaforma["alias"]);
-
-
-        $smarty = new EasySmarty();
-        $smarty->assign('company_name', $nome_societa);
-        $smarty->assign('user_name', $company_user["piva"]);
-        $smarty->assign('user_password', $company_user["password"]);
-        $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
-        $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
-
-
-        $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
-        $mailer->isHTML(true);
-
-        if (!$mailer->Send()) {
-//            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-            utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 0);
-
-        }
-
-        utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 1);
-        return true;
     }
 
 
     ////////////////////////////////////// FORUM ////////////////////
 
-    public function _create_company_forum($company_group_id, $company_name, $id_piattaforma = null)
+    public function _create_company_forum($company_group_id, $company_name, $id_piattaforma = null, $from_api=false)
     {
 
 
@@ -801,7 +968,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
             $company_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
             if (empty($company_forum_id)) {
-                throw RuntimeException('Cannot get forum ID from database', E_USER_ERROR);
+                throw new RuntimeException('Cannot get forum ID from database', E_USER_ERROR);
             }
 
             // inserisco nella tabella alias altrimento il link al forum non è cliccabile
@@ -816,12 +983,23 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // se va a buon fine
             //tutor aziendale diventa  il moderatore del forum
             $mu = new gglmsModelUsers();
-            $tutor_id = $mu->get_tutor_aziendale($company_group_id);
-            $mu->set_user_forum_moderator($tutor_id, $company_forum_id);
+
+            // controllo integrità tutor_id
+            $tutor_id = $mu->get_tutor_aziendale($company_group_id, $from_api);
+            if (is_null($tutor_id))
+                throw new RuntimeException("nessun tutor_id trovato", E_USER_ERROR);
+
+            // controllo impostazione moderatore
+            $_set_moderator = $mu->set_user_forum_moderator($tutor_id, $company_forum_id, $from_api);
+            if (!$_set_moderator)
+                throw new RuntimeException("errore di impostazione moderatore forum", E_USER_ERROR);
 
             return true;
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
             DEBUGG::error($e, __FUNCTION__);
             return false;
 
@@ -830,7 +1008,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function _get_company_forum($company_group_id)
+    public function _get_company_forum($company_group_id, $from_api=false)
     {
 
         try {
@@ -851,6 +1029,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
             DEBUGG::error($e, '_get_company_forum');
             return false;
@@ -859,17 +1039,16 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function _check_corso_forum($id_societa, $id_gruppo_corso)
+    public function _check_corso_forum($id_societa, $id_gruppo_corso, $from_api=false)
     {
 
 
         try {
 
-            $company_forum = $this->_get_company_forum($id_societa);
+            $company_forum = $this->_get_company_forum($id_societa, $from_api);
             if (null === $company_forum) {
-
                 // se sono arrivato qui il company forum deve esistere
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("nessun forum azienda trovato", E_USER_ERROR);
             }
 
             $query = $this->_db->getQuery(true)
@@ -889,23 +1068,29 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
             DEBUGG::error($e, '_check_corso_forum');
-            return false;
+            return null;
         }
 
 
     }
 
-    public function _create_corso_forum($id_societa, $id_gruppo_corso, $nome_societa, $_info_corso = null)
+    public function _create_corso_forum($id_societa,
+                                        $id_gruppo_corso,
+                                        $nome_societa,
+                                        $_info_corso = null,
+                                        $from_api=false)
     {
 
         try {
             // il forum del corso è figlio del forum aziendale
-            $parent_id = $this->_get_company_forum($id_societa);
+            $parent_id = $this->_get_company_forum($id_societa, $from_api);
             if (null === $parent_id) {
                 // se sono arrivato qui il company forum deve esistere
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("nessun forum azienda trovato", E_USER_ERROR);
             }
 
             //        if (false == ($titolo_corso = $this->get_info_corso($id_gruppo_corso)["title"])) {
@@ -997,14 +1182,23 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             //tutor aziendale diventa  il moderatore del forum
             $mu = new gglmsModelUsers();
-            $tutor_id = $mu->get_tutor_aziendale($id_societa);
-            $mu->set_user_forum_moderator($tutor_id, $corso_forum_id);
+            $tutor_id = $mu->get_tutor_aziendale($id_societa, $from_api);
+            // controllo integrità tutor_id
+            if (is_null($tutor_id))
+                throw new RuntimeException("nessun tutor_id trovato", E_USER_ERROR);
+
+            // controllo impostazione moderatore
+            $_set_moderator = $mu->set_user_forum_moderator($tutor_id, $corso_forum_id, $from_api);
+            if (!$_set_moderator)
+                throw new RuntimeException("errore di impostazione moderatore forum", E_USER_ERROR);
 
             return true;
 
         }
         catch (Exception $e) {
-            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
             return false;
         }
     }

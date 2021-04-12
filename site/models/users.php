@@ -232,11 +232,13 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function set_user_tutor($user_id, $tutor_type)
+    public function set_user_tutor($user_id, $tutor_type, $from_api=false)
     {
         /** TYPE = 'aziendale' oppure 'piattaforma' **/
 
         try {
+
+            $tutor_group_id = null;
 
             switch ($tutor_type) {
                 case "aziendale":
@@ -253,16 +255,24 @@ class gglmsModelUsers extends JModelLegacy
 
             }
 
-            if ($tutor_group_id) {
-                $insertquery_map = 'INSERT INTO #__user_usergroup_map (user_id, group_id) VALUES (' . $user_id . ', ' . $tutor_group_id . ')';
-                $this->_db->setQuery($insertquery_map);
-                $this->_db->execute();
+            if (!$tutor_group_id)
+                throw new RuntimeException("id_gruppo tutor non trovato", E_USER_ERROR);
 
-            }
+            //if ($tutor_group_id) {
+            $insertquery_map = 'INSERT INTO #__user_usergroup_map (user_id, group_id) VALUES (' . $user_id . ', ' . $tutor_group_id . ')';
+            $this->_db->setQuery($insertquery_map);
+            $this->_db->execute();
+            //}
 
+
+            return true;
 
         } catch (Exception $e) {
-            DEBUGG::error($e, '_set_user_tutor');
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            DEBUGG::error($e, __FUNCTION__);
+            return false;
         }
 
 
@@ -350,7 +360,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_user_piattaforme($id)
+    public function get_user_piattaforme($id, $from_api=false)
     {
         // ritorna id e nonme di tutte le piattaforme associate un utente
 
@@ -374,13 +384,17 @@ class gglmsModelUsers extends JModelLegacy
             return $result;
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
             DEBUGG::error($e, 'get_user_piattaforme');
+            return null;
         }
 
 
     }
 
-    public function get_all_tutor_piattaforma($id_piattaforma)
+    public function get_all_tutor_piattaforma($id_piattaforma, $from_api=false)
     {
 
         // ritorna array di id di tutor di piattaforma
@@ -408,13 +422,17 @@ class gglmsModelUsers extends JModelLegacy
             return $result;
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
             DEBUGG::error($e, 'get_all_tutor_piattaforma');
+            return null;
         }
 
 
     }
 
-    public function get_tutor_aziendale($id_gruppo_societa)
+    public function get_tutor_aziendale($id_gruppo_societa, $from_api=false)
     {
         try {
 
@@ -440,26 +458,39 @@ class gglmsModelUsers extends JModelLegacy
             return $result;
 
         } catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
             DEBUGG::error($e, 'get_tutor_aziendale');
+            return null;
         }
     }
 
-    public function set_user_forum_moderator($user_id, $forum_id)
+    public function set_user_forum_moderator($user_id, $forum_id, $from_api=false)
     {
 
+        try {
 
-        $query = 'INSERT INTO #__kunena_user_categories (user_id, category_id, role) VALUES (' . $user_id . ', ' . $forum_id . ', 1)';
-        $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->query())) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-        }
+            $query = 'INSERT INTO #__kunena_user_categories (user_id, category_id, role) VALUES (' . $user_id . ', ' . $forum_id . ', 1)';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
 
-        $query = 'INSERT INTO #__kunena_users (userid, moderator, rank) VALUES (' . $forum_id . ', 1, 8) ON DUPLICATE KEY UPDATE moderator=1, rank=8';
-        $this->_db->setQuery($query);
-        if (false === ($results = $this->_db->query())) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            $query = 'INSERT INTO #__kunena_users (userid, moderator, rank) VALUES (' . $forum_id . ', 1, 8) ON DUPLICATE KEY UPDATE moderator=1, rank=8';
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+            return true;
+
         }
-        return true;
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            return false;
+        }
 
     }
 

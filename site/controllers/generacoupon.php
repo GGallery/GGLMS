@@ -47,11 +47,13 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         try {
 
             $_ret = array();
+            $_fails = true;
 
             $query = $this->_db->getQuery(true)
                 ->select('messaggio')
                 ->from('#__gg_error_log')
                 ->where('messaggio LIKE ' . $this->_db->quote('%api_genera_coupon_response%'))
+                ->orWhere('messaggio LIKE ' . $this->_db->quote('%api_genera_coupon_exception%'))
                 ->order('id DESC');
 
             $this->_db->setQuery($query);
@@ -64,21 +66,30 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             $_response = preg_replace('/\s/', '', $result['messaggio']);
             $_response = str_replace("api_genera_coupon_response:", "", $_response);
+            $_response = str_replace("api_genera_coupon_exception:", "", $_response);
 
-            $_decode = json_decode($_response);
+            if (strpos($result['messaggio'], "id_iscrizione") !== false)
+                $_fails = false;
 
-            if (
-                (is_object($_decode) && !isset($_decode->id_iscrizione))
-                || (is_array($_decode) && !isset($_decode['id_iscrizione']))
-            )
-                throw new Exception("Il riferimento ha un valore non valido", 1);
+            // se il messaggio di log contiene id_iscrizione
+            if (!$_fails) {
+                $_decode = json_decode($_response);
 
+                if (
+                    (is_object($_decode) && !isset($_decode->id_iscrizione))
+                    || (is_array($_decode) && !isset($_decode['id_iscrizione']))
+                )
+                    throw new Exception("Il riferimento ha un valore non valido", 1);
 
-            $_ret['success'] = (is_object($_decode)) ? $_decode->id_iscrizione : $_decode['id_iscrizione'];
+                $_ret['last_iscrizione'] = (is_object($_decode)) ? $_decode->id_iscrizione : $_decode['id_iscrizione'];
+            }
+            else {
+                $_ret['last_error'] = trim($_response, '"');
+            }
 
         }
         catch (Exception $e) {
-            $_ret['error'] = $e->getMessage();
+            $_ret['call_error'] = $e->getMessage();
         }
 
         echo json_encode($_ret);
@@ -166,7 +177,9 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             // log dei paramentri ricevuti
             DEBUGG::log(json_encode($data), 'api_genera_coupon', 0, 1, 0 );
 
-            $id_iscrizione = $this->generaCoupon->insert_coupon($data);
+            $id_iscrizione = $this->generaCoupon->insert_coupon($data, true);
+            if (is_null($id_iscrizione))
+                throw new Exception("id_iscrizione missing", 1);
 
             $result = new stdClass();
             $result->id_iscrizione = $id_iscrizione;
@@ -180,9 +193,10 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         } catch (Exception $e) {
 
             // loggo anche l'oggetto POST ricevuto per maggiori dettagli
-            DEBUGG::log(json_encode(JRequest::get($_POST)), 'api_genera_coupon_exception_post_obj', 0, 1, 0 );
-            DEBUGG::log(json_encode($e->getMessage()), 'api_genera_coupon_exception_error', 0, 1, 0 );
-            DEBUGG::error($e, 'generaCoupon', 1, true);
+            UtilityHelper::make_debug_log(__FUNCTION__, print_r(JRequest::get($_POST), true), 'api_genera_coupon_post_obj');
+            // l'errore esclusivo della api_genera_coupon lo marco diversamente
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_exception');
+            DEBUGG::error($e, __FUNCTION__, 1, true);
         }
 
     }
