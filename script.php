@@ -34,7 +34,7 @@ class com_gglmsInstallerScript {
             $cli_script_3 = "allinea_permanenza.php";
             JFile::move($temp_dir . '/extra/' . $cli_script_1, JPATH_SITE . '/cli/' . $cli_script_1);
             JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_2);
-            JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_3);
+            JFile::move($temp_dir . '/extra/' . $cli_script_3, JPATH_SITE . '/cli/' . $cli_script_3);
 
             // scorm folder
             $scorm_folder = "scorm";
