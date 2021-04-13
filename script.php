@@ -31,8 +31,10 @@ class com_gglmsInstallerScript {
             $temp_dir = $parent->getParent()->getPath('source');
             $cli_script_1 = "report_sync.php";
             $cli_script_2 = "allinea_gg_log.php";
+            $cli_script_3 = "allinea_permanenza.php";
             JFile::move($temp_dir . '/extra/' . $cli_script_1, JPATH_SITE . '/cli/' . $cli_script_1);
             JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_2);
+            JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_3);
 
             // scorm folder
             $scorm_folder = "scorm";
