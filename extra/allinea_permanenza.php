@@ -78,7 +78,7 @@ class allineaPermanenza extends JApplicationCli {
                     AND r.id_utente > 0
                     ORDER BY r.permanenza_tot, diff_tempo";
 
-            $db->setQuery($query, 0, 10);
+            $db->setQuery($query);
             $results_contenuti = $db->loadAssocList();
 
             if (count($results_contenuti) == 0)
