@@ -1172,6 +1172,43 @@ HTML;
 
     }
 
+    public function get_utenti_per_corso() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $id_corso = $params["id_corso"];
+
+            if (!isset($id_corso)
+                || $id_corso == "")
+                throw new Exception("Missing corso id", 1);
+
+            // id utenti iscritti ad un corso
+            $users_id_arr = UtilityHelper::get_user_iscritti_corso($id_corso);
+            if (count($users_id_arr) == 0)
+                throw new Exception("Nessun utente iscritto al corso selezionato", 1);
+
+            $user_model = new gglmsModelUsers();
+            $users = $user_model->get_utenti_iscritti_corso($id_corso, $users_id_arr);
+
+            if (is_null($users)
+                || count($users) == 0)
+                throw new Exception("Nessuna anagrafica disponibile per il corso selezionato", 1);
+
+            $_ret['success'] = $users;
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+    }
+
     // sposto un socio decaduto nel gruppo moroso
     public function riabilita_decaduto() {
 

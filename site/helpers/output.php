@@ -1977,6 +1977,29 @@ HTML;
 
     }
 
+    public static function get_corsi_options($_corsi) {
+
+        if (count($_corsi) == 0
+            || empty($_corsi)
+            || $_corsi == null)
+            return "";
+
+        $_html = <<<HTML
+        <option value="">Seleziona corso</option>
+HTML;
+
+        foreach ($_corsi as $key_corso => $value_corso) {
+            $_html .= <<<HTML
+        <option value="{$value_corso->id}">{$value_corso->titolo}</option>
+HTML;
+
+        }
+
+        return $_html;
+
+
+    }
+
     public static function get_zoom_users_options($_response) {
 
         $_html = <<<HTML

@@ -38,6 +38,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $payment_extra_form;
     protected $dp_lang;
     protected $id_evento_sponsor;
+    protected $corsi;
 
     function display($tpl = null)
     {
@@ -156,6 +157,12 @@ class gglmsViewdettagliutente extends JViewLegacy
                     throw new Exception($_form_registrazione, 1);
 
                 $this->_html = $_form_registrazione['success'];
+
+            }
+            else if ($layout == 'report_quiz_per_utente') {
+
+                $model_report = new gglmsModelReport();
+                $this->corsi = $model_report->getCorsi(true);
 
             }
         }

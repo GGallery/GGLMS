@@ -1026,6 +1026,64 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // utenti iscritti a un corso
+    public function get_utenti_iscritti_corso($id_corso, $users_id_arr) {
+
+        try {
+
+            $_ret = array();
+
+            $colonna_nome = "";
+            $colonna_cognome = "";
+            $select_qry = "";
+
+            $_integrazione = $this->_params->get('integrazione');
+            switch ($_integrazione) {
+                case 'eb':
+                    $colonna_nome = $this->_app->getParams()->get('campo_event_booking_nome');
+                    $colonna_cognome = $this->_app->getParams()->get('campo_event_booking_cognome');
+                    break;
+
+                case 'cb':
+                default:
+                    $colonna_nome = $this->_app->getParams()->get('campo_community_builder_nome');
+                    $colonna_cognome = $this->_app->getParams()->get('campo_community_builder_cognome');
+                    break;
+
+            }
+
+            $select_qry = 'user.user_id AS id_utente, 
+                            UPPER(CONCAT(
+                                   COALESCE(user.' . $colonna_nome . ', ""), 
+                                   " ",
+                                   COALESCE(user.' . $colonna_cognome . ', "")
+                                   )) AS denominazione_utente';
+
+            $query = $this->_db->getQuery(true)
+                ->select($select_qry);
+
+            if ($_integrazione == 'eb')
+                $query = $query->from('#__eb_registrants AS user')
+                            ->join('inner', '#__gg_unit unit ON user.id_event_booking = user.event_id AND unit.id = ' . $this->_db->quote($id_corso));
+            else if ($_integrazione == 'cb')
+                $query = $query->from('#__comprofiler AS user');
+
+            if (count($users_id_arr) > 0)
+                $query = $query->where('user.user_id IN (' . implode(",", $users_id_arr) . ')');
+
+            $query = $query->order('user.' . $colonna_cognome . ', user.' . $colonna_cognome);
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results;
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     // lista dei soci in un determinato gruppo
     public function get_soci_iscritti($ug_list=null, $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
 

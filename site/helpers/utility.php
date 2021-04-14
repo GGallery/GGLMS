@@ -911,6 +911,45 @@ class utilityHelper
         }
     }
 
+    // utenti iscritti ad un corso per tutti i corsi ad accesso gruppo
+    public static function get_user_iscritti_corso($id_corso) {
+
+        try {
+            $_ret = array();
+
+            if ($id_corso == ""
+                || $id_corso == 1
+                || !isset($id_corso))
+                throw new Exception("Nessun corso valido selezionato", 1);
+
+            // ricavo l'id del gruppo corso dal corso
+            $unit_model = new gglmsModelUnita();
+            $unit_gruppo = $unit_model->get_id_gruppo_unit($id_corso);
+
+            // utenti iscritti ad un corso
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                        ->select('user_id')
+                        ->from('#__user_usergroup_map')
+                        ->where('group_id = ' . $db->quote($unit_gruppo));
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            // inserisco i dati in un array a singolo livello
+            if (count($results) > 0) {
+                foreach ($results as $user_key => $user_value) {
+                    $_ret[] = $user_value['user_id'];
+                }
+            }
+
+            return $_ret;
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+    }
+
     public static function get_acquisto_evento_richiesto($user_id, $unit_gruppo) {
 
         try {
@@ -2529,5 +2568,28 @@ HTML;
         $_msg = $_function . " : " . $_error_message;
         DEBUGG::log(json_encode($_msg), $_label, 0, 1, 0);
 
+    }
+
+    public static function clean_quiz_array($arr_quiz) {
+
+        $_ret = array();
+        foreach ($arr_quiz as $quiz_key => $single) {
+
+            foreach ($single as $single_key => $value) {
+
+                if ($single_key == 'domanda_quiz') {
+                    $single[$single_key] = strip_tags($value);
+                }
+                else if ($single_key == 'tentativo_quiz') {
+                    $single[$single_key] = date("d-m-Y H:i:s", strtotime($value));
+                }
+
+            }
+
+            $_ret[$quiz_key] = $single;
+
+        }
+
+        return $_ret;
     }
 }

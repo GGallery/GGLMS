@@ -669,6 +669,87 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
+    public function get_dettagli_quiz_per_utente($quiz_id, $user_id) {
+
+        try {
+
+            if (!isset($quiz_id)
+                || !$quiz_id)
+                throw new Exception("Nessuna quiz specificato", E_USER_ERROR);
+
+            if (!isset($user_id)
+                || !$user_id)
+                throw new Exception("Nessun utente specificato", E_USER_ERROR);
+
+            $query = "SELECT /*#__quiz_r_student_quiz.c_quiz_id AS id_quiz, 
+                            #__quiz_r_student_quiz.c_student_id AS id_utente,*/ 
+                            #__quiz_r_student_quiz.c_date_time AS tentativo_quiz,
+                            #__quiz_t_qtypes.c_qtype AS tipo_risposta, 
+                            #__quiz_t_question.c_question AS domanda_quiz, 
+                            #__quiz_t_choice.c_choice AS risposta,
+                            (
+                              CASE
+                                    WHEN #__quiz_r_student_question.is_correct = 1 THEN 'SI'
+                                    ELSE 'NO'
+                              END
+                            ) AS risposta_giusta
+                            /*,
+                            (
+                              CASE
+                                    WHEN #__quiz_t_choice.c_right = 1 THEN 'SI'
+                                    ELSE 'NO'
+                              END
+                              ) AS risposta_corretta */
+                        FROM #__quiz_r_student_quiz #__quiz_r_student_quiz
+                            JOIN #__quiz_r_student_question ON #__quiz_r_student_quiz.c_id = #__quiz_r_student_question.c_stu_quiz_id
+                            JOIN #__quiz_r_student_choice ON #__quiz_r_student_question.c_id = #__quiz_r_student_choice.c_sq_id
+                            JOIN #__quiz_t_question ON #__quiz_r_student_question.c_question_id = #__quiz_t_question.c_id
+                            JOIN #__quiz_t_qtypes ON #__quiz_t_question.c_type = #__quiz_t_qtypes.c_id
+                            JOIN #__quiz_t_choice  ON #__quiz_r_student_choice.c_choice_id = #__quiz_t_choice.c_id
+                        WHERE #__quiz_r_student_quiz.c_quiz_id = " . $this->_db->quote($quiz_id) . "
+                        AND #__quiz_r_student_quiz.c_student_id = " . $this->_db->quote($user_id);
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results;
+
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
+    // lista quiz per corso comprendente anche idpadre
+    public function get_quiz_per_unit($id_unita, $tipologia = 7, $pubblicato = 1) {
+
+        try {
+
+            if (!isset($id_unita)
+                || !$id_unita)
+                throw new Exception("Nessuna unita specificata", E_USER_ERROR);
+
+            $query = $this->_db->getQuery(true)
+                ->select('cont.id_quizdeluxe AS id_quiz, cont.titolo AS titolo_quiz')
+                ->from('#__gg_unit un')
+                ->join('inner', '#__gg_unit_map map ON un.id = map.idunita')
+                ->join('inner', '#__gg_contenuti cont ON map.idcontenuto = cont.id')
+                ->where('(un.unitapadre = ' . $this->_db->quote($id_unita) . ' OR un.id = ' . $this->_db->quote($id_unita) . ')')
+                ->where('un.pubblicato = ' . $this->_db->quote($pubblicato))
+                ->where('cont.tipologia = ' . $this->_db->quote($tipologia));
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results;
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
     public function get_quiz_info($quiz_id)
     {
 

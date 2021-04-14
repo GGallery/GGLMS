@@ -1615,6 +1615,54 @@ class gglmsControllerApi extends JControllerLegacy
 
     }
 
+    // dettagli per quiz ed utente
+    public function get_dettagli_quiz() {
+
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $quiz_id = $params["quiz_id"];
+            $user_id = $params["user_id"];
+
+            if (!isset($quiz_id)
+                || $quiz_id == "")
+                throw new Exception("Missing quiz id", 1);
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", 1);
+
+            $model_content = new gglmsModelContenuto();
+            $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user_id);
+
+            if (!$dettagli_quiz
+                || !is_array($dettagli_quiz)
+                || count($dettagli_quiz) == 0)
+                throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
+
+
+            $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
+            $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
+            $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+        }
+        catch (Exception $e) {
+
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
     // interazione con API zoom
     function get_local_events() {
 
