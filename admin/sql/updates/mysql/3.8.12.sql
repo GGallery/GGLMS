@@ -2,6 +2,7 @@ ALTER TABLE `#__gg_unit`
 ADD COLUMN `data_inizio` date NULL AFTER `is_corso`,
 ADD COLUMN `data_fine` date NULL AFTER `data_inizio`;
 
+DROP TABLE IF EXISTS `#__gg_csv_report`;
 CREATE TABLE `#__gg_csv_report`  (
   `id_chiamata` int(255) NOT NULL,
   `id_utente` int(255) NOT NULL,
@@ -14,5 +15,5 @@ CREATE TABLE `#__gg_csv_report`  (
   `hacompletato` date NULL DEFAULT NULL,
   `alert` int(255) NULL DEFAULT NULL
 )
-ENGINE=MyISAM
+ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8;

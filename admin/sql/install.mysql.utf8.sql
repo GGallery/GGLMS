@@ -173,7 +173,7 @@ CREATE TABLE `#__gg_contenuti_acl_deprecated` (
   `id_contenuto` int(10) NOT NULL DEFAULT '0',
   `id_group` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_contenuto`,`id_group`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_contenuti_acl_deprecated
@@ -190,7 +190,7 @@ CREATE TABLE `#__gg_contenuti_tipology` (
   `ordinamento` int(10) DEFAULT NULL,
   `pubblicato` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_contenuti_tipology
@@ -256,7 +256,7 @@ CREATE TABLE `#__gg_csv_report` (
   `tempo_lavorativo` time DEFAULT NULL,
   `tempo_straordinario` time DEFAULT NULL,
   `alert` int(255) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_csv_report
@@ -308,7 +308,7 @@ CREATE TABLE `#__gg_files_map` (
   `ordinamento` int(11) DEFAULT NULL,
   `data` date DEFAULT NULL,
   PRIMARY KEY (`idlink`)
-) ENGINE=MyISAM AUTO_INCREMENT=431 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=431 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_files_map
@@ -436,7 +436,7 @@ CREATE TABLE `#__gg_scormvars` (
   PRIMARY KEY (`scoid`,`userid`,`varName`),
   KEY `SCOInstanceID` (`scoid`),
   KEY `varName` (`varName`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
 -- Records of #__gg_scormvars
@@ -479,7 +479,7 @@ CREATE TABLE `#__gg_unit` (
   `sc_valore_custom_cb` decimal(6,2) NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
-) ENGINE=MyISAM AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_unit
@@ -525,7 +525,7 @@ CREATE TABLE `#__gg_unit_map` (
   `idunita` int(11) unsigned NOT NULL,
   `ordinamento` int(11) DEFAULT '99',
   PRIMARY KEY (`idcontenuto`,`idunita`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_unit_map
@@ -539,7 +539,7 @@ CREATE TABLE `#__gg_usergroup_map` (
   `idunita` int(11) unsigned NOT NULL,
   `idgruppo` int(11) unsigned NOT NULL,
   PRIMARY KEY (`idunita`,`idgruppo`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_usergroup_map
@@ -615,7 +615,7 @@ CREATE TABLE `#__gg_mail_log` (
   `created_at` datetime DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 -- ----------------------------
@@ -646,7 +646,7 @@ CREATE TABLE `#__usergroups_details` (
   `mail_from_default` tinyint(1) unsigned zerofill DEFAULT '0',
   `info_pagamento` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`group_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for `#__gg_prezzi`
@@ -660,7 +660,7 @@ CREATE TABLE `#__gg_prezzi` (
   `p4` int(255) DEFAULT NULL,
   `sconto_associati` float NOT NULL,
   PRIMARY KEY (`id_corso`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 -- ----------------------------
@@ -674,7 +674,7 @@ CREATE TABLE `#__gg_prezzi_range` (
   `range3` int(11) DEFAULT NULL,
   `range4` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_corso`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 -- ----------------------------

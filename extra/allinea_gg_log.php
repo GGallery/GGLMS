@@ -39,15 +39,16 @@ class allineaGGLog extends JApplicationCli {
 
     public function doExecute()
     {
+        $scorm_filter_data = $this->input->get('scorm_filter_data', '');
+        $scorm_exe_init = $this->input->get('scorm_exe_init', 0);
+        $innodb = $this->input->get('innodb', 0);
+
         try {
 
             // Database connector
             $db = JFactory::getDBO();
 
             $this->out(date('d/m/Y H:i:s') . ' - inizio esecuzione script');
-
-            $scorm_filter_data = $this->input->get('scorm_filter_data', '');
-            $scorm_exe_init = $this->input->get('scorm_exe_init', 0);
 
             // reset delle varibili caso mai fossere state abilitate
             $_tmp_completed_insert = array();
@@ -151,7 +152,8 @@ class allineaGGLog extends JApplicationCli {
                     // ci sono righe da inserire in gg_log
                     if (count($_tmp_completed_insert) > 0) {
 
-                        $db->transactionStart();
+                        if ($innodb == 1)
+                            $db->transactionStart();
 
                         $_arr_query_chunked = array_chunk($_tmp_completed_insert, 500);
 
@@ -176,7 +178,8 @@ class allineaGGLog extends JApplicationCli {
 
                         }
 
-                        $db->transactionCommit();
+                        if ($innodb == 1)
+                            $db->transactionCommit();
 
                     }
 
@@ -297,7 +300,8 @@ class allineaGGLog extends JApplicationCli {
 
             if (count($_tmp_completed_insert) > 0) {
 
-                $db->transactionStart();
+                if ($innodb == 1)
+                    $db->transactionStart();
 
                 $_arr_query_chunked = array_chunk($_tmp_completed_insert, 500);
 
@@ -322,7 +326,8 @@ class allineaGGLog extends JApplicationCli {
 
                 }
 
-                $db->transactionCommit();
+                if ($innodb == 1)
+                    $db->transactionCommit();
 
             }
 
@@ -331,6 +336,9 @@ class allineaGGLog extends JApplicationCli {
 
         }
         catch (Exception $e) {
+            if ($innodb == 1)
+                $db->transactionRollback();
+
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }
     }

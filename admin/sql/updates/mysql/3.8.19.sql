@@ -10,7 +10,7 @@ CREATE TABLE `#__gg_log` (
 `permanenza`  int(11) NULL DEFAULT NULL ,
 PRIMARY KEY (`id`)
 )
-ENGINE=MyISAM
+ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
 
 -- ----------------------------

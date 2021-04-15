@@ -39,16 +39,16 @@ class allineaPermanenza extends JApplicationCli {
 
     public function doExecute()
     {
+
+        $con_report = $this->input->get('con_report', 0);
+        $innodb = $this->input->get('innodb', 0);
+
         try {
 
             // Database connector
             $db = JFactory::getDBO();
 
-            $con_report = $this->input->get('con_report', 0);
             $this->out(date('d/m/Y H:i:s') . ' - inizio esecuzione script');
-
-            //$db->setQuery('SET sql_mode=\'\'');
-            //$db->execute();
 
             $_rand_check = array();
             $_uniq = null;
@@ -84,7 +84,9 @@ class allineaPermanenza extends JApplicationCli {
             if (count($results_contenuti) == 0)
                 throw new Exception("Nessun contenuto da elaborare", E_USER_ERROR);
 
-            $db->transactionStart();
+            if ($innodb == 1)
+                $db->transactionStart();
+
             foreach ($results_contenuti as $key_c => $iniziato) {
 
                 // contenuto diverso fra gg_report e gg_scormvars
@@ -117,7 +119,10 @@ class allineaPermanenza extends JApplicationCli {
                 // non esiste devo inserire
                 if (count($_row_results_log) == 0) {
 
-                    $this->out(date('d/m/Y H:i:s') . ' - record in gg_log non esistente - inserimento');
+                    $this->out(date('d/m/Y H:i:s') . ' - record in gg_log non esistente - inserimento: 
+                        ' . $iniziato['scorm_user'] . '
+                        ' . $iniziato['scorm_id_contenuto'] . '
+                        ' . $iniziato['scorm_timestamp']);
 
                     while (1) {
                         $_uniq = mt_rand(10000000, 99999999);
@@ -144,7 +149,10 @@ class allineaPermanenza extends JApplicationCli {
                 // esiste prendo l'ultima riga di gg_log per data_accesso
                 else {
 
-                    $this->out(date('d/m/Y H:i:s') . ' - record in gg_log esistente - aggiornamento');
+                    $this->out(date('d/m/Y H:i:s') . ' - record in gg_log esistente - aggiornamento: 
+                    permanenza + ' . $iniziato['diff_tempo'] . '
+                    ' . $iniziato['scorm_user'] . '
+                    ' . $iniziato['scorm_id_contenuto']);
 
                     $gg_log_query = "UPDATE #__gg_log
                                         SET permanenza = (permanenza + " . $iniziato['diff_tempo'] . ")
@@ -181,14 +189,17 @@ class allineaPermanenza extends JApplicationCli {
                 }
 
             }
-            $db->transactionCommit();
+            if ($innodb == 1)
+                $db->transactionCommit();
 
             $this->out(date('d/m/Y H:i:s') . " - Procedimento completato");
 
 
         }
         catch (Exception $e) {
-            $db->transactionRollback();
+            if ($innodb == 1)
+                $db->transactionRollback();
+
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }
     }
