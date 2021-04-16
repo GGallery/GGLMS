@@ -111,7 +111,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             if (count($user_id_list) > 0) {
 
-                $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso, $this->salva_come);
+                $this->do_genereate_attestati_multiple($user_id_list, $this->id_corso, $this->salva_come, $this->from_bulk);
             } else {
 
                 $this->_japp->redirect(('index.php?option=com_gglms&view=attestatibulk&layout=attestatibulk'), $this->_japp->enqueueMessage('Non ci sono utenti che hanno completato il corso nelle date selezionate', 'Warning'));
@@ -157,7 +157,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     }
 
     ///////////////////////////////////////////////////
-    public function do_genereate_attestati_multiple($user_id_list, $id_corso, $salva_come = null)
+    public function do_genereate_attestati_multiple($user_id_list, $id_corso, $salva_come = null, $from_bulk = false)
     {
 
         $pdf_ctrl = new gglmsControllerPdf();
@@ -165,70 +165,81 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         $file_list = array();
         $attestati_corso = $this->getAttestati($id_corso); //[3,4]
 
-        if (count($attestati_corso) > 1
-            || count($user_id_list) > 1) {
-            // ho più di un attestato per il corso, oppure più utenti per lo stesso corso --> salvo in tmp, zippo e download
+        try {
 
-//            var_dump($attestati_corso);
-//            die();
-            foreach ($attestati_corso as $att_id) {
+            if (count($attestati_corso) == 0
+                || count($user_id_list) == 0)
+                throw new Exception("Non ci sono dati validi per effettuare lo scaricamento degli attestati", E_USER_ERROR);
 
-                $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id, $id_corso);
+            if (count($attestati_corso) > 1
+                || count($user_id_list) > 1
+                || $from_bulk) {
+                // ho più di un attestato per il corso, oppure più utenti per lo stesso corso --> salvo in tmp, zippo e download
 
-                foreach ($data_att as $data) {
+                //            var_dump($attestati_corso);
+                //            die();
+                foreach ($attestati_corso as $att_id) {
 
-                    // per data corso $data->dati_corso[0]
-                    // gestione tipologia_coupon passo anche il parametro $coupon che in questo caso sarebbe ''
-                    $pdf = $model->_generate_pdf(
-                                                $data->user,
-                                                $data->orientamento,
-                                                $data->attestato,
-                                                $data->contenuto_verifica,
-                                                $data->dg,
-                                                $data->tracklog,
-                                                '',
-                                                $data->coupon,
-                                                true);
+                    $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id, $id_corso);
 
-                    // il rand non serve più dopo aver adottato il controllo dell'esistenza file multipla
-                    //$nome_file = 'attestato_' . $att_id . '_' .$data->user->cognome . rand() . '.pdf';
-                    $nome_file = 'attestato_' . $att_id . '_' . $data->user->cognome;
+                    foreach ($data_att as $data) {
 
-                    // se in modalità salva nome modifico il nome di default del file usando il codice coupon ed eliminando il numero randomico
-                    if (isset($data->dati_corso[0]->codice_corso)) {
-                        $nome_file = 'attestato_' . $data->dati_corso[0]->codice_corso . '_' . $data->user->cognome;
-                    }
+                        // per data corso $data->dati_corso[0]
+                        // gestione tipologia_coupon passo anche il parametro $coupon che in questo caso sarebbe ''
+                        $pdf = $model->_generate_pdf(
+                            $data->user,
+                            $data->orientamento,
+                            $data->attestato,
+                            $data->contenuto_verifica,
+                            $data->dg,
+                            $data->tracklog,
+                            '',
+                            $data->coupon,
+                            true);
 
-                    $nome_file = strtoupper($nome_file) . '.pdf';
+                        // il rand non serve più dopo aver adottato il controllo dell'esistenza file multipla
+                        //$nome_file = 'attestato_' . $att_id . '_' .$data->user->cognome . rand() . '.pdf';
+                        $nome_file = 'attestato_' . $att_id . '_' . $data->user->cognome;
 
-                    // se da form lo richiedo salvo il nome secondo la nomenclatura prescelta
-                    if (!is_null($salva_come)
+                        // se in modalità salva nome modifico il nome di default del file usando il codice coupon ed eliminando il numero randomico
+                        if (isset($data->dati_corso[0]->codice_corso)) {
+                            $nome_file = 'attestato_' . $data->dati_corso[0]->codice_corso . '_' . $data->user->cognome;
+                        }
+
+                        $nome_file = strtoupper($nome_file) . '.pdf';
+
+                        // se da form lo richiedo salvo il nome secondo la nomenclatura prescelta
+                        if (!is_null($salva_come)
                             && $salva_come != "") {
-                        $nome_file = utilityHelper::build_nome_file_attestato($data, $salva_come);
+                            $nome_file = utilityHelper::build_nome_file_attestato($data, $salva_come);
+                        }
+
+                        // controllo se il file è già esistente..metodo che mi torna utile per il loop di creazione file
+                        // così da eliminare il rand()
+                        $nome_file = UtilityHelper::rename_file_recursive($this->_folder_location, $nome_file);
+                        $path_file = $this->_folder_location . $nome_file;
+
+                        //DEBUGG::log(json_encode($path_file), "nome pdf", 0, 1);
+
+                        // save file in folder
+                        $pdf->Output($path_file, 'F');
+
+                        $file_obj = new stdClass();
+                        $file_obj->path = $path_file;
+                        $file_obj->nome = $nome_file;
+                        array_push($file_list, $file_obj);
+
                     }
-
-                    // controllo se il file è già esistente..metodo che mi torna utile per il loop di creazione file
-                    // così da eliminare il rand()
-                    $nome_file = UtilityHelper::rename_file_recursive($this->_folder_location, $nome_file);
-                    $path_file = $this->_folder_location . $nome_file;
-
-                    //DEBUGG::log(json_encode($path_file), "nome pdf", 0, 1);
-
-                    // save file in folder
-                    $pdf->Output($path_file, 'F');
-
-                    $file_obj = new stdClass();
-                    $file_obj->path = $path_file;
-                    $file_obj->nome = $nome_file;
-                    array_push($file_list, $file_obj);
 
                 }
 
+                $this->zip_and_download($file_list);
+            } else {
+                $pdf_ctrl->generateAttestato($this->id_user, $attestati_corso[0], true, $id_corso);
             }
-
-            $this->zip_and_download($file_list);
-        } else {
-            $pdf_ctrl->generateAttestato($this->id_user, $attestati_corso[0], true, $id_corso);
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
         }
 
     }
