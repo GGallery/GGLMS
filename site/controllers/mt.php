@@ -25,6 +25,241 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_db = &JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
 
+        $this->_filterparam->id_utente = JRequest::getVar('id_utente');
+        $this->_filterparam->id_corso = JRequest::getVar('id_corso');
+
+    }
+
+    public function get_report_details() {
+
+        try {
+
+            $ids_contenuti = array();
+            $titoli_unita = array();
+            $denominazione_utente = array();
+            $filename = 'report_' . time() . '.csv';
+            $_ret = array();
+
+            // utenti selezionati
+            $ids_utenti = explode(",", $this->_filterparam->id_utente);
+            $query_utente = "SELECT u.id AS id_utente, 
+                              UPPER(COALESCE(cp.cb_nome, '')) AS nome_utente, 
+                              UPPER(COALESCE(cp.cb_cognome, '')) AS cognome_utente, 
+                              UPPER(COALESCE(cp.cb_codicefiscale, '')) AS codice_fiscale
+                              FROM #__users u
+                              JOIN #__comprofiler cp ON u.id = cp.user_id
+                              WHERE u.id IN (" . implode(',',$ids_utenti) . ")";
+
+            $this->_db->setQuery($query_utente);
+            $results_utente = $this->_db->loadAssocList();
+
+            if (count($results_utente) == 0)
+                throw new Exception("Nessuna anagrafica disponibile per gli utenti selezionati", E_USER_ERROR);
+
+            foreach ($results_utente as $key_utente => $utente) {
+                $denominazione_utente[$utente['id_utente']] = $utente['nome_utente'] . ' ' . $utente['cognome_utente'];
+            }
+
+            // tutte le unità per id_corso
+            $query_unita = "SELECT id AS id_unita, titolo AS titolo_unita
+                            FROM #__gg_unit
+                            WHERE (
+                                    id = " . $this->_db->quote($this->_filterparam->id_corso) . " 
+                                    OR unitapadre = " . $this->_db->quote($this->_filterparam->id_corso) . "
+                                    )
+                            ORDER BY id";
+            $this->_db->setQuery($query_unita);
+            $unita_results = $this->_db->loadAssocList();
+
+            if (count($unita_results) == 0)
+                throw new Exception("Nessuna unità disponibile per il corso selezionato", E_USER_ERROR);
+
+            foreach ($unita_results as $key_unita => $unita) {
+
+                $titoli_unita[$unita['id_unita']] = $unita['titolo_unita'];
+
+                $query_contenuto = "SELECT idcontenuto
+                                      FROM #__gg_unit_map
+                                      WHERE idunita = " . $this->_db->quote($unita['id_unita']) . "
+                                      ORDER BY ordinamento";
+                $this->_db->setQuery($query_contenuto);
+                $contenuto_results = $this->_db->loadAssocList();
+
+                if (count($contenuto_results) == 0)
+                    continue;
+
+                foreach ($contenuto_results as $key_contenuto => $contenuto) {
+
+                    if (!in_array($contenuto['idcontenuto'], $ids_contenuti))
+                        $ids_contenuti[] = $contenuto['idcontenuto'];
+
+                }
+
+            }
+
+            if (count($ids_contenuti) == 0)
+                throw new Exception("Nessun contenuto disponibile per le unità selezionate", E_USER_ERROR);
+
+            $query = "SELECT contenuti.id AS id_contenuto, 
+                            contenuti.titolo AS titolo_contenuto, 
+                            contenuti.tipologia, 
+                            ctipo.descrizione AS tipologia_descrizione, 
+                            contenuti.id_quizdeluxe AS id_quiz,
+                            unit.id AS id_unita
+                        FROM #__gg_contenuti contenuti
+                        JOIN #__gg_contenuti_tipology ctipo ON contenuti.tipologia = ctipo.id
+                        JOIN #__gg_unit_map unit_map ON contenuti.id = unit_map.idcontenuto
+                        JOIN #__gg_unit unit ON unit_map.idunita = unit.id
+                        WHERE contenuti.id IN (" . implode(",", $ids_contenuti) . ")";
+
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (count($results) == 0)
+                throw new Exception("Nessun risultato per corso ed utente selezionati", E_USER_ERROR);
+
+            // per utente
+            foreach ($ids_utenti as $id_utente) {
+
+                foreach ($results as $key_corso => $corso) {
+
+                    $_data_inizio = null;
+                    $_data_fine = null;
+                    $_secondi = null;
+                    $_giorno = null;
+
+                    // controllo la tipologia se quiz proseguo per il momento
+                    if ($corso['tipologia'] == 7) {
+
+                        $quiz_query = "SELECT c_total_time AS secondi, 
+                                              DATE_FORMAT(c_date_time, '%Y-%m-%d') AS giorno, 
+                                              c_date_time AS data_inzio, 
+                                              timestamp AS data_fine
+                                        FROM #__quiz_r_student_quiz
+                                        WHERE c_student_id = " . $this->_db->quote($id_utente) . "
+                                        AND c_quiz_id = " . $this->_db->quote($corso['id_quiz']);
+                        $this->_db->setQuery($quiz_query);
+                        $quiz_results = $this->_db->loadAssocList();
+
+                        if (count($quiz_results) == 0)
+                            continue;
+
+                        // elenco i tentativi per ogni quiz
+                        foreach ($quiz_results as $key => $quiz) {
+
+                            $_ret[$id_utente][$corso['id_unita']][] = array(
+                                'titolo' => $corso['titolo_contenuto'],
+                                'tipologia' => $corso['tipologia_descrizione'],
+                                'giorno' => $quiz['giorno'],
+                                'data_inizio' => $quiz['data_inzio'],
+                                'data_fine' => $quiz['data_fine'],
+                                'tempo' => $quiz['secondi']
+                            );
+
+                        }
+
+                        continue;
+                    }
+
+                    // altrimenti consulto scormvars
+                    $scorm_query = "SELECT * 
+                                        FROM #__gg_scormvars 
+                                        WHERE scoid = " . $this->_db->quote($corso['id_contenuto']) . "
+                                        AND userid = " . $this->_db->quote($id_utente);
+                    $this->_db->setQuery($scorm_query);
+                    $scorm_results = $this->_db->loadAssocList();
+
+                    if (count($scorm_results) == 0)
+                        continue;
+
+                    foreach ($scorm_results as $key => $scorm) {
+
+                        foreach ($scorm as $key_scorm => $value) {
+
+                            if ($key_scorm == 'varName'
+                                && $value == 'cmi.core.last_visit_date') {
+                                $_data_inizio = $scorm['timestamp'];
+                                $_giorno = $scorm['varValue'];
+                            }
+
+                            if ($key_scorm == 'varName'
+                                && $value == 'cmi.core.total_time') {
+                                $_data_fine = $scorm['timestamp'];
+                                $_secondi = $scorm['varValue'];
+                            }
+
+                        }
+
+                    }
+
+                    $_ret[$id_utente][$corso['id_unita']][] = array(
+                        'titolo' => $corso['titolo_contenuto'],
+                        'tipologia' => $corso['tipologia_descrizione'],
+                        'giorno' => $_giorno,
+                        'data_inizio' => $_data_inizio,
+                        'data_fine' => $_data_fine,
+                        'tempo' => $_secondi
+                    );
+
+                }
+            }
+
+            // elaborazione dei risultati
+            if (count($_ret) == 0)
+                throw new Exception("Nessun dato disponibile per l'esportazione", E_USER_ERROR);
+
+            $arr_cols = array('titolo', 'tipologia', 'giorno', 'data_inizio', 'data_fine', 'tempo');
+            /*
+            $csv = "";
+            $rows = 0;
+            $_check_user = array();
+            $_check_corso = array();
+
+            if ($rows == 0)
+                $csv = implode(";", $arr_cols);
+
+            foreach ($_ret as $report_user => $arr_sotto_unita) {
+
+                if (!in_array($report_user, $_check_user)) {
+                    $csv .= $denominazione_utente[$report_user] . ";;;;;\n";
+                    $_check_user[] = $report_user;
+                }
+
+                foreach ($arr_sotto_unita as $key_su => $value_su) {
+
+                    if (!in_array($key_su, $_check_corso)) {
+                        $csv .= ";" . strtoupper($titoli_unita[$key_su]) . ";;;;\n";
+                        $_check_corso[] = $key_su;
+                    }
+
+                    foreach ($value_su as $kk => $vv) {
+
+                        $csv .= $value_su[$kk]['titolo'] .
+                            ";" . $value_su[$kk]['tipologia'] .
+                            ";" . $value_su[$kk]['giorno'] .
+                            ";" . $value_su[$kk]['data_inizio'] .
+                            ";" . $value_su[$kk]['data_fine'] .
+                            ";" . $value_su[$kk]['tempo'] . "\n";
+
+
+                    }
+
+                }
+
+            }
+
+            echo $csv;*/
+
+            UtilityHelper::esporta_csv_corsi_finanza($_ret, $arr_cols, $filename, $denominazione_utente, $titoli_unita);
+
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
     }
 
     public function test_() {

@@ -1117,6 +1117,76 @@ class utilityHelper
 
     }
 
+    // esporta in CSV i dati relativi ai report sulla formazione finanziata
+    function esporta_csv_corsi_finanza($_ret, $arr_cols, $dest_filename, $denominazione_utente, $titoli_unita) {
+
+        $_check_user = array();
+        $_check_corso = array();
+
+        $writer = WriterEntityFactory::createCSVWriter();
+        $writer->openToBrowser($dest_filename);
+        $writer->setFieldDelimiter(';');
+
+        // celle header
+        $h_cells = array();
+        foreach ($arr_cols as $colonna) {
+            $h_cells[] = WriterEntityFactory::createCell($colonna);
+        }
+
+        $riga_titolo = WriterEntityFactory::createRow($h_cells);
+        $writer->addRow($riga_titolo);
+
+        foreach ($_ret as $report_user => $arr_sotto_unita) {
+
+            if (!in_array($report_user, $_check_user)) {
+                $_check_user[] = $report_user;
+
+                $cells_utente = [
+                    WriterEntityFactory::createCell(''),
+                    WriterEntityFactory::createCell($denominazione_utente[$report_user]),
+                    WriterEntityFactory::createCell(''),
+                    WriterEntityFactory::createCell(''),
+                    WriterEntityFactory::createCell(''),
+                    WriterEntityFactory::createCell('')
+                ];
+                $riga_utente = WriterEntityFactory::createRow($cells_utente);
+                $writer->addRow($riga_utente);
+            }
+
+            foreach ($arr_sotto_unita as $key_su => $value_su) {
+                $multi_rows = array();
+
+                if (!in_array($key_su, $_check_corso)) {
+                    $_check_corso[] = $key_su;
+
+                    $cells_corso = [
+                        WriterEntityFactory::createCell(strtoupper($titoli_unita[$key_su])),
+                        WriterEntityFactory::createCell(''),
+                        WriterEntityFactory::createCell(''),
+                        WriterEntityFactory::createCell(''),
+                        WriterEntityFactory::createCell(''),
+                        WriterEntityFactory::createCell('')
+                    ];
+                    $riga_corso = WriterEntityFactory::createRow($cells_corso);
+                    $writer->addRow($riga_corso);
+                }
+
+                foreach ($value_su as $kk => $vv) {
+                    if (count($vv) == 0)
+                        continue;
+
+                    $multi_rows[] = WriterEntityFactory::createRowFromArray($vv);
+                }
+
+                $writer->addRows($multi_rows);
+
+            }
+
+        }
+
+        $writer->close();
+    }
+
     // esporta in CSV basandosi sulla libreria SPOUT
     function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
 
