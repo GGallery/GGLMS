@@ -32,13 +32,13 @@ class com_gglmsInstallerScript {
             $cli_script_1 = "report_sync.php";
             $cli_script_2 = "allinea_gg_log.php";
             $cli_script_3 = "allinea_permanenza.php";
-            $cli_script_4 = "defines.php";
+            //$cli_script_4 = "defines.php";
             JFile::move($temp_dir . '/extra/' . $cli_script_1, JPATH_SITE . '/cli/' . $cli_script_1);
             JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_2);
             JFile::move($temp_dir . '/extra/' . $cli_script_3, JPATH_SITE . '/cli/' . $cli_script_3);
             // per defines.php rimuovo il vecchio e copio il nuovo
-            JFile::delete(JPATH_SITE . '/includes/' . $cli_script_4);
-            JFile::move($temp_dir . '/extra/' . $cli_script_4, JPATH_SITE . '/includes/' . $cli_script_4);
+            //JFile::delete(JPATH_SITE . '/includes/' . $cli_script_4);
+            //JFile::move($temp_dir . '/extra/' . $cli_script_4, JPATH_SITE . '/includes/' . $cli_script_4);
 
             // scorm folder
             $scorm_folder = "scorm";
