@@ -61,26 +61,51 @@ class gglmsControllerMt extends JControllerLegacy {
             }
 
             // tutte le unità per id_corso
-            $query_unita = "SELECT id AS id_unita, titolo AS titolo_unita
+            $query_unita = "SELECT id AS id_unita, titolo AS titolo_unita, is_corso
                             FROM #__gg_unit
                             WHERE (
                                     id = " . $this->_db->quote($this->_filterparam->id_corso) . " 
                                     OR unitapadre = " . $this->_db->quote($this->_filterparam->id_corso) . "
                                     )
                             ORDER BY id";
+
             $this->_db->setQuery($query_unita);
             $unita_results = $this->_db->loadAssocList();
 
             if (count($unita_results) == 0)
                 throw new Exception("Nessuna unità disponibile per il corso selezionato", E_USER_ERROR);
 
+            // altro loop per verificare se qualche unità figlia ha altre unità figlie
             foreach ($unita_results as $key_unita => $unita) {
 
                 $titoli_unita[$unita['id_unita']] = $unita['titolo_unita'];
 
+                if ($unita['is_corso'] == 1)
+                    continue;
+
+                $query_child = "SELECT id AS id_unita, titolo AS titolo_unita
+                                FROM #__gg_unit
+                                WHERE unitapadre = " . $this->_db->quote($unita['id_unita']) . "
+                                ORDER BY id";
+                $this->_db->setQuery($query_child);
+                $child_results = $this->_db->loadAssocList();
+
+                if (count($child_results) == 0)
+                    continue;
+
+                foreach ($child_results as $key_child => $child) {
+
+                    $titoli_unita[$child['id_unita']] = $child['titolo_unita'];
+
+                }
+
+            }
+
+            foreach ($titoli_unita as $id_unita => $titolo) {
+
                 $query_contenuto = "SELECT idcontenuto
                                       FROM #__gg_unit_map
-                                      WHERE idunita = " . $this->_db->quote($unita['id_unita']) . "
+                                      WHERE idunita = " . $this->_db->quote($id_unita) . "
                                       ORDER BY ordinamento";
                 $this->_db->setQuery($query_contenuto);
                 $contenuto_results = $this->_db->loadAssocList();
