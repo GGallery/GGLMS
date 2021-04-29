@@ -113,11 +113,42 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
+            /*
             jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
                 time: tview,
                 id_elemento: id_elemento
             });
+            */
+
+            var data = null;
+            if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
+                console.log("firefox");
+                data = {async: false};
+            }
+            else {
+                console.log("non-firefox");
+                data = {async: true};
+            }
+
+            updateBookmark(data);
+            return null;
         });
+
+        function updateBookmark(data) {
+
+            jQuery.ajax({
+                url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
+                data: {
+                    time: tview,
+                    id_elemento: id_elemento
+                },
+                async: data.async,
+                success: function () {
+                    console.log("updateBookmark success");
+                }
+            });
+
+        }
 
         function sliding(tempo) {
             if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {

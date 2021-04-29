@@ -177,7 +177,7 @@ class gglmsControllerMt extends JControllerLegacy {
                                 'titolo' => $corso['titolo_contenuto'],
                                 'tipologia' => $corso['tipologia_descrizione'],
                                 'giorno' => $quiz['giorno'],
-                                'data_inizio' => $quiz['data_inzio'],
+                                'data_inizio' => utilityHelper::dt_add_tz($quiz['data_inzio']),
                                 'data_fine' => $quiz['data_fine'],
                                 'tempo' => $quiz['secondi']
                             );

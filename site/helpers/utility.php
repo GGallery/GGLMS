@@ -2158,8 +2158,8 @@ HTML;
             }
 
             // per sicurezza rimuovo l'utente da eventuali inserimenti nello usergroup preiscritto
-            $_params_2 = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
-            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_2, "ug_destinazione");
+            $_params_2 = self::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = self::get_ug_from_object($_params_2, "ug_destinazione");
             self::remove_user_from_usergroup($user_id, $ug_preiscritto);
 
             $_ret['success'] = "tuttook";
@@ -2205,8 +2205,8 @@ HTML;
             $_ret = array();
 
             // gestione globale del preiscritto
-            $_params_extra = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
-            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_extra, "ug_destinazione");
+            $_params_extra = self::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = self::get_ug_from_object($_params_extra, "ug_destinazione");
 
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
@@ -2235,8 +2235,8 @@ HTML;
             $_ret = array();
 
             // gestione globale del preiscritto
-            $_params_extra = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
-            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_extra, "ug_destinazione");
+            $_params_extra = self::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = self::get_ug_from_object($_params_extra, "ug_destinazione");
 
             $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_decaduto);
@@ -2265,8 +2265,8 @@ HTML;
             $_ret = array();
 
             // gestione globale del preiscritto
-            $_params_extra = utilityHelper::get_params_from_plugin("cb.cbsetgroup");
-            $ug_preiscritto = utilityHelper::get_ug_from_object($_params_extra, "ug_destinazione");
+            $_params_extra = self::get_params_from_plugin("cb.cbsetgroup");
+            $ug_preiscritto = self::get_ug_from_object($_params_extra, "ug_destinazione");
 
             $_arr_remove = array_merge(self::get_usergroup_id($ug_online), self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_moroso);
@@ -2615,6 +2615,18 @@ HTML;
         $dt = new DateTime($start_date, new DateTimeZone($start_tz));
         $dt->setTimezone(new DateTimeZone($dest_tz));
         return $dt->format($ret_format);
+
+    }
+
+    public function dt_add_tz($my_date, $dt_format = 'Y-m-d H:i:s') {
+
+        $userTimezone = new DateTimeZone('Europe/Rome');
+        $gmtTimezone = new DateTimeZone('GMT');
+        $myDateTime = new DateTime($my_date, $gmtTimezone);
+        $offset = $userTimezone->getOffset($myDateTime);
+        $myInterval=DateInterval::createFromDateString((string)$offset . 'seconds');
+        $myDateTime->add($myInterval);
+        return $myDateTime->format($dt_format);
 
     }
 
