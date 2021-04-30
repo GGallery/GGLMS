@@ -119,6 +119,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
                     // data in formato Y-m-d H:i:s
                     $data->data_extra = $stato->data_extra;
+                    $data->data_primo_accesso = $stato->data_primo_accesso;
 
                     $data->stato = $stato->completato;
                     $data->visualizzazioni =  $stato->visualizzazioni;
@@ -300,7 +301,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                           $data->permanenza_tot ,
                           '$data->data',
                           '$data->data_extra',
-                          '$data->data_extra')";
+                          '$data->data_primo_accesso')";
             $query .= "ON DUPLICATE KEY UPDATE 
                                     stato = $data->stato , 
                                     visualizzazioni = $data->visualizzazioni, 

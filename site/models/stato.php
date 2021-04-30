@@ -82,6 +82,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 // il valore a cui farlo puntare deve essere il timestamp di cmi.core.lesson_status
                 //$this->data_extra = ($data['cmi.core.last_visit_date']->varValue != null && strtotime($data['cmi.core.last_visit_date']->varValue) != false) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $data['cmi.core.lesson_status']->TimeStampExtra;
                 $this->data_extra = $data['cmi.core.lesson_status']->TimeStampExtra;
+                $this->data_primo_accesso = $data['cmi.core.last_visit_date']->TimeStampExtra;
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
@@ -96,6 +97,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 // valorizzata soltanto se completato
                 //$this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';//$data['cmi.core.last_visit_date']->varValue;
                 $this->data_extra = '0000-00-00 00:00:00';
+                $this->data_primo_accesso = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $this->data_extra;
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
@@ -109,6 +111,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
             // colonna data extra
             $this->data_extra = '0000-00-00 00:00:00';
+            $this->data_primo_accesso = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $this->data_extra;
 
             $this->permanenza = '0';
             $this->bookmark = 0;
