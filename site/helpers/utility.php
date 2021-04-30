@@ -2618,7 +2618,7 @@ HTML;
 
     }
 
-    public function dt_add_tz($my_date, $dt_format = 'Y-m-d H:i:s') {
+    public static function dt_add_tz($my_date, $dt_format = 'Y-m-d H:i:s') {
 
         $userTimezone = new DateTimeZone('Europe/Rome');
         $gmtTimezone = new DateTimeZone('GMT');
@@ -2627,6 +2627,21 @@ HTML;
         $myInterval=DateInterval::createFromDateString((string)$offset . 'seconds');
         $myDateTime->add($myInterval);
         return $myDateTime->format($dt_format);
+
+    }
+
+    public static function check_dt_major($start_date, $end_date) {
+
+        $ts_start = new DateTime($start_date);
+        $ts_end = new DateTime($end_date);
+
+        return $ts_start > $ts_end;
+
+    }
+
+    public static function remove_seconds_from_dt($dt_check, $seconds, $ret_format = 'Y-m-d H:i:s') {
+
+        return date($ret_format, strtotime($dt_check) - $seconds);
 
     }
 

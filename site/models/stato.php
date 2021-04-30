@@ -90,6 +90,12 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = isset($data['bookmark']) ? $data['bookmark']->varValue : 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
+
+                // controllo se la data di primo accesso è maggiore della data fine, in questo caso assumo data_primo_accesso
+                // come il timestamp di completed meno i secondi necessari al completamento
+                if (utilityHelper::check_dt_major($this->data_primo_accesso, $this->data_extra))
+                    $this->data_primo_accesso = utilityHelper::remove_seconds_from_dt($this->data_extra, $this->permanenza);
+
             } else {
                 $this->completato = 0;
 //                $this->descrizione = 'Non completato';
@@ -144,6 +150,12 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = 0;
                 $this->visualizzazioni = isset($data['cmi.core.count_views']) ? $data['cmi.core.count_views']->varValue : 0;
+
+                // controllo se la data di primo accesso è maggiore della data fine, in questo caso assumo data_primo_accesso
+                // come il timestamp di completed meno i secondi necessari al completamento
+                if (utilityHelper::check_dt_major($this->data_primo_accesso, $this->data_extra))
+                    $this->data_primo_accesso = utilityHelper::remove_seconds_from_dt($this->data_extra, $this->permanenza);
+
             } else {
                 $this->completato = 0;
 //                $this->descrizione = 'Non scaricato';
