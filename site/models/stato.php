@@ -40,15 +40,18 @@ class gglmsModelStatoContenuto extends JModelLegacy
             $this->completato = ($data->c_passed == 1) ? 1 : 0;
 
             // colonna data extra
-            $this->data_extra = $data->c_date_time;
+            $this->data_extra = $this->completato ? $data->timestamp : utilityHelper::dt_add_tz($data->c_date_time);
+            $this->data_primo_accesso = utilityHelper::dt_add_tz($data->c_date_time);
 
             $time = strtotime($data->c_date_time);
             $data = date("Y-m-d", $time);
 
             $this->data = ($data) ? $data : null;
 
-            if (is_null($this->data))
+            if (is_null($this->data)) {
                 $this->data_extra = '0000-00-00 00:00:00';
+                $this->data_primo_accesso = $this->data_extra;
+            }
 
             $this->visualizzazioni = 0;
 
@@ -125,14 +128,18 @@ class gglmsModelStatoContenuto extends JModelLegacy
     {
 
         if ($data) {
-            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish' || $data['cmi.core.lesson_status']->varValue == 'passed') {
+            if ($data['cmi.core.lesson_status']->varValue == 'completed'
+                || $data['cmi.core.lesson_status']->varValue == 'finish'
+                || $data['cmi.core.lesson_status']->varValue == 'passed') {
                 $this->completato = 1;
 //                $this->descrizione = 'Scaricato';
                 $this->descrizione = JText::_('COM_GGLMS_STATO_SCARICATO');
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '';
 
                 // colonna data extra
-                $this->data_extra = $this->data != '' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';
+                //$this->data_extra = $this->data != '' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';
+                $this->data_extra = $data['cmi.core.lesson_status']->TimeStampExtra;
+                $this->data_primo_accesso = $data['cmi.core.last_visit_date']->TimeStampExtra;
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = 0;
@@ -144,7 +151,10 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
 
                 // colonna data extra
-                $this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStampExtra : '0000-00-00 00:00:00';
+                //$this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStampExtra : '0000-00-00 00:00:00';
+                $this->data_extra = '0000-00-00 00:00:00';
+                $this->data_primo_accesso = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $this->data_extra;
+
 
                 $this->permanenza = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
                 $this->bookmark = 0;
@@ -158,6 +168,8 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
             // colonna data extra
             $this->data_extra = '0000-00-00 00:00:00';
+            $this->data_primo_accesso = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $this->data_extra;
+
 
             $this->permanenza = '0';
             $this->bookmark = 0;
@@ -170,14 +182,18 @@ class gglmsModelStatoContenuto extends JModelLegacy
     {
 
         if ($data) {
-            if ($data['cmi.core.lesson_status']->varValue == 'completed' || $data['cmi.core.lesson_status']->varValue == 'finish' || $data['cmi.core.lesson_status']->varValue == 'passed') {
+            if ($data['cmi.core.lesson_status']->varValue == 'completed'
+                || $data['cmi.core.lesson_status']->varValue == 'finish'
+                || $data['cmi.core.lesson_status']->varValue == 'passed') {
                 $this->completato = 1;
 //                $this->descrizione = 'Documento visionato';
                 $this->descrizione = JText::_('COM_GGLMS_STATO_VISUALIZZATO');
                 $this->data = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->varValue : '0000-00-00';
 
                 // colonna data extra
-                $this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';
+                //$this->data_extra = $this->data != '0000-00-00' ? $data['cmi.core.last_visit_date']->TimeStampExtra : '0000-00-00 00:00:00';
+                $this->data_extra = $data['cmi.core.lesson_status']->TimeStampExtra;
+                $this->data_primo_accesso = $data['cmi.core.last_visit_date']->TimeStampExtra;
 
                 $this->permanenza = '0';
                 $this->bookmark = 0;
@@ -189,7 +205,10 @@ class gglmsModelStatoContenuto extends JModelLegacy
                 $this->data = isset($data['cmi.core.total_time']) ? $data['cmi.core.total_time']->varValue : 0;
 
                 // colonna data extra
-                $this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStampExtra : '0000-00-00 00:00:00';
+                //$this->data_extra = $this->data != 0 ? $data['cmi.core.total_time']->TimeStampExtra : '0000-00-00 00:00:00';
+                $this->data_extra = '0000-00-00 00:00:00';
+                $this->data_primo_accesso = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $this->data_extra;
+
 
                 $this->permanenza = '0';
                 $this->bookmark = 0;
@@ -203,6 +222,8 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
             // colonna data extra
             $this->data_extra = '0000-00-00 00:00:00';
+            $this->data_primo_accesso = isset($data['cmi.core.last_visit_date']) ? $data['cmi.core.last_visit_date']->TimeStampExtra : $this->data_extra;
+
 
             $this->permanenza = '0';
             $this->bookmark = 0;
@@ -223,6 +244,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
         // colonna data extra
         $this->data_extra = '0000-00-00 00:00:00';
+        $this->data_primo_accesso = $this->data_extra;
 
         $this->permanenza = '0';
         $this->bookmark = 0;
