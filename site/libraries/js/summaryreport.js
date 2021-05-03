@@ -700,7 +700,10 @@ _summaryreport = (function ($, my) {
                         columns: [
                             {field: "id_contenuto", title: "", hidden: true},
                             {field: "titolo_contenuto", title: getLocalizedString('COM_GGLMS_REPORT_CONTENT'), width: 120},
-                            {field: "last_visit", title:  getLocalizedString('COM_GGLMS_REPORT_LAST_VISIT'), width: 80},
+                            // ex COM_GGLMS_REPORT_PRIMO_ACCESSO
+                            {field: "data_primo_accesso", title:  getLocalizedString('COM_GGLMS_REPORT_DATA_INIZIO'), width: 80, hidden: extra_data_primo_accesso_hide},
+                            // ex COM_GGLMS_REPORT_LAST_VISIT
+                            {field: "last_visit", title:  getLocalizedString('COM_GGLMS_REPORT_DATA_FINE'), width: 80},
                             {
                                 field: "permanenza",
                                 title: getLocalizedString('COM_GGLMS_REPORT_PERMANENZA'),
@@ -708,7 +711,6 @@ _summaryreport = (function ($, my) {
                                 template: '<span> #= secondsTohhmmss(data.permanenza) # </span>'
                             },
                             {field: "visualizzazioni", title: getLocalizedString('COM_GGLMS_REPORT_VISUALIZZAZIONI'), width: 80},
-                            {field: "data_primo_accesso", title:  getLocalizedString('COM_GGLMS_REPORT_PRIMO_ACCESSO'), width: 80, hidden: extra_data_primo_accesso_hide}
                         ],
                         excelExport: function (e) {
                             // Prevent the saving of the file.
@@ -917,7 +919,14 @@ _summaryreport = (function ($, my) {
             var objTitoloContenuto = { field: "titolo_contenuto", title: getLocalizedString('COM_GGLMS_REPORT_CONTENT') };
             export_colums.push(objTitoloContenuto);
 
-            var objLastVisit = { field: "last_visit", title: getLocalizedString('COM_GGLMS_REPORT_LAST_VISIT') };
+            // ex COM_GGLMS_REPORT_PRIMO_ACCESSO
+            if (parseInt(colonna_datetime) == 1) {
+                var objPrimoAccesso = { field: "data_primo_accesso", title: getLocalizedString('COM_GGLMS_REPORT_DATA_INIZIO') };
+                export_colums.push(objPrimoAccesso);
+            }
+
+            // ex COM_GGLMS_REPORT_LAST_VISIT
+            var objLastVisit = { field: "last_visit", title: getLocalizedString('COM_GGLMS_REPORT_DATA_FINE') };
             export_colums.push(objLastVisit);
 
             var objPermanenza = { field: "permanenza", title: getLocalizedString('COM_GGLMS_REPORT_PERMANENZA')};
@@ -926,10 +935,6 @@ _summaryreport = (function ($, my) {
             var objVisualizzazioni = { field: "visualizzazioni", title: getLocalizedString('COM_GGLMS_REPORT_VISUALIZZAZIONI') };
             export_colums.push(objVisualizzazioni);
 
-            if (parseInt(colonna_datetime) == 1) {
-                var objPrimoAccesso = { field: "data_primo_accesso", title: getLocalizedString('COM_GGLMS_REPORT_PRIMO_ACCESSO') };
-                export_colums.push(objPrimoAccesso);
-            }
 
             var exporter = new kendo.ExcelExporter({
                 /*columns: [{
