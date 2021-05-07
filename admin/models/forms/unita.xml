@@ -183,6 +183,17 @@
         >
         </field>
 
+        <field
+                name="usa_coupon"
+                type="radio"
+                label="Usa coupon"
+                description="Specifica se il corso è associato a un coupon specifico"
+                class="btn-group"
+                default="1"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
 
         <field
                 name="prefisso_coupon"

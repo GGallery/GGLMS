@@ -213,8 +213,12 @@ class gglmsModelcoupon extends JModelLegacy
 
     public function is_coupon_expired_by_corso($corso)
     {
-
         try {
+
+            // se il corso non prevede coupon non è scaduto a prescindere
+            if ($corso->usa_coupon == 0)
+                return false;
+
             $subQuery = $this->_db->getQuery(true)
                 ->select('idgruppo')
                 ->from('#__gg_usergroup_map AS ug')

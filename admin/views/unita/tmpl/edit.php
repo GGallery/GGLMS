@@ -149,6 +149,11 @@ JHtml::_('formbehavior.chosen', 'select');
                         echo $this->form->renderField('id_gruppi_abilitati'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('usa_coupon'); ?>
+                </div>
 
                 <div class="row-fluid">
                     <?php

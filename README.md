@@ -4,6 +4,9 @@ CHANGELOG
 
 F:Frontend, B:Backend, D:Database, G:Generale
 
+4.1.0
+-D: aggiunta della colonna usa_coupon alla tabella gg_unit
+
 4.0.9
 - D: modificata colonna id_evento delle tabella gg_zoom_report
 
