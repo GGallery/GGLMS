@@ -246,11 +246,11 @@ _monitoraCoupon = (function ($, my) {
 
                                 // controllo valori non consoni alla conversione per evitare valore del tipo Invalid Date
                                 var itemRef = item[c.field];
-                                var itemRefLower = itemRef.toLowerCase();
+                                //var itemRefLower = itemRef.toLowerCase();
                                 // convert data from utc to local
                                 if (itemRef !== null
                                     && itemRef != '0000-00-00 00:00:00'
-                                    && itemRefLower.indexOf('invalid') == -1) {
+                                    && itemRef.indexOf('invalid') == -1) {
                                     var utc = new Date(itemRef);
                                     utc.setMinutes(utc.getMinutes() - offset);
                                     itemRef = utc.toLocaleDateString() + ' ' + utc.toLocaleTimeString();
