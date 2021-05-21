@@ -631,7 +631,7 @@ class utilityHelper
             $Juser = JFactory::getUser();
             $user->get_user($Juser->id);
             $_japp = JFactory::getApplication();
-            $societa_venditrici = [];
+            $societa_venditrici = array();
 
             if ($user->is_venditore($Juser->id)) {
                 $societa_venditrici = $user->get_user_piattaforme($Juser->id);

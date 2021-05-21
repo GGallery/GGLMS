@@ -289,12 +289,28 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $check = null;
+        $query = $this->_db->getQuery(true)
+            ->select('r.data_inizio, 
+                            r.data_inizio as data_inizio_corso, 
+                            r.data_fine,
+                            r.data_fine as data_fine_corso,
+                            COALESCE(c.titolo, "") as titolo, 
+                            COALESCE(c.prefisso_coupon, "") as codice_corso')
+            ->from('#__gg_view_stato_user_corso as r')
+            ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
+            ->join('left', '#__gg_unit as c on r.id_corso = c.id')
+            ->where('ru.id_user = ' . 12082)
+            ->where('r.id_corso = ' . 201)
+            ->where('r.stato = 1')
+            ->order('r.timestamp desc');
 
-        if (!$check)
-            echo "ok";
-        else
-            echo "non ok";
+        $this->_db->setQuery($query);
+        $dati_corso = $this->_db->loadObjectList();
+
+        var_dump(!is_null($dati_corso)
+            && !empty($dati_corso));
+
+        echo isset($dati_corso[0]->data_fine_corso) ? $dati_corso[0]->data_fine_corso : "";
 
         $this->_japp->close();
 
@@ -457,21 +473,6 @@ class gglmsControllerMt extends JControllerLegacy {
         }
 
         DEBUGG::log($_ending_msg,__FUNCTION__,0,1);
-        $this->_japp->close();
-
-    }
-
-    public function _get_config() {
-
-        $_check = $this->_config->getConfigValue('cassu');
-        var_dump($_check);
-
-        if ((int) $_check == 0
-            && !is_null($_check))
-            echo "ZERO";
-        else
-            echo "NON ZERO";
-
         $this->_japp->close();
 
     }
