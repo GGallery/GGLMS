@@ -916,6 +916,10 @@ class utilityHelper
 
         try {
             $_ret = array();
+            $Juser = JFactory::getUser();
+            $usergroups = "";
+            $lista_aziende = null;
+            $_filtro_azienda = "";
 
             if ($id_corso == ""
                 || $id_corso == 1
@@ -925,6 +929,9 @@ class utilityHelper
             // ricavo l'id del gruppo corso dal corso
             $unit_model = new gglmsModelUnita();
             $unit_gruppo = $unit_model->get_id_gruppo_unit($id_corso);
+            $user = new gglmsModelUsers();
+            $subq = "";
+
 
             // utenti iscritti ad un corso
             $db = JFactory::getDbo();
@@ -932,6 +939,23 @@ class utilityHelper
                         ->select('user_id')
                         ->from('#__user_usergroup_map')
                         ->where('group_id = ' . $db->quote($unit_gruppo));
+
+            // se tutor aziendale visualizzo i risultati soltanto per l'azienda di riferimento
+            if ($user->is_tutor_aziendale($Juser->id)
+                && !$user->is_tutor_piattaforma($Juser->id)
+                && !$user->is_user_superadmin($Juser->id)) {
+                // utente loggato ha ruolo di TUTOR AZIENDALE , prendo la sua società
+                $lista_aziende = $user->get_user_societa($Juser->id, true);
+
+                if (count($lista_aziende) > 0) {
+                    $subq = $db->getQuery(true)
+                        ->select('user_id')
+                        ->from('#__user_usergroup_map')
+                        ->where("group_id IN (" . implode(', ', $db->quote(utilityHelper::get_id_aziende($lista_aziende))) . ")");
+
+                    $query = $query->where('user_id IN (' . $subq->__toString() . ')');
+                }
+            }
 
             $db->setQuery($query);
             $results = $db->loadAssocList();

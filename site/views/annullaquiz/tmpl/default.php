@@ -379,19 +379,21 @@ defined('_JEXEC') or die;
         var stiletdcenter = " text-align:center;";
         //SET OF RULES
 
-        if (rowCellData == '1') {
+        if (rowCellData == '1'
+            && columIndex == 5) {
 
-            rowCellData = "<span title='completato' class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>";
+            rowCellData = "<span title='Completato' class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>";
             stiletd = stiletd + stiletdcenter;
         }
 
-        if (rowCellData == '0') {
+        else if (rowCellData == '0'
+                    && columIndex == 5) {
 
-            rowCellData = "<span title='iniziato' class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>";
+            rowCellData = "<span title='Non completato' class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>";
             stiletd = stiletd + stiletdcenter;
         }
 
-        if (rowCellData == '0000-00-00') {
+        else if (rowCellData == '0000-00-00') {
 
             rowCellData = ""
         }

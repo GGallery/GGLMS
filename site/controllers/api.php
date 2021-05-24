@@ -357,8 +357,11 @@ class gglmsControllerApi extends JControllerLegacy
             $query->select('CP.cb_nome AS nome, CP.cb_cognome AS cognome, UPPER(CP.cb_codicefiscale) AS codice_fiscale,
                             TQ.c_title AS titolo, 
 			                DATE_FORMAT(SQ.c_date_time, \'%d/%m/%Y %H:%i\') AS data_completamento, 
-			                SQ.c_passed AS esito, SQ.c_quiz_id AS quiz_ref, 
-			                SQ.c_id AS quiz_id, SQ.c_student_id AS student_id, SQ.c_passing_score AS punteggio');
+			                SQ.c_passed AS esito, 
+			                SQ.c_quiz_id AS quiz_ref, 
+			                SQ.c_id AS quiz_id, 
+			                SQ.c_student_id AS student_id, 
+			                SQ.c_total_score AS punteggio');
 
             $countquery->select("COUNT(*) AS num_rows");
 
