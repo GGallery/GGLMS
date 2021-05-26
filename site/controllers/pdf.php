@@ -47,6 +47,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
     // se $generate_pdf = false il metodo ritorna id dati per generare il pdf
     // il default == true --> stampa il pdf
+    // aggiunto il riferimento ad id_corso dalla vista di scaricamento dell'attestato
     public function generateAttestato($user_id = null,
                                       $id_content = null,
                                       $generate_pdf = true,
@@ -62,7 +63,8 @@ class gglmsControllerPdf extends JControllerLegacy
             $postData = $this->_japp->input->get;
             $id_elemento = $id_content != null ? $id_content : $postData->get('content', 0, 'int');
             $user_id = $user_id != null ? $user_id : $this->_user->get('id');
-
+            // da vista o come argomento
+            $id_corso = $id_corso != null ? $id_corso : $postData->get('id_corso', null);
 
             if (!$user_id)
                 JFactory::getApplication()->enqueueMessage('Impossibile determinare l\'id dell\'utente ', 'error');

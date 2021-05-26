@@ -647,6 +647,47 @@ class utilityHelper
         }
     }
 
+    // partendo da un contenuto arrivo fino all'unità padre del corso
+    public static function get_unita_padre_corso_da_contenuto($id_contenuto) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('idunita')
+                ->from('#__gg_unit_map as m')
+                ->where('idcontenuto = ' . $db->quote($id_contenuto));
+
+            $db->setQuery($query);
+            $id_unita = $db->loadResult();
+
+            if (is_null($id_unita))
+                throw new Exception("", E_USER_ERROR);
+
+            $semaforo_unit = 0;
+            while($id_unita != 0) {
+
+                $query = $db->getQuery(true)
+                    ->select('id AS unit_id, unitapadre')
+                    ->from('#__gg_unit')
+                    ->where('id = ' . $db->quote($id_unita));
+
+                $db->setQuery($query);
+                $u_first = $db->loadAssoc();
+
+                $id_unita = $u_first['unitapadre'];
+                $semaforo_unit = $u_first['unit_id'];
+
+            }
+
+            return $semaforo_unit;
+        }
+        catch (Exception $e) {
+            return null;
+        }
+
+    }
+
     // informazioni per un campo community builder da name
     public static function get_cb_field_by_name($field_name) {
 

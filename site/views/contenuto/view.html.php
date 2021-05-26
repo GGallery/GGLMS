@@ -22,9 +22,14 @@ require_once JPATH_COMPONENT . '/models/contenuto.php';
 class gglmsViewContenuto extends JViewLegacy
 {
 
-    protected $params;
+    protected $_params;
     protected $url_base;
     protected $slide_pdf;
+    protected $id_utente;
+    protected $jumper;
+    protected $att_scaricabile;
+    protected $id_unita;
+
 
     function display($tpl = null)
     {
@@ -57,11 +62,11 @@ class gglmsViewContenuto extends JViewLegacy
                 break;
 
             case 'solovideo':
-                $this->jumper = [];
+                $this->jumper = array();
                 break;
             case 'attestato':
                 $this->att_scaricabile = $this->contenuto->attestato_scaricabile_by_user();
-
+                $this->id_unita = UtilityHelper::get_unita_padre_corso_da_contenuto($this->contenuto->id);
                 break;
         }
 
