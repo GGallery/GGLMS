@@ -148,14 +148,15 @@ class gglmsControllerPdf extends JControllerLegacy
 
             // DATI CORSO
             // aggiunto order per eventuali ripetizioni in modo da prendere l'ultima inserita
+            // vanno inclusi anche corsi non completati
             $dati_corso = null;
             if (!is_null($id_corso)) {
 
                 $query = $db->getQuery(true)
-                    ->select('r.data_inizio, 
-                            r.data_inizio as data_inizio_corso, 
-                            r.data_fine,
-                            r.data_fine as data_fine_corso,
+                    ->select('COALESCE(r.data_inizio, "") as data_inizio, 
+                            COALESCE(r.data_inizio, "") as data_inizio_corso, 
+                            COALESCE(r.data_fine, "") as data_fine,
+                            COALESCE(r.data_fine, "") as data_fine_corso,
                             COALESCE(c.titolo, "") as titolo, 
                             COALESCE(c.prefisso_coupon, "") as codice_corso')
                     ->from('#__gg_view_stato_user_corso as r')
@@ -163,7 +164,6 @@ class gglmsControllerPdf extends JControllerLegacy
                     ->join('left', '#__gg_unit as c on r.id_corso = c.id')
                     ->where('ru.id_user = ' . $user_id)
                     ->where('r.id_corso = ' . $id_corso)
-                    ->where('r.stato = 1')
                     ->order('r.timestamp desc');
 
                 $db->setQuery($query);
