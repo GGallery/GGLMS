@@ -676,6 +676,9 @@ class utilityHelper
                 $u_first = $db->loadAssoc();
 
                 $id_unita = $u_first['unitapadre'];
+                if ($id_unita == 0)
+                    break;
+
                 $semaforo_unit = $u_first['unit_id'];
 
             }
