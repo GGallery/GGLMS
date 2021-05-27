@@ -76,14 +76,19 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
 
         try {
+
+            // gestisco il fuso orario altrimenti la data impostata non è veritiera
+            $_dt_ref = utilityHelper::dt_add_tz(date('Y-m-d G:i:s'), 'Y-m-d G:i:s');
+
             $query = $this->_db->getQuery(true)
                 ->update('#__gg_configs	')
-                ->set('config_value = now()')
+                ->set('config_value = ' . $this->_db->quote($_dt_ref))
                 ->where('config_key = "data_sync"');
             $this->_db->setQuery($query);
             $this->_db->execute();
             // salva data_sync anche in #__extensions
-            utilityHelper::setComponentParam('data_sync', date('Y-m-d G:i:s'));
+            //utilityHelper::setComponentParam('data_sync', date('Y-m-d G:i:s'));
+            utilityHelper::setComponentParam('data_sync', $_dt_ref);
             DEBUGG::log('update_config', 'update_config', 0, 1, 0);
             return "1";
         } catch (Exception $e) {
