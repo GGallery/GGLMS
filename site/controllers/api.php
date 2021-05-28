@@ -63,6 +63,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
+        $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
 
     }
 
@@ -1825,6 +1826,82 @@ HTML;
 
         echo json_encode($_ret);
         $this->_japp->close();
+
+    }
+
+    // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
+    function get_completed_report_per_piattaforma() {
+
+        try {
+
+            $model_user = new gglmsModelUsers();
+            $ret_users = $model_user->get_all_user_piattaforma($this->_filterparam->id_piattaforma, true);
+            $arr_xml = array();
+            $arr_corsi = array();
+            $arr_gruppi = array();
+            $dt = new DateTime();
+            $oggi = $dt->format('Y-m-d');
+            // ieri
+            $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
+            $_dt_ref_ext =  date('Ymd', strtotime('-1 day', strtotime($oggi)));
+
+
+            if (!isset($ret_users['users'])
+                || is_null($ret_users['users'])
+                || count($ret_users['users']) == 0)
+                return;
+
+            $query = $this->_db->getQuery(true)
+                ->select('cp.cb_codicefiscale AS cf, 
+                                cp.cb_nome AS nome_utente,
+                                cp.cb_cognome AS cognome_utente,
+                                u.email,
+                                u.id AS user_id,
+                                IF(r.stato = 1, "COMPLETATO", "NON COMPLETATO") AS esito,
+                                r.stato AS esito_numerico,
+                                r.data_inizio_extra AS data_inizio_corso,
+                                r.data_fine_extra AS data_fine_corso,
+                                unita.titolo AS titolo_corso,
+                                unita.id AS id_corso,
+                                ugm.idgruppo AS gruppo_corso
+                                ')
+                ->from('#__comprofiler AS cp')
+                ->join('inner', '#__users AS u ON cp.user_id = u.id')
+                ->join('inner', '#__gg_report_users AS ru ON u.id = ru.id_user')
+                ->join('inner', '#__gg_view_stato_user_corso r ON r.id_anagrafica = ru.id')
+                ->join('inner', '#__gg_unit AS unita ON r.id_corso = unita.id')
+                ->join('inner', '#__gg_usergroup_map ugm ON ugm.idunita = unita.id')
+                ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
+                ->where('ru.id_user IN (' . implode(",", $ret_users['users']) . ')')
+                ->order('unita.id');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (count($results) == 0)
+                throw new Exception("Nessun corso completato per id_piattaforma: " . $this->_filterparam->id_piattaforma
+                    . " in data " . $dt->format('Y-m-d'));
+
+            foreach ($results as $key_res => $sub_res) {
+                $arr_xml[$sub_res['id_corso']][] = $sub_res;
+                $arr_corsi[$sub_res['id_corso']] = $sub_res['titolo_corso'];
+                $arr_gruppi[$sub_res['id_corso']] = $sub_res['gruppo_corso'];
+            }
+
+            $check_xml = UtilityHelper::create_report_xml($arr_xml,
+                                                        $arr_corsi,
+                                                        $arr_gruppi,
+                                                        $ret_users['aziende'],
+                                                        $ret_users['dual'],
+                                                        'GGCorsiCompletati' . $_dt_ref_ext);
+
+            echo 1;
+            $this->_japp->close();
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
 
     }
 

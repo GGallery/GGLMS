@@ -394,6 +394,74 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_all_user_piattaforma($id_piattaforma, $ret_aziende = false) {
+
+        try {
+
+            $ids_aziende = array();
+            $ids_users = array();
+            $arr_aziende = array();
+            $arr_dual = array();
+            $_ret = array();
+
+            // tutte le azienda per piattaforma
+            $query_az = $this->_db->getQuery(true)
+                        ->select('id AS id_azienda, title AS nome_azienda')
+                        ->from('#__usergroups')
+                        ->where('parent_id = ' . $this->_db->quote($id_piattaforma));
+            $this->_db->setQuery($query_az);
+            $ug_azienda = $this->_db->loadAssocList();
+
+            if (count($ug_azienda) == 0)
+                throw new Exception("Nessun gruppo aziende trovato per id_piattaforma: " . $id_piattaforma, E_USER_ERROR);
+
+            foreach ($ug_azienda as $azienda_key => $azienda) {
+
+                if (in_array($azienda['id_azienda'], $ids_aziende))
+                    continue;
+
+                $ids_aziende[] = $azienda['id_azienda'];
+                $arr_aziende[$azienda['id_azienda']] = $azienda['nome_azienda'];
+            }
+
+            // tutti gli utenti per azienda
+            $query_us =  $this->_db->getQuery(true)
+                            ->select('user_id, group_id')
+                            ->from('#__user_usergroup_map')
+                            ->where('group_id IN (' . implode(",", $ids_aziende) . ')')
+                            ->where('user_id > 0');
+            $this->_db->setQuery($query_us);
+            $ug_users = $this->_db->loadAssocList();
+
+            if (count($ug_users) == 0)
+                throw new Exception("Nessun utente trovato per id_piattaforma: " . $id_piattaforma, E_USER_ERROR);
+
+            foreach ($ug_users as $user_key => $user) {
+
+                // associazione azienda / utente
+                $arr_dual[$user['group_id']][] = $user['user_id'];
+
+                if (in_array($user['user_id'], $ids_users))
+                    continue;
+                $ids_users[] = $user['user_id'];
+            }
+
+            $_ret['users'] = $ids_users;
+
+            if ($ret_aziende) {
+                $_ret['aziende'] = $arr_aziende;
+                $_ret['dual'] = $arr_dual;
+            }
+
+            return $_ret;
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     public function get_all_tutor_piattaforma($id_piattaforma, $from_api=false)
     {
 

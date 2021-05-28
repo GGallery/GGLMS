@@ -2497,6 +2497,94 @@ HTML;
 
     }
 
+    // scrivo xml in destinazione
+    public static function create_report_xml($arr_xml,
+                                             $arr_corsi,
+                                             $arr_gruppi,
+                                             $arr_aziende,
+                                             $arr_dual,
+                                             $filename) {
+
+        $dom = new DOMDocument();
+        $dom->encoding = 'utf-8';
+        $dom->xmlVersion = '1.0';
+        $dom->formatOutput = true;
+        $ref_nodi = array();
+
+        $dest_file = JPATH_ROOT . '/tmp/' . $filename . '.xml';
+        $root = $dom->createElement('CORSI');
+
+        foreach ($arr_xml as $id_corso => $sub_corso) {
+
+            // apro tag corso
+            if (!in_array($id_corso, $ref_nodi)) {
+                $corso_node = $dom->createElement('CORSO');
+                $codice_corso_node = $dom->createElement('CODICE_CORSO', $arr_gruppi[$id_corso]);
+                $corso_node->appendChild($codice_corso_node);
+                $codice_corso_host_node = $dom->createElement('CODICE_CORSO_HOST', $arr_gruppi[$id_corso]);
+                $corso_node->appendChild($codice_corso_host_node);
+                $titolo_corso_node = $corso_node->appendChild($dom->createElement('TITOLO'));
+                $titolo_corso_node->appendChild($dom->createCDATASection(trim($arr_corsi[$id_corso])));
+            }
+
+
+            $iscritti_node = $dom->createElement('ISCRITTI');
+            foreach ($sub_corso as $key_sub => $iscritto) {
+
+                $iscritto_node = $dom->createElement('ISCRITTO');
+
+                $codice_iscritto_node = $dom->createElement('CODICE_ISCRITTO', $iscritto['user_id']);
+                $iscritto_node->appendChild($codice_iscritto_node);
+                $codice_iscritto_host_node = $dom->createElement('CODICE_ISCRITTO_HOST', $iscritto['user_id']);
+                $iscritto_node->appendChild($codice_iscritto_host_node);
+                // CDATA
+                $iscritto_cognome_node = $iscritto_node->appendChild($dom->createElement('COGNOME'));
+                $iscritto_cognome_node->appendChild($dom->createCDATASection(trim($iscritto['cognome_utente'])));
+                $iscritto_nome_node = $iscritto_node->appendChild($dom->createElement('NOME'));
+                $iscritto_nome_node->appendChild($dom->createCDATASection(trim($iscritto['nome_utente'])));
+                $iscritto_cf_node = $dom->createElement('CODICE_FISCALE', trim($iscritto['cf']));
+                $iscritto_node->appendChild($iscritto_cf_node);
+                $iscritto_email_node = $dom->createElement('MAIL', trim($iscritto['email']));
+                $iscritto_node->appendChild($iscritto_email_node);
+                // azienda dell'utente
+                $id_azienda = self::check_exists_sub_array($iscritto['user_id'], $arr_dual);
+                $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('PRESSO'));
+                $iscritto_presso_node->appendChild($dom->createCDATASection(trim($arr_aziende[$id_azienda])));
+                $iscritto_esito_node = $dom->createElement('ESITO', trim($iscritto['esito_numerico']));
+                $iscritto_node->appendChild($iscritto_esito_node);
+
+                $iscritti_node->appendChild($iscritto_node);
+            }
+
+            $corso_node->appendChild($iscritti_node);
+
+            if (!in_array($id_corso, $ref_nodi))
+                $root->appendChild($corso_node);
+
+            $ref_nodi[] = $id_corso;
+
+        }
+
+        $dom->appendChild($root);
+        $dom->save($dest_file);
+
+    }
+
+    public static function check_exists_sub_array($needle, $arr_ref) {
+
+        foreach ($arr_ref as $key => $sub_arr) {
+
+            foreach ($sub_arr as $kk => $vv) {
+                if ($vv == $needle)
+                    return $key;
+            }
+
+        }
+
+        return 0;
+
+    }
+
     public static function set_index_redirect_url($redirect=null) {
 
         $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
