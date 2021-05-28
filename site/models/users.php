@@ -394,7 +394,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_all_user_piattaforma($id_piattaforma, $ret_aziende = false) {
+    public function get_all_user_piattaforma($id_piattaforma, $ret_aziende = false, $_err_label = '') {
 
         try {
 
@@ -443,6 +443,7 @@ class gglmsModelUsers extends JModelLegacy
 
                 if (in_array($user['user_id'], $ids_users))
                     continue;
+
                 $ids_users[] = $user['user_id'];
             }
 
@@ -456,7 +457,7 @@ class gglmsModelUsers extends JModelLegacy
             return $_ret;
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 

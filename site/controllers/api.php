@@ -1835,7 +1835,7 @@ HTML;
         try {
 
             $model_user = new gglmsModelUsers();
-            $ret_users = $model_user->get_all_user_piattaforma($this->_filterparam->id_piattaforma, true);
+            $ret_users = $model_user->get_all_user_piattaforma($this->_filterparam->id_piattaforma, true, __FUNCTION__);
             $arr_xml = array();
             $arr_corsi = array();
             $arr_gruppi = array();
@@ -1846,10 +1846,9 @@ HTML;
             $_dt_ref_ext =  date('Ymd', strtotime('-1 day', strtotime($oggi)));
 
 
-            if (!isset($ret_users['users'])
-                || is_null($ret_users['users'])
-                || count($ret_users['users']) == 0)
-                return;
+            if (is_null($ret_users))
+                throw new Exception("Nessun dato valido - id_piattaforma: " . $this->_filterparam->id_piattaforma
+                    . " - data " . $_dt_ref, E_USER_ERROR);
 
             $query = $this->_db->getQuery(true)
                 ->select('cp.cb_codicefiscale AS cf, 
@@ -1879,8 +1878,8 @@ HTML;
             $results = $this->_db->loadAssocList();
 
             if (count($results) == 0)
-                throw new Exception("Nessun corso completato per id_piattaforma: " . $this->_filterparam->id_piattaforma
-                    . " in data " . $dt->format('Y-m-d'));
+                throw new Exception("Nessun corso completato - id_piattaforma: " . $this->_filterparam->id_piattaforma
+                    . " - data " . $_dt_ref, E_USER_ERROR);
 
             foreach ($results as $key_res => $sub_res) {
                 $arr_xml[$sub_res['id_corso']][] = $sub_res;
@@ -1893,16 +1892,23 @@ HTML;
                                                         $arr_gruppi,
                                                         $ret_users['aziende'],
                                                         $ret_users['dual'],
-                                                        'GGCorsiCompletati' . $_dt_ref_ext);
+                                                        'GGCorsiCompletati' . $_dt_ref_ext,
+                                                        __FUNCTION__);
+
+            // si è verificato un errore durante l'elaborazione dell'xml
+            if (!$check_xml)
+                throw new Exception("Errore di scrittura del file xml - id_piattaforma: " . $this->_filterparam->id_piattaforma
+                    . " - data " . $_dt_ref, E_USER_ERROR);
 
             echo 1;
-            $this->_japp->close();
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return null;
+            echo 0;
+
         }
 
+        $this->_japp->close();
     }
 
 //	INUTILIZZATO
