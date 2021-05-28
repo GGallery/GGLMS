@@ -2550,6 +2550,10 @@ HTML;
                     $iscritto_node->appendChild($iscritto_email_node);
                     // azienda dell'utente
                     $id_azienda = self::check_exists_sub_array($iscritto['user_id'], $arr_dual);
+                    if ($id_azienda == 0)
+                        throw new Exception("Nessuna azienda per " . $iscritto['user_id'] . " 
+                            - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
+
                     $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('PRESSO'));
                     $iscritto_presso_node->appendChild($dom->createCDATASection(trim($arr_aziende[$id_azienda])));
                     $iscritto_esito_node = $dom->createElement('ESITO', trim($iscritto['esito_numerico']));

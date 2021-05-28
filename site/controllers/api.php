@@ -1852,14 +1852,14 @@ HTML;
 
             $query = $this->_db->getQuery(true)
                 ->select('cp.cb_codicefiscale AS cf, 
-                                cp.cb_nome AS nome_utente,
-                                cp.cb_cognome AS cognome_utente,
+                                COALESCE(cp.cb_nome, "-") AS nome_utente,
+                                COALESCE(cp.cb_cognome, "-") AS cognome_utente,
                                 u.email,
                                 u.id AS user_id,
                                 IF(r.stato = 1, "COMPLETATO", "NON COMPLETATO") AS esito,
                                 r.stato AS esito_numerico,
                                 r.data_inizio_extra AS data_inizio_corso,
-                                r.data_fine_extra AS data_fine_corso,
+                                IF(r.data_fine_extra = "0000-00-00 00:00:00", "", r.data_fine_extra) AS data_fine_corso,
                                 unita.titolo AS titolo_corso,
                                 unita.id AS id_corso,
                                 ugm.idgruppo AS gruppo_corso
