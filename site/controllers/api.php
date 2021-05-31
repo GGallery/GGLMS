@@ -64,6 +64,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
+        $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
 
     }
 
@@ -1839,29 +1840,33 @@ HTML;
             $arr_xml = array();
             $arr_corsi = array();
             $arr_gruppi = array();
+            $arr_dt_corsi = array();
             $dt = new DateTime();
             $oggi = $dt->format('Y-m-d');
             // ieri
             $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
             $_dt_ref_ext =  date('Ymd', strtotime('-1 day', strtotime($oggi)));
-
+            // tipologia svolgimento
+            $tipologia_svolgimento = (isset($this->_filterparam->tipologia_svolgimento) && $this->_filterparam->tipologia_svolgimento != "") ? $this->_filterparam->tipologia_svolgimento : 6;
 
             if (is_null($ret_users))
                 throw new Exception("Nessun dato valido - id_piattaforma: " . $this->_filterparam->id_piattaforma
                     . " - data " . $_dt_ref, E_USER_ERROR);
 
             $query = $this->_db->getQuery(true)
-                ->select('cp.cb_codicefiscale AS cf, 
+                ->select('UPPER(cp.cb_codicefiscale) AS cf, 
                                 COALESCE(cp.cb_nome, "-") AS nome_utente,
                                 COALESCE(cp.cb_cognome, "-") AS cognome_utente,
                                 u.email,
                                 u.id AS user_id,
                                 IF(r.stato = 1, "COMPLETATO", "NON COMPLETATO") AS esito,
                                 r.stato AS esito_numerico,
-                                r.data_inizio_extra AS data_inizio_corso,
+                                IF(r.data_inizio_extra = "0000-00-00 00:00:00", "", r.data_inizio_extra) AS data_inizio_corso,
                                 IF(r.data_fine_extra = "0000-00-00 00:00:00", "", r.data_fine_extra) AS data_fine_corso,
                                 unita.titolo AS titolo_corso,
                                 unita.id AS id_corso,
+                                COALESCE(unita.data_inizio, "") AS dt_inizio_corso,
+                                COALESCE(unita.data_fine, "") AS dt_fine_corso,
                                 ugm.idgruppo AS gruppo_corso
                                 ')
                 ->from('#__comprofiler AS cp')
@@ -1872,6 +1877,7 @@ HTML;
                 ->join('inner', '#__gg_usergroup_map ugm ON ugm.idunita = unita.id')
                 ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
                 ->where('ru.id_user IN (' . implode(",", $ret_users['users']) . ')')
+                ->where('r.stato = 1')
                 ->order('unita.id');
 
             $this->_db->setQuery($query);
@@ -1884,6 +1890,10 @@ HTML;
             foreach ($results as $key_res => $sub_res) {
                 $arr_xml[$sub_res['id_corso']][] = $sub_res;
                 $arr_corsi[$sub_res['id_corso']] = $sub_res['titolo_corso'];
+
+                if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
+                    $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
+
                 $arr_gruppi[$sub_res['id_corso']] = $sub_res['gruppo_corso'];
             }
 
@@ -1892,6 +1902,8 @@ HTML;
                                                         $arr_gruppi,
                                                         $ret_users['aziende'],
                                                         $ret_users['dual'],
+                                                        $arr_dt_corsi,
+                                                        $tipologia_svolgimento,
                                                         'GGCorsiCompletati' . $_dt_ref_ext,
                                                         __FUNCTION__);
 

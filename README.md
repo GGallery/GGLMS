@@ -3,6 +3,8 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.1
+-D: modificata colonna welcome della tabella usergroups_details
 
 4.1.0
 -D: aggiunta della colonna usa_coupon alla tabella gg_unit
