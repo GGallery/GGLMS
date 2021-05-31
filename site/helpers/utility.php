@@ -2497,6 +2497,59 @@ HTML;
 
     }
 
+    // scarico file xml dal repository
+    public static function get_xml_remote($local_file, $_err_label = '') {
+
+        try {
+
+            $_config = new gglmsModelConfig();
+            $_host = $_config->getConfigValue('xml_ip_dest');
+            $_user = $_config->getConfigValue('xml_user_dest');
+            $_password = $_config->getConfigValue('xml_pwd_dest');
+            $_read_dir = $_config->getConfigValue('xml_read_dir_dest');
+            $arr_files = array();
+
+            $conn_id = ftp_connect($_host);
+            $login_result = ftp_login($conn_id, $_user, $_password);
+
+            if (!$conn_id || !$login_result)
+                throw new Exception("Fallita la connessione all'ftp " . $_host, E_USER_ERROR);
+
+            $contents = ftp_nlist($conn_id, './' . $_read_dir);
+            if (count($contents) == 0)
+                throw new Exception("Repository vuoto sul server " . $_host, E_USER_ERROR);
+
+            foreach ($contents as $key => $file) {
+
+                $file_check = pathinfo($file);
+                if ($file_check['extension'] == 'xml') {
+                    $arr_files[] = $file_check['basename'];
+                }
+
+            }
+
+            if (count($arr_files) == 0)
+                throw new Exception("Nessun file xml trovato sul repository del server " . $_host, E_USER_ERROR);
+
+            foreach ($arr_files as $file_key => $xml) {
+
+                if (!ftp_get($conn_id, $local_file . '/' . $xml, './' . $_read_dir . '/' . $xml, FTP_BINARY))
+                    throw new Exception("Impossibile scaricare " . $xml . " dal server " . $_host);
+
+                // rinomino il file in remoto - e li sposto in un'altra directory
+                ftp_rename($conn_id, './' . $_read_dir . '/' . $xml, './' . $_read_dir . '/_old/' . $xml . '.bak');
+            }
+
+            return $arr_files;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
+
+    }
+
     // carico file xml su repository
     public static function put_xml_remote($filename, $delete_orig = false, $_err_label = '') {
 

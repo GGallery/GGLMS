@@ -478,6 +478,8 @@ CREATE TABLE `#__gg_unit` (
   `sc_semaforo_custom_cb` varchar(255) NULL,
   `sc_valore_custom_cb` decimal(6,2) NULL,
   `usa_coupon`  tinyint(1) NOT NULL DEFAULT 1,
+  `codice`  varchar(255) NULL,
+  `codice_alfanumerico`  varchar(255) NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -516,7 +518,9 @@ INSERT INTO `#__gg_unit` VALUES (
                                 null,
                                 null,
                                 null,
-                                1);
+                                1,
+                                null,
+                                null);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`

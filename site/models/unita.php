@@ -753,6 +753,104 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
+    // logica copiata da amministrazione
+    public function creaGruppoCorso($pk, $titolo)
+    {
+        try {
+            $db = JFactory::getDBO();
+
+            // check se esiste già un gruppo per questo corso
+            $query = $db->getQuery(true)
+                ->select('count(*)')
+                ->from('#__gg_usergroup_map')
+                ->where('idunita="' . $pk . '"');
+
+            $db->setQuery($query);
+            $count = $db->loadResult();
+
+
+            if ($count == 0) {
+
+                // get config
+                $query = $db->getQuery(true)
+                    ->select('config_value')
+                    ->from('#__gg_configs')
+                    ->where("config_key='id_gruppo_corsi'");
+
+                $db->setQuery($query);
+                $group_parent_id = $db->loadResult();
+
+                // non esiste il gruppo , lo creo
+                $insertquery_group = 'INSERT INTO #__usergroups (parent_id, lft,rgt, title) VALUES(';
+                $insertquery_group = $insertquery_group . $group_parent_id . ',';
+                $insertquery_group = $insertquery_group . '0' . ',';
+                $insertquery_group = $insertquery_group . '0' . ',';
+                $insertquery_group = $insertquery_group .  $db->quote($titolo) .  ')';
+
+
+                //echo $insertquery; die;
+                $db->setQuery($insertquery_group);
+                $db->execute();
+                $group_id = $db->insertid(); // id del gruppo appena inserito
+
+                // inserisco in gg_usergroup_map
+                $insertquery_map = 'INSERT INTO #__gg_usergroup_map (idunita, idgruppo) VALUES(';
+                $insertquery_map = $insertquery_map . $pk . ',';
+                $insertquery_map = $insertquery_map . $group_id . ')';
+
+                $db->setQuery($insertquery_map);
+                $db->execute();
+
+                // rebuild usergroups to fix lft e rgt
+                $JTUserGroup = new JTableUsergroup($db);
+                $JTUserGroup->rebuild();
+
+                return $group_id;
+
+
+            } else {
+                return null;
+            }
+
+
+        } catch (Exception $e) {
+
+            DEBUGG::log($e->getMessage(), 'update unita', 0, 1, 0);
+        }
+
+    }
+
+    // importazione corsi
+    function importa_anagrafica_corsi($corso) {
+
+        try {
+
+            $codice_corso = $corso->CODICE_CORSO;
+
+            // verifico se il corso esiste mediante il codice + codice alfanumerico
+            $query = $this->_db->getQuery(true)
+                ->select('id as id_unita')
+                ->from('#__gg_unit')
+                ->where('codice = ' . $this->_db->quote($codice_corso));
+
+            $this->_db->setQuery($query);
+            $id_unita = $this->_db->loadResult();
+
+            if (is_null($id_unita))
+                return $this->get_gruppo_accesso_corso($id_unita);
+
+            // aggiungo l'unità
+            $insert = 'INSERT INTO #__gg_unit () 
+                        VALUES ()';
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
 
 }
 
