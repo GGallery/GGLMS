@@ -2497,6 +2497,41 @@ HTML;
 
     }
 
+    // carico file xml su repository
+    public static function put_xml_remote($filename, $delete_orig = false, $_err_label = '') {
+
+        try {
+
+            $_config = new gglmsModelConfig();
+            $_host = $_config->getConfigValue('xml_ip_dest');
+            $_user = $_config->getConfigValue('xml_user_dest');
+            $_password = $_config->getConfigValue('xml_pwd_dest');
+            $_write_dir = $_config->getConfigValue('xml_write_dir_dest');
+            $local_file = JPATH_ROOT . '/tmp/' . $filename;
+
+            $conn_id = ftp_connect($_host);
+            $login_result = ftp_login($conn_id, $_user, $_password);
+
+            if (!$conn_id || !$login_result)
+                throw new Exception("Fallita la connessione all'ftp " . $_host, E_USER_ERROR);
+
+            $upload = ftp_put($conn_id,"/" . $_write_dir . "/" . $filename, $local_file, FTP_BINARY);
+            if (!$upload)
+                throw new Exception("Fallito upload di " . $local_file, E_USER_ERROR);
+
+            if ($delete_orig)
+                self::delete_file($local_file);
+
+            return true;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return false;
+        }
+
+    }
+
     // scrivo xml in destinazione
     public static function create_report_xml($arr_xml,
                                              $arr_corsi,
@@ -2515,7 +2550,7 @@ HTML;
             $dom->formatOutput = true;
             $ref_nodi = array();
 
-            $dest_file = JPATH_ROOT . '/tmp/' . $filename . '.xml';
+            $dest_file = JPATH_ROOT . '/tmp/' . $filename;
             $root = $dom->createElement('CORSI');
 
             foreach ($arr_xml as $id_corso => $sub_corso) {
@@ -2775,6 +2810,12 @@ HTML;
         }
 
         return $_options;
+    }
+
+    public static function delete_file($filename) {
+
+        return unlink($filename);
+
     }
 
     public static function get_past_month_from_date($now, $past_month, $format='Y-m-d') {

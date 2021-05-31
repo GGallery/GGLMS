@@ -1835,16 +1835,6 @@ HTML;
 
         try {
 
-            // mi servono i dati per l'ftp
-            $_config = new gglmsModelConfig();
-            $_host = $_config->getConfigValue('xml_ip_dest');
-            $_port = $_config->getConfigValue('xml_port_dest');
-            $_user = $_config->getConfigValue('xml_user_dest');
-            $_password = $_config->getConfigValue('xml_pwd_dest');
-
-            $conn_id = ftp_connect($_host);
-            $login_result = ftp_login($conn_id, $_user, $_password);
-
 
         }
         catch (Exception $e) {
@@ -1898,7 +1888,8 @@ HTML;
                 ->join('inner', '#__gg_view_stato_user_corso r ON r.id_anagrafica = ru.id')
                 ->join('inner', '#__gg_unit AS unita ON r.id_corso = unita.id')
                 ->join('inner', '#__gg_usergroup_map ugm ON ugm.idunita = unita.id')
-                ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
+                //->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
+                ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote('2021-05-27'))
                 ->where('ru.id_user IN (' . implode(",", $ret_users['users']) . ')')
                 ->where('r.stato = 1')
                 ->order('unita.id');
@@ -1927,13 +1918,18 @@ HTML;
                                                         $ret_users['dual'],
                                                         $arr_dt_corsi,
                                                         $tipologia_svolgimento,
-                                                        'GGCorsiCompletati' . $_dt_ref_ext,
+                                                        'GGCorsiCompletati' . $_dt_ref_ext . '.xml',
                                                         __FUNCTION__);
 
             // si è verificato un errore durante l'elaborazione dell'xml
             if (!$check_xml)
                 throw new Exception("Errore di scrittura del file xml - id_piattaforma: " . $this->_filterparam->id_piattaforma
                     . " - data " . $_dt_ref, E_USER_ERROR);
+
+            // carico file su ftp remoto
+            $upload = UtilityHelper::put_xml_remote('GGCorsiCompletati' . $_dt_ref_ext . '.xml', true, __FUNCTION__);
+            if (!$upload)
+                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
 
             echo 1;
         }

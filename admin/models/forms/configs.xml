@@ -1250,6 +1250,20 @@
                default=""
         />
 
+        <field name="xml_read_dir_dest"
+               type="text"
+               label="Directory di lettura"
+               description="La directory dove saranno letti i file da importare"
+               default="R2k"
+        />
+
+        <field name="xml_write_dir_dest"
+               type="text"
+               label="Directory di scrittura"
+               description="La directory dove saranno scritti i file da esportare"
+               default="GGallery"
+        />
+
         <!-- FINE XML -->
 
         <!-- INZIO EXTRA -->

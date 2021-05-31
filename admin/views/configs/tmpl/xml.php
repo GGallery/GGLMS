@@ -25,5 +25,13 @@
         <?php echo $this->form->renderField('xml_pwd_dest'); ?>
     </div>
 
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('xml_read_dir_dest'); ?>
+    </div>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('xml_write_dir_dest'); ?>
+    </div>
+
 
 </div>
