@@ -2503,6 +2503,8 @@ HTML;
                                              $arr_gruppi,
                                              $arr_aziende,
                                              $arr_dual,
+                                             $arr_dt_corsi,
+                                             $tipologia_svolgimento,
                                              $filename,
                                              $_err_label = '') {
         try {
@@ -2527,6 +2529,17 @@ HTML;
                     $corso_node->appendChild($codice_corso_host_node);
                     $titolo_corso_node = $corso_node->appendChild($dom->createElement('TITOLO'));
                     $titolo_corso_node->appendChild($dom->createCDATASection(trim($arr_corsi[$id_corso])));
+                    $tipologia_svolgimento_node = $dom->createElement('TIPO_SVOLGIMENTO', $tipologia_svolgimento);
+                    $corso_node->appendChild($tipologia_svolgimento_node);
+
+                    // se non si tratta di report ausind
+                    if ($tipologia_svolgimento > 6
+                        && isset($arr_dt_corsi[$id_corso])) {
+                        /*
+                        $_dt_corsi = explode("||", $arr_dt_corsi[$id_corso]);
+                        */
+
+                    }
                 }
 
 
@@ -2546,16 +2559,27 @@ HTML;
                     $iscritto_nome_node->appendChild($dom->createCDATASection(trim($iscritto['nome_utente'])));
                     $iscritto_cf_node = $dom->createElement('CODICE_FISCALE', trim($iscritto['cf']));
                     $iscritto_node->appendChild($iscritto_cf_node);
-                    $iscritto_email_node = $dom->createElement('MAIL', trim($iscritto['email']));
+                    $iscritto_email_node = $dom->createElement('MAIL_REFERENTE', trim($iscritto['email']));
                     $iscritto_node->appendChild($iscritto_email_node);
+
                     // azienda dell'utente
                     $id_azienda = self::check_exists_sub_array($iscritto['user_id'], $arr_dual);
                     if ($id_azienda == 0)
                         throw new Exception("Nessuna azienda per " . $iscritto['user_id'] . " 
                             - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
 
-                    $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('PRESSO'));
+                    $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('AZIENDA_ENTE'));
                     $iscritto_presso_node->appendChild($dom->createCDATASection(trim($arr_aziende[$id_azienda])));
+
+                    if ($iscritto['data_inizio_corso'] == "" || $iscritto['data_fine_corso'] == "")
+                        throw new Exception("Mancano delle date per " . $iscritto['user_id'] . " 
+                            - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
+
+                    $data_inizio_node = $dom->createElement('DATA_INIZIO', trim(self::convert_dt_in_format($iscritto['data_inizio_corso'], 'd/m/Y')));
+                    $iscritto_node->appendChild($data_inizio_node);
+                    $data_fine_node = $dom->createElement('DATA_FINE', trim(self::convert_dt_in_format($iscritto['data_fine_corso'], 'd/m/Y')));
+                    $iscritto_node->appendChild($data_fine_node);
+
                     $iscritto_esito_node = $dom->createElement('ESITO', trim($iscritto['esito_numerico']));
                     $iscritto_node->appendChild($iscritto_esito_node);
 
@@ -2812,6 +2836,13 @@ HTML;
     public static function remove_seconds_from_dt($dt_check, $seconds, $ret_format = 'Y-m-d H:i:s') {
 
         return date($ret_format, strtotime($dt_check) - $seconds);
+
+    }
+
+    public static function convert_dt_in_format($dt_start, $ret_format = 'Y-m-d') {
+
+        $dt = new DateTime($dt_start);
+        return $dt->format($ret_format);
 
     }
 
