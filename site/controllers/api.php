@@ -1830,19 +1830,6 @@ HTML;
 
     }
 
-    // importazione corsi da file xml
-    function get_xml_corsi() {
-
-        try {
-
-
-        }
-        catch (Exception $e) {
-
-        }
-
-    }
-
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
     function get_completed_report_per_piattaforma() {
 
