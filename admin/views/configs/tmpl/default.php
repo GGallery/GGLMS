@@ -78,6 +78,11 @@ JHtml::_('formbehavior.chosen', 'select');
             echo JHtml::_('bootstrap.addTab', 'myTab', 'Zoom', JText::_('Zoom', true));
             include(dirname(__FILE__).DS.'zoom.php');
             echo JHtml::_('bootstrap.endTab');
+
+            // interfacciamento rete2000 xml
+            echo JHtml::_('bootstrap.addTab', 'myTab', 'XML', JText::_('XML', true));
+            include(dirname(__FILE__).DS.'xml.php');
+            echo JHtml::_('bootstrap.endTab');
             ?>
 
             <input type="hidden" name="task" value=""/>

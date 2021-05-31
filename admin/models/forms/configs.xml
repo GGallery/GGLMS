@@ -1220,11 +1220,44 @@
 
         <!-- FINE ZOOM -->
 
+        <!-- INIZIO XML -->
+
+        <field name="xml_ip_dest"
+               type="text"
+               label="IP / Host di collegamento"
+               description="Il server dove i file XML sono memorizzati"
+               default="31.14.141.98"
+        />
+
+        <field name="xml_port_dest"
+               type="number"
+               label="Porta di collegamento"
+               description="La porta di collegamento"
+               default="21"
+        />
+
+        <field name="xml_user_dest"
+               type="text"
+               label="Username"
+               description="Lo username per accedere ai file"
+               default=""
+        />
+
+        <field name="xml_pwd_dest"
+               type="password"
+               label="Password"
+               description="La password per accedere ai file"
+               default=""
+        />
+
+        <!-- FINE XML -->
+
         <!-- INZIO EXTRA -->
 
         <field name="extra_index_redirect" type="url" default="" label="Puntamento alternativo della pagina index.php" description="Per reindirizzare l'utente in Home page e questa ha un indirizzo diverso da index.php es. index.php?option=com_sppagebuilder&amp;view=page&amp;id=1" size="10" />
 
         <!-- FINE EXTRA -->
+
 
 
     </fieldset>

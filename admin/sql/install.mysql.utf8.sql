@@ -640,7 +640,7 @@ CREATE TABLE `#__usergroups_details` (
   `patrocinio` varchar(255) DEFAULT NULL,
   `footer` mediumtext,
   `final_test` varchar(255) DEFAULT NULL,
-  `welcome` varchar(255) DEFAULT NULL,
+  `welcome` TEXT DEFAULT NULL,
   `corsi_visbili_catalogo` varchar(100) DEFAULT NULL,
   `testo_intro_homepage` varchar(50) DEFAULT NULL,
   `attestati_custom` varchar(255) DEFAULT NULL,

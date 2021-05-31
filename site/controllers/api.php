@@ -1829,6 +1829,29 @@ HTML;
 
     }
 
+    // importazione corsi da file xml
+    function get_xml_corsi() {
+
+        try {
+
+            // mi servono i dati per l'ftp
+            $_config = new gglmsModelConfig();
+            $_host = $_config->getConfigValue('xml_ip_dest');
+            $_port = $_config->getConfigValue('xml_port_dest');
+            $_user = $_config->getConfigValue('xml_user_dest');
+            $_password = $_config->getConfigValue('xml_pwd_dest');
+
+            $conn_id = ftp_connect($_host);
+            $login_result = ftp_login($conn_id, $_user, $_password);
+
+
+        }
+        catch (Exception $e) {
+
+        }
+
+    }
+
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
     function get_completed_report_per_piattaforma() {
 

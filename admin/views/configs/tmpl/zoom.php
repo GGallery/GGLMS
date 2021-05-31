@@ -10,8 +10,6 @@
 
 <div class="row-fluid">
 
-    <h4>Modalit&agrave; di lavoro</h4>
-
     <div class="row-fluid">
         <?php echo $this->form->renderField('zoom_api_key'); ?>
     </div>
