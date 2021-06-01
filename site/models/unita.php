@@ -118,7 +118,7 @@ class gglmsModelUnita extends JModelLegacy
             DEBUGG::log($e, 'getSottoUnita');
         }
 
-//	
+//
         return $data;
     }
 
@@ -754,55 +754,53 @@ class gglmsModelUnita extends JModelLegacy
     }
 
     // logica copiata da amministrazione
-    public function creaGruppoCorso($pk, $titolo)
+    public function crea_gruppo_corso($pk, $titolo)
     {
         try {
-            $db = JFactory::getDBO();
 
             // check se esiste già un gruppo per questo corso
-            $query = $db->getQuery(true)
+            $query = $this->_db->getQuery(true)
                 ->select('count(*)')
                 ->from('#__gg_usergroup_map')
                 ->where('idunita="' . $pk . '"');
 
-            $db->setQuery($query);
-            $count = $db->loadResult();
-
+            $this->_db->setQuery($query);
+            $count = $this->_db->loadResult();
 
             if ($count == 0) {
 
                 // get config
-                $query = $db->getQuery(true)
+                $query = $this->_db->getQuery(true)
                     ->select('config_value')
                     ->from('#__gg_configs')
                     ->where("config_key='id_gruppo_corsi'");
 
-                $db->setQuery($query);
-                $group_parent_id = $db->loadResult();
+                $this->_db->setQuery($query);
+                $group_parent_id = $this->_db->loadResult();
 
                 // non esiste il gruppo , lo creo
                 $insertquery_group = 'INSERT INTO #__usergroups (parent_id, lft,rgt, title) VALUES(';
                 $insertquery_group = $insertquery_group . $group_parent_id . ',';
                 $insertquery_group = $insertquery_group . '0' . ',';
                 $insertquery_group = $insertquery_group . '0' . ',';
-                $insertquery_group = $insertquery_group .  $db->quote($titolo) .  ')';
+                $insertquery_group = $insertquery_group .  $this->_db->quote($titolo) .  ')';
 
 
                 //echo $insertquery; die;
-                $db->setQuery($insertquery_group);
-                $db->execute();
-                $group_id = $db->insertid(); // id del gruppo appena inserito
+                $this->_db->setQuery($insertquery_group);
+                $this->_db->execute();
+                $group_id = $this->_db->insertid(); // id del gruppo appena inserito
 
                 // inserisco in gg_usergroup_map
                 $insertquery_map = 'INSERT INTO #__gg_usergroup_map (idunita, idgruppo) VALUES(';
                 $insertquery_map = $insertquery_map . $pk . ',';
                 $insertquery_map = $insertquery_map . $group_id . ')';
 
-                $db->setQuery($insertquery_map);
-                $db->execute();
+                $this->_db->setQuery($insertquery_map);
+                $this->_db->execute();
 
                 // rebuild usergroups to fix lft e rgt
-                $JTUserGroup = new JTableUsergroup($db);
+                $JTUserGroup = new JTableUsergroup($this->_db);
                 $JTUserGroup->rebuild();
 
                 return $group_id;
@@ -825,7 +823,24 @@ class gglmsModelUnita extends JModelLegacy
 
         try {
 
-            $codice_corso = $corso->CODICE_CORSO;
+            $codice_corso = trim($corso->CODICE_CORSO);
+            $codice_alfa = trim($corso->CODICE_ALFANUMERICO);
+            $titolo_corso = trim($corso->TITOLO);
+            $descrizione_corso = trim($corso->DESCRIZIONE);
+            $alias_corso = UtilityHelper::setAlias($titolo_corso . " " . rand(100,999));
+
+            // validazione
+            if (is_null($codice_corso)
+                || $codice_corso == "")
+                throw new Exception("CODICE_CORSO non valorizzato", E_USER_ERROR);
+
+            if (is_null($codice_alfa)
+                || $codice_alfa == "")
+                throw new Exception("CODICE_ALFANUMERICO non valorizzato", E_USER_ERROR);
+
+            if (is_null($titolo_corso)
+                || $titolo_corso == "")
+                throw new Exception("TITOLO non valorizzato", E_USER_ERROR);
 
             // verifico se il corso esiste mediante il codice + codice alfanumerico
             $query = $this->_db->getQuery(true)
@@ -836,15 +851,50 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
             $id_unita = $this->_db->loadResult();
 
-            if (is_null($id_unita))
-                return $this->get_gruppo_accesso_corso($id_unita);
+            if (!is_null($id_unita)) {
+                return $this->get_id_gruppo_unit($id_unita);
+            }
+
+            //$this->_db->transactionStart();
 
             // aggiungo l'unità
-            $insert = 'INSERT INTO #__gg_unit () 
-                        VALUES ()';
+            $insert = 'INSERT INTO #__gg_unit (
+                        codice,
+                        codice_alfanumerico,
+                        titolo,
+                        descrizione,
+                        alias,
+                        accesso)
+                        VALUES (
+                                ' . $this->_db->quote($codice_corso) . ',
+                                ' . $this->_db->quote($codice_alfa) . ',
+                                ' . $this->_db->quote($titolo_corso) . ',
+                                ' . $this->_db->quote($descrizione_corso) . ',
+                                ' . $this->_db->quote($alias_corso) . ',
+                                \'gruppo\'
+                                )
+                        ';
+
+            $this->_db->setQuery($insert);
+            $result = $this->_db->execute();
+            if (!$result)
+                throw new Exception("Inserimento corso fallito: " . $this->_db->getQuery()->dump(), E_USER_ERROR);
+
+            $last_unit_id = $this->_db->insertid();
+
+            // creo gruppo unità
+            $gruppo_corso = $this->crea_gruppo_corso($last_unit_id, $titolo_corso);
+            // controllo eventuali errori
+            if (is_null($gruppo_corso))
+                throw new Exception("Errore durante la creazione di gruppo_corso per " . $titolo_corso, E_USER_ERROR);
+
+            //$this->_db->transactionCommit();
+
+            return $gruppo_corso;
 
         }
         catch (Exception $e) {
+            //$this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }

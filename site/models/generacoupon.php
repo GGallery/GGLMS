@@ -57,7 +57,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
     // entry point
-    public function insert_coupon($data, $from_api=false)
+    public function insert_coupon($data, $from_api=false, $from_xml=false)
     {
 
         try {
@@ -124,7 +124,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     throw new RuntimeException("no user piattaforme found", E_USER_ERROR);
 
                 $data["id_piattaforma"] = $_tmp_id_piattaforma[0]->value;
-                
+
             }
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
@@ -177,17 +177,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // li inserisco nel DB
-            $query = 'INSERT INTO #__gg_coupon (coupon, 
-                                                creation_time, 
-                                                abilitato, 
-                                                id_iscrizione, 
-                                                data_abilitazione, 
+            $query = 'INSERT INTO #__gg_coupon (coupon,
+                                                creation_time,
+                                                abilitato,
+                                                id_iscrizione,
+                                                data_abilitazione,
                                                 durata,
-                                                attestato, 
-                                                id_societa, 
-                                                id_gruppi, 
-                                                stampatracciato, 
-                                                trial, 
+                                                attestato,
+                                                id_societa,
+                                                id_gruppi,
+                                                stampatracciato,
+                                                trial,
                                                 venditore,
                                                 gruppo,
                                                 tipologia_coupon) VALUES ' . join(',', $values);
@@ -198,8 +198,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // leggo da configurazione se mandare le mail con i coupon generati
+            // non invio email singola se sto generando i coupon da xml perchè ne invierò una cumulativa
             $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
-            if ($send_mail == 1) {
+            if ($send_mail == 1
+                && !$from_xml) {
 
 
                 // send new credentials
@@ -246,6 +248,17 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     }
                 }
 
+            }
+
+            // se sto generando il coupon da xml ritorno il codice che devo associare all'utente
+            if ($from_xml) {
+                return array('coupons' => $coupons,
+                            'nome_societa' => $nome_societa,
+                            'company_user' => $company_user,
+                            'id_gruppo_societa' => $id_gruppo_societa,
+                            'id_piattaforma' => $data["id_piattaforma"],
+                            'email_coupon' => $data['email_coupon']
+                );
             }
 
 
@@ -335,7 +348,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // controllo impostazione del tutor aziendale
             $_set_user_tutor = $new_user->set_user_tutor($user_id, 'aziendale', $from_api);
             if (!$_set_user_tutor)
-                throw new RuntimeException("imposssibile impostare il tutor aziendale", E_USER_ERROR);
+                throw new RuntimeException("impossibile impostare il tutor aziendale", E_USER_ERROR);
 
             // inserisco in comprofiler
             $query = 'INSERT INTO #__comprofiler (id, user_id, cb_cognome, cb_ateco) VALUES (
@@ -766,8 +779,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, 
-                        ud.dominio as dominio, 
+                ->select('ug.id as id , ug.title as name,
+                        ud.dominio as dominio,
                         ud.alias as alias, ud.mail_from_default as mail_from_default')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
@@ -942,18 +955,18 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $params = '{"display":{"index":{"parent":"3","children":"3"}}}';
 
             $query = 'INSERT INTO #__kunena_categories (parent_id, name, alias, accesstype, access, pub_access, pub_recurse, admin_access , admin_recurse , published, description, headerdesc, params)';
-            $query = $query . 'VALUES ( ' . $parent_id . ', 
-                                            \'' . $this->_db->escape($forum_name) . '\', 
-                                            \'' . $this->_db->escape($alias) . '\', 
-                                            \'' . $access_type . '\', 
+            $query = $query . 'VALUES ( ' . $parent_id . ',
+                                            \'' . $this->_db->escape($forum_name) . '\',
+                                            \'' . $this->_db->escape($alias) . '\',
+                                            \'' . $access_type . '\',
                                             ' . $access . ',
                                             ' . $pub_access . ',
                                             ' . $pub_recurse . ',
                                             ' . $admin_access . ',
                                             ' . $admin_recurse . ',
-                                            ' . $published . ', 
-                                            \'' . $this->_db->escape($description) . '\', 
-                                            \'' . $this->_db->escape($headerdesc) . '\', 
+                                            ' . $published . ',
+                                            \'' . $this->_db->escape($description) . '\',
+                                            \'' . $this->_db->escape($headerdesc) . '\',
                                             \'' . $params . '\')';
 
             $this->_db->setQuery($query);
@@ -1124,31 +1137,31 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $params = '{"access_post":["6","2","8"],"access_reply":["6","2","8"],"display":{"index":{"parent":"3","children":"3"}}}'; //todo check access post e access reply
 
             // inserimento titolo, alias, description, $headerdesc fix apici
-            $query = 'INSERT INTO #__kunena_categories (parent_id, 
-                                                        name, 
-                                                        alias, 
-                                                        accesstype, 
-                                                        access, 
-                                                        pub_access, 
-                                                        pub_recurse, 
-                                                        admin_access , 
-                                                        admin_recurse , 
-                                                        published, 
-                                                        description, 
-                                                        headerdesc, 
+            $query = 'INSERT INTO #__kunena_categories (parent_id,
+                                                        name,
+                                                        alias,
+                                                        accesstype,
+                                                        access,
+                                                        pub_access,
+                                                        pub_recurse,
+                                                        admin_access ,
+                                                        admin_recurse ,
+                                                        published,
+                                                        description,
+                                                        headerdesc,
                                                         params)';
-            $query = $query . 'VALUES (' . $parent_id . ', 
-                                       \'' . $this->_db->escape($titolo_corso) . '\', 
-                                       \'' . $this->_db->escape($alias) . '\', 
-                                       \'' . $access_type . '\', 
+            $query = $query . 'VALUES (' . $parent_id . ',
+                                       \'' . $this->_db->escape($titolo_corso) . '\',
+                                       \'' . $this->_db->escape($alias) . '\',
+                                       \'' . $access_type . '\',
                                        ' . $access . ',
                                        ' . $pub_access . ',
                                        ' . $pub_recurse . ',
                                        ' . $admin_access . ',
                                        ' . $admin_recurse . ',
-                                       ' . $published . ', 
-                                       \'' . $this->_db->escape($description) . '\', 
-                                       \'' . $this->_db->escape($headerdesc) . '\', 
+                                       ' . $published . ',
+                                       \'' . $this->_db->escape($description) . '\',
+                                       \'' . $this->_db->escape($headerdesc) . '\',
                                        \'' . $params . '\'
                                        )';
             $this->_db->setQuery($query);

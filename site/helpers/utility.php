@@ -261,6 +261,27 @@ class utilityHelper
 
     }
 
+    public static function setAlias($text){
+
+
+        $text = preg_replace('~[^\\pL\d]+~u', '_', $text);
+
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+        // lowercase
+        $text = strtolower($text);
+
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+
+        // trim
+        $text = trim($text, '_');
+
+        return $text;
+
+    }
+
     /////////////////////////////////////
 
     // metodi per dropdown report, monitora coupon, generacoupon
@@ -463,7 +484,7 @@ class utilityHelper
             $query = $db->getQuery(true);
             $sub_query1 = $db->getQuery(true);
 
-            $query->select('CN.titolo AS titolo_evento, CN.durata AS durata_evento, 
+            $query->select('CN.titolo AS titolo_evento, CN.durata AS durata_evento,
                                 SUM(LG.permanenza) AS tempo_visualizzato');
 
             if ($con_orari)
@@ -826,7 +847,7 @@ class utilityHelper
         try {
 
             $db = JFactory::getDbo();
-            $query = "INSERT INTO #__usergroups (parent_id, title) 
+            $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
                               '" . addslashes(trim($usergroup)) . "'
@@ -939,7 +960,7 @@ class utilityHelper
             if (false === ($results = $db->loadAssocList())) {
                 throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
             }
-            
+
             // elaboro i risultati in un array di tipo chiave/valore
             foreach ($results as $index => $sub_arr) {
 
@@ -2037,7 +2058,7 @@ HTML;
             $oggetto .= " - Richiesta pagamento con bonifico";
             $_label_pagato .= "da pagare";
             $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />
-                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale 
+                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale
                                 e contatto telefonico allegando la ricevta del bonifico";
         }
         else if ($template == 'acquistaevento')
@@ -2585,6 +2606,157 @@ HTML;
 
     }
 
+    // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso
+    public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $arr_anagrafica_corsi, $id_piattaforma, $_err_label = '') {
+
+        try {
+
+            $arr_anagrafiche = array();
+
+            foreach ($get_corsi as $key_corso => $file) {
+
+                $xml = simplexml_load_file($local_file . $file, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+                if (count($xml->CORSO) == 0)
+                    throw new Exception("Nessuna anagrafica corso disponibile", E_USER_ERROR);
+
+                $generazione_coupon = array();
+                $coupon_model = new gglmsModelgeneracoupon();
+                for ($i = 0; $i < count($xml->CORSO); $i++) {
+                    // caso corsi
+                    if (strpos($file, "GGCorsoIscritti") !== false) {
+                        $codice_corso = trim($xml->CORSO[$i]->CODICE_CORSO->__toString());
+                        // iscritti
+                        for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {
+                            $_new_user = array();
+                            $_new_user_cp = array();
+                            $coupon_data = array();
+
+                            $codice_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO);
+                            //$codice_iscritto_host = $xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO_HOST;
+                            $cognome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->COGNOME);
+                            $nome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->NOME);
+                            $cf_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_FISCALE);
+                            $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
+                            $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
+                            $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
+                            if ($nome_iscritto == ""
+                                || $cognome_iscritto == ""
+                                || $cf_iscritto == ""
+                                || $ragione_sociale == ""
+                                || $piva_ente == ""
+                                || $mail_referente == "")
+                                throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
+                            $_new_user['name'] = $codice_iscritto;
+                            $_new_user['username'] = $cf_iscritto;
+                            $_new_user['email'] = $_new_user['username'] . '@me.com';
+                            $_new_user['password'] = JUserHelper::hashPassword($_new_user['name'] . '______' . date('Y'));
+
+                            // controllo esistenza utente su username
+                            $check_user_id = self::check_user_by_username($_new_user['username']);
+                            if (is_null($check_user_id)) {
+                                // utente non esistente lo aggiungo
+                                // inserimento utente in users
+                                $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
+                                $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+
+                                if (!is_array($_user_insert_query_result)) {
+                                    throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+                                }
+
+                                $_new_user_id = $_user_insert_query_result['success'];
+                                // riferimento id per CP
+                                $_new_user_cp['id'] = $_new_user_id;
+                                $_new_user_cp['user_id'] = $_new_user_id;
+                                $_new_user_cp['cb_nome'] = $nome_iscritto;
+                                $_new_user_cp['cb_cognome'] = $cognome_iscritto;
+                                $_new_user_cp['cb_codicefiscale'] = $_new_user['username'];
+
+                                // inserimento utente in CP
+                                $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                                $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
+                                if (!is_array($_cp_insert_query_result))
+                                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+
+                            }
+
+                            // creazione coupon
+                            $coupon_data['username'] = $piva_ente;
+                            $coupon_data['ragione_sociale'] = $ragione_sociale;
+                            $coupon_data['email'] = $mail_referente;
+                            $coupon_data['id_piattaforma'] = $id_piattaforma;
+                            $coupon_data['gruppo_corsi'] = $arr_anagrafica_corsi[$codice_corso];
+                            $coupon_data['qty'] = 1;
+
+                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
+                            if (is_null($crea_coupon)
+                                || !is_array($crea_coupon))
+                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
+                            $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
+                            if (!isset($generazione_coupon[$piva_ente]['infos']['company_user']))
+                                $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
+
+                            $generazione_coupon[$piva_ente]['infos']['nome_societa'] = $crea_coupon['nome_societa'];
+                            $generazione_coupon[$piva_ente]['infos']['id_gruppo_societa'] = $crea_coupon['id_gruppo_societa'];
+                            $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $crea_coupon['id_piattaforma'];
+                            $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
+
+                        } // iscritti
+                    }
+                }
+            }
+
+            var_dump($generazione_coupon);
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return false;
+        }
+
+    }
+
+    // creo anagrafica corsi e gruppi restituendo una array che contiene i riferimenti
+    public static function create_unit_group_corso($get_corsi, $local_file, $_err_label = '') {
+
+        try {
+
+            $arr_corsi = array();
+
+            foreach ($get_corsi as $key_corso => $file) {
+
+                $xml = simplexml_load_file($local_file . $file, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+                if (count($xml->CORSO) == 0)
+                    throw new Exception("Nessuna anagrafica corso disponibile", E_USER_ERROR);
+
+                $unit = new gglmsModelUnita();
+
+                for ($i = 0; $i < count($xml->CORSO); $i++) {
+                    // caso corsi
+                    if (strpos($file, "GGCorsiElenco") !== false) {
+                        $new_corso = $unit->importa_anagrafica_corsi($xml->CORSO[$i]);
+                        // controllo inserimento corso
+                        if (is_null($new_corso))
+                            throw new Exception("Corso non inserito: " . $xml->CORSO[$i]->TITOLO, E_USER_ERROR);
+                        $arr_corsi[$xml->CORSO[$i]->CODICE_CORSO->__toString()] = $new_corso;
+
+                    }
+
+                }
+
+            }
+
+            return $arr_corsi;
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
+
+    }
+
     // scrivo xml in destinazione
     public static function create_report_xml($arr_xml,
                                              $arr_corsi,
@@ -2653,14 +2825,14 @@ HTML;
                     // azienda dell'utente
                     $id_azienda = self::check_exists_sub_array($iscritto['user_id'], $arr_dual);
                     if ($id_azienda == 0)
-                        throw new Exception("Nessuna azienda per " . $iscritto['user_id'] . " 
+                        throw new Exception("Nessuna azienda per " . $iscritto['user_id'] . "
                             - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
 
                     $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('AZIENDA_ENTE'));
                     $iscritto_presso_node->appendChild($dom->createCDATASection(trim($arr_aziende[$id_azienda])));
 
                     if ($iscritto['data_inizio_corso'] == "" || $iscritto['data_fine_corso'] == "")
-                        throw new Exception("Mancano delle date per " . $iscritto['user_id'] . " 
+                        throw new Exception("Mancano delle date per " . $iscritto['user_id'] . "
                             - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
 
                     $data_inizio_node = $dom->createElement('DATA_INIZIO', trim(self::convert_dt_in_format($iscritto['data_inizio_corso'], 'd/m/Y')));

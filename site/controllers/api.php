@@ -346,8 +346,8 @@ class gglmsControllerApi extends JControllerLegacy
                 $query->where("SQ.c_date_time < '" . $filters['finishdate'] . "'");
 
             if ($filters['searchPhrase'] != null) {
-                $query->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\' 
-                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\'  
+                $query->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\'
+                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\'
                                     OR CP.cb_codicefiscale LIKE \'%' . $filters['searchPhrase'] . '%\'
                                     OR TQ.c_title LIKE \'%' . $filters['searchPhrase'] . '%\'
                                     ) ');
@@ -357,12 +357,12 @@ class gglmsControllerApi extends JControllerLegacy
             $countquery = clone $query;
 
             $query->select('CP.cb_nome AS nome, CP.cb_cognome AS cognome, UPPER(CP.cb_codicefiscale) AS codice_fiscale,
-                            TQ.c_title AS titolo, 
-			                DATE_FORMAT(SQ.c_date_time, \'%d/%m/%Y %H:%i\') AS data_completamento, 
-			                SQ.c_passed AS esito, 
-			                SQ.c_quiz_id AS quiz_ref, 
-			                SQ.c_id AS quiz_id, 
-			                SQ.c_student_id AS student_id, 
+                            TQ.c_title AS titolo,
+			                DATE_FORMAT(SQ.c_date_time, \'%d/%m/%Y %H:%i\') AS data_completamento,
+			                SQ.c_passed AS esito,
+			                SQ.c_quiz_id AS quiz_ref,
+			                SQ.c_id AS quiz_id,
+			                SQ.c_student_id AS student_id,
 			                SQ.c_total_score AS punteggio');
 
             $countquery->select("COUNT(*) AS num_rows");
@@ -467,7 +467,7 @@ class gglmsControllerApi extends JControllerLegacy
             $sub_query1 = $this->_db->getQuery(true);
             $sub_query2 = $this->_db->getQuery(true);
 
-            $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome, 
+            $query->select('IFNULL(CP.cb_nome, "") AS nome, IFNULL(CP.cb_cognome, "") AS cognome,
                             IFNULL(UPPER(CP.cb_codicefiscale), "") AS codice_fiscale,
                             CN.id AS id_contenuto, CN.titolo AS titolo_evento');
 
@@ -521,11 +521,11 @@ class gglmsControllerApi extends JControllerLegacy
             //$query->setlimit($offset, $limit);
 
             if ($filters['searchPhrase'] != null) {
-                $query->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\' 
-                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                $query->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\'
+                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\'
                                     OR CP.cb_codicefiscale LIKE \'%' . $filters['searchPhrase'] . '%\') ');
-                $countquery->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\' 
-                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\' 
+                $countquery->where('(CP.cb_nome LIKE \'%' . $filters['searchPhrase'] . '%\'
+                                    OR CP.cb_cognome LIKE \'%' . $filters['searchPhrase'] . '%\'
                                     OR CP.cb_codicefiscale LIKE \'%' . $filters['searchPhrase'] . '%\') ');
             }
 
@@ -1065,7 +1065,7 @@ class gglmsControllerApi extends JControllerLegacy
         $id_utente = (int)$_GET['id_utente'];
         $id_corso = (int)$_GET['id_corso'];
         $query = $this->_db->getQuery(true);
-        $query->select('u.titolo as \'titolo unità\',c.titolo as \'titolo contenuto\', 
+        $query->select('u.titolo as \'titolo unità\',c.titolo as \'titolo contenuto\',
                       IF (r.stato=1, \'completato\',\'non completato\') as \'stato\', r.`data` as \'data\'');
         $query->from('#__gg_report as r');
         $query->join('inner', '#__gg_unit as u on r.id_unita=u.id');
@@ -1129,7 +1129,7 @@ class gglmsControllerApi extends JControllerLegacy
             $query->join('inner', '#__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente');
             $query->where('id_corso=' . $id_corso);
             $query->where('group_id=' . $group_id);
-            $query->where('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -' . $alert_days_before . ' DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente 
+            $query->where('IF(date(now())>DATE_ADD(un.data_fine, INTERVAL -' . $alert_days_before . ' DAY),	IF((select r2.stato from #__gg_report as r2 where r2.id_utente = r.id_utente
                                 and id_contenuto=' . $id_contenuto . ' and stato = 1 limit 1),0,1),0)=1');
             $query->where('r.id_utente NOT IN (SELECT r.id_utente FROM #__gg_report as r INNER JOIN  #__user_usergroup_map as gruppo  ON gruppo.user_id = r.id_utente
                                WHERE r.id_corso = ' . $id_corso . ' AND r.stato = 1 and  r.id_contenuto=' . $id_contenuto . ' AND group_id = ' . $group_id . ')');
@@ -1244,9 +1244,9 @@ class gglmsControllerApi extends JControllerLegacy
             $this->_db->execute();
 
             $query = $this->_db->getQuery(true);
-            $query = $query->select('c.id_societa AS id_gruppo_societa, 
-                                    c.id_gruppi AS gruppo_corsi, 
-                                    c.gruppo AS id_piattaforma, 
+            $query = $query->select('c.id_societa AS id_gruppo_societa,
+                                    c.id_gruppi AS gruppo_corsi,
+                                    c.gruppo AS id_piattaforma,
                                     ug.title AS nome_societa')
                             ->from('#__gg_coupon c')
                             ->join('inner', '#__usergroups ug ON c.id_societa = ug.id')
@@ -1443,13 +1443,13 @@ class gglmsControllerApi extends JControllerLegacy
                 $insert_scorm_1 = "INSERT INTO #__gg_scormvars
                                   (scoid, userid, varName, varValue, timestamp)
                                   VALUES (
-                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($content) . ",
                                     " . $this->_db->quote($this->_filterparam->user_id) . ",
                                     'bookmark',
                                     0,
                                     " . $this->_db->quote($ts) . "
                                     )
-                                    ON DUPLICATE KEY UPDATE 
+                                    ON DUPLICATE KEY UPDATE
                                                 varValue = 0,
                                                 timestamp = " . $this->_db->quote($ts) . "
                                                 ";
@@ -1457,13 +1457,13 @@ class gglmsControllerApi extends JControllerLegacy
                 $insert_scorm_2 = "INSERT INTO #__gg_scormvars
                                   (scoid, userid, varName, varValue, timestamp)
                                   VALUES (
-                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($content) . ",
                                     " . $this->_db->quote($this->_filterparam->user_id) . ",
                                     'cmi.core.count_views',
                                     1,
                                     " . $this->_db->quote($ts) . "
                                     )
-                                    ON DUPLICATE KEY UPDATE 
+                                    ON DUPLICATE KEY UPDATE
                                                 varValue = 1,
                                                 timestamp = " . $this->_db->quote($ts) . "
                                                 ";
@@ -1471,13 +1471,13 @@ class gglmsControllerApi extends JControllerLegacy
                 $insert_scorm_3 = "INSERT INTO #__gg_scormvars
                                   (scoid, userid, varName, varValue, timestamp)
                                   VALUES (
-                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($content) . ",
                                     " . $this->_db->quote($this->_filterparam->user_id) . ",
                                     'cmi.core.last_visit_date',
                                     " . $this->_db->quote($_date) . ",
                                     " . $this->_db->quote($ts) . "
                                     )
-                                    ON DUPLICATE KEY UPDATE 
+                                    ON DUPLICATE KEY UPDATE
                                                 varValue = " . $this->_db->quote($_date) . ",
                                                 timestamp = " . $this->_db->quote($ts) . "
                                                 ";
@@ -1485,26 +1485,26 @@ class gglmsControllerApi extends JControllerLegacy
                 $insert_scorm_4 = "INSERT INTO #__gg_scormvars
                                   (scoid, userid, varName, varValue, timestamp)
                                   VALUES (
-                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($content) . ",
                                     " . $this->_db->quote($this->_filterparam->user_id) . ",
                                     'cmi.core.lesson_status',
                                     'completed',
                                     " . $this->_db->quote($ts) . "
                                     )
-                                    ON DUPLICATE KEY UPDATE 
+                                    ON DUPLICATE KEY UPDATE
                                                 timestamp = " . $this->_db->quote($ts) . "
                                                 ";
 
                 $insert_scorm_5 = "INSERT INTO #__gg_scormvars
                                   (scoid, userid, varName, varValue, timestamp)
                                   VALUES (
-                                    " . $this->_db->quote($content) . ", 
+                                    " . $this->_db->quote($content) . ",
                                     " . $this->_db->quote($this->_filterparam->user_id) . ",
                                     'cmi.core.total_time',
                                     9999,
                                     " . $this->_db->quote($ts) . "
                                     )
-                                    ON DUPLICATE KEY UPDATE 
+                                    ON DUPLICATE KEY UPDATE
                                                 varValue = 9999,
                                                 timestamp = " . $this->_db->quote($ts) . "
                                                 ";
@@ -1576,13 +1576,13 @@ class gglmsControllerApi extends JControllerLegacy
                     $insert_scorm_1 = "INSERT INTO #__gg_scormvars
                                   (scoid, userid, varName, varValue, timestamp)
                                   VALUES (
-                                    " . $this->_db->quote($init['scoid']) . ", 
+                                    " . $this->_db->quote($init['scoid']) . ",
                                     " . $this->_db->quote($this->_filterparam->user_id) . ",
                                     'cmi.core.total_time',
                                     9999,
                                     " . $this->_db->quote($ts) . "
                                     )
-                                    ON DUPLICATE KEY UPDATE 
+                                    ON DUPLICATE KEY UPDATE
                                                 varValue = 9999,
                                                 timestamp = " . $this->_db->quote($ts) . "
                                                 ";
@@ -1830,12 +1830,11 @@ HTML;
 
     }
 
-
-
     // importazione corsi da file xml
     function load_corsi_from_xml() {
 
         try {
+
 
             $local_file = JPATH_ROOT . '/tmp/';
             /*
@@ -1847,27 +1846,14 @@ HTML;
             $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
             $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
 
-            foreach ($get_corsi as $key_corso => $file) {
+            // elaborazione dei corsi
+            $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file, __FUNCTION__);
+            if (is_null($arr_anagrafica_corsi)
+                || count($arr_anagrafica_corsi) == 0)
+                throw new Exception("Nessun corso trovato durante l'elaborazione dei file", E_USER_ERROR);
 
-                $xml = simplexml_load_file($local_file . $file, 'SimpleXMLElement', LIBXML_NOCDATA);
-
-                if (count($xml->CORSO) == 0)
-                    throw new Exception("Nessuna anagrafica corso disponibile", E_USER_ERROR);
-
-                for ($i=0; $i<count($xml->CORSO); $i++) {
-
-                    if (strpos($file, "GGCorsiElenco") !== false) {
-                        // caso corsi
-                        $check = UtilityHelper::importa_anagrafica_corsi($xml->CORSO[$i]);
-                    }
-                    else {
-                        // caso iscritti
-                    }
-
-                }
-
-            }
-
+            // elaborazione delle aziende e degli iscritti
+            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $arr_anagrafica_corsi, $this->_filterparam->id_piattaforma, __FUNCTION__);
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
@@ -1901,7 +1887,7 @@ HTML;
                     . " - data " . $_dt_ref, E_USER_ERROR);
 
             $query = $this->_db->getQuery(true)
-                ->select('UPPER(cp.cb_codicefiscale) AS cf, 
+                ->select('UPPER(cp.cb_codicefiscale) AS cf,
                                 COALESCE(cp.cb_nome, "-") AS nome_utente,
                                 COALESCE(cp.cb_cognome, "-") AS cognome_utente,
                                 u.email,
