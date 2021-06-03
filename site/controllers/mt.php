@@ -42,9 +42,9 @@ class gglmsControllerMt extends JControllerLegacy {
 
             // utenti selezionati
             $ids_utenti = explode(",", $this->_filterparam->id_utente);
-            $query_utente = "SELECT u.id AS id_utente, 
-                              UPPER(COALESCE(cp.cb_nome, '')) AS nome_utente, 
-                              UPPER(COALESCE(cp.cb_cognome, '')) AS cognome_utente, 
+            $query_utente = "SELECT u.id AS id_utente,
+                              UPPER(COALESCE(cp.cb_nome, '')) AS nome_utente,
+                              UPPER(COALESCE(cp.cb_cognome, '')) AS cognome_utente,
                               UPPER(COALESCE(cp.cb_codicefiscale, '')) AS codice_fiscale
                               FROM #__users u
                               JOIN #__comprofiler cp ON u.id = cp.user_id
@@ -64,7 +64,7 @@ class gglmsControllerMt extends JControllerLegacy {
             $query_unita = "SELECT id AS id_unita, titolo AS titolo_unita, is_corso
                             FROM #__gg_unit
                             WHERE (
-                                    id = " . $this->_db->quote($this->_filterparam->id_corso) . " 
+                                    id = " . $this->_db->quote($this->_filterparam->id_corso) . "
                                     OR unitapadre = " . $this->_db->quote($this->_filterparam->id_corso) . "
                                     )
                             ORDER BY id";
@@ -125,10 +125,10 @@ class gglmsControllerMt extends JControllerLegacy {
             if (count($ids_contenuti) == 0)
                 throw new Exception("Nessun contenuto disponibile per le unità selezionate", E_USER_ERROR);
 
-            $query = "SELECT contenuti.id AS id_contenuto, 
-                            contenuti.titolo AS titolo_contenuto, 
-                            contenuti.tipologia, 
-                            ctipo.descrizione AS tipologia_descrizione, 
+            $query = "SELECT contenuti.id AS id_contenuto,
+                            contenuti.titolo AS titolo_contenuto,
+                            contenuti.tipologia,
+                            ctipo.descrizione AS tipologia_descrizione,
                             contenuti.id_quizdeluxe AS id_quiz,
                             unit.id AS id_unita
                         FROM #__gg_contenuti contenuti
@@ -157,9 +157,9 @@ class gglmsControllerMt extends JControllerLegacy {
                     // controllo la tipologia se quiz proseguo per il momento
                     if ($corso['tipologia'] == 7) {
 
-                        $quiz_query = "SELECT c_total_time AS secondi, 
-                                              DATE_FORMAT(c_date_time, '%Y-%m-%d') AS giorno, 
-                                              c_date_time AS data_inzio, 
+                        $quiz_query = "SELECT c_total_time AS secondi,
+                                              DATE_FORMAT(c_date_time, '%Y-%m-%d') AS giorno,
+                                              c_date_time AS data_inzio,
                                               timestamp AS data_fine
                                         FROM #__quiz_r_student_quiz
                                         WHERE c_student_id = " . $this->_db->quote($id_utente) . "
@@ -188,8 +188,8 @@ class gglmsControllerMt extends JControllerLegacy {
                     }
 
                     // altrimenti consulto scormvars
-                    $scorm_query = "SELECT * 
-                                        FROM #__gg_scormvars 
+                    $scorm_query = "SELECT *
+                                        FROM #__gg_scormvars
                                         WHERE scoid = " . $this->_db->quote($corso['id_contenuto']) . "
                                         AND userid = " . $this->_db->quote($id_utente);
                     $this->_db->setQuery($scorm_query);
@@ -289,28 +289,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $query = $this->_db->getQuery(true)
-            ->select('r.data_inizio, 
-                            r.data_inizio as data_inizio_corso, 
-                            r.data_fine,
-                            r.data_fine as data_fine_corso,
-                            COALESCE(c.titolo, "") as titolo, 
-                            COALESCE(c.prefisso_coupon, "") as codice_corso')
-            ->from('#__gg_view_stato_user_corso as r')
-            ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
-            ->join('left', '#__gg_unit as c on r.id_corso = c.id')
-            ->where('ru.id_user = ' . 12082)
-            ->where('r.id_corso = ' . 201)
-            ->where('r.stato = 1')
-            ->order('r.timestamp desc');
-
-        $this->_db->setQuery($query);
-        $dati_corso = $this->_db->loadObjectList();
-
-        var_dump(!is_null($dati_corso)
-            && !empty($dati_corso));
-
-        echo isset($dati_corso[0]->data_fine_corso) ? $dati_corso[0]->data_fine_corso : "";
+        echo UtilityHelper::setAlias("ciao ".rand(100,999));
 
         $this->_japp->close();
 
@@ -357,7 +336,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
             $insert_map = "INSERT INTO #__ggif_direttore_dipendenti_map
                                     (userid_direttore, userid_dipendente) VALUES ";
-            $insert_group = "INSERT INTO #__user_usergroup_map 
+            $insert_group = "INSERT INTO #__user_usergroup_map
                                     (user_id, group_id) VALUES ";
             $counter = 0;
             $rows = explode("\n", fread($fp, filesize($target)));
