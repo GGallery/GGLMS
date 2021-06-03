@@ -2611,8 +2611,6 @@ HTML;
 
         try {
 
-            $arr_anagrafiche = array();
-
             foreach ($get_corsi as $key_corso => $file) {
 
                 $xml = simplexml_load_file($local_file . $file, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -2640,6 +2638,12 @@ HTML;
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
                             $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
+                            $gruppo_corso = null;
+                            if (!isset($arr_anagrafica_corsi[$codice_corso]))
+                                throw new Exception("Nessun gruppo corso definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
+                            $gruppo_corso = $arr_anagrafica_corsi[$codice_corso];
+
                             if ($nome_iscritto == ""
                                 || $cognome_iscritto == ""
                                 || $cf_iscritto == ""
@@ -2648,18 +2652,19 @@ HTML;
                                 || $mail_referente == "")
                                 throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
-                            $_new_user['name'] = $codice_iscritto;
-                            $_new_user['username'] = $cf_iscritto;
-                            $_new_user['email'] = $_new_user['username'] . '@me.com';
-                            $_new_user['password'] = JUserHelper::hashPassword($_new_user['name'] . '______' . date('Y'));
-
                             // controllo esistenza utente su username
-                            $check_user_id = self::check_user_by_username($_new_user['username']);
+                            $check_user_id = self::check_user_by_username($cf_iscritto);
+                            $new_user = false;
                             if (is_null($check_user_id)) {
-                                // utente non esistente lo aggiungo
+                                $_new_user['name'] = $codice_iscritto;
+                                $_new_user['username'] = $cf_iscritto;
+                                $_new_user['email'] = $_new_user['username'] . '@me.com';
+                                $password = $_new_user['name'] . '______' . date('Y');
+                                $_new_user['password'] = JUserHelper::hashPassword($password);
                                 // inserimento utente in users
                                 $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                                 $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+                                $_new_user['clear_password'] = $password;
 
                                 if (!is_array($_user_insert_query_result)) {
                                     throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
@@ -2679,14 +2684,16 @@ HTML;
                                 if (!is_array($_cp_insert_query_result))
                                     throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
 
+                                $new_user = true;
                             }
 
                             // creazione coupon
                             $coupon_data['username'] = $piva_ente;
                             $coupon_data['ragione_sociale'] = $ragione_sociale;
                             $coupon_data['email'] = $mail_referente;
+                            $coupon_data['email_coupon'] = $mail_referente;
                             $coupon_data['id_piattaforma'] = $id_piattaforma;
-                            $coupon_data['gruppo_corsi'] = $arr_anagrafica_corsi[$codice_corso];
+                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
                             $coupon_data['qty'] = 1;
 
                             $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
@@ -2702,17 +2709,20 @@ HTML;
                             $generazione_coupon[$piva_ente]['infos']['id_gruppo_societa'] = $crea_coupon['id_gruppo_societa'];
                             $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $crea_coupon['id_piattaforma'];
                             $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
+                            $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
+                            if ($new_user)
+                                $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
 
                         } // iscritti
                     }
                 }
             }
 
-            var_dump($generazione_coupon);
+            return $generazione_coupon;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
-            return false;
+            return null;
         }
 
     }

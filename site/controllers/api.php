@@ -24,6 +24,7 @@ class gglmsControllerApi extends JControllerLegacy
     private $_japp;
     public $_params;
     protected $_db;
+    private $_config;
     private $_filterparam;
 
 
@@ -35,6 +36,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_japp = JFactory::getApplication();
         $this->_params = $this->_japp->getParams();
         $this->_db = JFactory::getDbo();
+        $this->_config = new gglmsModelConfig();
 
         $this->_filterparam = new stdClass();
 
@@ -64,6 +66,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
+        $this->_filterparam->is_debug = JRequest::getVar('is_debug');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
 
     }
@@ -1835,6 +1838,12 @@ HTML;
 
         try {
 
+            if (!isset($this->_filterparam->id_piattaforma)
+                || $this->_filterparam->id_piattaforma == "")
+                throw new Exception("Nessuna piattaforma indicata", E_USER_ERROR);
+            $is_debug = false;
+            if (isset($this->_filterparam->is_debug))
+                $is_debug = true;
 
             $local_file = JPATH_ROOT . '/tmp/';
             /*
@@ -1854,6 +1863,144 @@ HTML;
 
             // elaborazione delle aziende e degli iscritti
             $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $arr_anagrafica_corsi, $this->_filterparam->id_piattaforma, __FUNCTION__);
+            if (is_null($arr_iscrizioni)
+                || !is_array($arr_iscrizioni))
+                throw new Exception("Si è verificato un problema durante la generazione dei coupon", E_USER_ERROR);
+
+            // invio email riferite ai coupon
+            $genera_model = new gglmsModelGeneraCoupon();
+            foreach ($arr_iscrizioni as $piva_key => $single_gen) {
+
+                // informazioni dell'azienda per email
+                $company_infos = $arr_iscrizioni[$piva_key]['infos'];
+                $coupons = $arr_iscrizioni[$piva_key]['coupons'];
+                $_html_users = "";
+                $_html_tutor = "";
+                $template = JPATH_COMPONENT . '/models/template/xml_coupons_mail.tpl';
+
+                // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
+                $recipients = $genera_model->get_coupon_mail_recipients($company_infos['id_piattaforma'], $company_infos['id_gruppo_societa'], $company_infos['email_coupon'], true);
+                if (!$recipients)
+                    throw new Exception("Non ci sono tutor piattaforma configurati per questa piattaforma", E_USER_ERROR);
+                // get sender
+                $sender = $genera_model->get_mail_sender($company_infos['id_piattaforma'], true);
+                if (!$sender)
+                    throw new Exception("Non è configurato un indirizzo mail di piattaforma", E_USER_ERROR);
+
+                $info_piattaforma = $genera_model->get_info_piattaforma($company_infos['id_piattaforma'], true);
+                if (is_null($info_piattaforma)
+                    || !is_array($info_piattaforma))
+                    throw new Exception("nessun info piattaforma", E_USER_ERROR);
+
+                // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
+                $to = $company_infos['email_coupon'] != '' ? $company_infos['email_coupon'] : $recipients["to"]->email;
+                $_info_corso = $genera_model->get_info_corso($company_infos["gruppo_corsi"], true);
+
+                $mostra_nome_societa = $this->_config->getConfigValue('nome_azienda_intestazione_email_coupon');
+                if ((int)$mostra_nome_societa == 0
+                    && !is_null($mostra_nome_societa))
+                    $company_infos['nome_societa'] = "";
+
+                if ($info_piattaforma['mail_from_default'] == 1) {
+
+                    //            ricavo alias e name dalla piattaforma di default
+                    $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+                    if (is_null($piattaforma_default)
+                        || !is_array($piattaforma_default))
+                        throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+                    $info_piattaforma["alias"] = $piattaforma_default['alias'];
+                    $info_piattaforma["name"] = $piattaforma_default['name'];
+                    $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
+                    //
+                }
+
+                $mailer = JFactory::getMailer();
+                $mailer->setSender($sender);
+                if (!$is_debug) {
+                    $mailer->addRecipient($to);
+                    $mailer->addCc($recipients["cc"]);
+                }
+                else
+                    $mailer->addRecipient('luca.gallo@gallerygroup.it');
+
+                $mailer->setSubject('Coupon corso ' . $_info_corso["titolo"]);
+
+                // costituisco il corpo della email
+                // creato tutor aziendale
+                if (isset($company_infos['company_user'])
+                    && $company_infos['company_user'] != "") {
+                    // nuovo tutor creato
+                    $tutor_infos = $company_infos['company_user'];
+                    $_html_tutor = <<<HTML
+                    <p>
+                        La informiamo che è stato creato un account aziendale sulla piattaforma <a href="https://{$info_piattaforma['dominio']}">{$info_piattaforma["alias"]}</a>
+                    </p>
+                    <p>
+                        Per accedere in qualità di tutor aziendale e monitorare la formazione degli utenti, è possibile utilizzare le seguenti credenziali:
+                    </p>
+                    <div style="font-family: monospace;">
+                        <b> USERNAME:</b> {$tutor_infos['piva']}
+                        <br />
+                        <b> PASSWORD:</b> {$tutor_infos['password']}
+                    </div>
+HTML;
+                }
+                // creati utenti
+                if (isset($company_infos['new_users'])
+                    && is_array($company_infos['new_users'])
+                    && count($company_infos['new_users']) > 0) {
+                    $_html_users = <<<HTML
+                    <p>Nuovi utenti creati:</p>
+                    <div style="font-family: monospace;">
+HTML;
+
+                    foreach ($company_infos['new_users'] as $key_user => $user) {
+
+                        $_html_users .= <<<HTML
+                        Username: {$user['username']} / Password: {$user['clear_password']}
+                        <br />
+HTML;
+                    }
+
+                    $_html_users .= <<<HTML
+                    </div>
+HTML;
+                }
+
+                $_html_coupons = "";
+                $coupons_count = 0;
+                foreach ($coupons as $coupon_key => $sub_arr) {
+
+                    foreach ($sub_arr as $sub_key => $coupon) {
+                        $_html_coupons .= <<<HTML
+                        {$coupon} <br />
+HTML;
+                    }
+
+                    $coupons_count++;
+                }
+
+                $smarty = new EasySmarty();
+                $smarty->assign('coupons', $_html_coupons);
+                $smarty->assign('coupons_count', $coupons_count);
+                $smarty->assign('course_name', $_info_corso["titolo"]);
+                $smarty->assign('company_name', $company_infos['nome_societa']);
+                $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
+                $smarty->assign('recipient_name', $recipients["to"]->name);
+                $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
+                $smarty->assign('company_tutor', $_html_tutor);
+                $smarty->assign('company_users', $_html_users);
+
+                $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+                $mailer->isHTML(true);
+
+                if (!$mailer->Send()) {
+                    utilityHelper::logMail(__FUNCTION__, $sender, $recipients, 0);
+                }
+
+            }
+            echo 1;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
