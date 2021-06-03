@@ -23,7 +23,10 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
     public function format_quiz_deluxe($data)
     {
+        $this->c_id = 0;
+
         if (!is_object($data)) {
+
             $this->completato = 0;
             $this->data = '0000-00-00';
 
@@ -37,6 +40,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
             $this->visualizzazioni = 0;
         } else {
 
+            $this->c_id = $data->c_id;
             $this->completato = ($data->c_passed == 1) ? 1 : 0;
 
             // colonna data extra

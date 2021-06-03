@@ -19,9 +19,14 @@
         {/foreach}
         </div>
 
-        <p>
-        <p>Per accedere al corso registrati, o se hai già effettuato una registrazione, accedi con le credenziali scelte su <a href="{$piattaforma_link}">{$piattaforma_name} </a> </p>
-	        <b>Per una migliore fruizione del corso consigliamo fortemente di usare browser quali Firefox (versione 4 o superiore), Google Chrome (versione 6 o superiore)</b>
+        
+        <p>I codici devono essere distribuiti ai lavoratori che devono effettuare la formazione, uno per ciascuno.</p>
+        <p>ISTRUZIONI PER I LAVORATORI: accedere alla piattaforma con il proprio account (o registrarne uno se non hanno mai effettuato l'accesso) e inserire il codice alla voce CODICE COUPON per sbloccare l'iscrizione. Il corso sarà disponibile alla voce I MIEI CORSI, senza più necessità di inserire il codice.<br/>
+        La validità dei codici è di 60 giorni dal momento dell'effettivo inserimento da parte dell'utente.<br/>
+        </p>
+       
+
+	        <b>Per una migliore fruizione del corso consigliamo fortemente di usare browser quali Firefox o Google Chrome</b>
         <p>
         
         <p>
