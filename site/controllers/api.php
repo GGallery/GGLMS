@@ -1846,14 +1846,15 @@ HTML;
                 $is_debug = true;
 
             $local_file = JPATH_ROOT . '/tmp/';
-            /*
-            $get_corsi = UtilityHelper::get_xml_remote($local_file,__FUNCTION__);
-            if (!is_array($get_corsi))
-                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
-            */
-
-            $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
-            $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
+            if (!$is_debug) {
+                $get_corsi = UtilityHelper::get_xml_remote($local_file, __FUNCTION__);
+                if (!is_array($get_corsi))
+                    throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+            }
+            else {
+                $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
+                $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
+            }
 
             // elaborazione dei corsi
             $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file, __FUNCTION__);
