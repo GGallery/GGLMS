@@ -219,9 +219,10 @@ class gglmsControllerSummaryReport extends JControllerLegacy
         $colonna_datetime = (int) $_config->getConfigValue('colonna_datetime');
 
         // questa query tira fuori solo i titoli dei contenuti visitati, a me servono tutti
+        // aggiunto ordinamento in base ai contenuti
         $_col_date = $colonna_datetime == 0 ? 'DATE_FORMAT(r.data, "%d/%m/%Y")' : 'COALESCE(DATE_FORMAT(r.data_extra, "%d/%m/%Y %H:%i:%s"), "")';
         $query = $this->_db->getQuery(true)
-            ->select('r.id_contenuto, 
+            ->select('r.id_contenuto,
                         ' . $_col_date . ' as last_visit,
                         r.permanenza_tot as permanenza,
                         r.visualizzazioni as visualizzazioni,
@@ -236,7 +237,8 @@ class gglmsControllerSummaryReport extends JControllerLegacy
             ->join('inner', '#__gg_unit_map as umap on umap.idcontenuto = contenuti.id')
             ->where('um.group_id =' . $id_gruppo_societa)
             ->where('c.id =' . $id_corso)
-            ->where('u.id_user =' . $id_user);
+            ->where('u.id_user =' . $id_user)
+            ->order('umap.ordinamento ASC');
 
         $this->_db->setQuery($query);
         $data = $this->_db->loadAssocList();
