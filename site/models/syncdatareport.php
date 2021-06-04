@@ -78,17 +78,18 @@ class gglmsModelSyncdatareport extends JModelLegacy
         try {
 
             // gestisco il fuso orario altrimenti la data impostata non è veritiera
-            $_dt_ref = utilityHelper::dt_add_tz(date('Y-m-d G:i:s'), 'Y-m-d G:i:s');
-
+            // non si può fare..c'è un casino pazzesco sulla gestione delle date
+            // la colonna c_date_time di quiz deluxe è indietro di 2 ore
+            //$_dt_ref = utilityHelper::dt_add_tz(date('Y-m-d G:i:s'), 'Y-m-d G:i:s');
             $query = $this->_db->getQuery(true)
                 ->update('#__gg_configs	')
-                ->set('config_value = ' . $this->_db->quote($_dt_ref))
+                ->set('config_value = now()')
                 ->where('config_key = "data_sync"');
             $this->_db->setQuery($query);
             $this->_db->execute();
             // salva data_sync anche in #__extensions
-            //utilityHelper::setComponentParam('data_sync', date('Y-m-d G:i:s'));
-            utilityHelper::setComponentParam('data_sync', $_dt_ref);
+            //utilityHelper::setComponentParam('data_sync', $_dt_ref);
+            utilityHelper::setComponentParam('data_sync', date('Y-m-d G:i:s'));
             DEBUGG::log('update_config', 'update_config', 0, 1, 0);
             return "1";
         } catch (Exception $e) {
@@ -283,33 +284,33 @@ class gglmsModelSyncdatareport extends JModelLegacy
         try {
 
             // aggiunta della colonna data_extra che viene memorizzata nel formato Y-m-d H:i:s
-            $query = "INSERT INTO #__gg_report (id_corso, 
+            $query = "INSERT INTO #__gg_report (id_corso,
                               id_event_booking,
-                              id_unita, 
-                              id_contenuto,  
-                              id_utente , 
-                              id_anagrafica, 
-                              stato, 
+                              id_unita,
+                              id_contenuto,
+                              id_utente ,
+                              id_anagrafica,
+                              stato,
                               visualizzazioni,
-                              permanenza_tot, 
+                              permanenza_tot,
                               data,
                               data_extra,
-                              data_primo_accesso) 
-                      VALUES ($data->id_corso, 
-                          $data->id_event_booking, 
+                              data_primo_accesso)
+                      VALUES ($data->id_corso,
+                          $data->id_event_booking,
                           $data->id_unita,
                           $data->id_contenuto,
                           $data->id_utente,
                           $data->id_anagrafica,
-                          $data->stato, 
-                          $data->visualizzazioni,  
+                          $data->stato,
+                          $data->visualizzazioni,
                           $data->permanenza_tot ,
                           '$data->data',
                           '$data->data_extra',
                           '$data->data_primo_accesso')";
-            $query .= "ON DUPLICATE KEY UPDATE 
-                                    stato = $data->stato , 
-                                    visualizzazioni = $data->visualizzazioni, 
+            $query .= "ON DUPLICATE KEY UPDATE
+                                    stato = $data->stato ,
+                                    visualizzazioni = $data->visualizzazioni,
                                     data = '$data->data',
                                     data_extra = '$data->data_extra',
                                     permanenza_tot = " . $data->permanenza_tot;
@@ -456,12 +457,12 @@ class gglmsModelSyncdatareport extends JModelLegacy
         try {
             $query = "
             INSERT INTO #__gg_report_users (id_event_booking,
-                                          id_user, 
-                                          nome, 
-                                          cognome, 
-                                          fields) 
-                        VALUES ($data->id_event_booking, 
-                                $data->id_user, 
+                                          id_user,
+                                          nome,
+                                          cognome,
+                                          fields)
+                        VALUES ($data->id_event_booking,
+                                $data->id_user,
                                 $data->nome,
                                 $data->cognome,
                                 $data->fields)";
