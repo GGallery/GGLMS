@@ -16,12 +16,13 @@
             <b> USERNAME:</b> {$user_name} <br>
            <b> PASSWORD:</b> {$user_password}
         </div>
+
+        <p>Le ricordiamo che queste credenziali non vanno utilizzate per seguire la formazione, ma solo per le attività di monitoraggio. </p>
+
         <p>
-	        <b>Per una migliore fruizione dei contenuti della piattaforma le consigliamo fortemente di usare browser quali Firefox (versione 4 o superiore), Google Chrome (versione 6 o superiore)</b>
+	        <b>Per una migliore fruizione dei contenuti della piattaforma le consigliamo fortemente di usare browser quali Firefox o Google Chrome.</b>
         </p>
-        <p>
-            Le ricordiamo che queste credenziali NON devono invece essere usate per seguire i corsi
-        <p>
+
 
 
         <p>

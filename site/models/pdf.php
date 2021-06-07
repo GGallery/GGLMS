@@ -56,10 +56,14 @@ class gglmsModelPdf extends JModelLegacy
             if ($datetest === null || $datetest == '0000-00-00')
                 throw new RuntimeException('L\'utente non ha superato l\'esame o lo ha fatto in data ignota', E_USER_ERROR);
 
+            // indice incrementale riferito all'id della riga di completamento del quiz
+            $id_quiz_ref = $contenuto_verifica->getStato($user->id)->c_id;
+
             $info['data_superamento'] = $datetest;
             $info['path_id'] = $attestato->id;
             $info['path'] = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/';
             $info['content_path'] = $info['path'] . $info['path_id'];
+            $info['quiz_id'] = $id_quiz_ref;
 
             // non va troppo bene
             if (DOMINIO == ""

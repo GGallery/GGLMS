@@ -845,7 +845,9 @@ _summaryreport = (function ($, my) {
                     }
 
                     // PERMANENZA
-                    var col_permanenza_index = 3;
+                    //var col_permanenza_index = 3;
+                    // con il nuovo design permanenza shifta di una posizione
+                    var col_permanenza_index = 4;
 
                     // Merge the detail export sheet rows with the master sheet rows.
                     // Loop backwards so the masterRowIndex does not need to be updated.
