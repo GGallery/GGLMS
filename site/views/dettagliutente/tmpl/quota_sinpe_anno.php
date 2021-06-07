@@ -20,7 +20,9 @@ defined('_JEXEC') or die('Restricted access');
             data-search="true"
             data-side-pagination="server"
             data-pagination="true"
-            data-show-export="true">
+            data-show-export="true"
+            data-page-list="[10, 25, 50, 100, 200, All]"
+    >
         <thead>
             <tr>
                 <th data-field="id_pagamento" data-sortable="true">#</th>
