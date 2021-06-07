@@ -24,6 +24,7 @@ defined('_JEXEC') or die('Restricted access');
                 </select>
             </div>
             <button id="ok" type="submit" class="btn btn-primary">OK</button>
+            <button id="export" class="btn btn-sm btn-primary">Export</button>
         </div>
     </div>
     <table
@@ -33,7 +34,8 @@ defined('_JEXEC') or die('Restricted access');
             data-ajax="ajaxRequest"
             data-search="true"
             data-side-pagination="server"
-            data-pagination="true">
+            data-pagination="true"
+            data-show-export="true">
         <thead>
         <tr>
             <th data-field="user_id" data-sortable="true">#</th>
@@ -53,6 +55,17 @@ defined('_JEXEC') or die('Restricted access');
 
         var pTable = jQuery('#tbl_soci');
         var btnOk = jQuery('#ok');
+
+        jQuery('#export').on('click', function() {
+            pTable.tableExport({
+                type: 'excel',
+                escape: false,
+                exportDataType: 'all',
+                refreshOptions: {
+                    exportDataType: 'all'
+                }
+            });
+        });
 
         jQuery(function() {
             btnOk.click(function () {
