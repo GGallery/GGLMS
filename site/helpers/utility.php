@@ -2607,7 +2607,7 @@ HTML;
     }
 
     // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso
-    public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $arr_anagrafica_corsi, $id_piattaforma, $_err_label = '') {
+    public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $_err_label = '') {
 
         try {
 
@@ -2620,6 +2620,7 @@ HTML;
 
                 $generazione_coupon = array();
                 $coupon_model = new gglmsModelgeneracoupon();
+                $unita_model = new gglmsModelUnita();
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
                     if (strpos($file, "GGCorsoIscritti") !== false) {
@@ -2639,10 +2640,18 @@ HTML;
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
                             $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
                             $gruppo_corso = null;
-                            if (!isset($arr_anagrafica_corsi[$codice_corso]))
-                                throw new Exception("Nessun gruppo corso definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
-                            $gruppo_corso = $arr_anagrafica_corsi[$codice_corso];
+                            // id unita da codice_corso
+                            $id_unita = $unita_model->get_id_unita_codice_corso($codice_corso);
+                            if (null($id_unita)
+                                || $id_unita == "")
+                                throw new Exception("Nessuna unita definita da codice corso " . $codice_corso, E_USER_ERROR);
+                            // gruppo corso da id_unita
+                            $gruppo_corso = $unita_model->get_id_gruppo_unit($id_unita);
+
+                            if (is_null($gruppo_corso)
+                                || $gruppo_corso == "")
+                                throw new Exception("Nessun gruppo corso definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
                             if ($nome_iscritto == ""
                                 || $cognome_iscritto == ""

@@ -640,6 +640,28 @@ class gglmsModelUnita extends JModelLegacy
         return $retval;
     }
 
+    public function get_id_unita_codice_corso($codice_corso) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('id')
+                ->from('#__gg_unit')
+                ->where('codice = ' . $this->_db->quote($codice_corso));
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+            return null;
+        }
+
+    }
+
     public function get_id_gruppo_unit($id_unita) {
 
         try {
@@ -656,6 +678,7 @@ class gglmsModelUnita extends JModelLegacy
 
         } catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
 

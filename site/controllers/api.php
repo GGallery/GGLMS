@@ -1863,7 +1863,7 @@ HTML;
                 throw new Exception("Nessun corso trovato durante l'elaborazione dei file", E_USER_ERROR);
 
             // elaborazione delle aziende e degli iscritti
-            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $arr_anagrafica_corsi, $this->_filterparam->id_piattaforma, __FUNCTION__);
+            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $this->_filterparam->id_piattaforma, __FUNCTION__);
             if (is_null($arr_iscrizioni)
                 || !is_array($arr_iscrizioni))
                 throw new Exception("Si è verificato un problema durante la generazione dei coupon", E_USER_ERROR);
@@ -2005,6 +2005,7 @@ HTML;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array("luca.gallo@gallerygroup.it"));
             echo 0;
         }
 
@@ -2103,6 +2104,7 @@ HTML;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array("luca.gallo@gallerygroup.it"));
             echo 0;
 
         }
