@@ -56,7 +56,7 @@ defined('_JEXEC') or die('Restricted access');
 
         var pTable = jQuery('#tbl_quote');
 
-        jQuery('#export').click(function() {
+        jQuery('#export').on('click', function() {
             pTable.tableExport({
                 type: 'excel',
                 escape: false,
