@@ -865,6 +865,11 @@ class gglmsModelUnita extends JModelLegacy
                 || $titolo_corso == "")
                 throw new Exception("TITOLO non valorizzato", E_USER_ERROR);
 
+            // controllo se il codice corso esiste
+            $check_codice = $this->get_id_unita_codice_corso($codice_corso);
+            if (!is_null($check_codice))
+                return $check_codice;
+
             // verifico se il corso esiste mediante il codice + codice alfanumerico
             $query = $this->_db->getQuery(true)
                 ->select('id as id_unita')

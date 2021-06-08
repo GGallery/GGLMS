@@ -1858,9 +1858,11 @@ HTML;
 
             // elaborazione dei corsi
             $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file, __FUNCTION__);
-            if (is_null($arr_anagrafica_corsi)
+            /*
+             if (is_null($arr_anagrafica_corsi)
                 || count($arr_anagrafica_corsi) == 0)
                 throw new Exception("Nessun corso trovato durante l'elaborazione dei file", E_USER_ERROR);
+            */
 
             // elaborazione delle aziende e degli iscritti
             $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $this->_filterparam->id_piattaforma, __FUNCTION__);

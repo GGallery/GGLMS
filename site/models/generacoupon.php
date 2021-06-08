@@ -414,7 +414,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
     }
 
-    private function _check_usergroups($usergroup, $from_api=false) {
+    public function _check_usergroups($usergroup, $from_api=false) {
 
         try {
 

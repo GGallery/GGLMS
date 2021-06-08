@@ -2536,6 +2536,9 @@ HTML;
             if (!$conn_id || !$login_result)
                 throw new Exception("Fallita la connessione all'ftp " . $_host, E_USER_ERROR);
 
+            if (!ftp_pasv($conn_id, true))
+                throw new Exception("Impossibile impostare la connessione ftp passiva " . $_host, E_USER_ERROR);
+
             $contents = ftp_nlist($conn_id, './' . $_read_dir);
             if (count($contents) == 0)
                 throw new Exception("Repository vuoto sul server " . $_host, E_USER_ERROR);
@@ -2554,6 +2557,10 @@ HTML;
 
             foreach ($arr_files as $file_key => $xml) {
 
+                // cancello file locali con il medesimo nome
+                unlink($local_file . '/' . $xml);
+
+                // provo a scaricare il file remoto in locale
                 if (!ftp_get($conn_id, $local_file . '/' . $xml, './' . $_read_dir . '/' . $xml, FTP_BINARY))
                     throw new Exception("Impossibile scaricare " . $xml . " dal server " . $_host);
 
@@ -2643,12 +2650,12 @@ HTML;
 
                             // id unita da codice_corso
                             $id_unita = $unita_model->get_id_unita_codice_corso($codice_corso);
-                            if (null($id_unita)
+                            if (is_null($id_unita)
                                 || $id_unita == "")
                                 throw new Exception("Nessuna unita definita da codice corso " . $codice_corso, E_USER_ERROR);
+
                             // gruppo corso da id_unita
                             $gruppo_corso = $unita_model->get_id_gruppo_unit($id_unita);
-
                             if (is_null($gruppo_corso)
                                 || $gruppo_corso == "")
                                 throw new Exception("Nessun gruppo corso definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
@@ -2663,6 +2670,7 @@ HTML;
 
                             // controllo esistenza utente su username
                             $check_user_id = self::check_user_by_username($cf_iscritto);
+                            $_new_user_id = null;
                             $new_user = false;
                             if (is_null($check_user_id)) {
                                 $_new_user['name'] = $codice_iscritto;
@@ -2719,8 +2727,18 @@ HTML;
                             $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $crea_coupon['id_piattaforma'];
                             $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
                             $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
-                            if ($new_user)
+                            if ($new_user) {
                                 $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
+                                // se nuovo utente lo inserisco nel gruppo azienda
+                                $ug_azienda = $coupon_model->_check_usergroups($ragione_sociale, true);
+                                if (is_null($ug_azienda)
+                                    || is_array($ug_azienda))
+                                    throw new Exception("Gruppo azienda non definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
+                                $ug_destinazione = array($ug_azienda);
+                                JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+
+                            }
 
                         } // iscritti
                     }
@@ -2759,7 +2777,7 @@ HTML;
                         // controllo inserimento corso
                         if (is_null($new_corso))
                             throw new Exception("Corso non inserito: " . $xml->CORSO[$i]->TITOLO, E_USER_ERROR);
-                        $arr_corsi[$xml->CORSO[$i]->CODICE_CORSO->__toString()] = $new_corso;
+                        //$arr_corsi[$xml->CORSO[$i]->CODICE_CORSO->__toString()] = $new_corso;
 
                     }
 
@@ -2767,7 +2785,7 @@ HTML;
 
             }
 
-            return $arr_corsi;
+            return 1;
         }
         catch(Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
