@@ -463,7 +463,7 @@ class utilityHelper
             $query = $db->getQuery(true);
             $sub_query1 = $db->getQuery(true);
 
-            $query->select('CN.titolo AS titolo_evento, CN.durata AS durata_evento, 
+            $query->select('CN.titolo AS titolo_evento, CN.durata AS durata_evento,
                                 SUM(LG.permanenza) AS tempo_visualizzato');
 
             if ($con_orari)
@@ -826,7 +826,7 @@ class utilityHelper
         try {
 
             $db = JFactory::getDbo();
-            $query = "INSERT INTO #__usergroups (parent_id, title) 
+            $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
                               '" . addslashes(trim($usergroup)) . "'
@@ -939,7 +939,7 @@ class utilityHelper
             if (false === ($results = $db->loadAssocList())) {
                 throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
             }
-            
+
             // elaboro i risultati in un array di tipo chiave/valore
             foreach ($results as $index => $sub_arr) {
 
@@ -2037,7 +2037,7 @@ HTML;
             $oggetto .= " - Richiesta pagamento con bonifico";
             $_label_pagato .= "da pagare";
             $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />
-                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale 
+                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale
                                 e contatto telefonico allegando la ricevta del bonifico";
         }
         else if ($template == 'acquistaevento')
@@ -2144,7 +2144,7 @@ HTML;
     }
 
     // converto una stringa di usergroups in un array
-    public function get_usergroup_id($ug_list, $delimiter = ',') {
+    public static function get_usergroup_id($ug_list, $delimiter = ',') {
 
         $_ret = array();
         $ug_arr = explode($delimiter, $ug_list);
@@ -2155,14 +2155,21 @@ HTML;
         return $_ret;
     }
 
-    public static function get_tipo_socio($_user_details) {
+    public static function get_tipo_socio($_user_details, $ret_default = false) {
 
         try {
             // controllo campi necessari per il calcolo delle tariffe
             // tipo_laurea
             if (!isset($_user_details['tipo_laurea'])
-                || $_user_details['tipo_laurea'] == "")
-                throw new Exception("Impossibile stabilire la tipologia di affiliazione, tipo di laurea non specificato");
+                || $_user_details['tipo_laurea'] == "") {
+
+                if (!$ret_default)
+                    throw new Exception("Impossibile stabilire la tipologia di affiliazione, tipo di laurea non specificato", E_USER_ERROR);
+
+                // forzo valore per farlo ritornare ordinario
+                $_ret['success'] = "ordinario";
+                return $_ret;
+            }
 
             $_ret = array();
             $_tipo_quota = "";
@@ -2188,7 +2195,7 @@ HTML;
 
     }
 
-    public static function set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details) {
+    public static function set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details, $ret_default = false) {
 
         $_ret = array();
 
@@ -2196,9 +2203,9 @@ HTML;
             // controllo se l'utente è iscritto perchè inserito in uno dei gruppi di categoria
             $_check_ug = self::check_user_into_ug($user_id, explode(",", $ug_categoria));
             // verifico il tipo di socio in base al ruolo
-            $_tipo_socio = self::get_tipo_socio($_user_details);
+            $_tipo_socio = self::get_tipo_socio($_user_details, $ret_default);
             if (!is_array($_tipo_socio))
-                throw new Exception($_tipo_socio, 1);
+                throw new Exception($_tipo_socio, E_USER_ERROR);
 
             // il socio è già iscritto ed inserito in un gruppo specifico
             if ($_check_ug) {
@@ -2228,6 +2235,8 @@ HTML;
             // per sicurezza rimuovo l'utente da eventuali inserimenti nello usergroup preiscritto
             $_params_2 = self::get_params_from_plugin("cb.cbsetgroup");
             $ug_preiscritto = self::get_ug_from_object($_params_2, "ug_destinazione");
+            // va passato un array altrimenti si pianta sul foreach
+            $ug_preiscritto = !is_array($ug_preiscritto) ? (array) $ug_preiscritto : $ug_preiscritto;
             self::remove_user_from_usergroup($user_id, $ug_preiscritto);
 
             $_ret['success'] = "tuttook";
@@ -2600,14 +2609,14 @@ HTML;
                     // azienda dell'utente
                     $id_azienda = self::check_exists_sub_array($iscritto['user_id'], $arr_dual);
                     if ($id_azienda == 0)
-                        throw new Exception("Nessuna azienda per " . $iscritto['user_id'] . " 
+                        throw new Exception("Nessuna azienda per " . $iscritto['user_id'] . "
                             - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
 
                     $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('AZIENDA_ENTE'));
                     $iscritto_presso_node->appendChild($dom->createCDATASection(trim($arr_aziende[$id_azienda])));
 
                     if ($iscritto['data_inizio_corso'] == "" || $iscritto['data_fine_corso'] == "")
-                        throw new Exception("Mancano delle date per " . $iscritto['user_id'] . " 
+                        throw new Exception("Mancano delle date per " . $iscritto['user_id'] . "
                             - GRUPPO_CORSO " . $arr_gruppi[$id_corso], E_USER_ERROR);
 
                     $data_inizio_node = $dom->createElement('DATA_INIZIO', trim(self::convert_dt_in_format($iscritto['data_inizio_corso'], 'd/m/Y')));

@@ -123,7 +123,7 @@ class reportSync extends JApplicationCli {
 
     }
 
-    public function getModelSite($component, $name = 'Custom', $prefix = 'CustomModel')
+    private function getModelSite($component, $name = 'Custom', $prefix = 'CustomModel')
     {
         if (!isset($component)) {
             JFactory::getApplication()->enqueueMessage(JText::_("COM_ERROR_MSG"), 'error');

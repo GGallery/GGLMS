@@ -73,7 +73,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 // inserisco le quote per l'utente selezionato
                 $_user_details = $_user_quote->get_user_details_cb($user_id);
                 if (!is_array($_user_details))
-                    throw new Exception($_user_details, 1);
+                    throw new Exception($_user_details, E_USER_ERROR);
 
                 $_insert_quote = $_user_quote->insert_user_quote_anno(
                                                 $user_id,
