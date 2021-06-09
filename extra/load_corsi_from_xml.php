@@ -40,7 +40,7 @@ require_once JPATH_COMPONENT . '/helpers/output.php';
 require_once JPATH_COMPONENT . '/helpers/utility.php';
 
 
-class reportPerPiattaforma extends JApplicationCli {
+class loadCorsiFromXml extends JApplicationCli {
 
     public function doExecute() {
 
@@ -55,16 +55,17 @@ class reportPerPiattaforma extends JApplicationCli {
             $app->initialise();
 
             $id_piattaforma = $this->input->get('id_piattaforma', '');
-            $tipologia_svolgimento = $this->input->get('tipologia_svolgimento', 6);
+            $is_debug = $this->input->get('is_debug', false);
 
             require_once JPATH_COMPONENT . '/controllers/api.php';
+            require_once JPATH_COMPONENT . '/models/config.php';
 
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
-            $report_giornaliero_rs = $api->get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento);
+            $_importa = $api->load_corsi_from_xml($id_piattaforma, $is_debug);
 
-            $this->out('Script ended with ' . $report_giornaliero_rs . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
+            $this->out('Script ended with ' . $_importa . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         }
         catch (Exception $e) {
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
@@ -72,5 +73,5 @@ class reportPerPiattaforma extends JApplicationCli {
 
     }
 }
-JApplicationCli::getInstance('reportPerPiattaforma')->execute();
+JApplicationCli::getInstance('loadCorsiFromXml')->execute();
 

@@ -2605,6 +2605,9 @@ HTML;
             if (!$conn_id || !$login_result)
                 throw new Exception("Fallita la connessione all'ftp " . $_host, E_USER_ERROR);
 
+            if (!ftp_pasv($conn_id, true))
+                throw new Exception("Impossibile impostare la connessione ftp passiva " . $_host, E_USER_ERROR);
+
             $upload = ftp_put($conn_id,"/" . $_write_dir . "/" . $filename, $local_file, FTP_BINARY);
             if (!$upload)
                 throw new Exception("Fallito upload di " . $local_file, E_USER_ERROR);
@@ -2822,6 +2825,9 @@ HTML;
             $ref_nodi = array();
 
             $dest_file = JPATH_ROOT . '/tmp/' . $filename;
+            // cancello file se già esistente
+            unlink($dest_file);
+
             $root = $dom->createElement('CORSI');
 
             foreach ($arr_xml as $id_corso => $sub_corso) {

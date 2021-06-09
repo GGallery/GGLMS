@@ -1834,16 +1834,13 @@ HTML;
     }
 
     // importazione corsi da file xml
-    function load_corsi_from_xml() {
+    function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
 
         try {
 
-            if (!isset($this->_filterparam->id_piattaforma)
-                || $this->_filterparam->id_piattaforma == "")
+            if (!isset($id_piattaforma)
+                || $id_piattaforma == "")
                 throw new Exception("Nessuna piattaforma indicata", E_USER_ERROR);
-            $is_debug = false;
-            if (isset($this->_filterparam->is_debug))
-                $is_debug = true;
 
             $local_file = JPATH_ROOT . '/tmp/';
             if (!$is_debug) {
@@ -1865,7 +1862,7 @@ HTML;
             */
 
             // elaborazione delle aziende e degli iscritti
-            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $this->_filterparam->id_piattaforma, __FUNCTION__);
+            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, __FUNCTION__);
             if (is_null($arr_iscrizioni)
                 || !is_array($arr_iscrizioni))
                 throw new Exception("Si è verificato un problema durante la generazione dei coupon", E_USER_ERROR);
