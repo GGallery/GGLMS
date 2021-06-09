@@ -2015,12 +2015,18 @@ HTML;
     }
 
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
-    function get_completed_report_per_piattaforma() {
+    // adattato per essere chiamato da cli (per i timeout)
+    function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
 
         try {
 
+            // check piattaforma
+            if (!isset($id_piattaforma)
+                || $id_piattaforma == "")
+                throw new Exception("Nessuna piattaforma specificata", E_USER_ERROR);
+
             $model_user = new gglmsModelUsers();
-            $ret_users = $model_user->get_all_user_piattaforma($this->_filterparam->id_piattaforma, true, __FUNCTION__);
+            $ret_users = $model_user->get_all_user_piattaforma($id_piattaforma, true, __FUNCTION__);
             $arr_xml = array();
             $arr_corsi = array();
             $arr_gruppi = array();
@@ -2031,10 +2037,10 @@ HTML;
             $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
             $_dt_ref_ext =  date('Ymd', strtotime('-1 day', strtotime($oggi)));
             // tipologia svolgimento
-            $tipologia_svolgimento = (isset($this->_filterparam->tipologia_svolgimento) && $this->_filterparam->tipologia_svolgimento != "") ? $this->_filterparam->tipologia_svolgimento : 6;
+            $tipologia_svolgimento = (isset($tipologia_svolgimento) && $tipologia_svolgimento != "") ? $tipologia_svolgimento : 6;
 
             if (is_null($ret_users))
-                throw new Exception("Nessun dato valido - id_piattaforma: " . $this->_filterparam->id_piattaforma
+                throw new Exception("Nessun dato valido - id_piattaforma: " . $id_piattaforma
                     . " - data " . $_dt_ref, E_USER_ERROR);
 
             $query = $this->_db->getQuery(true)
@@ -2059,8 +2065,7 @@ HTML;
                 ->join('inner', '#__gg_view_stato_user_corso r ON r.id_anagrafica = ru.id')
                 ->join('inner', '#__gg_unit AS unita ON r.id_corso = unita.id')
                 ->join('inner', '#__gg_usergroup_map ugm ON ugm.idunita = unita.id')
-                //->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
-                ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote('2021-05-27'))
+                ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
                 ->where('ru.id_user IN (' . implode(",", $ret_users['users']) . ')')
                 ->where('r.stato = 1')
                 ->order('unita.id');
@@ -2069,7 +2074,7 @@ HTML;
             $results = $this->_db->loadAssocList();
 
             if (count($results) == 0)
-                throw new Exception("Nessun corso completato - id_piattaforma: " . $this->_filterparam->id_piattaforma
+                throw new Exception("Nessun corso completato - id_piattaforma: " . $id_piattaforma
                     . " - data " . $_dt_ref, E_USER_ERROR);
 
             foreach ($results as $key_res => $sub_res) {
@@ -2094,7 +2099,7 @@ HTML;
 
             // si è verificato un errore durante l'elaborazione dell'xml
             if (!$check_xml)
-                throw new Exception("Errore di scrittura del file xml - id_piattaforma: " . $this->_filterparam->id_piattaforma
+                throw new Exception("Errore di scrittura del file xml - id_piattaforma: " . $id_piattaforma
                     . " - data " . $_dt_ref, E_USER_ERROR);
 
             // carico file su ftp remoto
