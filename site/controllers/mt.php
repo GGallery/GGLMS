@@ -36,6 +36,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
+        echo utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"$%&/?-_', 8);
         $this->_japp->close();
 
     }
