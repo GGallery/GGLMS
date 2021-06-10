@@ -32,17 +32,19 @@ class com_gglmsInstallerScript {
             $cli_script_1 = "report_sync.php";
             $cli_script_2 = "allinea_gg_log.php";
             $cli_script_3 = "allinea_permanenza.php";
-            //$cli_script_4 = "defines.php";
+            $cli_script_4 = "fix_ug_soci.php";
+            $cli_script_5 = "report_per_piattaforma.php";
+            $cli_script_6 = "load_corsi_from_xml.php";
+
             JFile::move($temp_dir . '/extra/' . $cli_script_1, JPATH_SITE . '/cli/' . $cli_script_1);
             JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_2);
             JFile::move($temp_dir . '/extra/' . $cli_script_3, JPATH_SITE . '/cli/' . $cli_script_3);
-            // per defines.php rimuovo il vecchio e copio il nuovo
-            //JFile::delete(JPATH_SITE . '/includes/' . $cli_script_4);
-            //JFile::move($temp_dir . '/extra/' . $cli_script_4, JPATH_SITE . '/includes/' . $cli_script_4);
+            JFile::move($temp_dir . '/extra/' . $cli_script_4, JPATH_SITE . '/cli/' . $cli_script_4);
+            JFile::move($temp_dir . '/extra/' . $cli_script_5, JPATH_SITE . '/cli/' . $cli_script_5);
+            JFile::move($temp_dir . '/extra/' . $cli_script_6, JPATH_SITE . '/cli/' . $cli_script_6);
 
             // scorm folder
             $scorm_folder = "scorm";
-            //JFolder::move($temp_dir . '/' . $scorm_folder, JPATH_SITE . '/' . $scorm_folder);
             JFolder::move($temp_dir . '/' . $scorm_folder, $_SERVER['DOCUMENT_ROOT'] . '/' . $scorm_folder);
         }
 
