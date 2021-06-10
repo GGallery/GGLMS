@@ -2382,8 +2382,9 @@ HTML;
                             if (is_null($check_user_id)) {
                                 $_new_user['name'] = $codice_iscritto;
                                 $_new_user['username'] = $cf_iscritto;
+                                // email farlocca
                                 $_new_user['email'] = $_new_user['username'] . '@me.com';
-                                $password = $_new_user['name'] . '______' . date('Y');
+                                $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
                                 $_new_user['password'] = JUserHelper::hashPassword($password);
                                 // inserimento utente in users
                                 $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
@@ -3231,6 +3232,18 @@ HTML;
 
         return scandir($path_folder);
 
+    }
+
+    // generazione di stringhe randomiche
+    public static function genera_stringa_randomica($input, $strength = 16) {
+        $input_length = strlen($input);
+        $random_string = '';
+        for($i = 0; $i < $strength; $i++) {
+            $random_character = $input[mt_rand(0, $input_length - 1)];
+            $random_string .= $random_character;
+        }
+
+        return $random_string;
     }
 
     /* Generiche */
