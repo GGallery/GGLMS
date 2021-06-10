@@ -181,6 +181,16 @@
         </field>
 
         <field
+                name="mail_debug"
+                type="text"
+                description="Email per invio informazioni di debug su esecuzione script ecc.."
+                class=""
+                label="Email debug"
+                labelclass="control-label"
+                default="luca.gallo@gallerygroup.it"
+        />
+
+        <field
                 name="colonne_somme_tempi"
                 type="radio"
                 class="btn-group"
