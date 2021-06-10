@@ -26,6 +26,7 @@ class gglmsControllerApi extends JControllerLegacy
     protected $_db;
     private $_config;
     private $_filterparam;
+    public $mail_debug;
 
 
 //https://api.joomla.org/cms-3/classes/Joomla.Utilities.ArrayHelper.html
@@ -65,9 +66,9 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
-        $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
-        $this->_filterparam->is_debug = JRequest::getVar('is_debug');
-        $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
+        // email di debug
+        $this->mail_debug = $this->_config->getConfigValue('mail_debug');
+        $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
 
     }
 
@@ -1922,7 +1923,7 @@ HTML;
                     $mailer->addCc($recipients["cc"]);
                 }
                 else
-                    $mailer->addRecipient('luca.gallo@gallerygroup.it');
+                    $mailer->addRecipient($this->mail_debug);
 
                 $mailer->setSubject('Coupon corso ' . $_info_corso["titolo"]);
 
@@ -2004,7 +2005,7 @@ HTML;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array("luca.gallo@gallerygroup.it"));
+            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             echo 0;
         }
 
@@ -2108,7 +2109,7 @@ HTML;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array("luca.gallo@gallerygroup.it"));
+            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             echo 0;
 
         }

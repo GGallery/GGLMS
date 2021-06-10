@@ -131,6 +131,11 @@ INSERT INTO `#__gg_configs` VALUES ('62', 'mail_riferimento_specifica', '1');
 INSERT INTO `#__gg_configs` VALUES ('63', 'mail_richiesta_tecnica', 'mail_richiesta_tecnica@ggallery.it');
 INSERT INTO `#__gg_configs` VALUES ('64', 'mail_richiesta_didattica', 'mail_richiesta_didattica@ggallery.it');
 INSERT INTO `#__gg_configs` VALUES ('65', 'campicustom_report', '');
+INSERT INTO `#__gg_configs` VALUES ('66', 'mail_debug', 'luca.gallo@gallerygroup.it');
+INSERT INTO `#__gg_configs` VALUES ('67', 'xml_ip_dest', '31.14.141.98');
+INSERT INTO `#__gg_configs` VALUES ('68', 'xml_ip_dest', '21');
+INSERT INTO `#__gg_configs` VALUES ('69', 'xml_read_dir_dest', 'R2k');
+INSERT INTO `#__gg_configs` VALUES ('70', 'xml_write_dir_dest', 'GGallery');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------

@@ -18,6 +18,7 @@ class gglmsControllerMt extends JControllerLegacy {
     public $_params;
     public $_db;
     private $_config;
+    public $mail_debug;
 
     public function __construct($config = array())
     {
@@ -32,10 +33,15 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_filterparam->id_utente = JRequest::getVar('id_utente');
         $this->_filterparam->id_corso = JRequest::getVar('id_corso');
 
+        $this->mail_debug = $this->_config->getConfigValue('mail_debug');
+        $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
+
+
     }
 
     public function test_() {
 
+        echo $this->mail_debug;
         $this->_japp->close();
 
     }

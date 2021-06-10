@@ -70,6 +70,10 @@
                 <?php echo $this->form->renderField('ulteriori_attestati'); ?>
             </div>
 
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('mail_debug'); ?>
+            </div>
+
             <div class="alert alert-warning">
                 <span class="icon-info-2" style="position: relative; float: left; font-size: 40px; margin-right: 35px; margin-top: 11px;">  </span>
                 <h4 class="alert-heading">CUSTOM CSS</h4>
