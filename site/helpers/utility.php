@@ -8,6 +8,7 @@
 // No direct access to this file
 defined('_JEXEC') or die;
 
+// operazioni di lettura/scrittura sul XLS,CSV,ecc
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
@@ -45,6 +46,7 @@ class utilityHelper
         }
     }
 
+    // utility per controllers.pdf.generateAttestato()
     public static function conformita_cf($cf)
     {
 
@@ -250,17 +252,7 @@ class utilityHelper
         return $result;
     }
 
-    public static function files_list_from_folder($path_folder) {
-
-        $_ret = array();
-        if (!file_exists($path_folder)) {
-            return $_ret;
-        }
-
-        return scandir($path_folder);
-
-    }
-
+    // utility per models.unita.importa_anagrafica_corsi()
     public static function setAlias($text){
 
 
@@ -284,8 +276,7 @@ class utilityHelper
 
     /////////////////////////////////////
 
-    // metodi per dropdown report, monitora coupon, generacoupon
-
+    // metodi per dropdown report, monitora coupon, generacoupon - utility per controllers.generacoupon.api_get_corsi()
     public static function getGruppiCorsi($id_piattaforma = null, $mobile = false)
     {
 
@@ -360,7 +351,7 @@ class utilityHelper
         return $corsi;
     }
 
-    // filtro azienda se tutor aziendale
+    // filtro azienda se tutor aziendale - utility per view.annullaquiz
     public static function getIdCorsi($id_piattaforma = null, $filtro_azienda = null)
     {
 
@@ -454,6 +445,7 @@ class utilityHelper
         return $corsi;
     }
 
+    // utility per output.php
     public static function getTitoloCorsoPadre($id_padre, $arr_corsi) {
 
         try {
@@ -471,6 +463,7 @@ class utilityHelper
         }
     }
 
+    // utility per self.getDettaglioDurataByCorsi()
     public static function getDettaglioDurataByCorso($id_corso, $user_id = null, $arr_date_descrizione = array()) {
 
         try {
@@ -545,6 +538,7 @@ class utilityHelper
         }
     }
 
+    // utility per view.cruscottocorsi
     public static function getDettaglioDurataByCorsi($arr_corsi = array(), $arr_date_descrizione = array()) {
 
         try {
@@ -575,6 +569,7 @@ class utilityHelper
 
     }
 
+    // utility per view.monitora
     public static function getSocietaByUser()
     {
 
@@ -644,7 +639,7 @@ class utilityHelper
     }
 
 // se $only_vendor è TRUE --> ritorno la piattaforma SOLO se utente è venditore per quella piattaforma
-//se $only_vendor è TRUE --> ritorno la piattaforma
+//se $only_vendor è TRUE --> ritorno la piattaforma - utility per models.generacoupon.__construct()
     public static function getPiattaformeByUser($only_vendor)
     {
         try {
@@ -668,7 +663,7 @@ class utilityHelper
         }
     }
 
-    // partendo da un contenuto arrivo fino all'unità padre del corso
+    // partendo da un contenuto arrivo fino all'unità padre del corso - utility per view.contenuto
     public static function get_unita_padre_corso_da_contenuto($id_contenuto) {
 
         try {
@@ -712,7 +707,7 @@ class utilityHelper
 
     }
 
-    // informazioni per un campo community builder da name
+    // informazioni per un campo community builder da name - utility per self.get_cb_field_col()
     public static function get_cb_field_by_name($field_name) {
 
         try {
@@ -738,7 +733,7 @@ class utilityHelper
 
     }
 
-    // informazioni per un campo community builder da id
+    // informazioni per un campo community builder da id - utility per self.get_cb_field_name()
     public static function get_cb_field($field_id) {
 
         try {
@@ -763,7 +758,7 @@ class utilityHelper
 
     }
 
-    // lista di valori per un determino fieldid di un campo community builder
+    // lista di valori per un determino fieldid di un campo community builder - utility per self.get_cb_field_select_by_name()
     public static function get_cb_field_values_list($field_id) {
 
         try {
@@ -789,7 +784,7 @@ class utilityHelper
 
     }
 
-    // valore da lista field per fieldid e fieldvalueid
+    // valore da lista field per fieldid e fieldvalueid - utility per view.acquistaevento
     public static function get_cb_fieldtitle_values($field_id, $field_value_id) {
 
         try {
@@ -816,7 +811,7 @@ class utilityHelper
 
     }
 
-    // controlla esistenza usergroups per nome
+    // controlla esistenza usergroups per nome - utility per controllers.users._import()
     public static function check_usergroups_by_name($usergroup) {
 
         try {
@@ -841,7 +836,7 @@ class utilityHelper
 
     }
 
-    // inserisco nuovo usergroups
+    // inserisco nuovo usergroups - utility per controllers.users._import_rinnovi()
     public static function insert_new_usergroups($usergroup, $parent_id=0) {
 
         try {
@@ -870,7 +865,7 @@ class utilityHelper
 
     }
 
-    // inserisco nuovo utente in comprofiler
+    // inserisco nuovo utente in comprofiler - utility per controllers.users._import()
     public static function insert_new_with_query($insert_query, $ret_last_id = true) {
 
         try {
@@ -892,7 +887,7 @@ class utilityHelper
 
     }
 
-    // controllo esistenza utente per colonna e valore
+    // controllo esistenza utente per colonna e valore - utility per view.acquistaevento
     public static function check_user_by_column($target_col, $target_val) {
 
         try {
@@ -918,7 +913,7 @@ class utilityHelper
 
     }
 
-    // controllo esistenza utente su username
+    // controllo esistenza utente su username - utility per controllers.users._import()
     public static function check_user_by_username($username) {
 
         try {
@@ -944,6 +939,7 @@ class utilityHelper
 
     }
 
+    // utility per controllers.users._import()
     public static function get_comprofiler_fields_type() {
 
         try {
@@ -976,7 +972,7 @@ class utilityHelper
         }
     }
 
-    // utenti iscritti ad un corso per tutti i corsi ad accesso gruppo
+    // utenti iscritti ad un corso per tutti i corsi ad accesso gruppo - utility per controllers.users.get_utenti_per_corso()
     public static function get_user_iscritti_corso($id_corso) {
 
         try {
@@ -1039,6 +1035,7 @@ class utilityHelper
         }
     }
 
+    // utility per view.acquistaevento
     public static function get_acquisto_evento_richiesto($user_id, $unit_gruppo) {
 
         try {
@@ -1065,6 +1062,7 @@ class utilityHelper
         }
     }
 
+    // utility per models.generacoupon.send_coupon_mail()
     public static function logMail($template, $sender, $recipient, $status, $cc = null, $id_gruppo_corso = null)
     {
         try {
@@ -1103,7 +1101,7 @@ class utilityHelper
 
 
     // esporta $data in un file csv
-    // se $column_list != null esporta solo le colonne inidicate altrimenti le esporta tutte
+    // se $column_list != null esporta solo le colonne inidicate altrimenti le esporta tutte - utility per controllers.monitoracoupon.createCSV()
     public static function _export_data_csv($filename, $data_input, $column_list = array())
     {
 
@@ -1189,23 +1187,6 @@ class utilityHelper
 
     }
 
-    // da un array ricavo i nomi delle colonne che saranno poi usati in esportazione
-    function get_cols_from_array($arr_values)  {
-
-        $_ret = array();
-
-        if (!is_array($arr_values)
-            || count($arr_values) == 0)
-            return $_ret;
-
-        foreach ($arr_values as $key => $value) {
-            $_ret[] = $key;
-        }
-
-        return $_ret;
-
-    }
-
     // esporta in CSV i dati relativi ai report sulla formazione finanziata
     function esporta_csv_corsi_finanza($_ret, $arr_cols, $dest_filename, $denominazione_utente, $titoli_unita) {
 
@@ -1276,7 +1257,7 @@ class utilityHelper
         $writer->close();
     }
 
-    // esporta in CSV basandosi sulla libreria SPOUT
+    // esporta in CSV basandosi sulla libreria SPOUT - utility per api.get_dettagli_quiz()
     function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
 
         $writer = WriterEntityFactory::createCSVWriter();
@@ -1308,7 +1289,7 @@ class utilityHelper
         $writer->close();
     }
 
-    // funzione clonata dal componente joomlaquiz per la cancellazione dei quiz di un utente
+    // funzione clonata dal componente joomlaquiz per la cancellazione dei quiz di un utente - utility per api.del_user_quiz()
     public static function joomla_quiz_delete_items($cids, $path, $event){
 
         jimport('joomla.filesystem.folder');
@@ -1324,32 +1305,7 @@ class utilityHelper
         }
     }
 
-    // in giorni, mesi, anni ritorna la differenza fra due date
-    public static function get_date_diff_format($date1, $date2, $format = "d") {
-
-        $diff = abs(strtotime($date2)-strtotime($date1));
-        $years = floor($diff / (365*60*60*24));
-        $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
-        $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
-
-        switch ($format) {
-
-            case 'd':
-                return $days;
-
-            case 'm':
-                return $months;
-
-            case 'y':
-                return $years;
-
-            default:
-                return $days;
-
-        }
-    }
-
-    // da oggetto azienda ad array con lista id
+    // da oggetto azienda ad array con lista id - utility per controller.generacoupon.get_lista_piva()
     public static function get_id_aziende($azienda)
     {
 
@@ -1362,7 +1318,7 @@ class utilityHelper
 
     }
 
-    // controllo se un file esiste e nel qual caso provo a rinominarlo fino a quando il nuovo nome non esiste
+    // controllo se un file esiste e nel qual caso provo a rinominarlo fino a quando il nuovo nome non esiste - utility per controller.attestatibulk.do_genereate_attestati_multiple()
     public static function rename_file_recursive($folder_location, $nome_file) {
 
         echo $folder_location . $nome_file;
@@ -1385,17 +1341,7 @@ class utilityHelper
         return $nome_file;
     }
 
-    public static function is_valid_file_name($file_name, $alt_name, $replace_spaces = false) {
-
-        $_ret = (isset($file_name) && $file_name != "" && !is_null($file_name)) ? $file_name : $alt_name;
-        if ($replace_spaces)
-            $_ret = preg_replace('/\s+/', '_', $_ret);
-
-        return $_ret;
-
-    }
-
-    // in base a dei valori predefiniti imposto il nome del file con il quale un attestato verrà scaricato
+    // in base a dei valori predefiniti imposto il nome del file con il quale un attestato verrà scaricato - utility per controller.attestatibulk.do_genereate_attestati_multiple()
     public static function build_nome_file_attestato($data, $salva_come) {
 
         $arr_salva = explode(",", $salva_come);
@@ -1447,7 +1393,7 @@ class utilityHelper
 
     }
 
-    // query diretta sui parametri di un modulo
+    // query diretta sui parametri di un modulo - utility per view.acquistaevento
     public static function get_params_from_module($module = 'mod_compra_corsi') {
 
         try {
@@ -1476,7 +1422,7 @@ class utilityHelper
 
     }
 
-    // query diretta sui parametri di un plugin di community builder
+    // query diretta sui parametri di un plugin di community builder - utility per view.dettagliutente
     public static function get_params_from_plugin($plugin = 'cb.checksoci') {
 
         try {
@@ -1506,7 +1452,7 @@ class utilityHelper
     }
 
 
-    // calcolo tariffa socio per parametri pre impostati
+    // calcolo tariffa socio per parametri pre impostati - utility per output.php
     public static function calcola_quota_socio($_tipo_laurea,
                                                $_anzianita,
                                                $_data_nascita,
@@ -1594,7 +1540,7 @@ class utilityHelper
 
     }
 
-    // per sviluppo filtro DOMAIN - di default i siti che in produzione iniziano per web. in sviluppo saranno test.
+    // per sviluppo filtro DOMAIN - di default i siti che in produzione iniziano per web. in sviluppo saranno test. - utility per controller.php
     public static function filtra_dominio_per_test($_domain) {
 
         if (strpos($_domain, 'test.') !== false)
@@ -1604,31 +1550,8 @@ class utilityHelper
 
     }
 
-    // restituisco un array con il nome delle colonne da query
-    public static function get_nomi_colonne_da_query_results($num_rows, $rows)
-    {
-
-        $columns = array();
-
-        if ($num_rows == 0)
-            return $columns;
-
-        foreach ($rows as $key => $sub_arr) {
-
-            foreach ($sub_arr as $kk => $vv) {
-
-                if (in_array($kk, $columns))
-                    continue;
-
-                $columns[] = $kk;
-            }
-        }
-
-        return $columns;
-    }
-
     // funzione per gestire il valore delle label di campi
-    // per i quali è stato predisposto un override nella configurazione del componente
+    // per i quali è stato predisposto un override nella configurazione del componente - utility per view.genera
     public static function get_label_from_configuration($_original_label, $_db_label) {
 
         $_config = new gglmsModelConfig();
@@ -1645,7 +1568,7 @@ class utilityHelper
         return $_label;
     }
 
-    // restituisco un valore soltanto se il valore di default è bypassato
+    // restituisco un valore soltanto se il valore di default è bypassato - utility per view.summaryreport
     public static function get_only_extra_label($_original_label, $_db_label) {
 
         $_config = new gglmsModelConfig();
@@ -1663,19 +1586,7 @@ class utilityHelper
 
     }
 
-    public static function normalizza_contenuto_array($rows) {
-
-        $_ret = array();
-
-        foreach ($rows as $key => $row) {
-            $_ret[$row['id_contenuto']] = $row['descrizione'];
-        }
-
-        return $_ret;
-
-    }
-
-    // funzione per gestire la visualizzazione di una lista di tipologie coupon chiave|valore;
+    // funzione per gestire la visualizzazione di una lista di tipologie coupon chiave|valore; - utility per view.genera
     public static function get_lista_tipo_coupon($_db_label, $_lista_extra) {
 
         $_config = new gglmsModelConfig();
@@ -1718,7 +1629,7 @@ HTML;
 
     }
 
-    // funzione per gestire la visualizzazione di campi che sono controllati dalla configurazione del componente
+    // funzione per gestire la visualizzazione di campi che sono controllati dalla configurazione del componente - utility per view.genera
     public static function get_display_from_configuration($_default_value, $_db_label) {
 
         $_config = new gglmsModelConfig();
@@ -1731,52 +1642,7 @@ HTML;
         return $_default_value;
     }
 
-    // estrapolo tabella HTML
-    public static function get_html_table($_table) {
-
-        $_ret = array();
-        $dom = new domDocument;
-        $dom->loadHTML($_table);
-        $dom->preserveWhiteSpace = false;
-        $tables = $dom->getElementsByTagName('table');
-
-        // se non trovo tabelle esco
-        if ($tables->length < 1)
-            return $_ret;
-
-        $rows = $tables->item(0)->getElementsByTagName('tr');
-        // se non trovo righe esco
-        if ($rows->length < 1)
-            return $_ret;
-
-        foreach ($rows as $row) {
-            $cols = $row->getElementsByTagName('td');
-
-            // se non ci sono colonne esco
-            if ($cols->length < 1) {
-                return $_ret;
-            }
-
-            $cells = 0;
-            $_key = "";
-
-            foreach ($cols as $node) {
-
-                if ($cells == 0)
-                    $_key = $node->nodeValue;
-
-                if ($cells > 0)
-                    $_ret[$_key] = self::convert_hours_to_seconds($node->nodeValue);
-
-                $cells++;
-            }
-        }
-
-        return $_ret;
-
-    }
-
-    // estrapolo la tabella html riferita allo specchietto orario in base al contenuto di riferimento
+    // estrapolo la tabella html riferita allo specchietto orario in base al contenuto di riferimento - utility per api.get_date_per_contenuto()
     public static function elabora_array_date_id_contenuto($rows) {
 
         $_ret = array();
@@ -1793,75 +1659,7 @@ HTML;
         return $_ret;
     }
 
-    // conversione di ore in secondi
-    public static function convert_hours_to_seconds($hours) {
-
-        return $hours*3600;
-
-    }
-
-    // conversione secondi in ore
-    public static function sec_to_hr($seconds) {
-        $hours = floor($seconds / 3600);
-        $hours = $hours < 10 ? "0" . $hours : $hours;
-        $minutes = floor(($seconds / 60) % 60);
-        $minutes = $minutes < 10 ? "0" . $minutes : $minutes;
-        $seconds = $seconds % 60;
-        $seconds = $seconds < 10 ? "0" . $seconds : $seconds;
-        return "$hours:$minutes:$seconds";
-    }
-
-    // json_decode errore
-    public static function get_json_decode_error($config_content, $assoc=true) {
-
-        $_err = "";
-        $_ret = json_decode($config_content, $assoc);
-
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                $_err = "";
-                break;
-            case JSON_ERROR_DEPTH:
-                $_err = 'Maximum stack depth exceeded';
-                break;
-            case JSON_ERROR_STATE_MISMATCH:
-                $_err =  'Underflow or the modes mismatch';
-                break;
-            case JSON_ERROR_CTRL_CHAR:
-                $_err = 'Unexpected control character found';
-                break;
-            case JSON_ERROR_SYNTAX:
-                $_err = 'Syntax error, malformed JSON';
-                break;
-            case JSON_ERROR_UTF8:
-                $_err = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-                break;
-            default:
-                $_err = 'Unknown error';
-                break;
-        }
-
-        if ($_err != "")
-            return $_err;
-
-        return $_ret;
-
-    }
-
-    // decodifica dei numeri colonna in lettere (xls)
-    public static function get_name_from_number($num, $a_zero = true) {
-
-        $numeric = $a_zero ? $num % 26 : ($num - 1) % 26;
-        $letter = chr(65 + $numeric);
-        $num2 = $a_zero ? intval($num / 26) : intval(($num - 1) / 26);
-        if ($num2 > 0) {
-            return $a_zero ? self::get_name_from_number($num2 - 1) . $letter : getNameFromNumber($num2) . $letter;
-        } else {
-            return $letter;
-        }
-    }
-
-    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z
+    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z -utility per controller.users._import()
     public static function get_insert_query($_table, $_new_user_cp) {
 
         $query = "INSERT INTO #__" . $_table;
@@ -1883,7 +1681,7 @@ HTML;
         return $query;
     }
 
-    // controllo la completezza dei dati per l'inserimento di un nuovo utente
+    // controllo la completezza dei dati per l'inserimento di un nuovo utente - utility per controller.users._import()
     public static function check_new_user_array($_new_user) {
         /*
          * name
@@ -1920,25 +1718,7 @@ HTML;
 
     }
 
-    // scrivo su di un file ad in un determinato path
-    public static function write_file_to($filename, $content, $append=true) {
-
-        try {
-
-            if ($append) {
-                file_put_contents($filename, $content . "\r\n", FILE_APPEND);
-                return;
-            }
-
-            file_put_contents($filename, $content . "\r\n");
-        }
-        catch (Exception $e) {
-            DEBUGG::error($e, __FUNCTION__);
-        }
-
-    }
-
-    // procedura standard di acquisto ordine ed inserimento gruppo
+    // procedura standard di acquisto ordine ed inserimento gruppo - utility per model.users.insert_user_servizi_extra()
     public static function processa_acquisto_evento($unit_id,
                                                     $user_id,
                                                     $unit_prezzo,
@@ -1987,7 +1767,7 @@ HTML;
 
     }
 
-    // invia email relativa alla registrazione di un nuovo utente per l'acquisto di un evento
+    // invia email relativa alla registrazione di un nuovo utente per l'acquisto di un evento - utility per view.acquistaevento
     public static function send_acquisto_evento_email_new_user($email_default,
                                                                 $_event_title,
                                                                 $_name,
@@ -2019,7 +1799,7 @@ HTML;
 
     }
 
-    // invia email relativa alle richieste relative all'acquisto di un evento
+    // invia email relativa alle richieste relative all'acquisto di un evento - utility per self.processa_acquisto_evento()
     public static function send_acquisto_evento_email($email_default,
                                                       $_event_title,
                                                       $_user_details,
@@ -2082,7 +1862,7 @@ HTML;
 
     }
 
-    // invia email relativa all'esito del pagamento per il rinnovo delle quote sinpe
+    // invia email relativa all'esito del pagamento per il rinnovo delle quote sinpe - utility per model.users.insert_user_servizi_extra()
     public static function send_sinpe_email_pp($email_default,
                                                $_data_creazione,
                                                $_order_details,
@@ -2135,47 +1915,7 @@ HTML;
 
     }
 
-    // cript & decrypt stringhe
-    public static function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
-        $output = false;
-        $encrypt_method = "AES-256-CBC";
-        // hash
-        $key = hash('sha256', $secret_key);
-
-        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
-        $iv = substr(hash('sha256', $secret_iv), 0, 16);
-        if ( $action == 'encrypt' ) {
-            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
-            $output = base64_encode($output);
-        } else if( $action == 'decrypt' ) {
-            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
-        }
-        return $output;
-    }
-
-    // calcolo età da anno di nascita
-    public static function calcolo_eta_da_nascita($dt_nascita) {
-
-        $_dtn = new DateTime($dt_nascita);
-        $_now = new DateTime();
-        $_interval = $_now->diff($_dtn);
-
-        return $_interval->y;
-
-    }
-
-    // converto una stringa di usergroups in un array
-    public static function get_usergroup_id($ug_list, $delimiter = ',') {
-
-        $_ret = array();
-        $ug_arr = explode($delimiter, $ug_list);
-        foreach ($ug_arr as $ug) {
-            $_ret[] = $ug;
-        }
-
-        return $_ret;
-    }
-
+    // utility per self.set_usergroup_categorie()
     public static function get_tipo_socio($_user_details, $ret_default = false) {
 
         try {
@@ -2216,6 +1956,7 @@ HTML;
 
     }
 
+    // utility per model.users.insert_user_quote_anno_bonifico()
     public static function set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details, $ret_default = false) {
 
         $_ret = array();
@@ -2270,7 +2011,7 @@ HTML;
 
     }
 
-    // inserisco un utente in un gruppo specifico
+    // inserisco un utente in un gruppo specifico - utility per self.set_usergroup_categorie()
     public static function set_usergroup_default($user_id, $ug_default, $ug_categoria) {
 
         $_arr_remove = self::get_usergroup_id($ug_categoria);
@@ -2286,7 +2027,7 @@ HTML;
 
     }
 
-    // rimuovo l'utente da un gruppo specifico passando gli id gruppo in un array
+    // rimuovo l'utente da un gruppo specifico passando gli id gruppo in un array - utility per self.set_usergroup_categorie()
     public static function remove_user_from_usergroup($user_id, $ug_list_arr) {
 
         foreach ($ug_list_arr as $key => $d_group_id) {
@@ -2295,7 +2036,7 @@ HTML;
 
     }
 
-    // inserisco un utente nel gruppo online
+    // inserisco un utente nel gruppo online - utility per controller.users.insert_user_quote_anno_bonifico()
     public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
         try {
@@ -2355,7 +2096,7 @@ HTML;
         }
     }
 
-    // inserisco un utente nel gruppo moroso
+    // inserisco un utente nel gruppo moroso - utility per controller.users.riabilita_decaduto()
     public static function set_usergroup_moroso($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
         try {
@@ -2387,6 +2128,7 @@ HTML;
 
     }
 
+    // aggiunge un utente specifico ad un elenco di gruppi
     public static function set_usergroup_generic($user_id, $ug_list) {
 
         try {
@@ -2460,7 +2202,7 @@ HTML;
 
     }
 
-    // controllo se utente si trova in gruppi specifici
+    // controllo se utente si trova in gruppi specifici - utility per self.set_usergroup_categorie()
     public static function check_user_into_ug($user_id, $ug_check=array()) {
 
         $user = JFactory::getUser($user_id);
@@ -2480,54 +2222,7 @@ HTML;
 
     }
 
-    public static function arr_to_json($_obj) {
-
-        return json_encode($_obj);
-
-    }
-
-    public static function send_email($oggetto,
-                                      $body,
-                                      $destinatari=array(),
-                                      $is_html=true,
-                                      $with_logo=false,
-                                      $mail_from=null,
-                                      $from_name=null) {
-
-        $mailer = JFactory::getMailer();
-
-        if (!is_array($destinatari)
-            || count($destinatari) == 0)
-            return false;
-
-        $config = JFactory::getConfig();
-        $_from = (!is_null($mail_from)) ? $mail_from : $config->get( 'mailfrom' );
-        $_from_name = (!is_null($from_name)) ? $from_name : $config->get( 'mailfrom' );
-
-        $sender = array(
-            $_from,
-            $_from_name
-        );
-        $mailer->setSender($sender);
-
-
-        $mailer->addRecipient($destinatari);
-        $mailer->setSubject($oggetto);
-        $mailer->isHtml($is_html);
-        $mailer->Encoding = 'base64';
-        $mailer->setBody($body);
-        // logo se richiesto
-        if ($with_logo)
-            $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
-
-
-        $send = $mailer->Send();
-
-        return $send;
-
-    }
-
-    // scarico file xml dal repository
+    // scarico file xml dal repository - utility per api.load_corsi_from_xml()
     public static function get_xml_remote($local_file, $_err_label = '') {
 
         try {
@@ -2587,7 +2282,7 @@ HTML;
 
     }
 
-    // carico file xml su repository
+    // carico file xml su repository - utility per api.get_completed_report_per_piattaforma()
     public static function put_xml_remote($filename, $delete_orig = false, $_err_label = '') {
 
         try {
@@ -2625,7 +2320,7 @@ HTML;
 
     }
 
-    // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso
+    // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso - utility per api.load_corsi_from_xml()
     public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $_err_label = '') {
 
         try {
@@ -2766,7 +2461,7 @@ HTML;
 
     }
 
-    // creo anagrafica corsi e gruppi restituendo una array che contiene i riferimenti
+    // creo anagrafica corsi e gruppi restituendo una array che contiene i riferimenti - utility per api.load_corsi_from_xml()
     public static function create_unit_group_corso($get_corsi, $local_file, $_err_label = '') {
 
         try {
@@ -2806,7 +2501,7 @@ HTML;
 
     }
 
-    // scrivo xml in destinazione
+    // scrivo xml in destinazione - utility per api.get_completed_report_per_piattaforma()
     public static function create_report_xml($arr_xml,
                                              $arr_corsi,
                                              $arr_gruppi,
@@ -2849,6 +2544,7 @@ HTML;
                         && isset($arr_dt_corsi[$id_corso])) {
                         /*
                         $_dt_corsi = explode("||", $arr_dt_corsi[$id_corso]);
+                        logica corsi sincroni/asincroni
                         */
 
                     }
@@ -2920,6 +2616,7 @@ HTML;
 
     }
 
+    // utility per self.create_report_xml()
     public static function check_exists_sub_array($needle, $arr_ref) {
 
         foreach ($arr_ref as $key => $sub_arr) {
@@ -2935,6 +2632,7 @@ HTML;
 
     }
 
+    // setta il redirect in base alle impostazioni di gglms
     public static function set_index_redirect_url($redirect=null) {
 
         $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
@@ -2951,6 +2649,7 @@ HTML;
 
     }
 
+    // utilità per view acquistaevento
     public static function get_tipo_sconto_evento($sconto_data, $sconto_custom, $in_groups, $obj_unit) {
 
         $_ret = array();
@@ -2996,7 +2695,7 @@ HTML;
 
     }
 
-    // costruizione del token per l'url encodato
+    // costruizione del token per l'url encodato - utilità per output.php
     public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!') {
 
         $b_url = $unit_prezzo . '|==|' . $unit_id . '|==|' . $user_id . '|==|' . $sconto_data . '|==|' . $sconto_custom . '|==|' . $in_groups;
@@ -3032,7 +2731,7 @@ HTML;
 
     }
 
-    // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare
+    // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare - utilità per output.php
     public static function get_cb_field_name($_params, $_label, $_prop) {
 
         $_cb = self::get_params_from_object($_params, $_label);
@@ -3042,7 +2741,7 @@ HTML;
 
     }
 
-    // per i campi di tipo select ottengo la lista di option da name del cb field
+    // per i campi di tipo select ottengo la lista di option da name del cb field - utilità per output.php
     public static function get_cb_field_select_by_name($_field_name) {
 
         $_options = "";
@@ -3067,7 +2766,7 @@ HTML;
 
     }
 
-    // per i campi di tipo select ottengo la lista di option
+    // per i campi di tipo select ottengo la lista di option - utilità per output.php
     public static function get_cb_field_select($_params, $_label) {
 
         $_options = "";
@@ -3095,6 +2794,55 @@ HTML;
 
     }
 
+    // utilità per funzione api.get_event_participants()
+    public static function convert_zoom_response($_response) {
+
+        foreach ($_response->participants as $key => $participant) {
+
+            if (isset($participant->join_time))
+                $participant->join_time = self::convert_time_to_tz($participant->join_time);
+
+            if (isset($participant->leave_time))
+                $participant->leave_time = self::convert_time_to_tz($participant->leave_time);
+
+        }
+
+        return $_response;
+    }
+
+    // Utilità per gestire il metodo esistente
+    public static function make_debug_log($_function, $_error_message, $_label) {
+
+        $_msg = $_function . " : " . $_error_message;
+        DEBUGG::log(json_encode($_msg), $_label, 0, 1, 0);
+
+    }
+
+    // utility per funzione api.get_dettagli_quiz()
+    public static function clean_quiz_array($arr_quiz) {
+
+        $_ret = array();
+        foreach ($arr_quiz as $quiz_key => $single) {
+
+            foreach ($single as $single_key => $value) {
+
+                if ($single_key == 'domanda_quiz') {
+                    $single[$single_key] = strip_tags($value);
+                }
+                else if ($single_key == 'tentativo_quiz') {
+                    $single[$single_key] = date("d-m-Y H:i:s", strtotime($value));
+                }
+
+            }
+
+            $_ret[$quiz_key] = $single;
+
+        }
+
+        return $_ret;
+    }
+
+    /* Date */
     public static function get_past_month_from_date($now, $past_month, $format='Y-m-d') {
 
         $datetime = new Datetime($now);
@@ -3164,48 +2912,326 @@ HTML;
 
     }
 
-    public static function convert_zoom_response($_response) {
+    // conversione di ore in secondi
+    public static function convert_hours_to_seconds($hours) {
 
-        foreach ($_response->participants as $key => $participant) {
+        return $hours*3600;
 
-            if (isset($participant->join_time))
-                $participant->join_time = self::convert_time_to_tz($participant->join_time);
+    }
 
-            if (isset($participant->leave_time))
-                $participant->leave_time = self::convert_time_to_tz($participant->leave_time);
+    // conversione secondi in ore
+    public static function sec_to_hr($seconds) {
+        $hours = floor($seconds / 3600);
+        $hours = $hours < 10 ? "0" . $hours : $hours;
+        $minutes = floor(($seconds / 60) % 60);
+        $minutes = $minutes < 10 ? "0" . $minutes : $minutes;
+        $seconds = $seconds % 60;
+        $seconds = $seconds < 10 ? "0" . $seconds : $seconds;
+        return "$hours:$minutes:$seconds";
+    }
+
+    // in giorni, mesi, anni ritorna la differenza fra due date
+    public static function get_date_diff_format($date1, $date2, $format = "d") {
+
+        $diff = abs(strtotime($date2)-strtotime($date1));
+        $years = floor($diff / (365*60*60*24));
+        $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+        $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+
+        switch ($format) {
+
+            case 'd':
+                return $days;
+
+            case 'm':
+                return $months;
+
+            case 'y':
+                return $years;
+
+            default:
+                return $days;
 
         }
-
-        return $_response;
     }
 
-    public static function make_debug_log($_function, $_error_message, $_label) {
+    /* Date */
 
-        $_msg = $_function . " : " . $_error_message;
-        DEBUGG::log(json_encode($_msg), $_label, 0, 1, 0);
+    /* Generiche */
+    public static function arr_to_json($_obj) {
+
+        return json_encode($_obj);
 
     }
 
-    public static function clean_quiz_array($arr_quiz) {
+    // converto una stringa di usergroups in un array
+    public static function get_usergroup_id($ug_list, $delimiter = ',') {
 
         $_ret = array();
-        foreach ($arr_quiz as $quiz_key => $single) {
-
-            foreach ($single as $single_key => $value) {
-
-                if ($single_key == 'domanda_quiz') {
-                    $single[$single_key] = strip_tags($value);
-                }
-                else if ($single_key == 'tentativo_quiz') {
-                    $single[$single_key] = date("d-m-Y H:i:s", strtotime($value));
-                }
-
-            }
-
-            $_ret[$quiz_key] = $single;
-
+        $ug_arr = explode($delimiter, $ug_list);
+        foreach ($ug_arr as $ug) {
+            $_ret[] = $ug;
         }
 
         return $_ret;
     }
+
+    // cript & decrypt stringhe
+    public static function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
+        $output = false;
+        $encrypt_method = "AES-256-CBC";
+        // hash
+        $key = hash('sha256', $secret_key);
+
+        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+        }
+        return $output;
+    }
+
+    // calcolo età da anno di nascita
+    public static function calcolo_eta_da_nascita($dt_nascita) {
+
+        $_dtn = new DateTime($dt_nascita);
+        $_now = new DateTime();
+        $_interval = $_now->diff($_dtn);
+
+        return $_interval->y;
+
+    }
+
+    // utility per gestione di invio della posta
+    public static function send_email($oggetto,
+                                      $body,
+                                      $destinatari=array(),
+                                      $is_html=true,
+                                      $with_logo=false,
+                                      $mail_from=null,
+                                      $from_name=null) {
+
+        $mailer = JFactory::getMailer();
+
+        if (!is_array($destinatari)
+            || count($destinatari) == 0)
+            return false;
+
+        $config = JFactory::getConfig();
+        $_from = (!is_null($mail_from)) ? $mail_from : $config->get( 'mailfrom' );
+        $_from_name = (!is_null($from_name)) ? $from_name : $config->get( 'mailfrom' );
+
+        $sender = array(
+            $_from,
+            $_from_name
+        );
+        $mailer->setSender($sender);
+
+
+        $mailer->addRecipient($destinatari);
+        $mailer->setSubject($oggetto);
+        $mailer->isHtml($is_html);
+        $mailer->Encoding = 'base64';
+        $mailer->setBody($body);
+        // logo se richiesto
+        if ($with_logo)
+            $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
+
+
+        $send = $mailer->Send();
+
+        return $send;
+
+    }
+
+    // scrivo su di un file ad in un determinato path
+    public static function write_file_to($filename, $content, $append=true) {
+
+        try {
+
+            if ($append) {
+                file_put_contents($filename, $content . "\r\n", FILE_APPEND);
+                return;
+            }
+
+            file_put_contents($filename, $content . "\r\n");
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    // decodifica dei numeri colonna in lettere (xls)
+    public static function get_name_from_number($num, $a_zero = true) {
+
+        $numeric = $a_zero ? $num % 26 : ($num - 1) % 26;
+        $letter = chr(65 + $numeric);
+        $num2 = $a_zero ? intval($num / 26) : intval(($num - 1) / 26);
+        if ($num2 > 0) {
+            return $a_zero ? self::get_name_from_number($num2 - 1) . $letter : getNameFromNumber($num2) . $letter;
+        } else {
+            return $letter;
+        }
+    }
+
+    // json_decode errore
+    public static function get_json_decode_error($config_content, $assoc=true) {
+
+        $_err = "";
+        $_ret = json_decode($config_content, $assoc);
+
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                $_err = "";
+                break;
+            case JSON_ERROR_DEPTH:
+                $_err = 'Maximum stack depth exceeded';
+                break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $_err =  'Underflow or the modes mismatch';
+                break;
+            case JSON_ERROR_CTRL_CHAR:
+                $_err = 'Unexpected control character found';
+                break;
+            case JSON_ERROR_SYNTAX:
+                $_err = 'Syntax error, malformed JSON';
+                break;
+            case JSON_ERROR_UTF8:
+                $_err = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+                break;
+            default:
+                $_err = 'Unknown error';
+                break;
+        }
+
+        if ($_err != "")
+            return $_err;
+
+        return $_ret;
+
+    }
+
+    // estrapolo tabella HTML
+    public static function get_html_table($_table) {
+
+        $_ret = array();
+        $dom = new domDocument;
+        $dom->loadHTML($_table);
+        $dom->preserveWhiteSpace = false;
+        $tables = $dom->getElementsByTagName('table');
+
+        // se non trovo tabelle esco
+        if ($tables->length < 1)
+            return $_ret;
+
+        $rows = $tables->item(0)->getElementsByTagName('tr');
+        // se non trovo righe esco
+        if ($rows->length < 1)
+            return $_ret;
+
+        foreach ($rows as $row) {
+            $cols = $row->getElementsByTagName('td');
+
+            // se non ci sono colonne esco
+            if ($cols->length < 1) {
+                return $_ret;
+            }
+
+            $cells = 0;
+            $_key = "";
+
+            foreach ($cols as $node) {
+
+                if ($cells == 0)
+                    $_key = $node->nodeValue;
+
+                if ($cells > 0)
+                    $_ret[$_key] = self::convert_hours_to_seconds($node->nodeValue);
+
+                $cells++;
+            }
+        }
+
+        return $_ret;
+
+    }
+
+    public static function normalizza_contenuto_array($rows) {
+
+        $_ret = array();
+
+        foreach ($rows as $key => $row) {
+            $_ret[$row['id_contenuto']] = $row['descrizione'];
+        }
+
+        return $_ret;
+
+    }
+
+    // restituisco un array con il nome delle colonne da query
+    public static function get_nomi_colonne_da_query_results($num_rows, $rows)
+    {
+
+        $columns = array();
+
+        if ($num_rows == 0)
+            return $columns;
+
+        foreach ($rows as $key => $sub_arr) {
+
+            foreach ($sub_arr as $kk => $vv) {
+
+                if (in_array($kk, $columns))
+                    continue;
+
+                $columns[] = $kk;
+            }
+        }
+
+        return $columns;
+    }
+
+    public static function is_valid_file_name($file_name, $alt_name, $replace_spaces = false) {
+
+        $_ret = (isset($file_name) && $file_name != "" && !is_null($file_name)) ? $file_name : $alt_name;
+        if ($replace_spaces)
+            $_ret = preg_replace('/\s+/', '_', $_ret);
+
+        return $_ret;
+
+    }
+
+    // da un array ricavo i nomi delle colonne che saranno poi usati in esportazione
+    function get_cols_from_array($arr_values)  {
+
+        $_ret = array();
+
+        if (!is_array($arr_values)
+            || count($arr_values) == 0)
+            return $_ret;
+
+        foreach ($arr_values as $key => $value) {
+            $_ret[] = $key;
+        }
+
+        return $_ret;
+
+    }
+
+    public static function files_list_from_folder($path_folder) {
+
+        $_ret = array();
+        if (!file_exists($path_folder)) {
+            return $_ret;
+        }
+
+        return scandir($path_folder);
+
+    }
+
+    /* Generiche */
 }
