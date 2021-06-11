@@ -716,8 +716,8 @@ class gglmsModelUsers extends JModelLegacy
             $db = JFactory::getDbo();
             $query = $db->getQuery(true)
                 ->select('cb_professionedisciplina as professione,
-                                cb_laureain as tipo_laurea, 
-                                cb_laureanno as anno_laurea, 
+                                cb_laureain as tipo_laurea,
+                                cb_laureanno as anno_laurea,
                                 cb_datadinascita as data_nascita,
                                 firstname as nome_utente,
                                 lastname as cognome_utente,
@@ -816,15 +816,15 @@ class gglmsModelUsers extends JModelLegacy
             }
 
             // inserisco le righe riferite agli anni
-            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
-                                                                anno, 
-                                                                tipo_quota, 
-                                                                tipo_pagamento, 
-                                                                data_pagamento, 
-                                                                totale, 
+            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id,
+                                                                anno,
+                                                                tipo_quota,
+                                                                tipo_pagamento,
+                                                                data_pagamento,
+                                                                totale,
                                                                 dettagli_transazione
                                                                 " . $_extra_col ."
-                                                                ) 
+                                                                )
                             VALUES ";
 
             $_tipo_quota = 'espen';
@@ -921,14 +921,14 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->transactionStart();
 
             $query = "INSERT INTO #__gg_quote_iscrizioni (
-                                                          user_id, 
-                                                          anno, 
-                                                          tipo_quota, 
-                                                          tipo_pagamento, 
-                                                          data_pagamento, 
+                                                          user_id,
+                                                          anno,
+                                                          tipo_quota,
+                                                          tipo_pagamento,
+                                                          data_pagamento,
                                                           totale,
                                                           dettagli_transazione
-                                                          ) 
+                                                          )
                             VALUES ";
 
             $query .= "(
@@ -1012,13 +1012,13 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->transactionStart();
 
             // inserisco le righe riferite agli anni
-            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
-                                                                anno, 
-                                                                tipo_quota, 
-                                                                tipo_pagamento, 
-                                                                data_pagamento, 
-                                                                totale, 
-                                                                dettagli_transazione) 
+            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id,
+                                                                anno,
+                                                                tipo_quota,
+                                                                tipo_pagamento,
+                                                                data_pagamento,
+                                                                totale,
+                                                                dettagli_transazione)
                             VALUES ";
 
             $query .= "(
@@ -1121,9 +1121,9 @@ class gglmsModelUsers extends JModelLegacy
 
             }
 
-            $select_qry = 'user.user_id AS id_utente, 
+            $select_qry = 'user.user_id AS id_utente,
                             UPPER(CONCAT(
-                                   COALESCE(user.' . $colonna_nome . ', ""), 
+                                   COALESCE(user.' . $colonna_nome . ', ""),
                                    " ",
                                    COALESCE(user.' . $colonna_cognome . ', "")
                                    )) AS denominazione_utente';
@@ -1170,8 +1170,8 @@ class gglmsModelUsers extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                    ->select('u.id AS user_id, u.username, u.email, 
-                                    cp.cb_nome AS nome, cp.cb_cognome AS cognome, 
+                    ->select('u.id AS user_id, u.username, u.email,
+                                    cp.cb_nome AS nome, cp.cb_cognome AS cognome,
                                     cp.cb_codicefiscale AS codice_fiscale, cp.cb_ultimoannoinregola AS ultimo_anno,
                                     ug.title AS tipo_socio, ug.id AS id_group');
 
@@ -1201,8 +1201,8 @@ class gglmsModelUsers extends JModelLegacy
             // ricerca
             if (!is_null($_search)) {
 
-                $query = $query->where('(u.username LIKE \'%' . $_search . '%\' 
-                                    OR u.username LIKE \'%' . $_search . '%\' 
+                $query = $query->where('(u.username LIKE \'%' . $_search . '%\'
+                                    OR u.username LIKE \'%' . $_search . '%\'
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
@@ -1210,8 +1210,8 @@ class gglmsModelUsers extends JModelLegacy
                                     OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
 
-                $count_query = $count_query->where('(u.username LIKE \'%' . $_search . '%\' 
-                                    OR u.username LIKE \'%' . $_search . '%\' 
+                $count_query = $count_query->where('(u.username LIKE \'%' . $_search . '%\'
+                                    OR u.username LIKE \'%' . $_search . '%\'
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
@@ -1270,9 +1270,9 @@ class gglmsModelUsers extends JModelLegacy
 
             // utente amministratore
             if (is_null($user_id)) {
-                $_join_sel = ", u.username, 
-                                cp.cb_nome AS nome, 
-                                cp.cb_cognome  AS cognome, 
+                $_join_sel = ", u.username,
+                                cp.cb_nome AS nome,
+                                cp.cb_cognome  AS cognome,
                                 UPPER(cp.cb_codicefiscale) AS codice_fiscale,
                                 u.email,
                                 COALESCE(cp.cb_indirizzodiresidenza, '') AS indirizzo,
@@ -1340,7 +1340,7 @@ class gglmsModelUsers extends JModelLegacy
                 $query = $query->where('(qi.anno LIKE \'%' . $_search . '%\'
                                            OR qi.tipo_pagamento LIKE \'%' . $_search . '%\'
                                            OR qi.data_pagamento LIKE \'%' . $_search . '%\'
-                                           OR qi.dettagli_transazione LIKE \'%' . $_search . '%\' 
+                                           OR qi.dettagli_transazione LIKE \'%' . $_search . '%\'
                                         ' . $_admin_search . ')');
 
                 $count_query = $count_query->where('(qi.anno LIKE \'%' . $_search . '%\'
@@ -1380,6 +1380,98 @@ class gglmsModelUsers extends JModelLegacy
         catch (Exception $e) {
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
+    }
+
+    // prendo il riferimento dell'utente alla farmacia
+    public function get_user_farmacia($user_id, $cb_codice_esterno_cdc_3) {
+
+        try {
+            $query = $this->_db->getQuery(true)
+                    ->select('*')
+                    ->from('#__gg_farmacie_dipendenti')
+                    ->where('user_id = ' . $this->_db->quote($user_id))
+                    ->where('codice_esterno_cdc_3 = ' . $this->_db->quote($cb_codice_esterno_cdc_3))
+                    ->order('id DESC');
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // aggiornamento dei riferimenti utente nella tabella di associazione con le farmacie
+    public function update_user_farmacia($user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento) {
+
+        try {
+
+            $this->_db->transactionStart();
+
+            $query = $this->_db->getQuery(true)
+                    ->update("#__gg_farmacie_dipendenti")
+                    ->set("data_licenziamento = " . $this->_db->quote($cb_data_licenziamento))
+                    ->where("user_id = " . $this->_db->quote($user_id))
+                    ->where("codice_esterno_cdc_3 = " . $this->_db->quote($cb_codice_esterno_cdc_3));
+
+            $this->_db->setQuery($query);
+            if (!$this->_db->execute())
+                throw new Exception("Query aggiornamento fallita", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            return 1;
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // inserimento dell'utente nella tabella di associazione con le farmacie
+    public function insert_user_farmacia($user_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento) {
+
+        try {
+
+            $this->_db->transactionStart();
+
+            $query = "INSERT INTO #__gg_farmacie_dipendenti (
+                                                          user_id,
+                                                          codice_esterno_cdc_3,
+                                                          data_assunzione,
+                                                          data_licenziamento
+                                                          )
+                            VALUES ";
+
+            $query .= "(
+                               " . $this->_db->quote($user_id) . ",
+                               " . $this->_db->quote($cb_codice_esterno_cdc_3) . ",
+                               " . $this->_db->quote($cb_data_inizio_rapporto) . ",
+                               " . $this->_db->quote($cb_data_licenziamento) . "
+                            )";
+
+            $this->_db->setQuery($query);
+            if (!$this->_db->execute())
+                throw new Exception("Query inserimento fallita", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            return 1;
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
     }
 
 

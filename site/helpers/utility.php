@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
 use Box\Spout\Common\Entity\Row;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 class utilityHelper
 {
@@ -865,6 +866,26 @@ class utilityHelper
 
     }
 
+    // esegue una query generica - utility per controllers.api.importa_anagrafica_farmacie()
+    public static function update_with_query($update_query) {
+
+        try {
+
+            $_ret = array();
+            $db = JFactory::getDbo();
+
+            $db->setQuery($update_query);
+            $db->execute();
+
+            $_ret['success'] = 1;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ": " . $e->getMessage();
+        }
+    }
+
     // inserisco nuovo utente in comprofiler - utility per controllers.users._import()
     public static function insert_new_with_query($insert_query, $ret_last_id = true) {
 
@@ -881,7 +902,6 @@ class utilityHelper
 
         }
         catch (Exception $e) {
-            //DEBUGG::error($e, __FUNCTION__);
             return __FUNCTION__ . ": " . $e->getMessage();
         }
 
@@ -1659,7 +1679,31 @@ HTML;
         return $_ret;
     }
 
-    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z -utility per controller.users._import()
+    // costruzione della query di update da array di colonne e valori - utility per controller.api.importa_anagrafica_farmacie()
+    public static function get_update_query($_table, $_exist_user_cp, $where) {
+
+        $query = "UPDATE #__" . $_table . " SET ";
+
+        $counter = 0;
+        foreach ($_exist_user_cp as $key => $value) {
+
+            if (is_null($value) || $value === "") {
+                $counter++;
+                continue;
+            }
+
+            $query .= $key . " = '" . $value . "', ";
+
+        }
+
+        $query = rtrim($query, ',');
+        $query .= " WHERE " . $where;
+
+        return $query;
+
+    }
+
+    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z - utility per controller.users._import()
     public static function get_insert_query($_table, $_new_user_cp) {
 
         $query = "INSERT INTO #__" . $_table;
@@ -2219,6 +2263,75 @@ HTML;
         }
 
         return false;
+
+    }
+
+    // scarico file csv dal repository - utility per api.importa_anagrafica_farmacie()
+    public static function get_csv_remote($server_ip,
+                                          $server_port,
+                                          $username,
+                                          $password,
+                                          $local_file,
+                                          $start_from_zero = false,
+                                          $is_debug = false,
+                                          $_err_label = '') {
+
+        try {
+
+            $target_csv = "";
+            if (!$is_debug) {
+                // file da remoto...
+            }
+            else {
+                $target_csv = $local_file . '20210609-15.10-anagrafica_dip.csv.csv';
+            }
+
+            $reader = ReaderEntityFactory::createReaderFromFile($target_csv);
+            $reader->open($target_csv);
+            $rows_arr = array();
+            $row_counter = 0;
+
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+
+                    // se il csv non parte dalla prima riga non la leggo
+                    if ($row_counter == 0
+                        && !$start_from_zero) {
+                        $row_counter++;
+                        continue;
+                    }
+
+                    $cells = $row->getCells();
+                    $target_row = str_replace('"', "", $cells[0]->getValue());
+
+                    // spout dovrebbe saltare le righe vuote..
+                    if (trim($target_row) == ""
+                        || empty($target_row))
+                        continue;
+
+                    $rows_arr[] = explode(";", $target_row);
+
+                    // per debug non leggo tutto il file..
+                    if ($row_counter == 10
+                        && $is_debug)
+                        break;
+
+                    $row_counter++;
+                }
+            }
+
+            $reader->close();
+
+            if (count($rows_arr) == 0)
+                throw new Exception("Nessuna riga elaborata nel file csv", E_USER_ERROR);
+
+            return $rows_arr;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
 
     }
 
@@ -2906,6 +3019,18 @@ HTML;
 
     }
 
+    // utility per api.importa_anagrafica_farmacie()
+    public static function convert_dt_in_mysql($dt_start, $split = '/') {
+
+        if ($dt_start == '00/00/0000'
+            || $dt_start == '')
+            return "";
+
+        $_split = explode($split, $dt_start);
+        return $_split[2] . '-' . $_split[1] . '-' . $_split[0];
+
+    }
+
     public static function convert_dt_in_format($dt_start, $ret_format = 'Y-m-d') {
 
         $dt = new DateTime($dt_start);
@@ -3244,6 +3369,29 @@ HTML;
         }
 
         return $random_string;
+    }
+
+    // normalizzatore di stringhe per nomi
+    public static function normalizza_stringa($name) {
+        $name = strtolower($name);
+        $normalized = array();
+
+        foreach (preg_split('/([^a-z])/', $name, NULL, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $word) {
+            if (preg_match('/^(mc)(.*)$/', $word, $matches)) {
+                $word = $matches[1] . ucfirst($matches[2]);
+            }
+
+            $normalized[] = ucfirst($word);
+        }
+
+        return implode('', $normalized);
+    }
+
+    // controllo validità email
+    public static function check_email_validation($email) {
+
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+
     }
 
     /* Generiche */

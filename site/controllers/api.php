@@ -2117,6 +2117,239 @@ HTML;
         $this->_japp->close();
     }
 
+    function importa_anagrafica_farmacie($is_debug = false) {
+
+        try {
+
+            /*
+             * Non ancora presente il master farmacie che conterrà anche la relazione
+             * con lo usergroup a cui l'utente è associato
+             * */
+
+            $is_debug = true;
+            $local_file = JPATH_ROOT . '/tmp/';
+            $_new_user = array();
+            $_new_user_cp = array();
+
+            $get_farmacie = null;
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+
+            // scarico il file csv dal repository remoto
+            $_server_ip = utilityHelper::get_ug_from_object($_params, "server_ip");
+            $_server_porta = utilityHelper::get_ug_from_object($_params, "server_porta");
+            $_server_username = utilityHelper::get_ug_from_object($_params, "server_username");
+            $_server_password = utilityHelper::get_ug_from_object($_params, "server_password");
+
+            $get_farmacie = utilityHelper::get_csv_remote($_server_ip, $_server_porta, $_server_username, $_server_password, $local_file, false, $is_debug, __FUNCTION__);
+            if (!is_array($get_farmacie)
+                || is_null($get_farmacie))
+                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+
+            // mapputura dei campi da modulo
+            $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name');
+            $_campo_cb_filiale = utilityHelper::get_cb_field_name($_params, 'campo_cb_filiale', 'name');
+            $_campo_cb_matricola =utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name');
+            $_campo_cb_cognome = utilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
+            $_campo_cb_nome = utilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
+            $_campo_cb_codicefiscale = utilityHelper::get_cb_field_name($_params, 'campo_cb_codicefiscale', 'name');
+            $_campo_cb_data_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name');
+            $_campo_cb_codice_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_comune_nascita', 'name');
+            $_campo_cb_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_nascita', 'name');
+            $_campo_cb_pv_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_nascita', 'name');
+            $_campo_cb_indirizzo_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo_residenza', 'name');
+            $_campo_cb_cap_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_cap_residenza', 'name');
+            $_campo_cb_comune_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_residenza', 'name');
+            $_campo_cb_pv_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_residenza', 'name');
+            $_campo_cb_data_assunzione = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_assunzione', 'name');
+            $_campo_cb_data_inizio_rapporto = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_inizio_rapporto', 'name');
+            $_campo_cb_data_licenziamento = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_licenziamento', 'name');
+            $_campo_cb_stato_dipendente = utilityHelper::get_cb_field_name($_params, 'campo_cb_stato_dipendente', 'name');
+            $_campo_cb_descrizione_qualifica = utilityHelper::get_cb_field_name($_params, 'campo_cb_descrizione_qualifica', 'name');
+            $_campo_cb_email = utilityHelper::get_cb_field_name($_params, 'campo_cb_email', 'name');
+            $_campo_cb_codice_esterno_cdc_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_2', 'name');
+            $_campo_cb_codice_esterno_cdc_3 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_3', 'name');
+            $_campo_cb_esterno_rep_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_esterno_rep_2', 'name');
+
+            // grande loop di inserimento degli utenti
+            // la chiave per controllare l'esistenza dell'utente sarà il codice fiscale impostato anche come username
+            foreach ($get_farmacie as $row_key => $row_arr) {
+                // colonna 0 - anno - no
+                // colonna 1 - mese - no
+                // colonna 2 - azienda - si
+                $cb_azienda = trim($row_arr[2]);
+                // colonna 3 - filiale - si
+                $cb_filiale = trim($row_arr[3]);
+                // colonna 4 - ragione sociale - no
+                // colonna 5 - descrizione filiale - no
+                // colonna 6 - matricola - si
+                $cb_matricola = trim($row_arr[6]);
+                // colonna 7 - cognome - si
+                $cb_cognome = utilityHelper::normalizza_stringa($row_arr[7]);
+                // colonna 8 - nome - si
+                $cb_nome = utilityHelper::normalizza_stringa($row_arr[8]);
+                // colonna 9 - codice fiscale - si
+                $cb_codicefiscale = trim($row_arr[9]);
+                // colonna 10 - data di nascita - si
+                $cb_data_nascita = utilityHelper::convert_dt_in_mysql(trim($row_arr[10]));
+                // colonna 11 - codice comune di nascita - si
+                $cb_codice_comune_nascita = trim($row_arr[11]);
+                // colonna 12 - comune di nascita - si
+                $cb_comune_nascita = trim($row_arr[12]);
+                // colonna 13 - provincia di nascita - si
+                $cb_pv_nascita = trim($row_arr[13]);
+                // colonna 14 - indirizzo di residenza - si
+                $cb_indirizzo_residenza = trim($row_arr[14]);
+                // colonna 15 - cap di residenza - si
+                $cb_cap_residenza = trim($row_arr[15]);
+                // colonna 16 - comune di residenza - si
+                $cb_comune_residenza = trim($row_arr[16]);
+                // colonna 17 - provincia di residenza - si
+                $cb_pv_residenza = trim($row_arr[17]);
+                // colonna 18 - data assunzione - si
+                $cb_data_assunzione = utilityHelper::convert_dt_in_mysql(trim($row_arr[18]));
+                // colonna 19 - data licenziamento - si
+                $cb_data_licenziamento = utilityHelper::convert_dt_in_mysql(trim($row_arr[19]));
+                // colonna 20 - stato del dipendente - si
+                $cb_stato_dipendente = trim($row_arr[20]);
+                // colonna 21 - descrizione qualifica - si
+                // questo campo se uguale a DIRETTORE FARMACIA lo elegge a tutor aziendale
+                // al momento però non è richiesta questa differenziazione
+                $cb_descrizione_qualifica = utilityHelper::normalizza_stringa($row_arr[21]);
+                // colonna 22 - email - si
+                $cb_email = trim($row_arr[22]);
+                // colonna 23 - codice esterno cdc 2 - si
+                $cb_codice_esterno_cdc_2 = trim($row_arr[23]);
+                // colonna 24 - codice esterno cdc 3 - si
+                // chiave univoca per fare riferimento al master delle farmacie
+                $cb_codice_esterno_cdc_3 = trim($row_arr[24]);
+                // colonna 25 - codice esterno rep 2 - si
+                $cb_esterno_rep_2 = trim($row_arr[25]);
+                // colonna 26 - data inizio rapporti - si
+                $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[26]));
+                $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
+                $_new_user_id = null;
+                $new_user = false;
+
+                // utente non esistente che quindi va creato
+                if (is_null($check_user_id)) {
+                    $_new_user['name'] = $cb_nome . " " . $cb_cognome;
+                    $_new_user['username'] = $cb_codicefiscale;
+                    $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                    $_new_user['password'] = JUserHelper::hashPassword($password);
+
+                    // se licenziato l'utente va bloccato
+                    if ((int) $cb_stato_dipendente == 9)
+                        $_new_user['block'] = 1;
+
+                    $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
+                    $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+                    if (!is_array($_user_insert_query_result)) {
+                        throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+                    }
+
+                    $_new_user_id = $_user_insert_query_result['success'];
+                    // riferimento id per CP
+                    $_new_user_cp['id'] = $_new_user_id;
+                    $_new_user_cp['user_id'] = $_new_user_id;
+
+                    $new_user = true;
+                }
+
+                // cablo i campi per popolare CB
+                $_new_user_cp[$_campo_cb_azienda] = $cb_azienda;
+                $_new_user_cp[$_campo_cb_filiale] = $cb_filiale;
+                $_new_user_cp[$_campo_cb_matricola] = $cb_matricola;
+                $_new_user_cp[$_campo_cb_cognome] = $cb_cognome;
+                $_new_user_cp[$_campo_cb_nome] = $cb_nome;
+                $_new_user_cp[$_campo_cb_codicefiscale] = $cb_codicefiscale;
+                $_new_user_cp[$_campo_cb_data_nascita] = $cb_data_nascita;
+                $_new_user_cp[$_campo_cb_codice_comune_nascita] = $cb_codice_comune_nascita;
+                $_new_user_cp[$_campo_cb_comune_nascita] = $cb_comune_nascita;
+                $_new_user_cp[$_campo_cb_pv_nascita] = $cb_pv_nascita;
+                $_new_user_cp[$_campo_cb_indirizzo_residenza] = $cb_indirizzo_residenza;
+                $_new_user_cp[$_campo_cb_cap_residenza] = $cb_cap_residenza;
+                $_new_user_cp[$_campo_cb_comune_residenza] = $cb_comune_residenza;
+                $_new_user_cp[$_campo_cb_pv_residenza] = $cb_pv_residenza;
+                $_new_user_cp[$_campo_cb_data_assunzione] = $cb_data_assunzione;
+                $_new_user_cp[$_campo_cb_data_inizio_rapporto] = $cb_data_inizio_rapporto;
+                $_new_user_cp[$_campo_cb_data_licenziamento] = $cb_data_licenziamento;
+                $_new_user_cp[$_campo_cb_stato_dipendente] = $cb_stato_dipendente;
+                $_new_user_cp[$_campo_cb_descrizione_qualifica] = $cb_descrizione_qualifica;
+                $_new_user_cp[$_campo_cb_email] = $cb_email;
+                $_new_user_cp[$_campo_cb_codice_esterno_cdc_2] = $cb_codice_esterno_cdc_2;
+                $_new_user_cp[$_campo_cb_codice_esterno_cdc_3] = $cb_codice_esterno_cdc_3;
+                $_new_user_cp[$_campo_cb_esterno_rep_2] = $cb_esterno_rep_2;
+
+                $model_user = new gglmsModelUsers();
+                // se l'utente non esiste lo aggiungo
+                // inserimento utente in CP
+                if ($new_user) {
+                    $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                    $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
+                    if (!is_array($_cp_insert_query_result))
+                        throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+
+                    // aggiungo il suo riferimento nella tabella farmacie_dipendenti
+                    $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento);
+                    if (is_null($user_farmacia))
+                        throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+                    // devo associare l'utente ad un gruppo farmacia
+
+                }
+                else { // utente esiste devo aggiornarlo
+
+                    $_cp_update_query = utilityHelper::get_update_query("comprofiler", $_new_user_cp, "user_id = '". $check_user_id . "'");
+                    $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+                    if (!is_array($_cp_update_query_result))
+                        throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento", E_USER_ERROR);
+
+                    // se licenziato l'utente va bloccato
+                    if ((int) $cb_stato_dipendente == 9) {
+                        $_new_user['block'] = 1;
+                        $_cp_update_query = utilityHelper::get_update_query("users", $_new_user, "id = '". $check_user_id . "'");
+                        $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+                        if (!is_array($_cp_update_query_result))
+                            throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento", E_USER_ERROR);
+
+                    }
+
+                    // verifico se l'utente ha cambiato farmacia oppure
+                    $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3);
+                    if (is_null($get_user_farmacia)
+                        || count($get_user_farmacia) == 0) {
+
+                        // ha cambiato farmacia (o non c'è nessun riferimento)
+                        $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento);
+                        if (is_null($user_farmacia))
+                            throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+                        // l'utente ha cambiato gruppo farmacia
+                        // devo rimuovere l'associazione con il vecchio gruppo ed inserire quella con il nuovo
+
+                    }
+                    else {
+                        // è nella medesima - aggiorno i campi perchè potrebbe essere stato licenziato
+                        $user_farmacia = $model_user->update_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento);
+                        if (is_null($user_farmacia))
+                            throw new Exception("Aggiornamento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+
+                    }
+                }
+            }
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            echo 0;
+        }
+
+        $this->_japp->close();
+    }
+
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);
