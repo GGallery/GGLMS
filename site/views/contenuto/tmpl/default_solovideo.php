@@ -30,11 +30,15 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         var stato = <?php echo $this->contenuto->getStato()->completato; ?>;
         var features = null;
 
+        // abilito tutte le features a prescindere dallo stato perchè controllerò il seeking
+        /*
         if (stato) {
             features = ['playpause', 'current', 'progress', 'duration', 'volume', 'fullscreen', 'tracks'];
         } else {
             features = ['playpause', 'current', 'duration', 'volume', 'fullscreen', 'tracks'];
         }
+        */
+        features = ['playpause', 'current', 'progress', 'duration', 'volume', 'fullscreen', 'tracks'];
 
         var jumper_attuale = null;
         var jumper = [];
@@ -66,7 +70,6 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                         if (duration && duration - tview < 20)
                             finish(tview);
                     }
-
                     // sliding(time);
                 }, false);
 
@@ -80,6 +83,22 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                     mediaElement.addEventListener('ended', function (e) {
                         finish(mediaElement.duration.toFixed(0));
                     }, false);
+
+                    // così facendo il forward seek è disabilitato, posso andare soltanto indietro nel video ma mai avanti
+                    mediaElement.addEventListener("seeking", function(event) {
+                        if (tview < mediaElement.getCurrentTime()) {
+                            console.log("controllo seeking...");
+                            mediaElement.setCurrentTime(tview);
+                        }
+                    });
+
+                    mediaElement.addEventListener("seeked", function(event) {
+                        if (tview < mediaElement.getCurrentTime()) {
+                            console.log("controllo seeking...");
+                            mediaElement.setCurrentTime(tview);
+                        }
+                    });
+
                 }
 
             },

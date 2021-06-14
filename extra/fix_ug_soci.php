@@ -73,7 +73,7 @@ class fixUgSoci extends JApplicationCli {
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $query = $db->getQuery(true)
-                ->select('jc.user_id, jc.cb_ultimoannoinregola')
+                ->select('jc.user_id, COALESCE(jc.cb_ultimoannoinregola, 0) AS cb_ultimoannoinregola')
                 ->from('#__comprofiler jc')
                 ->where("jc.cb_ultimoannoinregola <= " . $db->quote($anno_ref) . "
 			                    OR jc.cb_ultimoannoinregola IS NULL
@@ -106,6 +106,7 @@ class fixUgSoci extends JApplicationCli {
 
                 $user_id = $results[$user_key]['user_id'];
                 $cb_ultimoannoinregola = $results[$user_key]['cb_ultimoannoinregola'];
+                $cb_ultimoannoinregola = $cb_ultimoannoinregola == "" ? 0 : $cb_ultimoannoinregola;
                 $_diff = ($anno_ref-$cb_ultimoannoinregola);
                 $_semaforo = "";
 
