@@ -66,6 +66,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
+        $this->_filterparam->cf = JRequest::getVar('cf');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -2346,6 +2347,26 @@ HTML;
             UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             echo 0;
         }
+
+        $this->_japp->close();
+    }
+
+    function active_user_by_cf() {
+
+        $_ret = array();
+
+        try {
+
+            $_ret['success'] = $this->_filterparam->cf;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
 
         $this->_japp->close();
     }
