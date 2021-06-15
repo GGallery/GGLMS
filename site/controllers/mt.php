@@ -59,6 +59,22 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function get_user_dt() {
+
+        try {
+
+            $modelUser = new gglmsModelUsers();
+            $tmpuser = $modelUser->get_user($this->_filterparam->id_utente, 0, "cp");
+
+            echo json_encode($tmpuser);
+
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
 
     public function get_last_insert_coupon() {
 
