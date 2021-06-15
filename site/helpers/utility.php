@@ -3394,5 +3394,15 @@ HTML;
 
     }
 
+    // imposto cookie
+    public static function _set_cookie_by_name($cookie_name, $cookie_value, $durata) {
+        setcookie($cookie_name, $cookie_value, $durata, "/");
+    }
+
+    // cancello cookie
+    public static function _unset_cookie_by_name($cookie_name) {
+        setcookie($cookie_name, "", time() - 3600, "/");
+    }
+
     /* Generiche */
 }

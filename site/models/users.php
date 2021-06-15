@@ -1474,6 +1474,81 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // controllo se l'utente è già stato attivato
+    public function check_activation_user_farmarcie($user_id, $codice_fiscale) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('id')
+                ->from('#__gg_attivazione_dipendenti_farmacie')
+                ->where('user_id = ' . $this->_db->quote($user_id))
+                ->where('codice_fiscale = ' . $this->_db->quote($codice_fiscale));
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            return $result['id'] ? true : false;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // inserisco l'utente nella tabella di attivazione
+    public function insert_activation_user_farmarcie($user_id, $codice_fiscale) {
+
+        try {
+
+            $query = "INSERT INTO #__gg_attivazione_dipendenti_farmacie
+                                    (
+                                     user_id,
+                                     codice_fiscale
+                                     )
+                                    VALUES (
+                                        " . $this->_db->quote($user_id) . ",
+                                        " . $this->_db->quote($codice_fiscale) . "
+                                    )";
+
+            $this->_db->setQuery($query);
+            $this->_db->execute();
+
+            return true;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // imposto la password del dipendente farmacia
+    public function update_password_user_farmacia($codice_fiscale, $password) {
+
+        try {
+
+            $query = $this->_db->getQuery(true);
+            $query->update("#__users");
+            $query->set("password = ". $this->_db->quote(JUserHelper::hashPassword($password)));
+            $query->where("username = ". $this->_db->quote($codice_fiscale));
+
+            $this->_db->setQuery($query);
+            $this->_db->execute();
+
+            return true;
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+
 
 }
 

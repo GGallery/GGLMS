@@ -13,6 +13,7 @@ require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/controllers/users.php';
 
 /**
  * Controller for single contact view
@@ -67,6 +68,9 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
         $this->_filterparam->cf = JRequest::getVar('cf');
+        $this->_filterparam->pw = JRequest::getVar('pw');
+        $this->_filterparam->rep_pw = JRequest::getVar('rep_pw');
+        $this->_filterparam->c_name = JRequest::getVar('c_name');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -1674,7 +1678,7 @@ HTML;
     }
 
     // interazione con API zoom
-    function get_local_events() {
+    public function get_local_events() {
 
         $_ret = array();
 
@@ -1719,7 +1723,7 @@ HTML;
 
     }
 
-    function get_event_participants() {
+    public function get_event_participants() {
 
         $_ret = array();
 
@@ -1794,7 +1798,7 @@ HTML;
         $this->_japp->close();
     }
 
-    function get_event_list() {
+    public function get_event_list() {
 
         $_ret = array();
 
@@ -1836,7 +1840,7 @@ HTML;
     }
 
     // importazione corsi da file xml
-    function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
 
         try {
 
@@ -2015,7 +2019,7 @@ HTML;
 
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
     // adattato per essere chiamato da cli (per i timeout)
-    function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
+    public function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
 
         try {
 
@@ -2118,7 +2122,7 @@ HTML;
         $this->_japp->close();
     }
 
-    function importa_anagrafica_farmacie($is_debug = false) {
+    public function importa_anagrafica_farmacie($is_debug = false) {
 
         try {
 
@@ -2351,18 +2355,298 @@ HTML;
         $this->_japp->close();
     }
 
-    function active_user_by_cf() {
+    public function active_dipendente_by_cf() {
 
         $_ret = array();
 
         try {
 
-            $_ret['success'] = $this->_filterparam->cf;
+            // controllo del cf
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+            $user_password = trim($this->_filterparam->pw);
+            $c_name = trim($this->_filterparam->c_name);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Il Codice fiscale deve essere compilato!", E_USER_ERROR);
+
+            if ($c_name == "")
+                throw new Exception("Nessun riferimento al valore cookie da impostare", E_USER_ERROR);
+
+            $check_cf = utilityHelper::conformita_cf($cb_codicefiscale);
+            if ($check_cf['valido'] == 0)
+                throw new Exception($check_cf['cf'] . ': ' . $check_cf['msg'], E_USER_ERROR);
+
+            if (isset($user_password)
+                && $user_password != "") {
+
+                // devo fare login
+                $result_login = JFactory::getApplication()->login(
+                        [
+                            'username' => $cb_codicefiscale,
+                            'password' => $user_password
+                        ],
+                        [
+                            'remember' => true,
+                            'silent'   => true
+                        ]
+                );
+
+                if (!$result_login)
+                    throw new Exception("Login fallito", E_USER_ERROR);
+
+                utilityHelper::_set_cookie_by_name("logged_in", time(), time()+3600);
+                $_ret['success'] = 'logged_in';
+
+                echo json_encode($_ret);
+
+                $this->_japp->close();
+
+            }
+
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+
+            // controllo se il codice fiscale è già stato attivato
+            $model_user = new gglmsModelUsers();
+            $check_activation = $model_user->check_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+            $crypted_cf = utilityHelper::encrypt_decrypt('encrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            $decrypt_c_name = utilityHelper::encrypt_decrypt('decrypt', $c_name, $secret_key, $secret_iv);
+
+            // se l'utente non è stato attivato inserisco il record nella tabella di riferimento
+            if (!$check_activation) {
+                $insert_activation = $model_user->insert_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+                if (is_null($insert_activation))
+                    throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
+                    " . $check_user_id .
+                        " CF: " . $cb_codicefiscale, E_USER_ERROR);
+
+                $_ret['success'] = 'set_password';
+                // imposto cookie di set_password di 1 ora
+                utilityHelper::_set_cookie_by_name("set_password", $crypted_cf, time()+3600);
+            }
+            else {
+                // l'utente è già presente nella tabella di attivazione
+                $_ret['success'] = 'is_activated';
+                // imposto cookie di is_activated di 5 minuti
+                utilityHelper::_set_cookie_by_name("is_activated", $crypted_cf, time()+300);
+                // cookie attivazione 10 anni
+                utilityHelper::_set_cookie_by_name($decrypt_c_name, $crypted_cf, time() + (10 * 365 * 24 * 60 * 60));
+            }
 
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    public function set_dipendente_password() {
+
+        $_ret = array();
+
+        try {
+            $user_password = trim($this->_filterparam->pw);
+            $user_password_rep = trim($this->_filterparam->rep_pw);
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+            $c_name = trim($this->_filterparam->c_name);
+
+            // controllo dei dati
+            if ($user_password == "")
+                throw new Exception("La password non può essere vuota", E_USER_ERROR);
+
+            if ($user_password != $user_password_rep)
+                throw new Exception("Password e Ripeti password non corrispondono", E_USER_ERROR);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
+
+            if ($c_name == "")
+                throw new Exception("Nessun riferimento al valore cookie da impostare", E_USER_ERROR);
+
+            // decriptazione del codice fiscale
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // email di comunicazione
+            $email_default = utilityHelper::get_ug_from_object($_params, "email_default");
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $decrypt_c_name = utilityHelper::encrypt_decrypt('decrypt', $c_name, $secret_key, $secret_iv);
+            $decrypt_cf = utilityHelper::encrypt_decrypt('decrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($decrypt_cf);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            $destinatari = array();
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+            $user_email = $get_user->email;
+
+            $site_config = JFactory::getConfig();
+
+            $model_user = new gglmsModelUsers();
+            $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
+            if (is_null($update_password))
+                throw new Exception("Si è verificato un errore durante l'aggiornamento della password", E_USER_ERROR);
+
+            // accendo cookie di 10 anni
+            utilityHelper::_unset_cookie_by_name("set_password");
+            // cookie completed 1 ora
+            utilityHelper::_set_cookie_by_name("completed", $cb_codicefiscale, time()+3600);
+            // cookie attivazione 10 anni
+            utilityHelper::_set_cookie_by_name($decrypt_c_name, $cb_codicefiscale, time() + (10 * 365 * 24 * 60 * 60));
+
+            // invio email a utente
+            $controller_user = new gglmsControllerUsers();
+            $destinatari[] = $user_email;
+            $destinatari[] = $email_default;
+            $oggetto ="Nuove credenziali per accesso a " . $site_config['sitename'];
+            $body = <<<HTML
+                <p>Le tue credenziali per accedere a {$site_config['sitename']} sono:</p>
+                <p>Username: {$decrypt_cf}</p>
+                <p>Password: {$user_password}</p>
+                <br /><br />
+                <p>
+                    <i>Lo staff di {$site_config['sitename']}</i>
+                </p>
+HTML;
+
+            $send_email = $controller_user->sendMail($destinatari, $oggetto ,$body);
+
+            $_ret['success'] = 'completed';
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    public function reset_password_dipendente_by_cf() {
+
+        $_ret = array();
+
+        try {
+
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
+
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            // se esiste permetto all'utente di effettuare il reset sul codice fiscale corrente
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $crypted_cf = utilityHelper::encrypt_decrypt('encrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            // cookie reset_password_exec 5 minuti
+            utilityHelper::_set_cookie_by_name("reset_password_exec", $crypted_cf, time()+3600);
+
+            $_ret['success'] = 'reset_password_exec';
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    public function reset_dipendente_password() {
+
+        $_ret = array();
+
+        try {
+            $user_password = trim($this->_filterparam->pw);
+            $user_password_rep = trim($this->_filterparam->rep_pw);
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+
+            // controllo dei dati
+            if ($user_password == "")
+                throw new Exception("La password non può essere vuota", E_USER_ERROR);
+
+            if ($user_password != $user_password_rep)
+                throw new Exception("Password e Ripeti password non corrispondono", E_USER_ERROR);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
+
+            // decriptazione del codice fiscale
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // email di comunicazione
+            $email_default = utilityHelper::get_ug_from_object($_params, "email_default");
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $decrypt_cf = utilityHelper::encrypt_decrypt('decrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($decrypt_cf);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            $destinatari = array();
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+            $user_email = $get_user->email;
+
+            $site_config = JFactory::getConfig();
+
+            $model_user = new gglmsModelUsers();
+            $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
+            if (is_null($update_password))
+                throw new Exception("Si è verificato un errore durante l'aggiornamento della password", E_USER_ERROR);
+
+
+            // invio email a utente
+            $controller_user = new gglmsControllerUsers();
+            $destinatari[] = $user_email;
+            $destinatari[] = $email_default;
+            $oggetto ="Richiesto reset password per " . $site_config['sitename'];
+            $body = <<<HTML
+                <p>Il reset password richiesto è andato a buone fine!</p>
+                <p>Le tue credenziali per accedere a {$site_config['sitename']} sono:</p>
+                <p>Username: {$decrypt_cf}</p>
+                <p>Password: {$user_password}</p>
+                <br /><br />
+                <p>
+                    <i>Lo staff di {$site_config['sitename']}</i>
+                </p>
+HTML;
+
+            $send_email = $controller_user->sendMail($destinatari, $oggetto ,$body);
+
+            $_ret['success'] = 'La tua password è stata correttamente aggiornata. Si prega di controllare ' . $user_email;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             $_ret['error'] = $e->getMessage();
         }
 
