@@ -46,6 +46,9 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             features = ['playpause', 'current', 'duration', 'volume', 'fullscreen', 'tracks'];
         }
 
+        // abilito tutte le features a prescindere dallo stato perchè controllerò il seeking
+        //features = ['playpause', 'current', 'progress', 'duration', 'volume', 'fullscreen', 'tracks'];
+
         var jumper_attuale = null;
         var jumper = [];
 
@@ -90,6 +93,23 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                             id_elemento: id_elemento
                         });
                     }, false);
+
+                    /*
+                    // così facendo il forward seek è disabilitato, posso andare soltanto indietro nel video ma mai avanti
+                    mediaElement.addEventListener("seeking", function(event) {
+                        if (tview < mediaElement.getCurrentTime()) {
+                            console.log("controllo seeking...");
+                            mediaElement.setCurrentTime(tview);
+                        }
+                    });
+
+                    mediaElement.addEventListener("seeked", function(event) {
+                        if (tview < mediaElement.getCurrentTime()) {
+                            console.log("controllo seeking...");
+                            mediaElement.setCurrentTime(tview);
+                        }
+                    });
+                    */
                 }
 
             },
