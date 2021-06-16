@@ -3,6 +3,9 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.2
+-D: aggiunta della colonna codice alla tabella gg_unit
+-D: aggiunta della colonna codice_alfanumerico alla tabella gg_unit
 4.1.1
 -D: modificata colonna welcome della tabella usergroups_details
 

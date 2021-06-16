@@ -485,6 +485,7 @@ CREATE TABLE `#__gg_unit` (
   `usa_coupon`  tinyint(1) NOT NULL DEFAULT 1,
   `codice`  varchar(255) NULL,
   `codice_alfanumerico`  varchar(255) NULL,
+  `tipologia_corso`  tinyint(1) NOT NULL DEFAULT 6,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -525,7 +526,8 @@ INSERT INTO `#__gg_unit` VALUES (
                                 null,
                                 1,
                                 null,
-                                null);
+                                null,
+                                6);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`

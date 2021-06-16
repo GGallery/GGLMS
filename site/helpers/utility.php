@@ -2622,6 +2622,7 @@ HTML;
                                              $arr_aziende,
                                              $arr_dual,
                                              $arr_dt_corsi,
+                                             $arr_codici_corso,
                                              $tipologia_svolgimento,
                                              $filename,
                                              $_err_label = '') {
@@ -2634,17 +2635,22 @@ HTML;
             $ref_nodi = array();
 
             $dest_file = JPATH_ROOT . '/tmp/' . $filename;
-            // cancello file se già esistente
-            unlink($dest_file);
+            // cancello file se già esistente e lo cancello
+            if (file_exists($dest_file))
+                unlink($dest_file);
 
             $root = $dom->createElement('CORSI');
 
             foreach ($arr_xml as $id_corso => $sub_corso) {
 
+                // il codice corso dipende dalla tipologia del corso
+                // 6 è ausindfad, 7 è sincrono, 8 è asincrono
+                $_codice_corso = ($tipologia_svolgimento == 6) ? $arr_gruppi[$id_corso] : $arr_codici_corso[$id_corso];
+
                 // apro tag corso
                 if (!in_array($id_corso, $ref_nodi)) {
                     $corso_node = $dom->createElement('CORSO');
-                    $codice_corso_node = $dom->createElement('CODICE_CORSO', $arr_gruppi[$id_corso]);
+                    $codice_corso_node = $dom->createElement('CODICE_CORSO', $_codice_corso);
                     $corso_node->appendChild($codice_corso_node);
                     $codice_corso_host_node = $dom->createElement('CODICE_CORSO_HOST', $arr_gruppi[$id_corso]);
                     $corso_node->appendChild($codice_corso_host_node);
