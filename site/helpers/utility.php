@@ -1696,7 +1696,7 @@ HTML;
 
         }
 
-        $query = rtrim($query, ',');
+        $query = rtrim(trim($query), ',');
         $query .= " WHERE " . $where;
 
         return $query;

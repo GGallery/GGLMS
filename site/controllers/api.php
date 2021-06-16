@@ -71,6 +71,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->pw = JRequest::getVar('pw');
         $this->_filterparam->rep_pw = JRequest::getVar('rep_pw');
         $this->_filterparam->c_name = JRequest::getVar('c_name');
+        $this->_filterparam->ref_token = JRequest::getVar('ref_token');
+
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -2421,11 +2423,16 @@ HTML;
 
             // se l'utente non è stato attivato inserisco il record nella tabella di riferimento
             if (!$check_activation) {
+
+                $this->_db->transactionStart();
+
                 $insert_activation = $model_user->insert_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
                 if (is_null($insert_activation))
                     throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
                     " . $check_user_id .
                         " CF: " . $cb_codicefiscale, E_USER_ERROR);
+
+                $this->_db->transactionCommit();
 
                 $_ret['success'] = 'set_password';
                 // imposto cookie di set_password di 1 ora
@@ -2442,6 +2449,7 @@ HTML;
 
         }
         catch (Exception $e) {
+            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             $_ret['error'] = $e->getMessage();
@@ -2484,6 +2492,7 @@ HTML;
             $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
             $decrypt_c_name = utilityHelper::encrypt_decrypt('decrypt', $c_name, $secret_key, $secret_iv);
             $decrypt_cf = utilityHelper::encrypt_decrypt('decrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+
             // controllo se l'utente esiste
             $check_user_id = utilityHelper::check_user_by_username($decrypt_cf);
             if (is_null($check_user_id))
@@ -2497,9 +2506,14 @@ HTML;
             $site_config = JFactory::getConfig();
 
             $model_user = new gglmsModelUsers();
+
+            $this->_db->transactionStart();
+
             $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
             if (is_null($update_password))
                 throw new Exception("Si è verificato un errore durante l'aggiornamento della password", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
 
             // accendo cookie di 10 anni
             utilityHelper::_unset_cookie_by_name("set_password");
@@ -2510,16 +2524,31 @@ HTML;
 
             // invio email a utente
             $controller_user = new gglmsControllerUsers();
-            $destinatari[] = $user_email;
-            $destinatari[] = $email_default;
+
+            // controllo validità email
+            if (utilityHelper::check_email_validation($user_email))
+                $destinatari[] = $user_email;
+
+            if (utilityHelper::check_email_validation($email_default))
+                $destinatari[] = $email_default;
+
+            if (count($destinatari) == 0)
+                throw new Exception("La tua password è stata correttamente aggiornata, ma non è stato impossibile una email di riepilogo", E_USER_ERROR);
+
             $oggetto ="Nuove credenziali per accesso a " . $site_config['sitename'];
+            $site_root = JURI::root();
+            $activation_params = $decrypt_cf . '||' . $check_user_id;
+            $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
+            $activation_link = $site_root . 'index.php?option=com_gglms&task=api.confirm_dipendente_activation&ref_token=' . $crypt_activation_params;
             $body = <<<HTML
-                <p>Le tue credenziali per accedere a {$site_config['sitename']} sono:</p>
+                <p>Questa è un messaggio generato automaticamente contenente le tue credenziali per accedere a {$site_config['sitename']}</p>
+                <p>I tuoi dati sono:</p>
                 <p>Username: {$decrypt_cf}</p>
                 <p>Password: {$user_password}</p>
+                <p>Per completare l'attivazione del tuo profilo clicca su questo <a href="{$activation_link}" target="_blank">LINK</a></p>
                 <br /><br />
                 <p>
-                    <i>Lo staff di {$site_config['sitename']}</i>
+                    <i>Cogliamo l'occasione per ringraziarti, lo staff di {$site_config['sitename']}</i>
                 </p>
 HTML;
 
@@ -2529,6 +2558,7 @@ HTML;
 
         }
         catch (Exception $e) {
+            //$this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             $_ret['error'] = $e->getMessage();
@@ -2618,15 +2648,26 @@ HTML;
             $site_config = JFactory::getConfig();
 
             $model_user = new gglmsModelUsers();
+
+            $this->_db->transactionStart();
             $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
             if (is_null($update_password))
                 throw new Exception("Si è verificato un errore durante l'aggiornamento della password", E_USER_ERROR);
 
+            $this->_db->transactionCommit();
 
             // invio email a utente
             $controller_user = new gglmsControllerUsers();
-            $destinatari[] = $user_email;
-            $destinatari[] = $email_default;
+            // controllo validità email
+            if (utilityHelper::check_email_validation($user_email))
+                $destinatari[] = $user_email;
+
+            if (utilityHelper::check_email_validation($email_default))
+                $destinatari[] = $email_default;
+
+            if (count($destinatari) == 0)
+                throw new Exception("La tua password è stata correttamente aggiornata, ma non è stato impossibile una email di riepilogo", E_USER_ERROR);
+
             $oggetto ="Richiesto reset password per " . $site_config['sitename'];
             $body = <<<HTML
                 <p>Il reset password richiesto è andato a buone fine!</p>
@@ -2645,6 +2686,7 @@ HTML;
 
         }
         catch (Exception $e) {
+            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             $_ret['error'] = $e->getMessage();
@@ -2653,6 +2695,76 @@ HTML;
         echo json_encode($_ret);
 
         $this->_japp->close();
+    }
+
+    public function confirm_dipendente_activation() {
+
+        try {
+
+            // controllo la presenza del token
+            if (!isset($this->_filterparam->ref_token)
+                || $this->_filterparam->ref_token == "")
+                throw new Exception("Il procedimento non può essere completato, token di riferimento mancante", E_USER_ERROR);
+
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');// la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $decrypt_ref_token = utilityHelper::encrypt_decrypt('decrypt', $this->_filterparam->ref_token, $secret_key, $secret_iv);
+            $_new_user = array();
+
+            // il token deve contenere il codice fiscale e lo user_id altrimenti restituisco errore
+            $activation_params = explode("||", $decrypt_ref_token);
+            if (count($activation_params) < 2)
+                throw new Exception("Il token ricevuto non è corretto", E_USER_ERROR);
+
+            // il primo elemento deve essere un codice fiscale valido
+            $codice_fiscale = $activation_params[0];
+            // il secondo elemento deve essere user_id
+            $user_id = $activation_params[1];
+
+            // controllo se effettivamente lo è
+            $check_cf = utilityHelper::conformita_cf($codice_fiscale);
+            if ($check_cf['valido'] == 0)
+                throw new Exception($check_cf['cf'] . ': ' . $check_cf['msg'], E_USER_ERROR);
+
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($codice_fiscale);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            // controllo se mi risulta lo user_id arrivato dalla chiamata con quello a database
+            if ($check_user_id != $user_id)
+                throw new Exception("L'identificativo utente non è congruente ai parametri di sistema", E_USER_ERROR);
+
+            // controllo se l'utente è già stato sbloccato
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+            if ($get_user->block == 0)
+                throw new Exception("L'utente è già stato attivato", E_USER_ERROR);
+
+            $this->_db->transactionStart();
+
+            $_new_user['block'] = 0;
+            // procedo all'attivazione dell'utente
+            $_cp_update_query = utilityHelper::get_update_query("users", $_new_user, "username = '". $codice_fiscale . "'");
+            $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+            if (!is_array($_cp_update_query_result))
+                throw new Exception("Si è verificato un errore durante l'aggiornamento", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            echo "Utente correttamente attivato";
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
     }
 
 //	INUTILIZZATO
