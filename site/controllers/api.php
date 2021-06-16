@@ -2028,6 +2028,7 @@ HTML;
             $arr_xml = array();
             $arr_corsi = array();
             $arr_gruppi = array();
+            $arr_codici_corso = array();
             $arr_dt_corsi = array();
             $dt = new DateTime();
             $oggi = $dt->format('Y-m-d');
@@ -2053,6 +2054,9 @@ HTML;
                                 IF(r.data_fine_extra = "0000-00-00 00:00:00", "", r.data_fine_extra) AS data_fine_corso,
                                 unita.titolo AS titolo_corso,
                                 unita.id AS id_corso,
+                                unita.codice AS codice_corso,
+                                unita.codice_alfanumerico,
+                                unita.tipologia_corso,
                                 COALESCE(unita.data_inizio, "") AS dt_inizio_corso,
                                 COALESCE(unita.data_fine, "") AS dt_fine_corso,
                                 ugm.idgruppo AS gruppo_corso
@@ -2065,8 +2069,13 @@ HTML;
                 ->join('inner', '#__gg_usergroup_map ugm ON ugm.idunita = unita.id')
                 ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
                 ->where('ru.id_user IN (' . implode(",", $ret_users['users']) . ')')
-                ->where('r.stato = 1')
-                ->order('unita.id');
+                ->where('r.stato = 1');
+
+            // se non siamo su ausindfad limito la query alla tipologia corsi invocata dalla chiamata
+            if ($tipologia_svolgimento > 6)
+                $query = $query->where('unita.tipologia_corso = ' . $this->_db->quote($tipologia_svolgimento));
+
+            $query = $query->order('unita.id');
 
             $this->_db->setQuery($query);
             $results = $this->_db->loadAssocList();
@@ -2078,6 +2087,7 @@ HTML;
             foreach ($results as $key_res => $sub_res) {
                 $arr_xml[$sub_res['id_corso']][] = $sub_res;
                 $arr_corsi[$sub_res['id_corso']] = $sub_res['titolo_corso'];
+                $arr_codici_corso[$sub_res['id_corso']] = $sub_res['codice_corso'];
 
                 if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
                     $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
@@ -2091,6 +2101,7 @@ HTML;
                                                         $ret_users['aziende'],
                                                         $ret_users['dual'],
                                                         $arr_dt_corsi,
+                                                        $arr_codici_corso,
                                                         $tipologia_svolgimento,
                                                         'GGCorsiCompletati' . $_dt_ref_ext . '.xml',
                                                         __FUNCTION__);
