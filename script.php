@@ -36,7 +36,8 @@ class com_gglmsInstallerScript {
                                     "fix_ug_soci.php",
                                     "report_per_piattaforma.php",
                                     "load_corsi_from_xml.php",
-                                    "fix_report_anagrafiche.php"
+                                    "fix_report_anagrafiche.php",
+                                    "fix_report_anagrafiche_2.php"
                                     );
 
             foreach ($cli_script_arr as $key_script => $cli_script) {

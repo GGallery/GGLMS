@@ -2136,7 +2136,6 @@ HTML;
         try {
 
             $ids_orfani = array();
-            //$ids_anagrafiche = array();
             $errors = array();
 
             $this->_db->setQuery('SET sql_mode=\'\'');
@@ -2158,7 +2157,6 @@ HTML;
             $model_user = new gglmsModelUsers();
             $model_sync = new gglmsModelSyncdatareport();
 
-            // creazione delle anagrafiche in gg_report_users
             foreach ($results_orfani as $key_orfano => $orfano) {
 
                 $ids_orfani[] = $orfano['id_orfano'];
@@ -2179,8 +2177,6 @@ HTML;
 
                 $this->_db->setQuery($query_update);
                 $this->_db->execute();
-
-                //$ids_anagrafiche[] = $last_anag_id;
 
             }
 
@@ -2213,6 +2209,63 @@ HTML;
         return count($errors) > 0 ? implode(",", $errors) : 1;
 
         //$this->_japp->close();
+    }
+
+    // rintraccia tutti gli utenti che in gg_report hanno alcune righe in cui l'anagrafica è a zero e le aggiorna con il valore corretto
+    public function fix_anagrafica_report_2() {
+
+        try {
+
+            $this->_db->setQuery('SET sql_mode=\'\'');
+            $this->_db->execute();
+
+            $query = $this->_db->getQuery(true)
+                ->select('DISTINCT usr.id AS id_orfano')
+                ->from('#__users usr')
+                ->join('inner', '#__gg_report cgr ON usr.id = cgr.id_utente')
+                ->where('usr.id IN (SELECT id_user FROM #__gg_report_users)')
+                ->where('cgr.id_anagrafica = 0')
+                ->order('usr.id');
+
+            $this->_db->setQuery($query);
+            $results_orfani = $this->_db->loadAssocList();
+
+            if (count($results_orfani) == 0)
+                throw new Exception("Nessun orfano di anagrafica trovato!", E_USER_ERROR);
+
+            $updated = 0;
+            foreach ($results_orfani as $key_orfano => $orfano) {
+
+                $query_anag = $this->_db->getQuery(true)
+                    ->select('id AS id_anagrafica')
+                    ->from('#__gg_report_users')
+                    ->where('id_user = ' . $this->_db->quote($orfano['id_orfano']));
+
+                $this->_db->setQuery($query_anag);
+                $id_anagrafica = $this->_db->loadResult();
+
+                if (is_null($id_anagrafica)
+                    || $id_anagrafica == "")
+                    continue;
+
+                $query_update = "UPDATE #__gg_report
+                                    SET id_anagrafica = " . $this->_db->quote($id_anagrafica) . "
+                                    WHERE id_utente = " . $this->_db->quote($orfano['id_orfano']) . "
+                                    AND id_anagrafica = 0";
+
+                $this->_db->setQuery($query_update);
+                $this->_db->execute();
+
+                $updated++;
+
+            }
+
+        }
+        catch (Exception $e) {
+            return "NON COMPLETATO: " . $e->getMessage();
+        }
+
+        return "UPDATED: " . $updated;
     }
 
 //	INUTILIZZATO
