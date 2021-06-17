@@ -451,7 +451,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
         }
     }
 
-    private function store_report_users($data)
+    // modificata visibilità da private
+    public function store_report_users($data, $ret_last_inserted_id = false)
     {
 
         try {
@@ -470,6 +471,9 @@ class gglmsModelSyncdatareport extends JModelLegacy
             $this->_db->setQuery($query);
 
             $this->_db->execute();
+
+            if ($ret_last_inserted_id)
+                return $this->_db->insertid();
 
         } catch (Exception $e) {
 

@@ -132,7 +132,8 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
 
     // gestione delle tempistiche extra per date in formato Y-m-d H:i:s
-    private function insertViewUnita($datauserunit){
+    // modificata visibilità da private
+    public function insertViewUnita($datauserunit){
 
          //ini_set('max_execution_time', 600);
 
@@ -164,15 +165,15 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                     $datafine_extra = $dateiniziofine[3];
                 }
 
-                $query = 'INSERT into #__gg_view_stato_user_unita (id_anagrafica, 
-                                                                    id_unita, 
-                                                                    id_corso, 
-                                                                    stato, 
-                                                                    data_inizio, 
-                                                                    data_fine, 
+                $query = 'INSERT into #__gg_view_stato_user_unita (id_anagrafica,
+                                                                    id_unita,
+                                                                    id_corso,
+                                                                    stato,
+                                                                    data_inizio,
+                                                                    data_fine,
                                                                     timestamp,
                                                                     data_inizio_extra,
-                                                                    data_fine_extra) 
+                                                                    data_fine_extra)
                                                                     VALUES (';
                 $query = $query
                             . $record->id_anagrafica . ','
@@ -184,11 +185,11 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                             NOW(),
                             \'' . $datainizio_extra . '\',
                             \'' . $datafine_extra . '\'
-                            ) ON DUPLICATE KEY UPDATE 
-                                stato = ' . $completed . ' , 
-                                data_inizio = \'' . $datainizio . '\', 
+                            ) ON DUPLICATE KEY UPDATE
+                                stato = ' . $completed . ' ,
+                                data_inizio = \'' . $datainizio . '\',
                                 data_fine = \'' . $datafine . '\',
-                                data_inizio_extra = \'' . $datainizio_extra . '\', 
+                                data_inizio_extra = \'' . $datainizio_extra . '\',
                                 data_fine_extra = \'' . $datafine_extra . '\'
                                 ';
                 //echo $query;
@@ -210,7 +211,8 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
    }
 
     // gestione delle tempistiche extra per date in formato Y-m-d H:i:s
-    private function insertViewCorso($datausercorsi){
+    // modificata visibilità da private
+    public function insertViewCorso($datausercorsi){
 
         // ini_set('max_execution_time', 600);
 
@@ -241,15 +243,15 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                     $datafine_extra = $isCorsoCompletoArray['data_extra'];
                 }
 
-                $query = 'INSERT into #__gg_view_stato_user_corso (id_anagrafica, 
-                                                                      id_corso, 
-                                                                      stato, 
-                                                                      data_inizio, 
+                $query = 'INSERT into #__gg_view_stato_user_corso (id_anagrafica,
+                                                                      id_corso,
+                                                                      stato,
+                                                                      data_inizio,
                                                                       data_fine,
                                                                       timestamp,
                                                                       data_inizio_extra,
                                                                       data_fine_extra
-                                                                      ) 
+                                                                      )
                                                                   VALUES (';
                 $query = $query
                             . $record->id_anagrafica . ','
@@ -260,11 +262,11 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                             NOW(),
                             \'' . $datainizio_extra . '\',
                             \'' . $datafine_extra . '\'
-                            ) ON DUPLICATE KEY UPDATE 
-                                  stato = ' . $completed . ', 
-                                  data_inizio = \'' . $datainizio . '\', 
+                            ) ON DUPLICATE KEY UPDATE
+                                  stato = ' . $completed . ',
+                                  data_inizio = \'' . $datainizio . '\',
                                   data_fine = \'' . $datafine . '\',
-                                  data_inizio_extra = \'' . $datainizio_extra . '\', 
+                                  data_inizio_extra = \'' . $datainizio_extra . '\',
                                   data_fine_extra = \'' . $datafine_extra . '\'';
 
                 //DEBUGG::log('inserisco '.$query, 'insertData',0,1,0);
@@ -297,11 +299,11 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
         try {
             $query_data_inizio = "select `data`, `data_extra`
-                                    from #__gg_report 
-                                    where id_utente = " . $id_utente . " 
-                                    and " . $type . " = " . $id . " 
-                                    and `data` <> '0000-00-00' 
-                                    ORDER BY `data`  
+                                    from #__gg_report
+                                    where id_utente = " . $id_utente . "
+                                    and " . $type . " = " . $id . "
+                                    and `data` <> '0000-00-00'
+                                    ORDER BY `data`
                                     limit 1";
             $this->_db->setQuery($query_data_inizio);
 
@@ -311,12 +313,12 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
             $data_inizio_extra = $arr_inizio['data_extra'];
 
             $query_data_fine = "select `data`, `data_extra`
-                                  from #__gg_report 
-                                  where id_utente = " . $id_utente . " 
-                                  and " . $type . " = " . $id . " 
-                                  and stato = 1 
-                                  and `data` <> '0000-00-00' 
-                                  ORDER BY `data` desc 
+                                  from #__gg_report
+                                  where id_utente = " . $id_utente . "
+                                  and " . $type . " = " . $id . "
+                                  and stato = 1
+                                  and `data` <> '0000-00-00'
+                                  ORDER BY `data` desc
                                   limit 1";
             $this->_db->setQuery($query_data_fine);
 
@@ -376,12 +378,12 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
             $query = $this->_db->getQuery(true)
                 ->select('r.stato as stato, r.data as data, r.data_extra as data_extra')
                 ->from('#__gg_report as r')
-                ->where("r.stato = 1 
-                        and r.id_utente = ".$userid." 
-                        and id_corso = ".$pk." 
+                ->where("r.stato = 1
+                        and r.id_utente = ".$userid."
+                        and id_corso = ".$pk."
                         and id_contenuto = (
-                                            select u.id_contenuto_completamento 
-                                            from #__gg_unit as u 
+                                            select u.id_contenuto_completamento
+                                            from #__gg_unit as u
                                             where id = ".$pk."
                                             )"
                         );

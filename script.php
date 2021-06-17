@@ -29,19 +29,18 @@ class com_gglmsInstallerScript {
 
             // cli files
             $temp_dir = $parent->getParent()->getPath('source');
-            $cli_script_1 = "report_sync.php";
-            $cli_script_2 = "allinea_gg_log.php";
-            $cli_script_3 = "allinea_permanenza.php";
-            $cli_script_4 = "fix_ug_soci.php";
-            $cli_script_5 = "report_per_piattaforma.php";
-            $cli_script_6 = "load_corsi_from_xml.php";
+            $cli_script_arr = array(
+                                    "report_sync.php",
+                                    "allinea_gg_log.php",
+                                    "allinea_permanenza.php",
+                                    "fix_ug_soci.php",
+                                    "report_per_piattaforma.php",
+                                    "load_corsi_from_xml.php"
+                                    );
 
-            JFile::move($temp_dir . '/extra/' . $cli_script_1, JPATH_SITE . '/cli/' . $cli_script_1);
-            JFile::move($temp_dir . '/extra/' . $cli_script_2, JPATH_SITE . '/cli/' . $cli_script_2);
-            JFile::move($temp_dir . '/extra/' . $cli_script_3, JPATH_SITE . '/cli/' . $cli_script_3);
-            JFile::move($temp_dir . '/extra/' . $cli_script_4, JPATH_SITE . '/cli/' . $cli_script_4);
-            JFile::move($temp_dir . '/extra/' . $cli_script_5, JPATH_SITE . '/cli/' . $cli_script_5);
-            JFile::move($temp_dir . '/extra/' . $cli_script_6, JPATH_SITE . '/cli/' . $cli_script_6);
+            foreach ($cli_script_arr as $key_script => $cli_script) {
+                JFile::move($temp_dir . '/extra/' . $cli_script, JPATH_SITE . '/cli/' . $cli_script);
+            }
 
             // scorm folder
             $scorm_folder = "scorm";
