@@ -35,7 +35,8 @@ class com_gglmsInstallerScript {
                                     "allinea_permanenza.php",
                                     "fix_ug_soci.php",
                                     "report_per_piattaforma.php",
-                                    "load_corsi_from_xml.php"
+                                    "load_corsi_from_xml.php",
+                                    "fix_report_anagrafiche.php"
                                     );
 
             foreach ($cli_script_arr as $key_script => $cli_script) {
