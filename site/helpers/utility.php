@@ -1479,6 +1479,11 @@ class utilityHelper
          * € 70,00 per Biologi
          * */
 
+        /*
+         * Rettifica delle tariffe
+         * Biologo rimosso, Altre professioni 70
+         */
+
         $_tariffa = 25;
         if ($_tipo == 'sinpe') {
 
@@ -1489,8 +1494,14 @@ class utilityHelper
             ) {
                 $_tariffa = ($_anzianita > 5) ? 70 : 25;
             }
+            /*
             // se biologo
             else if (strpos($_tipo_laurea, 'Biologia') !== false) {
+                $_tariffa = 70;
+            }
+            */
+            // tutte le altre professioni
+            else if (strpos($_tipo_laurea, 'Altra disciplina') !== false) {
                 $_tariffa = 70;
             }
         }
