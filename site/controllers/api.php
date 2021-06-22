@@ -1223,8 +1223,10 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function getAttestati($id_corso)
     {
-
-        $corso_obj = $this->_db->loadObject('gglmsModelUnita');
+        // prima di eseguire questa istruzione andrebbe caricato il modello unita per id
+        // così restituisce NULL
+        //$corso_obj = $this->_db->loadObject('gglmsModelUnita');
+        $corso_obj = new gglmsModelUnita();
         $corso_obj->setAsCorso($id_corso);
 
         $all_attestati = $corso_obj->getAllAttestatiByCorso();
@@ -2031,6 +2033,7 @@ HTML;
             $arr_corsi = array();
             $arr_gruppi = array();
             $arr_codici_corso = array();
+            $arr_tipologia_corso = array();
             $arr_dt_corsi = array();
             $dt = new DateTime();
             $oggi = $dt->format('Y-m-d');
@@ -2074,8 +2077,17 @@ HTML;
                 ->where('r.stato = 1');
 
             // se non siamo su ausindfad limito la query alla tipologia corsi invocata dalla chiamata
-            if ($tipologia_svolgimento > 6)
-                $query = $query->where('unita.tipologia_corso = ' . $this->_db->quote($tipologia_svolgimento));
+            // posso chiamare tipologie corsi multiple separate da virgola
+            if ($tipologia_svolgimento != 6) {
+                $_filtro_svolgimento = "";
+                // tipologie multiple separate da virgola
+                if (strpos($tipologia_svolgimento, ',') !== false)
+                    $_filtro_svolgimento = ' IN (' . $tipologia_svolgimento . ') ';
+                else
+                    $_filtro_svolgimento = ' = ' . $this->_db->quote($tipologia_svolgimento);
+
+                $query = $query->where('unita.tipologia_corso ' . $_filtro_svolgimento);
+            }
 
             $query = $query->order('unita.id');
 
@@ -2090,7 +2102,9 @@ HTML;
                 $arr_xml[$sub_res['id_corso']][] = $sub_res;
                 $arr_corsi[$sub_res['id_corso']] = $sub_res['titolo_corso'];
                 $arr_codici_corso[$sub_res['id_corso']] = $sub_res['codice_corso'];
+                $arr_tipologia_corso[$sub_res['id_corso']] = $sub_res['tipologia_corso'];
 
+                // data inizio / data fine corso nel formato Y-m-d
                 if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
                     $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
 
@@ -2104,6 +2118,7 @@ HTML;
                                                         $ret_users['dual'],
                                                         $arr_dt_corsi,
                                                         $arr_codici_corso,
+                                                        $arr_tipologia_corso,
                                                         $tipologia_svolgimento,
                                                         'GGCorsiCompletati' . $_dt_ref_ext . '.xml',
                                                         __FUNCTION__);

@@ -2521,6 +2521,7 @@ HTML;
                                              $arr_dual,
                                              $arr_dt_corsi,
                                              $arr_codici_corso,
+                                             $arr_tipologia_corso,
                                              $tipologia_svolgimento,
                                              $filename,
                                              $_err_label = '') {
@@ -2543,7 +2544,9 @@ HTML;
 
                 // il codice corso dipende dalla tipologia del corso
                 // 6 è ausindfad, 7 è sincrono, 8 è asincrono
+                // stesso discorso per la tipologia corso che se non è ausindfad mi ricavo dall'anagrafica del corso
                 $_codice_corso = ($tipologia_svolgimento == 6) ? $arr_gruppi[$id_corso] : $arr_codici_corso[$id_corso];
+                $tipo_svolgimento = ($tipologia_svolgimento == 6) ? $tipologia_svolgimento : $arr_tipologia_corso[$id_corso];
 
                 // apro tag corso
                 if (!in_array($id_corso, $ref_nodi)) {
@@ -2554,15 +2557,14 @@ HTML;
                     $corso_node->appendChild($codice_corso_host_node);
                     $titolo_corso_node = $corso_node->appendChild($dom->createElement('TITOLO'));
                     $titolo_corso_node->appendChild($dom->createCDATASection(trim($arr_corsi[$id_corso])));
-                    $tipologia_svolgimento_node = $dom->createElement('TIPO_SVOLGIMENTO', $tipologia_svolgimento);
+                    $tipologia_svolgimento_node = $dom->createElement('TIPO_SVOLGIMENTO', $tipo_svolgimento);
                     $corso_node->appendChild($tipologia_svolgimento_node);
 
-                    // se non si tratta di report ausind
-                    if ($tipologia_svolgimento > 6
+                    // se non si tratta di report ausind ma di quelli per i corsi sincroni ed asincroni
+                    if ($tipologia_svolgimento != 6
                         && isset($arr_dt_corsi[$id_corso])) {
                         /*
                         $_dt_corsi = explode("||", $arr_dt_corsi[$id_corso]);
-                        logica corsi sincroni/asincroni
                         */
 
                     }

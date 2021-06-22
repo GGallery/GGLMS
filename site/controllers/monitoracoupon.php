@@ -38,7 +38,6 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $this->_user = JFactory::getUser();
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
-        $this->_config = new gglmsModelConfig();
 
 
     }
