@@ -9,7 +9,13 @@ defined('_JEXEC') or die;
 
 jimport('joomla.application.component.model');
 require_once JPATH_COMPONENT . '/models/contenuto.php';
+require_once JPATH_COMPONENT . '/models/report.php';
+require_once JPATH_COMPONENT . '/models/unita.php';
+require_once JPATH_COMPONENT . '/models/config.php';
+require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
+require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/controllers/zoom.php';
 
 class gglmsControllerMt extends JControllerLegacy {
 
@@ -18,6 +24,7 @@ class gglmsControllerMt extends JControllerLegacy {
     public $_params;
     public $_db;
     private $_config;
+    private $_filterparam;
     public $mail_debug;
 
     public function __construct($config = array())
@@ -27,7 +34,7 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_params = $this->_japp->getParams();
 
         $this->_user = JFactory::getUser();
-        $this->_db = &JFactory::getDbo();
+        $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
 
         $this->_filterparam->id_utente = JRequest::getVar('id_utente');
@@ -41,7 +48,8 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        echo $this->mail_debug;
+        $corso_obj = $this->_db->loadObject('gglmsModelUnita');
+        var_dump($corso_obj);
         $this->_japp->close();
 
     }

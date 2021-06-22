@@ -89,6 +89,7 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
             <button id="btn_invia" type="submit" class="btn-block btn"><?php echo  JText::_('COM_GGLMS_GLOBAL_SEND') ?></button>
         </div>
         <input type="hidden" name="alias" value="<?php echo $this->info_piattaforma->alias?>"/>
+        <input type="hidden" name="current_url" value="<?php echo JUri::getInstance();?>" />
     </form>
 </div>
 

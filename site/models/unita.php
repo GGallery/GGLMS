@@ -851,6 +851,7 @@ class gglmsModelUnita extends JModelLegacy
             $titolo_corso = trim($corso->TITOLO);
             $descrizione_corso = trim($corso->DESCRIZIONE);
             $alias_corso = UtilityHelper::setAlias($titolo_corso . " " . rand(100,999));
+            $tipologia_corso = trim($corso->TIPO_SVOLGIMENTO);
 
             // validazione
             if (is_null($codice_corso)
@@ -864,6 +865,10 @@ class gglmsModelUnita extends JModelLegacy
             if (is_null($titolo_corso)
                 || $titolo_corso == "")
                 throw new Exception("TITOLO non valorizzato", E_USER_ERROR);
+
+            if (is_null($tipologia_corso)
+                || $tipologia_corso == "")
+                throw new Exception("TIPO_SVOLGIMENTO non valorizzato", E_USER_ERROR);
 
             // controllo se il codice corso esiste
             $check_codice = $this->get_id_unita_codice_corso($codice_corso);
@@ -883,7 +888,7 @@ class gglmsModelUnita extends JModelLegacy
                 return $this->get_id_gruppo_unit($id_unita);
             }
 
-            //$this->_db->transactionStart();
+            $this->_db->transactionStart();
 
             // aggiungo l'unità
             $insert = 'INSERT INTO #__gg_unit (
@@ -892,14 +897,16 @@ class gglmsModelUnita extends JModelLegacy
                         titolo,
                         descrizione,
                         alias,
-                        accesso)
+                        accesso,
+                        tipologia_corso)
                         VALUES (
                                 ' . $this->_db->quote($codice_corso) . ',
                                 ' . $this->_db->quote($codice_alfa) . ',
                                 ' . $this->_db->quote($titolo_corso) . ',
                                 ' . $this->_db->quote($descrizione_corso) . ',
                                 ' . $this->_db->quote($alias_corso) . ',
-                                \'gruppo\'
+                                \'gruppo\',
+                                ' . $this->_db->quote($tipologia_corso) . '
                                 )
                         ';
 
@@ -916,13 +923,13 @@ class gglmsModelUnita extends JModelLegacy
             if (is_null($gruppo_corso))
                 throw new Exception("Errore durante la creazione di gruppo_corso per " . $titolo_corso, E_USER_ERROR);
 
-            //$this->_db->transactionCommit();
+            $this->_db->transactionCommit();
 
             return $gruppo_corso;
 
         }
         catch (Exception $e) {
-            //$this->_db->transactionRollback();
+            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }

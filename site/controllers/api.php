@@ -12,6 +12,8 @@ require_once JPATH_COMPONENT . '/models/report.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
+require_once JPATH_COMPONENT . '/models/syncdatareport.php';
+require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/users.php';
 
@@ -1228,8 +1230,10 @@ class gglmsControllerApi extends JControllerLegacy
 
     public function getAttestati($id_corso)
     {
-
-        $corso_obj = $this->_db->loadObject('gglmsModelUnita');
+        // prima di eseguire questa istruzione andrebbe caricato il modello unita per id
+        // così restituisce NULL
+        //$corso_obj = $this->_db->loadObject('gglmsModelUnita');
+        $corso_obj = new gglmsModelUnita();
         $corso_obj->setAsCorso($id_corso);
 
         $all_attestati = $corso_obj->getAllAttestatiByCorso();
@@ -2036,6 +2040,7 @@ HTML;
             $arr_corsi = array();
             $arr_gruppi = array();
             $arr_codici_corso = array();
+            $arr_tipologia_corso = array();
             $arr_dt_corsi = array();
             $dt = new DateTime();
             $oggi = $dt->format('Y-m-d');
@@ -2079,8 +2084,17 @@ HTML;
                 ->where('r.stato = 1');
 
             // se non siamo su ausindfad limito la query alla tipologia corsi invocata dalla chiamata
-            if ($tipologia_svolgimento > 6)
-                $query = $query->where('unita.tipologia_corso = ' . $this->_db->quote($tipologia_svolgimento));
+            // posso chiamare tipologie corsi multiple separate da virgola
+            if ($tipologia_svolgimento != 6) {
+                $_filtro_svolgimento = "";
+                // tipologie multiple separate da virgola
+                if (strpos($tipologia_svolgimento, ',') !== false)
+                    $_filtro_svolgimento = ' IN (' . $tipologia_svolgimento . ') ';
+                else
+                    $_filtro_svolgimento = ' = ' . $this->_db->quote($tipologia_svolgimento);
+
+                $query = $query->where('unita.tipologia_corso ' . $_filtro_svolgimento);
+            }
 
             $query = $query->order('unita.id');
 
@@ -2095,7 +2109,9 @@ HTML;
                 $arr_xml[$sub_res['id_corso']][] = $sub_res;
                 $arr_corsi[$sub_res['id_corso']] = $sub_res['titolo_corso'];
                 $arr_codici_corso[$sub_res['id_corso']] = $sub_res['codice_corso'];
+                $arr_tipologia_corso[$sub_res['id_corso']] = $sub_res['tipologia_corso'];
 
+                // data inizio / data fine corso nel formato Y-m-d
                 if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
                     $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
 
@@ -2109,6 +2125,7 @@ HTML;
                                                         $ret_users['dual'],
                                                         $arr_dt_corsi,
                                                         $arr_codici_corso,
+                                                        $arr_tipologia_corso,
                                                         $tipologia_svolgimento,
                                                         'GGCorsiCompletati' . $_dt_ref_ext . '.xml',
                                                         __FUNCTION__);
@@ -2123,16 +2140,154 @@ HTML;
             if (!$upload)
                 throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
 
-            echo 1;
+            return 1;
         }
         catch (Exception $e) {
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
-            echo 0;
+            return 0;
 
         }
 
-        $this->_japp->close();
+        //$this->_japp->close();
+    }
+
+    // rintraccia tutti gli utenti dei report senza riferimenti in anagrafica, la crea ed aggiorna i riferimenti nelle tabelle dei report
+    public function fix_anagrafica_report() {
+
+        try {
+
+            $ids_orfani = array();
+            $errors = array();
+
+            $this->_db->setQuery('SET sql_mode=\'\'');
+            $this->_db->execute();
+
+            $query = $this->_db->getQuery(true)
+                ->select('DISTINCT usr.id AS id_orfano')
+                ->from('#__users usr')
+                ->join('inner', '#__gg_report cgr ON usr.id = cgr.id_utente')
+                ->where('id NOT IN (SELECT id_user FROM #__gg_report_users)')
+                ->order('usr.id');
+
+            $this->_db->setQuery($query);
+            $results_orfani = $this->_db->loadAssocList();
+
+            if (count($results_orfani) == 0)
+                throw new Exception("Nessun orfano di anagrafica trovato!", E_USER_ERROR);
+
+            $model_user = new gglmsModelUsers();
+            $model_sync = new gglmsModelSyncdatareport();
+
+            foreach ($results_orfani as $key_orfano => $orfano) {
+
+                $ids_orfani[] = $orfano['id_orfano'];
+
+                $tmpuser = $model_user->get_user($orfano['id_orfano'], 0);
+
+                $tmp = new stdClass();
+                $tmp->id_event_booking = 0;
+                $tmp->id_user = $orfano['id_orfano'];
+                $tmp->nome = $this->_db->quote($tmpuser->nome);
+                $tmp->cognome = $this->_db->quote($tmpuser->cognome);
+                $tmp->fields = $this->_db->quote(json_encode($tmpuser));
+                $last_anag_id = $model_sync->store_report_users($tmp, true);
+
+                $query_update = "UPDATE #__gg_report SET id_anagrafica = " . $this->_db->quote($last_anag_id) . "
+                                    WHERE id_utente = " . $this->_db->quote($orfano['id_orfano']) . "
+                                    AND id_anagrafica = 0";
+
+                $this->_db->setQuery($query_update);
+                $this->_db->execute();
+
+            }
+
+            $query_report = $this->_db->getQuery(true)
+                ->select('distinct id_utente, id_anagrafica, id_unita, id_corso')
+                ->from('#__gg_report as r')
+                ->where('id_utente IN (' . implode(",", $ids_orfani) . ')');
+
+            $this->_db->setQuery($query_report);
+            $datauserunit = $this->_db->loadObjectList();
+
+            if (count($datauserunit) == 0)
+                throw new Exception("Nessun report da elaborare", E_USER_ERROR);
+
+            // inserisco i risultati in view_corso e view_unit
+            $model_syncview = new gglmsModelSyncViewStatoUser();
+            $insert_view_unit = $model_syncview->insertViewUnita($datauserunit);
+            if (!$insert_view_unit)
+                $errors[] = "insertViewUnita FALSE";
+
+            $insert_view_corso = $model_syncview->insertViewCorso($datauserunit);
+            if (!$insert_view_corso)
+                $errors[] = "insertViewCorso FALSE";
+
+        }
+        catch (Exception $e) {
+            return "NON COMPLETATO: " . $e->getMessage();
+        }
+
+        return count($errors) > 0 ? implode(",", $errors) : 1;
+
+        //$this->_japp->close();
+    }
+
+    // rintraccia tutti gli utenti che in gg_report hanno alcune righe in cui l'anagrafica è a zero e le aggiorna con il valore corretto
+    public function fix_anagrafica_report_2() {
+
+        try {
+
+            $this->_db->setQuery('SET sql_mode=\'\'');
+            $this->_db->execute();
+
+            $query = $this->_db->getQuery(true)
+                ->select('DISTINCT usr.id AS id_orfano')
+                ->from('#__users usr')
+                ->join('inner', '#__gg_report cgr ON usr.id = cgr.id_utente')
+                ->where('usr.id IN (SELECT id_user FROM #__gg_report_users)')
+                ->where('cgr.id_anagrafica = 0')
+                ->order('usr.id');
+
+            $this->_db->setQuery($query);
+            $results_orfani = $this->_db->loadAssocList();
+
+            if (count($results_orfani) == 0)
+                throw new Exception("Nessun orfano di anagrafica trovato!", E_USER_ERROR);
+
+            $updated = 0;
+            foreach ($results_orfani as $key_orfano => $orfano) {
+
+                $query_anag = $this->_db->getQuery(true)
+                    ->select('id AS id_anagrafica')
+                    ->from('#__gg_report_users')
+                    ->where('id_user = ' . $this->_db->quote($orfano['id_orfano']));
+
+                $this->_db->setQuery($query_anag);
+                $id_anagrafica = $this->_db->loadResult();
+
+                if (is_null($id_anagrafica)
+                    || $id_anagrafica == "")
+                    continue;
+
+                $query_update = "UPDATE #__gg_report
+                                    SET id_anagrafica = " . $this->_db->quote($id_anagrafica) . "
+                                    WHERE id_utente = " . $this->_db->quote($orfano['id_orfano']) . "
+                                    AND id_anagrafica = 0";
+
+                $this->_db->setQuery($query_update);
+                $this->_db->execute();
+
+                $updated++;
+
+            }
+
+        }
+        catch (Exception $e) {
+            return "NON COMPLETATO: " . $e->getMessage();
+        }
+
+        return "UPDATED: " . $updated;
     }
 
     public function importa_anagrafica_farmacie($is_debug = false) {
