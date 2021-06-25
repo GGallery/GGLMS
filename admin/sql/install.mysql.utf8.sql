@@ -1392,7 +1392,9 @@ INSERT INTO `#__comprofiler_field_values` (`fieldid`, `fieldtitle`, `fieldlabel`
 											'GruppoPiattaforma'
 											);
 
-
+-- colonna per il calcolo dei report
+ALTER TABLE `#__quiz_r_student_quiz`
+    ADD COLUMN `timestamp`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `params`;
 
 -- -------------------------------------------------
 -- vista per summary report
