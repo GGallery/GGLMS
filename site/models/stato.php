@@ -44,7 +44,9 @@ class gglmsModelStatoContenuto extends JModelLegacy
             $this->completato = ($data->c_passed == 1) ? 1 : 0;
 
             // colonna data extra
+            // attezione perchè questa colonna non esiste..viene applicata nell'upgrade 3.8.45 ma non in installazione
             $this->data_extra = $this->completato ? $data->timestamp : utilityHelper::dt_add_tz($data->c_date_time);
+            //$this->data_extra = utilityHelper::dt_add_tz($data->c_date_time);
             $this->data_primo_accesso = utilityHelper::dt_add_tz($data->c_date_time);
 
             $time = strtotime($data->c_date_time);

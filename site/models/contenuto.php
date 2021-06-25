@@ -681,11 +681,11 @@ class gglmsModelContenuto extends JModelLegacy
                 || !$user_id)
                 throw new Exception("Nessun utente specificato", E_USER_ERROR);
 
-            $query = "SELECT /*#__quiz_r_student_quiz.c_quiz_id AS id_quiz, 
-                            #__quiz_r_student_quiz.c_student_id AS id_utente,*/ 
+            $query = "SELECT /*#__quiz_r_student_quiz.c_quiz_id AS id_quiz,
+                            #__quiz_r_student_quiz.c_student_id AS id_utente,*/
                             #__quiz_r_student_quiz.c_date_time AS tentativo_quiz,
-                            #__quiz_t_qtypes.c_qtype AS tipo_risposta, 
-                            #__quiz_t_question.c_question AS domanda_quiz, 
+                            #__quiz_t_qtypes.c_qtype AS tipo_risposta,
+                            #__quiz_t_question.c_question AS domanda_quiz,
                             #__quiz_t_choice.c_choice AS risposta,
                             (
                               CASE
