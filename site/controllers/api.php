@@ -2297,6 +2297,8 @@ HTML;
             /*
              * Non ancora presente il master farmacie che conterrà anche la relazione
              * con lo usergroup a cui l'utente è associato
+             * In fase di importazione devo creare un gruppo relativo a cb_descrizione_qualifica
+             * a cui l'utente sarà poi associato
              * */
 
             $is_debug = true;
@@ -2318,6 +2320,13 @@ HTML;
             if (!is_array($get_farmacie)
                 || is_null($get_farmacie))
                 throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+
+            // la piattaforma di default del sistema
+            $genera_model = new gglmsModelgeneracoupon();
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
 
             // mapputura dei campi da modulo
             $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name');
@@ -2403,6 +2412,7 @@ HTML;
                 $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
                 $_new_user_id = null;
                 $new_user = false;
+                $ug_qualifica = null;
 
                 // utente non esistente che quindi va creato
                 if (is_null($check_user_id)) {
@@ -2511,6 +2521,25 @@ HTML;
 
                     }
                 }
+
+                // controllo l'esistenza del gruppo qualifica
+                $ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica);
+                // se lo usergroup non esiste lo creo
+                if (is_null($ug_qualifica)) {
+                    $ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id']);
+                    if (is_null($ug_qualifica))
+                        throw new Exception("Errore durante l'inserimento dello usergroup " . $cb_descrizione_qualifica, E_USER_ERROR);
+
+                }
+
+                $_user_id_ref = is_null($check_user_id) ? $check_user_id : $_new_user_id;
+                // controllo se l'utente è nel gruppo mansione altrimenti lo aggiungo, in caso contrario lo aggiungo
+                if (!utilityHelper::check_user_into_ug($_user_id_ref, (array) $ug_qualifica)) {
+                    $insert_user_ug = utilityHelper::set_usergroup_generic($_user_id_ref, (array) $ug_qualifica);
+                    if (!is_array($insert_user_ug))
+                        throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $_user_id_ref . " nel gruppo: " . $cb_descrizione_qualifica . " errore: " . $insert_user_ug, E_USER_ERROR);
+                }
+
             }
 
         }

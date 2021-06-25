@@ -821,7 +821,7 @@ class utilityHelper
             $query = $db->getQuery(true)
                     ->select('id')
                     ->from('#__usergroups')
-                    ->where("title = '" . trim($usergroup) . "'");
+                    ->where("title = " . $db->quote(addslashes(trim($usergroup))));
 
             $db->setQuery($query);
 
@@ -833,6 +833,7 @@ class utilityHelper
         }
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
     }
@@ -862,6 +863,7 @@ class utilityHelper
         }
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
     }
