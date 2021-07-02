@@ -2049,6 +2049,7 @@ HTML;
             $arr_codici_corso = array();
             $arr_tipologia_corso = array();
             $arr_dt_corsi = array();
+            $arr_tutor_az = array();
             $dt = new DateTime();
             $oggi = $dt->format('Y-m-d');
             // ieri
@@ -2078,7 +2079,8 @@ HTML;
                                 unita.tipologia_corso,
                                 COALESCE(unita.data_inizio, "") AS dt_inizio_corso,
                                 COALESCE(unita.data_fine, "") AS dt_fine_corso,
-                                ugm.idgruppo AS gruppo_corso
+                                ugm.idgruppo AS gruppo_corso,
+                                coup.id_societa AS azienda_utente
                                 ')
                 ->from('#__comprofiler AS cp')
                 ->join('inner', '#__users AS u ON cp.user_id = u.id')
@@ -2086,6 +2088,7 @@ HTML;
                 ->join('inner', '#__gg_view_stato_user_corso r ON r.id_anagrafica = ru.id')
                 ->join('inner', '#__gg_unit AS unita ON r.id_corso = unita.id')
                 ->join('inner', '#__gg_usergroup_map ugm ON ugm.idunita = unita.id')
+                ->join('inner', '#__gg_coupon coup ON ugm.idgruppo = coup.id_gruppi AND coup.id_utente = u.id AND coup.gruppo = ' . $this->_db->quote($id_piattaforma))
                 ->where('DATE_FORMAT(r.timestamp, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref))
                 ->where('ru.id_user IN (' . implode(",", $ret_users['users']) . ')')
                 ->where('r.stato = 1');
@@ -2118,6 +2121,15 @@ HTML;
                 $arr_codici_corso[$sub_res['id_corso']] = $sub_res['codice_corso'];
                 $arr_tipologia_corso[$sub_res['id_corso']] = $sub_res['tipologia_corso'];
 
+                // piva dei tutor aziendali
+                if (!in_array($sub_res['azienda_utente'], $arr_tutor_az)) {
+                    $tutor_az = $model_user->get_tutor_aziendale_details($sub_res['azienda_utente'], true);
+                    if (!is_null($tutor_az)
+                        && isset($tutor_az->username))
+                        $arr_tutor_az[$sub_res['azienda_utente']] = $tutor_az->username;
+
+                }
+
                 // data inizio / data fine corso nel formato Y-m-d
                 if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
                     $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
@@ -2133,6 +2145,7 @@ HTML;
                                                         $arr_dt_corsi,
                                                         $arr_codici_corso,
                                                         $arr_tipologia_corso,
+                                                        $arr_tutor_az,
                                                         $tipologia_svolgimento,
                                                         'GGCorsiCompletati' . $_dt_ref_ext . '.xml',
                                                         __FUNCTION__);

@@ -501,6 +501,26 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_tutor_aziendale_details($id_gruppo_societa, $from_api) {
+
+        try {
+
+            $id_tutor_az = $this->get_tutor_aziendale($id_gruppo_societa, $from_api);
+            if (is_null($id_tutor_az))
+                throw new Exception("Tutor non trovato per gruppo societa " . $id_gruppo_societa, E_USER_ERROR);
+
+            return $this->get_user($id_tutor_az);
+
+        }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            return null;
+        }
+
+    }
+
     public function get_tutor_aziendale($id_gruppo_societa, $from_api=false)
     {
         try {
@@ -716,8 +736,8 @@ class gglmsModelUsers extends JModelLegacy
             $db = JFactory::getDbo();
             $query = $db->getQuery(true)
                 ->select('cb_professionedisciplina as professione,
-                                cb_laureain as tipo_laurea, 
-                                cb_laureanno as anno_laurea, 
+                                cb_laureain as tipo_laurea,
+                                cb_laureanno as anno_laurea,
                                 cb_datadinascita as data_nascita,
                                 firstname as nome_utente,
                                 lastname as cognome_utente,
@@ -816,15 +836,15 @@ class gglmsModelUsers extends JModelLegacy
             }
 
             // inserisco le righe riferite agli anni
-            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
-                                                                anno, 
-                                                                tipo_quota, 
-                                                                tipo_pagamento, 
-                                                                data_pagamento, 
-                                                                totale, 
+            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id,
+                                                                anno,
+                                                                tipo_quota,
+                                                                tipo_pagamento,
+                                                                data_pagamento,
+                                                                totale,
                                                                 dettagli_transazione
                                                                 " . $_extra_col ."
-                                                                ) 
+                                                                )
                             VALUES ";
 
             $_tipo_quota = 'espen';
@@ -921,14 +941,14 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->transactionStart();
 
             $query = "INSERT INTO #__gg_quote_iscrizioni (
-                                                          user_id, 
-                                                          anno, 
-                                                          tipo_quota, 
-                                                          tipo_pagamento, 
-                                                          data_pagamento, 
+                                                          user_id,
+                                                          anno,
+                                                          tipo_quota,
+                                                          tipo_pagamento,
+                                                          data_pagamento,
                                                           totale,
                                                           dettagli_transazione
-                                                          ) 
+                                                          )
                             VALUES ";
 
             $query .= "(
@@ -1012,13 +1032,13 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->transactionStart();
 
             // inserisco le righe riferite agli anni
-            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id, 
-                                                                anno, 
-                                                                tipo_quota, 
-                                                                tipo_pagamento, 
-                                                                data_pagamento, 
-                                                                totale, 
-                                                                dettagli_transazione) 
+            $query = "INSERT INTO #__gg_quote_iscrizioni (user_id,
+                                                                anno,
+                                                                tipo_quota,
+                                                                tipo_pagamento,
+                                                                data_pagamento,
+                                                                totale,
+                                                                dettagli_transazione)
                             VALUES ";
 
             $query .= "(
@@ -1121,9 +1141,9 @@ class gglmsModelUsers extends JModelLegacy
 
             }
 
-            $select_qry = 'user.user_id AS id_utente, 
+            $select_qry = 'user.user_id AS id_utente,
                             UPPER(CONCAT(
-                                   COALESCE(user.' . $colonna_nome . ', ""), 
+                                   COALESCE(user.' . $colonna_nome . ', ""),
                                    " ",
                                    COALESCE(user.' . $colonna_cognome . ', "")
                                    )) AS denominazione_utente';
@@ -1170,8 +1190,8 @@ class gglmsModelUsers extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                    ->select('u.id AS user_id, u.username, u.email, 
-                                    cp.cb_nome AS nome, cp.cb_cognome AS cognome, 
+                    ->select('u.id AS user_id, u.username, u.email,
+                                    cp.cb_nome AS nome, cp.cb_cognome AS cognome,
                                     cp.cb_codicefiscale AS codice_fiscale, cp.cb_ultimoannoinregola AS ultimo_anno,
                                     ug.title AS tipo_socio, ug.id AS id_group');
 
@@ -1201,8 +1221,8 @@ class gglmsModelUsers extends JModelLegacy
             // ricerca
             if (!is_null($_search)) {
 
-                $query = $query->where('(u.username LIKE \'%' . $_search . '%\' 
-                                    OR u.username LIKE \'%' . $_search . '%\' 
+                $query = $query->where('(u.username LIKE \'%' . $_search . '%\'
+                                    OR u.username LIKE \'%' . $_search . '%\'
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
@@ -1210,8 +1230,8 @@ class gglmsModelUsers extends JModelLegacy
                                     OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
 
-                $count_query = $count_query->where('(u.username LIKE \'%' . $_search . '%\' 
-                                    OR u.username LIKE \'%' . $_search . '%\' 
+                $count_query = $count_query->where('(u.username LIKE \'%' . $_search . '%\'
+                                    OR u.username LIKE \'%' . $_search . '%\'
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
@@ -1270,9 +1290,9 @@ class gglmsModelUsers extends JModelLegacy
 
             // utente amministratore
             if (is_null($user_id)) {
-                $_join_sel = ", u.username, 
-                                cp.cb_nome AS nome, 
-                                cp.cb_cognome  AS cognome, 
+                $_join_sel = ", u.username,
+                                cp.cb_nome AS nome,
+                                cp.cb_cognome  AS cognome,
                                 UPPER(cp.cb_codicefiscale) AS codice_fiscale,
                                 u.email,
                                 COALESCE(cp.cb_indirizzodiresidenza, '') AS indirizzo,
@@ -1340,7 +1360,7 @@ class gglmsModelUsers extends JModelLegacy
                 $query = $query->where('(qi.anno LIKE \'%' . $_search . '%\'
                                            OR qi.tipo_pagamento LIKE \'%' . $_search . '%\'
                                            OR qi.data_pagamento LIKE \'%' . $_search . '%\'
-                                           OR qi.dettagli_transazione LIKE \'%' . $_search . '%\' 
+                                           OR qi.dettagli_transazione LIKE \'%' . $_search . '%\'
                                         ' . $_admin_search . ')');
 
                 $count_query = $count_query->where('(qi.anno LIKE \'%' . $_search . '%\'

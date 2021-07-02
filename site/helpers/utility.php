@@ -2362,7 +2362,7 @@ HTML;
                             $nome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->NOME);
                             $cf_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_FISCALE);
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
-                            $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
+                            $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PARTITA_IVA);
                             $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
                             $gruppo_corso = null;
 
@@ -2522,6 +2522,7 @@ HTML;
                                              $arr_dt_corsi,
                                              $arr_codici_corso,
                                              $arr_tipologia_corso,
+                                             $arr_tutor_az,
                                              $tipologia_svolgimento,
                                              $filename,
                                              $_err_label = '') {
@@ -2545,7 +2546,8 @@ HTML;
                 // il codice corso dipende dalla tipologia del corso
                 // 6 è ausindfad, 7 è sincrono, 8 è asincrono
                 // stesso discorso per la tipologia corso che se non è ausindfad mi ricavo dall'anagrafica del corso
-                $_codice_corso = ($tipologia_svolgimento == 6) ? $arr_gruppi[$id_corso] : $arr_codici_corso[$id_corso];
+                // richiesta di tim CODICE_CORSO = 0 per tipologia 6
+                $_codice_corso = ($tipologia_svolgimento == 6) ? 0 : $arr_codici_corso[$id_corso];
                 $tipo_svolgimento = ($tipologia_svolgimento == 6) ? $tipologia_svolgimento : $arr_tipologia_corso[$id_corso];
 
                 // apro tag corso
@@ -2576,7 +2578,10 @@ HTML;
 
                     $iscritto_node = $dom->createElement('ISCRITTO');
 
-                    $codice_iscritto_node = $dom->createElement('CODICE_ISCRITTO', $iscritto['user_id']);
+                    // richiesta di tim CODICE_ISCRITTO = 0 per tipologia 6
+                    $_codice_iscritto = ($tipologia_svolgimento == 6) ? 0 : $iscritto['user_id'];
+
+                    $codice_iscritto_node = $dom->createElement('CODICE_ISCRITTO', $_codice_iscritto);
                     $iscritto_node->appendChild($codice_iscritto_node);
                     $codice_iscritto_host_node = $dom->createElement('CODICE_ISCRITTO_HOST', $iscritto['user_id']);
                     $iscritto_node->appendChild($codice_iscritto_host_node);
@@ -2598,6 +2603,12 @@ HTML;
 
                     $iscritto_presso_node = $iscritto_node->appendChild($dom->createElement('AZIENDA_ENTE'));
                     $iscritto_presso_node->appendChild($dom->createCDATASection(trim($arr_aziende[$id_azienda])));
+
+                    // piva azienda dell'utente
+                    if (isset($arr_tutor_az[$iscritto['azienda_utente']])) {
+                        $iscritto_piva_node = $dom->createElement('PARTITA_IVA', trim($arr_tutor_az[$iscritto['azienda_utente']]));
+                        $iscritto_node->appendChild($iscritto_piva_node);
+                    }
 
                     if ($iscritto['data_inizio_corso'] == "" || $iscritto['data_fine_corso'] == "")
                         throw new Exception("Mancano delle date per " . $iscritto['user_id'] . "
