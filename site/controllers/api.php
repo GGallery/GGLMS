@@ -68,6 +68,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
+        $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
+        $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -2016,9 +2018,19 @@ HTML;
         $this->_japp->close();
     }
 
+    // adattamento per versione web
+    public function get_completed_report_per_piattaforma_ep() {
+
+        $id_piattaforma = $this->_filterparam->id_piattaforma;
+        $tipologia_svolgimento = $this->_filterparam->tipologia_svolgimento;
+
+        echo $this->get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento);
+
+    }
+
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
     // adattato per essere chiamato da cli (per i timeout)
-    function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
+    public function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
 
         try {
 
