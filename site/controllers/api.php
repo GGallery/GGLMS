@@ -75,6 +75,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->c_name = JRequest::getVar('c_name');
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
 
+        $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
+        $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -1684,7 +1686,7 @@ HTML;
     }
 
     // interazione con API zoom
-    public function get_local_events() {
+    function get_local_events() {
 
         $_ret = array();
 
@@ -1729,7 +1731,7 @@ HTML;
 
     }
 
-    public function get_event_participants() {
+    function get_event_participants() {
 
         $_ret = array();
 
@@ -1804,7 +1806,7 @@ HTML;
         $this->_japp->close();
     }
 
-    public function get_event_list() {
+    function get_event_list() {
 
         $_ret = array();
 
@@ -1846,7 +1848,7 @@ HTML;
     }
 
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
+    function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
 
         try {
 
@@ -2023,9 +2025,19 @@ HTML;
         $this->_japp->close();
     }
 
+    // adattamento per versione web
+    public function get_completed_report_per_piattaforma_ep() {
+
+        $id_piattaforma = $this->_filterparam->id_piattaforma;
+        $tipologia_svolgimento = $this->_filterparam->tipologia_svolgimento;
+
+        echo $this->get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento);
+
+    }
+
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
     // adattato per essere chiamato da cli (per i timeout)
-    public function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
+    function get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento) {
 
         try {
 
