@@ -2026,6 +2026,8 @@ HTML;
 
         echo $this->get_completed_report_per_piattaforma($id_piattaforma, $tipologia_svolgimento);
 
+        $this->_japp->close();
+
     }
 
     // report giornaliero che restituisce l'elenco degli utenti che hanno completato il corso per piattaforma
