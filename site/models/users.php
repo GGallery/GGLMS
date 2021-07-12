@@ -501,6 +501,26 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_tutor_aziendale_details($id_gruppo_societa, $from_api) {
+
+        try {
+
+            $id_tutor_az = $this->get_tutor_aziendale($id_gruppo_societa, $from_api);
+            if (is_null($id_tutor_az))
+                throw new Exception("Tutor non trovato per gruppo societa " . $id_gruppo_societa, E_USER_ERROR);
+
+            return $this->get_user($id_tutor_az);
+
+        }
+        catch (Exception $e) {
+            if ($from_api)
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+
+            return null;
+        }
+
+    }
+
     public function get_tutor_aziendale($id_gruppo_societa, $from_api=false)
     {
         try {

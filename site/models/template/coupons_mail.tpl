@@ -19,16 +19,16 @@
         {/foreach}
         </div>
 
-        
+
         <p>I codici devono essere distribuiti ai lavoratori che devono effettuare la formazione, uno per ciascuno.</p>
-        <p>ISTRUZIONI PER I LAVORATORI: accedere alla piattaforma con il proprio account (o registrarne uno se non hanno mai effettuato l'accesso) e inserire il codice alla voce CODICE COUPON per sbloccare l'iscrizione. Il corso sarà disponibile alla voce I MIEI CORSI, senza più necessità di inserire il codice.<br/>
+        <p>ISTRUZIONI PER I LAVORATORI: accedere alla piattaforma <a href="{$piattaforma_link}" target="_blank">{$piattaforma_name}</a> con il proprio account (o registrarne uno se non hanno mai effettuato l'accesso, scegliendo autonomamente username e password) e inserire il codice alla voce CODICE COUPON per sbloccare l'iscrizione. Il corso sarà disponibile alla voce I MIEI CORSI, senza più necessità di inserire il codice.<br/>
         La validità dei codici è di 60 giorni dal momento dell'effettivo inserimento da parte dell'utente.<br/>
         </p>
-       
+
 
 	        <b>Per una migliore fruizione del corso consigliamo fortemente di usare browser quali Firefox o Google Chrome</b>
         <p>
-        
+
         <p>
             Cordiali saluti<br />
             Lo staff {$piattaforma_name}
