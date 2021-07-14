@@ -129,7 +129,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
              * id_piattaforma: numerico
              * gruppo_corsi: numerico
              * qty: numerico
-             *
+             * opzionale skillab
+             * ref_skill: stringa?
              * */
 
             // controllo username
@@ -173,6 +174,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
                 $_msg  = "qty is not in a valid format";
                 throw new Exception($_msg, E_USER_ERROR);
             }
+
 
             // log dei paramentri ricevuti
             DEBUGG::log(json_encode($data), 'api_genera_coupon', 0, 1, 0 );

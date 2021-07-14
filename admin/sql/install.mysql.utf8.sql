@@ -237,6 +237,7 @@ CREATE TABLE `#__gg_coupon` (
   `venditore` varchar(255) DEFAULT NULL,
   `tipologia_coupon` VARCHAR(100) NULL,
   `template` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
+  `ref_skill` varchar(200) DEFAULT NULL COMMENT 'Integrazione per riferimento corsi Skillab',
   PRIMARY KEY (`coupon`(100))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

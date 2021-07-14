@@ -3,6 +3,8 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.3
+-D: aggiunta della colonna ref_skill alla tabella gg_coupon
 4.1.2
 -D: aggiunta della colonna codice alla tabella gg_unit
 -D: aggiunta della colonna codice_alfanumerico alla tabella gg_unit
