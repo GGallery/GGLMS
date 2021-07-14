@@ -2089,6 +2089,8 @@ HTML;
     // rimuovo l'utente da un gruppo specifico passando gli id gruppo in un array - utility per self.set_usergroup_categorie()
     public static function remove_user_from_usergroup($user_id, $ug_list_arr) {
 
+        $ug_list_arr = !is_array($ug_list_arr) ? (array) $ug_list_arr : $ug_list_arr;
+
         foreach ($ug_list_arr as $key => $d_group_id) {
             JUserHelper::removeUserFromGroup($user_id, $d_group_id);
         }

@@ -2534,6 +2534,7 @@ HTML;
             $_new_user = array();
             $_new_user_cp = array();
             $arr_farmacie = array();
+            $jumped = array();
             $inserted_ug = false;
             $counter = 1;
 
@@ -2662,13 +2663,36 @@ HTML;
                 $master_farmacia = null;
                 $ug_farmacia = null;
 
+                // per il momento non restituisco errore ma vado avanti nell'inserimento delle utenze
                 if (is_null($cb_codicefiscale)
-                    || $cb_codicefiscale == "")
-                    throw new Exception("Riferimento a cb_codicefiscale non valorizzato -> riga: " . $counter, E_USER_ERROR);
+                    || $cb_codicefiscale == "") {
+                    //throw new Exception("Riferimento a cb_codicefiscale non valorizzato -> riga: " . $counter, E_USER_ERROR);
+                    $jumped[] = "Riferimento a cb_codicefiscale non valorizzato -> riga: " . $counter . " -> " . $cb_email . " | " . $cb_codicefiscale;
+                    continue;
+                }
 
                 if (is_null($cb_codice_esterno_cdc_3)
-                    || $cb_codice_esterno_cdc_3 == "")
-                    throw new Exception("Riferimento a cb_codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale, E_USER_ERROR);
+                    || $cb_codice_esterno_cdc_3 == "") {
+                    //throw new Exception("Riferimento a cb_codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale, E_USER_ERROR);
+                    $jumped[] = "Riferimento a cb_codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // carico la farmacia di riferimento in relazione al $cb_codice_esterno_cdc_3
+                if (!in_array($cb_codice_esterno_cdc_3, $arr_farmacie)) {
+                    $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3);
+
+                    if (is_null($master_farmacia)) {
+                        //throw new Exception("Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3, E_USER_ERROR);
+                        $jumped[] = "Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3;
+                        continue;
+                    }
+
+                    // associo il gruppo alla farmacia in base al codice
+                    $arr_farmacie[$cb_codice_esterno_cdc_3] = $master_farmacia['id_gruppo'];
+                }
+
+                $ug_farmacia = $arr_farmacie[$cb_codice_esterno_cdc_3];
 
                 // utente non esistente che quindi va creato
                 if (is_null($check_user_id)) {
@@ -2685,7 +2709,7 @@ HTML;
                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
                     if (!is_array($_user_insert_query_result)) {
-                        throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+                        throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result . " -> query: " . $_user_insert_query, E_USER_ERROR);
                     }
 
                     $_new_user_id = $_user_insert_query_result['success'];
@@ -2721,26 +2745,13 @@ HTML;
                 $_new_user_cp[$_campo_cb_codice_esterno_cdc_3] = $cb_codice_esterno_cdc_3;
                 $_new_user_cp[$_campo_cb_esterno_rep_2] = $cb_esterno_rep_2;
 
-                // carico la farmacia di riferimento in relazione al $cb_codice_esterno_cdc_3
-                if (!in_array($cb_codice_esterno_cdc_3, $arr_farmacie)) {
-                    $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3);
-
-                    if (is_null($master_farmacia))
-                        throw new Exception("Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3, E_USER_ERROR);
-
-                    // associo il gruppo alla farmacia in base al codice
-                    $arr_farmacie[$cb_codice_esterno_cdc_3] = $master_farmacia['id_gruppo'];
-                }
-
-                $ug_farmacia = $arr_farmacie[$cb_codice_esterno_cdc_3];
-
                 // se l'utente non esiste lo aggiungo
                 // inserimento utente in CP
                 if ($new_user) {
                     $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
                     $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
                     if (!is_array($_cp_insert_query_result))
-                        throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+                        throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento -> query: " . $_cp_insert_query, E_USER_ERROR);
 
                     // aggiungo il suo riferimento nella tabella farmacie_dipendenti
                     $user_farmacia = $model_user->insert_user_farmacia($_new_user_id,
@@ -2760,10 +2771,13 @@ HTML;
                 }
                 else { // utente esiste devo aggiornarlo
 
+                    unset($_new_user_cp['id']);
+                    unset($_new_user_cp['user_id']);
+
                     $_cp_update_query = utilityHelper::get_update_query("comprofiler", $_new_user_cp, "user_id = '". $check_user_id . "'");
                     $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
                     if (!is_array($_cp_update_query_result))
-                        throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento", E_USER_ERROR);
+                        throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
 
                     // se licenziato l'utente va bloccato
                     if ((int) $cb_stato_dipendente == 9) {
@@ -2771,7 +2785,7 @@ HTML;
                         $_cp_update_query = utilityHelper::get_update_query("users", $_new_user, "id = '". $check_user_id . "'");
                         $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
                         if (!is_array($_cp_update_query_result))
-                            throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento", E_USER_ERROR);
+                            throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
 
                     }
 
@@ -2787,7 +2801,7 @@ HTML;
                             throw new Exception("Nessun gruppo farmacia precedente per " . $check_user_id, E_USER_ERROR);
 
                         // rimuovo utente dal vecchio gruppo
-                        utilityHelper::remove_user_from_usergroup($check_user_id, $last_farmacia['id_gruppo']);
+                        utilityHelper::remove_user_from_usergroup($check_user_id, (array) $last_farmacia['id_gruppo']);
 
                         // ha cambiato farmacia (o non c'è nessun riferimento)
                         $user_farmacia = $model_user->insert_user_farmacia($check_user_id,
@@ -2844,6 +2858,9 @@ HTML;
                 $rebuild = utilityHelper::rebuild_ug_index();
 
             $this->_db->transactionCommit();
+
+            if (count($jumped) > 0)
+                UtilityHelper::send_email("Utenti non inseriti per dati mancanti " . __FUNCTION__, print_r($jumped, true), array($this->mail_debug));
 
             return 1;
 
