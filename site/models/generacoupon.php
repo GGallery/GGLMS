@@ -156,7 +156,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 // se abilitato -> dataabilitazione = now
 
-                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d, '%s')",
+                $values[] = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d, '%s', '%s')",
                     $coupons[$i],
                     date('Y-m-d H:i:s', time()), //  time(), //creation_time
                     $data['abilitato'],
@@ -170,7 +170,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $data['trial'],
                     $data['venditore'],
                     $data['id_piattaforma'],
-                    $data['genera_coupon_tipi_coupon']
+                    $data['genera_coupon_tipi_coupon'],
+                    (isset($data['ref_skill']) && $data['ref_skill'] != "") ? $data['ref_skill'] : 'NULL'
                 );
 
             }
@@ -190,7 +191,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                                 trial,
                                                 venditore,
                                                 gruppo,
-                                                tipologia_coupon) VALUES ' . join(',', $values);
+                                                tipologia_coupon,
+                                                ref_skill) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

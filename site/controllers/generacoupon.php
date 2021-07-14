@@ -129,7 +129,9 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
              * id_piattaforma: numerico
              * gruppo_corsi: numerico
              * qty: numerico
-             *
+             * opzionale skillab
+             * ref_skill: stringa -> integrazione esplicitamente realizzata per skillab
+             * necessaria in fase di ritorno dati per metterli in grado di associare i coupon alla loro edizione corso
              * */
 
             // controllo username
@@ -183,6 +185,10 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             $result = new stdClass();
             $result->id_iscrizione = $id_iscrizione;
+            // integrazione esclusiva per skillab
+            if (isset($data['ref_skill'])
+                && $data['ref_skill'] != "")
+                $result->ref_skill = $data['ref_skill'];
 
             // log risposta api
             DEBUGG::log(json_encode($result), 'api_genera_coupon_response', 0, 1, 0 );
