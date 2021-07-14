@@ -77,6 +77,7 @@ class gglmsControllerApi extends JControllerLegacy
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
+        $this->_filterparam->force_debug = JRequest::getVar('force_debug');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -2317,36 +2318,28 @@ HTML;
         return "UPDATED: " . $updated;
     }
 
-    public function importa_anagrafica_farmacie($is_debug = false) {
+    // importazione dell'anagrafica della farmacie da chiamata API
+    public function importa_master_farmacie($is_debug = false) {
+
+        $exists_check = array();
 
         try {
 
-            /*
-             * Non ancora presente il master farmacie che conterrà anche la relazione
-             * con lo usergroup a cui l'utente è associato
-             * In fase di importazione devo creare un gruppo relativo a cb_descrizione_qualifica
-             * a cui l'utente sarà poi associato
-             * */
-
-            $is_debug = true;
-            $local_file = JPATH_ROOT . '/tmp/';
-            $_new_user = array();
-            $_new_user_cp = array();
-
-            $get_farmacie = null;
             // parametri da configurazione del modulo farmacie
             $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            $api_endpoint_farmacie = utilityHelper::get_ug_from_object($_params, "api_endpoint_farmacie");
+            $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
+            $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
+            $local_file = JPATH_ROOT . '/tmp/';
+            $filename = "master_farmacie.csv";
+            if (isset($this->_filterparam->force_debug))
+                $is_debug = true;
 
-            // scarico il file csv dal repository remoto
-            $_server_ip = utilityHelper::get_ug_from_object($_params, "server_ip");
-            $_server_porta = utilityHelper::get_ug_from_object($_params, "server_porta");
-            $_server_username = utilityHelper::get_ug_from_object($_params, "server_username");
-            $_server_password = utilityHelper::get_ug_from_object($_params, "server_password");
+            // provo a scaricare il master delle farmacie
+            $farmacie = utilityHelper::get_csv_remote($api_endpoint_farmacie, $api_user_auth, $api_user_password, $local_file, $filename);
+            if (!$farmacie)
+                throw new Exception("Impossibile continuare, si è verificato un errore durante lo scaricamento di " . $filename , E_USER_ERROR);
 
-            $get_farmacie = utilityHelper::get_csv_remote($_server_ip, $_server_porta, $_server_username, $_server_password, $local_file, false, $is_debug, __FUNCTION__);
-            if (!is_array($get_farmacie)
-                || is_null($get_farmacie))
-                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
 
             // la piattaforma di default del sistema
             $genera_model = new gglmsModelgeneracoupon();
@@ -2355,10 +2348,234 @@ HTML;
                 || !is_array($piattaforma_default))
                 throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
 
+            /*
+            // una volta scaricato devo confrontare eventuali differenze nelle anagrafiche
+            $model_user = new gglmsModelUsers();
+            $local_master = $model_user->get_all_farmacie();
+
+            // se il master non è vuoto devo controllare eventuali modifiche
+            if ($local_master) {
+                // controllo delle anagrafiche
+            }
+            */
+
+            // inserisco in tabella master e creo i gruppi sulla denominazione
+            $this->_db->transactionStart();
+            $query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
+
+            $this->_db->setQuery($query_truncate);
+            if (!$this->_db->execute())
+                throw new Exception("Query troncamento tabella master farmacie fallita!", E_USER_ERROR);
+
+            $query_insert = "INSERT INTO #__gg_master_farmacie
+                                (hh_store_code,
+                                ragione_sociale,
+                                comune,
+                                tipologia,
+                                legale_rappresentante,
+                                hh_status,
+                                ordine,
+                                partita_iva,
+                                indirizzo,
+                                cap,
+                                regione,
+                                nazione,
+                                telefono,
+                                longitudine,
+                                latitudine,
+                                sigla_prov) VALUES ";
+
+            $insert_farmacia = "";
+            $arr_insert = array();
+            $miss_check = array();
+            $arr_ragsoc = array();
+            $counter = 1;
+            foreach ($farmacie as $key_farmacia => $farmacia) {
+
+                $hh_store_code = trim($farmacia[0]);
+                $ragione_sociale = trim($farmacia[3]);
+                $comune = trim($farmacia[4]);
+                $tipologia = trim($farmacia[6]);
+                $legale_rappresentante = trim($farmacia[7]);
+                $hh_status = trim($farmacia[8]);
+                $ordine = trim($farmacia[9]);
+                $partita_iva = trim($farmacia[13]);
+                $indirizzo = trim($farmacia[14]);
+                $cap = trim($farmacia[15]);
+                $regione = trim($farmacia[16]);
+                $nazione = trim($farmacia[17]);
+                $telefono = trim($farmacia[18]);
+                $longitudine = trim($farmacia[19]);
+                $latitudine = trim($farmacia[20]);
+                $sigla_prov = trim($farmacia[28]);
+
+
+                // se non è impostata il codice di riferimento per gli utenti o la ragione sociale continuo
+                if ($hh_store_code == ""
+                    || $ragione_sociale == "") {
+                    $miss_check[] = $counter;
+                    $counter++;
+                    continue;
+                }
+
+                // se piva esiste non inserisco di nuovo
+                if (in_array($hh_store_code, $exists_check))
+                    continue;
+
+                $insert_farmacia =  "(" .
+                                    $this->_db->quote($hh_store_code) . "," .
+                                    $this->_db->quote($this->_db->escape($ragione_sociale)) . "," .
+                                    $this->_db->quote($this->_db->escape($comune)) . "," .
+                                    $this->_db->quote($tipologia) . "," .
+                                    $this->_db->quote($this->_db->escape($legale_rappresentante)) . "," .
+                                    $this->_db->quote($hh_status) . "," .
+                                    $this->_db->quote($ordine) . "," .
+                                    $this->_db->quote($partita_iva) . "," .
+                                    $this->_db->quote($this->_db->escape($indirizzo)) . "," .
+                                    $this->_db->quote($cap) . "," .
+                                    $this->_db->quote($this->_db->escape($regione)) . "," .
+                                    $this->_db->quote($this->_db->escape($nazione)) . "," .
+                                    $this->_db->quote($telefono) . "," .
+                                    $this->_db->quote($longitudine) . "," .
+                                    $this->_db->quote($latitudine) . "," .
+                                    $this->_db->quote($sigla_prov)
+                    . "),";
+
+                $arr_insert[] = $insert_farmacia;
+                $exists_check[] = $hh_store_code;
+
+                if (!in_array($ragione_sociale, $arr_ragsoc))
+                    $arr_ragsoc[] = $ragione_sociale;
+
+                $counter++;
+
+            }
+
+
+            $_arr_query_chunked = array_chunk($arr_insert, 500);
+
+            foreach ($_arr_query_chunked as $key => $sub_query) {
+
+                $_executed_query = "";
+
+                foreach ($sub_query as $kk => $vv) {
+
+                    $_executed_query .= $vv;
+
+                }
+
+                $_executed_query = (substr(trim($_executed_query), -1) == ",") ? substr(trim($_executed_query), 0, -1) : $_executed_query;
+                $_row_query = $query_insert . $_executed_query . ";";
+
+                $this->_db->setQuery($_row_query);
+                if (!$this->_db->execute())
+                    throw new Exception("Query inserimento master farmacie fallita:
+                    " . $_row_query, E_USER_ERROR);
+
+            }
+
+            // finito questo giro creo tutti i gruppi relativi alle farmacie
+            foreach ($arr_ragsoc as $key_ragsoc => $ragsoc) {
+
+                // controllo l'esistenza del gruppo qualifica
+                $ug_farmacia = utilityHelper::check_usergroups_by_name($ragsoc);
+                // se lo usergroup non esiste lo creo
+                if (is_null($ug_farmacia)) {
+                    $ug_farmacia = utilityHelper::insert_new_usergroups($ragsoc, $piattaforma_default['id'], false);
+
+                    if (is_null($ug_farmacia))
+                        throw new Exception("Errore durante l'inserimento dello usergroup " . $ragsoc, E_USER_ERROR);
+
+                }
+
+                $update_ug = "UPDATE #__gg_master_farmacie
+                                    SET id_gruppo = " . $this->_db->quote($ug_farmacia) . "
+                                    WHERE ragione_sociale = " . $this->_db->quote(addslashes(trim($ragsoc)));
+
+                $this->_db->setQuery($update_ug);
+                if (!$this->_db->execute())
+                    throw new Exception("Query aggiornamento usergroup master farmacie fallita:
+                    " . $update_ug, E_USER_ERROR);
+
+            }
+
+            $rebuild = utilityHelper::rebuild_ug_index();
+
+            $this->_db->transactionCommit();
+
+            return 1;
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            $_err_msg = $e->getMessage() . "\n" . print_r($exists_check, true);
+            UtilityHelper::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+            // solo in produzione
+            if (!$is_debug)
+                UtilityHelper::send_email("Errore " . __FUNCTION__, $_err_msg, array($this->mail_debug));
+
+            return 0;
+        }
+
+        $this->_japp->close();
+
+    }
+
+    public function importa_anagrafica_farmacie($is_debug = false) {
+
+        try {
+
+            /*
+             * In fase di importazione devo creare un gruppo relativo a cb_descrizione_qualifica
+             * a cui l'utente sarà poi associato
+             * */
+
+            $local_file = JPATH_ROOT . '/tmp/';
+            $_new_user = array();
+            $_new_user_cp = array();
+            $arr_farmacie = array();
+            $inserted_ug = false;
+            $counter = 1;
+
+            $get_farmacie = null;
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+
+            // scarico il file csv dal repository remoto
+            $api_endpoint_dipendenti = utilityHelper::get_ug_from_object($_params, "api_endpoint_dipendenti");
+            $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
+            $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
+            $filename = "anagrafica_dipendenti.csv";
+            if (isset($this->_filterparam->force_debug))
+                $is_debug = true;
+
+            $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti,
+                $api_user_auth,
+                $api_user_password,
+                $local_file,
+                $filename,
+                false,
+                $is_debug);
+
+
+            if (!is_array($get_farmacie)
+                || is_null($get_farmacie))
+                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+
+
+            // la piattaforma di default del sistema
+            $genera_model = new gglmsModelgeneracoupon();
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+            $model_user = new gglmsModelUsers();
+
             // mapputura dei campi da modulo
             $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name');
             $_campo_cb_filiale = utilityHelper::get_cb_field_name($_params, 'campo_cb_filiale', 'name');
-            $_campo_cb_matricola =utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name');
+            $_campo_cb_matricola = utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name');
             $_campo_cb_cognome = utilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
             $_campo_cb_nome = utilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
             $_campo_cb_codicefiscale = utilityHelper::get_cb_field_name($_params, 'campo_cb_codicefiscale', 'name');
@@ -2379,6 +2596,8 @@ HTML;
             $_campo_cb_codice_esterno_cdc_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_2', 'name');
             $_campo_cb_codice_esterno_cdc_3 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_3', 'name');
             $_campo_cb_esterno_rep_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_esterno_rep_2', 'name');
+
+            $this->_db->transactionStart();
 
             // grande loop di inserimento degli utenti
             // la chiave per controllare l'esistenza dell'utente sarà il codice fiscale impostato anche come username
@@ -2433,18 +2652,29 @@ HTML;
                 // chiave univoca per fare riferimento al master delle farmacie
                 $cb_codice_esterno_cdc_3 = trim($row_arr[24]);
                 // colonna 25 - codice esterno rep 2 - si
-                $cb_esterno_rep_2 = trim($row_arr[25]);
+                $cb_esterno_rep_2 = (isset($row_arr[25]) && !is_null($row_arr[25]) && $row_arr[25] != "") ? trim($row_arr[25]) : "";
                 // colonna 26 - data inizio rapporti - si
                 $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[26]));
                 $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
                 $_new_user_id = null;
                 $new_user = false;
                 $ug_qualifica = null;
+                $master_farmacia = null;
+                $ug_farmacia = null;
+
+                if (is_null($cb_codicefiscale)
+                    || $cb_codicefiscale == "")
+                    throw new Exception("Riferimento a cb_codicefiscale non valorizzato -> riga: " . $counter, E_USER_ERROR);
+
+                if (is_null($cb_codice_esterno_cdc_3)
+                    || $cb_codice_esterno_cdc_3 == "")
+                    throw new Exception("Riferimento a cb_codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale, E_USER_ERROR);
 
                 // utente non esistente che quindi va creato
                 if (is_null($check_user_id)) {
-                    $_new_user['name'] = $cb_nome . " " . $cb_cognome;
+                    $_new_user['name'] = addslashes($cb_nome) . " " . addslashes($cb_cognome);
                     $_new_user['username'] = $cb_codicefiscale;
+                    $_new_user['email'] = $cb_email;
                     $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
                     $_new_user['password'] = JUserHelper::hashPassword($password);
 
@@ -2470,28 +2700,40 @@ HTML;
                 $_new_user_cp[$_campo_cb_azienda] = $cb_azienda;
                 $_new_user_cp[$_campo_cb_filiale] = $cb_filiale;
                 $_new_user_cp[$_campo_cb_matricola] = $cb_matricola;
-                $_new_user_cp[$_campo_cb_cognome] = $cb_cognome;
-                $_new_user_cp[$_campo_cb_nome] = $cb_nome;
+                $_new_user_cp[$_campo_cb_cognome] = addslashes($cb_cognome);
+                $_new_user_cp[$_campo_cb_nome] = addslashes($cb_nome);
                 $_new_user_cp[$_campo_cb_codicefiscale] = $cb_codicefiscale;
                 $_new_user_cp[$_campo_cb_data_nascita] = $cb_data_nascita;
                 $_new_user_cp[$_campo_cb_codice_comune_nascita] = $cb_codice_comune_nascita;
-                $_new_user_cp[$_campo_cb_comune_nascita] = $cb_comune_nascita;
-                $_new_user_cp[$_campo_cb_pv_nascita] = $cb_pv_nascita;
-                $_new_user_cp[$_campo_cb_indirizzo_residenza] = $cb_indirizzo_residenza;
+                $_new_user_cp[$_campo_cb_comune_nascita] = addslashes($cb_comune_nascita);
+                $_new_user_cp[$_campo_cb_pv_nascita] = addslashes($cb_pv_nascita);
+                $_new_user_cp[$_campo_cb_indirizzo_residenza] = addslashes($cb_indirizzo_residenza);
                 $_new_user_cp[$_campo_cb_cap_residenza] = $cb_cap_residenza;
-                $_new_user_cp[$_campo_cb_comune_residenza] = $cb_comune_residenza;
+                $_new_user_cp[$_campo_cb_comune_residenza] = addslashes($cb_comune_residenza);
                 $_new_user_cp[$_campo_cb_pv_residenza] = $cb_pv_residenza;
                 $_new_user_cp[$_campo_cb_data_assunzione] = $cb_data_assunzione;
                 $_new_user_cp[$_campo_cb_data_inizio_rapporto] = $cb_data_inizio_rapporto;
                 $_new_user_cp[$_campo_cb_data_licenziamento] = $cb_data_licenziamento;
                 $_new_user_cp[$_campo_cb_stato_dipendente] = $cb_stato_dipendente;
-                $_new_user_cp[$_campo_cb_descrizione_qualifica] = $cb_descrizione_qualifica;
-                $_new_user_cp[$_campo_cb_email] = $cb_email;
+                $_new_user_cp[$_campo_cb_descrizione_qualifica] = addslashes($cb_descrizione_qualifica);
+                //$_new_user_cp[$_campo_cb_email] = $cb_email;
                 $_new_user_cp[$_campo_cb_codice_esterno_cdc_2] = $cb_codice_esterno_cdc_2;
                 $_new_user_cp[$_campo_cb_codice_esterno_cdc_3] = $cb_codice_esterno_cdc_3;
                 $_new_user_cp[$_campo_cb_esterno_rep_2] = $cb_esterno_rep_2;
 
-                $model_user = new gglmsModelUsers();
+                // carico la farmacia di riferimento in relazione al $cb_codice_esterno_cdc_3
+                if (!in_array($cb_codice_esterno_cdc_3, $arr_farmacie)) {
+                    $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3);
+
+                    if (is_null($master_farmacia))
+                        throw new Exception("Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3, E_USER_ERROR);
+
+                    // associo il gruppo alla farmacia in base al codice
+                    $arr_farmacie[$cb_codice_esterno_cdc_3] = $master_farmacia['id_gruppo'];
+                }
+
+                $ug_farmacia = $arr_farmacie[$cb_codice_esterno_cdc_3];
+
                 // se l'utente non esiste lo aggiungo
                 // inserimento utente in CP
                 if ($new_user) {
@@ -2501,11 +2743,19 @@ HTML;
                         throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
 
                     // aggiungo il suo riferimento nella tabella farmacie_dipendenti
-                    $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento);
+                    $user_farmacia = $model_user->insert_user_farmacia($_new_user_id,
+                        $ug_farmacia,
+                        $cb_codice_esterno_cdc_3,
+                        $cb_data_inizio_rapporto,
+                        $cb_data_licenziamento);
                     if (is_null($user_farmacia))
                         throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
 
                     // devo associare l'utente ad un gruppo farmacia
+                    $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($_new_user_id, (array) $ug_farmacia);
+                    if (!is_array($insert_user_ug_farmacia))
+                        throw new Exception("Si è verificato un errore durante l'inserimento dell'utente nel gruppo farmacia " . $_new_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
+
 
                 }
                 else { // utente esiste devo aggiornarlo
@@ -2527,16 +2777,31 @@ HTML;
 
                     // verifico se l'utente ha cambiato farmacia oppure
                     $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3);
+
                     if (is_null($get_user_farmacia)
                         || count($get_user_farmacia) == 0) {
 
-                        // ha cambiato farmacia (o non c'è nessun riferimento)
-                        $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento);
-                        if (is_null($user_farmacia))
-                            throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+                        // mi serve l'ultimo gruppo dell'utente
+                        $last_farmacia = $model_user->get_user_farmacia($check_user_id);
+                        if (is_null($last_farmacia))
+                            throw new Exception("Nessun gruppo farmacia precedente per " . $check_user_id, E_USER_ERROR);
 
-                        // l'utente ha cambiato gruppo farmacia
-                        // devo rimuovere l'associazione con il vecchio gruppo ed inserire quella con il nuovo
+                        // rimuovo utente dal vecchio gruppo
+                        utilityHelper::remove_user_from_usergroup($check_user_id, $last_farmacia['id_gruppo']);
+
+                        // ha cambiato farmacia (o non c'è nessun riferimento)
+                        $user_farmacia = $model_user->insert_user_farmacia($check_user_id,
+                            $ug_farmacia,
+                            $cb_codice_esterno_cdc_3,
+                            $cb_data_inizio_rapporto,
+                            $cb_data_licenziamento);
+                        if (is_null($user_farmacia))
+                            throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
+
+                        // inserimento dell'utente nel gruppo farmacia nuovo
+                        $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($check_user_id, (array) $ug_farmacia);
+                        if (!is_array($insert_user_ug_farmacia))
+                            throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $check_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
 
                     }
                     else {
@@ -2553,27 +2818,41 @@ HTML;
                 $ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica);
                 // se lo usergroup non esiste lo creo
                 if (is_null($ug_qualifica)) {
-                    $ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id']);
+                    $ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id'], false);
                     if (is_null($ug_qualifica))
                         throw new Exception("Errore durante l'inserimento dello usergroup " . $cb_descrizione_qualifica, E_USER_ERROR);
 
+                    $inserted_ug = true;
+
                 }
 
-                $_user_id_ref = is_null($check_user_id) ? $check_user_id : $_new_user_id;
-                // controllo se l'utente è nel gruppo mansione altrimenti lo aggiungo, in caso contrario lo aggiungo
+                $_user_id_ref = !is_null($check_user_id) ? $check_user_id : $_new_user_id;
+
+                // controllo se l'utente è nel gruppo mansione in caso contrario lo aggiungo
                 if (!utilityHelper::check_user_into_ug($_user_id_ref, (array) $ug_qualifica)) {
                     $insert_user_ug = utilityHelper::set_usergroup_generic($_user_id_ref, (array) $ug_qualifica);
                     if (!is_array($insert_user_ug))
                         throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $_user_id_ref . " nel gruppo: " . $cb_descrizione_qualifica . " errore: " . $insert_user_ug, E_USER_ERROR);
                 }
 
+                $counter++;
+
             }
+
+            // se ho inserito un nuovo gruppo faccio rebuild
+            if ($inserted_ug)
+                $rebuild = utilityHelper::rebuild_ug_index();
+
+            $this->_db->transactionCommit();
+
+            return 1;
 
         }
         catch (Exception $e) {
+            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
-            echo 0;
+            return 0;
         }
 
         $this->_japp->close();

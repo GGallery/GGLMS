@@ -839,7 +839,7 @@ class utilityHelper
     }
 
     // inserisco nuovo usergroups - utility per controllers.users._import_rinnovi()
-    public static function insert_new_usergroups($usergroup, $parent_id=0) {
+    public static function insert_new_usergroups($usergroup, $parent_id=0, $rebuild = true) {
 
         try {
 
@@ -847,16 +847,15 @@ class utilityHelper
             $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
-                              '" . addslashes(trim($usergroup)) . "'
+                              " . $db->quote(addslashes(trim($usergroup))) . "
                         )";
 
             $db->setQuery($query);
             $db->execute();
             $new_group_id = $db->insertid();
 
-            // rebuild per indici lft, rgt
-            $JTUserGroup = new JTableUsergroup($db);
-            $JTUserGroup->rebuild();
+            if ($rebuild)
+                self::rebuild_ug_index($db);
 
             return $new_group_id;
 
@@ -1725,15 +1724,18 @@ HTML;
 
         foreach ($_new_user_cp as $key => $value) {
 
-            if (is_null($value) || $value === "")
+            if (is_null($value)
+                || $value == "")
                 continue;
 
             $_cols[] = $key;
             $_values[] = $value;
         }
 
-        $query .= "(" . implode(",", $_cols) . ")";
+        $query .= " (" . implode(",", $_cols) . ")";
         $query .= " VALUES ('" . implode( "','", $_values ) . "')";
+
+
 
         return $query;
     }
@@ -2191,7 +2193,10 @@ HTML;
         try {
 
             $_ret = array();
-            $_arr_add = self::get_usergroup_id($ug_list);
+            $_arr_add = $ug_list;
+
+            if (!is_array($_arr_add))
+                $_arr_add = self::get_usergroup_id($ug_list);
 
             foreach ($_arr_add as $key => $a_group_id) {
                 JUserHelper::addUserToGroup($user_id, $a_group_id);
@@ -2279,61 +2284,95 @@ HTML;
 
     }
 
-    // scarico file csv dal repository - utility per api.importa_anagrafica_farmacie()
-    public static function get_csv_remote($server_ip,
-                                          $server_port,
-                                          $username,
-                                          $password,
-                                          $local_file,
-                                          $start_from_zero = false,
-                                          $is_debug = false,
-                                          $_err_label = '') {
+    // scarico file csv da endpoint
+    public static function get_csv_remote_api($api_endpoint,
+                                              $api_user_auth,
+                                              $api_user_password,
+                                              $local_file,
+                                              $filename,
+                                              $_err_label = '') {
 
         try {
 
-            $target_csv = "";
-            if (!$is_debug) {
-                // file da remoto...
-            }
-            else {
-                $target_csv = $local_file . '20210609-15.10-anagrafica_dip.csv.csv';
-            }
+            $credentials = base64_encode("$api_user_auth:$api_user_password");
 
-            $reader = ReaderEntityFactory::createReaderFromFile($target_csv);
-            $reader->open($target_csv);
+            $headers = array(
+                        "Authorization: Basic {$credentials}",
+                        'Content-Type: application/x-www-form-urlencoded',
+                        'Cache-Control: no-cache'
+            );
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $api_endpoint);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+            $result = curl_exec($ch);
+
+            if (curl_errno($ch))
+                throw new Exception(curl_error($ch), E_USER_ERROR);
+
+            $dest_file = $local_file . $filename;
+            // cancello file se già esistente e lo cancello
+            if (file_exists($dest_file))
+                unlink($dest_file);
+
+            $write_file = file_put_contents($dest_file, $result);
+            if (!$write_file)
+                throw new Exception("Errore durante la scrittura di " . $write_file, E_USER_ERROR);
+
+            return $dest_file;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
+
+    }
+
+    // scarico file csv dal repository - utility per api.importa_anagrafica_farmacie()
+    public static function get_csv_remote($api_endpoint,
+                                          $api_user_auth,
+                                          $api_user_password,
+                                          $local_file,
+                                          $filename = '',
+                                          $start_from_zero = false,
+                                          $is_debug = false,
+                                          $_err_label = '',
+                                          $row_separator = ";") {
+
+        try {
+
+            $target_csv = self::get_csv_remote_api($api_endpoint, $api_user_auth, $api_user_password, $local_file, $filename);
+
             $rows_arr = array();
-            $row_counter = 0;
+            $file_contents = file_get_contents($target_csv);
+            $exploded_contents = explode("\n", $file_contents);
 
-            foreach ($reader->getSheetIterator() as $sheet) {
-                foreach ($sheet->getRowIterator() as $row) {
+            $counter = 0;
+            foreach ($exploded_contents as $key => $row) {
 
-                    // se il csv non parte dalla prima riga non la leggo
-                    if ($row_counter == 0
-                        && !$start_from_zero) {
-                        $row_counter++;
-                        continue;
-                    }
+                if ($row == "")
+                    continue;
 
-                    $cells = $row->getCells();
-                    $target_row = str_replace('"', "", $cells[0]->getValue());
-
-                    // spout dovrebbe saltare le righe vuote..
-                    if (trim($target_row) == ""
-                        || empty($target_row))
-                        continue;
-
-                    $rows_arr[] = explode(";", $target_row);
-
-                    // per debug non leggo tutto il file..
-                    if ($row_counter == 10
-                        && $is_debug)
-                        break;
-
-                    $row_counter++;
+                if (!$start_from_zero
+                    && $counter == 0) {
+                    $counter++;
+                    continue;
                 }
-            }
 
-            $reader->close();
+                // potrebbe essere necessario ripulire la stringa da dei double quote in eccesso
+                $rows_arr[] = explode($row_separator, str_replace('"', '', $row));
+
+                $counter++;
+
+                if ($is_debug
+                    && $counter == 5)
+                    break;
+
+            }
 
             if (count($rows_arr) == 0)
                 throw new Exception("Nessuna riga elaborata nel file csv", E_USER_ERROR);
@@ -3434,6 +3473,18 @@ HTML;
     // cancello cookie
     public static function _unset_cookie_by_name($cookie_name) {
         setcookie($cookie_name, "", time() - 3600, "/");
+    }
+
+    // rebuild generico della tabella usergroup
+    public static function rebuild_ug_index($db = null) {
+
+        if (is_null($db))
+            $db = JFactory::getDbo();
+
+        // rebuild per indici lft, rgt
+        $JTUserGroup = new JTableUsergroup($db);
+        $JTUserGroup->rebuild();
+
     }
 
     /* Generiche */

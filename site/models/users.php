@@ -1402,16 +1402,48 @@ class gglmsModelUsers extends JModelLegacy
         }
     }
 
+    // seleziono tutti i record dal master delle farmacie
+    public function get_farmacie($hh_store_code = null) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_master_farmacie');
+
+            if (!is_null($hh_store_code))
+                $query = $query->where('hh_store_code = ' . $this->_db->quote($hh_store_code));
+            else
+                $query = $query->order('id');
+
+            $this->_db->setQuery($query);
+            if (is_null($hh_store_code))
+                $results = $this->_db->loadAssocList();
+            else
+                $results = $this->_db->loadAssoc();
+
+            return $results;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // prendo il riferimento dell'utente alla farmacia
-    public function get_user_farmacia($user_id, $cb_codice_esterno_cdc_3) {
+    public function get_user_farmacia($user_id, $cb_codice_esterno_cdc_3 = null) {
 
         try {
             $query = $this->_db->getQuery(true)
                     ->select('*')
                     ->from('#__gg_farmacie_dipendenti')
-                    ->where('user_id = ' . $this->_db->quote($user_id))
-                    ->where('codice_esterno_cdc_3 = ' . $this->_db->quote($cb_codice_esterno_cdc_3))
-                    ->order('id DESC');
+                    ->where('user_id = ' . $this->_db->quote($user_id));
+            if (!is_null($cb_codice_esterno_cdc_3))
+                $query = $query->where('codice_esterno_cdc_3 = ' . $this->_db->quote($cb_codice_esterno_cdc_3));
+
+            $query = $query->order('id DESC');
 
             $this->_db->setQuery($query);
             $result = $this->_db->loadAssoc();
@@ -1456,7 +1488,11 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // inserimento dell'utente nella tabella di associazione con le farmacie
-    public function insert_user_farmacia($user_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento) {
+    public function insert_user_farmacia($user_id,
+                                         $id_gruppo,
+                                         $cb_codice_esterno_cdc_3,
+                                         $cb_data_inizio_rapporto,
+                                         $cb_data_licenziamento) {
 
         try {
 
@@ -1464,6 +1500,7 @@ class gglmsModelUsers extends JModelLegacy
 
             $query = "INSERT INTO #__gg_farmacie_dipendenti (
                                                           user_id,
+                                                          id_gruppo,
                                                           codice_esterno_cdc_3,
                                                           data_assunzione,
                                                           data_licenziamento
@@ -1472,6 +1509,7 @@ class gglmsModelUsers extends JModelLegacy
 
             $query .= "(
                                " . $this->_db->quote($user_id) . ",
+                               " . $this->_db->quote($id_gruppo) . ",
                                " . $this->_db->quote($cb_codice_esterno_cdc_3) . ",
                                " . $this->_db->quote($cb_data_inizio_rapporto) . ",
                                " . $this->_db->quote($cb_data_licenziamento) . "
