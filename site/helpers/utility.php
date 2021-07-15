@@ -2677,6 +2677,7 @@ HTML;
                                              $arr_dual,
                                              $arr_dt_corsi,
                                              $arr_codici_corso,
+                                             $arr_ref_skill,
                                              $arr_tipologia_corso,
                                              $arr_tutor_az,
                                              $tipologia_svolgimento,
@@ -2702,8 +2703,8 @@ HTML;
                 // il codice corso dipende dalla tipologia del corso
                 // 6 è ausindfad, 7 è sincrono, 8 è asincrono
                 // stesso discorso per la tipologia corso che se non è ausindfad mi ricavo dall'anagrafica del corso
-                // richiesta di tim CODICE_CORSO = 0 per tipologia 6
-                $_codice_corso = ($tipologia_svolgimento == 6) ? 0 : $arr_codici_corso[$id_corso];
+                // CODICE_CORSO sarà quello registrato nella chiamata API di creazione del coupon
+                $_codice_corso = ($tipologia_svolgimento == 6) ? $arr_ref_skill[$id_corso] : $arr_codici_corso[$id_corso];
                 $tipo_svolgimento = ($tipologia_svolgimento == 6) ? $tipologia_svolgimento : $arr_tipologia_corso[$id_corso];
 
                 // apro tag corso

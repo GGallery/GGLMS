@@ -2055,6 +2055,7 @@ HTML;
             $arr_corsi = array();
             $arr_gruppi = array();
             $arr_codici_corso = array();
+            $arr_ref_skill = array();
             $arr_tipologia_corso = array();
             $arr_dt_corsi = array();
             $arr_tutor_az = array();
@@ -2088,7 +2089,8 @@ HTML;
                                 COALESCE(unita.data_inizio, "") AS dt_inizio_corso,
                                 COALESCE(unita.data_fine, "") AS dt_fine_corso,
                                 ugm.idgruppo AS gruppo_corso,
-                                coup.id_societa AS azienda_utente
+                                coup.id_societa AS azienda_utente,
+                                COALESCE(coup.ref_skill, "") AS ref_skill
                                 ')
                 ->from('#__comprofiler AS cp')
                 ->join('inner', '#__users AS u ON cp.user_id = u.id')
@@ -2127,6 +2129,10 @@ HTML;
                 $arr_xml[$sub_res['id_corso']][] = $sub_res;
                 $arr_corsi[$sub_res['id_corso']] = $sub_res['titolo_corso'];
                 $arr_codici_corso[$sub_res['id_corso']] = $sub_res['codice_corso'];
+
+                if ($sub_res['ref_skill'] != "")
+                    $arr_ref_skill[$sub_res['id_corso']] = $sub_res['ref_skill'];
+
                 $arr_tipologia_corso[$sub_res['id_corso']] = $sub_res['tipologia_corso'];
 
                 // piva dei tutor aziendali
@@ -2152,6 +2158,7 @@ HTML;
                                                         $ret_users['dual'],
                                                         $arr_dt_corsi,
                                                         $arr_codici_corso,
+                                                        $arr_ref_skill,
                                                         $arr_tipologia_corso,
                                                         $arr_tutor_az,
                                                         $tipologia_svolgimento,
