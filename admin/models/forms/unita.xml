@@ -276,7 +276,7 @@
                 name="on_sale"
                 type="radio"
                 label="Acquistabile"
-                description="Se abilitato crea un catalogo di acquisto per i corsi (necessaria installazione del modulo di Acquisto corsi"
+                description="Se abilitato crea un catalogo di acquisto per i corsi (necessaria installazione del modulo di Acquisto corsi)"
                 class="btn-group"
                 showon="is_corso:1[AND]accesso:gruppo"
                 default="0"
@@ -457,6 +457,34 @@
         />
 
         <!-- Vendita FINE -->
+
+        <!-- PRENOTAZONE INIZIO -->
+        <field
+                name="is_bookable"
+                type="radio"
+                label="Prenotabile"
+                description="Se abilitato inserisce il corso in un catalogo di prenotazione"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+        <field
+                name="bookable_a_gruppi"
+                type="listagruppi"
+                label="Seleziona Gruppo/i"
+                description="Seleziona i gruppo/i per i quali il corso sarà prenotabile. Per non applicare filtri su gruppo/i lasciare vuoto"
+                class="inputbox"
+                showon="is_bookable:1"
+                default=""
+                multiple="true"
+                size="20"
+        />
+
+        <!-- PRENOTAZIONE FINE -->
 
     </fieldset>
 </form>

@@ -10,6 +10,7 @@ require_once JPATH_COMPONENT . '/helpers/utility.php';
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/catalogo.php';
 
 jimport('joomla.application.component.controller');
 jimport('joomla.access.access');
@@ -99,6 +100,7 @@ class gglmsController extends JControllerLegacy
             && strpos(JUri::getInstance()->toString(), 'paypal') === false
             && strpos(JUri::getInstance()->toString(), 'acquistaevento') === false
             && strpos(JUri::getInstance()->toString(), 'sponsor') === false
+            && strpos(JUri::getInstance()->toString(), 'boxes') === false
         ) {
 //            $msg = "Per accedere al corso è necessario loggarsi";
             $msg = JText::_('COM_GGLMS_NOT_LOGGED');

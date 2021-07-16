@@ -372,6 +372,31 @@ JHtml::_('formbehavior.chosen', 'select');
 
     <?php echo JHtml::_('bootstrap.endTab'); ?>
 
+    <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'Prenotazione', JText::_('COM_GGLMS_UNITA_RESERVATION', true)); ?>
+
+
+    <div class="row-fluid">
+        <div class="span12">
+
+            <div class="span4">
+
+                <h4>Generale</h4>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('is_bookable'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('bookable_a_gruppi'); ?>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <?php echo JHtml::_('bootstrap.endTab'); ?>
 
     <input id="idelemento" type="hidden" name="idelemento" value="<?php echo $this->item->id; ?>" size = "150px">
     <input id="path" type="hidden" name="path" value="<?php echo $_SERVER['DOCUMENT_ROOT']; ?>/mediagg/images/unit/" size = "150px">

@@ -242,8 +242,8 @@ class outputHelper {
 
     public static function output_select ($name, $items, $value, $text, $default=null, $class=null)
     {
-        
-        
+
+
         $html = '<select id="'.$name.'" name="'.$name.'" class="'.$class.'">';
 
         foreach ($items as $item)
@@ -290,8 +290,8 @@ HTML;
             <div class="row">
                 <div class="col-xs-10">
                     <div class="progress">
-                        <div class="progress-bar progress-bar-striped {$style_barra}" 
-                            role="progressbar" 
+                        <div class="progress-bar progress-bar-striped {$style_barra}"
+                            role="progressbar"
                             style="width: {$perc_completamento}%; height: 100% !important; color: black; font-weight: bold;" aria-valuenow="{$perc_completamento}" aria-valuemin="0" aria-valuemax="100">{$perc_completamento}%</div>
                     </div>
                 </div>
@@ -386,8 +386,8 @@ HTML;
             <div class="row">
                 <div class="col-xs-10">
                     <div class="progress" style="height: 25px;">
-                        <div class="progress-bar {$style_barra}" 
-                            role="progressbar" 
+                        <div class="progress-bar {$style_barra}"
+                            role="progressbar"
                             style="width: {$perc_completamento}%; height: 100%; color: black; font-weight: bold;" aria-valuenow="{$perc_completamento}" aria-valuemin="0" aria-valuemax="100">{$perc_completamento}%</div>
                     </div>
                 </div>
@@ -449,19 +449,19 @@ HTML;
                 <div class="card">
                     <div class="card-header" id="heading-{$cards}">
                         <h5 class="mb-0">
-                            <button class="btn btn-link" 
-                                    data-toggle="collapse" 
-                                    data-target="#collapse-{$cards}" 
-                                    aria-expanded="true" 
-                                    aria-controls="collapse-{$cards}" 
+                            <button class="btn btn-link"
+                                    data-toggle="collapse"
+                                    data-target="#collapse-{$cards}"
+                                    aria-expanded="true"
+                                    aria-controls="collapse-{$cards}"
                                     style="background: #fff; color: red; line-height: inherit;">
                                 <strong>{$titolo_padre}</strong>
                             </button>
                         </h5>
                     </div>
-                    <div id="collapse-{$cards}" 
-                         class="collapse show" 
-                         aria-labelledby="heading-{$cards}" 
+                    <div id="collapse-{$cards}"
+                         class="collapse show"
+                         aria-labelledby="heading-{$cards}"
                          data-parent="#accordion">
                         <div class="card-body">
 HTML;
@@ -675,13 +675,13 @@ HTML;
                                 <p class="text-center">
                                     {$_result_msg}
                                 </p>
-                                
+
                                 {$_result_extra}
 
                             </div>
                         </div>
                     </div>
-    
+
 HTML;
 
         }
@@ -715,16 +715,16 @@ HTML;
         $_html = <<<HTML
                 <div class="jumbotron">
                     <h4>Grazie!</h4>
-                    <p>La tua registrazione all'evento {$_titolo_evento} è andata a buon fine 
-                        <br />Tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                    <p>La tua registrazione all'evento {$_titolo_evento} è andata a buon fine
+                        <br />Tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a>
                     </p>
                 </div>
 
                 <script>
                     setTimeout(function () {
-                        window.location.href = "{$_href}";     
+                        window.location.href = "{$_href}";
                     }, 10000);
-                   
+
                 </script>
 HTML;
 
@@ -753,7 +753,7 @@ HTML;
                         <input class="form-control" type="text" id="username" style="width: 320px;" placeholder="{$_label_username}" />
                     </div>
                 </div>
-                
+
                 <div class="rowcustom">
                     <div class="col-75">
                         <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
@@ -761,7 +761,7 @@ HTML;
                         <input class="form-control" type="password" id="password_utente" style="width: 320px;" value="" />
                     </div>
                 </div>
-                
+
                 <div class="rowcustom">
                     <button class="btn btn-large btn-primary btn-accedi-sponsor" data-ref="{$_ref_registrazione}">{$_label_accedi}</button>
                 </div>
@@ -861,7 +861,7 @@ HTML;
             <hr />
             <div class="container-form">
                 <form>
-                
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="username">{$_label_username}<span style="color: red">*</span></label>
@@ -870,7 +870,7 @@ HTML;
                         <input class="form-control" type="text" id="username" style="width: 320px;" placeholder="{$_label_username}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
@@ -879,7 +879,7 @@ HTML;
                         <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="email_utente">{$_label_email}<span style="color: red">*</span></label>
@@ -888,7 +888,7 @@ HTML;
                         <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
                       </div>
                     </div>
-                
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="nome_utente">{$_label_nome}<span style="color: red">*</span></label>
@@ -897,7 +897,7 @@ HTML;
                         <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="cognome_utente">{$_label_cognome}<span style="color: red">*</span></label>
@@ -906,7 +906,7 @@ HTML;
                         <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
                       </div>
                     </div>
-                    
+
                      <div class="rowcustom">
                       <div class="col-25">
                         <label for="cf_utente">{$_label_cf}<span style="color: red">*</span></label>
@@ -915,7 +915,7 @@ HTML;
                         <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
@@ -924,7 +924,7 @@ HTML;
                         <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="citta_nascita_utente">{$_label_citta_nascita}<span style="color: red">*</span></label>
@@ -933,7 +933,7 @@ HTML;
                         <input class="form-control" type="text" id="citta_nascita_utente" style="width: 220px;" data-campo="{$_cb_luogo_nascita}" placeholder="{$_label_citta_nascita}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="pv_nascita_utente">{$_label_pv_nascita}<span style="color: red">*</span></label>
@@ -945,7 +945,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="citta_utente">{$_label_indirizzo}<span style="color: red">*</span></label>
@@ -954,7 +954,7 @@ HTML;
                         <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="citta_utente">{$_label_citta}<span style="color: red">*</span></label>
@@ -963,7 +963,7 @@ HTML;
                         <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="cap_utente">{$_label_cap}<span style="color: red">*</span></label>
@@ -972,7 +972,7 @@ HTML;
                         <input class="form-control" type="text" id="cap_utente" style="width: 120px;" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="pv_utente">{$_label_pv}<span style="color: red">*</span></label>
@@ -984,7 +984,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="telefono_utente">{$_label_telefono}<span style="color: red">*</span></label>
@@ -993,7 +993,7 @@ HTML;
                         <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="{$_label_telefono}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="professione_utente">{$_label_professione}<span style="color: red">*</span></label>
@@ -1005,7 +1005,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="ruolo_utente">{$_label_ruolo}<span style="color: red">*</span></label>
@@ -1017,7 +1017,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="ordine_utente">{$_label_ordine}<span style="color: red">*</span></label>
@@ -1029,7 +1029,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="iscrizione_albo_utente">{$_label_iscrizione}<span style="color: red">*</span></label>
@@ -1038,7 +1038,7 @@ HTML;
                         <input class="form-control" type="text" id="iscrizione_albo_utente" style="width: 220px;" data-campo="{$_cb_numeroiscrizione}"  placeholder="{$_label_iscrizione}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="reclutamento_utente">{$_label_reclutamento}<span style="color: red">*</span></label>
@@ -1050,7 +1050,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                         <div class="col-xs-12 text-center">
                             <button class="btn btn-large btn-primary btn-registrazione-sponsor" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
@@ -1058,7 +1058,7 @@ HTML;
                      </div>
                      <input type="hidden" id="token" value="{$token}" />
                      <input type="hidden" id="id_evento" value="{$id_evento}" />
-                    
+
                 </form>
             </div>
 
@@ -1136,9 +1136,9 @@ HTML;
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_request');
 
             $_html = <<<HTML
-            
+
             <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
-            
+
             <div class="row">
                 <div class="col-12">
                     <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
@@ -1147,7 +1147,7 @@ HTML;
             <hr />
             <div class="container-form">
                 <form>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="nome_utente">{$_label_nome}<span style="color: red">*</span></label>
@@ -1156,7 +1156,7 @@ HTML;
                         <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="cognome_utente">{$_label_cognome}<span style="color: red">*</span></label>
@@ -1165,7 +1165,7 @@ HTML;
                         <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
@@ -1174,7 +1174,7 @@ HTML;
                         <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="ripeti_password_utente">{$_label_r_password}<span style="color: red">*</span></label>
@@ -1183,7 +1183,7 @@ HTML;
                         <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="cf_utente">{$_label_cf}<span style="color: red">*</span></label>
@@ -1192,7 +1192,7 @@ HTML;
                         <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="email_utente">{$_label_email}<span style="color: red">*</span></label>
@@ -1201,7 +1201,7 @@ HTML;
                         <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="citta_utente">{$_label_indirizzo}<span style="color: red">*</span></label>
@@ -1210,7 +1210,7 @@ HTML;
                         <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="citta_utente">{$_label_citta}<span style="color: red">*</span></label>
@@ -1219,7 +1219,7 @@ HTML;
                         <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="pv_utente">{$_label_pv}<span style="color: red">*</span></label>
@@ -1231,7 +1231,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                      <div class="rowcustom">
                       <div class="col-25">
                         <label for="cap_utente">{$_label_cap}<span style="color: red">*</span></label>
@@ -1240,7 +1240,7 @@ HTML;
                         <input class="form-control" type="text" id="cap_utente" style="width: 120px;" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
@@ -1249,7 +1249,7 @@ HTML;
                         <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="telefono_utente">{$_label_tel}<span style="color: red">*</span></label>
@@ -1258,7 +1258,7 @@ HTML;
                         <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="{$_label_tel}" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="professione_utente">{$_label_professione}<span style="color: red">*</span></label>
@@ -1270,7 +1270,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="laureain_utente">{$_label_laurea_in}<span style="color: red">*</span></label>
@@ -1282,7 +1282,7 @@ HTML;
                             </select>
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="anno_laurea_utente">{$_label_anno_laurea}<span style="color: red">*</span></label>
@@ -1291,16 +1291,16 @@ HTML;
                         <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  placeholder="Anno di laurea" />
                       </div>
                     </div>
-                    
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="richiesta_fattura">{$_label_richiesta_fattura}</label>
                         <input class="form-control" type="checkbox" id="check_richiesta_fattura" />
                       </div>
                     </div>
-                    
+
                     <div id="campi_fattura" style="display: none;">
-                    
+
                         <div class="rowcustom">
                           <div class="col-25">
                             <label for="ragione_sociale">{$_label_ragione_sociale}</label>
@@ -1309,7 +1309,7 @@ HTML;
                             <input class="form-control campi_fattura" type="text" id="ragione_sociale" style="width: 220px;" data-campo="{$_cb_ragionesociale}"  placeholder="{$_label_ragione_sociale}" />
                           </div>
                         </div>
-                    
+
                         <div class="rowcustom">
                           <div class="col-25">
                             <label for="partita_iva">{$_label_piva}</label>
@@ -1318,7 +1318,7 @@ HTML;
                             <input class="form-control campi_fattura" type="text" id="partita_iva" style="width: 220px;" data-campo="{$_cb_partitaiva}"  placeholder="{$_label_piva}" />
                           </div>
                         </div>
-                        
+
                         <div class="rowcustom">
                           <div class="col-25">
                             <label for="codice_destinatario">{$_label_cod_dest}</label>
@@ -1327,9 +1327,9 @@ HTML;
                             <input class="form-control campi_fattura" type="text" id="codice_destinatario" style="width: 220px;" data-campo="{$_cb_codicedestinatario}"  placeholder="{$_label_cod_dest}" />
                           </div>
                         </div>
-                    
+
                     </div>
-               
+
                      <div class="rowcustom">
                         <div class="col-xs-12 text-center">
                             <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
@@ -1377,16 +1377,16 @@ HTML;
                         <br />
                         Riceverai una E-Mail all'indirizzo indicato durante la registrazione con i tuoi dati
                         <br />
-                        Accedi alla pagina di <a href="{$_ref_accedi}">LOGIN</a> 
-                        Oppure tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                        Accedi alla pagina di <a href="{$_ref_accedi}">LOGIN</a>
+                        Oppure tra 10 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a>
                         </p>
                 </div>
 
                 <script>
                     setTimeout(function () {
-                        window.location.href = "{$_href}";     
+                        window.location.href = "{$_href}";
                     }, 10000);
-                   
+
                 </script>
 HTML;
             $_ret['success'] = $_html;
@@ -1530,19 +1530,19 @@ HTML;
             $_html = <<<HTML
                 <div class="jumbotron">
                     <h4>Grazie!</h4>
-                    <p>Per confermare l'iscrizione all'evento  <b>{$_event_title}</b> invia una copia della ricevuta a <b>{$_email_to}</b> 
+                    <p>Per confermare l'iscrizione all'evento  <b>{$_event_title}</b> invia una copia della ricevuta a <b>{$_email_to}</b>
                         con le seguenti indicazioni: <br />
                         <b>Nome</b> e <b>Cognome</b> - <b>Titolo del corso acquistato</b> - <b>Codice fiscale</b> - <b>Recapito telefonico</b>
                         <br />
-                        Tra 20 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a> 
+                        Tra 20 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a>
                         </p>
                 </div>
 
                 <script>
                     setTimeout(function () {
-                        window.location.href = "{$_href}";     
+                        window.location.href = "{$_href}";
                     }, 20000);
-                   
+
                 </script>
 HTML;
             $_ret['success'] = $_html;
@@ -1657,7 +1657,7 @@ HTML;
                     </tr>
                     {$_row_pagamento_bonfico}
                 </table>
-                
+
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$unit_prezzo}" />
                 <input type="hidden" id="token" value="{$token}" />
                 <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
@@ -1816,7 +1816,7 @@ HTML;
                         </td>
                     </tr>
                 </table>
-                
+
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$_tariffa}" />
                 <input style="display: none;" type="number" id="amount_espen" name="amount_espen" value="0" />
                 <input style="display: none;" type="number" id="tariffa_espen" name="tariffa_espen" value="{$_tariffa_espen}" />
@@ -1961,7 +1961,7 @@ HTML;
                         </td>
                     </tr>
                 </table>
-                
+
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$_tariffa}" />
                 <input style="display: none;" type="number" id="amount_espen" name="amount_espen" value="0" />
                 <input style="display: none;" type="number" id="tariffa_espen" name="tariffa_espen" value="{$_tariffa_espen}" />
@@ -2085,6 +2085,65 @@ HTML;
 
         return $_html;
 
+    }
+
+    public static function get_box_details($boxes) {
+
+        $_html = "";
+        if (!is_array($boxes)
+            || count($boxes) == 0) {
+            $_label = JText::_('COM_GGLMS_BOXES_NO_BOX');
+            $_html = <<< HTML
+            <div class="jumbotron">
+              <p>{$_label}</p>
+            </div>
+HTML;
+            return $_html;
+        }
+
+        $site_root = JUri::root();
+        $num_cols = 3;
+        $row_count = 0;
+        $bootstrap_col_w = 12 / $num_cols;
+        $_show = JText::_('COM_GGLMS_BOXES_READ_BOX');
+        $uri = JUri::getInstance();
+        foreach ($boxes as $key_box => $box) {
+
+            $_descrizione = $box['description'];
+            $_box_id = $box['id'];
+            $_img_src = $site_root . '/images/box_' . $box['id'] . '.jpg';
+            $_box_url = $uri->toString() . '?box_id=' . $box['id'];
+
+            if($row_count % $num_cols == 0) {
+                $_html .= <<<HTML
+                <div class="row">
+ HTML;
+            }
+
+            $row_count++;
+            $_html .= <<<HTML
+                <div class="col-md-{$bootstrap_col_w}">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"><b>{$_descrizione}</b></div>
+                        <div class="panel-body">
+                            <img src="{$_img_src}" class="img-responsive" alt="{$_descrizione}">
+                        </div>
+                        <div class="panel-footer">
+                            <p class="text-left">
+                                <a href="$_box_url">{$_show}</a>
+                            </p>
+                        </div>
+                    </div>
+            </div>
+HTML;
+            if($row_count % $num_cols == 0) {
+                $_html .= <<<HTML
+                </div>
+HTML;
+            }
+        }
+
+        return $_html;
     }
 
 }

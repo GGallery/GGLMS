@@ -4,7 +4,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 echo '<div class="main">'; ?>
-<h1> <?php echo$this->catalogo[0]->description ?> </h1>
+<h1> <?php echo $this->catalogo[0]->description ?> </h1>
 <?php
 foreach ($this->catalogo as $item) { ?>
 

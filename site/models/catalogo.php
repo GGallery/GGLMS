@@ -81,5 +81,23 @@ class gglmsModelCatalogo extends JModelLegacy
         return $catalogo;
     }
 
+    // i box delle categorie corsi
+    public function get_box_categorie_corso($box_id = null) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_box_details');
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssocList();
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+    }
+
 }
 

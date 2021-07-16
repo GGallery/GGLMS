@@ -39,6 +39,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $dp_lang;
     protected $id_evento_sponsor;
     protected $corsi;
+    protected $box_corsi;
 
     function display($tpl = null)
     {
@@ -84,6 +85,7 @@ class gglmsViewdettagliutente extends JViewLegacy
 
             $layout = JRequest::getWord('template', '');
             $this->setLayout($layout);
+
 
             $_user = new gglmsModelUsers();
             $_current_user = JFactory::getUser();
@@ -163,6 +165,13 @@ class gglmsViewdettagliutente extends JViewLegacy
 
                 $model_report = new gglmsModelReport();
                 $this->corsi = $model_report->getCorsi(true);
+
+            }
+            else if ($layout == 'prenotazione_corsi_box') {
+
+                $box_id = JRequest::getVar('box_id', null);
+                $model_catalogo = new gglmsModelCatalogo();
+                $this->box_corsi = $model_catalogo->get_box_categorie_corso($box_id);
 
             }
         }
