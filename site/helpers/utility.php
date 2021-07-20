@@ -3490,5 +3490,12 @@ HTML;
 
     }
 
+    // cancella un parametro da url
+    public static function remove_param($url, $param) {
+        $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*$/', '', $url);
+        $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*&/', '$1', $url);
+        return $url;
+    }
+
     /* Generiche */
 }

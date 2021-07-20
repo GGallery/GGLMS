@@ -1402,6 +1402,26 @@ class gglmsModelUsers extends JModelLegacy
         }
     }
 
+    // il numero di utenti per un gruppo
+    public function get_users_per_gruppo($group_id) {
+
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('user_id')
+                ->from('#__user_usergroup_map')
+                ->where('group_id = ' . $this->_db->quote($group_id))
+                ->group('user_id');
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssocList();
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // seleziono tutti i record dal master delle farmacie
     public function get_farmacie($hh_store_code = null) {
 

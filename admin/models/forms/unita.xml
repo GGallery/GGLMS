@@ -478,11 +478,22 @@
                 label="Seleziona Gruppo/i"
                 description="Seleziona i gruppo/i per i quali il corso sarà prenotabile. Per non applicare filtri su gruppo/i lasciare vuoto"
                 class="inputbox"
-                showon="is_bookable:1"
+                showon="is_bookable:1[AND]accesso:gruppo"
                 default=""
                 multiple="true"
                 size="20"
         />
+
+        <field
+                name="posti_disponibili"
+                type="number"
+                label="Posti disponibili"
+                description="Se 0 se limiti altrimenti specifica quanto posti disponibili ci sono per ogni corso"
+                class="btn-group"
+                showon="is_bookable:1[AND]accesso:gruppo"
+                default="0"
+        >
+        </field>
 
         <!-- PRENOTAZIONE FINE -->
 

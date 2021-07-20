@@ -62,6 +62,11 @@ class gglmsTableunita extends JTable
             gglmsHelper::SetScontoGruppi($array, $_REQUEST['jform']['sc_a_data_gruppi'], 'sc_a_data_gruppi');
         }
 
+        if (isset($array['bookable_a_gruppi'])
+            && isset($_REQUEST['jform']['bookable_a_gruppi'])) {
+            gglmsHelper::SetScontoGruppi($array, $_REQUEST['jform']['bookable_a_gruppi'], 'bookable_a_gruppi');
+        }
+
         // Blocco unita padre per unita root
         if (($array['id']) == 1 && ($array['unitapadre']) != 0)
             $array['unitapadre'] = 0;

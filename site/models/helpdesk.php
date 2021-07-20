@@ -55,7 +55,15 @@ class gglmsModelHelpDesk extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('d.name, d.alias, d.telefono, d.email_riferimento as email_riferimento ,d.link_ecommerce, d.nomi_tutor, d.email_tutor as recipient_didattico')
+                ->select('d.group_id,
+                    d.name,
+                    d.alias,
+                    d.telefono,
+                    d.email_riferimento as email_riferimento,
+                    d.link_ecommerce,
+                    d.nomi_tutor,
+                    d.email_tutor as recipient_didattico,
+                    d.dominio')
                 ->from('#__usergroups_details AS d')
                 ->where("d.dominio= '" . DOMINIO . "'");
 

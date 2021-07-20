@@ -34,11 +34,19 @@ class gglmsModelCatalogo extends JModelLegacy
 
     }
 
-    public function getCatalogo($dominio, $box)
+    public function getCatalogo($dominio, $box, $show_bookable = false)
     {
 
         $query = $this->_db->getQuery(true)
-            ->select('distinct u.id,u.titolo,u.descrizione, u.alias, b1.description')
+            ->select('distinct u.id,
+                        u.titolo,
+                        u.descrizione,
+                        u.alias,
+                        u.posti_disponibili,
+                        u.data_inizio,
+                        u.data_fine,
+                        u.bookable_a_gruppi,
+                        b1.description, b.order')
             ->from('#__gg_unit as u')
             ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
             ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
@@ -49,11 +57,11 @@ class gglmsModelCatalogo extends JModelLegacy
             ->order('b.order')
             ->where('u.pubblicato = 1');
 
-//        echo $query; die;
+        if ($show_bookable)
+            $query = $query->where('u.is_bookable = 1');
 
         $this->_db->setQuery($query);
         $catalogo = $this->_db->loadObjectList();
-
 
         return $catalogo;
     }
@@ -82,13 +90,18 @@ class gglmsModelCatalogo extends JModelLegacy
     }
 
     // i box delle categorie corsi
-    public function get_box_categorie_corso($box_id = null) {
+    public function get_box_categorie_corso($box_id = null, $dominio = null) {
 
         try {
 
-            $query = $this->_db->getQuery(true)
-                ->select('*')
-                ->from('#__gg_box_details');
+            $query = $this->_db->getQuery(true);
+
+            if (!is_null($box_id)) {
+                return $this->getCatalogo($dominio, $box_id, true);
+            }
+            else
+                $query = $query->select('*')
+                            ->from('#__gg_box_details');
 
             $this->_db->setQuery($query);
             return $this->_db->loadAssocList();

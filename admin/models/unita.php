@@ -51,7 +51,7 @@ class gglmsModelunita extends JModelAdmin
     }
 
     /*
-     * Verifico la durata del contenuto 
+     * Verifico la durata del contenuto
      */
 
     public function getTable($name = '', $prefix = 'gglmsTable', $options = array())
@@ -78,6 +78,7 @@ class gglmsModelunita extends JModelAdmin
             $item->id_piattaforme_abilitate = gglmsHelper::GetMappaAccessoPiattaforme($item);
             $item->sc_a_gruppi = gglmsHelper::GetScontoGruppi($item, 'sc_a_gruppi');
             $item->sc_a_data_gruppi = gglmsHelper::GetScontoGruppi($item, 'sc_a_data_gruppi');
+            $item->bookable_a_gruppi = gglmsHelper::GetScontoGruppi($item, 'bookable_a_gruppi');
 
         }
 
@@ -125,7 +126,7 @@ class gglmsModelunita extends JModelAdmin
         try {
             $db = JFactory::getDBO();
 
-            $query = 'insert into #__gg_unit (titolo,alias,pubblicato,descrizione,unitapadre, id_event_booking,id_contenuto_completamento,ordinamento,accesso,is_corso,data_inizio,data_fine) 
+            $query = 'insert into #__gg_unit (titolo,alias,pubblicato,descrizione,unitapadre, id_event_booking,id_contenuto_completamento,ordinamento,accesso,is_corso,data_inizio,data_fine)
         select titolo,CONCAT(alias,concat(\'_\',convert(floor(RAND()*1000),CHAR(25)))),pubblicato,descrizione,unitapadre, id_event_booking,id_contenuto_completamento,ordinamento,accesso,is_corso,data_inizio,data_fine from #__gg_unit where id=' . $pk;
             $db->setQuery($query);
             $db->execute();

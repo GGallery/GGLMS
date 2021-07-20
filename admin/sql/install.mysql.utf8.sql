@@ -487,6 +487,9 @@ CREATE TABLE `#__gg_unit` (
   `codice`  varchar(255) NULL,
   `codice_alfanumerico`  varchar(255) NULL,
   `tipologia_corso`  tinyint(1) NOT NULL DEFAULT 6,
+  `is_bookable` tinyint(1) UNSIGNED DEFAULT '0',
+  `bookable_a_gruppi` text DEFAULT NULL,
+  `posti_disponibili` INT(10) UNSIGNED DEFAULT '0',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;

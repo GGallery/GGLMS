@@ -80,7 +80,6 @@ class gglmsModelUnita extends JModelLegacy
             /// QUESTA RIGA E' COMMENTATA DA PETRUX il 30/01/2020 prchè non caricava i report in seguito a una spubblicazione di un' unità
 //                ->where('u.pubblicato = 1');
 
-
             $this->_db->setQuery($query);
             $unit = $this->_db->loadObject('gglmsModelUnita');
 

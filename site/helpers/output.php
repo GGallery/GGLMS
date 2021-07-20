@@ -2087,18 +2087,275 @@ HTML;
 
     }
 
+    public static function get_immagine_unita($corso_id) {
+
+        $uri = JUri::getInstance();
+        $site_root = JUri::root();
+        $site_uri = $uri->getScheme() . '/' .  $uri->getHost();
+
+        return file_exists('../mediagg/images/unit/' . $corso_id . '.jpg')
+            ? $site_uri . '/mediagg/images/unit/' . $corso_id . '.jpg' : $site_root . 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+
+
+    }
+
+    public static function get_no_corsi_error($_label, $_back = null) {
+
+        $_html = <<< HTML
+            <div class="jumbotron">
+              <p>{$_label}</p>
+            </div>
+HTML;
+
+        if (!is_null($_back)) {
+            if (isset($_COOKIE[$_back])) {
+                $_label_indietro = JText::_('COM_GGLMS_BOXES_SCHEDA_BACK');
+                $back_url = urldecode($_COOKIE[$_back]);
+                $_html .= <<<HTML
+                <p class="text-right">
+                    <a href="{$back_url}">
+                        <h5><b><< {$_label_indietro}</b></h5>
+                    </a>
+                </p>
+HTML;
+            }
+        }
+
+        return $_html;
+
+    }
+
+    public static function get_success_subscription($titolo_unita) {
+
+        $_href = utilityHelper::set_index_redirect_url();
+        $_label_grazie = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_GRAZIE');
+        $_label_ok = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
+        $_label_redir = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_REDIR');
+        $_html = <<<HTML
+                <div class="jumbotron">
+                    <h4>{$_label_grazie}</h4>
+                    <p>{$_label_ok}
+                        <br />
+                        {$_label_redir} <a href="{$_href}">HOME</a>
+                        </p>
+                </div>
+
+                <script>
+                    setTimeout(function () {
+                        window.location.href = "{$_href}";
+                    }, 20000);
+
+                </script>
+HTML;
+        return $_html;
+
+    }
+
+    public static function get_courses_list($courses, $user_id = 0) {
+
+        $_html = "";
+        if (!is_array($courses)
+            || count($courses) == 0)  {
+            return self::get_no_corsi_error(JText::_('COM_GGLMS_BOXES_NO_COURSE'), 'catalogo_corsi_list');
+        }
+
+        // titolo box
+        $_html .= <<<HTML
+        <p>
+            <h1>
+                <b>{$courses[0]->description}</b>
+            </h1>
+        </p>
+HTML;
+
+        $_label_posti = strtoupper(JText::_('COM_GGLMS_BOXES_POSTI'));
+        $_label_dt_inizio = strtoupper(JText::_('COM_GGLMS_BOXES_DATA_INIZIO'));
+        $_label_dt_fine = strtoupper(JText::_('COM_GGLMS_BOXES_DATA_FINE'));
+        $_label_scheda = strtoupper(JText::_('COM_GGLMS_BOXES_SCHEDA'));
+        $uri = JUri::getInstance();
+
+        $counter = 0;
+        foreach ($courses as $corso) {
+
+            // se l'utente è loggato controllo se i gruppi per i quali il corso è prenotabile fanno parte anche di quelli dell'utente
+            if ($user_id > 0) {
+                if (!utilityHelper::check_user_into_ug($user_id, explode(",", $corso->bookable_a_gruppi)))
+                    continue;
+            }
+
+            $posti_disponibili = $corso->posti_disponibili > 0 ? $corso->posti_disponibili : JText::_('COM_GGLMS_BOXES_POSTI_NO_LIMIT');
+            $data_inizio = (!is_null($corso->data_inizio) && $corso->data_inizio != "") ? utilityHelper::convert_dt_in_format($corso->data_inizio, 'd/m/Y') : "-";
+            $data_fine = (!is_null($corso->data_fine) && $corso->data_fine != "") ? utilityHelper::convert_dt_in_format($corso->data_fine, 'd/m/Y') : "-";
+            /*
+            $descrizione = preg_replace('#<a.*?>.*?</a>#i', '', $corso->descrizione);
+            */
+            $descrizione = $corso->descrizione;
+            $unit_url = utilityHelper::remove_param($uri->toString(), "box_id") . '?unit_id=' . $corso->id;
+            $_img = self::get_immagine_unita($corso->id);
+
+            $_html .= <<<HTML
+            <div class="media">
+              <div class="media-left">
+                <a href="#">
+                  <img class="media-object unit-img" src="{$_img}" alt="{$corso->titolo}">
+                </a>
+              </div>
+              <div class="media-body">
+                <h4 class="media-heading">{$corso->titolo}</h4>
+                <p>
+                    <b>{$_label_posti}:</b> {$posti_disponibili}</b>
+                    <br />
+                    <b>{$_label_dt_inizio}:</b> {$data_inizio}
+                    <br />
+                    <b>{$_label_dt_fine}:</b> {$data_fine}
+                </p>
+                <hr />
+                <p>
+                    {$descrizione}
+                </p>
+
+                <hr />
+
+                <p class="text-right">
+                    <a href="{$unit_url}">
+                        <h5><b>{$_label_scheda} >></b></h5>
+                    </a>
+                </p>
+
+              </div>
+            </div>
+HTML;
+
+            $counter++;
+        }
+
+        // nessun corso trovato per l'utente corrente
+        if ($counter == 0) {
+            return self::get_no_corsi_error(JText::_('COM_GGLMS_BOXES_NO_COURSE'), 'catalogo_corsi_list');
+        }
+
+        // indietro a lista box
+        if (isset($_COOKIE['catalogo_corsi_list'])) {
+            $_label_indietro = JText::_('COM_GGLMS_BOXES_SCHEDA_BACK');
+            $back_url = urldecode($_COOKIE['catalogo_corsi_list']);
+            $_html .= <<<HTML
+                <p class="text-right">
+                    <a href="{$back_url}">
+                        <h5><b><< {$_label_indietro}</b></h5>
+                    </a>
+                </p>
+HTML;
+        }
+
+
+        return $_html;
+
+    }
+
+    public static function get_scheda_unita($unita, $posti_disponibili, $gruppo_corso, $user_id = 0) {
+
+        $_html = "";
+        $_iscritto = false;
+        // controllo integrità unità e se l'utente può prenotare il corso
+        if (is_null($unita)
+            || ($user_id > 0 && !utilityHelper::check_user_into_ug($user_id, explode(",", $unita->bookable_a_gruppi)))
+        ) {
+            return self::get_no_corsi_error(JText::_('COM_GGLMS_BOXES_NO_UNITA'), 'prenota_corso_box');
+        }
+
+        // controllo se l'utente è già nel corso
+        if ($user_id > 0
+            && utilityHelper::check_user_into_ug($user_id, (array) $gruppo_corso))
+            $_iscritto = true;
+
+        $_label_posti = ($posti_disponibili > 0) ?
+            JText::_('COM_GGLMS_BOXES_SCHEDA_POSTI_DISPONIBILI_PRE') . " " . $posti_disponibili . " " . JText::_('COM_GGLMS_BOXES_SCHEDA_POSTI_DISPONIBILI_POST')
+            : JText::_('COM_GGLMS_BOXES_SCHEDA_POSTI_DISPONIBILI_NESSUNO');
+
+        if ($unita->posti_disponibili == 0)
+            $_label_posti = JText::_('COM_GGLMS_BOXES_POSTI_NO_LIMIT_EXT');
+
+
+        $_label_dt_inizio = strtoupper(JText::_('COM_GGLMS_BOXES_DATA_INIZIO'));
+        $_label_dt_fine = strtoupper(JText::_('COM_GGLMS_BOXES_DATA_FINE'));
+        $_label_scheda = strtoupper(JText::_('COM_GGLMS_BOXES_SCHEDA_TITOLO'));
+        $_label_prenota = strtoupper(JText::_('COM_GGLMS_BOXES_SCHEDA'));
+        $_label_back = strtoupper(JText::_('COM_GGLMS_BOXES_SCHEDA_BACK'));
+        $_label_iscritto = JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO');
+
+        $prenota_btn = <<<HTML
+        <button class="btn btn-lg btn-primary"
+                                    id="btn-prenota-corso"
+                                    data-user="{$user_id}"
+                                    data-ug="{$gruppo_corso}"
+                                    href="javascript:">{$_label_prenota}</button>
+HTML;
+
+        $prenota_btn_ = ($posti_disponibili > 0) ? $prenota_btn : '';
+        if ($unita->posti_disponibili == 0)
+            $prenota_btn_ = $prenota_btn;
+
+
+        $back_btn = "";
+        if (isset($_COOKIE['prenota_corso_box'])) {
+            $back_url = urldecode($_COOKIE['prenota_corso_box']);
+            $back_btn = <<<HTML
+            <button class="btn btn-lg btn-primary"
+                                    onclick="javascript:window.location.href='{$back_url}'">{$_label_back}</button>
+HTML;
+
+        }
+
+        // utente già iscritto al corso
+        $ref_iscritto = "";
+        if ($_iscritto) {
+            $ref_iscritto = <<<HTML
+            <p>
+                <span style="color: red">{$_label_iscritto}</span>
+            </p>
+HTML;
+            $prenota_btn_ = '';
+        }
+
+        $_img = self::get_immagine_unita($unita->id);
+
+        $_html .= <<<HTML
+            <div class="row">
+
+                 <div class="col-sm-8 blog-main">
+
+                    <div class="blog-post">
+                    <h2 class="blog-post-title">{$_label_scheda} - {$unita->titolo}</h2>
+                        <div class="pull-left item-image">
+                            <img src="{$_img}" alt="{$unita->titolo}" itemprop="image">
+                        </div>
+                        <div itemprop="articleBody">
+                            {$ref_iscritto}
+                            <p>
+                                <b>{$_label_posti}</b>
+                            </p>
+                            <p>
+                                {$prenota_btn_}
+                                {$back_btn}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+HTML;
+
+        return $_html;
+
+    }
+
     public static function get_box_details($boxes) {
 
         $_html = "";
         if (!is_array($boxes)
             || count($boxes) == 0) {
-            $_label = JText::_('COM_GGLMS_BOXES_NO_BOX');
-            $_html = <<< HTML
-            <div class="jumbotron">
-              <p>{$_label}</p>
-            </div>
-HTML;
-            return $_html;
+            return self::get_no_corsi_error(JText::_('COM_GGLMS_BOXES_NO_BOX'));
         }
 
         $site_root = JUri::root();
@@ -2110,7 +2367,6 @@ HTML;
         foreach ($boxes as $key_box => $box) {
 
             $_descrizione = $box['description'];
-            $_box_id = $box['id'];
             $_img_src = $site_root . '/images/box_' . $box['id'] . '.jpg';
             $_box_url = $uri->toString() . '?box_id=' . $box['id'];
 
