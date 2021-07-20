@@ -3054,8 +3054,12 @@ HTML;
             if (utilityHelper::check_email_validation($user_email))
                 $destinatari[] = $user_email;
 
+            /*
+             * andrebbe modificato sendMail
+             * aggiungendo nella funzione addCc
             if (utilityHelper::check_email_validation($email_default))
                 $destinatari[] = $email_default;
+            */
 
             if (count($destinatari) == 0)
                 throw new Exception("La tua password è stata correttamente aggiornata, ma non è stato impossibile una email di riepilogo", E_USER_ERROR);
@@ -3066,7 +3070,7 @@ HTML;
             $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
             $activation_link = $site_root . 'index.php?option=com_gglms&task=api.confirm_dipendente_activation&ref_token=' . $crypt_activation_params;
             $body = <<<HTML
-                <p>Questa è un messaggio generato automaticamente contenente le tue credenziali per accedere a {$site_config['sitename']}</p>
+                <p>Questa è un messaggio generato automaticamente e contiene le tue credenziali per accedere a {$site_config['sitename']}</p>
                 <p>I tuoi dati sono:</p>
                 <p>Username: {$decrypt_cf}</p>
                 <p>Password: {$user_password}</p>
@@ -3077,7 +3081,7 @@ HTML;
                 </p>
 HTML;
 
-            $send_email = $controller_user->sendMail($destinatari, $oggetto ,$body);
+            $send_email = $controller_user->sendMail($destinatari, $oggetto, $body);
 
             $_ret['success'] = 'completed';
 
