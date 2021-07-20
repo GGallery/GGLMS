@@ -2380,7 +2380,7 @@ HTML;
             $_html .= <<<HTML
                 <div class="col-md-{$bootstrap_col_w}">
                     <div class="panel panel-primary">
-                        <div class="panel-heading"><b>{$_descrizione}</b></div>
+                        <div class="panel-heading" style="background: #00313C"><b>{$_descrizione}</b></div>
                         <div class="panel-body">
                             <img src="{$_img_src}" class="img-responsive" alt="{$_descrizione}">
                         </div>
