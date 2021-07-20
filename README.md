@@ -3,6 +3,7 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+
 4.1.4
 -D aggiunta della colonna bookable alla tabella gg_unit
 -D aggiunta della colonna bookable_a_gruppi alla tabella gg_unit
