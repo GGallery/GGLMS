@@ -2709,9 +2709,10 @@ HTML;
                     $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
                     $_new_user['password'] = JUserHelper::hashPassword($password);
 
+                    // imposto l'utente bloccato a priori
                     // se licenziato l'utente va bloccato
-                    if ((int) $cb_stato_dipendente == 9)
-                        $_new_user['block'] = 1;
+                    // if ((int) $cb_stato_dipendente == 9)
+                    $_new_user['block'] = 1;
 
                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
@@ -3110,9 +3111,10 @@ HTML;
                 throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
 
             // controllo se l'utente esiste
-            $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
+            // l'utente deve essere privo di blocchi
+            $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, true);
             if (is_null($check_user_id))
-                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+                throw new Exception("Il Codice fiscale non è stato trovato o l'utente non è ancora attivo", E_USER_ERROR);
 
             // se esiste permetto all'utente di effettuare il reset sul codice fiscale corrente
             // parametri da configurazione del modulo farmacie

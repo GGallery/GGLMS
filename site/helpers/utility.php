@@ -935,7 +935,7 @@ class utilityHelper
     }
 
     // controllo esistenza utente su username - utility per controllers.users._import()
-    public static function check_user_by_username($username) {
+    public static function check_user_by_username($username, $check_block = false) {
 
         try {
 
@@ -944,6 +944,9 @@ class utilityHelper
                 ->select('id')
                 ->from('#__users')
                 ->where("username = '" . $username . "'");
+
+            if ($check_block)
+                $query = $query->where('block = 0');
 
             $db->setQuery($query);
 
