@@ -2195,7 +2195,7 @@ HTML;
             $_html .= <<<HTML
             <div class="media">
               <div class="media-left">
-                <a href="#">
+                <a href="javascript:">
                   <img class="media-object unit-img" src="{$_img}" alt="{$corso->titolo}">
                 </a>
               </div>

@@ -260,7 +260,6 @@ class gglmsViewdettagliutente extends JViewLegacy
 
                         // invio email di conferma
                         $_params = utilityHelper::get_params_from_module('mod_farmacie');
-
                         $email_from = utilityHelper::get_ug_from_object($_params, "email_from");
 
                         $email_oggetto = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_SUBJECT') . ' ' . $this->unita->titolo;
