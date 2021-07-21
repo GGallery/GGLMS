@@ -2089,13 +2089,12 @@ HTML;
 
     public static function get_immagine_unita($corso_id) {
 
-        $uri = JUri::getInstance();
         $site_root = JUri::root();
-        $site_uri = $uri->getScheme() . '/' .  $uri->getHost();
+        $site_rel = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';
+        $site_abs_path = getcwd();
 
-        return file_exists('../mediagg/images/unit/' . $corso_id . '.jpg')
-            ? $site_uri . '/mediagg/images/unit/' . $corso_id . '.jpg' : $site_root . 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
-
+        return file_exists($site_abs_path . '/mediagg/images/unit/' . $corso_id . '.jpg')
+            ? $site_rel . '/mediagg/images/unit/' . $corso_id . '.jpg' : $site_root . 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
     }
 

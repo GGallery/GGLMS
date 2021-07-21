@@ -261,8 +261,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                         // invio email di conferma
                         $_params = utilityHelper::get_params_from_module('mod_farmacie');
 
-                        //$email_from = utilityHelper::get_ug_from_object($_params, "email_from");
-                        $email_from = 'info@formazione-celiachia.it';
+                        $email_from = utilityHelper::get_ug_from_object($_params, "email_from");
 
                         $email_oggetto = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_SUBJECT') . ' ' . $this->unita->titolo;
                         $data_inizio = (!is_null($this->unita->data_inizio) && $this->unita->data_inizio != "") ? utilityHelper::convert_dt_in_format($this->unita->data_inizio, 'd/m/Y') : "-";
