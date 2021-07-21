@@ -265,6 +265,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                         $email_oggetto = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_SUBJECT') . ' ' . $this->unita->titolo;
                         $data_inizio = (!is_null($this->unita->data_inizio) && $this->unita->data_inizio != "") ? utilityHelper::convert_dt_in_format($this->unita->data_inizio, 'd/m/Y') : "-";
                         $data_fine = (!is_null($this->unita->data_fine) && $this->unita->data_fine != "") ? utilityHelper::convert_dt_in_format($this->unita->data_fine, 'd/m/Y') : "-";
+                        $dominio = $helpdesk_info->dominio;
                         $email_body = <<<HTML
                         <br /><br />
                         <p>
