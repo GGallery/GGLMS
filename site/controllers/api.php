@@ -3024,14 +3024,9 @@ HTML;
             if (is_null($check_user_id))
                 throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
 
-            $destinatari = array();
+            $site_config = JFactory::getConfig();
             $model_user = new gglmsModelUsers();
             $get_user = $model_user->get_user($check_user_id);
-            $user_email = $get_user->email;
-
-            $site_config = JFactory::getConfig();
-
-            $model_user = new gglmsModelUsers();
 
             $this->_db->transactionStart();
 
@@ -3052,8 +3047,9 @@ HTML;
             $controller_user = new gglmsControllerUsers();
 
             // controllo validità email
-            if (utilityHelper::check_email_validation($user_email))
-                $destinatari[] = $user_email;
+            if (!utilityHelper::check_email_validation($get_user->email)) {
+                throw new Exception("E-mail utente non valida", E_USER_ERROR);
+            }
 
             /*
              * andrebbe modificato sendMail
@@ -3061,9 +3057,6 @@ HTML;
             if (utilityHelper::check_email_validation($email_default))
                 $destinatari[] = $email_default;
             */
-
-            if (count($destinatari) == 0)
-                throw new Exception("La tua password è stata correttamente aggiornata, ma non è stato impossibile una email di riepilogo", E_USER_ERROR);
 
             $oggetto ="Nuove credenziali per accesso a " . $site_config['sitename'];
             $site_root = JURI::root();
@@ -3082,7 +3075,7 @@ HTML;
                 </p>
 HTML;
 
-            $send_email = $controller_user->sendMail($destinatari, $oggetto, $body);
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
 
             $_ret['success'] = 'completed';
 
@@ -3099,6 +3092,7 @@ HTML;
         $this->_japp->close();
     }
 
+    // prima di resettare la password invio una email informativa all'utente
     public function reset_password_dipendente_by_cf() {
 
         $_ret = array();
@@ -3106,7 +3100,6 @@ HTML;
         try {
 
             $cb_codicefiscale = trim($this->_filterparam->cf);
-
             if ($cb_codicefiscale == "")
                 throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
 
@@ -3124,6 +3117,32 @@ HTML;
             $crypted_cf = utilityHelper::encrypt_decrypt('encrypt', $cb_codicefiscale, $secret_key, $secret_iv);
             // cookie reset_password_exec 5 minuti
             utilityHelper::_set_cookie_by_name("reset_password_exec", $crypted_cf, time()+3600);
+
+            $site_config = JFactory::getConfig();
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+
+            // invio email a utente
+            $controller_user = new gglmsControllerUsers();
+            // controllo validità email
+            if (!utilityHelper::check_email_validation($get_user->email)) {
+                throw new Exception("E-mail utente non valida", E_USER_ERROR);
+            }
+
+            $oggetto ="Richiesta reset password da " . $site_config['sitename'];
+            $activation_params = $cb_codicefiscale . '||' . $check_user_id . '||' . rand(1,100);
+            $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
+            $body = <<<HTML
+                <p>Questa è un messaggio generato automaticamente dal sito {$site_config['sitename']} per effettuare il reset della password di accesso</p>
+                <p>Username: {$cb_codicefiscale}</p>
+                <p>Per confermare il procedimento copia e incolla questa stringa nel campo Token di conferma {$crypt_activation_params}</p>
+                <br /><br />
+                <p>
+                    <i>Cogliamo l'occasione per ringraziarti, lo staff di {$site_config['sitename']}</i>
+                </p>
+HTML;
+
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
 
             $_ret['success'] = 'reset_password_exec';
 
@@ -3147,6 +3166,7 @@ HTML;
             $user_password = trim($this->_filterparam->pw);
             $user_password_rep = trim($this->_filterparam->rep_pw);
             $cb_codicefiscale = trim($this->_filterparam->cf);
+            $confirm_token = trim($this->_filterparam->ref_token);
 
             // controllo dei dati
             if ($user_password == "")
@@ -3171,14 +3191,29 @@ HTML;
             if (is_null($check_user_id))
                 throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
 
-            $destinatari = array();
+            $site_config = JFactory::getConfig();
             $model_user = new gglmsModelUsers();
             $get_user = $model_user->get_user($check_user_id);
-            $user_email = $get_user->email;
 
-            $site_config = JFactory::getConfig();
+            // controllo token
+            $decrypt_ref_token = utilityHelper::encrypt_decrypt('decrypt', $confirm_token, $secret_key, $secret_iv);
 
-            $model_user = new gglmsModelUsers();
+            // il token deve contenere il codice fiscale e lo user_id altrimenti restituisco errore
+            $activation_params = explode("||", $decrypt_ref_token);
+            if (count($activation_params) < 3)
+                throw new Exception("Il token ricevuto non è corretto", E_USER_ERROR);
+
+            // il primo elemento deve essere un codice fiscale valido
+            if ($decrypt_cf != $activation_params[0])
+                throw new Exception("Il Codice fiscale per il quale si sta richiedendo il reset non è corrispondente", E_USER_ERROR);
+
+            // il secondo elemento deve essere user_id
+            if ($check_user_id != $activation_params[1])
+                throw new Exception("Il codice utente per il quale si sta richiedendo il reset non è corrispondente", E_USER_ERROR);
+
+            // il terzo elemento è un numero compreso fare 1 e 100
+            if ($activation_params[2] > 100 || $activation_params[2] < 1)
+                throw new Exception("Checkdigit token non valida!", E_USER_ERROR);
 
             $this->_db->transactionStart();
             $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
@@ -3190,14 +3225,9 @@ HTML;
             // invio email a utente
             $controller_user = new gglmsControllerUsers();
             // controllo validità email
-            if (utilityHelper::check_email_validation($user_email))
-                $destinatari[] = $user_email;
-
-            if (utilityHelper::check_email_validation($email_default))
-                $destinatari[] = $email_default;
-
-            if (count($destinatari) == 0)
-                throw new Exception("La tua password è stata correttamente aggiornata, ma non è stato impossibile una email di riepilogo", E_USER_ERROR);
+            if (!utilityHelper::check_email_validation($get_user->email)) {
+                throw new Exception("E-mail utente non valida", E_USER_ERROR);
+            }
 
             $oggetto ="Richiesto reset password per " . $site_config['sitename'];
             $body = <<<HTML
@@ -3211,9 +3241,9 @@ HTML;
                 </p>
 HTML;
 
-            $send_email = $controller_user->sendMail($destinatari, $oggetto ,$body);
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
 
-            $_ret['success'] = 'La tua password è stata correttamente aggiornata. Si prega di controllare ' . $user_email;
+            $_ret['success'] = 'La tua password è stata correttamente aggiornata. Si prega di controllare ' . $get_user->email;
 
         }
         catch (Exception $e) {

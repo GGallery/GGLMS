@@ -90,7 +90,7 @@ class gglmsModelCatalogo extends JModelLegacy
     }
 
     // i box delle categorie corsi
-    public function get_box_categorie_corso($box_id = null, $dominio = null) {
+    public function get_box_categorie_corso($box_id = null, $dominio = null, $ordinamento = false) {
 
         try {
 
@@ -102,6 +102,9 @@ class gglmsModelCatalogo extends JModelLegacy
             else
                 $query = $query->select('*')
                             ->from('#__gg_box_details');
+
+            if ($ordinamento)
+                $query = $query->order('ordinamento');
 
             $this->_db->setQuery($query);
             return $this->_db->loadAssocList();

@@ -200,7 +200,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                     else {
 
                         utilityHelper::_set_cookie_by_name("catalogo_corsi_list", $uri->toString(), time() + 3600);
-                        $this->box_corsi = $model_catalogo->get_box_categorie_corso();
+                        $this->box_corsi = $model_catalogo->get_box_categorie_corso(null, null, true);
                         $this->_html = outputHelper::get_box_details($this->box_corsi);
 
                     }
