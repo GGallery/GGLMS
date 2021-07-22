@@ -294,6 +294,23 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
                                 var pStart = target[i].start_time;
                                 var pEnd = target[i].end_time;
                                 var pParticipants = target[i].participants_count;
+                                var pEventType = parseInt(target[i].type);
+
+                                if (
+                                    pTipo == "meetings"
+                                    && (pEventType == 5
+                                    || pEventType == 6
+                                    || pEventType == 9)
+                                )
+                                    continue;
+                                else if (
+                                    pTipo == "webinars"
+                                    && (pEventType == 1
+                                    || pEventType == 2
+                                    || pEventType == 3
+                                    || pEventType == 8)
+                                )
+                                    continue;
 
                                 pSelectList += '<option value="' + pEventId + '">' + pStart + ' - ' + pEnd + ' - ' + pTopic + ' - ' + pParticipants + ' partecipanti</option>';
                             }

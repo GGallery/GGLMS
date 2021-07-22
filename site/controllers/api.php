@@ -1793,7 +1793,8 @@ HTML;
             //echo $_html;
         }
         catch (Exception $e) {
-            $_ret['error'] = $e->getMessage();
+            //$_ret['error'] = $e->getMessage();
+            echo $e->getMessage();
         }
 
         $this->_japp->close();
