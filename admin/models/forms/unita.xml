@@ -495,6 +495,44 @@
         >
         </field>
 
+        <field
+                name="modalita"
+                type="select"
+                label="Modalità"
+                description="La modalità di organizzazione dell'evento"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default=""
+        >
+            <option value="Webinar sincrono">Webinar sincrono</option>
+            <option value="In presenza">In presenza</option>
+            <option value="FAD asincrona">FAD asincrona</option>
+        </field>
+
+        <field
+                name="sede"
+                type="text"
+                label="Sede"
+                description="La sede di organizzazione dell'evento (nome citta oppure online)"
+                size="100"
+                class="inputbox"
+                showon=""
+                default="online"
+        />
+
+        <field
+                name="obbligatorio"
+                type="radio"
+                label="Obbligatorio"
+                description="Se abilitato il corso sarà considerato obbligatorio"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
         <!-- PRENOTAZIONE FINE -->
 
     </fieldset>

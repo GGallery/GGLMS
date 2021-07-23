@@ -48,15 +48,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $local_file = JPATH_ROOT . '/tmp/';
-        $_params = utilityHelper::get_params_from_module('mod_farmacie');
-        $api_endpoint_farmacie = utilityHelper::get_ug_from_object($_params, "api_endpoint_farmacie");
-        $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
-        $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
-
-        $csv = utilityHelper::get_csv_remote($api_endpoint_farmacie, $api_user_auth, $api_user_password, $local_file, "master_farmacie.csv", ",");
-        print_r($csv);
-
+        echo urldecode('index.php%3Foption%3Dcom_users%26view%3Dlogin');
 
         $this->_japp->close();
 

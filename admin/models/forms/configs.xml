@@ -191,6 +191,17 @@
         />
 
         <field
+                name="login_error_redirect"
+                type="text"
+                description="La pagina verso la quale l'utente sarà reindirizzato in caso di un contenuto non pubblico. Deve essere un indirizzo urlencode"
+                class=""
+                label="Redirect url"
+                labelclass=""
+                size="100"
+                default="index.php%3Foption%3Dcom_users%26view%3Dlogin"
+        />
+
+        <field
                 name="colonne_somme_tempi"
                 type="radio"
                 class="btn-group"

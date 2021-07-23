@@ -11,6 +11,7 @@ require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/models/catalogo.php';
+require_once JPATH_COMPONENT . '/models/config.php';
 
 jimport('joomla.application.component.controller');
 jimport('joomla.access.access');
@@ -21,14 +22,17 @@ class gglmsController extends JControllerLegacy
 
     private $_user;
     private $_japp;
+    private $_config;
     public $_params;
+    public $_login_redirect;
 
     public function __construct($config = array())
     {
         parent::__construct($config);
 
         $this->_japp = JFactory::getApplication();
-
+        $this->_config = new gglmsModelConfig();
+        $this->_login_redirect = $this->_config->getConfigValue('login_error_redirect');
 
         define('PATH_PRINCIPALE', '../mediagg/');
         define('PATH_CONTENUTI', '../mediagg/contenuti/');
@@ -107,7 +111,8 @@ class gglmsController extends JControllerLegacy
 
             $uri = JUri::getInstance();
             $return = $uri->toString();
-            $url = 'index.php?option=com_users&view=login';
+            //$url = 'index.php?option=com_users&view=login';
+            $url = ($this->_login_redirect != "") ? urldecode($this->_login_redirect) : 'index.php?option=com_users&view=login';
             $url .= '&return=' . base64_encode($return);
             $this->_japp->redirect(JRoute::_($url), $msg);
         }

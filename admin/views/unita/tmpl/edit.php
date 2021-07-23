@@ -396,6 +396,18 @@ JHtml::_('formbehavior.chosen', 'select');
                     <?php echo $this->form->renderField('posti_disponibili'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('modalita'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('sede'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('obbligatorio'); ?>
+                </div>
+
             </div>
         </div>
     </div>
