@@ -228,11 +228,19 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
             var pTipo = jQuery('#zoom_tipo').val();
             var pEvento = jQuery('#zoom_evento').val();
             var pEventoLabel = jQuery("#zoom_evento").find("option[value='" + pEvento + "']").text();
+            var pEventType = jQuery("#zoom_evento").find("option[value='" + pEvento + "']").attr("data-type");
 
             if (pEvento == '')
                 return;
 
-            window.open("index.php?option=com_gglms&task=api.get_event_participants&zoom_event_id=" + pEvento + "&zoom_tipo=" + pTipo + "&zoom_label=" + pEventoLabel, "_blank");
+            if (isNaN(pEventType))
+                pEventType = "";
+
+            window.open("index.php?option=com_gglms&task=api.get_event_participants&zoom_event_id=" + pEvento
+                + "&zoom_tipo=" + pTipo
+                + "&zoom_label=" + pEventoLabel
+                + "&zoom_event_type=" + pEventType
+                , "_blank");
         }
 
     });
@@ -296,6 +304,7 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
                                 var pParticipants = target[i].participants_count;
                                 var pEventType = parseInt(target[i].type);
 
+                                /*
                                 if (
                                     pTipo == "meetings"
                                     && (pEventType == 5
@@ -311,8 +320,10 @@ $_form_class = ($_select_users == "") ? 'disabled' : '';
                                     || pEventType == 8)
                                 )
                                     continue;
+                                 */
 
-                                pSelectList += '<option value="' + pEventId + '">' + pStart + ' - ' + pEnd + ' - ' + pTopic + ' - ' + pParticipants + ' partecipanti</option>';
+
+                                pSelectList += '<option value="' + pEventId + '" data-type="' + pEventType + '">' + pStart + ' - ' + pEnd + ' - ' + pTopic + ' - ' + pParticipants + ' partecipanti</option>';
                             }
 
                             jQuery('#zoom_evento').html('');

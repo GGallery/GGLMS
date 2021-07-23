@@ -68,6 +68,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
+        $this->_filterparam->zoom_event_type = JRequest::getVar('zoom_event_type');
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
         // email di debug
@@ -1335,7 +1336,7 @@ class gglmsControllerApi extends JControllerLegacy
     }
 
     // prima versione completamento tutti i contenuti per utente
-    function completa_corsi_per_utente_iscritto() {
+    public function completa_corsi_per_utente_iscritto() {
 
         try {
 
@@ -1679,7 +1680,7 @@ HTML;
     }
 
     // interazione con API zoom
-    function get_local_events() {
+    public function get_local_events() {
 
         $_ret = array();
 
@@ -1724,7 +1725,7 @@ HTML;
 
     }
 
-    function get_event_participants() {
+    public function get_event_participants() {
 
         $_ret = array();
 
@@ -1740,7 +1741,7 @@ HTML;
             $_participants = null;
 
             $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
-            $_events = $zoom_call->get_event_participants($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo);
+            $_events = $zoom_call->get_event_participants($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
 
             if (isset($_events['error']))
                 throw new Exception($_events['error'], 1);
@@ -1800,7 +1801,7 @@ HTML;
         $this->_japp->close();
     }
 
-    function get_event_list() {
+    public function get_event_list() {
 
         $_ret = array();
 
@@ -1842,7 +1843,7 @@ HTML;
     }
 
     // importazione corsi da file xml
-    function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
 
         try {
 
