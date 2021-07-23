@@ -205,7 +205,7 @@ class gglmsControllerZoom extends JControllerLegacy
         $this->_japp->close();
     }
 
-    function get_event_participants($event_id, $type = 'meetings', $page_size = 300) {
+    function get_event_participants($event_id, $type = 'meetings', $event_type, $page_size = 300) {
 
         $client = new GuzzleHttp\Client($this->config_client);
         $get_token = $this->get_access_token();
@@ -214,6 +214,13 @@ class gglmsControllerZoom extends JControllerLegacy
             throw new Exception($get_token, 1);
 
         $this->access_token = $get_token['success'];
+        if (
+            $event_type == 5
+                || $event_type == 6
+                || $event_type == 9
+        )
+            $type = 'webinars';
+
         $_ret = array();
         try {
 
