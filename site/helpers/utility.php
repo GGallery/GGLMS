@@ -3158,6 +3158,12 @@ HTML;
         }
     }
 
+    public static function get_hours_diff($date1, $date2) {
+
+        return round((strtotime($date1) - strtotime($date2))/3600, 1);
+
+    }
+
     /* Date */
 
     /* Generiche */
