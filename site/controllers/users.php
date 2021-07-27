@@ -1514,6 +1514,10 @@ HTML;*/
 
             }
 
+            // controllo se il corso è in uno dei gruppi dell'utente
+            if (!utilityHelper::check_user_into_ug($user_id, explode(",", $unita->bookable_a_gruppi)))
+                throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_GRUPPO_NON_ABILITATO'), E_USER_ERROR);
+
             // associo l'utente al gruppo
             $_add_ug = utilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
             if (!is_array($_add_ug))

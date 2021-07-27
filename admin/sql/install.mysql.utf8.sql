@@ -491,6 +491,9 @@ CREATE TABLE `#__gg_unit` (
   `is_bookable` tinyint(1) UNSIGNED DEFAULT '0',
   `bookable_a_gruppi` text DEFAULT NULL,
   `posti_disponibili` INT(10) UNSIGNED DEFAULT '0',
+  `modalita` INT(10) UNSIGNED DEFAULT NULL COMMENT 'Specifica il tipo di evento, es. webinar',
+  `sede` varchar(200) DEFAULT NULL COMMENT 'La sede di organizzazione',
+  `obbligatorio` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -1400,6 +1403,17 @@ INSERT INTO `#__comprofiler_field_values` (`fieldid`, `fieldtitle`, `fieldlabel`
 -- colonna per il calcolo dei report
 ALTER TABLE `#__quiz_r_student_quiz`
     ADD COLUMN `timestamp`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `params`;
+
+-- integrazione modulo calendario corsi
+CREATE TABLE IF NOT EXISTS `#__gg_categorie_evento` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+    `titolo` VARCHAR(100) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+INSERT INTO `#__gg_categorie_evento` (titolo) VALUES ('Webinar sincrono'),
+                                                     ('In presenza'),
+                                                     ('FAD asincrona');
 
 -- -------------------------------------------------
 -- vista per summary report

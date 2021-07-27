@@ -2968,8 +2968,8 @@ HTML;
                             }
 
                             // in base al fatto che sia prenotabile o meno visualizzo un pulsante
-                            if ($corso['is_bookable'] == 1
-                                && !$booked) {
+                            // $corso['is_bookable'] == 1
+                            if (!$booked) {
                                 $user_id =  $_current_user->id ? $_current_user->id : 0;
                                 $value = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="iscriviUtenteCorso(' . $corso['id'] . ', ' . $user_id . ', \'' . $dominio . '\')">' . JText::_('COM_GGLMS_BOXES_SCHEDA') . '</a>';
                             }

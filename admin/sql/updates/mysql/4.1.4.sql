@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS `#__gg_categorie_evento` (
     PRIMARY KEY (`id`)
     ) ENGINE = InnoDB;
 
-INSERT INTO `#__gg_categorie_evento` (titolo) VALUES ('Webinar sincrono');
-INSERT INTO `#__gg_categorie_evento` (titolo) VALUES ('In presenza');
-INSERT INTO `#__gg_categorie_evento` (titolo) VALUES ('FAD asincrona');
+INSERT INTO `#__gg_categorie_evento` (titolo) VALUES ('Webinar sincrono'),
+                                                     ('In presenza'),
+                                                     ('FAD asincrona');
