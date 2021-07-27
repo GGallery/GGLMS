@@ -478,7 +478,7 @@
                 label="Seleziona Gruppo/i"
                 description="Seleziona i gruppo/i per i quali il corso sarà prenotabile. Per non applicare filtri su gruppo/i lasciare vuoto"
                 class="inputbox"
-                showon="is_bookable:1[AND]accesso:gruppo"
+                showon="accesso:gruppo"
                 default=""
                 multiple="true"
                 size="20"
@@ -497,16 +497,17 @@
 
         <field
                 name="modalita"
-                type="select"
+                type="sql"
+                class="inputbox"
+                default=""
                 label="Modalità"
                 description="La modalità di organizzazione dell'evento"
-                class="btn-group"
                 showon="is_corso:1[AND]accesso:gruppo"
-                default=""
+                query="SELECT id as value, titolo as modalita
+                        FROM #__gg_categorie_evento
+                        ORDER BY id"
         >
-            <option value="Webinar sincrono">Webinar sincrono</option>
-            <option value="In presenza">In presenza</option>
-            <option value="FAD asincrona">FAD asincrona</option>
+            <option value="0">Nessuna</option>
         </field>
 
         <field

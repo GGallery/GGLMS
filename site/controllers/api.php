@@ -14,6 +14,8 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/catalogo.php';
+require_once JPATH_COMPONENT . '/models/helpdesk.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/users.php';
 
@@ -2883,6 +2885,119 @@ HTML;
         }
 
         $this->_japp->close();
+    }
+
+    public function get_rows_tabella_corsi() {
+
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $dominio = (isset($_call_params['dominio']) && $_call_params['dominio'] != "") ? $_call_params['dominio'] : null;
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+            $modalita = (isset($_call_params['modalita']) && $_call_params['modalita'] != "") ? $_call_params['modalita'] : "1,2";
+
+            $model_catalogo = new gglmsModelCatalogo();
+            $corsi = $model_catalogo->get_calendario_corsi($dominio, $modalita, $_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($corsi['rows'])) {
+                // verifico se l'utente è loggato
+                $_current_user = JFactory::getUser();
+
+                $usergroups = utilityHelper::get_usergroups_list();
+                $categorie_evento = utilityHelper::get_categorie_evento();
+                $_total_rows = $corsi['total_rows'];
+
+                foreach ($corsi['rows'] as $_key_corso => $corso) {
+
+                    foreach ($corso as $key => $value) {
+
+                        $_new = "";
+
+                        if ($key == 'data')
+                            $value = utilityHelper::convert_dt_in_format($value, 'd-m-Y');
+                        else if ($key == 'destinatari') {
+                            $explode_arr = explode(",", $value);
+                            foreach ($explode_arr as $comma) {
+                                $_new .= $usergroups[$comma] . ",";
+                            }
+                            $value = rtrim($_new, ',');
+                        }
+                        else if ($key == 'tipologia') {
+                            $value = $corso['obbligatorio'] == 1 ? '<span style="color: red">' . strtoupper($value) . '</span>' : $value;
+                        }
+                        else if ($key == 'modalita') {
+
+                            if (isset($categorie_evento[$value]))
+                                $value = $categorie_evento[$value];
+
+                        }
+                        else if ($key == 'note') {
+                            $booked = false;
+                            // se l'utente è loggato verifico se è già iscritto
+                            if ($_current_user->id) {
+                                /*
+                                if (!is_null($corso['destinatari']) && $corso['destinatari'] != "") {
+                                    $explode_arr = explode(",", $corso['destinatari']);
+                                    foreach ($explode_arr as $group_id => $group) {
+                                        if (isset($_current_user->groups)
+                                            && in_array($group_id, $_current_user->groups)) {
+                                            $booked = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (in_array($corso['gruppo_corso'], $_current_user->groups))
+                                        $booked = true;
+                                }
+                                */
+
+                                if (in_array($corso['gruppo_corso'], $_current_user->groups)) {
+                                    $value = '<span style="color: red">' . JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO') . '</span>';
+                                    $booked = true;
+                                }
+
+                            }
+
+                            // in base al fatto che sia prenotabile o meno visualizzo un pulsante
+                            if ($corso['is_bookable'] == 1
+                                && !$booked) {
+                                $user_id =  $_current_user->id ? $_current_user->id : 0;
+                                $value = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="iscriviUtenteCorso(' . $corso['id'] . ', ' . $user_id . ', \'' . $dominio . '\')">' . JText::_('COM_GGLMS_BOXES_SCHEDA') . '</a>';
+                            }
+                            else
+                                $value = ucfirst($value);
+
+                        }
+
+                        $_ret[$_key_corso][$key] = $value;
+
+                    }
+
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+
+        $this->_japp->close();
+
     }
 
     public function active_dipendente_by_cf() {

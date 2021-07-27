@@ -136,6 +136,7 @@ INSERT INTO `#__gg_configs` VALUES ('67', 'xml_ip_dest', '31.14.141.98');
 INSERT INTO `#__gg_configs` VALUES ('68', 'xml_ip_dest', '21');
 INSERT INTO `#__gg_configs` VALUES ('69', 'xml_read_dir_dest', 'R2k');
 INSERT INTO `#__gg_configs` VALUES ('70', 'xml_write_dir_dest', 'GGallery');
+INSERT INTO `#__gg_configs` VALUES ('71', 'login_error_redirect', 'index.php%3Foption%3Dcom_users%26view%3Dlogin');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------

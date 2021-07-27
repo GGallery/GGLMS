@@ -283,8 +283,8 @@ defined('_JEXEC') or die('Restricted access');
                         }
 
                     }).fail(function() {
-                    alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
-                });
+                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+                    });
 
         }
 

@@ -8,7 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 
-<div class="container">
+<div class="container-fluid">
 
     <?php
             echo $this->_html;
@@ -36,6 +36,11 @@ defined('_JEXEC') or die('Restricted access');
     }
 
     jQuery(function () {
+
+        <?php if (!is_null($this->box_id)) : ?>
+            jQuery('#g-slideshow').hide();
+            jQuery('#g-header').hide();
+        <?php endif; ?>
 
         jQuery('#btn-prenota-corso').on('click', function (event) {
             event.preventDefault();

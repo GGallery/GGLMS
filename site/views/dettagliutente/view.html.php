@@ -224,7 +224,6 @@ class gglmsViewdettagliutente extends JViewLegacy
                         // il numero di utenti iscritti ad un gruppo corso
                         $utenti_per_gruppo = $_user->get_users_per_gruppo($this->gruppo_corso);
                         $utenti_iscritti = (is_array($utenti_per_gruppo)) ? count($utenti_per_gruppo) : 0;
-                        //$this->prenota_url = utilityHelper::remove_param($uri->toString(), "unit_id") . '?prenota_id=' . $this->unit_id;
                         $this->prenota_url = $uri->toString() . '&prenota=1';
 
                         $this->posti_disponibili = ($this->unita->posti_disponibili - $utenti_iscritti);

@@ -860,7 +860,7 @@ HTML;
 
             // creo tabella che conterrà i riferimenti per le iscrizione degli anni passati
             $_create_table_iscrizioni = "CREATE TABLE IF NOT EXISTS `#__gg_quote_iscrizioni`
-                                          ( 
+                                          (
                                               `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
                                               `user_id` INT(11) UNSIGNED NOT NULL ,
                                               `anno` INT(4) NOT NULL ,
@@ -900,7 +900,7 @@ HTML;
                 }
 
                 // do stuff with the row
-                $_insert_quote_users = "INSERT INTO #__gg_quote_iscrizioni 
+                $_insert_quote_users = "INSERT INTO #__gg_quote_iscrizioni
                                               (
                                                 user_id,
                                                 anno,
@@ -1453,6 +1453,91 @@ HTML;*/
         $_rows['total_rows'] = $_total_rows;
 
         echo json_encode($_rows);
+        $app->close();
+    }
+
+    public function iscrivi_utente_gruppo() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_POST);
+            $corso_id = $params['group_id'];
+            $user_id = $params['user_id'];
+            $dominio = $params['dominio'];
+            $_current_user = JFactory::getUser();
+
+            if (!isset($corso_id)
+                || $corso_id == ""
+                || $corso_id == 0)
+                throw new Exception("Missing corso id", E_USER_ERROR);
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", E_USER_ERROR);
+
+            if (!isset($dominio)
+                || $dominio == "")
+                throw new Exception("Missing dominio", E_USER_ERROR);
+
+            if ($user_id == 0)
+                throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_POSTI_LOGIN_ERROR'), E_USER_ERROR);
+
+            if (isset($_current_user)
+                && $_current_user->id != $user_id)
+                throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_ERROR_USER_MISMATCH'), E_USER_ERROR);
+
+            // controllo se il corso è completo nel caso in cui abbia una soglia di prenotazione
+            $model_unita = new gglmsModelUnita();
+            $unita = $model_unita->getUnita($corso_id);
+            $gruppo_corso = $model_unita->get_id_gruppo_unit($corso_id);
+
+            if (is_null($gruppo_corso)
+                || $gruppo_corso == "")
+                throw new Exception("Nessun gruppo corso definito per unita id: " . $corso_id, E_USER_ERROR);
+
+            // controllo se l'utente è già iscritto al corso
+            if (utilityHelper::check_user_into_ug($user_id, (array) $gruppo_corso))
+                throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO'), E_USER_ERROR);
+
+            // se si tratta di un corso con prenotazione controllo quanti posti sono ancora disponibili
+            if ($unita->posti_disponibili > 0) {
+                $model_user = new gglmsModelUsers();
+                $utenti_per_gruppo = $model_user->get_users_per_gruppo($gruppo_corso);
+                $utenti_iscritti = (is_array($utenti_per_gruppo)) ? count($utenti_per_gruppo) : 0;
+
+                $posti_disponibili = ($unita->posti_disponibili - $utenti_iscritti);
+                if ($posti_disponibili <= 0)
+                    throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_POSTI_DISPONIBILI_NESSUNO') . ' (MAX ' . $unita->posti_disponibili . ')', E_USER_ERROR);
+
+            }
+
+            // associo l'utente al gruppo
+            $_add_ug = utilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
+            if (!is_array($_add_ug))
+                throw new Exception($_add_ug, E_USER_ERROR);
+
+            // invio email di conferma iscrizione
+            $confirm_email = utilityHelper::email_conferma_registrazione_corso($unita->titolo,
+                $unita->data_inizio,
+                $unita->data_fine,
+                $dominio,
+                $_current_user->name,
+                $_current_user->email);
+
+            if (is_null($confirm_email))
+                throw new Exception("Si è verificato un errore durante l'invio della Email di conferma iscrizione al corso", E_USER_ERROR);
+
+            $_ret['success'] = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
         $app->close();
     }
 }

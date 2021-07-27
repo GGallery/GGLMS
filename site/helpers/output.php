@@ -2185,11 +2185,19 @@ HTML;
             $posti_disponibili = $corso->posti_disponibili > 0 ? $corso->posti_disponibili : JText::_('COM_GGLMS_BOXES_POSTI_NO_LIMIT');
             $data_inizio = (!is_null($corso->data_inizio) && $corso->data_inizio != "") ? utilityHelper::convert_dt_in_format($corso->data_inizio, 'd/m/Y') : "-";
             $data_fine = (!is_null($corso->data_fine) && $corso->data_fine != "") ? utilityHelper::convert_dt_in_format($corso->data_fine, 'd/m/Y') : "-";
-            /*
-            $descrizione = preg_replace('#<a.*?>.*?</a>#i', '', $corso->descrizione);
-            */
             $descrizione = $corso->descrizione;
             $unit_url = utilityHelper::remove_param($uri->toString(), "box_id") . '?unit_id=' . $corso->id;
+
+            $_partecipa = <<<HTML
+                    <hr />
+
+                    <p class="text-right">
+                        <a href="{$unit_url}">
+                            <h5><b>{$_label_scheda} >></b></h5>
+                        </a>
+                    </p>
+HTML;
+
             $_img = self::get_immagine_unita($corso->id);
 
             $_html .= <<<HTML
@@ -2213,13 +2221,7 @@ HTML;
                     {$descrizione}
                 </p>
 
-                <hr />
-
-                <p class="text-right">
-                    <a href="{$unit_url}">
-                        <h5><b>{$_label_scheda} >></b></h5>
-                    </a>
-                </p>
+                {$_partecipa}
 
               </div>
             </div>

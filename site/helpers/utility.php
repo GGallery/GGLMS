@@ -1086,6 +1086,76 @@ class utilityHelper
         }
     }
 
+    // utility per modulo calendario - tutti le categorie evento
+    public static function get_categorie_evento() {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, titolo')
+                ->from('#__gg_categorie_evento')
+                ->order('id');
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            if (is_null($results)
+                || count($results) == 0)
+                throw new Exception("Nessuna categoria evento trovata", E_USER_ERROR);
+
+            // normalizzo l'output
+            foreach ($results as $key => $cat) {
+                $_ret[$cat['id']] = $cat['titolo'];
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // utility per modulo calendario (e generic) - tutti gli usergroups
+    public static function get_usergroups_list() {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, title')
+                ->from('#__usergroups')
+                ->order('id');
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            if (is_null($results)
+                || count($results) == 0)
+                throw new Exception("Nessun usergroup trovato", E_USER_ERROR);
+
+            // normalizzo l'output
+            foreach ($results as $key => $group) {
+                $_ret[$group['id']] = $group['title'];
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // utility per models.generacoupon.send_coupon_mail()
     public static function logMail($template, $sender, $recipient, $status, $cc = null, $id_gruppo_corso = null)
     {
@@ -1778,6 +1848,49 @@ HTML;
 
         return $_check;
 
+    }
+
+    // invio email per registrazione di un utente ad un gruppo - necessaria integrazione con modulo (farmacie o calendario)
+    public static function email_conferma_registrazione_corso($titolo_unita,
+                                                              $data_inizio,
+                                                              $data_fine,
+                                                              $dominio,
+                                                              $denominazione_utente,
+                                                              $email_utente,
+                                                              $target_module = 'mod_farmacie') {
+
+        try {
+
+            // invio email di conferma
+            $_params = self::get_params_from_module($target_module);
+            $email_from = self::get_ug_from_object($_params, "email_from");
+
+            $email_oggetto = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_SUBJECT') . ' ' . $titolo_unita;
+            $conv_data_inizio = (!is_null($data_inizio) && $data_inizio != "") ? self::convert_dt_in_format($data_inizio, 'd/m/Y') : "-";
+            $conv_data_fine = (!is_null($data_fine) && $data_fine != "") ? self::convert_dt_in_format($data_fine, 'd/m/Y') : "-";
+            $email_body = <<<HTML
+                            <br /><br />
+                            <p>
+                                Gentile {$denominazione_utente},<br />
+                                ti confermiamo l'iscrizione al corso {$titolo_unita}, che si svolgerà dal {$conv_data_inizio} al {$conv_data_fine}.
+                                Grazie per l'adesione.
+                            </p>
+                            <p>
+                                Cordiali saluti<br />
+                                Lo staff di {$dominio}
+                            </p>
+                            <p>Questa mail è generata automaticamente, si prega di non rispondere.</p>
+    HTML;
+            $confirm_email = self::send_email($email_oggetto, $email_body, (array)$email_utente, true, false, $email_from);
+            if (!$confirm_email)
+                throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);
+
+            return $confirm_email;
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
     }
 
     // procedura standard di acquisto ordine ed inserimento gruppo - utility per model.users.insert_user_servizi_extra()
@@ -3369,12 +3482,27 @@ HTML;
 
     }
 
-    public static function normalizza_contenuto_array($rows) {
+    // normalizzo un array che deriva dal metodo loadAssocList del queryset di joomla
+    public static function normalizza_loadassoc($rows, $key_1 = null, $key_2 = null, $only_values = false) {
 
         $_ret = array();
 
         foreach ($rows as $key => $row) {
-            $_ret[$row['id_contenuto']] = $row['descrizione'];
+            if (!$only_values)
+                $_ret[$row[$key_1]] = $row[$key_2];
+            else
+                $_ret[] = $row[$key_2];
+        }
+
+        return $_ret;
+    }
+
+    public static function normalizza_contenuto_array($rows, $key_1 = 'id_contenuto', $key_2 = 'descrizione') {
+
+        $_ret = array();
+
+        foreach ($rows as $key => $row) {
+            $_ret[$row[$key_1]] = $row[$key_2];
         }
 
         return $_ret;
