@@ -37,10 +37,13 @@ defined('_JEXEC') or die('Restricted access');
 
     jQuery(function () {
 
-        <?php if (!is_null($this->box_id)) : ?>
+        <?php if (!is_null($this->box_id)) { ?>
             jQuery('#g-slideshow').hide();
             jQuery('#g-header').hide();
-        <?php endif; ?>
+            jQuery('#g-content').hide();
+        <?php } else if (!is_null($this->unit_id)) { ?>
+            jQuery('#g-slideshow').hide();
+        <?php } ?>
 
         jQuery('#btn-prenota-corso').on('click', function (event) {
             event.preventDefault();

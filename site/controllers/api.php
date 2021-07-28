@@ -3177,7 +3177,8 @@ HTML;
 
             $oggetto ="Nuove credenziali per accesso a " . $site_config['sitename'];
             $site_root = JURI::root();
-            $activation_params = $decrypt_cf . '||' . $check_user_id;
+            $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
+            $activation_params = $decrypt_cf . '||' . $check_user_id . '||' . $dt_now;
             $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
             $activation_link = $site_root . 'index.php?option=com_gglms&task=api.confirm_dipendente_activation&ref_token=' . $crypt_activation_params;
             $body = <<<HTML
@@ -3198,7 +3199,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            //$this->_db->transactionRollback();
+            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
             $_ret['error'] = $e->getMessage();
@@ -3395,8 +3396,14 @@ HTML;
 
             // il token deve contenere il codice fiscale e lo user_id altrimenti restituisco errore
             $activation_params = explode("||", $decrypt_ref_token);
-            if (count($activation_params) < 2)
+            if (count($activation_params) < 3)
                 throw new Exception("Il token ricevuto non è corretto", E_USER_ERROR);
+
+            // il terzo elemento è una data - controllo se la differenza non è superiore all'ora
+            $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
+            $hours_diff = utilityHelper::get_hours_diff($dt_now, $activation_params[2]);
+            if ($hours_diff > 24)
+                throw new Exception("Token di attivazione account scaduto!", E_USER_ERROR);
 
             // il primo elemento deve essere un codice fiscale valido
             $codice_fiscale = $activation_params[0];
