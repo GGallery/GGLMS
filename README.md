@@ -3,11 +3,19 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.4
+-D: aggiunta della colonna sconti_particolari alla tabella gg_unit
+-D: aggiunta della colonna riduzione_webinar alla tabella gg_unit
+-D: aggiunta della colonna sc_webinar_perc alla tabella gg_unit
+-D: aggiunta tabella gg_vendita_sconti_particolari
+
 4.1.3
 -D: aggiunta della colonna ref_skill alla tabella gg_coupon
+
 4.1.2
 -D: aggiunta della colonna codice alla tabella gg_unit
 -D: aggiunta della colonna codice_alfanumerico alla tabella gg_unit
+
 4.1.1
 -D: modificata colonna welcome della tabella usergroups_details
 
