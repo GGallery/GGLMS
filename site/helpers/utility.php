@@ -1763,7 +1763,7 @@ HTML;
         else
             $ug_destinazione = self::get_ug_from_object($_params, $ug_group, true);
 
-        $_check = self::set_usergroup_generic($user_id, $ug_destinazione);
+        $_check = self::set_usergroup_generic($user_id, $ug_destinazione, $_user);
         if (!is_array($_check))
             throw new Exception($_check, 1);
 
@@ -2140,16 +2140,30 @@ HTML;
     }
 
     // aggiunge un utente specifico ad un elenco di gruppi
-    public static function set_usergroup_generic($user_id, $ug_list) {
+    public static function set_usergroup_generic($user_id, $ug_list, $_user_model = null) {
 
         try {
+
+            if (is_null($_user_model)) {
+                require_once JPATH_COMPONENT . '/models/users.php';
+                $_user_model = new gglmsModelUsers();
+            }
 
             $_ret = array();
             $_arr_add = self::get_usergroup_id($ug_list);
 
             foreach ($_arr_add as $key => $a_group_id) {
-                JUserHelper::addUserToGroup($user_id, $a_group_id);
+                //JUserHelper::addUserToGroup($user_id, $a_group_id);
+                $_insert_user_ug = $_user_model->insert_user_into_usergroup($user_id, $a_group_id);
+                if (is_null($_insert_user_ug)) {
+                    throw new Exception("Errore durante l'inserimento di " . $user_id . " in " . $a_group_id, E_USER_ERROR);
+                }
+
             }
+
+            // rebuild usergroups to fix lft e rgt
+            $JTUserGroup = new JTableUsergroup(JFactory::getDbo());
+            $JTUserGroup->rebuild();
 
             $_ret['success'] = "tuttook";
             return $_ret;
@@ -2682,13 +2696,20 @@ HTML;
     }
 
     // utilità per view acquistaevento
-    public static function get_tipo_sconto_evento($sconto_data, $sconto_custom, $in_groups, $obj_unit) {
+    public static function get_tipo_sconto_evento($sconto_data,
+                                                  $sconto_custom,
+                                                  $in_groups,
+                                                  $obj_unit,
+                                                  $sconto_particolare = 0,
+                                                  $acquisto_webinar = 0,
+                                                  $perc_webinar = 0) {
 
         $_ret = array();
         $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
         $_descrizione_sconto = "";
         $_tipo_sconto = "";
-        $dt = (isset($obj_unit->sc_a_data) && !is_null($obj_unit->sc_a_data) && $obj_unit->sc_a_data != "") ? new DateTime($obj_unit->sc_a_data) : null;
+        $dt = (isset($obj_unit->sc_a_data) && !is_null($obj_unit->sc_a_data) && $obj_unit->sc_a_data != "") ?
+            new DateTime($obj_unit->sc_a_data) : null;
 
         // sconto per campo custom
         if ($sconto_custom != "") {
@@ -2719,6 +2740,21 @@ HTML;
 HTML;
             $_descrizione_sconto = " sconto Soci";
         }
+        else if ($sconto_particolare > 0) {
+            $_tipo_sconto = <<< HTML
+                    <span style="color: red;">{$_label_sconto} € {$sconto_particolare}</span>
+HTML;
+            $_descrizione_sconto = " sconto personalizzato ";
+        }
+
+        // gestione dell'acquisto in modalità webinar
+        if ($acquisto_webinar > 0) {
+            $_tipo_sconto = <<< HTML
+                    <span style="color: red;">{$_label_sconto} {$perc_webinar} %</span>
+HTML;
+            $_descrizione_sconto = " <b>IN MODALITA' WEBINAR</b> ";
+        }
+
 
         $_ret['label_sconto'] = $_tipo_sconto;
         $_ret['descrizione_sconto'] = $_descrizione_sconto;

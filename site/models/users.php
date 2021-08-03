@@ -1402,6 +1402,40 @@ class gglmsModelUsers extends JModelLegacy
         }
     }
 
+    // inserimento di un utente in un gruppo specifico - sovrascrive la funzione nativa di joomla che per qualche motivo fallisce
+    // nonostante restituisca TRUE...
+    public function insert_user_into_usergroup($user_id, $group_id) {
+
+        try {
+
+            $this->_db->transactionStart();
+
+            // associo utente al gruppo societa
+            $insertquery_map = 'INSERT
+                                    INTO #__user_usergroup_map (user_id, group_id) VALUES (' . $this->_db->quote($user_id) . ', ' . $this->_db->quote($group_id) . ')
+                                            ON DUPLICATE KEY
+                                            UPDATE user_id = ' . $this->_db->quote($user_id) . ',
+                                            group_id = ' . $this->_db->quote($group_id);
+
+            $this->_db->setQuery($insertquery_map);
+            $this->_db->execute();
+
+            if (false === $this->_db->execute())
+                throw new Exception("Si è verificato un errore durante l'inserimento", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            return 1;
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
 
 }
 

@@ -48,9 +48,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $corso_obj = $this->_db->loadObject('gglmsModelUnita');
-        var_dump($corso_obj);
-        $this->_japp->close();
+        var_dump(JUserHelper::addUserToGroup(947, 285));
 
     }
 
