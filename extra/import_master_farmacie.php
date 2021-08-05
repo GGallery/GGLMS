@@ -55,13 +55,25 @@ class importMasterFarmacie extends JApplicationCli {
             $app->initialise();
 
             $is_debug = $this->input->get('is_debug', false);
+            $db_host = $this->input->get('db_host', null);
+            $db_user = $this->input->get('db_user', null);
+            $db_password = $this->input->get('db_password', null);
+            $db_database = $this->input->get('db_database', null);
+            $db_prefix = $this->input->get('db_prefix', null);
+            $db_driver = $this->input->get('db_driver', null);
 
             require_once JPATH_COMPONENT . '/controllers/api.php';
 
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
-            $importa_master_farmacie = $api->importa_master_farmacie($is_debug);
+            $importa_master_farmacie = $api->importa_master_farmacie($db_host,
+                                                                    $db_user,
+                                                                    $db_password,
+                                                                    $db_database,
+                                                                    $db_prefix,
+                                                                    $db_driver,
+                                                                    $is_debug);
 
             $this->out('Script ended with ' . $importa_master_farmacie . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         }

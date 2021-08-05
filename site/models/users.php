@@ -1423,9 +1423,13 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // seleziono tutti i record dal master delle farmacie
-    public function get_farmacie($hh_store_code = null) {
+    public function get_farmacie($hh_store_code = null, $db_option = array()) {
 
         try {
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $this->_db = JDatabaseDriver::getInstance($db_option);
 
             $query = $this->_db->getQuery(true)
                 ->select('*')
@@ -1453,13 +1457,19 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // prendo il riferimento dell'utente alla farmacia
-    public function get_user_farmacia($user_id, $cb_codice_esterno_cdc_3 = null) {
+    public function get_user_farmacia($user_id, $cb_codice_esterno_cdc_3 = null, $db_option = array()) {
 
         try {
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $this->_db = JDatabaseDriver::getInstance($db_option);
+
             $query = $this->_db->getQuery(true)
                     ->select('*')
                     ->from('#__gg_farmacie_dipendenti')
                     ->where('user_id = ' . $this->_db->quote($user_id));
+
             if (!is_null($cb_codice_esterno_cdc_3))
                 $query = $query->where('codice_esterno_cdc_3 = ' . $this->_db->quote($cb_codice_esterno_cdc_3));
 
@@ -1479,9 +1489,13 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // aggiornamento dei riferimenti utente nella tabella di associazione con le farmacie
-    public function update_user_farmacia($user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento) {
+    public function update_user_farmacia($user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento, $db_option = array()) {
 
         try {
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $this->_db = JDatabaseDriver::getInstance($db_option);
 
             $this->_db->transactionStart();
 
@@ -1512,9 +1526,14 @@ class gglmsModelUsers extends JModelLegacy
                                          $id_gruppo,
                                          $cb_codice_esterno_cdc_3,
                                          $cb_data_inizio_rapporto,
-                                         $cb_data_licenziamento) {
+                                         $cb_data_licenziamento,
+                                         $db_option = array()) {
 
         try {
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $this->_db = JDatabaseDriver::getInstance($db_option);
 
             $this->_db->transactionStart();
 

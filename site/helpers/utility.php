@@ -735,11 +735,15 @@ class utilityHelper
     }
 
     // informazioni per un campo community builder da id - utility per self.get_cb_field_name()
-    public static function get_cb_field($field_id) {
+    public static function get_cb_field($field_id, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                 ->select('*')
                 ->from('#__comprofiler_fields')
@@ -813,11 +817,16 @@ class utilityHelper
     }
 
     // controlla esistenza usergroups per nome - utility per controllers.users._import()
-    public static function check_usergroups_by_name($usergroup) {
+    public static function check_usergroups_by_name($usergroup, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                     ->select('id')
                     ->from('#__usergroups')
@@ -839,11 +848,16 @@ class utilityHelper
     }
 
     // inserisco nuovo usergroups - utility per controllers.users._import_rinnovi()
-    public static function insert_new_usergroups($usergroup, $parent_id=0, $rebuild = true) {
+    public static function insert_new_usergroups($usergroup, $parent_id=0, $rebuild = true, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
@@ -868,12 +882,15 @@ class utilityHelper
     }
 
     // esegue una query generica - utility per controllers.api.importa_anagrafica_farmacie()
-    public static function update_with_query($update_query) {
+    public static function update_with_query($update_query, $db_option = array()) {
 
         try {
 
             $_ret = array();
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
 
             $db->setQuery($update_query);
             $db->execute();
@@ -888,12 +905,15 @@ class utilityHelper
     }
 
     // inserisco nuovo utente in comprofiler - utility per controllers.users._import()
-    public static function insert_new_with_query($insert_query, $ret_last_id = true) {
+    public static function insert_new_with_query($insert_query, $ret_last_id = true, $db_option = array()) {
 
         try {
 
             $_ret = array();
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
 
             $db->setQuery($insert_query);
             $db->execute();
@@ -935,11 +955,15 @@ class utilityHelper
     }
 
     // controllo esistenza utente su username - utility per controllers.users._import()
-    public static function check_user_by_username($username, $check_block = false) {
+    public static function check_user_by_username($username, $check_block = false, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                 ->select('id')
                 ->from('#__users')
@@ -1488,13 +1512,17 @@ class utilityHelper
     }
 
     // query diretta sui parametri di un modulo - utility per view.acquistaevento
-    public static function get_params_from_module($module = 'mod_compra_corsi') {
+    public static function get_params_from_module($module = 'mod_compra_corsi', $db_option = array()) {
 
         try {
 
             $_ret = array();
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                 ->select('params')
                 ->from('#__modules')
@@ -1776,7 +1804,6 @@ HTML;
                 $counter++;
                 continue;
             }
-
             $query .= $key . " = '" . $value . "', ";
 
         }
@@ -3036,10 +3063,10 @@ HTML;
     }
 
     // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare - utilità per output.php
-    public static function get_cb_field_name($_params, $_label, $_prop) {
+    public static function get_cb_field_name($_params, $_label, $_prop, $db_option = array()) {
 
         $_cb = self::get_params_from_object($_params, $_label);
-        $_cb_arr = self::get_cb_field($_cb);
+        $_cb_arr = self::get_cb_field($_cb, $db_option);
 
         return self::get_cb_field_property($_cb_arr, $_prop);
 
@@ -3616,10 +3643,14 @@ HTML;
     }
 
     // rebuild generico della tabella usergroup
-    public static function rebuild_ug_index($db = null) {
+    public static function rebuild_ug_index($db = null, $db_option = array()) {
 
         if (is_null($db))
             $db = JFactory::getDbo();
+
+        // gestione db esterno
+        if (count($db_option) > 0)
+            $db = JDatabaseDriver::getInstance($db_option);
 
         // rebuild per indici lft, rgt
         $JTUserGroup = new JTableUsergroup($db);

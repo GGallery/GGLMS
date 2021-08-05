@@ -2330,17 +2330,38 @@ HTML;
     }
 
     // importazione dell'anagrafica della farmacie da chiamata API
-    public function importa_master_farmacie($is_debug = false) {
+    public function importa_master_farmacie($db_host = null,
+                                            $db_user = null,
+                                            $db_password = null,
+                                            $db_database = null,
+                                            $db_prefix = null,
+                                            $db_driver = null,
+                                            $is_debug = false) {
 
         $exists_check = array();
+        $db_option = array();
 
         try {
 
+            // gestisco la chiamata per andare su di un altro database
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = $db_password;
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $this->_db = JDatabaseDriver::getInstance($db_option);
+            }
+
             // parametri da configurazione del modulo farmacie
-            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            $_params = utilityHelper::get_params_from_module('mod_farmacie', $db_option);
             $api_endpoint_farmacie = utilityHelper::get_ug_from_object($_params, "api_endpoint_farmacie");
             $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
             $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
+
             $local_file = JPATH_ROOT . '/tmp/';
             $filename = "master_farmacie.csv";
             if (isset($this->_filterparam->force_debug))
@@ -2351,10 +2372,9 @@ HTML;
             if (!$farmacie)
                 throw new Exception("Impossibile continuare, si è verificato un errore durante lo scaricamento di " . $filename , E_USER_ERROR);
 
-
             // la piattaforma di default del sistema
             $genera_model = new gglmsModelgeneracoupon();
-            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true, $db_option);
             if (is_null($piattaforma_default)
                 || !is_array($piattaforma_default))
                 throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
@@ -2489,10 +2509,10 @@ HTML;
             foreach ($arr_ragsoc as $key_ragsoc => $ragsoc) {
 
                 // controllo l'esistenza del gruppo qualifica
-                $ug_farmacia = utilityHelper::check_usergroups_by_name($ragsoc);
+                $ug_farmacia = utilityHelper::check_usergroups_by_name($ragsoc, $db_option);
                 // se lo usergroup non esiste lo creo
                 if (is_null($ug_farmacia)) {
-                    $ug_farmacia = utilityHelper::insert_new_usergroups($ragsoc, $piattaforma_default['id'], false);
+                    $ug_farmacia = utilityHelper::insert_new_usergroups($ragsoc, $piattaforma_default['id'], false, $db_option);
 
                     if (is_null($ug_farmacia))
                         throw new Exception("Errore durante l'inserimento dello usergroup " . $ragsoc, E_USER_ERROR);
@@ -2510,7 +2530,7 @@ HTML;
 
             }
 
-            $rebuild = utilityHelper::rebuild_ug_index();
+            $rebuild = utilityHelper::rebuild_ug_index(null, $db_option);
 
             $this->_db->transactionCommit();
 
@@ -2532,14 +2552,35 @@ HTML;
 
     }
 
-    public function importa_anagrafica_farmacie($is_debug = false) {
+    public function importa_anagrafica_farmacie($db_host = null,
+                                                $db_user = null,
+                                                $db_password = null,
+                                                $db_database = null,
+                                                $db_prefix = null,
+                                                $db_driver = null,
+                                                $is_debug = false) {
 
         try {
+
+            $db_option = array();
 
             /*
              * In fase di importazione devo creare un gruppo relativo a cb_descrizione_qualifica
              * a cui l'utente sarà poi associato
              * */
+
+            // gestisco la chiamata per andare su di un altro database
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = $db_password;
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $this->_db = JDatabaseDriver::getInstance( $db_option );
+            }
 
             $local_file = JPATH_ROOT . '/tmp/';
             $_new_user = array();
@@ -2551,8 +2592,7 @@ HTML;
 
             $get_farmacie = null;
             // parametri da configurazione del modulo farmacie
-            $_params = utilityHelper::get_params_from_module('mod_farmacie');
-
+            $_params = utilityHelper::get_params_from_module('mod_farmacie', $db_option);
             // scarico il file csv dal repository remoto
             $api_endpoint_dipendenti = utilityHelper::get_ug_from_object($_params, "api_endpoint_dipendenti");
             $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
@@ -2561,13 +2601,7 @@ HTML;
             if (isset($this->_filterparam->force_debug))
                 $is_debug = true;
 
-            $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti,
-                $api_user_auth,
-                $api_user_password,
-                $local_file,
-                $filename,
-                false,
-                $is_debug);
+            $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug);
 
 
             if (!is_array($get_farmacie)
@@ -2577,7 +2611,7 @@ HTML;
 
             // la piattaforma di default del sistema
             $genera_model = new gglmsModelgeneracoupon();
-            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true, $db_option);
             if (is_null($piattaforma_default)
                 || !is_array($piattaforma_default))
                 throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
@@ -2585,29 +2619,29 @@ HTML;
             $model_user = new gglmsModelUsers();
 
             // mapputura dei campi da modulo
-            $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name');
-            $_campo_cb_filiale = utilityHelper::get_cb_field_name($_params, 'campo_cb_filiale', 'name');
-            $_campo_cb_matricola = utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name');
-            $_campo_cb_cognome = utilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
-            $_campo_cb_nome = utilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
-            $_campo_cb_codicefiscale = utilityHelper::get_cb_field_name($_params, 'campo_cb_codicefiscale', 'name');
-            $_campo_cb_data_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name');
-            $_campo_cb_codice_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_comune_nascita', 'name');
-            $_campo_cb_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_nascita', 'name');
-            $_campo_cb_pv_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_nascita', 'name');
-            $_campo_cb_indirizzo_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo_residenza', 'name');
-            $_campo_cb_cap_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_cap_residenza', 'name');
-            $_campo_cb_comune_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_residenza', 'name');
-            $_campo_cb_pv_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_residenza', 'name');
-            $_campo_cb_data_assunzione = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_assunzione', 'name');
-            $_campo_cb_data_inizio_rapporto = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_inizio_rapporto', 'name');
-            $_campo_cb_data_licenziamento = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_licenziamento', 'name');
-            $_campo_cb_stato_dipendente = utilityHelper::get_cb_field_name($_params, 'campo_cb_stato_dipendente', 'name');
-            $_campo_cb_descrizione_qualifica = utilityHelper::get_cb_field_name($_params, 'campo_cb_descrizione_qualifica', 'name');
-            $_campo_cb_email = utilityHelper::get_cb_field_name($_params, 'campo_cb_email', 'name');
-            $_campo_cb_codice_esterno_cdc_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_2', 'name');
-            $_campo_cb_codice_esterno_cdc_3 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_3', 'name');
-            $_campo_cb_esterno_rep_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_esterno_rep_2', 'name');
+            $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name', $db_option);
+            $_campo_cb_filiale = utilityHelper::get_cb_field_name($_params, 'campo_cb_filiale', 'name', $db_option);
+            $_campo_cb_matricola = utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name', $db_option);
+            $_campo_cb_cognome = utilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name', $db_option);
+            $_campo_cb_nome = utilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name', $db_option);
+            $_campo_cb_codicefiscale = utilityHelper::get_cb_field_name($_params, 'campo_cb_codicefiscale', 'name', $db_option);
+            $_campo_cb_data_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name', $db_option);
+            $_campo_cb_codice_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_comune_nascita', 'name', $db_option);
+            $_campo_cb_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_nascita', 'name', $db_option);
+            $_campo_cb_pv_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_nascita', 'name', $db_option);
+            $_campo_cb_indirizzo_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo_residenza', 'name', $db_option);
+            $_campo_cb_cap_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_cap_residenza', 'name', $db_option);
+            $_campo_cb_comune_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_residenza', 'name', $db_option);
+            $_campo_cb_pv_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_residenza', 'name', $db_option);
+            $_campo_cb_data_assunzione = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_assunzione', 'name', $db_option);
+            $_campo_cb_data_inizio_rapporto = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_inizio_rapporto', 'name', $db_option);
+            $_campo_cb_data_licenziamento = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_licenziamento', 'name', $db_option);
+            $_campo_cb_stato_dipendente = utilityHelper::get_cb_field_name($_params, 'campo_cb_stato_dipendente', 'name', $db_option);
+            $_campo_cb_descrizione_qualifica = utilityHelper::get_cb_field_name($_params, 'campo_cb_descrizione_qualifica', 'name', $db_option);
+            $_campo_cb_email = utilityHelper::get_cb_field_name($_params, 'campo_cb_email', 'name', $db_option);
+            $_campo_cb_codice_esterno_cdc_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_2', 'name', $db_option);
+            $_campo_cb_codice_esterno_cdc_3 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_3', 'name', $db_option);
+            $_campo_cb_esterno_rep_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_esterno_rep_2', 'name', $db_option);
 
             $this->_db->transactionStart();
 
@@ -2667,7 +2701,7 @@ HTML;
                 $cb_esterno_rep_2 = (isset($row_arr[25]) && !is_null($row_arr[25]) && $row_arr[25] != "") ? trim($row_arr[25]) : "";
                 // colonna 26 - data inizio rapporti - si
                 $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[26]));
-                $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
+                $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, false, $db_option);
                 $_new_user_id = null;
                 $new_user = false;
                 $ug_qualifica = null;
@@ -2691,7 +2725,7 @@ HTML;
 
                 // carico la farmacia di riferimento in relazione al $cb_codice_esterno_cdc_3
                 if (!in_array($cb_codice_esterno_cdc_3, $arr_farmacie)) {
-                    $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3);
+                    $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3, $db_option);
 
                     if (is_null($master_farmacia)) {
                         //throw new Exception("Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3, E_USER_ERROR);
@@ -2719,7 +2753,7 @@ HTML;
                     $_new_user['block'] = 1;
 
                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
-                    $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+                    $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query, true, $db_option);
                     if (!is_array($_user_insert_query_result)) {
                         throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result . " -> query: " . $_user_insert_query, E_USER_ERROR);
                     }
@@ -2761,16 +2795,12 @@ HTML;
                 // inserimento utente in CP
                 if ($new_user) {
                     $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
-                    $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
+                    $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query, true, $db_option);
                     if (!is_array($_cp_insert_query_result))
                         throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento -> query: " . $_cp_insert_query, E_USER_ERROR);
 
                     // aggiungo il suo riferimento nella tabella farmacie_dipendenti
-                    $user_farmacia = $model_user->insert_user_farmacia($_new_user_id,
-                        $ug_farmacia,
-                        $cb_codice_esterno_cdc_3,
-                        $cb_data_inizio_rapporto,
-                        $cb_data_licenziamento);
+                    $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
                     if (is_null($user_farmacia))
                         throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
 
@@ -2787,7 +2817,7 @@ HTML;
                     unset($_new_user_cp['user_id']);
 
                     $_cp_update_query = utilityHelper::get_update_query("comprofiler", $_new_user_cp, "user_id = '". $check_user_id . "'");
-                    $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+                    $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query, $db_option);
                     if (!is_array($_cp_update_query_result))
                         throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
 
@@ -2795,20 +2825,20 @@ HTML;
                     if ((int) $cb_stato_dipendente == 9) {
                         $_new_user['block'] = 1;
                         $_cp_update_query = utilityHelper::get_update_query("users", $_new_user, "id = '". $check_user_id . "'");
-                        $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+                        $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query, $db_option);
                         if (!is_array($_cp_update_query_result))
                             throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
 
                     }
 
                     // verifico se l'utente ha cambiato farmacia oppure
-                    $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3);
+                    $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3, $db_option);
 
                     if (is_null($get_user_farmacia)
                         || count($get_user_farmacia) == 0) {
 
                         // mi serve l'ultimo gruppo dell'utente
-                        $last_farmacia = $model_user->get_user_farmacia($check_user_id);
+                        $last_farmacia = $model_user->get_user_farmacia($check_user_id, null, $db_option);
                         if (is_null($last_farmacia))
                             throw new Exception("Nessun gruppo farmacia precedente per " . $check_user_id, E_USER_ERROR);
 
@@ -2816,11 +2846,7 @@ HTML;
                         utilityHelper::remove_user_from_usergroup($check_user_id, (array) $last_farmacia['id_gruppo']);
 
                         // ha cambiato farmacia (o non c'è nessun riferimento)
-                        $user_farmacia = $model_user->insert_user_farmacia($check_user_id,
-                            $ug_farmacia,
-                            $cb_codice_esterno_cdc_3,
-                            $cb_data_inizio_rapporto,
-                            $cb_data_licenziamento);
+                        $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
                         if (is_null($user_farmacia))
                             throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
 
@@ -2832,7 +2858,7 @@ HTML;
                     }
                     else {
                         // è nella medesima - aggiorno i campi perchè potrebbe essere stato licenziato
-                        $user_farmacia = $model_user->update_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento);
+                        $user_farmacia = $model_user->update_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento, $db_option);
                         if (is_null($user_farmacia))
                             throw new Exception("Aggiornamento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
 
@@ -2841,10 +2867,10 @@ HTML;
                 }
 
                 // controllo l'esistenza del gruppo qualifica
-                $ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica);
+                $ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica, $db_option);
                 // se lo usergroup non esiste lo creo
                 if (is_null($ug_qualifica)) {
-                    $ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id'], false);
+                    $ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id'], false, $db_option);
                     if (is_null($ug_qualifica))
                         throw new Exception("Errore durante l'inserimento dello usergroup " . $cb_descrizione_qualifica, E_USER_ERROR);
 
@@ -2867,7 +2893,7 @@ HTML;
 
             // se ho inserito un nuovo gruppo faccio rebuild
             if ($inserted_ug)
-                $rebuild = utilityHelper::rebuild_ug_index();
+                $rebuild = utilityHelper::rebuild_ug_index(null, $db_option);
 
             $this->_db->transactionCommit();
 

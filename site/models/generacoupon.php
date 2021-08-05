@@ -806,11 +806,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
 
-    public function get_info_piattaforma_default($from_api=false)
+    public function get_info_piattaforma_default($from_api=false, $db_option = array())
     {
 
-
         try {
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $this->_db = JDatabaseDriver::getInstance($db_option);
 
             $query = $this->_db->getQuery(true)
                 ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias, ud.mail_from_default as mail_from_default')
