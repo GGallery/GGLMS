@@ -2540,7 +2540,7 @@ HTML;
         catch (Exception $e) {
             $this->_db->transactionRollback();
             $_err_msg = $e->getMessage() . "\n" . print_r($exists_check, true);
-            UtilityHelper::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . (!is_null($db_host)) ? "_" . $db_host : "" . "_error");
+            UtilityHelper::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
 
             // solo in produzione e non in cli
             if (!$is_debug && is_null($db_host))
@@ -2900,7 +2900,7 @@ HTML;
             // mail inibite se processo da terminale
             if (count($jumped) > 0) {
                 //UtilityHelper::send_email("Utenti non inseriti per dati mancanti " . __FUNCTION__, print_r($jumped, true), array($this->mail_debug));
-                UtilityHelper::make_debug_log(__FUNCTION__, "Utenti non inseriti per dati mancanti " . print_r($jumped, true) , __FUNCTION__ . (!is_null($db_host)) ? "_" . $db_host : "" . "_error");
+                UtilityHelper::make_debug_log(__FUNCTION__, "Utenti non inseriti per dati mancanti " . print_r($jumped, true), __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
             }
 
             return 1;
@@ -2908,7 +2908,7 @@ HTML;
         }
         catch (Exception $e) {
             $this->_db->transactionRollback();
-            UtilityHelper::make_debug_log(__FUNCTION__ . (!is_null($db_host)) ? $db_host : "", $e->getMessage(), __FUNCTION__ . (!is_null($db_host)) ? "_" . $db_host : "" . "_error");
+            UtilityHelper::make_debug_log(__FUNCTION__ . (!is_null($db_host)) ? $db_host : "", $e->getMessage(), __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
 
             if (is_null($db_host))
                 UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
