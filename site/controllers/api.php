@@ -2349,7 +2349,7 @@ HTML;
                 $db_option['driver'] = $db_driver;
                 $db_option['host'] = $db_host;
                 $db_option['user'] = $db_user;
-                $db_option['password'] = $db_password;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('encrypt', $db_password, "GGallery00!", "GGallery00!");
                 $db_option['database'] = $db_database;
                 $db_option['prefix'] = $db_prefix;
 
@@ -2576,7 +2576,7 @@ HTML;
                 $db_option['driver'] = $db_driver;
                 $db_option['host'] = $db_host;
                 $db_option['user'] = $db_user;
-                $db_option['password'] = $db_password;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('encrypt', $db_password, "GGallery00!", "GGallery00!");
                 $db_option['database'] = $db_database;
                 $db_option['prefix'] = $db_prefix;
 

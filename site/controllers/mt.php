@@ -46,14 +46,19 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function make_pwd() {
+
+        echo utilityHelper::encrypt_decrypt('encrypt', "5$93pzeI", "GGallery00!", "GGallery00!");
+        $this->_japp->close();
+
+    }
+
     public function test_() {
 
-        //$ug_check = utilityHelper::check_user_into_ug(5671, array(999, 123, 600));
+        $ug_check = utilityHelper::check_user_into_ug(5671, array(999, 123, 600));
         //$ug_del = utilityHelper::remove_user_from_usergroup(5671, array(600));
-        $ug_new = utilityHelper::set_usergroup_generic(5671, array(600));
-        var_dump($ug_new);
-
-        $this->_japp->close();
+        //$ug_new = utilityHelper::set_usergroup_generic(5671, array(600));
+        var_dump($ug_check);
 
     }
 
