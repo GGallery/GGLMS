@@ -848,7 +848,7 @@ class utilityHelper
     }
 
     // inserisco nuovo usergroups - utility per controllers.users._import_rinnovi()
-    public static function insert_new_usergroups($usergroup, $parent_id=0, $rebuild = true, $db_option = array()) {
+    public static function insert_new_usergroups($ug_title, $parent_id=0, $rebuild = true, $db_option = array()) {
 
         try {
 
@@ -861,11 +861,15 @@ class utilityHelper
             $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
-                              " . $db->quote(addslashes(trim($usergroup))) . "
+                              " . $db->quote(addslashes(trim($ug_title))) . "
                         )";
 
             $db->setQuery($query);
-            $db->execute();
+
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
             $new_group_id = $db->insertid();
 
             if ($rebuild)
@@ -887,13 +891,16 @@ class utilityHelper
         try {
 
             $_ret = array();
+
             $db = JFactory::getDbo();
             // gestione db esterno
             if (count($db_option) > 0)
                 $db = JDatabaseDriver::getInstance($db_option);
 
             $db->setQuery($update_query);
-            $db->execute();
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
 
             $_ret['success'] = 1;
             return $_ret;
@@ -2230,12 +2237,39 @@ HTML;
     }
 
     // rimuovo l'utente da un gruppo specifico passando gli id gruppo in un array - utility per self.set_usergroup_categorie()
-    public static function remove_user_from_usergroup($user_id, $ug_list_arr) {
+    public static function remove_user_from_usergroup($user_id, $ug_list_arr, $db_option = array()) {
 
-        $ug_list_arr = !is_array($ug_list_arr) ? (array) $ug_list_arr : $ug_list_arr;
+        try {
 
-        foreach ($ug_list_arr as $key => $d_group_id) {
-            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            $db = JFactory::getDbo();
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
+            //$ug_list_arr = !is_array($ug_list_arr) ? (array) $ug_list_arr : $ug_list_arr;
+            $ug_list = !is_array($ug_list_arr) ? $ug_list_arr : implode(",", $ug_list_arr);
+
+            /*
+            foreach ($ug_list_arr as $key => $d_group_id) {
+                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            }
+            */
+
+            $query = "DELETE FROM #__user_usergroup_map
+                            WHERE user_id = " . $db->quote($user_id) . "
+                            AND group_id IN (" . $ug_list . ")";
+
+            $db->setQuery($query);
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return 1;
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
         }
 
     }
@@ -2333,18 +2367,36 @@ HTML;
     }
 
     // aggiunge un utente specifico ad un elenco di gruppi
-    public static function set_usergroup_generic($user_id, $ug_list) {
+    public static function set_usergroup_generic($user_id, $ug_list, $db_option = array()) {
 
         try {
 
             $_ret = array();
+
+            $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $_arr_add = $ug_list;
 
             if (!is_array($_arr_add))
                 $_arr_add = self::get_usergroup_id($ug_list);
 
             foreach ($_arr_add as $key => $a_group_id) {
-                JUserHelper::addUserToGroup($user_id, $a_group_id);
+                //JUserHelper::addUserToGroup($user_id, $a_group_id);
+
+                $query = "INSERT INTO #__user_usergroup_map (user_id, group_id)
+                        VALUES (
+                              " . $db->quote($user_id) . ",
+                              " . $db->quote($a_group_id) . "
+                        )";
+
+                $db->setQuery($query);
+
+                if (false === $db->execute()) {
+                    throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+                }
             }
 
             $_ret['success'] = "tuttook";
@@ -2410,23 +2462,45 @@ HTML;
     }
 
     // controllo se utente si trova in gruppi specifici - utility per self.set_usergroup_categorie()
-    public static function check_user_into_ug($user_id, $ug_check=array()) {
+    public static function check_user_into_ug($user_id, $ug_check=array(), $db_option = array()) {
 
-        $user = JFactory::getUser($user_id);
+        //$user = JFactory::getUser($user_id);
 
         if (!is_array($ug_check)
             || count($ug_check) == 0)
             return false;
 
+        $user_groups = array();
+
+        $db = JFactory::getDbo();
+        // gestione db esterno
+        if (count($db_option) > 0)
+            $db = JDatabaseDriver::getInstance($db_option);
+
+        $query = $db->getQuery(true)
+            ->select('group_id')
+            ->from('#__user_usergroup_map')
+            ->where('user_id = ' . $db->quote($user_id));
+
+        $db->setQuery($query);
+        $results = $db->loadAssocList();
+
+        // utente in nessun gruppo
+        if (count($results) == 0)
+            return false;
+
+        // normalizzo i gruppi
+        foreach ($results as $g_key => $g_value) {
+            $user_groups[] = $results[$g_key]['group_id'];
+        }
+
+        // controllo l'appartenenza dell'utente
         foreach ($ug_check as $group) {
-
-            if (in_array($group, $user->groups))
+            if (in_array($group, $user_groups))
                 return true;
-
         }
 
         return false;
-
     }
 
     // scarico file csv da endpoint

@@ -55,7 +55,8 @@ class importAnagraficaFarmacia extends JApplicationCli {
             $app->initialise();
 
             $is_debug = $this->input->get('is_debug', false);
-            $db_host = $this->input->get('db_host', null);
+            $db_host = $this->input->get('db_host', 'localhost');
+            $db_port = $this->input->get('db_port', '3306');
             $db_user = $this->input->get('db_user', null);
             $db_password = $this->input->get('db_password', null);
             $db_database = $this->input->get('db_database', null);
@@ -67,7 +68,7 @@ class importAnagraficaFarmacia extends JApplicationCli {
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
-            $importa_anagrafica_farmacie = $api->importa_anagrafica_farmacie($db_host,
+            $importa_anagrafica_farmacie = $api->importa_anagrafica_farmacie($db_host . ":" . $db_port,
                                                                             $db_user,
                                                                             $db_password,
                                                                             $db_database,

@@ -2541,8 +2541,9 @@ HTML;
             $this->_db->transactionRollback();
             $_err_msg = $e->getMessage() . "\n" . print_r($exists_check, true);
             UtilityHelper::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
-            // solo in produzione
-            if (!$is_debug)
+
+            // solo in produzione e non in cli
+            if (!$is_debug && is_null($db_host))
                 UtilityHelper::send_email("Errore " . __FUNCTION__, $_err_msg, array($this->mail_debug));
 
             return 0;
@@ -2603,11 +2604,9 @@ HTML;
 
             $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug);
 
-
             if (!is_array($get_farmacie)
                 || is_null($get_farmacie))
                 throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
-
 
             // la piattaforma di default del sistema
             $genera_model = new gglmsModelgeneracoupon();
@@ -2701,6 +2700,7 @@ HTML;
                 $cb_esterno_rep_2 = (isset($row_arr[25]) && !is_null($row_arr[25]) && $row_arr[25] != "") ? trim($row_arr[25]) : "";
                 // colonna 26 - data inizio rapporti - si
                 $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[26]));
+
                 $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, false, $db_option);
                 $_new_user_id = null;
                 $new_user = false;
@@ -2754,9 +2754,8 @@ HTML;
 
                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query, true, $db_option);
-                    if (!is_array($_user_insert_query_result)) {
+                    if (!is_array($_user_insert_query_result))
                         throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result . " -> query: " . $_user_insert_query, E_USER_ERROR);
-                    }
 
                     $_new_user_id = $_user_insert_query_result['success'];
                     // riferimento id per CP
@@ -2805,10 +2804,9 @@ HTML;
                         throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
 
                     // devo associare l'utente ad un gruppo farmacia
-                    $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($_new_user_id, (array) $ug_farmacia);
+                    $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($_new_user_id, (array) $ug_farmacia, $db_option);
                     if (!is_array($insert_user_ug_farmacia))
                         throw new Exception("Si è verificato un errore durante l'inserimento dell'utente nel gruppo farmacia " . $_new_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
-
 
                 }
                 else { // utente esiste devo aggiornarlo
@@ -2843,7 +2841,9 @@ HTML;
                             throw new Exception("Nessun gruppo farmacia precedente per " . $check_user_id, E_USER_ERROR);
 
                         // rimuovo utente dal vecchio gruppo
-                        utilityHelper::remove_user_from_usergroup($check_user_id, (array) $last_farmacia['id_gruppo']);
+                        $remove_ug_user = utilityHelper::remove_user_from_usergroup($check_user_id, (array) $last_farmacia['id_gruppo'], $db_option);
+                        if (is_null($remove_ug_user))
+                            throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
 
                         // ha cambiato farmacia (o non c'è nessun riferimento)
                         $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
@@ -2851,7 +2851,7 @@ HTML;
                             throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
 
                         // inserimento dell'utente nel gruppo farmacia nuovo
-                        $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($check_user_id, (array) $ug_farmacia);
+                        $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($check_user_id, (array) $ug_farmacia, $db_option);
                         if (!is_array($insert_user_ug_farmacia))
                             throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $check_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
 
@@ -2861,7 +2861,6 @@ HTML;
                         $user_farmacia = $model_user->update_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento, $db_option);
                         if (is_null($user_farmacia))
                             throw new Exception("Aggiornamento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
-
 
                     }
                 }
@@ -2881,8 +2880,9 @@ HTML;
                 $_user_id_ref = !is_null($check_user_id) ? $check_user_id : $_new_user_id;
 
                 // controllo se l'utente è nel gruppo mansione in caso contrario lo aggiungo
-                if (!utilityHelper::check_user_into_ug($_user_id_ref, (array) $ug_qualifica)) {
-                    $insert_user_ug = utilityHelper::set_usergroup_generic($_user_id_ref, (array) $ug_qualifica);
+                $check_user_ug = utilityHelper::check_user_into_ug($_user_id_ref, (array) $ug_qualifica, $db_option);
+                if (!$check_user_ug) {
+                    $insert_user_ug = utilityHelper::set_usergroup_generic($_user_id_ref, (array) $ug_qualifica, $db_option);
                     if (!is_array($insert_user_ug))
                         throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $_user_id_ref . " nel gruppo: " . $cb_descrizione_qualifica . " errore: " . $insert_user_ug, E_USER_ERROR);
                 }
@@ -2897,7 +2897,9 @@ HTML;
 
             $this->_db->transactionCommit();
 
-            if (count($jumped) > 0)
+            // mail inibite se processo da terminale
+            if (count($jumped) > 0
+                && is_null($db_host))
                 UtilityHelper::send_email("Utenti non inseriti per dati mancanti " . __FUNCTION__, print_r($jumped, true), array($this->mail_debug));
 
             return 1;
@@ -2906,7 +2908,10 @@ HTML;
         catch (Exception $e) {
             $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+
+            if (is_null($db_host))
+                UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+
             return 0;
         }
 
