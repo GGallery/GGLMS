@@ -81,6 +81,9 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
         $this->_filterparam->force_debug = JRequest::getVar('force_debug');
+        $this->_filterparam->function_name = JRequest::getVar('function_name', null);
+        $this->_filterparam->db_target = JRequest::getVar('db_target', null);
+
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -2327,6 +2330,56 @@ HTML;
         }
 
         return "UPDATED: " . $updated;
+    }
+
+    // utility per inviare email da dominio di appoggio per procedure cli
+    // richiede i parametri function_name=importa_anagrafica_farmacie&db_target (opzionale)
+    public function get_debug_log() {
+
+        try {
+
+            if (is_null($this->_filterparam->function_name)
+                || $this->_filterparam->function_name == "")
+                throw new Exception("Nessun nome di funzione definto", E_USER_ERROR);
+
+            // importa_anagrafica_farmacie_master_gg_dev_error
+            $where_build = $this->_filterparam->function_name;
+            $where_build .= (!is_null($this->_filterparam->db_target) && $this->_filterparam->db_target != "") ? "_" . $this->_filterparam->db_target : "";
+            $where_build .= "_error";
+            $dt_ref = date('Y-m-d');
+            $email_dest = (!is_null($this->_filterparam->to) && $this->_filterparam->to != "") ? $this->_filterparam->to : $this->mail_debug;
+
+            $query = $this->_db->getQuery(true)
+                ->select('messaggio')
+                ->from('#__gg_error_log')
+                ->where('messaggio LIKE ' . $this->_db->quote('%' . $where_build . '%'))
+                ->where('timestamp LIKE ' . $this->_db->quote($dt_ref . '%'))
+                ->order('id DESC');
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+            if (is_null($result)
+                || !isset($result['messaggio'])
+                || $result['messaggio'] == "")
+                throw new Exception("Nessun riferimento trovato nei log", 1);
+
+            $_response = preg_replace('/\s/', '', $result['messaggio']);
+            $_response = str_replace($where_build . ":", "", $_response);
+            $_response = str_replace($this->_filterparam->function_name . ":", "", $_response);
+            $_response = str_replace('\\n', '<br/>', $_response);
+
+            UtilityHelper::send_email("Errore " . $where_build, $_response, array($email_dest));
+
+            echo "email inviata";
+
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
     }
 
     // importazione dell'anagrafica della farmacie da chiamata API
