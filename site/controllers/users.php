@@ -1561,7 +1561,8 @@ HTML;*/
 
             $prefisso_coupon = $_info_corso["prefisso_coupon"];
 
-            $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id, $unita->data_inizio . ' ' . date('H:i:s'), true);
+            $data_utilizzo = $unita->data_inizio . ' ' . date('H:i:s');
+            $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id, $data_utilizzo, true);
             if (is_null($insert_coupon))
                 throw new Exception("generazione coupon - " . $insert_coupon, E_USER_ERROR);
 

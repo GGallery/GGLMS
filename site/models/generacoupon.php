@@ -1231,7 +1231,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
     }
 
-    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id = null, $data_utilizzo = null, $db_insert = false) {
+    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $id_utente = null, $data_utilizzo = null, $db_insert = false) {
 
         try {
 
@@ -1254,7 +1254,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 $data_coupon['id_piattaforma'],
                 (isset($data_coupon['genera_coupon_tipi_coupon']) && $data_coupon['genera_coupon_tipi_coupon'] != "") ? $data_coupon['genera_coupon_tipi_coupon'] : 'NULL',
                 (isset($data_coupon['ref_skill']) && $data_coupon['ref_skill'] != "") ? $data_coupon['ref_skill'] : 'NULL',
-                !is_null($user_id) ? $user_id : 'NULL',
+                !is_null($id_utente) ? $id_utente : 'NULL',
                 !is_null($data_utilizzo) ? $data_utilizzo : 'NULL'
             );
 
@@ -1276,13 +1276,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                                     gruppo,
                                                     tipologia_coupon,
                                                     ref_skill,
-                                                    user_id,
+                                                    id_utente,
                                                     data_utilizzo) VALUES ' . $value;
 
                 $this->_db->setQuery($query);
                 if (false === $this->_db->execute()) {
                     throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
                 }
+
                 return 1;
             }
 
