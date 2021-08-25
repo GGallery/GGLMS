@@ -1281,7 +1281,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
                 $this->_db->setQuery($query);
                 if (false === $this->_db->execute()) {
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                    throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
                 }
                 return 1;
             }
