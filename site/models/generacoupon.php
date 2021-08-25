@@ -1238,7 +1238,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $coupon = $this->_generate_coupon($prefisso_coupon, $nome_societa);
 
             // se abilitato -> dataabilitazione = now
-            $value = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d, '%s', '%s')",
+            $value = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d, '%s', '%s', %d, '%s')",
                 $coupon,
                 date('Y-m-d H:i:s', time()), //  time(), //creation_time
                 $data_coupon['abilitato'],
