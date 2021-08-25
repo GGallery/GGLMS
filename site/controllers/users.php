@@ -1520,11 +1520,6 @@ HTML;*/
             if (!utilityHelper::check_user_into_ug($user_id, explode(",", $unita->bookable_a_gruppi)))
                 throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_GRUPPO_NON_ABILITATO'), E_USER_ERROR);
 
-            // associo l'utente al gruppo
-            $_add_ug = utilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
-            if (!is_array($_add_ug))
-                throw new Exception($_add_ug, E_USER_ERROR);
-
             // inserimento coupon per il corso a cui l'utente si vuole iscrivere
             $data_coupon = array();
             $model_genera_coupon = new gglmsModelgeneracoupon();
@@ -1569,6 +1564,11 @@ HTML;*/
             $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id, $unita->data_inizio . ' ' . date('H:i:s'), true);
             if (is_null($insert_coupon))
                 throw new Exception("generazione coupon - " . $insert_coupon, E_USER_ERROR);
+
+            // associo l'utente al gruppo
+            $_add_ug = utilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
+            if (!is_array($_add_ug))
+                throw new Exception($_add_ug, E_USER_ERROR);
 
             // invio email di conferma iscrizione
             $confirm_email = utilityHelper::email_conferma_registrazione_corso($unita->titolo,

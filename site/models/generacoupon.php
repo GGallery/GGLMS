@@ -1231,7 +1231,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
     }
 
-    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id = 'NULL', $data_utilizzo = 'NULL', $db_insert = false) {
+    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id = null, $data_utilizzo = null, $db_insert = false) {
 
         try {
 
@@ -1252,10 +1252,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 $data_coupon['trial'],
                 $data_coupon['venditore'],
                 $data_coupon['id_piattaforma'],
-                (isset($data_coupon['genera_coupon_tipi_coupon']) && $data_coupon['genera_coupon_tipi_coupon'] != "") ? $data_coupon['genera_coupon_tipi_coupon'] : 'NULL'
+                (isset($data_coupon['genera_coupon_tipi_coupon']) && $data_coupon['genera_coupon_tipi_coupon'] != "") ? $data_coupon['genera_coupon_tipi_coupon'] : 'NULL',
                 (isset($data_coupon['ref_skill']) && $data_coupon['ref_skill'] != "") ? $data_coupon['ref_skill'] : 'NULL',
-                $user_id,
-                $data_utilizzo
+                !is_null($user_id) ? $user_id : 'NULL',
+                !is_null($data_utilizzo) ? $data_utilizzo : 'NULL'
             );
 
             // inserisco il singolo valore a database
