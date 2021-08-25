@@ -362,7 +362,7 @@ class gglmsModelUsers extends JModelLegacy
 
     public function get_user_piattaforme($id, $from_api=false)
     {
-        // ritorna id e nonme di tutte le piattaforme associate un utente
+        // ritorna id e nome di tutte le piattaforme associate un utente
 
         try {
 

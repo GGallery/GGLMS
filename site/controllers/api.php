@@ -2340,7 +2340,7 @@ HTML;
 
             if (is_null($this->_filterparam->function_name)
                 || $this->_filterparam->function_name == "")
-                throw new Exception("Nessun nome di funzione definto", E_USER_ERROR);
+                throw new Exception("Nessun nome di funzione definito", E_USER_ERROR);
 
             // importa_anagrafica_farmacie_master_gg_dev_error
             $where_build = $this->_filterparam->function_name;
@@ -2375,7 +2375,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            echo $e->getMessage();
+            echo "Errore: " . $e->getMessage();
         }
 
         $this->_japp->close();

@@ -9,6 +9,8 @@
 
 defined('_JEXEC') or die;
 
+require_once JPATH_COMPONENT . '/models/generacoupon.php';
+
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
@@ -1503,8 +1505,8 @@ HTML;*/
                 throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO'), E_USER_ERROR);
 
             // se si tratta di un corso con prenotazione controllo quanti posti sono ancora disponibili
+            $model_user = new gglmsModelUsers();
             if ($unita->posti_disponibili > 0) {
-                $model_user = new gglmsModelUsers();
                 $utenti_per_gruppo = $model_user->get_users_per_gruppo($gruppo_corso);
                 $utenti_iscritti = (is_array($utenti_per_gruppo)) ? count($utenti_per_gruppo) : 0;
 
@@ -1522,6 +1524,51 @@ HTML;*/
             $_add_ug = utilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
             if (!is_array($_add_ug))
                 throw new Exception($_add_ug, E_USER_ERROR);
+
+            // inserimento coupon per il corso a cui l'utente si vuole iscrivere
+            $data_coupon = array();
+            $model_genera_coupon = new gglmsModelgeneracoupon();
+
+            // parametri dalla configurazione
+            $model_config = new gglmsModelConfig();
+            $data_coupon["attestato"] = $model_config->getConfigValue('check_coupon_attestato') ? 1 : 0;
+            $durata_coupon = $model_config->getConfigValue('durata_standard_coupon');
+            $durata_coupon = (is_null($durata_coupon) || $durata_coupon == "" || $durata_coupon == 0)
+                ? 60 : $data_coupon["durata"];
+            $data_coupon["abilitato"] = 1;
+            $data_coupon['stampatracciato'] = 0;
+            $data_coupon['trial'] = 0;
+            $data_coupon['venditore'] = NULL;
+            $data_coupon['genera_coupon_tipi_coupon'] = NULL;
+            $data_coupon['gruppo_corsi'] = $gruppo_corso;
+            // informazioni piattaforma
+            $_tmp_id_piattaforma = $model_user->get_user_piattaforme($user_id, true);
+            // controllo eventuali errori
+            if (is_null($_tmp_id_piattaforma))
+                throw new RuntimeException("generazione coupon - no user piattaforme found", E_USER_ERROR);
+
+            $data_coupon["id_piattaforma"] = $_tmp_id_piattaforma[0]->value;
+
+            $id_iscrizione = $model_genera_coupon->_generate_id_iscrizione($data_coupon['id_piattaforma']);
+            $info_societa = $model_genera_coupon->_get_info_gruppo_societa($_current_user->username, $data_coupon["id_piattaforma"], true);
+            // controllo eventuali errori
+            if (is_null($info_societa)
+                || !is_array($info_societa))
+                throw new RuntimeException("generazione coupon - nessun gruppo societa trovato", E_USER_ERROR);
+
+            $id_gruppo_societa = $info_societa["id"];
+            $nome_societa = $info_societa["name"];
+
+            $_info_corso = $model_genera_coupon->get_info_corso($data_coupon["gruppo_corsi"], true);
+            if (is_null($_info_corso)
+                || !is_array($_info_corso))
+                throw new RuntimeException("generazione coupon - nessun info corso trovato", E_USER_ERROR);
+
+            $prefisso_coupon = $_info_corso["prefisso_coupon"];
+
+            $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, true);
+            if (is_null($insert_coupon))
+                throw new Exception("generazione coupon - " . $insert_coupon, E_USER_ERROR);
 
             // invio email di conferma iscrizione
             $confirm_email = utilityHelper::email_conferma_registrazione_corso($unita->titolo,

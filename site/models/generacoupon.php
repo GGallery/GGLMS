@@ -152,6 +152,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // campo unico il set di coupon composto da idPiattaformaVenditrice_stringone senza senso basato sul now
             for ($i = 0; $i < intval($data['qty']); $i++) {
 
+                /*
                 $coupons[$i] = $this->_generate_coupon($prefisso_coupon, $nome_societa);
 
                 // se abilitato -> dataabilitazione = now
@@ -173,6 +174,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     $data['genera_coupon_tipi_coupon'],
                     (isset($data['ref_skill']) && $data['ref_skill'] != "") ? $data['ref_skill'] : 'NULL'
                 );
+                */
+
+                // accentro tutto in una funzione specifica di inserimento
+                $insert_coupon = $this->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data);
+                if (is_null($insert_coupon))
+                    throw new Exception($insert_coupon, E_USER_ERROR);
+
+                $values[] = $insert_coupon;
 
             }
 
@@ -528,7 +537,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    private function _generate_id_iscrizione($id_piattaforma)
+    // cambiata accessibilità da private a public
+    public function _generate_id_iscrizione($id_piattaforma)
     {
         $created_by=  $this->_userid === null ? '0' :  $this->_userid;
         return $id_piattaforma . '_' . uniqid(time()) . '_' . $created_by  ;
@@ -1219,6 +1229,67 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             return false;
         }
+    }
+
+    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $db_insert = false) {
+
+        try {
+
+            $coupon = $this->_generate_coupon($prefisso_coupon, $nome_societa);
+
+            // se abilitato -> dataabilitazione = now
+            $value = sprintf("('%s', '%s', %d, '%s', '%s', %d, %d , %d , %d , %d, %d , '%s', %d, '%s', '%s')",
+                $coupon,
+                date('Y-m-d H:i:s', time()), //  time(), //creation_time
+                $data_coupon['abilitato'],
+                $id_iscrizione,
+                $data_coupon['abilitato'] == 1 ? date('Y-m-d H:i:s', time()) : 'NULL',
+                $durata_coupon,
+                $data_coupon['attestato'],
+                $id_gruppo_societa,
+                $data_coupon['gruppo_corsi'],
+                $data_coupon['stampatracciato'],
+                $data_coupon['trial'],
+                $data_coupon['venditore'],
+                $data_coupon['id_piattaforma'],
+                $data_coupon['genera_coupon_tipi_coupon'],
+                (isset($data_coupon['ref_skill']) && $data_coupon['ref_skill'] != "") ? $data_coupon['ref_skill'] : 'NULL'
+            );
+
+            // inserisco il singolo valore a database
+            if ($db_insert) {
+
+                $query = 'INSERT INTO #__gg_coupon (coupon,
+                                                    creation_time,
+                                                    abilitato,
+                                                    id_iscrizione,
+                                                    data_abilitazione,
+                                                    durata,
+                                                    attestato,
+                                                    id_societa,
+                                                    id_gruppi,
+                                                    stampatracciato,
+                                                    trial,
+                                                    venditore,
+                                                    gruppo,
+                                                    tipologia_coupon,
+                                                    ref_skill) VALUES ' . $value;
+
+                $this->_db->setQuery($query);
+                if (false === $this->_db->execute()) {
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                }
+                return 1;
+            }
+
+            // ritorno la stringa
+            return $value;
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
     }
 
 //    public function _set_tutor_aziendale_forum_moderator($company_group_id, $company_forum_id)

@@ -1902,11 +1902,12 @@ HTML;
             $email_oggetto = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_SUBJECT') . ' ' . $titolo_unita;
             $conv_data_inizio = (!is_null($data_inizio) && $data_inizio != "") ? self::convert_dt_in_format($data_inizio, 'd/m/Y') : "-";
             $conv_data_fine = (!is_null($data_fine) && $data_fine != "") ? self::convert_dt_in_format($data_fine, 'd/m/Y') : "-";
+            $ref_date = ($conv_data_inizio != $conv_data_fine) ? "dal " . $conv_data_inizio . " al " . $conv_data_fine : "il " . $conv_data_inizio;
             $email_body = <<<HTML
                             <br /><br />
                             <p>
                                 Gentile {$denominazione_utente},<br />
-                                ti confermiamo l'iscrizione al corso {$titolo_unita}, che si svolgerà dal {$conv_data_inizio} al {$conv_data_fine}.
+                                ti confermiamo l'iscrizione al corso {$titolo_unita}, che si svolgerà {$ref_date}.
                                 Grazie per l'adesione.
                             </p>
                             <p>
