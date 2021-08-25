@@ -1534,7 +1534,7 @@ HTML;*/
             $data_coupon["attestato"] = $model_config->getConfigValue('check_coupon_attestato') ? 1 : 0;
             $durata_coupon = $model_config->getConfigValue('durata_standard_coupon');
             $durata_coupon = (is_null($durata_coupon) || $durata_coupon == "" || $durata_coupon == 0)
-                ? 60 : $data_coupon["durata"];
+                ? 60 : $durata_coupon;
             $data_coupon["abilitato"] = 1;
             $data_coupon['stampatracciato'] = 0;
             $data_coupon['trial'] = 0;
@@ -1566,7 +1566,7 @@ HTML;*/
 
             $prefisso_coupon = $_info_corso["prefisso_coupon"];
 
-            $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, true);
+            $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id, $unita->data_inizio . ' ' . date('H:i:s'), true);
             if (is_null($insert_coupon))
                 throw new Exception("generazione coupon - " . $insert_coupon, E_USER_ERROR);
 

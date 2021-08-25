@@ -1231,7 +1231,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         }
     }
 
-    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $db_insert = false) {
+    public function make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id = 'NULL', $data_utilizzo = 'NULL', $db_insert = false) {
 
         try {
 
@@ -1252,8 +1252,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 $data_coupon['trial'],
                 $data_coupon['venditore'],
                 $data_coupon['id_piattaforma'],
-                $data_coupon['genera_coupon_tipi_coupon'],
-                (isset($data_coupon['ref_skill']) && $data_coupon['ref_skill'] != "") ? $data_coupon['ref_skill'] : 'NULL'
+                (isset($data_coupon['genera_coupon_tipi_coupon']) && $data_coupon['genera_coupon_tipi_coupon'] != "") ? $data_coupon['genera_coupon_tipi_coupon'] : 'NULL'
+                (isset($data_coupon['ref_skill']) && $data_coupon['ref_skill'] != "") ? $data_coupon['ref_skill'] : 'NULL',
+                $user_id,
+                $data_utilizzo
             );
 
             // inserisco il singolo valore a database
@@ -1273,7 +1275,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                                     venditore,
                                                     gruppo,
                                                     tipologia_coupon,
-                                                    ref_skill) VALUES ' . $value;
+                                                    ref_skill,
+                                                    user_id,
+                                                    data_utilizzo) VALUES ' . $value;
 
                 $this->_db->setQuery($query);
                 if (false === $this->_db->execute()) {
