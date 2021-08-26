@@ -1560,7 +1560,7 @@ HTML;*/
                 throw new RuntimeException("generazione coupon - nessun info corso trovato", E_USER_ERROR);
 
             $prefisso_coupon = $_info_corso["prefisso_coupon"];
-
+            // inserimento effettivo del coupon
             $data_utilizzo = $unita->data_inizio . ' ' . date('H:i:s');
             $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id, $data_utilizzo, true);
             if (is_null($insert_coupon))
