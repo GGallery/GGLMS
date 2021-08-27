@@ -28,6 +28,9 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
     protected $sconto_data;
     protected $sconto_custom;
     protected $in_groups;
+    protected $sconto_particolare;
+    protected $acquisto_webinar;
+    protected $perc_webinar;
     protected $payment_form;
     protected $in_error;
     protected $action;
@@ -122,13 +125,30 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 || filter_var($decode_arr[5], FILTER_VALIDATE_INT) === false)
                 throw new Exception("Missing in groups", 1);
 
-
             $this->unit_prezzo = $decode_arr[0];
             $this->unit_id = $decode_arr[1];
             $this->user_id = $decode_arr[2];
             $this->sconto_data = $decode_arr[3];
             $this->sconto_custom = $decode_arr[4];
             $this->in_groups = $decode_arr[5];
+            $this->sconto_particolare = 0;
+            $this->acquisto_webinar = 0;
+            $this->perc_webinar = 0;
+
+            // sconti particolari
+            if (isset($decode_arr[6])
+                && $decode_arr[6] != "")
+                $this->sconto_particolare = $decode_arr[6];
+
+            // acquisto evento in modalità webinar
+            if (isset($decode_arr[7])
+                && $decode_arr[7] != "")
+                $this->acquisto_webinar = $decode_arr[7];
+
+            // percentuale sconto webinar
+            if (isset($decode_arr[8])
+                && $decode_arr[8] != "")
+                $this->perc_webinar = $decode_arr[8];
 
             $_config = new gglmsModelConfig();
 
@@ -182,6 +202,9 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                     $this->sconto_data,
                                                                                     $this->sconto_custom,
                                                                                     $this->in_groups,
+                                                                                    $this->sconto_particolare,
+                                                                                    $this->acquisto_webinar,
+                                                                                    $this->perc_webinar,
                                                                                     $_params);
 
                     if (!is_array($_payment_form))

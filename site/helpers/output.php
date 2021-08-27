@@ -1562,6 +1562,9 @@ HTML;
                                                             $sconto_data,
                                                             $sconto_custom,
                                                             $in_groups,
+                                                            $sconto_particolare = 0,
+                                                            $acquisto_webinar = 0,
+                                                            $perc_webinar = 0,
                                                             $_params) {
 
         try {
@@ -1582,9 +1585,22 @@ HTML;
             // mi servono informazioni sull'unita
             $unit_model = new gglmsModelUnita();
             $_unit = $unit_model->getUnita($unit_id);
+            $unit_prezzo_db = $_unit->prezzo;
+
+            // se compro l'evento in modalità webinar il prezzo deve essere adeguato
+            if ($acquisto_webinar > 0) {
+                $unit_prezzo_db = $unit_prezzo;
+                $unit_prezzo = $acquisto_webinar;
+            }
 
             $dt = new DateTime($_unit->data_inizio);
-            $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento($sconto_data, $sconto_custom, $in_groups, $_unit);
+            $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento($sconto_data,
+                $sconto_custom,
+                $in_groups,
+                $_unit,
+                $sconto_particolare,
+                $acquisto_webinar,
+                $perc_webinar);
 
             $_descr_checkbox_evento = "Acquisto " . $_unit->titolo;
             $_descr_checkbox_evento .= $_tipo_sconto['descrizione_sconto'] != "" ? ' ' . $_tipo_sconto['descrizione_sconto'] : '';
@@ -1594,6 +1610,8 @@ HTML;
             $_descr_attr_evento = $_unit->alias;
             $_descr_attr_evento .= ($sconto_data == 1) ? '-sc_data' : '';
             $_descr_attr_evento .= ($in_groups == 1) ? '-sc_gruppo' : '';
+            $_descr_attr_evento .= ($sconto_particolare > 0) ? '-sc_ps' : '';
+            $_descr_attr_evento .= ($acquisto_webinar > 0) ? '-webinar' : '';
 
             $_descrizione_hidden = $_descr_attr_evento;
 
@@ -1648,7 +1666,7 @@ HTML;
                         <td colspan="2">&nbsp;</td>
                         <td><h5><b>TOTALE</b></h5></td>
                         <td>&nbsp;</td>
-                        <td><h5>€ <b><span id="amount_span" {$_style_totale}>{$_unit->prezzo}</span> {$_tipo_sconto['label_sconto']}</b></h5></td>
+                        <td><h5>€ <b><span id="amount_span" {$_style_totale}>{$unit_prezzo_db}</span> {$_tipo_sconto['label_sconto']}</b></h5></td>
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align: center;">
