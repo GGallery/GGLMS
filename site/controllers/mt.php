@@ -55,10 +55,10 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $ug_check = utilityHelper::check_user_into_ug(5671, array(999, 123, 600));
-        //$ug_del = utilityHelper::remove_user_from_usergroup(5671, array(600));
-        //$ug_new = utilityHelper::set_usergroup_generic(5671, array(600));
-        var_dump($ug_check);
+        $check = utilityHelper::check_dt_major('2021-08-31', date('Y-m-d'));
+        var_dump($check);
+
+        $this->_japp->close();
 
     }
 

@@ -2560,14 +2560,180 @@ HTML;
                                           $filename = '',
                                           $start_from_zero = false,
                                           $is_debug = false,
+                                          $from_local = '',
                                           $_err_label = '',
                                           $row_separator = ";") {
 
         try {
 
+            $rows_arr = array();
+
+            // se from_local leggo il file localmente
+            if ($from_local != '') {
+
+                $target_file = $local_file . $from_local;
+
+                if (!file_exists($target_file))
+                    throw new Exception($target_file . " non trovato", E_USER_ERROR);
+
+                // estensione del file
+                $file_ext = self::get_file_ext($target_file);
+
+                $reader = ReaderEntityFactory::createXLSXReader();
+                $reader->setShouldFormatDates(true);
+
+                if (is_null($reader))
+                    throw new Exception('Nessun formato file impostato', E_USER_ERROR);
+
+                $numero_prima_riga = $start_from_zero ? 0 : 1;
+                $reader->open($target_file); //open the file
+
+                // controllo quanti sheet ci sono nel file (> 1 vado in errore)
+                $sheets_num = count($reader->getSheetIterator());
+                if ($sheets_num > 1)
+                    throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", E_USER_ERROR);
+
+                $sheet_data = null;
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    if ($sheet->getIndex() === 0) {
+                        $sheet_data = $sheet->getRowIterator();
+                        break;
+                    }
+                }
+
+                // sheet rows loop
+                $i = 0;
+                $counter = 0;
+                foreach ($sheet_data as $row) {
+
+                    if ($i<$numero_prima_riga) {
+                        $i++;
+                        continue;
+                    }
+
+                    // do stuff with the row
+                    $_riga_xls = $row->getCells();
+
+                    // 0 - anno
+                    $rows_arr[$counter][0] = "";
+                    // 1 - mese
+                    $rows_arr[$counter][1] = "";
+
+                    // row cells loop
+                    foreach ($_riga_xls as $num_cell => $value_cell) {
+
+                        $_row_value = trim($value_cell->getValue());
+
+                        // 2 - azienda
+                        if ($num_cell == 0)
+                            $rows_arr[$counter][2] = $_row_value;
+
+                        // 3 - filiale
+                        if ($num_cell == 1)
+                            $rows_arr[$counter][3] = $_row_value;
+
+                        // 4- ragione sociale
+                        if ($num_cell == 2)
+                            $rows_arr[$counter][4] = $_row_value;
+
+                        // 5 - descrizione filiale
+                        $rows_arr[$counter][5] = "";
+
+                        // 6 - matricola
+                        if ($num_cell == 3)
+                            $rows_arr[$counter][6] = $_row_value;
+
+                        // 7 - cognome
+                        if ($num_cell == 4)
+                            $rows_arr[$counter][7] = $_row_value;
+
+                        // 8 - nome
+                        if ($num_cell == 5)
+                            $rows_arr[$counter][8] = $_row_value;
+
+                        // 9 - codice fiscale
+                        if ($num_cell == 6)
+                            $rows_arr[$counter][9] = $_row_value;
+
+                        // 10 - data di nascita
+                        if ($num_cell == 7)
+                            $rows_arr[$counter][10] = $_row_value;
+
+                        // 11 - codice comune di nascita
+                        if ($num_cell == 8)
+                            $rows_arr[$counter][11] = $_row_value;
+
+                        // 12 - comune di nascita
+                        if ($num_cell == 9)
+                            $rows_arr[$counter][12] = $_row_value;
+
+                        // 13 - provincia di nascita
+                        if ($num_cell == 10)
+                            $rows_arr[$counter][13] = $_row_value;
+
+                        // 14 - indirizzo di residenza
+                        if ($num_cell == 11)
+                            $rows_arr[$counter][14] = $_row_value;
+
+                        // 15 - cap di residenza
+                        $rows_arr[$counter][15] = "";
+
+                        // 16 - comune di residenza
+                        if ($num_cell == 12)
+                            $rows_arr[$counter][16] = $_row_value;
+
+                        // 17 - provincia di residenza
+                        if ($num_cell == 13)
+                            $rows_arr[$counter][17] = $_row_value;
+
+                        // 18 - data assunzione
+                        if ($num_cell == 14)
+                            $rows_arr[$counter][18] = $_row_value;
+
+                        // 19 - data licenziamento - in questo caso data termine contratto
+                        if ($num_cell == 15)
+                            $rows_arr[$counter][19] = $_row_value;
+
+                        // 20 - stato del dipendente
+                        if ($num_cell == 16)
+                            $rows_arr[$counter][20] = $_row_value;
+
+                        // 21 - descrizione qualifica
+                        if ($num_cell == 17)
+                            $rows_arr[$counter][21] = $_row_value;
+
+                        // 22 - email
+                        if ($num_cell == 18)
+                            $rows_arr[$counter][22] = $_row_value;
+
+                        // 23 - codice esterno cdc 2
+                        if ($num_cell == 19)
+                            $rows_arr[$counter][23] = $_row_value;
+
+                        // 24 - codice esterno cdc 3
+                        if ($num_cell == 20)
+                            $rows_arr[$counter][24] = $_row_value;
+
+                        // 25 - codice esterno rep 2
+                        if ($num_cell == 21)
+                            $rows_arr[$counter][25] = $_row_value;
+
+                        // 26 - data inizio rapporti
+                        $rows_arr[$counter][26] = "";
+
+                    }
+
+                    ksort($rows_arr[$counter]);
+                    $counter++;
+
+                }
+
+                return $rows_arr;
+
+            }
+
             $target_csv = self::get_csv_remote_api($api_endpoint, $api_user_auth, $api_user_password, $local_file, $filename);
 
-            $rows_arr = array();
             $file_contents = file_get_contents($target_csv);
             $exploded_contents = explode("\n", $file_contents);
 
@@ -3738,6 +3904,12 @@ HTML;
         $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*$/', '', $url);
         $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*&/', '$1', $url);
         return $url;
+    }
+
+    public static function get_file_ext($path) {
+
+        return pathinfo($path, PATHINFO_EXTENSION);
+
     }
 
     /* Generiche */

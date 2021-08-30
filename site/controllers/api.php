@@ -2389,7 +2389,8 @@ HTML;
                                             $db_database = null,
                                             $db_prefix = null,
                                             $db_driver = null,
-                                            $is_debug = false) {
+                                            $is_debug = false,
+                                            $from_local = '') {
 
         $exists_check = array();
         $db_option = array();
@@ -2421,7 +2422,7 @@ HTML;
                 $is_debug = true;
 
             // provo a scaricare il master delle farmacie
-            $farmacie = utilityHelper::get_csv_remote($api_endpoint_farmacie, $api_user_auth, $api_user_password, $local_file, $filename);
+            $farmacie = utilityHelper::get_csv_remote($api_endpoint_farmacie, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug, $from_local);
             if (!$farmacie)
                 throw new Exception("Impossibile continuare, si è verificato un errore durante lo scaricamento di " . $filename , E_USER_ERROR);
 
@@ -2606,13 +2607,16 @@ HTML;
 
     }
 
+    // importazione anagrafica dipendenti delle farmacie da API
+    // oppure in locale se si tratta di LP (esempio) from_local è il nome file che attesta se fare riferimento a questo file che si trova nella cartella JPATH_ROOT/tmp/
     public function importa_anagrafica_farmacie($db_host = null,
                                                 $db_user = null,
                                                 $db_password = null,
                                                 $db_database = null,
                                                 $db_prefix = null,
                                                 $db_driver = null,
-                                                $is_debug = false) {
+                                                $is_debug = false,
+                                                $from_local = '') {
 
         try {
 
@@ -2652,10 +2656,8 @@ HTML;
             $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
             $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
             $filename = "anagrafica_dipendenti.csv";
-            if (isset($this->_filterparam->force_debug))
-                $is_debug = true;
 
-            $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug);
+            $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug, $from_local);
 
             if (!is_array($get_farmacie)
                 || is_null($get_farmacie))
@@ -2754,6 +2756,14 @@ HTML;
                 // colonna 26 - data inizio rapporti - si
                 $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[26]));
 
+                // controllo se la data di licenziamento è maggiore di oggi
+                if (!is_null($cb_data_licenziamento)
+                    && $cb_data_licenziamento != ""
+                    && utilityHelper::check_dt_major(date('Y-m-d'), $cb_data_licenziamento))
+                    $cb_stato_dipendente = 9;
+                else
+                    $cb_stato_dipendente = (is_null($cb_stato_dipendente) || $cb_stato_dipendente == "") ? 0 : $cb_stato_dipendente;
+
                 $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, false, $db_option);
                 $_new_user_id = null;
                 $new_user = false;
@@ -2820,7 +2830,7 @@ HTML;
 
                 // cablo i campi per popolare CB
                 $_new_user_cp[$_campo_cb_azienda] = $cb_azienda;
-                $_new_user_cp[$_campo_cb_filiale] = $cb_filiale;
+                $_new_user_cp[$_campo_cb_filiale] = addslashes($cb_filiale);
                 $_new_user_cp[$_campo_cb_matricola] = $cb_matricola;
                 $_new_user_cp[$_campo_cb_cognome] = addslashes($cb_cognome);
                 $_new_user_cp[$_campo_cb_nome] = addslashes($cb_nome);

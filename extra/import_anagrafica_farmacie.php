@@ -55,8 +55,9 @@ class importAnagraficaFarmacia extends JApplicationCli {
             $app->initialise();
 
             $is_debug = $this->input->get('is_debug', false);
-            $db_host = $this->input->get('db_host', 'localhost');
-            $db_port = $this->input->get('db_port', '3306');
+            $from_local = $this->input->get('from_local', false);
+            $db_host = $this->input->get('db_host', null);
+            $db_port = $this->input->get('db_port', null);
             $db_user = $this->input->get('db_user', null);
             $db_password = $this->input->get('db_password', null);
             $db_database = $this->input->get('db_database', null);
@@ -68,13 +69,15 @@ class importAnagraficaFarmacia extends JApplicationCli {
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
-            $importa_anagrafica_farmacie = $api->importa_anagrafica_farmacie($db_host . ":" . $db_port,
+            $host_string = (!is_null($db_host) && !is_null($db_port)) ? $db_host . ":" . $db_port : null;
+            $importa_anagrafica_farmacie = $api->importa_anagrafica_farmacie($host_string,
                                                                             $db_user,
                                                                             $db_password,
                                                                             $db_database,
                                                                             $db_prefix,
                                                                             $db_driver,
-                                                                            $is_debug);
+                                                                            $is_debug,
+                                                                            $from_local);
 
             $this->out('Script ended with ' . $importa_anagrafica_farmacie . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         }

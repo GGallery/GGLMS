@@ -212,33 +212,33 @@ class gglmsControllerUsers extends JControllerLegacy
 
             // il file di configurazione non esiste
             if (!file_exists($config_file))
-                throw new Exception("file _import.conf non trovato", 1);
+                throw new Exception("file _import.conf non trovato", E_USER_ERROR);
 
             $config_content = file_get_contents($config_file);
             if (!$config_content)
-                throw new Exception("file _import.conf non leggibile", 1);
+                throw new Exception("file _import.conf non leggibile", E_USER_ERROR);
 
             $json_config = utilityHelper::get_json_decode_error($config_content, true);
             if (!is_array($json_config))
-                throw new Exception($json_config, 1);
+                throw new Exception($json_config, E_USER_ERROR);
 
             // target file
             $file_ext = isset($json_config['file_type']) ? $json_config['file_type'] : null;
             $target_file = isset($json_config['file_name']) ? JPATH_ROOT . '/tmp/' . $json_config['file_name'] : null;
 
             if (is_null($target_file))
-                throw new Exception("Nessun file di importazione definito", 1);
+                throw new Exception("Nessun file di importazione definito", E_USER_ERROR);
 
             // il file da leggere non esiste
             if (!file_exists($target_file))
-                throw new Exception($target_file . " non trovato", 1);
+                throw new Exception($target_file . " non trovato", E_USER_ERROR);
 
             $log_file = JPATH_ROOT . '/tmp/_log_' . $json_config['file_name'] . '_' . time();
             $reader = ReaderEntityFactory::createXLSXReader();
             $reader->setShouldFormatDates(true);
 
             if (is_null($reader))
-                throw new Exception('Nessun formato file impostato');
+                throw new Exception('Nessun formato file impostato', E_USER_ERROR);
 
             // indice da cui partirà il loop sul foglio
             $numero_prima_riga = isset($json_config['cols_schema']['numero_prima_riga']) ? (int)$json_config['cols_schema']['numero_prima_riga'] : 0;
@@ -255,7 +255,7 @@ class gglmsControllerUsers extends JControllerLegacy
                 // controllo quanti sheet ci sono nel file (> 1 vado in errore)
                 $sheets_num = count($reader->getSheetIterator());
                 if ($sheets_num > 1)
-                    throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
+                    throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", E_USER_ERROR);
 
                 $sheet_data = null;
                 foreach ($reader->getSheetIterator() as $sheet) {
