@@ -2740,21 +2740,23 @@ HTML;
                 $cb_data_licenziamento = utilityHelper::convert_dt_in_mysql(trim($row_arr[19]));
                 // colonna 20 - stato del dipendente - si
                 $cb_stato_dipendente = trim($row_arr[20]);
-                // colonna 21 - descrizione qualifica - si
+                // colonna 21 - Cod.tab.qualifica - in base a questo si decide il gruppo di appartenenza dell'utente
+                $codice_qualifica = trim($row_arr[21]);
+                // colonna 22 - descrizione qualifica - si
                 // questo campo se uguale a DIRETTORE FARMACIA lo elegge a tutor aziendale
                 // al momento però non è richiesta questa differenziazione
-                $cb_descrizione_qualifica = utilityHelper::normalizza_stringa($row_arr[21]);
-                // colonna 22 - email - si
-                $cb_email = trim($row_arr[22]);
-                // colonna 23 - codice esterno cdc 2 - si
-                $cb_codice_esterno_cdc_2 = trim($row_arr[23]);
-                // colonna 24 - codice esterno cdc 3 - si
+                $cb_descrizione_qualifica = utilityHelper::normalizza_stringa($row_arr[22]);
+                // colonna 23 - email - si
+                $cb_email = trim($row_arr[23]);
+                // colonna 24 - codice esterno cdc 2 - si
+                $cb_codice_esterno_cdc_2 = trim($row_arr[24]);
+                // colonna 25 - codice esterno cdc 3 - si
                 // chiave univoca per fare riferimento al master delle farmacie
-                $cb_codice_esterno_cdc_3 = trim($row_arr[24]);
-                // colonna 25 - codice esterno rep 2 - si
-                $cb_esterno_rep_2 = (isset($row_arr[25]) && !is_null($row_arr[25]) && $row_arr[25] != "") ? trim($row_arr[25]) : "";
-                // colonna 26 - data inizio rapporti - si
-                $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[26]));
+                $cb_codice_esterno_cdc_3 = trim($row_arr[25]);
+                // colonna 26 - codice esterno rep 2 - si
+                $cb_esterno_rep_2 = (isset($row_arr[26]) && !is_null($row_arr[26]) && $row_arr[26] != "") ? trim($row_arr[26]) : "";
+                // colonna 27 - data inizio rapporti - si
+                $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[27]));
 
                 // controllo se la data di licenziamento è maggiore di oggi
                 if (!is_null($cb_data_licenziamento)

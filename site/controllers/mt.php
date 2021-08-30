@@ -48,7 +48,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function make_pwd() {
 
-        echo utilityHelper::encrypt_decrypt('encrypt', "5$93pzeI", "GGallery00!", "GGallery00!");
+        echo utilityHelper::encrypt_decrypt('encrypt', "r222rAgfn5s9c3G", "GGallery00!", "GGallery00!");
         $this->_japp->close();
 
     }
