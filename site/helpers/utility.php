@@ -735,11 +735,15 @@ class utilityHelper
     }
 
     // informazioni per un campo community builder da id - utility per self.get_cb_field_name()
-    public static function get_cb_field($field_id) {
+    public static function get_cb_field($field_id, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                 ->select('*')
                 ->from('#__comprofiler_fields')
@@ -813,15 +817,20 @@ class utilityHelper
     }
 
     // controlla esistenza usergroups per nome - utility per controllers.users._import()
-    public static function check_usergroups_by_name($usergroup) {
+    public static function check_usergroups_by_name($usergroup, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                     ->select('id')
                     ->from('#__usergroups')
-                    ->where("title = '" . trim($usergroup) . "'");
+                    ->where("title = " . $db->quote(addslashes(trim($usergroup))));
 
             $db->setQuery($query);
 
@@ -833,46 +842,85 @@ class utilityHelper
         }
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
     }
 
     // inserisco nuovo usergroups - utility per controllers.users._import_rinnovi()
-    public static function insert_new_usergroups($usergroup, $parent_id=0) {
+    public static function insert_new_usergroups($ug_title, $parent_id=0, $rebuild = true, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
-                              '" . addslashes(trim($usergroup)) . "'
+                              " . $db->quote(addslashes(trim($ug_title))) . "
                         )";
 
             $db->setQuery($query);
-            $db->execute();
+
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
             $new_group_id = $db->insertid();
 
-            // rebuild per indici lft, rgt
-            $JTUserGroup = new JTableUsergroup($db);
-            $JTUserGroup->rebuild();
+            if ($rebuild)
+                self::rebuild_ug_index($db);
 
             return $new_group_id;
 
         }
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
+            return null;
         }
 
     }
 
+    // esegue una query generica - utility per controllers.api.importa_anagrafica_farmacie()
+    public static function update_with_query($update_query, $db_option = array()) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
+            $db->setQuery($update_query);
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $_ret['success'] = 1;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ": " . $e->getMessage();
+        }
+    }
+
     // inserisco nuovo utente in comprofiler - utility per controllers.users._import()
-    public static function insert_new_with_query($insert_query, $ret_last_id = true) {
+    public static function insert_new_with_query($insert_query, $ret_last_id = true, $db_option = array()) {
 
         try {
 
             $_ret = array();
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
 
             $db->setQuery($insert_query);
             $db->execute();
@@ -882,7 +930,6 @@ class utilityHelper
 
         }
         catch (Exception $e) {
-            //DEBUGG::error($e, __FUNCTION__);
             return __FUNCTION__ . ": " . $e->getMessage();
         }
 
@@ -915,15 +962,22 @@ class utilityHelper
     }
 
     // controllo esistenza utente su username - utility per controllers.users._import()
-    public static function check_user_by_username($username) {
+    public static function check_user_by_username($username, $check_block = false, $db_option = array()) {
 
         try {
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                 ->select('id')
                 ->from('#__users')
                 ->where("username = '" . $username . "'");
+
+            if ($check_block)
+                $query = $query->where('block = 0');
 
             $db->setQuery($query);
 
@@ -1063,6 +1117,76 @@ class utilityHelper
         }
     }
 
+    // utility per modulo calendario - tutti le categorie evento
+    public static function get_categorie_evento() {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, titolo')
+                ->from('#__gg_categorie_evento')
+                ->order('id');
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            if (is_null($results)
+                || count($results) == 0)
+                throw new Exception("Nessuna categoria evento trovata", E_USER_ERROR);
+
+            // normalizzo l'output
+            foreach ($results as $key => $cat) {
+                $_ret[$cat['id']] = $cat['titolo'];
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // utility per modulo calendario (e generic) - tutti gli usergroups
+    public static function get_usergroups_list() {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, title')
+                ->from('#__usergroups')
+                ->order('id');
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            if (is_null($results)
+                || count($results) == 0)
+                throw new Exception("Nessun usergroup trovato", E_USER_ERROR);
+
+            // normalizzo l'output
+            foreach ($results as $key => $group) {
+                $_ret[$group['id']] = $group['title'];
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // utility per models.generacoupon.send_coupon_mail()
     public static function logMail($template, $sender, $recipient, $status, $cc = null, $id_gruppo_corso = null)
     {
@@ -1097,6 +1221,45 @@ class utilityHelper
         }
     }
 
+    // utility per api.importa_master_farmacie
+    // ottengo la lista per la decodifica di ruoli in base al codice descrittivo
+    public static function get_codici_qualifica_farmacie($db_option = array()) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
+            $query = $db->getQuery(true)
+                ->select('codice, rif_gruppo')
+                ->from('#__gg_codici_qualifica_farmacie')
+                ->order('id');
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            if (is_null($results)
+                || count($results) == 0)
+                throw new Exception("Nessun codice qualifica trovato", E_USER_ERROR);
+
+            // normalizzo l'output
+            foreach ($results as $key => $codice) {
+                $_ret[$codice['codice']] = $codice['rif_gruppo'];
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
 
     ////////////////////////////////////    export csv
 
@@ -1395,13 +1558,17 @@ class utilityHelper
     }
 
     // query diretta sui parametri di un modulo - utility per view.acquistaevento
-    public static function get_params_from_module($module = 'mod_compra_corsi') {
+    public static function get_params_from_module($module = 'mod_compra_corsi', $db_option = array()) {
 
         try {
 
             $_ret = array();
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
+
             $query = $db->getQuery(true)
                 ->select('params')
                 ->from('#__modules')
@@ -1671,7 +1838,30 @@ HTML;
         return $_ret;
     }
 
-    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z -utility per controller.users._import()
+    // costruzione della query di update da array di colonne e valori - utility per controller.api.importa_anagrafica_farmacie()
+    public static function get_update_query($_table, $_exist_user_cp, $where) {
+
+        $query = "UPDATE #__" . $_table . " SET ";
+
+        $counter = 0;
+        foreach ($_exist_user_cp as $key => $value) {
+
+            if (is_null($value) || $value === "") {
+                $counter++;
+                continue;
+            }
+            $query .= $key . " = '" . $value . "', ";
+
+        }
+
+        $query = rtrim(trim($query), ',');
+        $query .= " WHERE " . $where;
+
+        return $query;
+
+    }
+
+    // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z - utility per controller.users._import()
     public static function get_insert_query($_table, $_new_user_cp) {
 
         $query = "INSERT INTO #__" . $_table;
@@ -1690,6 +1880,8 @@ HTML;
 
         $query .= " (" . implode(",", $_cols) . ")";
         $query .= " VALUES ('" . implode( "','", $_values ) . "')";
+
+
 
         return $query;
     }
@@ -2116,7 +2308,7 @@ HTML;
             return 1;
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
 
@@ -2351,6 +2543,275 @@ HTML;
         return false;
     }
 
+    // scarico file csv da endpoint
+    public static function get_csv_remote_api($api_endpoint,
+                                              $api_user_auth,
+                                              $api_user_password,
+                                              $local_file,
+                                              $filename,
+                                              $_err_label = '') {
+
+        try {
+
+            $credentials = base64_encode("$api_user_auth:$api_user_password");
+
+            $headers = array(
+                        "Authorization: Basic {$credentials}",
+                        'Content-Type: application/x-www-form-urlencoded',
+                        'Cache-Control: no-cache'
+            );
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $api_endpoint);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+            $result = curl_exec($ch);
+
+            if (curl_errno($ch))
+                throw new Exception(curl_error($ch), E_USER_ERROR);
+
+            $dest_file = $local_file . $filename;
+            // cancello file se già esistente e lo cancello
+            if (file_exists($dest_file))
+                unlink($dest_file);
+
+            $write_file = file_put_contents($dest_file, $result);
+            if (!$write_file)
+                throw new Exception("Errore durante la scrittura di " . $write_file, E_USER_ERROR);
+
+            return $dest_file;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
+
+    }
+
+    // scarico file csv dal repository - utility per api.importa_anagrafica_farmacie()
+    public static function get_csv_remote($api_endpoint,
+                                          $api_user_auth,
+                                          $api_user_password,
+                                          $local_file,
+                                          $filename = '',
+                                          $start_from_zero = false,
+                                          $is_debug = false,
+                                          $from_local = '',
+                                          $_err_label = '',
+                                          $row_separator = ";") {
+
+        try {
+
+            $rows_arr = array();
+
+            // se from_local leggo il file localmente
+            if ($from_local != '') {
+
+                $target_file = $local_file . $from_local;
+
+                if (!file_exists($target_file))
+                    throw new Exception($target_file . " non trovato", E_USER_ERROR);
+
+                // estensione del file
+                $file_ext = self::get_file_ext($target_file);
+
+                $reader = ReaderEntityFactory::createXLSXReader();
+                $reader->setShouldFormatDates(true);
+
+                if (is_null($reader))
+                    throw new Exception('Nessun formato file impostato', E_USER_ERROR);
+
+                $numero_prima_riga = $start_from_zero ? 0 : 1;
+                $reader->open($target_file); //open the file
+
+                // controllo quanti sheet ci sono nel file (> 1 vado in errore)
+                $sheets_num = count($reader->getSheetIterator());
+                if ($sheets_num > 1)
+                    throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", E_USER_ERROR);
+
+                $sheet_data = null;
+                foreach ($reader->getSheetIterator() as $sheet) {
+                    if ($sheet->getIndex() === 0) {
+                        $sheet_data = $sheet->getRowIterator();
+                        break;
+                    }
+                }
+
+                // sheet rows loop
+                $i = 0;
+                $counter = 0;
+                foreach ($sheet_data as $row) {
+
+                    if ($i<$numero_prima_riga) {
+                        $i++;
+                        continue;
+                    }
+
+                    // do stuff with the row
+                    $_riga_xls = $row->getCells();
+
+                    // 0 - anno
+                    $rows_arr[$counter][0] = "";
+                    // 1 - mese
+                    $rows_arr[$counter][1] = "";
+
+                    // row cells loop
+                    foreach ($_riga_xls as $num_cell => $value_cell) {
+
+                        $_row_value = trim($value_cell->getValue());
+
+                        // 2 - azienda
+                        if ($num_cell == 0)
+                            $rows_arr[$counter][2] = $_row_value;
+
+                        // 3 - filiale
+                        if ($num_cell == 1)
+                            $rows_arr[$counter][3] = $_row_value;
+
+                        // 4- ragione sociale
+                        if ($num_cell == 2)
+                            $rows_arr[$counter][4] = $_row_value;
+
+                        // 5 - descrizione filiale
+                        $rows_arr[$counter][5] = "";
+
+                        // 6 - matricola
+                        if ($num_cell == 3)
+                            $rows_arr[$counter][6] = $_row_value;
+
+                        // 7 - cognome
+                        if ($num_cell == 4)
+                            $rows_arr[$counter][7] = $_row_value;
+
+                        // 8 - nome
+                        if ($num_cell == 5)
+                            $rows_arr[$counter][8] = $_row_value;
+
+                        // 9 - codice fiscale
+                        if ($num_cell == 6)
+                            $rows_arr[$counter][9] = $_row_value;
+
+                        // 10 - data di nascita
+                        if ($num_cell == 7)
+                            $rows_arr[$counter][10] = $_row_value;
+
+                        // 11 - codice comune di nascita
+                        if ($num_cell == 8)
+                            $rows_arr[$counter][11] = $_row_value;
+
+                        // 12 - comune di nascita
+                        if ($num_cell == 9)
+                            $rows_arr[$counter][12] = $_row_value;
+
+                        // 13 - provincia di nascita
+                        if ($num_cell == 10)
+                            $rows_arr[$counter][13] = $_row_value;
+
+                        // 14 - indirizzo di residenza
+                        if ($num_cell == 11)
+                            $rows_arr[$counter][14] = $_row_value;
+
+                        // 15 - cap di residenza
+                        $rows_arr[$counter][15] = "";
+
+                        // 16 - comune di residenza
+                        if ($num_cell == 12)
+                            $rows_arr[$counter][16] = $_row_value;
+
+                        // 17 - provincia di residenza
+                        if ($num_cell == 13)
+                            $rows_arr[$counter][17] = $_row_value;
+
+                        // 18 - data assunzione
+                        if ($num_cell == 14)
+                            $rows_arr[$counter][18] = $_row_value;
+
+                        // 19 - data licenziamento - in questo caso data termine contratto
+                        if ($num_cell == 15)
+                            $rows_arr[$counter][19] = $_row_value;
+
+                        // 20 - stato del dipendente
+                        if ($num_cell == 16)
+                            $rows_arr[$counter][20] = $_row_value;
+
+                        // 21 - descrizione qualifica
+                        if ($num_cell == 17)
+                            $rows_arr[$counter][21] = $_row_value;
+
+                        // 22 - email
+                        if ($num_cell == 18)
+                            $rows_arr[$counter][22] = $_row_value;
+
+                        // 23 - codice esterno cdc 2
+                        if ($num_cell == 19)
+                            $rows_arr[$counter][23] = $_row_value;
+
+                        // 24 - codice esterno cdc 3
+                        if ($num_cell == 20)
+                            $rows_arr[$counter][24] = $_row_value;
+
+                        // 25 - codice esterno rep 2
+                        if ($num_cell == 21)
+                            $rows_arr[$counter][25] = $_row_value;
+
+                        // 26 - data inizio rapporti
+                        $rows_arr[$counter][26] = "";
+
+                    }
+
+                    ksort($rows_arr[$counter]);
+                    $counter++;
+
+                }
+
+                return $rows_arr;
+
+            }
+
+            $target_csv = self::get_csv_remote_api($api_endpoint, $api_user_auth, $api_user_password, $local_file, $filename);
+
+            $file_contents = file_get_contents($target_csv);
+            $exploded_contents = explode("\n", $file_contents);
+
+            $counter = 0;
+            foreach ($exploded_contents as $key => $row) {
+
+                if ($row == "")
+                    continue;
+
+                if (!$start_from_zero
+                    && $counter == 0) {
+                    $counter++;
+                    continue;
+                }
+
+                // potrebbe essere necessario ripulire la stringa da dei double quote in eccesso
+                $rows_arr[] = explode($row_separator, str_replace('"', '', $row));
+
+                $counter++;
+
+                if ($is_debug
+                    && $counter == 5)
+                    break;
+
+            }
+
+            if (count($rows_arr) == 0)
+                throw new Exception("Nessuna riga elaborata nel file csv", E_USER_ERROR);
+
+            return $rows_arr;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
+
+    }
+
     // scarico file xml dal repository - utility per api.load_corsi_from_xml()
     public static function get_xml_remote($local_file, $_err_label = '') {
 
@@ -2405,7 +2866,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -2443,7 +2904,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return false;
         }
 
@@ -2585,7 +3046,7 @@ HTML;
             return $generazione_coupon;
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -2625,7 +3086,7 @@ HTML;
             return 1;
         }
         catch(Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -2760,7 +3221,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return false;
         }
 
@@ -2903,10 +3364,10 @@ HTML;
     }
 
     // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare - utilità per output.php
-    public static function get_cb_field_name($_params, $_label, $_prop) {
+    public static function get_cb_field_name($_params, $_label, $_prop, $db_option = array()) {
 
         $_cb = self::get_params_from_object($_params, $_label);
-        $_cb_arr = self::get_cb_field($_cb);
+        $_cb_arr = self::get_cb_field($_cb, $db_option);
 
         return self::get_cb_field_property($_cb_arr, $_prop);
 
@@ -2981,7 +3442,7 @@ HTML;
         return $_response;
     }
 
-    // Utilità per gestire il metodo esistente
+    // Utilità per gestire il metodo esistente di loggin
     public static function make_debug_log($_function, $_error_message, $_label) {
 
         $_msg = $_function . " : " . $_error_message;
@@ -3076,6 +3537,18 @@ HTML;
 
     }
 
+    // utility per api.importa_anagrafica_farmacie()
+    public static function convert_dt_in_mysql($dt_start, $split = '/') {
+
+        if ($dt_start == '00/00/0000'
+            || $dt_start == '')
+            return "";
+
+        $_split = explode($split, $dt_start);
+        return $_split[2] . '-' . $_split[1] . '-' . $_split[0];
+
+    }
+
     public static function convert_dt_in_format($dt_start, $ret_format = 'Y-m-d') {
 
         $dt = new DateTime($dt_start);
@@ -3124,6 +3597,12 @@ HTML;
                 return $days;
 
         }
+    }
+
+    public static function get_hours_diff($date1, $date2) {
+
+        return round((strtotime($date1) - strtotime($date2))/3600, 1);
+
     }
 
     /* Date */
@@ -3331,12 +3810,27 @@ HTML;
 
     }
 
-    public static function normalizza_contenuto_array($rows) {
+    // normalizzo un array che deriva dal metodo loadAssocList del queryset di joomla
+    public static function normalizza_loadassoc($rows, $key_1 = null, $key_2 = null, $only_values = false) {
 
         $_ret = array();
 
         foreach ($rows as $key => $row) {
-            $_ret[$row['id_contenuto']] = $row['descrizione'];
+            if (!$only_values)
+                $_ret[$row[$key_1]] = $row[$key_2];
+            else
+                $_ret[] = $row[$key_2];
+        }
+
+        return $_ret;
+    }
+
+    public static function normalizza_contenuto_array($rows, $key_1 = 'id_contenuto', $key_2 = 'descrizione') {
+
+        $_ret = array();
+
+        foreach ($rows as $key => $row) {
+            $_ret[$row[$key_1]] = $row[$key_2];
         }
 
         return $_ret;
@@ -3414,6 +3908,68 @@ HTML;
         }
 
         return $random_string;
+    }
+
+    // normalizzatore di stringhe per nomi
+    public static function normalizza_stringa($name) {
+        $name = strtolower($name);
+        $normalized = array();
+
+        foreach (preg_split('/([^a-z])/', $name, NULL, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $word) {
+            if (preg_match('/^(mc)(.*)$/', $word, $matches)) {
+                $word = $matches[1] . ucfirst($matches[2]);
+            }
+
+            $normalized[] = ucfirst($word);
+        }
+
+        return implode('', $normalized);
+    }
+
+    // controllo validità email
+    public static function check_email_validation($email) {
+
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+
+    }
+
+    // imposto cookie
+    public static function _set_cookie_by_name($cookie_name, $cookie_value, $durata) {
+        setcookie($cookie_name, $cookie_value, $durata, "/");
+    }
+
+    // cancello cookie
+    public static function _unset_cookie_by_name($cookie_name) {
+        setcookie($cookie_name, "", time() - 3600, "/");
+    }
+
+    // rebuild generico della tabella usergroup
+    public static function rebuild_ug_index($db = null, $db_option = array()) {
+
+        if (is_null($db))
+            $db = JFactory::getDbo();
+
+        // gestione db esterno
+        if (count($db_option) > 0)
+            $db = JDatabaseDriver::getInstance($db_option);
+
+        // rebuild per indici lft, rgt
+        $JTUserGroup = new JTableUsergroup($db);
+        $JTUserGroup->rebuild();
+
+    }
+
+    // cancella un parametro da url
+    public static function remove_param($url, $param) {
+        $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*$/', '', $url);
+        $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*&/', '$1', $url);
+        return $url;
+    }
+
+    public static function get_file_ext($path) {
+
+        return pathinfo($path, PATHINFO_EXTENSION);
+
     }
 
     /* Generiche */

@@ -46,9 +46,19 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function make_pwd() {
+
+        echo utilityHelper::encrypt_decrypt('encrypt', "r222rAgfn5s9c3G", "GGallery00!", "GGallery00!");
+        $this->_japp->close();
+
+    }
+
     public function test_() {
 
-        var_dump(JUserHelper::addUserToGroup(947, 285));
+        $codici = utilityHelper::get_codici_qualifica_farmacie();
+        var_dump($codici);
+
+        $this->_japp->close();
 
     }
 
