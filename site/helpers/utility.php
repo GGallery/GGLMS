@@ -1223,13 +1223,16 @@ class utilityHelper
 
     // utility per api.importa_master_farmacie
     // ottengo la lista per la decodifica di ruoli in base al codice descrittivo
-    public static function get_codici_qualifica_farmacie() {
+    public static function get_codici_qualifica_farmacie($db_option = array()) {
 
         try {
 
             $_ret = array();
 
             $db = JFactory::getDbo();
+            // gestione db esterno
+            if (count($db_option) > 0)
+                $db = JDatabaseDriver::getInstance($db_option);
 
             $query = $db->getQuery(true)
                 ->select('codice, rif_gruppo')

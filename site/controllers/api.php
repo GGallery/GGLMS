@@ -2660,7 +2660,7 @@ HTML;
             $filename = "anagrafica_dipendenti.csv";
 
             // array dei codici qualifica, necessario per categorizzare i gruppi professione degli utenti
-            $gruppi_qualifica = utilityHelper::get_codici_qualifica_farmacie();
+            $gruppi_qualifica = utilityHelper::get_codici_qualifica_farmacie($db_option);
             if (is_null($gruppi_qualifica))
                 throw new Exception("Impossibile continuare, nessun codice qualifica trovato", E_USER_ERROR);
 
