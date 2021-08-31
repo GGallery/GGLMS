@@ -1146,7 +1146,7 @@ class utilityHelper
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
 
@@ -1181,7 +1181,7 @@ class utilityHelper
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
 
@@ -1221,6 +1221,42 @@ class utilityHelper
         }
     }
 
+    // utility per api.importa_master_farmacie
+    // ottengo la lista per la decodifica di ruoli in base al codice descrittivo
+    public static function get_codici_qualifica_farmacie() {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+
+            $query = $db->getQuery(true)
+                ->select('codice, rif_gruppo')
+                ->from('#__gg_codici_qualifica_farmacie')
+                ->order('id');
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            if (is_null($results)
+                || count($results) == 0)
+                throw new Exception("Nessun codice qualifica trovato", E_USER_ERROR);
+
+            // normalizzo l'output
+            foreach ($results as $key => $codice) {
+                $_ret[$codice['codice']] = $codice['rif_gruppo'];
+            }
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
 
     ////////////////////////////////////    export csv
 
@@ -2269,7 +2305,7 @@ HTML;
             return 1;
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
 
@@ -2546,7 +2582,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -2767,7 +2803,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -2827,7 +2863,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -2865,7 +2901,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return false;
         }
 
@@ -3007,7 +3043,7 @@ HTML;
             return $generazione_coupon;
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -3047,7 +3083,7 @@ HTML;
             return 1;
         }
         catch(Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return null;
         }
 
@@ -3182,7 +3218,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
             return false;
         }
 
@@ -3382,7 +3418,7 @@ HTML;
         return $_response;
     }
 
-    // Utilità per gestire il metodo esistente
+    // Utilità per gestire il metodo esistente di loggin
     public static function make_debug_log($_function, $_error_message, $_label) {
 
         $_msg = $_function . " : " . $_error_message;

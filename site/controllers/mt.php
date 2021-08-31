@@ -55,8 +55,8 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $check = utilityHelper::check_dt_major('2021-08-31', date('Y-m-d'));
-        var_dump($check);
+        $codici = utilityHelper::get_codici_qualifica_farmacie();
+        var_dump($codici);
 
         $this->_japp->close();
 

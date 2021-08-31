@@ -55,7 +55,7 @@ class importAnagraficaFarmacia extends JApplicationCli {
             $app->initialise();
 
             $is_debug = $this->input->get('is_debug', false);
-            $from_local = $this->input->get('from_local', false);
+            $from_local = $this->input->get('from_local', '');
             $db_host = $this->input->get('db_host', null);
             $db_port = $this->input->get('db_port', null);
             $db_user = $this->input->get('db_user', null);

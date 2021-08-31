@@ -2446,11 +2446,12 @@ HTML;
 
             // inserisco in tabella master e creo i gruppi sulla denominazione
             $this->_db->transactionStart();
-            $query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
+            //$query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
+            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 1";
 
             $this->_db->setQuery($query_truncate);
             if (!$this->_db->execute())
-                throw new Exception("Query troncamento tabella master farmacie fallita!", E_USER_ERROR);
+                throw new Exception("Query troncamento #__gg_master_farmacie fallita!", E_USER_ERROR);
 
             $query_insert = "INSERT INTO #__gg_master_farmacie
                                 (hh_store_code,
@@ -2473,7 +2474,8 @@ HTML;
             $insert_farmacia = "";
             $arr_insert = array();
             $miss_check = array();
-            $arr_ragsoc = array();
+            // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
+            $arr_ragsoc = ['ITALSALUTE SRL'];
             $counter = 1;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
@@ -2657,6 +2659,11 @@ HTML;
             $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
             $filename = "anagrafica_dipendenti.csv";
 
+            // array dei codici qualifica, necessario per categorizzare i gruppi professione degli utenti
+            $gruppi_qualifica = utilityHelper::get_codici_qualifica_farmacie();
+            if (is_null($gruppi_qualifica))
+                throw new Exception("Impossibile continuare, nessun codice qualifica trovato", E_USER_ERROR);
+
             $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug, $from_local);
 
             if (!is_array($get_farmacie)
@@ -2741,7 +2748,7 @@ HTML;
                 // colonna 20 - stato del dipendente - si
                 $cb_stato_dipendente = trim($row_arr[20]);
                 // colonna 21 - Cod.tab.qualifica - in base a questo si decide il gruppo di appartenenza dell'utente
-                $codice_qualifica = trim($row_arr[21]);
+                $codice_tab_qualifica = trim($row_arr[21]);
                 // colonna 22 - descrizione qualifica - si
                 // questo campo se uguale a DIRETTORE FARMACIA lo elegge a tutor aziendale
                 // al momento però non è richiesta questa differenziazione
@@ -2776,15 +2783,22 @@ HTML;
                 // per il momento non restituisco errore ma vado avanti nell'inserimento delle utenze
                 if (is_null($cb_codicefiscale)
                     || $cb_codicefiscale == "") {
-                    //throw new Exception("Riferimento a cb_codicefiscale non valorizzato -> riga: " . $counter, E_USER_ERROR);
-                    $jumped[] = "Riferimento a cb_codicefiscale non valorizzato -> riga: " . $counter . " -> " . $cb_email . " | " . $cb_codicefiscale;
+                    $jumped[] = "Riferimento a codice fiscale non valorizzato -> riga: " . $counter . " -> " . $cb_email . " | " . $cb_codicefiscale;
                     continue;
                 }
 
+                // codice di riferimento che lega l'utente ad una farmacia
                 if (is_null($cb_codice_esterno_cdc_3)
                     || $cb_codice_esterno_cdc_3 == "") {
-                    //throw new Exception("Riferimento a cb_codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale, E_USER_ERROR);
-                    $jumped[] = "Riferimento a cb_codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale;
+                    $jumped[] = "Riferimento a codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // codice che determina la qualifica dell'utente
+                if (is_null($codice_tab_qualifica)
+                    || $codice_tab_qualifica == ""
+                    || (int) $codice_tab_qualifica == 0) {
+                    $jumped[] = "Riferimento a codice_tab_qualifica non valorizzato -> CF: " . $cb_codicefiscale;
                     continue;
                 }
 
@@ -2793,7 +2807,6 @@ HTML;
                     $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3, $db_option);
 
                     if (is_null($master_farmacia)) {
-                        //throw new Exception("Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3, E_USER_ERROR);
                         $jumped[] = "Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3;
                         continue;
                     }
@@ -2886,8 +2899,10 @@ HTML;
 
                     // se licenziato l'utente va bloccato
                     if ((int) $cb_stato_dipendente == 9) {
-                        $_new_user['block'] = 1;
-                        $_cp_update_query = utilityHelper::get_update_query("users", $_new_user, "id = '". $check_user_id . "'");
+                        // uso un array di appoggio altrimenti può generare errori di chiave unica duplicata in update
+                        //$_new_user['block'] = 1;
+                        $_update_tmp['block'] = 1;
+                        $_cp_update_query = utilityHelper::get_update_query("users", $_update_tmp, "id = '". $check_user_id . "'");
                         $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query, $db_option);
                         if (!is_array($_cp_update_query_result))
                             throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
@@ -2931,12 +2946,23 @@ HTML;
                 }
 
                 // controllo l'esistenza del gruppo qualifica
-                $ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica, $db_option);
+                // Attenzione!!!
+                // il gruppo non punta più cb_descrizione_qualifica ma fa riferimento al codice codice_tab_qualifica ed all'array gruppi_qualifica
+                if (!isset($gruppi_qualifica[$codice_tab_qualifica])
+                    || $gruppi_qualifica[$codice_tab_qualifica] == "") {
+                    $jumped[] = "Gruppo qualifica non trovato -> GRUPPO: " . $codice_tab_qualifica . " CF: " . $cb_codicefiscale;
+                    continue;
+                }
+                //$ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica, $db_option);
+                $ug_qualifica = utilityHelper::check_usergroups_by_name($gruppi_qualifica[$codice_tab_qualifica], $db_option);
                 // se lo usergroup non esiste lo creo
                 if (is_null($ug_qualifica)) {
-                    $ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id'], false, $db_option);
-                    if (is_null($ug_qualifica))
-                        throw new Exception("Errore durante l'inserimento dello usergroup " . $cb_descrizione_qualifica, E_USER_ERROR);
+                    //$ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id'], false, $db_option);
+                    $ug_qualifica = utilityHelper::insert_new_usergroups($gruppi_qualifica[$codice_tab_qualifica], $piattaforma_default['id'], false, $db_option);
+                    if (is_null($ug_qualifica)) {
+                        //throw new Exception("Errore durante l'inserimento dello usergroup " . $cb_descrizione_qualifica, E_USER_ERROR);
+                        throw new Exception("Errore durante l'inserimento dello usergroup " . $gruppi_qualifica[$codice_tab_qualifica], E_USER_ERROR);
+                    }
 
                     $inserted_ug = true;
 
@@ -2984,6 +3010,7 @@ HTML;
         $this->_japp->close();
     }
 
+    // visualizza il calendario corsi
     public function get_rows_tabella_corsi() {
 
         $_rows = array();
@@ -3097,6 +3124,7 @@ HTML;
 
     }
 
+    // primo login l'utente viene attivato per codice fiscale
     public function active_dipendente_by_cf() {
 
         $_ret = array();
@@ -3200,6 +3228,7 @@ HTML;
         $this->_japp->close();
     }
 
+    // imposta password dell'utente al primo login
     public function set_dipendente_password() {
 
         $_ret = array();
@@ -3374,6 +3403,7 @@ HTML;
         $this->_japp->close();
     }
 
+    // reset password
     public function reset_dipendente_password() {
 
         $_ret = array();
@@ -3476,6 +3506,7 @@ HTML;
         $this->_japp->close();
     }
 
+    // invia una email all'utente per confermare l'avvenuta attivazione
     public function confirm_dipendente_activation() {
 
         try {
@@ -3545,6 +3576,133 @@ HTML;
             $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
+    public function popola_codici_qualifica_farmacie() {
+
+        try {
+
+            $this->_db->transactionStart();
+
+            $query_truncate = "TRUNCATE #__gg_codici_qualifica_farmacie";
+
+            $this->_db->setQuery($query_truncate);
+            if (!$this->_db->execute())
+                throw new Exception("Query troncamento #__gg_codici_qualifica_farmacie fallita!", E_USER_ERROR);
+
+            $insert_query = "INSERT INTO #__gg_codici_qualifica_farmacie (codice, rif_gruppo) VALUES ";
+
+            // Farmacisti
+            // Dal 110 al 119 + 166 e 167
+            $insert_farmacisti = "";
+            for ($i=110; $i<=119; $i++) {
+                $insert_farmacisti .= " (" . $i . ", 'Farmacisti'), ";
+            }
+            $insert_farmacisti .= "(166, 'Farmacisti') , (167, 'Farmacisti'), ";
+
+            // Commessi
+            // Dal 120 al 125 + 168 e 169
+            $insert_commessi = "";
+            for ($i=120; $i<=125; $i++) {
+                $insert_commessi .= " (" . $i . ", 'Commessi'), ";
+            }
+            $insert_commessi .= "(168, 'Commessi') , (169, 'Commessi'), ";
+
+            // Magazzino
+            // Dal 126 al 131 + 170 e 171
+            $insert_magazzino = "";
+            for ($i=126; $i<=131; $i++) {
+                $insert_magazzino .= " (" . $i . ", 'Magazzino'), ";
+            }
+            $insert_magazzino .= "(170, 'Magazzino') , (171, 'Magazzino'), ";
+
+            // Dermocosmesi
+            // Dal 132 al 137 + 172 e 173
+            $insert_dermoc = "";
+            for ($i=132; $i<=137; $i++) {
+                $insert_dermoc .= " (" . $i . ", 'Dermocosmesi'), ";
+            }
+            $insert_dermoc .= "(172, 'Dermocosmesi') , (173, 'Dermocosmesi'), ";
+
+            // Pulizie
+            // Dal 138 al 141
+            $insert_pulizie = "";
+            for ($i=138; $i<=141; $i++) {
+                $insert_pulizie .= " (" . $i . ", 'Pulizie'), ";
+            }
+
+            // Estetica
+            // Dal 142 al 147 + 174 e 175
+            $insert_estetica = "";
+            for ($i=142; $i<=147; $i++) {
+                $insert_estetica .= " (" . $i . ", 'Estetica'), ";
+            }
+            $insert_estetica .= "(174, 'Estetica') , (175, 'Estetica'), ";
+
+            // Laboratorio
+            // Dal 148 al 153 + 176 e 177
+            $insert_lab = "";
+            for ($i=148; $i<=153; $i++) {
+                $insert_lab .= " (" . $i . ", 'Laboratorio'), ";
+            }
+            $insert_lab .= "(176, 'Laboratorio') , (177, 'Laboratorio'), ";
+
+            // Infermieri
+            // Dal 182 al 185
+            $insert_inf = "";
+            for ($i=182; $i<=185; $i++) {
+                $insert_inf .= " (" . $i . ", 'Infermieri'), ";
+            }
+
+            // Segreteria
+            // Dal 154 al 159 + 178 e 179
+            $insert_segreteria = "";
+            for ($i=154; $i<=159; $i++) {
+                $insert_segreteria .= " (" . $i . ", 'Segreteria'), ";
+            }
+            $insert_segreteria .= "(178, 'Segreteria') , (179, 'Segreteria'), ";
+
+            // Imp. Amministr.
+            // Dal 160 al 165 + 180 e 181
+            $insert_impieg = "";
+            for ($i=160; $i<=165; $i++) {
+                $insert_impieg .= " (" . $i . ", 'Imp. Amministr.'), ";
+            }
+            $insert_impieg .= "(180, 'Imp. Amministr.') , (181, 'Imp. Amministr.'), ";
+
+            // Resp Ottica
+            // 191
+            $insert_ottica = "(191, 'Resp Ottica');";
+
+            // eseguo query inserimento
+            $this->_db->setQuery($insert_query .
+                $insert_farmacisti .
+                $insert_commessi .
+                $insert_magazzino .
+                $insert_dermoc .
+                $insert_pulizie .
+                $insert_estetica .
+                $insert_lab .
+                $insert_inf .
+                $insert_segreteria .
+                $insert_impieg .
+                $insert_ottica);
+            if (!$this->_db->execute())
+                throw new Exception("Query inserimento #__gg_codici_qualifica_farmacie fallita!", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            echo "OK!";
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             echo $e->getMessage();
         }
 
