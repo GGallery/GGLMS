@@ -2454,7 +2454,8 @@ HTML;
                 throw new Exception("Query troncamento #__gg_master_farmacie fallita!", E_USER_ERROR);
 
             $query_insert = "INSERT INTO #__gg_master_farmacie
-                                (hh_store_code,
+                                (id,
+                                hh_store_code,
                                 ragione_sociale,
                                 comune,
                                 tipologia,
@@ -2477,6 +2478,7 @@ HTML;
             // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
             $arr_ragsoc = ['ITALSALUTE SRL'];
             $counter = 1;
+            $farma_id = 2;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
                 $hh_store_code = trim($farmacia[0]);
@@ -2510,6 +2512,7 @@ HTML;
                     continue;
 
                 $insert_farmacia =  "(" .
+                    $farma_id . "," .
                     $this->_db->quote($hh_store_code) . "," .
                     $this->_db->quote($this->_db->escape($ragione_sociale)) . "," .
                     $this->_db->quote($this->_db->escape($comune)) . "," .
@@ -2535,6 +2538,7 @@ HTML;
                     $arr_ragsoc[] = $ragione_sociale;
 
                 $counter++;
+                $farma_id++;
 
             }
 
