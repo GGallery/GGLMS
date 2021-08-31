@@ -2139,8 +2139,10 @@ HTML;
                 }
 
                 // data inizio / data fine corso nel formato Y-m-d
-                if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
-                    $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
+                if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso']) {
+                    //$arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
+                    $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['data_inizio_corso'] . '||' . $sub_res['data_fine_corso'];
+                }
 
                 $arr_gruppi[$sub_res['id_corso']] = $sub_res['gruppo_corso'];
             }
