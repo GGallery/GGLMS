@@ -9,7 +9,7 @@
 
 defined('_JEXEC') or die;
 
-require_once JPATH_COMPONENT . '/models/generacoupon.php';
+//require_once JPATH_COMPONENT . '/models/generacoupon.php';
 
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
@@ -1520,6 +1520,7 @@ HTML;*/
             if (!utilityHelper::check_user_into_ug($user_id, explode(",", $unita->bookable_a_gruppi)))
                 throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_GRUPPO_NON_ABILITATO'), E_USER_ERROR);
 
+            /*
             // inserimento coupon per il corso a cui l'utente si vuole iscrivere
             $data_coupon = array();
             $model_genera_coupon = new gglmsModelgeneracoupon();
@@ -1565,6 +1566,11 @@ HTML;*/
             $insert_coupon = $model_genera_coupon->make_insert_coupon($prefisso_coupon, $nome_societa, $id_iscrizione, $durata_coupon, $id_gruppo_societa, $data_coupon, $user_id, $data_utilizzo, true);
             if (is_null($insert_coupon))
                 throw new Exception("generazione coupon - " . $insert_coupon, E_USER_ERROR);
+            */
+
+            $genera_coupon = utilityHelper::crea_coupon_iscrizione_corso($gruppo_corso, $_current_user->id, $_current_user->username, $unita->data_fine, $model_user);
+            if (is_null($genera_coupon))
+                throw new Exception("Si è verificato un errore durante la generazione del coupon", E_USER_ERROR);
 
             // associo l'utente al gruppo
             $_add_ug = utilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
@@ -1580,7 +1586,7 @@ HTML;*/
                 $_current_user->email);
 
             if (is_null($confirm_email))
-                throw new Exception("Si è verificato un errore durante l'invio della Email di conferma iscrizione al corso", E_USER_ERROR);
+                throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);
 
             $_ret['success'] = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
 
