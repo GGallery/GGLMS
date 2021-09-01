@@ -3062,10 +3062,15 @@ HTML;
                             $value = utilityHelper::convert_dt_in_format($value, 'd-m-Y');
                         else if ($key == 'destinatari') {
                             $explode_arr = explode(",", $value);
-                            foreach ($explode_arr as $comma) {
-                                $_new .= $usergroups[$comma] . ",";
+                            // se ci sono più di 5 elementi visualizzo la dicitura gruppi multipli
+                            if (count($explode_arr) <= 5) {
+                                foreach ($explode_arr as $comma) {
+                                    $_new .= $usergroups[$comma] . ",";
+                                }
+                                $value = rtrim($_new, ',');
                             }
-                            $value = rtrim($_new, ',');
+                            else
+                                $value = JText::_('COM_GGLMS_BOXES_SCHEDA_GRUPPI_MULTI');
                         }
                         else if ($key == 'tipologia') {
                             $value = $corso['obbligatorio'] == 1 ? '<span style="color: red">' . strtoupper($value) . '</span>' : $value;

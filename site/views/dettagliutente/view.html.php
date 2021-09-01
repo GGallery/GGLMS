@@ -183,6 +183,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $dominio = null;
                 $model_catalogo = new gglmsModelCatalogo();
                 $model_helpdesk = new gglmsModelHelpDesk();
+                $model_user = new gglmsModelUsers();
                 $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
 
                 if (is_null($this->unit_id)) {
@@ -252,34 +253,25 @@ class gglmsViewdettagliutente extends JViewLegacy
                         if ($check_user_into_ug)
                             throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO'), E_USER_ERROR);
 
+                        // inserimento coupon per il corso a cui l'utente si vuole iscrivere
+                        $genera_coupon = utilityHelper::crea_coupon_iscrizione_corso($this->gruppo_corso, $_current_user->id, $_current_user->username, $this->unita->data_inizio, $model_user);
+                        if (is_null($genera_coupon))
+                            throw new Exception("Si è verificato un errore durante la generazione del coupon", E_USER_ERROR);
+
                         // associo l'utente al gruppo
                         $_add_ug = utilityHelper::set_usergroup_generic($_current_user->id, $this->gruppo_corso);
                         if (!is_array($_add_ug))
                             throw new Exception($_add_ug, E_USER_ERROR);
 
-                        // invio email di conferma
-                        $_params = utilityHelper::get_params_from_module('mod_farmacie');
-                        $email_from = utilityHelper::get_ug_from_object($_params, "email_from");
+                        // invio email di conferma iscrizione
+                        $confirm_email = utilityHelper::email_conferma_registrazione_corso($this->unita->titolo,
+                            $this->unita->data_inizio,
+                            $this->unita->data_fine,
+                            $helpdesk_info->dominio,
+                            $_current_user->name,
+                            $_current_user->email);
 
-                        $email_oggetto = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_SUBJECT') . ' ' . $this->unita->titolo;
-                        $data_inizio = (!is_null($this->unita->data_inizio) && $this->unita->data_inizio != "") ? utilityHelper::convert_dt_in_format($this->unita->data_inizio, 'd/m/Y') : "-";
-                        $data_fine = (!is_null($this->unita->data_fine) && $this->unita->data_fine != "") ? utilityHelper::convert_dt_in_format($this->unita->data_fine, 'd/m/Y') : "-";
-                        $dominio = $helpdesk_info->dominio;
-                        $email_body = <<<HTML
-                        <br /><br />
-                        <p>
-                            Gentile {$_current_user->name},<br />
-                            ti confermiamo l'iscrizione al corso {$this->unita->titolo}, che si svolgerà dal {$data_inizio} al {$data_fine}.
-                            Grazie per l'adesione.
-                        </p>
-                        <p>
-                            Cordiali saluti<br />
-                            Lo staff di {$dominio}
-                        </p>
-                        <p>Questa mail è generata automaticamente, si prega di non rispondere.</p>
-HTML;
-                        $confirm_email = utilityHelper::send_email($email_oggetto, $email_body, (array) $_current_user->email, true, false, $email_from);
-                        if (!$confirm_email)
+                        if (is_null($confirm_email))
                             throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);
 
                         $this->_html = outputHelper::get_success_subscription($this->unita->titolo);
