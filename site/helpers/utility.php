@@ -2579,6 +2579,7 @@ HTML;
 
                     // se non si tratta di report ausind ma di quelli per i corsi sincroni ed asincroni
                     // il formato delle date sarà Y-m-d H:i:s
+                    /*
                     if ($tipologia_svolgimento != 6
                         && isset($arr_dt_corsi[$id_corso])) {
 
@@ -2591,6 +2592,7 @@ HTML;
                         }
 
                     }
+                    */
                 }
 
 
