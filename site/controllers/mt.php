@@ -47,8 +47,25 @@ class gglmsControllerMt extends JControllerLegacy {
     }
 
     public function test_() {
+        try {
 
-        var_dump(JUserHelper::addUserToGroup(947, 285));
+            $dt = new DateTime();
+            $oggi = $dt->format('Y-m-d');
+            // ieri
+            $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
+            $_dt_ref_ext =  date('Ymd', strtotime('-1 day', strtotime($oggi)));
+
+            $upload = UtilityHelper::put_xml_remote('GGCorsiCompletati' . $_dt_ref_ext . '.xml', false, __FUNCTION__);
+            if (!$upload)
+                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
+
+            echo "Tutto ok!";
+        }
+        catch (Exception $e) {
+            echo "ERRORE: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
 
     }
 

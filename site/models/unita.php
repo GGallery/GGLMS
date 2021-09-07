@@ -640,6 +640,41 @@ class gglmsModelUnita extends JModelLegacy
         return $retval;
     }
 
+    public function update_tipologia_corso_unita($codice_corso, $tipologia_corso) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('tipologia_corso')
+                ->from('#__gg_unit')
+                ->where('codice = ' . $this->_db->quote($codice_corso));
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            // aggiorno
+            if (is_null($result)
+             || $result->tipologia_corso == "") {
+
+                $update = "UPDATE #__gg_unit
+                            SET tipologia_corso = " . $this->_db->quote($tipologia_corso) . "
+                            WHERE codice = " . $this->_db->quote($codice_corso);
+
+                $this->_db->setQuery($update);
+                if (false === $this->_db->execute())
+                    throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            }
+
+            return true;
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     public function get_id_unita_codice_corso($codice_corso) {
 
         try {
@@ -823,8 +858,10 @@ class gglmsModelUnita extends JModelLegacy
                 $this->_db->execute();
 
                 // rebuild usergroups to fix lft e rgt
+                /*
                 $JTUserGroup = new JTableUsergroup($this->_db);
                 $JTUserGroup->rebuild();
+                */
 
                 return $group_id;
 
@@ -851,7 +888,7 @@ class gglmsModelUnita extends JModelLegacy
             $titolo_corso = trim($corso->TITOLO);
             $descrizione_corso = trim($corso->DESCRIZIONE);
             $alias_corso = UtilityHelper::setAlias($titolo_corso . " " . rand(100,999));
-            $tipologia_corso = trim($corso->TIPO_SVOLGIMENTO);
+            //$tipologia_corso = trim($corso->TIPO_SVOLGIMENTO);
 
             // validazione
             if (is_null($codice_corso)
@@ -866,47 +903,54 @@ class gglmsModelUnita extends JModelLegacy
                 || $titolo_corso == "")
                 throw new Exception("TITOLO non valorizzato", E_USER_ERROR);
 
+            /*
             if (is_null($tipologia_corso)
                 || $tipologia_corso == "")
                 throw new Exception("TIPO_SVOLGIMENTO non valorizzato", E_USER_ERROR);
+            */
 
             // controllo se il codice corso esiste
-            $check_codice = $this->get_id_unita_codice_corso($codice_corso);
-            if (!is_null($check_codice))
-                return $check_codice;
+            $id_unita = $this->get_id_unita_codice_corso($codice_corso);
 
-            // verifico se il corso esiste mediante il codice + codice alfanumerico
-            $query = $this->_db->getQuery(true)
-                ->select('id as id_unita')
-                ->from('#__gg_unit')
-                ->where('codice = ' . $this->_db->quote($codice_corso));
-
-            $this->_db->setQuery($query);
-            $id_unita = $this->_db->loadResult();
-
+            // corso già esistente
             if (!is_null($id_unita)) {
-                return $this->get_id_gruppo_unit($id_unita);
+
+                // controllo esistenza del gruppo corso e se nullo lo creo
+                $check_gruppo_corso = $this->get_id_gruppo_unit($id_unita);
+                if (is_null($check_gruppo_corso)
+                    || $check_gruppo_corso == "") {
+
+                    // creo gruppo unità
+                    $gruppo_corso = $this->crea_gruppo_corso($id_unita, $titolo_corso);
+                    // controllo eventuali errori
+                    if (is_null($gruppo_corso))
+                        throw new Exception("Errore durante la creazione di gruppo_corso per " . $titolo_corso, E_USER_ERROR);
+
+                }
+
+                return $id_unita;
+
             }
 
+            // altrimenti procedo con l'inserimento in anagrafica del corso e la creazione del gruppo corso
             $this->_db->transactionStart();
 
-            // aggiungo l'unità
+            // rimosso tipologia_corso
             $insert = 'INSERT INTO #__gg_unit (
                         codice,
                         codice_alfanumerico,
                         titolo,
                         descrizione,
                         alias,
-                        accesso,
-                        tipologia_corso)
+                        accesso
+                        )
                         VALUES (
                                 ' . $this->_db->quote($codice_corso) . ',
                                 ' . $this->_db->quote($codice_alfa) . ',
                                 ' . $this->_db->quote($titolo_corso) . ',
                                 ' . $this->_db->quote($descrizione_corso) . ',
                                 ' . $this->_db->quote($alias_corso) . ',
-                                \'gruppo\',
-                                ' . $this->_db->quote($tipologia_corso) . '
+                                \'gruppo\'
                                 )
                         ';
 

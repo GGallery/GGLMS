@@ -107,7 +107,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     throw new RuntimeException("duplicate user_groups", E_USER_ERROR);
 
                 $new_societa = true;
-                $company_user = $this->create_new_company_user($data, $from_api);
+                $company_user = $this->create_new_company_user($data, $from_api, $from_xml);
                 // controllo eventuali errori
                 if (is_null($company_user))
                     throw new RuntimeException("company user creation failed", E_USER_ERROR);
@@ -318,7 +318,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function create_new_company_user($data, $from_api=false)
+    public function create_new_company_user($data, $from_api = false, $from_xml = false)
     {
         try {
 
@@ -339,10 +339,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // creo nuovo gruppo figlio di piattaforma e lo associo all'utente che ho appena creato
-            if (false === ($company_group_id = $this->_create_company_group($user_id,
-                    $data['ragione_sociale'],
-                    $data["id_piattaforma"],
-                    $from_api)))
+            if (false === ($company_group_id = $this->_create_company_group($user_id, $data['ragione_sociale'], $data["id_piattaforma"], $from_api, $from_xml)))
                 throw new Exception('Errore nella creazione del gruppo', E_USER_ERROR);
 
 
@@ -455,7 +452,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
      * @param boolean $from_api
      * @return int Ritorna l'ID del gruppo appena creato o FALSE in caso di errore.
      */
-    private function _create_company_group($company_id, $company_name, $piattaforma_group_id, $from_api=false)
+    private function _create_company_group($company_id, $company_name, $piattaforma_group_id, $from_api = false, $from_xml = false)
     {
 
         try {
@@ -478,8 +475,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $this->_db->execute();
 
             // rebuild usergroups to fix lft e rgt
-            $JTUserGroup = new JTableUsergroup($this->_db);
-            $JTUserGroup->rebuild();
+            if (!$from_xml) {
+                $JTUserGroup = new JTableUsergroup($this->_db);
+                $JTUserGroup->rebuild();
+            }
 
             return $new_group_id;
 
@@ -813,7 +812,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias, ud.mail_from_default as mail_from_default')
+                ->select('ug.id as id,
+                ug.title as name,
+                ud.dominio as dominio,
+                ud.alias as alias,
+                ud.mail_from_default as mail_from_default')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('ud.is_default = 1');
@@ -1002,7 +1005,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // controllo integrità tutor_id
             $tutor_id = $mu->get_tutor_aziendale($company_group_id, $from_api);
             if (is_null($tutor_id))
-                throw new RuntimeException("nessun tutor_id trovato", E_USER_ERROR);
+                throw new RuntimeException("nessun tutor_id trovato
+                    company_group_id: " . $company_group_id, E_USER_ERROR);
 
             // controllo impostazione moderatore
             $_set_moderator = $mu->set_user_forum_moderator($tutor_id, $company_forum_id, $from_api);

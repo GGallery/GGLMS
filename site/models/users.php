@@ -1418,7 +1418,6 @@ class gglmsModelUsers extends JModelLegacy
                                             group_id = ' . $this->_db->quote($group_id);
 
             $this->_db->setQuery($insertquery_map);
-            $this->_db->execute();
 
             if (false === $this->_db->execute())
                 throw new Exception("Si è verificato un errore durante l'inserimento", E_USER_ERROR);
