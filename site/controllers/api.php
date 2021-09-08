@@ -1843,7 +1843,7 @@ HTML;
     }
 
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma = 647, $is_debug = false) {
 
         try {
 
@@ -1853,7 +1853,7 @@ HTML;
 
             $local_file = JPATH_ROOT . '/tmp/';
             if (!$is_debug) {
-                $get_corsi = UtilityHelper::get_xml_remote($local_file, false, __FUNCTION__);
+                $get_corsi = UtilityHelper::get_xml_remote($local_file, true, __FUNCTION__);
                 if (!is_array($get_corsi))
                     throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
             }
@@ -1863,7 +1863,7 @@ HTML;
             }
 
             // elaborazione dei corsi
-            //$arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file, __FUNCTION__);
+            $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file);
             /*
              if (is_null($arr_anagrafica_corsi)
                 || count($arr_anagrafica_corsi) == 0)
@@ -2017,10 +2017,6 @@ HTML;
                 }
 
             }
-
-            // se non ci sono state iscrizioni faccio per sicurezza un rebuild degli indici dei gruppi corso
-            $JTUserGroup = new JTableUsergroup($this->_db);
-            $JTUserGroup->rebuild();
 
             echo 1;
         }

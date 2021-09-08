@@ -540,7 +540,6 @@ class gglmsModelUsers extends JModelLegacy
                 ->where("ug1.group_id =" . $id_gruppo_societa)
                 ->where("ug2.group_id =" . $id_gruppo_tutor_aziendale);
 
-
             $this->_db->setQuery($query);
             $result = $this->_db->loadResult();
 
@@ -548,7 +547,7 @@ class gglmsModelUsers extends JModelLegacy
 
         } catch (Exception $e) {
             if ($from_api)
-                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " => " . $query, 'api_genera_coupon_response');
 
             DEBUGG::error($e, 'get_tutor_aziendale');
             return null;

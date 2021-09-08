@@ -2195,26 +2195,30 @@ HTML;
 
         try {
 
-            if (is_null($_user_model)) {
-                require_once JPATH_COMPONENT . '/models/users.php';
-                $_user_model = new gglmsModelUsers();
-            }
-
             $_ret = array();
-            $_arr_add = self::get_usergroup_id($ug_list);
+
+            $db = JFactory::getDbo();
+
+            $_arr_add = $ug_list;
+
+            if (!is_array($_arr_add))
+                $_arr_add = self::get_usergroup_id($ug_list);
 
             foreach ($_arr_add as $key => $a_group_id) {
                 //JUserHelper::addUserToGroup($user_id, $a_group_id);
-                $_insert_user_ug = $_user_model->insert_user_into_usergroup($user_id, $a_group_id);
-                if (is_null($_insert_user_ug)) {
-                    throw new Exception("Errore durante l'inserimento di " . $user_id . " in " . $a_group_id, E_USER_ERROR);
+
+                $query = "INSERT INTO #__user_usergroup_map (user_id, group_id)
+                        VALUES (
+                              " . $db->quote($user_id) . ",
+                              " . $db->quote($a_group_id) . "
+                        )";
+
+                $db->setQuery($query);
+
+                if (false === $db->execute()) {
+                    throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
                 }
-
             }
-
-            // rebuild usergroups to fix lft e rgt
-            $JTUserGroup = new JTableUsergroup(JFactory::getDbo());
-            $JTUserGroup->rebuild();
 
             $_ret['success'] = "tuttook";
             return $_ret;
@@ -2326,7 +2330,8 @@ HTML;
             foreach ($contents as $key => $file) {
 
                 $file_check = pathinfo($file);
-                if ($file_check['extension'] == 'xml') {
+                if (isset($file_check['extension'])
+                    && $file_check['extension'] == 'xml') {
                     $arr_files[] = $file_check['basename'];
                 }
 
@@ -2412,6 +2417,7 @@ HTML;
                 $generazione_coupon = array();
                 $coupon_model = new gglmsModelgeneracoupon();
                 $unita_model = new gglmsModelUnita();
+
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
                     if (strpos($file, "GGCorsoIscritti") !== false) {
@@ -2446,6 +2452,8 @@ HTML;
                             $_new_user = array();
                             $_new_user_cp = array();
                             $coupon_data = array();
+                            $_new_user_id = null;
+                            $new_user = false;
 
                             $codice_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO);
                             //$codice_iscritto_host = $xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO_HOST;
@@ -2464,10 +2472,22 @@ HTML;
                                 || $mail_referente == "")
                                 throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
+                            // creazione coupon
+                            $coupon_data['username'] = $piva_ente;
+                            $coupon_data['ragione_sociale'] = $ragione_sociale;
+                            $coupon_data['email'] = $mail_referente;
+                            $coupon_data['email_coupon'] = $mail_referente;
+                            $coupon_data['id_piattaforma'] = $id_piattaforma;
+                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
+                            $coupon_data['qty'] = 1;
+
+                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
+                            if (is_null($crea_coupon)
+                                || !is_array($crea_coupon))
+                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
                             // controllo esistenza utente su username
                             $check_user_id = self::check_user_by_username($cf_iscritto);
-                            $_new_user_id = null;
-                            $new_user = false;
 
                             if (is_null($check_user_id)) {
                                 $_new_user['name'] = $codice_iscritto;
@@ -2502,20 +2522,6 @@ HTML;
                                 $new_user = true;
                             }
 
-                            // creazione coupon
-                            $coupon_data['username'] = $piva_ente;
-                            $coupon_data['ragione_sociale'] = $ragione_sociale;
-                            $coupon_data['email'] = $mail_referente;
-                            $coupon_data['email_coupon'] = $mail_referente;
-                            $coupon_data['id_piattaforma'] = $id_piattaforma;
-                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
-                            $coupon_data['qty'] = 1;
-
-                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
-                            if (is_null($crea_coupon)
-                                || !is_array($crea_coupon))
-                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
-
                             $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
                             if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
                                 //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
@@ -2528,7 +2534,9 @@ HTML;
                             $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
                             $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
 
+                            // inserimento utente
                             if ($new_user) {
+
                                 $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
                                 // se nuovo utente lo inserisco nel gruppo azienda
                                 $ug_azienda = $coupon_model->_check_usergroups($ragione_sociale, true);
@@ -2537,7 +2545,10 @@ HTML;
                                     throw new Exception("Gruppo azienda non definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
                                 $ug_destinazione = array($ug_azienda);
-                                JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                //JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                $ug_insert = self::set_usergroup_generic($_new_user_id, $ug_destinazione);
+                                if (!is_array($ug_insert))
+                                    throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
                             }
 
@@ -2561,6 +2572,7 @@ HTML;
         try {
 
             $arr_corsi = array();
+            $inserted = 0;
 
             foreach ($get_corsi as $key_corso => $file) {
 
@@ -2580,10 +2592,18 @@ HTML;
                         if (is_null($new_corso))
                             throw new Exception("Corso non inserito: " . $xml->CORSO[$i]->TITOLO, E_USER_ERROR);
 
+                        $inserted++;
+
                     }
 
                 }
 
+            }
+
+            if ($inserted > 0) {
+                $db = JFactory::getDbo();
+                $JTUserGroup = new JTableUsergroup($db);
+                $JTUserGroup->rebuild();
             }
 
             return 1;

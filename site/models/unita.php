@@ -928,7 +928,7 @@ class gglmsModelUnita extends JModelLegacy
 
                 }
 
-                return $id_unita;
+                return null;
 
             }
 

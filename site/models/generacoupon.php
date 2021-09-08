@@ -129,6 +129,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
             $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["id_piattaforma"], $from_api);
+
             // controllo eventuali errori
             if (is_null($info_societa)
                 || !is_array($info_societa))
@@ -296,14 +297,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // filtro i gruppi a cui appartiene l'utente piva per quelli figli di piattaforma $id_piattaforma
-            $query = $this->_db->getQuery(true)
+            $query_gruppo = $this->_db->getQuery(true)
                 ->select('ug.id as id , ug.title as name')
                 ->from('#__usergroups as ug')
                 ->where('parent_id="' . $id_piattaforma . '"')
                 ->where('ug.id IN ' . ' (' . implode(',', $gruppi_appartenenza_utente) . ')');
 
 
-            $this->_db->setQuery($query);
+            $this->_db->setQuery($query_gruppo);
             $id_gruppo_societa = $this->_db->loadAssoc();
 
             return $id_gruppo_societa;
@@ -393,7 +394,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         //return false;
     }
 
-    private function _check_username($username, $from_api=false)
+    public function _check_username($username, $from_api=false)
     {
         try {
             $query = 'SELECT id FROM #__users WHERE username=\'' . $this->_db->escape($username) . '\' LIMIT 1';
@@ -475,10 +476,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $this->_db->execute();
 
             // rebuild usergroups to fix lft e rgt
-            if (!$from_xml) {
-                $JTUserGroup = new JTableUsergroup($this->_db);
-                $JTUserGroup->rebuild();
-            }
+            $JTUserGroup = new JTableUsergroup($this->_db);
+            $JTUserGroup->rebuild();
 
             return $new_group_id;
 
