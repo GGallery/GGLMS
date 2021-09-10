@@ -2424,7 +2424,7 @@ HTML;
                         $gruppo_corso = null;
 
                         $codice_corso = trim($xml->CORSO[$i]->CODICE_CORSO->__toString());
-                        $tipologia_corso = trim($xml->CORSO[$i]->TIPO_SVOLGIMENTO->__toString());
+                        //$tipologia_corso = trim($xml->CORSO[$i]->TIPO_SVOLGIMENTO->__toString());
 
                         // id unita da codice_corso
                         $id_unita = $unita_model->get_id_unita_codice_corso($codice_corso);
@@ -2438,14 +2438,18 @@ HTML;
                             || $gruppo_corso == "")
                             throw new Exception("Nessun gruppo corso definito per codice corso: " . $codice_corso, E_USER_ERROR);
 
+                        /*
                         if (is_null($tipologia_corso)
                             || $tipologia_corso == "")
                             throw new Exception("TIPO_SVOLGIMENTO non valorizzato", E_USER_ERROR);
+
 
                         // aggiorno la tipologia_corso se necessario
                         $update_tipologia_corso = $unita_model->update_tipologia_corso_unita($codice_corso, $tipologia_corso);
                         if (is_null($update_tipologia_corso))
                             throw new Exception("Si è verificato un errore durante l'aggiornamento della tipologia_corso", E_USER_ERROR);
+
+                        */
 
                         // iscritti
                         for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {

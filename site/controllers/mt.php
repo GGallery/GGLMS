@@ -46,20 +46,40 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    private function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
+        //echo "entrato<br>";
+        //echo $string;die;
+        $output = null;
+        // metodo di crypt
+        $encrypt_method = "AES-256-CBC";
+        // hash
+        $key = hash('sha256', $secret_key);
+        // AES-256-CBC si aspetta 16 bytes
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+
+        // cripta la chiave
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } // decripta la chiave
+        else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+        }
+
+        return $output;
+    }
+
     public function test_() {
         try {
 
-            $dt = new DateTime();
-            $oggi = $dt->format('Y-m-d');
-            // ieri
-            $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
-            $_dt_ref_ext =  date('Ymd', strtotime('-1 day', strtotime($oggi)));
+            // 727182924==999102115
+            // 3Rdz7e5tpM+CU1mw6+1xIYKGK8GAIhe0IHS7N/VSbJg=
+            $enc = $this->encrypt_decrypt('encrypt', '727182924==999102115', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
+            echo $enc . '<br />';
 
-            $upload = UtilityHelper::put_xml_remote('GGCorsiCompletati' . $_dt_ref_ext . '.xml', false, __FUNCTION__);
-            if (!$upload)
-                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
-
-            echo "Tutto ok!";
+            // bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=
+            $dec = $this->encrypt_decrypt('decrypt', 'bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
+            echo $dec;
         }
         catch (Exception $e) {
             echo "ERRORE: " . $e->getMessage();
