@@ -886,7 +886,7 @@ class gglmsModelUnita extends JModelLegacy
             $codice_corso = trim($corso->CODICE_CORSO);
             $codice_alfa = isset($corso->CODICE_ALFANUMERICO) ? trim($corso->CODICE_ALFANUMERICO) : "";
             $titolo_corso = trim($corso->TITOLO_CORSO);
-            $descrizione_corso = trim($corso->DESCRIZIONE);
+            $descrizione_corso = isset($corso->DESCRIZIONE) ? trim($corso->DESCRIZIONE) : "";
             $alias_corso = UtilityHelper::setAlias($titolo_corso . " " . rand(100,999));
             $tipologia_corso = trim($corso->TIPO_SVOLGIMENTO);
 
