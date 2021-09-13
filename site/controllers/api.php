@@ -1842,8 +1842,18 @@ HTML;
 
     }
 
+    // importazione corsi da file xml chiamata api
+    public function load_corsi_from_xml_ep() {
+
+        $id_piattaforma = $this->_filterparam->id_piattaforma;
+        echo $this->load_corsi_from_xml($id_piattaforma);
+
+        $this->_japp->close();
+
+    }
+
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma = 647, $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma = 16, $is_debug = false) {
 
         try {
 
