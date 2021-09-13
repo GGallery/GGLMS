@@ -2589,7 +2589,7 @@ HTML;
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
-                    if (strpos($file, "GGCorsiElenco") !== false) {
+                    if (strpos($file, "Corsi") !== false) {
 
                         $new_corso = $unit->importa_anagrafica_corsi($xml->CORSO[$i]);
                         // controllo inserimento corso

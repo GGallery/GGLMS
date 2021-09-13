@@ -884,7 +884,7 @@ class gglmsModelUnita extends JModelLegacy
         try {
 
             $codice_corso = trim($corso->CODICE_CORSO);
-            $codice_alfa = trim($corso->CODICE_ALFANUMERICO);
+            $codice_alfa = isset($corso->CODICE_ALFANUMERICO) ? trim($corso->CODICE_ALFANUMERICO) : "";
             $titolo_corso = trim($corso->TITOLO);
             $descrizione_corso = trim($corso->DESCRIZIONE);
             $alias_corso = UtilityHelper::setAlias($titolo_corso . " " . rand(100,999));
@@ -895,9 +895,11 @@ class gglmsModelUnita extends JModelLegacy
                 || $codice_corso == "")
                 throw new Exception("CODICE_CORSO non valorizzato", E_USER_ERROR);
 
+            /*
             if (is_null($codice_alfa)
                 || $codice_alfa == "")
                 throw new Exception("CODICE_ALFANUMERICO non valorizzato", E_USER_ERROR);
+            */
 
             if (is_null($titolo_corso)
                 || $titolo_corso == "")
