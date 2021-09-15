@@ -2478,7 +2478,7 @@ HTML;
             // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
             $arr_ragsoc = ['ITALSALUTE SRL'];
             $counter = 1;
-            $farma_id = 2;
+            $farma_id = 3;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
                 $hh_store_code = trim($farmacia[0]);
