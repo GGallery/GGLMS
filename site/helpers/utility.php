@@ -2810,28 +2810,32 @@ HTML;
                         if ($num_cell == 16)
                             $rows_arr[$counter][20] = $_row_value;
 
+                        // 21 - Cod.tab.qualifica
+                        if ($num_cell == 22)
+                            $rows_arr[$counter][21] = $_row_value;
+
                         // 21 - descrizione qualifica
                         if ($num_cell == 17)
-                            $rows_arr[$counter][21] = $_row_value;
+                            $rows_arr[$counter][22] = $_row_value;
 
                         // 22 - email
                         if ($num_cell == 18)
-                            $rows_arr[$counter][22] = $_row_value;
+                            $rows_arr[$counter][23] = $_row_value;
 
                         // 23 - codice esterno cdc 2
                         if ($num_cell == 19)
-                            $rows_arr[$counter][23] = $_row_value;
+                            $rows_arr[$counter][24] = $_row_value;
 
                         // 24 - codice esterno cdc 3
                         if ($num_cell == 20)
-                            $rows_arr[$counter][24] = $_row_value;
+                            $rows_arr[$counter][25] = $_row_value;
 
                         // 25 - codice esterno rep 2
                         if ($num_cell == 21)
-                            $rows_arr[$counter][25] = $_row_value;
+                            $rows_arr[$counter][26] = $_row_value;
 
                         // 26 - data inizio rapporti
-                        $rows_arr[$counter][26] = "";
+                        $rows_arr[$counter][27] = "";
 
                     }
 

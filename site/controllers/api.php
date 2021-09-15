@@ -2447,7 +2447,7 @@ HTML;
             // inserisco in tabella master e creo i gruppi sulla denominazione
             $this->_db->transactionStart();
             //$query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
-            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 1";
+            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 2";
 
             $this->_db->setQuery($query_truncate);
             if (!$this->_db->execute())
