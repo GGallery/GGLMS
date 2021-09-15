@@ -1778,6 +1778,57 @@ HTML;
 
     }
 
+    // invia email a tutor per generazione dei coupon - utility per api.load_corsi_from_xml
+    public static function invia_email_tutor_template($nome_piattaforma,
+                                                      $alias_piattaforma,
+                                                      $dominio,
+                                                      $username_tutor,
+                                                      $pwd_tutor,
+                                                      $template_tutor,
+                                                      $sender,
+                                                      $mail_debug,
+                                                      $to,
+                                                      $recipients,
+                                                      $is_debug = false) {
+
+        try {
+
+            $mailer = JFactory::getMailer();
+            $mailer->setSender($sender);
+            if (!$is_debug) {
+                $mailer->addRecipient($to);
+                $mailer->addCc($recipients["cc"]);
+            }
+            else
+                $mailer->addRecipient($mail_debug);
+
+            $mailer->setSubject('Registrazione  ' . $alias_piattaforma);
+
+            $smarty = new EasySmarty();
+            $smarty->assign('piattaforma_name', $nome_piattaforma);
+            $smarty->assign('piattaforma_alias', $alias_piattaforma);
+            $smarty->assign('piattaforma_link', 'https://' . $dominio);
+            $smarty->assign('user_name', $username_tutor);
+            $smarty->assign('user_password', $pwd_tutor);
+
+            $mailer->setBody($smarty->fetch_template($template_tutor, null, true, false, 0));
+            $mailer->isHTML(true);
+
+            // invio email ko
+            if (!$mailer->Send()) {
+                self::logMail(__FUNCTION__, $sender, $recipients, 0);
+            }
+
+            return true;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // invia email relativa alla registrazione di un nuovo utente per l'acquisto di un evento - utility per view.acquistaevento
     public static function send_acquisto_evento_email_new_user($email_default,
                                                                 $_event_title,
@@ -2144,26 +2195,30 @@ HTML;
 
         try {
 
-            if (is_null($_user_model)) {
-                require_once JPATH_COMPONENT . '/models/users.php';
-                $_user_model = new gglmsModelUsers();
-            }
-
             $_ret = array();
-            $_arr_add = self::get_usergroup_id($ug_list);
+
+            $db = JFactory::getDbo();
+
+            $_arr_add = $ug_list;
+
+            if (!is_array($_arr_add))
+                $_arr_add = self::get_usergroup_id($ug_list);
 
             foreach ($_arr_add as $key => $a_group_id) {
                 //JUserHelper::addUserToGroup($user_id, $a_group_id);
-                $_insert_user_ug = $_user_model->insert_user_into_usergroup($user_id, $a_group_id);
-                if (is_null($_insert_user_ug)) {
-                    throw new Exception("Errore durante l'inserimento di " . $user_id . " in " . $a_group_id, E_USER_ERROR);
+
+                $query = "INSERT INTO #__user_usergroup_map (user_id, group_id)
+                        VALUES (
+                              " . $db->quote($user_id) . ",
+                              " . $db->quote($a_group_id) . "
+                        )";
+
+                $db->setQuery($query);
+
+                if (false === $db->execute()) {
+                    throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
                 }
-
             }
-
-            // rebuild usergroups to fix lft e rgt
-            $JTUserGroup = new JTableUsergroup(JFactory::getDbo());
-            $JTUserGroup->rebuild();
 
             $_ret['success'] = "tuttook";
             return $_ret;
@@ -2248,7 +2303,7 @@ HTML;
     }
 
     // scarico file xml dal repository - utility per api.load_corsi_from_xml()
-    public static function get_xml_remote($local_file, $_err_label = '') {
+    public static function get_xml_remote($local_file, $rename_old = true, $_err_label = '') {
 
         try {
 
@@ -2275,7 +2330,8 @@ HTML;
             foreach ($contents as $key => $file) {
 
                 $file_check = pathinfo($file);
-                if ($file_check['extension'] == 'xml') {
+                if (isset($file_check['extension'])
+                    && $file_check['extension'] == 'xml') {
                     $arr_files[] = $file_check['basename'];
                 }
 
@@ -2294,7 +2350,8 @@ HTML;
                     throw new Exception("Impossibile scaricare " . $xml . " dal server " . $_host);
 
                 // rinomino il file in remoto - e li sposto in un'altra directory
-                ftp_rename($conn_id, './' . $_read_dir . '/' . $xml, './' . $_read_dir . '/_old/' . $xml . '.bak');
+                if ($rename_old)
+                    ftp_rename($conn_id, './' . $_read_dir . '/' . $xml, './' . $_read_dir . '/_old/' . $xml . '.bak');
             }
 
             return $arr_files;
@@ -2360,15 +2417,47 @@ HTML;
                 $generazione_coupon = array();
                 $coupon_model = new gglmsModelgeneracoupon();
                 $unita_model = new gglmsModelUnita();
+
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
                     if (strpos($file, "GGCorsoIscritti") !== false) {
+                        $gruppo_corso = null;
+
                         $codice_corso = trim($xml->CORSO[$i]->CODICE_CORSO->__toString());
+                        //$tipologia_corso = trim($xml->CORSO[$i]->TIPO_SVOLGIMENTO->__toString());
+
+                        // id unita da codice_corso
+                        $id_unita = $unita_model->get_id_unita_codice_corso($codice_corso);
+                        if (is_null($id_unita)
+                            || $id_unita == "")
+                            throw new Exception("Nessuna unita definita da codice corso " . $codice_corso, E_USER_ERROR);
+
+                        // gruppo corso da id_unita
+                        $gruppo_corso = $unita_model->get_id_gruppo_unit($id_unita);
+                        if (is_null($gruppo_corso)
+                            || $gruppo_corso == "")
+                            throw new Exception("Nessun gruppo corso definito per codice corso: " . $codice_corso, E_USER_ERROR);
+
+                        /*
+                        if (is_null($tipologia_corso)
+                            || $tipologia_corso == "")
+                            throw new Exception("TIPO_SVOLGIMENTO non valorizzato", E_USER_ERROR);
+
+
+                        // aggiorno la tipologia_corso se necessario
+                        $update_tipologia_corso = $unita_model->update_tipologia_corso_unita($codice_corso, $tipologia_corso);
+                        if (is_null($update_tipologia_corso))
+                            throw new Exception("Si è verificato un errore durante l'aggiornamento della tipologia_corso", E_USER_ERROR);
+
+                        */
+
                         // iscritti
                         for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {
                             $_new_user = array();
                             $_new_user_cp = array();
                             $coupon_data = array();
+                            $_new_user_id = null;
+                            $new_user = false;
 
                             $codice_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO);
                             //$codice_iscritto_host = $xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO_HOST;
@@ -2378,19 +2467,6 @@ HTML;
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PARTITA_IVA);
                             $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
-                            $gruppo_corso = null;
-
-                            // id unita da codice_corso
-                            $id_unita = $unita_model->get_id_unita_codice_corso($codice_corso);
-                            if (is_null($id_unita)
-                                || $id_unita == "")
-                                throw new Exception("Nessuna unita definita da codice corso " . $codice_corso, E_USER_ERROR);
-
-                            // gruppo corso da id_unita
-                            $gruppo_corso = $unita_model->get_id_gruppo_unit($id_unita);
-                            if (is_null($gruppo_corso)
-                                || $gruppo_corso == "")
-                                throw new Exception("Nessun gruppo corso definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
                             if ($nome_iscritto == ""
                                 || $cognome_iscritto == ""
@@ -2400,10 +2476,23 @@ HTML;
                                 || $mail_referente == "")
                                 throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
+                            // creazione coupon
+                            $coupon_data['username'] = $piva_ente;
+                            $coupon_data['ragione_sociale'] = $ragione_sociale;
+                            $coupon_data['email'] = $mail_referente;
+                            $coupon_data['email_coupon'] = $mail_referente;
+                            $coupon_data['id_piattaforma'] = $id_piattaforma;
+                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
+                            $coupon_data['qty'] = 1;
+
+                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
+                            if (is_null($crea_coupon)
+                                || !is_array($crea_coupon))
+                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
                             // controllo esistenza utente su username
                             $check_user_id = self::check_user_by_username($cf_iscritto);
-                            $_new_user_id = null;
-                            $new_user = false;
+
                             if (is_null($check_user_id)) {
                                 $_new_user['name'] = $codice_iscritto;
                                 $_new_user['username'] = $cf_iscritto;
@@ -2437,30 +2526,21 @@ HTML;
                                 $new_user = true;
                             }
 
-                            // creazione coupon
-                            $coupon_data['username'] = $piva_ente;
-                            $coupon_data['ragione_sociale'] = $ragione_sociale;
-                            $coupon_data['email'] = $mail_referente;
-                            $coupon_data['email_coupon'] = $mail_referente;
-                            $coupon_data['id_piattaforma'] = $id_piattaforma;
-                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
-                            $coupon_data['qty'] = 1;
-
-                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
-                            if (is_null($crea_coupon)
-                                || !is_array($crea_coupon))
-                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
-
                             $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
-                            if (!isset($generazione_coupon[$piva_ente]['infos']['company_user']))
-                                $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
+                            if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
+                                //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
+                                $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
+                            }
 
                             $generazione_coupon[$piva_ente]['infos']['nome_societa'] = $crea_coupon['nome_societa'];
                             $generazione_coupon[$piva_ente]['infos']['id_gruppo_societa'] = $crea_coupon['id_gruppo_societa'];
-                            $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $crea_coupon['id_piattaforma'];
+                            $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $coupon_data['id_piattaforma'];
                             $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
                             $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
+
+                            // inserimento utente
                             if ($new_user) {
+
                                 $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
                                 // se nuovo utente lo inserisco nel gruppo azienda
                                 $ug_azienda = $coupon_model->_check_usergroups($ragione_sociale, true);
@@ -2469,7 +2549,10 @@ HTML;
                                     throw new Exception("Gruppo azienda non definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
                                 $ug_destinazione = array($ug_azienda);
-                                JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                //JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                $ug_insert = self::set_usergroup_generic($_new_user_id, $ug_destinazione);
+                                if (!is_array($ug_insert))
+                                    throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
                             }
 
@@ -2493,6 +2576,7 @@ HTML;
         try {
 
             $arr_corsi = array();
+            $inserted = 0;
 
             foreach ($get_corsi as $key_corso => $file) {
 
@@ -2505,17 +2589,25 @@ HTML;
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
-                    if (strpos($file, "GGCorsiElenco") !== false) {
+                    if (strpos($file, "Corsi") !== false) {
+
                         $new_corso = $unit->importa_anagrafica_corsi($xml->CORSO[$i]);
                         // controllo inserimento corso
                         if (is_null($new_corso))
                             throw new Exception("Corso non inserito: " . $xml->CORSO[$i]->TITOLO, E_USER_ERROR);
-                        //$arr_corsi[$xml->CORSO[$i]->CODICE_CORSO->__toString()] = $new_corso;
+
+                        $inserted++;
 
                     }
 
                 }
 
+            }
+
+            if ($inserted > 0) {
+                $db = JFactory::getDbo();
+                $JTUserGroup = new JTableUsergroup($db);
+                $JTUserGroup->rebuild();
             }
 
             return 1;
@@ -2579,6 +2671,7 @@ HTML;
 
                     // se non si tratta di report ausind ma di quelli per i corsi sincroni ed asincroni
                     // il formato delle date sarà Y-m-d H:i:s
+                    /*
                     if ($tipologia_svolgimento != 6
                         && isset($arr_dt_corsi[$id_corso])) {
 
@@ -2591,6 +2684,7 @@ HTML;
                         }
 
                     }
+                    */
                 }
 
 
