@@ -3403,7 +3403,7 @@ HTML;
                 </p>
 HTML;
 
-            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body, true);
 
             $_ret['success'] = 'reset_password_exec';
 

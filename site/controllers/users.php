@@ -131,7 +131,7 @@ class gglmsControllerUsers extends JControllerLegacy
 
     }
 
-    public function sendMail($destinatari, $oggetto, $body ){
+    public function sendMail($destinatari, $oggetto, $body, $logging = false){
 
         $mailer = JFactory::getMailer();
 
@@ -151,12 +151,24 @@ class gglmsControllerUsers extends JControllerLegacy
         //optional
         $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
 
-
         $send = $mailer->Send();
-        if ( $send !== true )
-            return 'Errore invio mail: ';
-        else
-            return 'Mail inviata';
+        $string_rs = "";
+        $check_rs = 1;
+
+        if ( $send !== true ) {
+            $string_rs = 'Errore invio mail: ';
+            $check_rs = 0;
+        }
+        else {
+            $string_rs = 'Mail inviata';
+        }
+
+        $debug_destinatari = is_array($destinatari) ? print_r($destinatari, true) : $destinatari;
+
+        if ($logging)
+            utilityHelper::logMail(__FUNCTION__, print_r($sender, true), $debug_destinatari, $check_rs);
+
+        return $string_rs;
 
     }
 

@@ -2810,10 +2810,6 @@ HTML;
                         if ($num_cell == 16)
                             $rows_arr[$counter][20] = $_row_value;
 
-                        // 21 - Cod.tab.qualifica
-                        if ($num_cell == 22)
-                            $rows_arr[$counter][21] = $_row_value;
-
                         // 21 - descrizione qualifica
                         if ($num_cell == 17)
                             $rows_arr[$counter][22] = $_row_value;
@@ -2833,6 +2829,10 @@ HTML;
                         // 25 - codice esterno rep 2
                         if ($num_cell == 21)
                             $rows_arr[$counter][26] = $_row_value;
+
+                        // 21 - Cod.tab.qualifica
+                        if ($num_cell == 22)
+                            $rows_arr[$counter][21] = $_row_value;
 
                         // 26 - data inizio rapporti
                         $rows_arr[$counter][27] = "";
