@@ -1,6 +1,7 @@
 <?php
 // no direct access
 
+
 defined('_JEXEC') or die('Restricted access');
 $count = 0;
 
@@ -24,122 +25,137 @@ if ($this->sottounita) {
         echo "<h5>" . $this->unita->_params->get('nomenclatura_unita') . "</h5>";
     }
 
-    echo "<div id='unita' class='box g-grid'>";
+//    echo "<div id='unita' class='box g-grid'>";
 
-    foreach ($this->sottounita as $unita) {
-        if ($this->unita->_params->get('visualizza_solo_mieicorsi') && !$unita->access()) {
+     echo "<div id='unita' class='row'>";
+        foreach ($this->sottounita as $unita) {
+
+
+                if ($this->unita->_params->get('visualizza_solo_mieicorsi') && !$unita->access()) {
 //            echo "non puoi vedere". $unita->titolo;
-        } elseif (
+
+                } elseif (
                     ($unita->is_corso == 1 && $unita->is_visibile_today($unita))
                     || $unita->is_corso != 1) {
-            try {
-                $count++;
-                $unitaObj = new gglmsModelUnita();
 
-                $is_unit_completed = $unitaObj->isUnitacompleta($unita->id);
-                $corso_class = $unita->get_access_class($unita);
-                $corso_is_disabled = $corso_class == 'disabled';
-
-                ?>
-                <div class="g-block <?php echo $this->unita->_params->get('larghezza_box_unita') ?> <?php echo $corso_class ?>">
-                    <div class="g-block interno">
-
-                        <?php
-                        // revisione caricamento immagini di background delle unità
-                        /*
-                        if (file_exists('../mediagg/images/unit/' . $unita->id . '.jpg'))
-                            $img = '../mediagg/images/unit/' . $unita->id . '.jpg';
-                        else
-                            $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
-                        */
-                        $u_path = '/mediagg/images/unit/' . $unita->id . '.jpg';
-                        $u_file = $_SERVER['DOCUMENT_ROOT'] . $u_path;
-                        // carico l'immagine per indirizzo assoluto
-                        if (file_exists($u_file)) {
-                            $img = $this->url_base . $u_path;
-                        }
-                        else
-                            $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
-
-//                        $is_corso_disabled = $corso_class == 'disabled';
+                    try {
+                        $count++;
                         $unitaObj = new gglmsModelUnita();
 
-                        if ($unitaObj->isUnitacompleta($unita->id))
+                        $is_unit_completed = $unitaObj->isUnitacompleta($unita->id);
+                        $corso_class = $unita->get_access_class($unita);
+                        $corso_is_disabled = $corso_class == 'disabled';
 
-                            echo '<div class="corner corner_green"></div>';
-                        else if ($corso_is_disabled)
-
-                            echo '<div class="corner corner_grey"></div>';
-                        else
-                            echo '<div class="corner corner_yellow"></div>';
 
                         ?>
 
-                        <?php
-
-                        if (!$corso_is_disabled) { ?>
-
-                            <!-- visualizzazione corsi abilitati-->
-                            <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
-                                <div class="rt-image" style="background-image:url(<?php echo $img; ?>)">
-                                </div>
-                            </a>
-
-
-                            <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
-                                <div class="title boxinfo_unita "><b><?php echo $unita->titolo; ?></b></div>
-                            </a>
+                     <div class="col-sm-3 py-3 d-flex">
+                           <!--                        <div class="g-block interno">-->
+                          <div class="card d-flex">
                             <?php
+                            // revisione caricamento immagini di background delle unità
+                            /*
+                            if (file_exists('../mediagg/images/unit/' . $unita->id . '.jpg'))
+                                $img = '../mediagg/images/unit/' . $unita->id . '.jpg';
+                            else
+                                $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+                            */
+                            $u_path = '/mediagg/images/unit/' . $unita->id . '.jpg';
+                            $u_file = $_SERVER['DOCUMENT_ROOT'] . $u_path;
+                            // carico l'immagine per indirizzo assoluto
+                            if (file_exists($u_file)) {
+                                $img = $this->url_base . $u_path;
+                            } else
+                                $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
-                        } else { ?>
+                            //                        $is_corso_disabled = $corso_class == 'disabled';
+                            $unitaObj = new gglmsModelUnita();
 
-                            <!--visualizzazione corsi abilitati-->
-                            <a data-toggle="modal" data-target="#exampleModal">
-                                <div class="rt-image" style="background-image:url(<?php echo $img; ?>)">
-                                </div>
-                            </a>
+                            if ($unitaObj->isUnitacompleta($unita->id))
 
-                            <a>
-                                <div class="title boxinfo_unita "><b><?php echo $unita->titolo; ?></b></div>
-                            </a>
-                        <?php } ?>
-                        <?php
-                        if ($this->unita->_params->get('visibilita_durata_unita')) {
+                                echo '<div class="corner corner_green"></div>';
+                            else if ($corso_is_disabled)
+
+                                echo '<div class="corner corner_grey"></div>';
+                            else
+                                echo '<div class="corner corner_yellow"></div>';
+
                             ?>
-                            <div class='g-grid'>
-                                <div class="g-box size-50">
-                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $unita->get_durata_unita($unita->id); ?></div>
-                            </div>
-                            <?php
-                        }
-                        ?>
 
-                    </div>
-                </div>
-                <?php
-            } catch
-            (Exception $ex) {
-                echo $ex->getMessage();
-            }
-        } else {
+                            <?php
+
+                            if (!$corso_is_disabled) { ?>
+
+                                <!-- visualizzazione corsi abilitati-->
+                                <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
+                                    <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
+                               </a>
+
+                           <div class="card-body my-0 px-0 py-0">
+                                <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
+                                    <div class="card-title text-center my-0" style="color:#325482"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                </a>
+                                <?php
+
+                            } else { ?>
+
+                                <!--visualizzazione corsi abilitati-->
+                                <a data-toggle="modal" data-target="#exampleModal">
+                                    <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
+                                </a>
+                           <div class="card-body my-0 px-0 py-0">
+                                   <a>
+                                       <div class="card-title text-center my-0" style="color:#325482"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                   </a>
+
+                            <?php } ?>
+                            <?php
+                            if ($this->unita->_params->get('visibilita_durata_unita')) {
+                                ?>
+
+                                <div class="card-text">
+                                    <p class="my-0 py-0">
+                                        <?php echo JText::_('COM_GGLMS_GGLMS_DURATA') ?>
+                                        : <?php echo $unita->get_durata_unita($unita->id); ?></p>
+                                </div>
+                                <?php
+                            }
+                            ?>
+                           </div>
+                          </div>
+                     </div>
+
+                        <?php
+
+
+                    } catch
+                    (Exception $ex) {
+                        echo $ex->getMessage();
+                    }
+                } else {
+
+                }
+
 
         }
-    }
-    echo "</div>";
+      echo "</div>";
     echo "<hr>";
+
 }
+
 
 if ($this->contenuti) {
     if ($this->unita->_params->get('titolo_moduli_visibile')) {
         echo "<h5>" . $this->unita->_params->get('nomenclatura_moduli') . "</h5>";
     }
-    echo "<div id='contenuti' class='box g-grid'>";
+//    echo "<div id='contenuti' class='box g-grid'>";
+    echo "<div id='contenuti' class='row'>";
     foreach ($this->contenuti as $contenuto) {
         $count++;
         ?>
 
-        <div class="g-block <?php echo $this->unita->_params->get('larghezza_box_contenuti') ?> ">
-            <div class="g-block interno">
+        <div class="col-sm-3 py-3 d-flex">
+            <div class="card d-flex">
 
                 <?php
                 // revisione caricamento immagini di background dei contenuti
@@ -168,33 +184,33 @@ if ($this->contenuti) {
                         echo '<div class="corner corner_yellow"></div>';
                     ?>
 
+                <a <?php echo $contenuto->getUrlLink(); ?>/>
+                    <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
+                </a>
+
+                <div class="card-body my-0 px-0 py-0">
                     <a <?php echo $contenuto->getUrlLink(); ?>/>
-                    <div class="rt-image" style="background-image:url(<?php echo $img; ?>)"></div>
+                        <div class="card-title text-center my-0 px-0 py-0" style="color:#325482"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
                     </a>
+                    <div class="card-text">
 
-                    <a <?php echo $contenuto->getUrlLink(); ?>/>
-                    <div class="title"><b><?php echo $contenuto->titolo; ?></b></div>
-                    </a>
-
-
-                    <div class="boxinfo_contenuti">
                         <?php
 
                         if (in_array($contenuto->tipologia, explode(",", $this->unita->_params->get('visibilita_durata')))) {
                             ?>
-                            <div class='g-grid'>
-                                <div class="g-box size-100">
-                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></div>
-                            </div>
+                            <p class="my-0 py-0">
+                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?>
+                            </p>
                             <?php
                         }
                         ?>
 
-                        <div class='g-grid'>
-                            <div class="g-box size-100"><?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?>: <?php echo $stato->descrizione; ?></div>
-                        </div>
-
+                        <p class="my-0 py-0">
+                            <?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?>: <?php echo $stato->descrizione; ?>
+                        </p>
                     </div>
+
+                </div>
                     <?php
                 } else {
 
@@ -202,27 +218,27 @@ if ($this->contenuti) {
 
                     <div class="corner corner_red"></div>
 
-                    <div class="rt-image trasparenza_inaccessibilita" title="<?php echo  JText::_('COM_GGLMS_UNITA_COMPLETA_CONTENUTI') ?>"
-                         style="background-image:url(<?php echo $img; ?>)"></div>
-                    <div class="title"><b><?php echo $contenuto->titolo; ?></b></div>
+                    <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
 
-                    <div class="boxinfo">
+                   <div class="card-body my-0 px-0 py-0">
+                        <div class="card-title text-center my-0 px-0 py-0" style="color:#325482"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
+                        <div class="card-text">
                         <?php
                         if (in_array($contenuto->tipologia, explode(",", $this->unita->_params->get('visibilita_durata')))) {
                             ?>
-                            <div class='g-grid'>
-                                <div class="g-box size-100">
-                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></div>
-                            </div>
+                            <p class="my-0 py-0">
+                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?>
+                            </p>
                             <?php
                         }
                         ?>
 
-                        <div class='g-grid'>
-                            <div class="g-box size-100"><?php echo  JText::_('COM_GGLMS_UNITA_NON_DISPONIBILE') ?></div>
+                        <p class="my-0 py-0">
+                            <?php echo  JText::_('COM_GGLMS_UNITA_NON_DISPONIBILE') ?>
+                        </p>
                         </div>
 
-                    </div>
+                   </div>
                     <?php
                 }
                 ?>
@@ -259,5 +275,4 @@ if (!$count)
 
     </div>
 </div>
-
 
