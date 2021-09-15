@@ -2476,7 +2476,8 @@ HTML;
             $arr_insert = array();
             $miss_check = array();
             // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
-            $arr_ragsoc = ['ITALSALUTE SRL'];
+            // inietto HIPPOCRATES HOLDING che non viene passato dalla chiamata API per i dipendenti interni
+            $arr_ragsoc = ['ITALSALUTE SRL', 'HIPPOCRATES HOLDING'];
             $counter = 1;
             $farma_id = 3;
             foreach ($farmacie as $key_farmacia => $farmacia) {
@@ -3693,7 +3694,10 @@ HTML;
 
             // Resp Ottica
             // 191
-            $insert_ottica = "(191, 'Resp Ottica');";
+            $insert_ottica = "(191, 'Resp Ottica'), ";
+
+            // Gruppi extra
+            $insert_extra = "(88888, 'Liberi Professionisti'), (99999, 'Dipendenti Holding')";
 
             // eseguo query inserimento
             $this->_db->setQuery($insert_query .
@@ -3707,7 +3711,8 @@ HTML;
                 $insert_inf .
                 $insert_segreteria .
                 $insert_impieg .
-                $insert_ottica);
+                $insert_ottica .
+                $insert_extra);
             if (!$this->_db->execute())
                 throw new Exception("Query inserimento #__gg_codici_qualifica_farmacie fallita!", E_USER_ERROR);
 
