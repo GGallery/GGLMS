@@ -1642,10 +1642,7 @@ class gglmsModelUsers extends JModelLegacy
                                     VALUES (
                                         " . $this->_db->quote($user_id) . ",
                                         " . $this->_db->quote($codice_fiscale) . "
-                                    )
-                                    ON DUPLICATE KEY UPDATE
-                                        user_id = " . $this->_db->quote($user_id) . ",
-                                        codice_fiscale = " . $this->_db->quote($codice_fiscale);
+                                    )";
 
             $this->_db->setQuery($query);
             if (!$this->_db->execute())
