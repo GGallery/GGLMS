@@ -1576,16 +1576,50 @@ class gglmsModelUsers extends JModelLegacy
 
         try {
 
+            // come semaforo prendo la colonna block di users non più l'id di gg_attivazione_dipendenti_farmacie
+            // se 1 ritorno false (utente bloccato) altrimenti ritorno true
+            // ->select('df.id')
             $query = $this->_db->getQuery(true)
-                ->select('id')
-                ->from('#__gg_attivazione_dipendenti_farmacie')
-                ->where('user_id = ' . $this->_db->quote($user_id))
-                ->where('codice_fiscale = ' . $this->_db->quote($codice_fiscale));
+                ->select('u.block')
+                ->from('#__gg_attivazione_dipendenti_farmacie df')
+                ->join('inner', '#__users as u on u.id = df.user_id')
+                ->where('df.user_id = ' . $this->_db->quote($user_id))
+                ->where('df.codice_fiscale = ' . $this->_db->quote($codice_fiscale));
 
             $this->_db->setQuery($query);
             $result = $this->_db->loadResult();
 
-            return $result['id'] ? true : false;
+            // return $result['id'] ? true : false;
+
+            // non ritorna niente non è nella tabella
+            if (is_null($result))
+                return false;
+
+            // se esiste ed è 1 (quindi bloccato) ritorno false perchè deve ancora completare il login
+            return ((int) $result == 1) ? false : true;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // cancello l'utente dalla tabella di attivazione
+    public function delete_activation_user_farmarcie($user_id, $codice_fiscale) {
+
+        try {
+
+            $query = "DELETE FROM #__gg_attivazione_dipendenti_farmacie
+                        WHERE user_id = " . $this->_db->quote($user_id) . "
+                        AND codice_fiscale = " . $this->_db->quote($codice_fiscale);
+
+            $this->_db->setQuery($query);
+            if (!$this->_db->execute())
+                throw new Exception("Query cancellazione fallita", E_USER_ERROR);
+
+            return true;
 
         }
         catch (Exception $e) {
@@ -1608,10 +1642,14 @@ class gglmsModelUsers extends JModelLegacy
                                     VALUES (
                                         " . $this->_db->quote($user_id) . ",
                                         " . $this->_db->quote($codice_fiscale) . "
-                                    )";
+                                    )
+                                    ON DUPLICATE KEY UPDATE
+                                        user_id = " . $this->_db->quote($user_id) . ",
+                                        codice_fiscale = " . $this->_db->quote($codice_fiscale);
 
             $this->_db->setQuery($query);
-            $this->_db->execute();
+            if (!$this->_db->execute())
+                throw new Exception("Query aggiornamento fallita", E_USER_ERROR);
 
             return true;
 
