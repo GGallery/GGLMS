@@ -15,17 +15,18 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 
 class gglmsControllerMt extends JControllerLegacy {
 
-    private $_user;
     private $_japp;
     public $_params;
     public $_db;
     private $_config;
     private $_filterparam;
     public $mail_debug;
+
 
     public function __construct($config = array())
     {
@@ -36,9 +37,6 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_user = JFactory::getUser();
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
-
-        $this->_filterparam->id_utente = JRequest::getVar('id_utente');
-        $this->_filterparam->id_corso = JRequest::getVar('id_corso');
 
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -53,10 +51,35 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    private function checkCryptKey($secretKey){
+        $iv = substr($secretKey, 0, 16);
+        return [$secretKey, $iv];
+    }
+
+    private function encrypt($v, $secretKey){
+        $k = $this->checkCryptKey($secretKey);
+        return openssl_encrypt($v, 'aes-256-cbc', $k[0], 0, $k[1]);
+    }
+
+    private function decrypt($v, $secretKey){
+        $k = $this->checkCryptKey($secretKey);
+        return openssl_decrypt($v, 'aes-256-cbc', $k[0], 0, $k[1]);
+    }
+
     public function test_() {
 
-        $codici = utilityHelper::get_codici_qualifica_farmacie();
-        var_dump($codici);
+        $model_user = new gglmsModelUsers();
+
+        $check = $model_user->check_activation_user_farmarcie(2018, 'LNTCRN79P55B774F');
+        var_dump($check);
+
+        /*
+        $delete = $model_user->delete_activation_user_farmarcie(1276, 'GRRPLA64P21H823O');
+        var_dump($delete);
+
+        $insert = $model_user->insert_activation_user_farmarcie(1276, 'GRRPLA64P21H823O');
+        var_dump($insert);
+        */
 
         $this->_japp->close();
 

@@ -165,8 +165,11 @@ class gglmsControllerUsers extends JControllerLegacy
 
         $debug_destinatari = is_array($destinatari) ? print_r($destinatari, true) : $destinatari;
 
-        if ($logging)
+        if ($logging) {
             utilityHelper::logMail(__FUNCTION__, print_r($sender, true), $debug_destinatari, $check_rs);
+            // log esito
+            UtilityHelper::make_debug_log(__FUNCTION__, $string_rs, __FUNCTION__);
+        }
 
         return $string_rs;
 

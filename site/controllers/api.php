@@ -3211,6 +3211,13 @@ HTML;
 
                 $this->_db->transactionStart();
 
+                // per sicurezza - nel caso fosse già in tabella - cancello il suo record
+                $delete_activation = $model_user->delete_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+                if (is_null($delete_activation))
+                    throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
+                    " . $check_user_id .
+                        " CF: " . $cb_codicefiscale, E_USER_ERROR);
+
                 $insert_activation = $model_user->insert_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
                 if (is_null($insert_activation))
                     throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
