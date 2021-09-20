@@ -2468,7 +2468,7 @@ HTML;
             // inserisco in tabella master e creo i gruppi sulla denominazione
             $this->_db->transactionStart();
             //$query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
-            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 1";
+            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 2";
 
             $this->_db->setQuery($query_truncate);
             if (!$this->_db->execute())
@@ -2497,9 +2497,10 @@ HTML;
             $arr_insert = array();
             $miss_check = array();
             // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
-            $arr_ragsoc = ['ITALSALUTE SRL'];
+            // inietto HIPPOCRATES HOLDING che non viene passato dalla chiamata API per i dipendenti interni
+            $arr_ragsoc = ['ITALSALUTE SRL', 'HIPPOCRATES HOLDING'];
             $counter = 1;
-            $farma_id = 2;
+            $farma_id = 3;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
                 $hh_store_code = trim($farmacia[0]);
@@ -3231,6 +3232,13 @@ HTML;
 
                 $this->_db->transactionStart();
 
+                // per sicurezza - nel caso fosse già in tabella - cancello il suo record
+                $delete_activation = $model_user->delete_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+                if (is_null($delete_activation))
+                    throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
+                    " . $check_user_id .
+                        " CF: " . $cb_codicefiscale, E_USER_ERROR);
+
                 $insert_activation = $model_user->insert_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
                 if (is_null($insert_activation))
                     throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
@@ -3424,7 +3432,7 @@ HTML;
                 </p>
 HTML;
 
-            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body, true);
 
             $_ret['success'] = 'reset_password_exec';
 
@@ -3714,7 +3722,10 @@ HTML;
 
             // Resp Ottica
             // 191
-            $insert_ottica = "(191, 'Resp Ottica');";
+            $insert_ottica = "(191, 'Resp Ottica'), ";
+
+            // Gruppi extra
+            $insert_extra = "(88888, 'Liberi Professionisti'), (99999, 'Dipendenti Holding')";
 
             // eseguo query inserimento
             $this->_db->setQuery($insert_query .
@@ -3728,7 +3739,8 @@ HTML;
                 $insert_inf .
                 $insert_segreteria .
                 $insert_impieg .
-                $insert_ottica);
+                $insert_ottica .
+                $insert_extra);
             if (!$this->_db->execute())
                 throw new Exception("Query inserimento #__gg_codici_qualifica_farmacie fallita!", E_USER_ERROR);
 

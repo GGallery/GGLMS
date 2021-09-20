@@ -15,17 +15,18 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 
 class gglmsControllerMt extends JControllerLegacy {
 
-    private $_user;
     private $_japp;
     public $_params;
     public $_db;
     private $_config;
     private $_filterparam;
     public $mail_debug;
+
 
     public function __construct($config = array())
     {
@@ -37,53 +38,48 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
 
-        $this->_filterparam->id_utente = JRequest::getVar('id_utente');
-        $this->_filterparam->id_corso = JRequest::getVar('id_corso');
-
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
 
 
     }
 
-    private function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
-        //echo "entrato<br>";
-        //echo $string;die;
-        $output = null;
-        // metodo di crypt
-        $encrypt_method = "AES-256-CBC";
-        // hash
-        $key = hash('sha256', $secret_key);
-        // AES-256-CBC si aspetta 16 bytes
-        $iv = substr(hash('sha256', $secret_iv), 0, 16);
+    public function make_pwd() {
 
-        // cripta la chiave
-        if ( $action == 'encrypt' ) {
-            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
-            $output = base64_encode($output);
-        } // decripta la chiave
-        else if( $action == 'decrypt' ) {
-            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
-        }
+        echo utilityHelper::encrypt_decrypt('encrypt', "r222rAgfn5s9c3G", "GGallery00!", "GGallery00!");
+        $this->_japp->close();
 
-        return $output;
+    }
+
+    private function checkCryptKey($secretKey){
+        $iv = substr($secretKey, 0, 16);
+        return [$secretKey, $iv];
+    }
+
+    private function encrypt($v, $secretKey){
+        $k = $this->checkCryptKey($secretKey);
+        return openssl_encrypt($v, 'aes-256-cbc', $k[0], 0, $k[1]);
+    }
+
+    private function decrypt($v, $secretKey){
+        $k = $this->checkCryptKey($secretKey);
+        return openssl_decrypt($v, 'aes-256-cbc', $k[0], 0, $k[1]);
     }
 
     public function test_() {
-        try {
 
-            // 727182924==999102115
-            // 3Rdz7e5tpM+CU1mw6+1xIYKGK8GAIhe0IHS7N/VSbJg=
-            $enc = $this->encrypt_decrypt('encrypt', '727182924==999102115', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
-            echo $enc . '<br />';
+        $model_user = new gglmsModelUsers();
 
-            // bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=
-            $dec = $this->encrypt_decrypt('decrypt', 'bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
-            echo $dec;
-        }
-        catch (Exception $e) {
-            echo "ERRORE: " . $e->getMessage();
-        }
+        $check = $model_user->check_activation_user_farmarcie(2018, 'LNTCRN79P55B774F');
+        var_dump($check);
+
+        /*
+        $delete = $model_user->delete_activation_user_farmarcie(1276, 'GRRPLA64P21H823O');
+        var_dump($delete);
+
+        $insert = $model_user->insert_activation_user_farmarcie(1276, 'GRRPLA64P21H823O');
+        var_dump($insert);
+        */
 
         $this->_japp->close();
 
