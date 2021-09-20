@@ -39,6 +39,4 @@ class gglmsViewReportOre extends JViewLegacy {
     }
 
 
-
-
 }

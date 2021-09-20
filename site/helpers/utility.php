@@ -735,15 +735,11 @@ class utilityHelper
     }
 
     // informazioni per un campo community builder da id - utility per self.get_cb_field_name()
-    public static function get_cb_field($field_id, $db_option = array()) {
+    public static function get_cb_field($field_id) {
 
         try {
 
             $db = JFactory::getDbo();
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
             $query = $db->getQuery(true)
                 ->select('*')
                 ->from('#__comprofiler_fields')
@@ -817,20 +813,15 @@ class utilityHelper
     }
 
     // controlla esistenza usergroups per nome - utility per controllers.users._import()
-    public static function check_usergroups_by_name($usergroup, $db_option = array()) {
+    public static function check_usergroups_by_name($usergroup) {
 
         try {
 
             $db = JFactory::getDbo();
-
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
             $query = $db->getQuery(true)
                     ->select('id')
                     ->from('#__usergroups')
-                    ->where("title = " . $db->quote(addslashes(trim($usergroup))));
+                    ->where("title = '" . trim($usergroup) . "'");
 
             $db->setQuery($query);
 
@@ -842,85 +833,46 @@ class utilityHelper
         }
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
-            return null;
         }
 
     }
 
     // inserisco nuovo usergroups - utility per controllers.users._import_rinnovi()
-    public static function insert_new_usergroups($ug_title, $parent_id=0, $rebuild = true, $db_option = array()) {
+    public static function insert_new_usergroups($usergroup, $parent_id=0) {
 
         try {
 
             $db = JFactory::getDbo();
-
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
             $query = "INSERT INTO #__usergroups (parent_id, title)
                         VALUES (
                               '" . $parent_id . "',
-                              " . $db->quote(addslashes(trim($ug_title))) . "
+                              '" . addslashes(trim($usergroup)) . "'
                         )";
 
             $db->setQuery($query);
-
-            if (false === $db->execute()) {
-                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
-            }
-
+            $db->execute();
             $new_group_id = $db->insertid();
 
-            if ($rebuild)
-                self::rebuild_ug_index($db);
+            // rebuild per indici lft, rgt
+            $JTUserGroup = new JTableUsergroup($db);
+            $JTUserGroup->rebuild();
 
             return $new_group_id;
 
         }
         catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
-            return null;
         }
 
-    }
-
-    // esegue una query generica - utility per controllers.api.importa_anagrafica_farmacie()
-    public static function update_with_query($update_query, $db_option = array()) {
-
-        try {
-
-            $_ret = array();
-
-            $db = JFactory::getDbo();
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
-            $db->setQuery($update_query);
-            if (false === $db->execute()) {
-                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
-            }
-
-            $_ret['success'] = 1;
-            return $_ret;
-
-        }
-        catch (Exception $e) {
-            return __FUNCTION__ . ": " . $e->getMessage();
-        }
     }
 
     // inserisco nuovo utente in comprofiler - utility per controllers.users._import()
-    public static function insert_new_with_query($insert_query, $ret_last_id = true, $db_option = array()) {
+    public static function insert_new_with_query($insert_query, $ret_last_id = true) {
 
         try {
 
             $_ret = array();
             $db = JFactory::getDbo();
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
 
             $db->setQuery($insert_query);
             $db->execute();
@@ -930,6 +882,7 @@ class utilityHelper
 
         }
         catch (Exception $e) {
+            //DEBUGG::error($e, __FUNCTION__);
             return __FUNCTION__ . ": " . $e->getMessage();
         }
 
@@ -962,22 +915,15 @@ class utilityHelper
     }
 
     // controllo esistenza utente su username - utility per controllers.users._import()
-    public static function check_user_by_username($username, $check_block = false, $db_option = array()) {
+    public static function check_user_by_username($username) {
 
         try {
 
             $db = JFactory::getDbo();
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
             $query = $db->getQuery(true)
                 ->select('id')
                 ->from('#__users')
                 ->where("username = '" . $username . "'");
-
-            if ($check_block)
-                $query = $query->where('block = 0');
 
             $db->setQuery($query);
 
@@ -1117,76 +1063,6 @@ class utilityHelper
         }
     }
 
-    // utility per modulo calendario - tutti le categorie evento
-    public static function get_categorie_evento() {
-
-        try {
-
-            $_ret = array();
-
-            $db = JFactory::getDbo();
-            $query = $db->getQuery(true)
-                ->select('id, titolo')
-                ->from('#__gg_categorie_evento')
-                ->order('id');
-
-            $db->setQuery($query);
-            $results = $db->loadAssocList();
-
-            if (is_null($results)
-                || count($results) == 0)
-                throw new Exception("Nessuna categoria evento trovata", E_USER_ERROR);
-
-            // normalizzo l'output
-            foreach ($results as $key => $cat) {
-                $_ret[$cat['id']] = $cat['titolo'];
-            }
-
-            return $_ret;
-
-        }
-        catch (Exception $e) {
-            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return null;
-        }
-
-    }
-
-    // utility per modulo calendario (e generic) - tutti gli usergroups
-    public static function get_usergroups_list() {
-
-        try {
-
-            $_ret = array();
-
-            $db = JFactory::getDbo();
-            $query = $db->getQuery(true)
-                ->select('id, title')
-                ->from('#__usergroups')
-                ->order('id');
-
-            $db->setQuery($query);
-            $results = $db->loadAssocList();
-
-            if (is_null($results)
-                || count($results) == 0)
-                throw new Exception("Nessun usergroup trovato", E_USER_ERROR);
-
-            // normalizzo l'output
-            foreach ($results as $key => $group) {
-                $_ret[$group['id']] = $group['title'];
-            }
-
-            return $_ret;
-
-        }
-        catch (Exception $e) {
-            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return null;
-        }
-
-    }
-
     // utility per models.generacoupon.send_coupon_mail()
     public static function logMail($template, $sender, $recipient, $status, $cc = null, $id_gruppo_corso = null)
     {
@@ -1221,45 +1097,6 @@ class utilityHelper
         }
     }
 
-    // utility per api.importa_master_farmacie
-    // ottengo la lista per la decodifica di ruoli in base al codice descrittivo
-    public static function get_codici_qualifica_farmacie($db_option = array()) {
-
-        try {
-
-            $_ret = array();
-
-            $db = JFactory::getDbo();
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
-            $query = $db->getQuery(true)
-                ->select('codice, rif_gruppo')
-                ->from('#__gg_codici_qualifica_farmacie')
-                ->order('id');
-
-            $db->setQuery($query);
-            $results = $db->loadAssocList();
-
-            if (is_null($results)
-                || count($results) == 0)
-                throw new Exception("Nessun codice qualifica trovato", E_USER_ERROR);
-
-            // normalizzo l'output
-            foreach ($results as $key => $codice) {
-                $_ret[$codice['codice']] = $codice['rif_gruppo'];
-            }
-
-            return $_ret;
-
-        }
-        catch (Exception $e) {
-            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return null;
-        }
-
-    }
 
     ////////////////////////////////////    export csv
 
@@ -1558,17 +1395,13 @@ class utilityHelper
     }
 
     // query diretta sui parametri di un modulo - utility per view.acquistaevento
-    public static function get_params_from_module($module = 'mod_compra_corsi', $db_option = array()) {
+    public static function get_params_from_module($module = 'mod_compra_corsi') {
 
         try {
 
             $_ret = array();
 
             $db = JFactory::getDbo();
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
             $query = $db->getQuery(true)
                 ->select('params')
                 ->from('#__modules')
@@ -1870,18 +1703,15 @@ HTML;
 
         foreach ($_new_user_cp as $key => $value) {
 
-            if (is_null($value)
-                || $value == "")
+            if (is_null($value) || $value === "")
                 continue;
 
             $_cols[] = $key;
             $_values[] = $value;
         }
 
-        $query .= " (" . implode(",", $_cols) . ")";
+        $query .= "(" . implode(",", $_cols) . ")";
         $query .= " VALUES ('" . implode( "','", $_values ) . "')";
-
-
 
         return $query;
     }
@@ -2001,7 +1831,7 @@ HTML;
         else
             $ug_destinazione = self::get_ug_from_object($_params, $ug_group, true);
 
-        $_check = self::set_usergroup_generic($user_id, $ug_destinazione);
+        $_check = self::set_usergroup_generic($user_id, $ug_destinazione, $_user);
         if (!is_array($_check))
             throw new Exception($_check, 1);
 
@@ -2013,6 +1843,57 @@ HTML;
                                 null,
                                             $action,
                                             $_email_from);
+
+    }
+
+    // invia email a tutor per generazione dei coupon - utility per api.load_corsi_from_xml
+    public static function invia_email_tutor_template($nome_piattaforma,
+                                                      $alias_piattaforma,
+                                                      $dominio,
+                                                      $username_tutor,
+                                                      $pwd_tutor,
+                                                      $template_tutor,
+                                                      $sender,
+                                                      $mail_debug,
+                                                      $to,
+                                                      $recipients,
+                                                      $is_debug = false) {
+
+        try {
+
+            $mailer = JFactory::getMailer();
+            $mailer->setSender($sender);
+            if (!$is_debug) {
+                $mailer->addRecipient($to);
+                $mailer->addCc($recipients["cc"]);
+            }
+            else
+                $mailer->addRecipient($mail_debug);
+
+            $mailer->setSubject('Registrazione  ' . $alias_piattaforma);
+
+            $smarty = new EasySmarty();
+            $smarty->assign('piattaforma_name', $nome_piattaforma);
+            $smarty->assign('piattaforma_alias', $alias_piattaforma);
+            $smarty->assign('piattaforma_link', 'https://' . $dominio);
+            $smarty->assign('user_name', $username_tutor);
+            $smarty->assign('user_password', $pwd_tutor);
+
+            $mailer->setBody($smarty->fetch_template($template_tutor, null, true, false, 0));
+            $mailer->isHTML(true);
+
+            // invio email ko
+            if (!$mailer->Send()) {
+                self::logMail(__FUNCTION__, $sender, $recipients, 0);
+            }
+
+            return true;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
 
     }
 
@@ -2538,6 +2419,7 @@ HTML;
         foreach ($ug_check as $group) {
             if (in_array($group, $user_groups))
                 return true;
+
         }
 
         return false;
@@ -2886,7 +2768,7 @@ HTML;
     }
 
     // scarico file xml dal repository - utility per api.load_corsi_from_xml()
-    public static function get_xml_remote($local_file, $_err_label = '') {
+    public static function get_xml_remote($local_file, $rename_old = true, $_err_label = '') {
 
         try {
 
@@ -2913,7 +2795,8 @@ HTML;
             foreach ($contents as $key => $file) {
 
                 $file_check = pathinfo($file);
-                if ($file_check['extension'] == 'xml') {
+                if (isset($file_check['extension'])
+                    && $file_check['extension'] == 'xml') {
                     $arr_files[] = $file_check['basename'];
                 }
 
@@ -2932,7 +2815,8 @@ HTML;
                     throw new Exception("Impossibile scaricare " . $xml . " dal server " . $_host);
 
                 // rinomino il file in remoto - e li sposto in un'altra directory
-                ftp_rename($conn_id, './' . $_read_dir . '/' . $xml, './' . $_read_dir . '/_old/' . $xml . '.bak');
+                if ($rename_old)
+                    ftp_rename($conn_id, './' . $_read_dir . '/' . $xml, './' . $_read_dir . '/_old/' . $xml . '.bak');
             }
 
             return $arr_files;
@@ -2998,15 +2882,47 @@ HTML;
                 $generazione_coupon = array();
                 $coupon_model = new gglmsModelgeneracoupon();
                 $unita_model = new gglmsModelUnita();
+
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
                     if (strpos($file, "GGCorsoIscritti") !== false) {
+                        $gruppo_corso = null;
+
                         $codice_corso = trim($xml->CORSO[$i]->CODICE_CORSO->__toString());
+                        //$tipologia_corso = trim($xml->CORSO[$i]->TIPO_SVOLGIMENTO->__toString());
+
+                        // id unita da codice_corso
+                        $id_unita = $unita_model->get_id_unita_codice_corso($codice_corso);
+                        if (is_null($id_unita)
+                            || $id_unita == "")
+                            throw new Exception("Nessuna unita definita da codice corso " . $codice_corso, E_USER_ERROR);
+
+                        // gruppo corso da id_unita
+                        $gruppo_corso = $unita_model->get_id_gruppo_unit($id_unita);
+                        if (is_null($gruppo_corso)
+                            || $gruppo_corso == "")
+                            throw new Exception("Nessun gruppo corso definito per codice corso: " . $codice_corso, E_USER_ERROR);
+
+                        /*
+                        if (is_null($tipologia_corso)
+                            || $tipologia_corso == "")
+                            throw new Exception("TIPO_SVOLGIMENTO non valorizzato", E_USER_ERROR);
+
+
+                        // aggiorno la tipologia_corso se necessario
+                        $update_tipologia_corso = $unita_model->update_tipologia_corso_unita($codice_corso, $tipologia_corso);
+                        if (is_null($update_tipologia_corso))
+                            throw new Exception("Si è verificato un errore durante l'aggiornamento della tipologia_corso", E_USER_ERROR);
+
+                        */
+
                         // iscritti
                         for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {
                             $_new_user = array();
                             $_new_user_cp = array();
                             $coupon_data = array();
+                            $_new_user_id = null;
+                            $new_user = false;
 
                             $codice_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO);
                             //$codice_iscritto_host = $xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO_HOST;
@@ -3038,10 +2954,23 @@ HTML;
                                 || $mail_referente == "")
                                 throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
+                            // creazione coupon
+                            $coupon_data['username'] = $piva_ente;
+                            $coupon_data['ragione_sociale'] = $ragione_sociale;
+                            $coupon_data['email'] = $mail_referente;
+                            $coupon_data['email_coupon'] = $mail_referente;
+                            $coupon_data['id_piattaforma'] = $id_piattaforma;
+                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
+                            $coupon_data['qty'] = 1;
+
+                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
+                            if (is_null($crea_coupon)
+                                || !is_array($crea_coupon))
+                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+
                             // controllo esistenza utente su username
                             $check_user_id = self::check_user_by_username($cf_iscritto);
-                            $_new_user_id = null;
-                            $new_user = false;
+
                             if (is_null($check_user_id)) {
                                 $_new_user['name'] = $codice_iscritto;
                                 $_new_user['username'] = $cf_iscritto;
@@ -3075,30 +3004,21 @@ HTML;
                                 $new_user = true;
                             }
 
-                            // creazione coupon
-                            $coupon_data['username'] = $piva_ente;
-                            $coupon_data['ragione_sociale'] = $ragione_sociale;
-                            $coupon_data['email'] = $mail_referente;
-                            $coupon_data['email_coupon'] = $mail_referente;
-                            $coupon_data['id_piattaforma'] = $id_piattaforma;
-                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
-                            $coupon_data['qty'] = 1;
-
-                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
-                            if (is_null($crea_coupon)
-                                || !is_array($crea_coupon))
-                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
-
                             $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
-                            if (!isset($generazione_coupon[$piva_ente]['infos']['company_user']))
-                                $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
+                            if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
+                                //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
+                                $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
+                            }
 
                             $generazione_coupon[$piva_ente]['infos']['nome_societa'] = $crea_coupon['nome_societa'];
                             $generazione_coupon[$piva_ente]['infos']['id_gruppo_societa'] = $crea_coupon['id_gruppo_societa'];
-                            $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $crea_coupon['id_piattaforma'];
+                            $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $coupon_data['id_piattaforma'];
                             $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
                             $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
+
+                            // inserimento utente
                             if ($new_user) {
+
                                 $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
                                 // se nuovo utente lo inserisco nel gruppo azienda
                                 $ug_azienda = $coupon_model->_check_usergroups($ragione_sociale, true);
@@ -3107,7 +3027,10 @@ HTML;
                                     throw new Exception("Gruppo azienda non definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
                                 $ug_destinazione = array($ug_azienda);
-                                JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                //JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                $ug_insert = self::set_usergroup_generic($_new_user_id, $ug_destinazione);
+                                if (!is_array($ug_insert))
+                                    throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
                             }
 
@@ -3131,6 +3054,7 @@ HTML;
         try {
 
             $arr_corsi = array();
+            $inserted = 0;
 
             foreach ($get_corsi as $key_corso => $file) {
 
@@ -3143,17 +3067,25 @@ HTML;
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
-                    if (strpos($file, "GGCorsiElenco") !== false) {
+                    if (strpos($file, "Corsi") !== false) {
+
                         $new_corso = $unit->importa_anagrafica_corsi($xml->CORSO[$i]);
                         // controllo inserimento corso
                         if (is_null($new_corso))
                             throw new Exception("Corso non inserito: " . $xml->CORSO[$i]->TITOLO, E_USER_ERROR);
-                        //$arr_corsi[$xml->CORSO[$i]->CODICE_CORSO->__toString()] = $new_corso;
+
+                        $inserted++;
 
                     }
 
                 }
 
+            }
+
+            if ($inserted > 0) {
+                $db = JFactory::getDbo();
+                $JTUserGroup = new JTableUsergroup($db);
+                $JTUserGroup->rebuild();
             }
 
             return 1;
@@ -3217,6 +3149,7 @@ HTML;
 
                     // se non si tratta di report ausind ma di quelli per i corsi sincroni ed asincroni
                     // il formato delle date sarà Y-m-d H:i:s
+                    /*
                     if ($tipologia_svolgimento != 6
                         && isset($arr_dt_corsi[$id_corso])) {
 
@@ -3229,6 +3162,7 @@ HTML;
                         }
 
                     }
+                    */
                 }
 
 
@@ -3352,7 +3286,8 @@ HTML;
         $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
         $_descrizione_sconto = "";
         $_tipo_sconto = "";
-        $dt = (isset($obj_unit->sc_a_data) && !is_null($obj_unit->sc_a_data) && $obj_unit->sc_a_data != "") ? new DateTime($obj_unit->sc_a_data) : null;
+        $dt = (isset($obj_unit->sc_a_data) && !is_null($obj_unit->sc_a_data) && $obj_unit->sc_a_data != "") ?
+            new DateTime($obj_unit->sc_a_data) : null;
 
         // sconto per campo custom
         if ($sconto_custom != "") {
@@ -3443,10 +3378,10 @@ HTML;
     }
 
     // ottengo il valore di una colonna della tabella comprofiler_fields in base a id e name del campo da ritornare - utilità per output.php
-    public static function get_cb_field_name($_params, $_label, $_prop, $db_option = array()) {
+    public static function get_cb_field_name($_params, $_label, $_prop) {
 
         $_cb = self::get_params_from_object($_params, $_label);
-        $_cb_arr = self::get_cb_field($_cb, $db_option);
+        $_cb_arr = self::get_cb_field($_cb);
 
         return self::get_cb_field_property($_cb_arr, $_prop);
 
@@ -3521,7 +3456,7 @@ HTML;
         return $_response;
     }
 
-    // Utilità per gestire il metodo esistente di loggin
+    // Utilità per gestire il metodo esistente
     public static function make_debug_log($_function, $_error_message, $_label) {
 
         $_msg = $_function . " : " . $_error_message;
@@ -3616,18 +3551,6 @@ HTML;
 
     }
 
-    // utility per api.importa_anagrafica_farmacie()
-    public static function convert_dt_in_mysql($dt_start, $split = '/') {
-
-        if ($dt_start == '00/00/0000'
-            || $dt_start == '')
-            return "";
-
-        $_split = explode($split, $dt_start);
-        return $_split[2] . '-' . $_split[1] . '-' . $_split[0];
-
-    }
-
     public static function convert_dt_in_format($dt_start, $ret_format = 'Y-m-d') {
 
         $dt = new DateTime($dt_start);
@@ -3676,12 +3599,6 @@ HTML;
                 return $days;
 
         }
-    }
-
-    public static function get_hours_diff($date1, $date2) {
-
-        return round((strtotime($date1) - strtotime($date2))/3600, 1);
-
     }
 
     /* Date */
@@ -3889,27 +3806,12 @@ HTML;
 
     }
 
-    // normalizzo un array che deriva dal metodo loadAssocList del queryset di joomla
-    public static function normalizza_loadassoc($rows, $key_1 = null, $key_2 = null, $only_values = false) {
+    public static function normalizza_contenuto_array($rows) {
 
         $_ret = array();
 
         foreach ($rows as $key => $row) {
-            if (!$only_values)
-                $_ret[$row[$key_1]] = $row[$key_2];
-            else
-                $_ret[] = $row[$key_2];
-        }
-
-        return $_ret;
-    }
-
-    public static function normalizza_contenuto_array($rows, $key_1 = 'id_contenuto', $key_2 = 'descrizione') {
-
-        $_ret = array();
-
-        foreach ($rows as $key => $row) {
-            $_ret[$row[$key_1]] = $row[$key_2];
+            $_ret[$row['id_contenuto']] = $row['descrizione'];
         }
 
         return $_ret;
@@ -3987,68 +3889,6 @@ HTML;
         }
 
         return $random_string;
-    }
-
-    // normalizzatore di stringhe per nomi
-    public static function normalizza_stringa($name) {
-        $name = strtolower($name);
-        $normalized = array();
-
-        foreach (preg_split('/([^a-z])/', $name, NULL, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $word) {
-            if (preg_match('/^(mc)(.*)$/', $word, $matches)) {
-                $word = $matches[1] . ucfirst($matches[2]);
-            }
-
-            $normalized[] = ucfirst($word);
-        }
-
-        return implode('', $normalized);
-    }
-
-    // controllo validità email
-    public static function check_email_validation($email) {
-
-        return filter_var($email, FILTER_VALIDATE_EMAIL);
-
-    }
-
-    // imposto cookie
-    public static function _set_cookie_by_name($cookie_name, $cookie_value, $durata) {
-        setcookie($cookie_name, $cookie_value, $durata, "/");
-    }
-
-    // cancello cookie
-    public static function _unset_cookie_by_name($cookie_name) {
-        setcookie($cookie_name, "", time() - 3600, "/");
-    }
-
-    // rebuild generico della tabella usergroup
-    public static function rebuild_ug_index($db = null, $db_option = array()) {
-
-        if (is_null($db))
-            $db = JFactory::getDbo();
-
-        // gestione db esterno
-        if (count($db_option) > 0)
-            $db = JDatabaseDriver::getInstance($db_option);
-
-        // rebuild per indici lft, rgt
-        $JTUserGroup = new JTableUsergroup($db);
-        $JTUserGroup->rebuild();
-
-    }
-
-    // cancella un parametro da url
-    public static function remove_param($url, $param) {
-        $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*$/', '', $url);
-        $url = preg_replace('/(&|\?)'.preg_quote($param).'=[^&]*&/', '$1', $url);
-        return $url;
-    }
-
-    public static function get_file_ext($path) {
-
-        return pathinfo($path, PATHINFO_EXTENSION);
-
     }
 
     /* Generiche */

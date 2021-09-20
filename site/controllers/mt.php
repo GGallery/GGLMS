@@ -46,17 +46,44 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
-    public function make_pwd() {
+    private function encrypt_decrypt($action, $string, $secret_key, $secret_iv) {
+        //echo "entrato<br>";
+        //echo $string;die;
+        $output = null;
+        // metodo di crypt
+        $encrypt_method = "AES-256-CBC";
+        // hash
+        $key = hash('sha256', $secret_key);
+        // AES-256-CBC si aspetta 16 bytes
+        $iv = substr(hash('sha256', $secret_iv), 0, 16);
 
-        echo utilityHelper::encrypt_decrypt('encrypt', "r222rAgfn5s9c3G", "GGallery00!", "GGallery00!");
-        $this->_japp->close();
+        // cripta la chiave
+        if ( $action == 'encrypt' ) {
+            $output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+            $output = base64_encode($output);
+        } // decripta la chiave
+        else if( $action == 'decrypt' ) {
+            $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+        }
 
+        return $output;
     }
 
     public function test_() {
+        try {
 
-        $codici = utilityHelper::get_codici_qualifica_farmacie();
-        var_dump($codici);
+            // 727182924==999102115
+            // 3Rdz7e5tpM+CU1mw6+1xIYKGK8GAIhe0IHS7N/VSbJg=
+            $enc = $this->encrypt_decrypt('encrypt', '727182924==999102115', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
+            echo $enc . '<br />';
+
+            // bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=
+            $dec = $this->encrypt_decrypt('decrypt', 'bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
+            echo $dec;
+        }
+        catch (Exception $e) {
+            echo "ERRORE: " . $e->getMessage();
+        }
 
         $this->_japp->close();
 
