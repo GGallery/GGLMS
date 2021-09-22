@@ -57,10 +57,10 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     public function get_filterd_coupon_list($_call_params)
     {
 
-        try {
+        $_rows = array();
+        $_ret = array();
 
-            $_rows = array();
-            $_ret = array();
+        try {
 
             $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
             $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
