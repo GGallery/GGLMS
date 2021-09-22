@@ -43,14 +43,16 @@
         <?php echo $this->form->renderField('filtro_date_corsi'); ?>
     </div>
 
-    <div class="row-fluid">
-        <?php echo $this->form->renderField('larghezza_box_unita'); ?>
-    </div>
+    <!--commentato perche stato modificato con card di bootstrap-->
 
-
-    <div class="row-fluid">
-        <?php echo $this->form->renderField('larghezza_box_contenuti'); ?>
-    </div>
+<!--    <div class="row-fluid">-->
+<!--        --><?php //echo $this->form->renderField('larghezza_box_unita'); ?>
+<!--    </div>-->
+<!---->
+<!---->
+<!--    <div class="row-fluid">-->
+<!--        --><?php //echo $this->form->renderField('larghezza_box_contenuti'); ?>
+<!--    </div>-->
 
 
 

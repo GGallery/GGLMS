@@ -27,6 +27,8 @@ if ($this->sottounita) {
 
 //    echo "<div id='unita' class='box g-grid'>";
 
+//   modifica box con card bootstrap responsive
+
      echo "<div id='unita' class='row'>";
         foreach ($this->sottounita as $unita) {
 
@@ -48,7 +50,7 @@ if ($this->sottounita) {
 
 
                         ?>
-
+<!--   modifica box con card bootstrap responsive-->
                      <div class="col-sm-3 py-3 d-flex">
                            <!--                        <div class="g-block interno">-->
                           <div class="card d-flex">
@@ -95,6 +97,7 @@ if ($this->sottounita) {
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
                                     <div class="card-title text-center my-0" style="color:#325482"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                 </a>
+                           </div>
                                 <?php
 
                             } else { ?>
@@ -107,21 +110,21 @@ if ($this->sottounita) {
                                    <a>
                                        <div class="card-title text-center my-0" style="color:#325482"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                    </a>
-
+                           </div>
                             <?php } ?>
                             <?php
                             if ($this->unita->_params->get('visibilita_durata_unita')) {
                                 ?>
 
-                                <div class="card-text">
-                                    <p class="my-0 py-0">
-                                        <?php echo JText::_('COM_GGLMS_GGLMS_DURATA') ?>
-                                        : <?php echo $unita->get_durata_unita($unita->id); ?></p>
+                                <div class="card-footer px-0 py-0">
+                                    <p class="my-0">
+                                       <small> <?php echo JText::_('COM_GGLMS_GGLMS_DURATA') ?>
+                                        : <?php echo $unita->get_durata_unita($unita->id); ?></small></p>
                                 </div>
                                 <?php
                             }
                             ?>
-                           </div>
+
                           </div>
                      </div>
 
@@ -149,7 +152,10 @@ if ($this->contenuti) {
         echo "<h5>" . $this->unita->_params->get('nomenclatura_moduli') . "</h5>";
     }
 //    echo "<div id='contenuti' class='box g-grid'>";
+    //   modifica box con card bootstrap responsive
+
     echo "<div id='contenuti' class='row'>";
+
     foreach ($this->contenuti as $contenuto) {
         $count++;
         ?>
@@ -192,25 +198,26 @@ if ($this->contenuti) {
                     <a <?php echo $contenuto->getUrlLink(); ?>/>
                         <div class="card-title text-center my-0 px-0 py-0" style="color:#325482"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
                     </a>
-                    <div class="card-text">
+                </div>
+                  <div class="card-footer px-0 py-0">
 
                         <?php
 
                         if (in_array($contenuto->tipologia, explode(",", $this->unita->_params->get('visibilita_durata')))) {
                             ?>
-                            <p class="my-0 py-0">
-                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?>
+                            <p class="my-0">
+                                <small> <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?></small>
                             </p>
                             <?php
                         }
                         ?>
 
-                        <p class="my-0 py-0">
-                            <?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?>: <?php echo $stato->descrizione; ?>
+                        <p class="my-0">
+                           <small><?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?>: <?php echo $stato->descrizione; ?></small>
                         </p>
-                    </div>
+                  </div>
 
-                </div>
+
                     <?php
                 } else {
 
@@ -222,23 +229,24 @@ if ($this->contenuti) {
 
                    <div class="card-body my-0 px-0 py-0">
                         <div class="card-title text-center my-0 px-0 py-0" style="color:#325482"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
-                        <div class="card-text">
+                    </div>
+                    <div class="card-footer py-0 px-0">
                         <?php
                         if (in_array($contenuto->tipologia, explode(",", $this->unita->_params->get('visibilita_durata')))) {
                             ?>
-                            <p class="my-0 py-0">
-                                    <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?>
+                            <p class="my-0">
+                                   <small> <?php echo  JText::_('COM_GGLMS_GGLMS_DURATA') ?>: <?php echo $this->unita->convertiDurata($contenuto->durata); ?> </small>
                             </p>
                             <?php
                         }
                         ?>
 
-                        <p class="my-0 py-0">
-                            <?php echo  JText::_('COM_GGLMS_UNITA_NON_DISPONIBILE') ?>
+                        <p class="my-0">
+                            <small><?php echo  JText::_('COM_GGLMS_UNITA_NON_DISPONIBILE') ?></small>
                         </p>
-                        </div>
+                    </div>
 
-                   </div>
+
                     <?php
                 }
                 ?>

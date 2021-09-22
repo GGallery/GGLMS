@@ -48,7 +48,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         $filter_params = JRequest::get($_POST);
         $data = $this->get_filterd_coupon_list($filter_params);
 
-        echo json_encode($data);
+       echo json_encode($data);
         $this->_japp->close();
 
 
@@ -59,9 +59,13 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
         try {
 
-
-            $offset = $filter_params["offset"];
-            $limit = $filter_params["limit"];
+            $_rows = array();
+            $_ret = array();
+            $_call_params = JRequest::get($_GET);
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
 
 
             // count totale senza limit per ottenere il numero di righe totali
@@ -73,7 +77,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             $this->_db->setQuery($total_count_query);
             $count = $this->_db->loadResult();
 
-
+            //controllo se ho dati
             if ($count > 0) {
 
                 $query = $this->_db->getQuery(true)
@@ -83,30 +87,48 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
                 $query = $this->_filter_query($query, $filter_params);
 
-                               $query->setlimit($offset, $limit);
+                // ordinamento per colonna - di default per id utente
+                if (!is_null($_sort)
+                    && !is_null($_order)) {
+                    $query = $query->order($_sort . ' ' . $_order);
+                }
+                else
+                    $query = $query->order('cm.id DESC');
 
-                $this->_db->setQuery($query);
+                $this->_db->setQuery($query,$_offset,$_limit);
                 $results = $this->_db->loadAssocList();
 
-
             } else {
-
+                // se nessun risultato restituisco un array vuoto
                 $results = array();
 
             }
 
+            $_rows['rowCount'] = $count;
+            //controllo i coupon scaduti da colorare
+            if (isset($results)) {
+                foreach ($results as $_key_coupon => $_coupon) {
 
-            $results['rowCount'] = $count;
-            $results['query'] = ((string)$query);
-            return $results;
+                    $color_cell = ($_coupon['scaduto'] == 1) ? 'color:red;' : '';
+                    foreach ($_coupon as $key => $value) {
 
+
+                        $_ret[$_key_coupon][$key] = <<<HTML
+                            <span style="{$color_cell}" >{$value}</span>
+HTML;
+
+                    }
+                }
+
+            }
 
         } catch (Exception $e) {
-            DEBUGG::log($e->getMessage(), 'error get_filterd_coupon_list', 0, 0, 0);
+            $_ret['error'] = $e->getMessage();
 
         }
 
-
+        $_rows['rows'] = $_ret;
+        return $_rows;
     }
 
     public function _filter_query($query, $params)
@@ -175,7 +197,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
         }
 
 
-        $query = $query->order('c.data_utilizzo DESC');
+       // $query = $query->order('c.data_utilizzo DESC');
         return $query;
     }
 

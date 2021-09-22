@@ -69,7 +69,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
 //                    $this->descrizione = 'Mai provato';
                 $this->descrizione = JText::_('COM_GGLMS_STATO_NON_SUPERATO');
             } else
-                $this->descrizione = JText::_('COM_GGLMS_STATO_PASSATO_IL') . date("d/m/y", strtotime($this->data));
+                $this->descrizione = JText::_('COM_GGLMS_STATO_PASSATO_IL') . date(" d/m/y", strtotime($this->data));
         }
 
         return $this;
