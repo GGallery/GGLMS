@@ -45,35 +45,34 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     public function getcouponlist()
     {
 
-        $filter_params = JRequest::get($_POST);
+        //$filter_params = JRequest::get($_POST);
+        $filter_params = JRequest::get($_GET);
         $data = $this->get_filterd_coupon_list($filter_params);
 
-       echo json_encode($data);
+        echo json_encode($data);
         $this->_japp->close();
-
 
     }
 
-    public function get_filterd_coupon_list($filter_params)
+    public function get_filterd_coupon_list($_call_params)
     {
 
         try {
 
             $_rows = array();
             $_ret = array();
-            $_call_params = JRequest::get($_GET);
+
             $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
             $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
-
 
             // count totale senza limit per ottenere il numero di righe totali
             $total_count_query = $this->_db->getQuery(true)
                 ->select('count(*)')
                 ->from('#__gg_coupon AS c');
 
-            $total_count_query = $this->_filter_query($total_count_query, $filter_params);
+            $total_count_query = $this->_filter_query($total_count_query, $_call_params);
             $this->_db->setQuery($total_count_query);
             $count = $this->_db->loadResult();
 
@@ -85,7 +84,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
                     ->from('#__gg_coupon AS c');
 
 
-                $query = $this->_filter_query($query, $filter_params);
+                $query = $this->_filter_query($query, $_call_params);
 
                 // ordinamento per colonna - di default per id utente
                 if (!is_null($_sort)
@@ -123,8 +122,8 @@ HTML;
             }
 
         } catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             $_ret['error'] = $e->getMessage();
-
         }
 
         $_rows['rows'] = $_ret;

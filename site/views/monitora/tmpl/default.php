@@ -181,8 +181,8 @@ echo "<h1>".  JText::_('COM_GGLMS_MONITORA_COUPON_TITLE'). "</h1>"; ?>
 
 
             // preparo i params
-             var pAzienda = jQuery('#id_gruppo_azienda').val();
-             params.data.id_gruppo_azienda = parseInt(pAzienda);
+            var pAzienda = jQuery('#id_gruppo_azienda').val();
+            params.data.id_gruppo_azienda = parseInt(pAzienda);
 
             var pCorso = jQuery('#id_gruppo_corso').val();
             params.data.id_gruppo_corso = parseInt(pCorso);
