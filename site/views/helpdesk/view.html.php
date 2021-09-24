@@ -24,6 +24,7 @@ class gglmsViewHelpdesk extends JViewLegacy
 
     protected $params;
     public $info_piattaforma;
+    //public $request_recipients;
     public $richiesta_privacy;
     public $richiesta_privacy_link;
     public $href;
@@ -35,7 +36,7 @@ class gglmsViewHelpdesk extends JViewLegacy
         $helpDeskCtrl = new gglmsControllerHelpDesk();
 
         $this->info_piattaforma = $helpDeskCtrl->info_piattaforma;
-        $this->request_recipients = $helpDeskCtrl->request_recipients;
+        //$this->request_recipients = $helpDeskCtrl->request_recipients;
 
         $_config = new gglmsModelConfig();
         $this->richiesta_privacy = utilityHelper::get_display_from_configuration($this->richiesta_privacy, 'richiesta_privacy');

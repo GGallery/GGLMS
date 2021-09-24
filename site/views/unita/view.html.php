@@ -32,6 +32,12 @@ class gglmsViewUnita extends JViewLegacy
         //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb, lo so è una vaccata
         $this->_params = $this->unita->_params;
 
+        JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap-grid.min.css');
+        JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.min.js');
+        JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap-reboot.min.css');
+        JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css');
+        JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.bundle.min.js');
+
         $arr_url = parse_url(JURI::base());
         $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
 
