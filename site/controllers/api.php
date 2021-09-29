@@ -3072,7 +3072,7 @@ HTML;
                                 $value = JText::_('COM_GGLMS_BOXES_SCHEDA_GRUPPI_MULTI');
                         }
                         else if ($key == 'tipologia') {
-                            $value = $corso['obbligatorio'] == 1 ? '<span style="color: red">' . strtoupper($value) . '</span>' : $value;
+                            $value = $corso['obbligatorio'] == 1 ? '<span style="color: #E82B31">' . strtoupper($value) . '</span>' : $value;
                         }
                         else if ($key == 'modalita') {
 
