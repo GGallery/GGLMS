@@ -2125,10 +2125,17 @@ HTML;
     }
 
     // redirect direttamente alla pagina del corso
-    public static function get_success_subscription($titolo_unita, $alias_unita) {
+    public static function get_success_subscription($titolo_unita, $from_module = false) {
 
-        //$_href = utilityHelper::set_index_redirect_url();
-        $_href = JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $alias_unita);
+        $_href = utilityHelper::set_index_redirect_url();
+        // redirect da parametro del modulo calendario
+        if ($from_module) {
+            $host = JURI::root();
+            $_params_module = UtilityHelper::get_params_from_module('mod_calendario');
+            $redirect_link = UtilityHelper::get_params_from_object($_params_module, 'redirect_link');
+            $_href = (!is_null($redirect_link) && $redirect_link != "") ? $host . $redirect_link : $_href;
+        }
+
         $_label_grazie = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_GRAZIE');
         $_label_ok = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
         $_label_redir = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_REDIR');
