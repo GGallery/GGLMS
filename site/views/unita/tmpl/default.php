@@ -95,7 +95,7 @@ if ($this->sottounita) {
 
                            <div class="card-body my-0 px-0 py-0">
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
-                                    <div class="card-title text-center my-0" style="color:#325482"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                    <div class="card-title text-center my-0"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                 </a>
                            </div>
                                 <?php
@@ -108,7 +108,7 @@ if ($this->sottounita) {
                                 </a>
                            <div class="card-body my-0 px-0 py-0">
                                    <a>
-                                       <div class="card-title text-center my-0" style="color:#325482"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                       <div class="card-title text-center my-0"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                    </a>
                            </div>
                             <?php } ?>
@@ -196,7 +196,7 @@ if ($this->contenuti) {
 
                 <div class="card-body my-0 px-0 py-0">
                     <a <?php echo $contenuto->getUrlLink(); ?>/>
-                        <div class="card-title text-center my-0 px-0 py-0" style="color:#325482"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
+                        <div class="card-title text-center my-0 px-0 py-0"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
                     </a>
                 </div>
                   <div class="card-footer px-0 py-0">
@@ -228,7 +228,7 @@ if ($this->contenuti) {
                     <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
 
                    <div class="card-body my-0 px-0 py-0">
-                        <div class="card-title text-center my-0 px-0 py-0" style="color:#325482"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
+                        <div class="card-title text-center my-0 px-0 py-0"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
                     </div>
                     <div class="card-footer py-0 px-0">
                         <?php
