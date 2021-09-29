@@ -2139,12 +2139,14 @@ HTML;
         $_label_grazie = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_GRAZIE');
         $_label_ok = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
         $_label_redir = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_REDIR');
+        $_label_redir_2 = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_REDIR_2');
+        $_label_redir_3 = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_REDIR_3');
         $_html = <<<HTML
                 <div class="jumbotron">
                     <h4>{$_label_grazie}</h4>
                     <p>{$_label_ok}
                         <br />
-                        {$_label_redir} <a href="{$_href}">{$titolo_unita}</a>
+                        {$_label_redir} {$titolo_unita}, {$_label_redir_2} <a href="{$_href}">{$_label_redir_3}</a>
                         </p>
                 </div>
 
