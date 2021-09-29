@@ -274,7 +274,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                         if (is_null($confirm_email))
                             throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);
 
-                        $this->_html = outputHelper::get_success_subscription($this->unita->titolo);
+                        $this->_html = outputHelper::get_success_subscription($this->unita->titolo, $this->unita->alias);
 
                     }
                 }

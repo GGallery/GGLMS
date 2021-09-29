@@ -146,6 +146,12 @@ JHtml::_('formbehavior.chosen', 'select');
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                        echo $this->form->renderField('orario'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                         echo $this->form->renderField('id_gruppi_abilitati'); ?>
                 </div>
 

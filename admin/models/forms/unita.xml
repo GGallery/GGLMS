@@ -68,7 +68,15 @@
                filltable="false"
                translateformat="true"/>
 
-
+        <field
+                name="orario"
+                type="text"
+                label="Orario"
+                description="L'orario espresso in termini 9-18 oppure 09:00 - 18:00, ecc"
+                size="100"
+                class="inputbox"
+                default=""
+        />
         <!--<field-->
 
 

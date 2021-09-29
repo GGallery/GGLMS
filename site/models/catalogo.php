@@ -110,6 +110,7 @@ class gglmsModelCatalogo extends JModelLegacy
                         CONCAT(UCASE(LEFT(u.sede, 1)),SUBSTRING(u.sede, 2)) AS sede,
                         IF(u.obbligatorio = 1, "' . JText::_('COM_GGLMS_BOXES_PRENOTAZIONE_OBBLIGATORIO') . '", "") AS tipologia,
                         u.obbligatorio,
+                        u.orario,
                         b1.description as area,
                         ugm.idgruppo as gruppo_corso
                         ');
@@ -125,7 +126,8 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->join('inner', '#__gg_usergroup_map as ugm on ugm.idunita = u.id')
                 ->where('det.dominio = "' . $dominio . '" ')
                 ->where('u.pubblicato = 1')
-                ->where('u.modalita IN (' . $modalita . ')');
+                ->where('u.modalita IN (' . $modalita . ')')
+                ->where('u.data_inizio >= ' . $this->_db->quote(date('Y-m-d')));
 
             $count_query = $count_query->from('#__gg_unit as u')
                 ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
@@ -134,7 +136,8 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
                 ->where('det.dominio="' . $dominio . '" ')
                 ->where('u.pubblicato = 1')
-                ->where('u.modalita IN (' . $modalita . ')');
+                ->where('u.modalita IN (' . $modalita . ')')
+                ->where('u.data_inizio >= ' . $this->_db->quote(date('Y-m-d')));
 
 
             // ricerca

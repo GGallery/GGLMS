@@ -2124,9 +2124,11 @@ HTML;
 
     }
 
-    public static function get_success_subscription($titolo_unita) {
+    // redirect direttamente alla pagina del corso
+    public static function get_success_subscription($titolo_unita, $alias_unita) {
 
-        $_href = utilityHelper::set_index_redirect_url();
+        //$_href = utilityHelper::set_index_redirect_url();
+        $_href = JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $alias_unita);
         $_label_grazie = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_GRAZIE');
         $_label_ok = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
         $_label_redir = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_REDIR');
@@ -2135,14 +2137,14 @@ HTML;
                     <h4>{$_label_grazie}</h4>
                     <p>{$_label_ok}
                         <br />
-                        {$_label_redir} <a href="{$_href}">HOME</a>
+                        {$_label_redir} <a href="{$_href}">{$titolo_unita}</a>
                         </p>
                 </div>
 
                 <script>
                     setTimeout(function () {
                         window.location.href = "{$_href}";
-                    }, 20000);
+                    }, 10000);
 
                 </script>
 HTML;

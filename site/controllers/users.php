@@ -1555,7 +1555,10 @@ HTML;*/
             if (is_null($confirm_email))
                 throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);
 
-            $_ret['success'] = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
+            // restituisco anche la route dell'unita per indirizzare direttamente al suo url
+            $_response = JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_OK');
+            $_response .= ($unita->alias != "" && !is_null($unita->alias)) ? "||" . JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) : "";
+            $_ret['success'] = $_response;
 
         }
         catch (Exception $e) {
