@@ -2420,7 +2420,7 @@ HTML;
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
                     // caso corsi
-                    if (strpos($file, "GGCorsoIscritti") !== false) {
+                    if (strpos($file, "Iscritti") !== false) {
                         $gruppo_corso = null;
 
                         $codice_corso = trim($xml->CORSO[$i]->CODICE_CORSO->__toString());
@@ -2460,12 +2460,11 @@ HTML;
                             $new_user = false;
 
                             $codice_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO);
-                            //$codice_iscritto_host = $xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO_HOST;
                             $cognome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->COGNOME);
                             $nome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->NOME);
                             $cf_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_FISCALE);
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
-                            $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PARTITA_IVA);
+                            $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
                             $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
 
                             if ($nome_iscritto == ""
