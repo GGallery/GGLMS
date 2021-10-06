@@ -1545,12 +1545,15 @@ HTML;*/
                 throw new Exception($_add_ug, E_USER_ERROR);
 
             // invio email di conferma iscrizione
-            $confirm_email = utilityHelper::email_conferma_registrazione_corso($unita->titolo,
+            $confirm_email = utilityHelper::email_conferma_registrazione_corso(
+                $unita->titolo,
                 $unita->data_inizio,
                 $unita->data_fine,
                 $dominio,
                 $_current_user->name,
-                $_current_user->email);
+                $_current_user->email,
+                $unita->orario
+            );
 
             if (is_null($confirm_email))
                 throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);

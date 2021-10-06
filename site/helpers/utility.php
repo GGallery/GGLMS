@@ -1930,6 +1930,7 @@ HTML;
                                                               $dominio,
                                                               $denominazione_utente,
                                                               $email_utente,
+                                                              $orario,
                                                               $target_module = 'mod_farmacie') {
 
         try {
@@ -1942,11 +1943,12 @@ HTML;
             $conv_data_inizio = (!is_null($data_inizio) && $data_inizio != "") ? self::convert_dt_in_format($data_inizio, 'd/m/Y') : "-";
             $conv_data_fine = (!is_null($data_fine) && $data_fine != "") ? self::convert_dt_in_format($data_fine, 'd/m/Y') : "-";
             $ref_date = ($conv_data_inizio != $conv_data_fine) ? "dal " . $conv_data_inizio . " al " . $conv_data_fine : "il " . $conv_data_inizio;
+            $ref_orario = (!is_null($orario) && $orario != "") ? "in orario " . $orario : "";
             $email_body = <<<HTML
                             <br /><br />
                             <p>
                                 Gentile {$denominazione_utente},<br />
-                                ti confermiamo l'iscrizione al corso {$titolo_unita}, che si svolgerà {$ref_date}.
+                                ti confermiamo l'iscrizione al corso {$titolo_unita}, che si svolgerà {$ref_date} {$ref_orario}.
                                 Grazie per l'adesione.
                             </p>
                             <p>

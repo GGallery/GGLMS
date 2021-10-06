@@ -264,12 +264,15 @@ class gglmsViewdettagliutente extends JViewLegacy
                             throw new Exception($_add_ug, E_USER_ERROR);
 
                         // invio email di conferma iscrizione
-                        $confirm_email = utilityHelper::email_conferma_registrazione_corso($this->unita->titolo,
+                        $confirm_email = utilityHelper::email_conferma_registrazione_corso(
+                            $this->unita->titolo,
                             $this->unita->data_inizio,
                             $this->unita->data_fine,
                             $helpdesk_info->dominio,
                             $_current_user->name,
-                            $_current_user->email);
+                            $_current_user->email,
+                            $this->unita->orario
+                        );
 
                         if (is_null($confirm_email))
                             throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_PRENOTAZIONE_MAIL_ERROR'), E_USER_ERROR);
