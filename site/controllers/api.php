@@ -3417,7 +3417,7 @@ HTML;
             $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body, true);
             */
 
-            $_ret['success'] = 'reset_password_exec?token=' . $crypt_activation_params;
+            $_ret['success'] = 'reset_password_exec&token=' . $crypt_activation_params;
 
         }
         catch (Exception $e) {
