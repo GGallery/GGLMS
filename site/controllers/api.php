@@ -2814,6 +2814,12 @@ HTML;
                     continue;
                 }
 
+                // validita email
+                if (!filter_var($cb_email, FILTER_VALIDATE_EMAIL)) {
+                    $jumped[] = "Riferimento a email non valida -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
                 // carico la farmacia di riferimento in relazione al $cb_codice_esterno_cdc_3
                 if (!in_array($cb_codice_esterno_cdc_3, $arr_farmacie)) {
                     $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3, $db_option);
