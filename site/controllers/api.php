@@ -3397,10 +3397,13 @@ HTML;
                 throw new Exception("E-mail utente non valida", E_USER_ERROR);
             }
 
-            $oggetto ="Richiesta reset password da " . $site_config['sitename'];
+            $site_root = JURI::root();
             $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
             $activation_params = $cb_codicefiscale . '||' . $check_user_id . '||' . $dt_now;
             $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
+            /*
+             * nessuna email reindirizzo l'utente passandogli il token come parametro
+            $oggetto ="Richiesta reset password da " . $site_config['sitename'];
             $body = <<<HTML
                 <p>Questa è un messaggio generato automaticamente dal sito {$site_config['sitename']} per effettuare il reset della password di accesso</p>
                 <p>Username: {$cb_codicefiscale}</p>
@@ -3412,8 +3415,9 @@ HTML;
 HTML;
 
             $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body, true);
+            */
 
-            $_ret['success'] = 'reset_password_exec';
+            $_ret['success'] = 'reset_password_exec?token=' . $crypt_activation_params;
 
         }
         catch (Exception $e) {
