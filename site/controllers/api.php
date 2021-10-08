@@ -77,6 +77,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->rep_pw = JRequest::getVar('rep_pw');
         $this->_filterparam->c_name = JRequest::getVar('c_name');
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
+        $this->_filterparam->dominio = JRequest::getVar('dominio');
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
@@ -3028,6 +3029,78 @@ HTML;
         $this->_japp->close();
     }
 
+    // report iscritti per corso
+    public function get_report_per_corso() {
+
+        $_ret = array();
+
+        try {
+
+            $site_root = JURI::root();
+            $model_report = new gglmsModelReport();
+            $model_helpdesk = new gglmsModelHelpDesk();
+            $_tmp = array();
+            $filename = "";
+            $first_id = 0;
+
+            if (!isset($this->_filterparam->dominio)
+                || $this->_filterparam->dominio == "")
+                throw new Exception("Impossibile continuare, dominio non specificato", E_USER_ERROR);
+
+            $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo($this->_filterparam->dominio);
+            $get_report = $model_report->get_report_utenti_iscritti_per_corso($this->_filterparam->corso_id, $this->_filterparam->dominio, $helpdesk_info->group_id);
+
+            // errore
+            if (is_null($get_report))
+                throw new Exception("Si è verificato un errore durante la generazione del report", E_USER_ERROR);
+
+            // nessun risultato
+            if (count($get_report) == 0)
+                throw new Exception("Nessun risultato disponibile per il corso selezionato", E_USER_ERROR);
+
+            // processo il risultato
+            foreach ($get_report as $key_report => $single_report) {
+
+                if ($filename == "")
+                    $filename = (isset($single_report['alias']) && $single_report['alias'] != "")
+                        ? $single_report['alias']
+                        : preg_replace('/\s+/', '', strtolower($single_report['titolo_corso']));
+
+                if ($first_id == 0)
+                    $first_id = $single_report['id_utente'];
+
+                //$_tmp[$single_report['id_utente']]['titolo_corso'] = $single_report['titolo_corso'];
+                $_tmp[$single_report['id_utente']]['nominativo'] = $single_report['nominativo'];
+                $_tmp[$single_report['id_utente']]['username'] = $single_report['username'];
+                $_tmp[$single_report['id_utente']]['gruppo_utente'] = isset($_tmp[$single_report['id_utente']]['gruppo_utente'])
+                    ? $_tmp[$single_report['id_utente']]['gruppo_utente'] . "," . $single_report['gruppo_utente']
+                    : $single_report['gruppo_utente'];
+
+            }
+
+            $_csv_cols = utilityHelper::get_cols_from_array($_tmp[$first_id]);
+            $_export_csv = utilityHelper::esporta_csv_spout($_tmp, $_csv_cols, $filename . '.csv');
+
+            $this->_japp->close();
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
     // visualizza il calendario corsi
     public function get_rows_tabella_corsi() {
 
@@ -3045,9 +3118,10 @@ HTML;
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
             $modalita = (isset($_call_params['modalita']) && $_call_params['modalita'] != "") ? $_call_params['modalita'] : "1,2";
+            $_before_today = (isset($_call_params['before_today'])) ? true : false;
 
             $model_catalogo = new gglmsModelCatalogo();
-            $corsi = $model_catalogo->get_calendario_corsi($dominio, $modalita, $_offset, $_limit, $_search, $_sort, $_order);
+            $corsi = $model_catalogo->get_calendario_corsi($dominio, $modalita, $_offset, $_limit, $_search, $_sort, $_order, $_before_today);
 
             if (isset($corsi['rows'])) {
                 // verifico se l'utente è loggato
@@ -3123,6 +3197,16 @@ HTML;
                             else
                                 $value = ucfirst($value);
 
+                        }
+                        else if ($_before_today
+                            && $key == 'report_extra') {
+                            $value = <<<HTML
+                                <span
+                                    style="color: red; cursor: pointer;"
+                                    onclick="window.open('index.php?option=com_gglms&task=api.get_report_per_corso&corso_id={$corso['id']}&dominio={$dominio}')">
+                                        <i class="fas fa-file-download fa-2x"></i>
+                                </span>
+HTML;
                         }
 
                         $_ret[$_key_corso][$key] = $value;

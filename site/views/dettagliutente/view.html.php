@@ -47,6 +47,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $gruppo_corso;
     protected $posti_disponibili;
     protected $prenota_url;
+    protected $dominio = null;
 
     function display($tpl = null)
     {
@@ -96,6 +97,9 @@ class gglmsViewdettagliutente extends JViewLegacy
 
             $_user = new gglmsModelUsers();
             $_unit = new gglmsModelUnita();
+            $model_catalogo = new gglmsModelCatalogo();
+            $model_helpdesk = new gglmsModelHelpDesk();
+            $model_user = new gglmsModelUsers();
             $_current_user = JFactory::getUser();
 
             // parametri dal plugin di gestione soci
@@ -180,20 +184,17 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->unit_id = JRequest::getVar('unit_id', null);
 
                 $uri = JUri::getInstance();
-                $dominio = null;
-                $model_catalogo = new gglmsModelCatalogo();
-                $model_helpdesk = new gglmsModelHelpDesk();
-                $model_user = new gglmsModelUsers();
+
                 $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
 
                 if (is_null($this->unit_id)) {
 
                     // elenco corsi associati ad un box_details
                     if (!is_null($this->box_id)) {
-                        $dominio = $helpdesk_info->dominio;
+                        $this->dominio = $helpdesk_info->dominio;
 
                         utilityHelper::_set_cookie_by_name("prenota_corso_box", $uri->toString(), time() + 3600);
-                        $this->box_corsi = $model_catalogo->get_box_categorie_corso($this->box_id, $dominio);
+                        $this->box_corsi = $model_catalogo->get_box_categorie_corso($this->box_id, $this->dominio);
                         $this->_html = outputHelper::get_courses_list($this->box_corsi, $_current_user->id);
 
                     }
@@ -281,6 +282,13 @@ class gglmsViewdettagliutente extends JViewLegacy
 
                     }
                 }
+
+            }
+            else if ($layout == "report_adesione_corsi") {
+
+                $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
+                $this->dominio = $helpdesk_info->dominio;
+
 
             }
         }
