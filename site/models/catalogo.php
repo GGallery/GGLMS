@@ -90,7 +90,7 @@ class gglmsModelCatalogo extends JModelLegacy
         return $catalogo;
     }
 
-    public function get_calendario_corsi($dominio, $modalita="1,2", $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
+    public function get_calendario_corsi($dominio, $modalita="1,2", $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null, $before_today=false) {
 
         try
         {
@@ -112,11 +112,14 @@ class gglmsModelCatalogo extends JModelLegacy
                         u.obbligatorio,
                         u.orario,
                         b1.description as area,
-                        ugm.idgruppo as gruppo_corso
+                        ugm.idgruppo as gruppo_corso,
+                        1 as report_extra
                         ');
 
             $count_query = $this->_db->getQuery(true)
                 ->select('COUNT(DISTINCT(u.id))');
+
+            $dt_ref = ($before_today) ? "<=" : ">=";
 
             $query = $query->from('#__gg_unit as u')
                 ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
@@ -127,7 +130,7 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->where('det.dominio = "' . $dominio . '" ')
                 ->where('u.pubblicato = 1')
                 ->where('u.modalita IN (' . $modalita . ')')
-                ->where('u.data_inizio >= ' . $this->_db->quote(date('Y-m-d')));
+                ->where('u.data_inizio ' . $dt_ref . ' ' . $this->_db->quote(date('Y-m-d')));
 
             $count_query = $count_query->from('#__gg_unit as u')
                 ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
@@ -137,7 +140,7 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->where('det.dominio="' . $dominio . '" ')
                 ->where('u.pubblicato = 1')
                 ->where('u.modalita IN (' . $modalita . ')')
-                ->where('u.data_inizio >= ' . $this->_db->quote(date('Y-m-d')));
+                ->where('u.data_inizio ' . $dt_ref . ' ' . $this->_db->quote(date('Y-m-d')));
 
 
             // ricerca
@@ -192,7 +195,6 @@ class gglmsModelCatalogo extends JModelLegacy
             else
                 $query = $query->order('u.data_inizio');
 
-            //echo $query; die();
             $this->_db->setQuery($query, $_offset, $_limit);
             $result = $this->_db->loadAssocList();
 

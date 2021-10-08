@@ -50,7 +50,7 @@ class gglmsModelHelpDesk extends JModelLegacy
     }
 
 
-    public function getPiattaformaHelpDeskInfo()
+    public function getPiattaformaHelpDeskInfo($dominio = null)
     {
         try {
 
@@ -64,19 +64,22 @@ class gglmsModelHelpDesk extends JModelLegacy
                     d.nomi_tutor,
                     d.email_tutor as recipient_didattico,
                     d.dominio')
-                ->from('#__usergroups_details AS d')
-                ->where("d.dominio= '" . DOMINIO . "'");
+                ->from('#__usergroups_details AS d');
+
+            if (!is_null($dominio))
+                $query = $query->where("d.dominio = " . $this->_db->quote($dominio));
+            else
+                $query = $query->where("d.dominio = '" . DOMINIO . "'");
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObject();
 
-
             return $data;
 
         } catch (Exception $e) {
-            DEBUGG::query($query);
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //DEBUGG::query($query);
             DEBUGG::log($e, 'getPiattaformaHelpDeskInfo', 1);
-
         }
     }
 
