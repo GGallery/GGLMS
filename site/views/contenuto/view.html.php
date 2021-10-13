@@ -33,6 +33,16 @@ class gglmsViewContenuto extends JViewLegacy
 
     function display($tpl = null)
     {
+
+        $app = JFactory::getApplication();
+        $template = $app->getTemplate();
+
+
+        if($template == 'tz_meetup'){
+
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/fix_tz_meetup.css');
+        }
+
         JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js');
         $this->contenuto = $this->get('Contenuto');
 
