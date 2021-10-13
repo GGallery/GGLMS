@@ -2317,9 +2317,11 @@ HTML;
                 $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
                 $mailer->isHTML(true);
 
-                if (!$mailer->Send()) {
-                    utilityHelper::logMail(__FUNCTION__, $sender, $recipients, 0);
-                }
+                $email_status = 1;
+                if (!$mailer->Send())
+                    $email_status = 0;
+
+                utilityHelper::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
 
             }
 

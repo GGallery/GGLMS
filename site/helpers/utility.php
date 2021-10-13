@@ -1815,9 +1815,11 @@ HTML;
             $mailer->isHTML(true);
 
             // invio email ko
-            if (!$mailer->Send()) {
-                self::logMail(__FUNCTION__, $sender, $recipients, 0);
-            }
+            $email_status = 1;
+            if (!$mailer->Send())
+                $email_status = 0;
+
+            self::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
 
             return true;
 
