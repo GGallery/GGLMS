@@ -78,6 +78,7 @@ class gglmsControllerApi extends JControllerLegacy
 
     }
 
+    // dati id_utente e id_corso rimuove tutti i riferimenti di quell'utente dalle tabelle dei coupon, report e quiz
     public function reset_corso(){
 
        try {
@@ -85,17 +86,16 @@ class gglmsControllerApi extends JControllerLegacy
            $id_user = $this->_filterparam->user_id;
            $id_corso = $this->_filterparam->corso_id;
 
-         if(!isset($id_corso) || !isset($id_user) || !is_numeric($id_corso) || !is_numeric($id_user))
+         if(!isset($id_corso)
+            || !isset($id_user)
+            || !is_numeric($id_corso)
+            || !is_numeric($id_user))
              throw new Exception("id_corso e id_user devono essere di tipo numerico", 1);
 
-             //cerco il gruppo del corso
-             $select_gruppo = $this->_db->getQuery(true)
-                 ->select('idgruppo')
-                 ->from('#__gg_usergroup_map')
-                 ->where('idunita = ' . $id_corso);
-
-             $this->_db->setQuery($select_gruppo);
-             $gruppo = $this->_db->loadResult();
+            // cerco il gruppo del corso
+            // usiamo il modello unita
+            $model_unita = new gglmsModelUnita();
+            $gruppo = $model_unita->get_id_gruppo_unit($id_corso);
 
              if (isset($gruppo) && is_numeric($gruppo)) {
 
