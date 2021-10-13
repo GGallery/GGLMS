@@ -78,6 +78,223 @@ class gglmsControllerApi extends JControllerLegacy
 
     }
 
+    public function reset_corso(){
+
+       try {
+
+           $id_user = $this->_filterparam->user_id;
+           $id_corso = $this->_filterparam->corso_id;
+
+         if(!isset($id_corso) || !isset($id_user) || !is_numeric($id_corso) || !is_numeric($id_user))
+             throw new Exception("id_corso e id_user devono essere di tipo numerico", 1);
+
+             //cerco il gruppo del corso
+             $select_gruppo = $this->_db->getQuery(true)
+                 ->select('idgruppo')
+                 ->from('#__gg_usergroup_map')
+                 ->where('idunita = ' . $id_corso);
+
+             $this->_db->setQuery($select_gruppo);
+             $gruppo = $this->_db->loadResult();
+
+             if (isset($gruppo) && is_numeric($gruppo)) {
+
+                 $this->_db->transactionStart();
+
+                 //controllo il coupon
+                 $query_coupon = $this->_db->getQuery(true)
+                     ->select('count(*)')
+                     ->from('#__gg_coupon')
+                     ->where('id_utente = ' . $id_user . ' and id_gruppi = ' . $this->_db->quote($gruppo));
+
+                 $this->_db->setQuery($query_coupon);
+                 $count_coupon = $this->_db->loadResult();
+
+
+                 if (isset($count_coupon) && $count_coupon > 0) {
+
+                     //libero user dal coupon
+                     $update_coupon = 'UPDATE #__gg_coupon SET id_utente = NULL '
+                         . ' WHERE id_utente = ' . $id_user . ' AND id_gruppi = ' . $this->_db->quote($gruppo);
+                     $this->_db->setQuery($update_coupon);
+
+                     if (!$this->_db->execute())
+                         throw new Exception("update coupon query ko -> " . $update_coupon, 1);
+
+                     //cancello da user_usergroup corso per utente
+                     $delete_usergroup = "DELETE FROM #__user_usergroup_map"
+                         . " WHERE group_id = " . $this->_db->quote($gruppo) . " AND user_id = " . $id_user;
+                     $this->_db->setQuery($delete_usergroup);
+
+                     if (!$this->_db->execute())
+                         throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
+
+
+                     //seleziono id_contenuto per ogni unita
+                     $query_contenuti = $this->_db->getQuery(true)
+                         ->select('idcontenuto')
+                         ->from('#__gg_unit_map')
+                         ->where('idunita = ' . $id_corso);
+
+                     $this->_db->setQuery($query_contenuti);
+                     $contents = $this->_db->loadAssocList();
+
+
+                     if(!isset($contents) || !is_array($contents))
+                         throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
+
+                     foreach ($contents as $content) {
+                         if (isset($content['idcontenuto'])) {
+
+                             //controllo tabella di log
+                             $countquery = $this->_db->getQuery(true)
+                                 ->select('count(*)')
+                                 ->from('#__gg_log')
+                                 ->where('id_contenuto =' . $this->_db->quote($content['idcontenuto']) . 'and id_utente =' . $id_user);
+
+                             $this->_db->setQuery($countquery);
+                             $count = $this->_db->loadResult();
+
+
+                             if (isset($count) && $count > 0) {
+
+                                 //cancello utente per corso dal log
+                                $delete_log = "DELETE FROM #__gg_log"
+                                            . " WHERE id_contenuto = " . $this->_db->quote($content['idcontenuto']) . " AND id_utente = " . $id_user ;
+                                $this->_db->setQuery($delete_log);
+
+                                if (!$this->_db->execute())
+                                    throw new Exception("Delete log query ko -> " . $delete_log, 1);
+
+                             }
+
+                             $query_report = $this->_db->getQuery(true)
+                                 ->select('id_anagrafica')
+                                 ->from('#__gg_report')
+                                 ->where('id_contenuto = ' . $this->_db->quote($content['idcontenuto']) . ' and id_utente = ' . $id_user);
+
+                             $this->_db->setQuery($query_report);
+                             $anagrafica_id = $this->_db->loadResult();
+
+
+                             if (isset($anagrafica_id) && is_numeric($anagrafica_id) && $anagrafica_id > 0) {
+
+
+                                 $delete_stato_corso = "DELETE FROM #__gg_view_stato_user_corso"
+                                     . " WHERE id_anagrafica = " . $this->_db->quote($anagrafica_id) . " AND id_corso = " . $id_corso ;
+                                 $this->_db->setQuery($delete_stato_corso);
+
+                                 if (!$this->_db->execute())
+                                     throw new Exception("Delete stato corso query ko -> " . $delete_stato_corso, 1);
+
+
+                                 $delete_stato_unita = "DELETE FROM #__gg_view_stato_user_unita"
+                                     . " WHERE id_anagrafica = " . $this->_db->quote($anagrafica_id) . " AND id_unita = " . $id_corso ;
+                                 $this->_db->setQuery($delete_stato_unita);
+
+                                 if (!$this->_db->execute())
+                                     throw new Exception("Delete stato unita query ko -> " . $delete_stato_unita, 1);
+
+
+                                 $delete_report = "DELETE FROM #__gg_report"
+                                     . " WHERE id_contenuto = " . $this->_db->quote($content['idcontenuto']) . " AND id_utente = " . $id_user ;
+                                 $this->_db->setQuery($delete_report);
+
+                                 if (!$this->_db->execute())
+                                     throw new Exception("Delete report query ko -> " . $delete_report, 1);
+
+                             }
+
+
+                             //cerco tipologia di ogni contenuto
+                             $query_tipologia = $this->_db->getQuery(true)
+                                 ->select('tipologia as tipologia_contenuto, id_quizdeluxe')
+                                 ->from('#__gg_contenuti')
+                                 ->where('id = ' . $this->_db->quote($content['idcontenuto']));
+
+                             $this->_db->setQuery($query_tipologia);
+                             $tipologie = $this->_db->loadAssocList();
+
+                             if(!isset($tipologie) || !is_array($tipologie))
+                                 throw new Exception("Nessun tipologia per il contenuto " . $content['idcontenuto'], 1);
+
+                             foreach ($tipologie as $tipologia) {
+                                 if (isset($tipologia)) {
+
+                                     if ($tipologia['tipologia_contenuto'] == 7 ) {
+
+                                         //conto se c sono dati in quiz
+                                         $countquery = $this->_db->getQuery(true)
+                                             ->select("count(*)")
+                                             ->from("#__quiz_r_student_quiz")
+                                             ->where('c_quiz_id = ' . $this->_db->quote($tipologia['id_quizdeluxe']) . ' and c_student_id = ' . $id_user);
+
+
+                                         $this->_db->setQuery($countquery);
+                                         $count = $this->_db->loadResult();
+
+                                         if (isset($count) && $count > 0) {
+
+                                             $delete_quiz = "DELETE FROM #__quiz_r_student_quiz"
+                                                 . " WHERE c_quiz_id = " . $this->_db->quote($tipologia['id_quizdeluxe']) . " AND c_student_id = " . $id_user ;
+                                             $this->_db->setQuery($delete_quiz);
+
+                                             if (!$this->_db->execute())
+                                                 throw new Exception("Delete quiz query ko ->" . $delete_quiz, 1);
+                                         }
+
+                                     } else {
+
+                                         //conto se c sono dati in scormvars
+                                         $countquery = $this->_db->getQuery(true)
+                                             ->select("count(*)")
+                                             ->from("#__gg_scormvars")
+                                             ->where('scoid = ' . $this->_db->quote($content['idcontenuto']) . ' and userid =' . $id_user);
+
+
+                                         $this->_db->setQuery($countquery);
+                                         $count = $this->_db->loadResult();
+
+                                         if (isset($count) && $count > 0) {
+
+                                             $delete_scormvars = "DELETE FROM #__gg_scormvars"
+                                                 . " WHERE scoid = " . $this->_db->quote($content['idcontenuto']) . " AND userid = " . $id_user ;
+                                             $this->_db->setQuery($delete_scormvars);
+
+                                             if (!$this->_db->execute())
+                                                 throw new Exception("Delete scormvars query ko ->" . $delete_scormvars, 1);
+
+                                         }
+
+
+                                     }
+
+                                 }
+
+                             }
+
+
+                         }
+                     }
+
+
+                 }
+
+                 $this->_db->transactionCommit();
+             }
+
+
+           echo "Operazione di cancellazione del corso terminata: " . date('d/m/Y H:i:s');
+
+       }catch (Exception $e) {
+           $this->_db->transactionRollback();
+           echo __FUNCTION__ . " error: " . $e->getMessage();
+       }
+
+        $this->_japp->close();
+
+    }
+
     public function get_report()
     {
 

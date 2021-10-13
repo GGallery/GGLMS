@@ -113,7 +113,9 @@ class gglmsModelContenuto extends JModelLegacy
     {
         try {
 
-            $xml_path = PATH_CONTENUTI . '/' . $this->id . '/' . $this->id . '.xml';
+            $xml_path = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $this->id . '/' . $this->id . '.xml';
+
+
             if (!file_exists($xml_path)) {
                 JFactory::getApplication()->enqueueMessage('Impossibile trovare l\'xml per il contenuto "' . $this->titolo . '" al path ' . $this->_path . '', 'error');
                 return array();
