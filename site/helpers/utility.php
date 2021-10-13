@@ -2405,6 +2405,8 @@ HTML;
     // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso - utility per api.load_corsi_from_xml()
     public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $_err_label = '') {
 
+        $jumped = array();
+
         try {
 
             foreach ($get_corsi as $key_corso => $file) {
@@ -2472,93 +2474,101 @@ HTML;
                                 || $cf_iscritto == ""
                                 || $ragione_sociale == ""
                                 || $piva_ente == ""
-                                || $mail_referente == "")
-                                throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+                                || $mail_referente == "") {
+                                //throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+                                $jumped[] = "Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                            }
+                            else {
 
-                            // creazione coupon
-                            $coupon_data['username'] = $piva_ente;
-                            $coupon_data['ragione_sociale'] = $ragione_sociale;
-                            $coupon_data['email'] = $mail_referente;
-                            $coupon_data['email_coupon'] = $mail_referente;
-                            $coupon_data['id_piattaforma'] = $id_piattaforma;
-                            $coupon_data['gruppo_corsi'] = $gruppo_corso;
-                            $coupon_data['qty'] = 1;
+                                // creazione coupon
+                                $coupon_data['username'] = $piva_ente;
+                                $coupon_data['ragione_sociale'] = $ragione_sociale;
+                                $coupon_data['email'] = $mail_referente;
+                                $coupon_data['email_coupon'] = $mail_referente;
+                                $coupon_data['id_piattaforma'] = $id_piattaforma;
+                                $coupon_data['gruppo_corsi'] = $gruppo_corso;
+                                $coupon_data['qty'] = 1;
 
-                            $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
-                            if (is_null($crea_coupon)
-                                || !is_array($crea_coupon))
-                                throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+                                $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
+                                if (is_null($crea_coupon)
+                                    || !is_array($crea_coupon))
+                                    throw new Exception("Creazione coupon fallita: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
-                            // controllo esistenza utente su username
-                            $check_user_id = self::check_user_by_username($cf_iscritto);
+                                // controllo esistenza utente su username
+                                $check_user_id = self::check_user_by_username($cf_iscritto);
 
-                            if (is_null($check_user_id)) {
-                                $_new_user['name'] = $codice_iscritto;
-                                $_new_user['username'] = $cf_iscritto;
-                                // email farlocca
-                                $_new_user['email'] = $_new_user['username'] . '@me.com';
-                                $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
-                                $_new_user['password'] = JUserHelper::hashPassword($password);
-                                // inserimento utente in users
-                                $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
-                                $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
-                                $_new_user['clear_password'] = $password;
+                                if (is_null($check_user_id)) {
+                                    $_new_user['name'] = $codice_iscritto;
+                                    $_new_user['username'] = $cf_iscritto;
+                                    // email farlocca
+                                    $_new_user['email'] = $_new_user['username'] . '@me.com';
+                                    $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                                    $_new_user['password'] = JUserHelper::hashPassword($password);
+                                    // inserimento utente in users
+                                    $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
+                                    $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
+                                    $_new_user['clear_password'] = $password;
 
-                                if (!is_array($_user_insert_query_result)) {
-                                    throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+                                    if (!is_array($_user_insert_query_result)) {
+                                        throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+                                    }
+
+                                    $_new_user_id = $_user_insert_query_result['success'];
+                                    // riferimento id per CP
+                                    $_new_user_cp['id'] = $_new_user_id;
+                                    $_new_user_cp['user_id'] = $_new_user_id;
+                                    $_new_user_cp['cb_nome'] = $nome_iscritto;
+                                    $_new_user_cp['cb_cognome'] = $cognome_iscritto;
+                                    $_new_user_cp['cb_codicefiscale'] = $_new_user['username'];
+
+                                    // inserimento utente in CP
+                                    $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                                    $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
+                                    if (!is_array($_cp_insert_query_result))
+                                        throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+
+                                    $new_user = true;
                                 }
 
-                                $_new_user_id = $_user_insert_query_result['success'];
-                                // riferimento id per CP
-                                $_new_user_cp['id'] = $_new_user_id;
-                                $_new_user_cp['user_id'] = $_new_user_id;
-                                $_new_user_cp['cb_nome'] = $nome_iscritto;
-                                $_new_user_cp['cb_cognome'] = $cognome_iscritto;
-                                $_new_user_cp['cb_codicefiscale'] = $_new_user['username'];
+                                $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
+                                if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
+                                    //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
+                                    $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
+                                }
 
-                                // inserimento utente in CP
-                                $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
-                                $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
-                                if (!is_array($_cp_insert_query_result))
-                                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+                                $generazione_coupon[$piva_ente]['infos']['nome_societa'] = $crea_coupon['nome_societa'];
+                                $generazione_coupon[$piva_ente]['infos']['id_gruppo_societa'] = $crea_coupon['id_gruppo_societa'];
+                                $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $coupon_data['id_piattaforma'];
+                                $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
+                                $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
 
-                                $new_user = true;
-                            }
+                                // inserimento utente
+                                if ($new_user) {
 
-                            $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
-                            if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
-                                //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
-                                $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
-                            }
+                                    $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
+                                    // se nuovo utente lo inserisco nel gruppo azienda
+                                    $ug_azienda = $coupon_model->_check_usergroups($ragione_sociale, true);
+                                    if (is_null($ug_azienda)
+                                        || is_array($ug_azienda))
+                                        throw new Exception("Gruppo azienda non definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
 
-                            $generazione_coupon[$piva_ente]['infos']['nome_societa'] = $crea_coupon['nome_societa'];
-                            $generazione_coupon[$piva_ente]['infos']['id_gruppo_societa'] = $crea_coupon['id_gruppo_societa'];
-                            $generazione_coupon[$piva_ente]['infos']['id_piattaforma'] = $coupon_data['id_piattaforma'];
-                            $generazione_coupon[$piva_ente]['infos']['email_coupon'] = $crea_coupon['email_coupon'];
-                            $generazione_coupon[$piva_ente]['infos']['gruppo_corsi'] = $coupon_data['gruppo_corsi'];
+                                    $ug_destinazione = array($ug_azienda);
+                                    //JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
+                                    $ug_insert = self::set_usergroup_generic($_new_user_id, $ug_destinazione);
+                                    if (!is_array($ug_insert))
+                                        throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
-                            // inserimento utente
-                            if ($new_user) {
+                                }
+                            } // check campi principali
 
-                                $generazione_coupon[$piva_ente]['infos']['new_users'][] = $_new_user;
-                                // se nuovo utente lo inserisco nel gruppo azienda
-                                $ug_azienda = $coupon_model->_check_usergroups($ragione_sociale, true);
-                                if (is_null($ug_azienda)
-                                    || is_array($ug_azienda))
-                                    throw new Exception("Gruppo azienda non definito: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+                        } // iscritti loop
 
-                                $ug_destinazione = array($ug_azienda);
-                                //JUserHelper::setUserGroups($_new_user_id, $ug_destinazione);
-                                $ug_insert = self::set_usergroup_generic($_new_user_id, $ug_destinazione);
-                                if (!is_array($ug_insert))
-                                    throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
+                    } // check file
+                } // corso loop
+            } // loop radice xml
 
-                            }
-
-                        } // iscritti
-                    }
-                }
-            }
+            if (count($jumped) > 0)
+                self::make_debug_log(__FUNCTION__, print_r($jumped, true), __FUNCTION__ . "_error");
 
             return $generazione_coupon;
         }
