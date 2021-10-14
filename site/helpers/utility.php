@@ -3423,5 +3423,37 @@ HTML;
         return $random_string;
     }
 
+    //dati id_user e id_gruppo, funzione per creazione di coupon con unita e contenuti sbloccati (DEMO)
+    public static function genera_coupon_demo($id_user, $id_gruppo) {
+
+
+        if(!isset($id_user)
+            || !isset($id_gruppo)
+            || !is_numeric($id_user)
+            || !is_numeric($id_gruppo))
+            throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
+
+        $model_user = new gglmsModelUsers();
+        $user_soc = $model_user->get_user_societa($id_user, true);
+        $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
+
+        //controllo tutor aziandale
+        if(!isset($tutor_id) || !is_numeric($tutor_id))
+            throw new Exception(" il tutor aziendale non esiste", 1);
+
+        $username_tutor = $model_user->get_user($tutor_id);
+
+
+        $data = array();
+
+        $data['attestato'] = 'on';
+        $data['abilitato'] = 'on';
+        $data['stampatracciato'] = '';
+        $data['trial'] = 'on';
+        $data['venditore'] = '';
+        $data['username'] = $username_tutor;
+
+    }
+
     /* Generiche */
 }
