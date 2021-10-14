@@ -44,6 +44,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam = new stdClass();
 
         $this->_filterparam->corso_id = JRequest::getVar('corso_id');
+        $this->_filterparam->gruppo_id = JRequest::getVar('gruppo_id');
         $this->_filterparam->current = JRequest::getVar('current');
         $this->_filterparam->rowCount = JRequest::getVar('rowCount');
         $this->_filterparam->startdate = JRequest::getVar('startdate');
@@ -2635,6 +2636,15 @@ HTML;
         }
 
         return "UPDATED: " . $updated;
+    }
+
+    public function genera_coupon_demo_api() {
+
+        $id_user = $this->_filterparam->user_id;
+        $id_gruppo = $this->_filterparam->gruppo_id;
+
+        $dati = utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+
     }
 
 //	INUTILIZZATO
