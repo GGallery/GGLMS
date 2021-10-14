@@ -2472,10 +2472,11 @@ HTML;
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
 
-                            if ($nome_iscritto == ""
+                            if ($codice_iscritto == ""
+                                || $nome_iscritto == ""
                                 || $cognome_iscritto == ""
                                 || $cf_iscritto == ""
-                                || $ragione_sociale == "") {
+                                || $mail_referente == "") {
                                 //throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
                                 $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
