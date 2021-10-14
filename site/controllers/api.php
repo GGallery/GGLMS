@@ -2483,7 +2483,11 @@ HTML;
             $farma_id = 3;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
+                // per gestire eventuali codici a 5 cifre è necessario effettuare un controllo
                 $hh_store_code = trim($farmacia[0]);
+                if (strlen($hh_store_code) < 6)
+                    $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+
                 $ragione_sociale = trim($farmacia[3]);
                 $comune = trim($farmacia[4]);
                 $tipologia = trim($farmacia[6]);
@@ -2765,7 +2769,11 @@ HTML;
                 $cb_codice_esterno_cdc_2 = trim($row_arr[24]);
                 // colonna 25 - codice esterno cdc 3 - si
                 // chiave univoca per fare riferimento al master delle farmacie
+                // per gestire eventuali codici a 5 cifre è necessario effettuare un controllo
                 $cb_codice_esterno_cdc_3 = trim($row_arr[25]);
+                if (strlen($cb_codice_esterno_cdc_3) < 6)
+                    $cb_codice_esterno_cdc_3 = str_pad((string)$cb_codice_esterno_cdc_3, 6, '0', STR_PAD_LEFT);
+
                 // colonna 26 - codice esterno rep 2 - si
                 $cb_esterno_rep_2 = (isset($row_arr[26]) && !is_null($row_arr[26]) && $row_arr[26] != "") ? trim($row_arr[26]) : "";
                 // colonna 27 - data inizio rapporti - si
