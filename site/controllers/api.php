@@ -2148,7 +2148,7 @@ HTML;
     }
 
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma = 16, $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma = 16, $ragione_sociale = "Utenti privati skillab", $piva = "08420380019", $email = "skillabfad@skillab.it", $is_debug = false) {
 
         try {
 
@@ -2176,7 +2176,7 @@ HTML;
             */
 
             // elaborazione delle aziende e degli iscritti
-            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, __FUNCTION__);
+            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $ragione_sociale, $piva, $email, __FUNCTION__);
             if (is_null($arr_iscrizioni)
                 || !is_array($arr_iscrizioni))
                 throw new Exception("Si è verificato un problema durante la generazione dei coupon", E_USER_ERROR);

@@ -2405,7 +2405,7 @@ HTML;
     }
 
     // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso - utility per api.load_corsi_from_xml()
-    public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $_err_label = '') {
+    public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $def_ragione_sociale = "", $def_piva = "", $def_email = "", $_err_label = '') {
 
         $jumped = array();
 
@@ -2467,21 +2467,32 @@ HTML;
                             $cognome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->COGNOME);
                             $nome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->NOME);
                             $cf_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_FISCALE);
+                            $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
+                            // campi non più controllati perchè potrebbe essere legati ad un utente privato che non ha valorizzati piva_ente e ragione_sociale
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
-                            $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
 
                             if ($nome_iscritto == ""
                                 || $cognome_iscritto == ""
                                 || $cf_iscritto == ""
-                                || $ragione_sociale == ""
-                                || $piva_ente == ""
-                                || $mail_referente == "") {
+                                || $ragione_sociale == "") {
                                 //throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
-                                $_err_msg = "Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             else {
+
+                                /*
+                                $ragione_sociale -> <AZIENDA_ENTE><![CDATA[]]></AZIENDA_ENTE>
+                                $piva_ente -> <PIVA_ENTE><![CDATA[]]></PIVA_ENTE>
+                                Se non sono valorizzati entrambi i campi l'utente è un privato che va associato al tutor skillab per utenti privati
+                                */
+                                if ($piva_ente == ""
+                                    && $ragione_sociale == "") {
+                                        $piva_ente = $def_piva;
+                                        $ragione_sociale = $def_ragione_sociale;
+                                        $mail_referente = $def_email;
+                                }
 
                                 // creazione coupon
                                 $coupon_data['username'] = $piva_ente;
