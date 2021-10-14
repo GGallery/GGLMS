@@ -2321,7 +2321,7 @@ HTML;
                 if (!$mailer->Send())
                     $email_status = 0;
 
-                utilityHelper::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
+                utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
 
             }
 
