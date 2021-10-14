@@ -1815,9 +1815,11 @@ HTML;
             $mailer->isHTML(true);
 
             // invio email ko
-            if (!$mailer->Send()) {
-                self::logMail(__FUNCTION__, $sender, $recipients, 0);
-            }
+            $email_status = 1;
+            if (!$mailer->Send())
+                $email_status = 0;
+
+            self::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
 
             return true;
 
@@ -2476,7 +2478,8 @@ HTML;
                                 || $piva_ente == ""
                                 || $mail_referente == "") {
                                 //throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
-                                $jumped[] = "Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                $_err_msg = "Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             else {
 
@@ -2567,8 +2570,6 @@ HTML;
                 } // corso loop
             } // loop radice xml
 
-            if (count($jumped) > 0)
-                self::make_debug_log(__FUNCTION__, print_r($jumped, true), __FUNCTION__ . "_error");
 
             return $generazione_coupon;
         }
