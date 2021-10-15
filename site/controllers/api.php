@@ -2183,6 +2183,7 @@ HTML;
 
             // invio email riferite ai coupon
             $genera_model = new gglmsModelGeneraCoupon();
+            $unita_model = new gglmsModelUnita();
             $iscrizioni = false;
             foreach ($arr_iscrizioni as $piva_key => $single_gen) {
 
@@ -2190,6 +2191,8 @@ HTML;
                 $company_infos = $arr_iscrizioni[$piva_key]['infos'];
 
                 $coupons = $arr_iscrizioni[$piva_key]['coupons'];
+                $registrati = $arr_iscrizioni[$piva_key]['registrati'];
+
                 $_html_users = "";
                 $_html_tutor = "";
                 $template = JPATH_COMPONENT . '/models/template/xml_coupons_mail.tpl';
@@ -2293,15 +2296,30 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
-                foreach ($coupons as $coupon_key => $sub_arr) {
+                foreach ($coupons as $coupon_key => $sub_coupon) {
 
-                    foreach ($sub_arr as $sub_key => $coupon) {
+                    foreach ($sub_coupon as $sub_coupon_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
                     }
 
                     $coupons_count++;
+                }
+
+                // loop registrati per corso
+                if (is_array($registrati)
+                    && count($registrati) > 0) {
+
+                    foreach ($registrati as $reg_key => $reg) {
+
+                        if ($reg == "" || strpos($reg, "|") === false)
+                            continue;
+
+                        $expl_reg = explode("|", $reg);
+                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
+
+                    }
                 }
 
                 $smarty = new EasySmarty();

@@ -72,14 +72,15 @@ class gglmsControllerMt extends JControllerLegacy {
     public function test_() {
         try {
 
-            // 727182924==999102115
-            // 3Rdz7e5tpM+CU1mw6+1xIYKGK8GAIhe0IHS7N/VSbJg=
-            $enc = $this->encrypt_decrypt('encrypt', '727182924==999102115', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
-            echo $enc . '<br />';
+            $codice_corso = 2187;
+            $unita_model = new gglmsModelUnita();
+            $utenti_iscritti = $unita_model->get_utenti_iscritti_xml($codice_corso);
+            $utenti_iscritti = is_array($utenti_iscritti) ? $utenti_iscritti : [];
+            $check_utenti_iscritti = utilityHelper::get_mono_array_from_multi_per_key($utenti_iscritti, 'codice_fiscale');
 
-            // bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=
-            $dec = $this->encrypt_decrypt('decrypt', 'bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
-            echo $dec;
+            var_dump($check_utenti_iscritti);
+
+
         }
         catch (Exception $e) {
             echo "ERRORE: " . $e->getMessage();

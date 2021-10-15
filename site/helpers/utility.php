@@ -2456,6 +2456,11 @@ HTML;
 
                         */
 
+                        // per codice corso verifico i CF già iscritti
+                        $utenti_iscritti = $unita_model->get_utenti_iscritti_xml($codice_corso);
+                        $utenti_iscritti = is_array($utenti_iscritti) ? $utenti_iscritti : [];
+                        $check_utenti_iscritti = utilityHelper::get_mono_array_from_multi_per_key($utenti_iscritti, 'codice_fiscale');
+
                         // iscritti
                         for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {
                             $_new_user = array();
@@ -2473,14 +2478,19 @@ HTML;
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
 
+                            // dati mancanti per l'iscritto
                             if ($codice_iscritto == ""
                                 || $nome_iscritto == ""
                                 || $cognome_iscritto == ""
                                 || $cf_iscritto == ""
                                 || $mail_referente == "") {
-                                //throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
                                 $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                            }
+                            // utente per il quale il coupon è stato già generato quindi salto
+                            else if (in_array($cf_iscritto, $check_utenti_iscritti)) {
+                                    $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                    self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             else {
 
@@ -2494,6 +2504,21 @@ HTML;
                                         $piva_ente = $def_piva;
                                         $ragione_sociale = $def_ragione_sociale;
                                         $mail_referente = $def_email;
+
+                                        $_err_msg = "Caso utente privato: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                        self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                                }
+                                /*
+                                $cf_iscritto -> <CODICE_FISCALE><![CDATA[12286690016]]></CODICE_FISCALE>
+                                $piva_ente -> <PIVA_ENTE><![CDATA[12286690016]]></PIVA_ENTE>
+                                persona che rappresenta la medesima azienda
+                                lo username sarà il suo CF anticipato da due zeri altrimenti l'utente non sarà inserito
+                                */
+                                else if ($piva_ente == $cf_iscritto) {
+                                    $cf_iscritto = "00" . $cf_iscritto;
+
+                                    $_err_msg = "Caso persona azienda: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                    self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                                 }
 
                                 // creazione coupon
@@ -2547,8 +2572,9 @@ HTML;
                                 }
 
                                 $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
+                                $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|" . $cf_iscritto;
+
                                 if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
-                                    //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
                                     $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
                                 }
 
@@ -3351,12 +3377,35 @@ HTML;
 
     }
 
-    public static function normalizza_contenuto_array($rows) {
+    // normalizza array da un livello superiore per indice e valore
+    public static function normalizza_contenuto_array($rows, $key_dest = 'id_contenuto', $key_source = 'descrizione') {
 
         $_ret = array();
 
         foreach ($rows as $key => $row) {
-            $_ret[$row['id_contenuto']] = $row['descrizione'];
+            $_ret[$row[$key_dest]] = $row[$key_source];
+        }
+
+        return $_ret;
+
+    }
+
+    // popola un array mono dimensionale da livello multi dimensionale inserendo i valori per un indice specifico
+    public static function get_mono_array_from_multi_per_key($rows, $key_source) {
+
+        if (!is_array($rows)
+            || count($rows) == 0)
+            return $rows;
+
+        $_ret = array();
+
+        foreach ($rows as $key => $row) {
+
+            // se il valore è già in array non lo inserisco
+            if (in_array($row[$key_source], $_ret))
+                continue;
+
+            $_ret[] = $row[$key_source];
         }
 
         return $_ret;
@@ -3386,6 +3435,7 @@ HTML;
         return $columns;
     }
 
+    // controlla il nome di un file e ne cambia il nome rimuovendo opzionalmente gli spazi
     public static function is_valid_file_name($file_name, $alt_name, $replace_spaces = false) {
 
         $_ret = (isset($file_name) && $file_name != "" && !is_null($file_name)) ? $file_name : $alt_name;
@@ -3413,6 +3463,7 @@ HTML;
 
     }
 
+    // lista dei file da una directory specifica
     public static function files_list_from_folder($path_folder) {
 
         $_ret = array();

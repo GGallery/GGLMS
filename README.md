@@ -3,6 +3,9 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.5
+-D: aggiunta tabella gg_check_coupon_xml di appoggio per creazione anagrafica utenti da xml
+
 4.1.4
 -D: aggiunta della colonna sconti_particolari alla tabella gg_unit
 -D: aggiunta della colonna riduzione_webinar alla tabella gg_unit
