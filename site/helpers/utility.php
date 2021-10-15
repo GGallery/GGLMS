@@ -2512,10 +2512,10 @@ HTML;
                                 $cf_iscritto -> <CODICE_FISCALE><![CDATA[12286690016]]></CODICE_FISCALE>
                                 $piva_ente -> <PIVA_ENTE><![CDATA[12286690016]]></PIVA_ENTE>
                                 persona che rappresenta la medesima azienda
-                                lo username sarà il suo CF anticipato da due zeri altrimenti l'utente non sarà inserito
+                                lo username sarà il suo CF anticipato da due XX altrimenti l'utente non sarà inserito
                                 */
                                 else if ($piva_ente == $cf_iscritto) {
-                                    $cf_iscritto = "00" . $cf_iscritto;
+                                    $cf_iscritto = "XX" . $cf_iscritto;
 
                                     $_err_msg = "Caso persona azienda: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
@@ -2540,7 +2540,7 @@ HTML;
 
                                 if (is_null($check_user_id)) {
                                     $_new_user['name'] = $codice_iscritto;
-                                    $_new_user['username'] = $cf_iscritto;
+                                    $_new_user['username'] = strtoupper($cf_iscritto);
                                     // email farlocca
                                     $_new_user['email'] = $_new_user['username'] . '@me.com';
                                     $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
