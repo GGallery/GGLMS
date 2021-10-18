@@ -134,17 +134,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
 
-            var data = null;
-            if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
-                console.log("firefox");
-                data = {async: false};
-            }
-            else {
-                console.log("non-firefox");
-                data = {async: true};
-            }
-
-            updateBookmark(data, tview, id_elemento);
+            updateBookmark(tview, id_elemento);
             <?php
             // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
             echo <<<HTML
