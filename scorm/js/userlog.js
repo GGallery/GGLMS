@@ -9,10 +9,12 @@ function UserLog(id_utente, id_contenuto, supporto) {
         .done(function (data) {
             data = JSON.parse(data);
             if (data == 'true') {
+                /*
                 setInterval(function () {
-                    //_this.updateUserLog(uniqid);
-                    _this.updateUserLog(uniqid, id_utente, id_contenuto);
+                    _this.updateUserLog(uniqid);
                 }, 10000);
+                */
+                _this.updateUserLog(uniqid, id_utente, id_contenuto);
             } else {
                 console.log("UserLog DONE - fallito update log:" + data);
             }
@@ -27,8 +29,12 @@ function UserLog(id_utente, id_contenuto, supporto) {
 // se esiste window.sessionStorage procedo uso il nuovo metodo altrimenti vado avanti con il vecchio che aggiorna ogni 10 sec
 function updateUserLog(uniqid, id_utente, id_contenuto) {
 
-    if (typeof(window.sessionStorage) != 'object')
-        oldUpdateUserLog(uniqid);
+    if (typeof(window.sessionStorage) != 'object') {
+        //oldUpdateUserLog(uniqid);
+        setInterval(function() {
+            oldUpdateUserLog(uniqid);
+        },10000);
+    }
     else
         newUpdateUserLog(uniqid, id_utente, id_contenuto);
 

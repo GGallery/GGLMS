@@ -27,8 +27,12 @@ function UserLog(id_utente,id_contenuto,supporto){
 // se esiste window.sessionStorage procedo uso il nuovo metodo altrimenti vado avanti con il vecchio che aggiorna ogni 10 sec
 function updateUserLog(uniqid, id_utente, id_contenuto) {
 
-    if (typeof(window.sessionStorage) != 'object')
-        oldUpdateUserLog(uniqid);
+    if (typeof(window.sessionStorage) != 'object') {
+        //oldUpdateUserLog(uniqid);
+        setInterval(function() {
+            oldUpdateUserLog(uniqid);
+        },10000);
+    }
     else
         newUpdateUserLog(uniqid, id_utente, id_contenuto)
 
