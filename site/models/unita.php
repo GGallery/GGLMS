@@ -789,12 +789,14 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
+    //sbloccare il corso e i suoi contenuti
     public function set_corso_completed($id_gruppo_corso)
     {
 
         try {
 
             $corso_obj = $this->get_corso_from_gruppo($id_gruppo_corso);
+
             $all_contents = $corso_obj->getAllContentsByCorso();
 
             $content_model = new gglmsModelContenuto();
@@ -802,10 +804,12 @@ class gglmsModelUnita extends JModelLegacy
                 $content_obj = $content_model->getContenuto($c["id"]);
                 $content_obj->set_content_as_passed();
             }
+
+            return true;
+
         } catch (Exception $e) {
             DEBUGG::error($e, 'set_corso_completed');
-
-
+            return false;
         }
 
 

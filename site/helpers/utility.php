@@ -3426,32 +3426,84 @@ HTML;
     //dati id_user e id_gruppo, funzione per creazione di coupon con unita e contenuti sbloccati (DEMO)
     public static function genera_coupon_demo($id_user, $id_gruppo) {
 
+       try {
 
-        if(!isset($id_user)
-            || !isset($id_gruppo)
-            || !is_numeric($id_user)
-            || !is_numeric($id_gruppo))
-            throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
+           $model_user = new gglmsModelUsers();
+           $model_coupon = new gglmsModelcoupon();
+           $genera_coupon = new gglmsModelGeneraCoupon();
+           $unita_model = new gglmsModelUnita();
 
-        $model_user = new gglmsModelUsers();
-        $user_soc = $model_user->get_user_societa($id_user, true);
-        $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
+           $user_soc = $model_user->get_user_societa($id_user, true);
 
-        //controllo tutor aziandale
-        if(!isset($tutor_id) || !is_numeric($tutor_id))
-            throw new Exception(" il tutor aziendale non esiste", 1);
+           //controllo se user appartiene ad una società
+           if (!isset($user_soc) || !is_numeric($user_soc[0]->id))
+               throw new Exception("questo user non appartiene a nessuna società", 1);
 
-        $username_tutor = $model_user->get_user($tutor_id);
+           $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
+
+           //controllo tutor aziandale
+           if (!isset($tutor_id) || !is_numeric($tutor_id))
+               throw new Exception(" il tutor aziendale non esiste", 1);
+
+           //mi restituisca username del tutor aziendale perche mi serve nell'inserimento del coupon
+           $username_tutor = $model_user->get_user($tutor_id);
+
+           if (!isset($username_tutor))
+               throw new Exception("il username del tutor aziendale non esiste", 1);
+
+           $data = array();
+
+           $data['attestato'] = 'on';
+           $data['abilitato'] = 'on';
+           $data['stampatracciato'] = '';
+           $data['trial'] = 'on';
+           $data['venditore'] = '';
+           $data['gruppo_corsi'] = $id_gruppo;
+           $data['username'] = $username_tutor->username;
+           $data['ref_skill'] = '';
+           $data['qty'] = 1;
+
+           //inserimento del coupon senza assegnazione
+           $id_iscrizione = $genera_coupon->insert_coupon($data, true, false, true);
+           if (!isset($id_iscrizione))
+               throw new Exception("id_iscrizione mancante", 1);
+
+           //mi restituisca il coupon appena inserito
+           $coupon = $model_coupon->get_coupon($id_iscrizione);
+           if (!isset($coupon))
+               throw new Exception("coupon mancante", 1);
+
+           //check del coupon
+           $dettagli_coupon = $model_coupon->check_Coupon($coupon);
+
+           //assegnazione del coupon ad id_user
+           $assegna = $model_coupon->assegnaCoupon_user($id_user, $coupon);
+           if (!$assegna)
+               throw new Exception("l'assegnazione del coupon mancante", 1);
+
+           //settare gruppo all'utente su usergroup_map
+           if (isset($dettagli_coupon['id_gruppi']) && is_array($dettagli_coupon))
+               $insert_usergroup = $model_coupon->setUsergroup_user($dettagli_coupon['id_gruppi'], $id_user);
+
+           if (!$insert_usergroup)
+               throw new Exception("errore nell'inserimento in usergroup_map", 1);
+
+            //TRIAL, se il coupon è trial sblocco tutti i contenuti del corso
+           if ($dettagli_coupon["trial"] == 1) {
+
+              $set_corso = $unita_model->set_corso_completed($dettagli_coupon["id_gruppi"]);
+               if (!$set_corso)
+                   throw  new Exception("sblocco del corso mancante", 1);
+
+               echo "Operazione di generazione del coupon e l'attivazione del corso terminata : " . date('d/m/Y H:i:s') . "per il coupon : " . $coupon;
+           }
 
 
-        $data = array();
+       } catch (Exception $e) {
 
-        $data['attestato'] = 'on';
-        $data['abilitato'] = 'on';
-        $data['stampatracciato'] = '';
-        $data['trial'] = 'on';
-        $data['venditore'] = '';
-        $data['username'] = $username_tutor;
+           echo __FUNCTION__ . " error: " . $e->getMessage();
+       }
+
 
     }
 

@@ -2638,12 +2638,27 @@ HTML;
         return "UPDATED: " . $updated;
     }
 
+    //generazione del coupon da una chiamata api per sbloccare un corso come demo
     public function genera_coupon_demo_api() {
 
-        $id_user = $this->_filterparam->user_id;
-        $id_gruppo = $this->_filterparam->gruppo_id;
+        try {
 
-        $dati = utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+            $id_user = $this->_filterparam->user_id;
+            $id_gruppo = $this->_filterparam->gruppo_id;
+
+            if (!isset($id_user)
+                || !isset($id_gruppo)
+                || !is_numeric($id_user)
+                || !is_numeric($id_gruppo))
+                throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
+
+
+            utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+
+        } catch(Exception $e) {
+
+            echo __FUNCTION__ . " error: " . $e->getMessage();
+        }
 
     }
 
