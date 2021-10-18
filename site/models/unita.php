@@ -1024,7 +1024,7 @@ class gglmsModelUnita extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                    ->select('codice_fiscale')
+                    ->select('UPPER(codice_fiscale) AS codice_fiscale')
                     ->from('#__gg_check_coupon_xml')
                     ->where('codice_corso = ' . $this->_db->quote($codice_corso));
 
