@@ -74,7 +74,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             // check durata coupon, se il campo è nel form vince l'input dell'utente
             $durata_coupon = $data["durata"] ? $data["durata"] : $this->_config->getConfigValue('durata_standard_coupon');
-            if ($durata_coupon == null) {
+
+
+            if ($durata_coupon == null || !is_numeric($durata_coupon) || $durata_coupon < 0) {
                 throw new RuntimeException("durata coupon non specificata", E_USER_ERROR);
             }
 

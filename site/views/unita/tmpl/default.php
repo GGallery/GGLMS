@@ -213,7 +213,7 @@ if ($this->contenuti) {
                         ?>
 
                         <p class="my-0">
-                           <small><?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?>: <?php echo $stato->descrizione; ?></small>
+                           <small><?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?> <?php echo $stato->descrizione; ?></small>
                         </p>
                   </div>
 
