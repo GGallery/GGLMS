@@ -144,22 +144,6 @@ HTML;
             return null;
         });
 
-        function updateBookmark(data) {
-
-            jQuery.ajax({
-                url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
-                data: {
-                    time: tview,
-                    id_elemento: id_elemento
-                },
-                async: data.async,
-                success: function () {
-                    console.log("updateBookmark success");
-                }
-            });
-
-        }
-
         function sliding(tempo) {
             if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
 
