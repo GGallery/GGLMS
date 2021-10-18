@@ -133,12 +133,6 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
-            /*
-            jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
-                time: tview,
-                id_elemento: id_elemento
-            });
-            */
 
             var data = null;
             if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
@@ -150,7 +144,13 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                 data = {async: true};
             }
 
-            updateBookmark(data);
+            updateBookmark(data, tview, id_elemento);
+            <?php
+            // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
+            echo <<<HTML
+            getUpdateSessionStorage("{$this->id_utente}", "{$this->contenuto->id}");
+HTML;
+?>
             return null;
         });
 

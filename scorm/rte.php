@@ -28,6 +28,15 @@ $log_status=$_GET['log_status'];
             console.log("API_LOADED!");
             document.getElementById('framecourse').src="<?php echo $scorm_path;?>"
         };
+
+        window.onbeforeunload = function(event) {
+
+            <?php
+            // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
+            echo 'getUpdateSessionStorage(' . $id_utente . ',' . $id_elemento . ', null)';
+?>
+
+        };
     </script>
 
 </head>
