@@ -10,7 +10,8 @@ function UserLog(id_utente, id_contenuto, supporto) {
             data = JSON.parse(data);
             if (data == 'true') {
                 setInterval(function () {
-                    _this.updateUserLog(uniqid);
+                    //_this.updateUserLog(uniqid);
+                    _this.updateUserLog(uniqid, id_utente, id_contenuto);
                 }, 10000);
             } else {
             }
