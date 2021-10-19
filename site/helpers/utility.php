@@ -2531,6 +2531,7 @@ HTML;
                                 $coupon_data['id_piattaforma'] = $id_piattaforma;
                                 $coupon_data['gruppo_corsi'] = $gruppo_corso;
                                 $coupon_data['qty'] = 1;
+                                $coupon_data['abilitato'] = 'on';
 
                                 $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
                                 if (is_null($crea_coupon)
