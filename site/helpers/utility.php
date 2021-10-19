@@ -3560,15 +3560,18 @@ HTML;
 
               $set_corso = $unita_model->set_corso_completed($dettagli_coupon["id_gruppi"]);
                if (!$set_corso)
-                   throw  new Exception("sblocco del corso mancante", 1);
+                   throw new Exception("sblocco del corso mancante", 1);
 
                echo "Operazione di generazione del coupon e l'attivazione del corso terminata : " . date('d/m/Y H:i:s') . "per il coupon : " . $coupon;
+
+               return true;
            }
 
 
        } catch (Exception $e) {
 
            echo __FUNCTION__ . " error: " . $e->getMessage();
+           return null;
        }
 
 
