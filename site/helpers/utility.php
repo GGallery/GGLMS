@@ -2488,7 +2488,7 @@ HTML;
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             // utente per il quale il coupon è stato già generato quindi salto
-                            else if (in_array($cf_iscritto, $check_utenti_iscritti)) {
+                            else if (in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)) {
                                     $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
@@ -2521,6 +2521,8 @@ HTML;
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                                 }
 
+                                $cf_iscritto = strtoupper($cf_iscritto);
+
                                 // creazione coupon
                                 $coupon_data['username'] = $piva_ente;
                                 $coupon_data['ragione_sociale'] = $ragione_sociale;
@@ -2540,7 +2542,7 @@ HTML;
 
                                 if (is_null($check_user_id)) {
                                     $_new_user['name'] = $codice_iscritto;
-                                    $_new_user['username'] = strtoupper($cf_iscritto);
+                                    $_new_user['username'] = $cf_iscritto;
                                     // email farlocca
                                     $_new_user['email'] = $_new_user['username'] . '@me.com';
                                     $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
