@@ -2324,7 +2324,7 @@ HTML;
 
                     }
                     // attivazione coupon
-                    $attiva_coupons_per_utenti = utilityHelper::attivazione_coupons_utenti($_attiva_coupons_arr, $registrati);
+                    // $attiva_coupons_per_utenti = utilityHelper::attivazione_coupons_utenti($_attiva_coupons_arr, $registrati);
                 }
 
                 $smarty = new EasySmarty();
