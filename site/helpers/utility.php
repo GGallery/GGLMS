@@ -1819,7 +1819,8 @@ HTML;
             if (!$mailer->Send())
                 $email_status = 0;
 
-            self::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
+            //self::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
+            self::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
 
             return true;
 
@@ -2455,6 +2456,11 @@ HTML;
 
                         */
 
+                        // per codice corso verifico i CF già iscritti
+                        $utenti_iscritti = $unita_model->get_utenti_iscritti_xml($codice_corso);
+                        $utenti_iscritti = is_array($utenti_iscritti) ? $utenti_iscritti : [];
+                        $check_utenti_iscritti = utilityHelper::get_mono_array_from_multi_per_key($utenti_iscritti, 'codice_fiscale');
+
                         // iscritti
                         for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {
                             $_new_user = array();
@@ -2472,13 +2478,19 @@ HTML;
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
 
-                            if ($nome_iscritto == ""
+                            // dati mancanti per l'iscritto
+                            if ($codice_iscritto == ""
+                                || $nome_iscritto == ""
                                 || $cognome_iscritto == ""
                                 || $cf_iscritto == ""
-                                || $ragione_sociale == "") {
-                                //throw new Exception("Dati iscrizioni corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true), E_USER_ERROR);
+                                || $mail_referente == "") {
                                 $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                            }
+                            // utente per il quale il coupon è stato già generato quindi salto
+                            else if (in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)) {
+                                    $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                    self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             else {
 
@@ -2492,7 +2504,24 @@ HTML;
                                         $piva_ente = $def_piva;
                                         $ragione_sociale = $def_ragione_sociale;
                                         $mail_referente = $def_email;
+
+                                        $_err_msg = "Caso utente privato: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                        self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                                 }
+                                /*
+                                $cf_iscritto -> <CODICE_FISCALE><![CDATA[12286690016]]></CODICE_FISCALE>
+                                $piva_ente -> <PIVA_ENTE><![CDATA[12286690016]]></PIVA_ENTE>
+                                persona che rappresenta la medesima azienda
+                                lo username sarà il suo CF anticipato da due XX altrimenti l'utente non sarà inserito
+                                */
+                                else if ($piva_ente == $cf_iscritto) {
+                                    $cf_iscritto = "XX" . $cf_iscritto;
+
+                                    $_err_msg = "Caso persona azienda: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                    self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                                }
+
+                                $cf_iscritto = strtoupper($cf_iscritto);
 
                                 // creazione coupon
                                 $coupon_data['username'] = $piva_ente;
@@ -2502,6 +2531,7 @@ HTML;
                                 $coupon_data['id_piattaforma'] = $id_piattaforma;
                                 $coupon_data['gruppo_corsi'] = $gruppo_corso;
                                 $coupon_data['qty'] = 1;
+                                $coupon_data['abilitato'] = 'on';
 
                                 $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
                                 if (is_null($crea_coupon)
@@ -2545,8 +2575,9 @@ HTML;
                                 }
 
                                 $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
+                                $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|" . $cf_iscritto;
+
                                 if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
-                                    //$generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_users'];
                                     $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
                                 }
 
@@ -3349,12 +3380,35 @@ HTML;
 
     }
 
-    public static function normalizza_contenuto_array($rows) {
+    // normalizza array da un livello superiore per indice e valore
+    public static function normalizza_contenuto_array($rows, $key_dest = 'id_contenuto', $key_source = 'descrizione') {
 
         $_ret = array();
 
         foreach ($rows as $key => $row) {
-            $_ret[$row['id_contenuto']] = $row['descrizione'];
+            $_ret[$row[$key_dest]] = $row[$key_source];
+        }
+
+        return $_ret;
+
+    }
+
+    // popola un array mono dimensionale da livello multi dimensionale inserendo i valori per un indice specifico
+    public static function get_mono_array_from_multi_per_key($rows, $key_source) {
+
+        if (!is_array($rows)
+            || count($rows) == 0)
+            return $rows;
+
+        $_ret = array();
+
+        foreach ($rows as $key => $row) {
+
+            // se il valore è già in array non lo inserisco
+            if (in_array($row[$key_source], $_ret))
+                continue;
+
+            $_ret[] = $row[$key_source];
         }
 
         return $_ret;
@@ -3384,6 +3438,7 @@ HTML;
         return $columns;
     }
 
+    // controlla il nome di un file e ne cambia il nome rimuovendo opzionalmente gli spazi
     public static function is_valid_file_name($file_name, $alt_name, $replace_spaces = false) {
 
         $_ret = (isset($file_name) && $file_name != "" && !is_null($file_name)) ? $file_name : $alt_name;
@@ -3411,6 +3466,7 @@ HTML;
 
     }
 
+    // lista dei file da una directory specifica
     public static function files_list_from_folder($path_folder) {
 
         $_ret = array();
@@ -3432,6 +3488,93 @@ HTML;
         }
 
         return $random_string;
+    }
+
+    //dati id_user e id_gruppo, funzione per creazione di coupon con unita e contenuti sbloccati (DEMO)
+    public static function genera_coupon_demo($id_user, $id_gruppo) {
+
+       try {
+
+           $model_user = new gglmsModelUsers();
+           $model_coupon = new gglmsModelcoupon();
+           $genera_coupon = new gglmsModelGeneraCoupon();
+           $unita_model = new gglmsModelUnita();
+
+           $user_soc = $model_user->get_user_societa($id_user, true);
+
+           //controllo se user appartiene ad una società
+           if (!isset($user_soc) || !is_numeric($user_soc[0]->id))
+               throw new Exception("questo user non appartiene a nessuna società", 1);
+
+           $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
+
+           //controllo tutor aziandale
+           if (!isset($tutor_id) || !is_numeric($tutor_id))
+               throw new Exception(" il tutor aziendale non esiste", 1);
+
+           //mi restituisca username del tutor aziendale perche mi serve nell'inserimento del coupon
+           $username_tutor = $model_user->get_user($tutor_id);
+
+           if (!isset($username_tutor))
+               throw new Exception("il username del tutor aziendale non esiste", 1);
+
+           $data = array();
+
+           $data['attestato'] = 'on';
+           $data['abilitato'] = 'on';
+           $data['stampatracciato'] = '';
+           $data['trial'] = 'on';
+           $data['venditore'] = '';
+           $data['gruppo_corsi'] = $id_gruppo;
+           $data['username'] = $username_tutor->username;
+           $data['ref_skill'] = '';
+           $data['qty'] = 1;
+
+           //inserimento del coupon senza assegnazione
+           $id_iscrizione = $genera_coupon->insert_coupon($data, true, false, true);
+           if (!isset($id_iscrizione))
+               throw new Exception("id_iscrizione mancante", 1);
+
+           //mi restituisca il coupon appena inserito
+           $coupon = $model_coupon->get_coupon($id_iscrizione);
+           if (!isset($coupon))
+               throw new Exception("coupon mancante", 1);
+
+           //check del coupon
+           $dettagli_coupon = $model_coupon->check_Coupon($coupon);
+
+           //assegnazione del coupon ad id_user
+           $assegna = $model_coupon->assegnaCoupon_user($id_user, $coupon);
+           if (!$assegna)
+               throw new Exception("l'assegnazione del coupon mancante", 1);
+
+           //settare gruppo all'utente su usergroup_map
+           if (isset($dettagli_coupon['id_gruppi']) && is_array($dettagli_coupon))
+               $insert_usergroup = $model_coupon->setUsergroup_user($dettagli_coupon['id_gruppi'], $id_user);
+
+           if (!$insert_usergroup)
+               throw new Exception("errore nell'inserimento in usergroup_map", 1);
+
+            //TRIAL, se il coupon è trial sblocco tutti i contenuti del corso
+           if ($dettagli_coupon["trial"] == 1) {
+
+              $set_corso = $unita_model->set_corso_completed($dettagli_coupon["id_gruppi"]);
+               if (!$set_corso)
+                   throw new Exception("sblocco del corso mancante", 1);
+
+               echo "Operazione di generazione del coupon e l'attivazione del corso terminata : " . date('d/m/Y H:i:s') . "per il coupon : " . $coupon;
+
+               return true;
+           }
+
+
+       } catch (Exception $e) {
+
+           echo __FUNCTION__ . " error: " . $e->getMessage();
+           return null;
+       }
+
+
     }
 
     /* Generiche */

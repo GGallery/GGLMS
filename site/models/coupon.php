@@ -381,4 +381,78 @@ class gglmsModelcoupon extends JModelLegacy
         }
 
     }
+
+    //gli passo id_iscrizione del coupon e mi restituisce il coupon
+    public function get_coupon($id_iscrizione)
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select("c.coupon")
+                ->from('#__gg_coupon c')
+                ->where('id_iscrizione = ' . $this->_db->quote($id_iscrizione));
+
+            $this->_db->setQuery($query);
+
+            if (null === ($result = $this->_db->loadResult())) {
+                throw new Exception("coupon non esiste", 1);
+               }
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
+
+    //Aggiorno la tabella coupon inserendo l'id dell'utente che gli passo con coupon
+    public function assegnaCoupon_user($user_id, $coupon)
+    {
+
+        try {
+            $query = '
+                UPDATE
+                    #__gg_coupon 
+                SET id_utente = ' . $this->_db->quote($user_id) . ', 
+                data_utilizzo = NOW()
+                WHERE 
+                    substring_index(coupon,"@",1)    =   ' . $this->_db->quote($coupon) . ' 
+                ';
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query()))
+                throw new Exception("coupon non aggiornato con id utente", 1);
+
+            return true;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return false;
+        }
+
+    }
+
+    //inserimento dell'utente su usergroup_map
+    public function setUsergroup_user($id_gruppo, $user_id)
+    {
+
+        try {
+
+                $query = "INSERT IGNORE INTO #__user_usergroup_map VALUE($user_id, $id_gruppo)";
+                $this->_db->setQuery($query);
+                $this->_db->execute();
+
+                if (false === ($results = $this->_db->query()))
+                    throw new Exception("Errore nella procedura setUsergroupUserMap", 1);
+
+                return true;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return false;
+        }
+
+    }
 }

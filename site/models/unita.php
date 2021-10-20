@@ -789,12 +789,14 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
+    //sbloccare il corso e i suoi contenuti
     public function set_corso_completed($id_gruppo_corso)
     {
 
         try {
 
             $corso_obj = $this->get_corso_from_gruppo($id_gruppo_corso);
+
             $all_contents = $corso_obj->getAllContentsByCorso();
 
             $content_model = new gglmsModelContenuto();
@@ -802,10 +804,12 @@ class gglmsModelUnita extends JModelLegacy
                 $content_obj = $content_model->getContenuto($c["id"]);
                 $content_obj->set_content_as_passed();
             }
+
+            return true;
+
         } catch (Exception $e) {
             DEBUGG::error($e, 'set_corso_completed');
-
-
+            return false;
         }
 
 
@@ -937,7 +941,8 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->transactionStart();
 
             // rimosso tipologia_corso
-            $insert = 'INSERT INTO #__gg_unit (
+            $insert = 'INSERT INTO #__gg_unit
+                    (
                         codice,
                         codice_alfanumerico,
                         titolo,
@@ -945,7 +950,7 @@ class gglmsModelUnita extends JModelLegacy
                         alias,
                         accesso,
                         tipologia_corso
-                        )
+                    )
                         VALUES (
                                 ' . $this->_db->quote($codice_corso) . ',
                                 ' . $this->_db->quote($codice_alfa) . ',
@@ -958,8 +963,7 @@ class gglmsModelUnita extends JModelLegacy
                         ';
 
             $this->_db->setQuery($insert);
-            $result = $this->_db->execute();
-            if (!$result)
+            if (!$this->_db->execute())
                 throw new Exception("Inserimento corso fallito: " . $this->_db->getQuery()->dump(), E_USER_ERROR);
 
             $last_unit_id = $this->_db->insertid();
@@ -981,6 +985,59 @@ class gglmsModelUnita extends JModelLegacy
             return null;
         }
 
+    }
+
+    function insert_utenti_iscritti_xml($codice_corso, $codice_fiscale) {
+
+        try {
+
+            $this->_db->transactionStart();
+
+            $insert = "INSERT INTO #__gg_check_coupon_xml
+                        (
+                            codice_corso,
+                            codice_fiscale
+                        )
+                        VALUES (
+                            " . $this->_db->quote($codice_corso) . ",
+                            " . $this->_db->quote($codice_fiscale) . "
+                        )
+                    ";
+
+            $this->_db->setQuery($insert);
+            if (!$this->_db->execute())
+                throw new Exception("Inserimento riferimento utente per corso fallito: " . $this->_db->getQuery()->dump(), E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    function get_utenti_iscritti_xml($codice_corso) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                    ->select('UPPER(codice_fiscale) AS codice_fiscale')
+                    ->from('#__gg_check_coupon_xml')
+                    ->where('codice_corso = ' . $this->_db->quote($codice_corso));
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results;
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
     }
 
 

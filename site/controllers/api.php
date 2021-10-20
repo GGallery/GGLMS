@@ -44,6 +44,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam = new stdClass();
 
         $this->_filterparam->corso_id = JRequest::getVar('corso_id');
+        $this->_filterparam->gruppo_id = JRequest::getVar('gruppo_id');
         $this->_filterparam->current = JRequest::getVar('current');
         $this->_filterparam->rowCount = JRequest::getVar('rowCount');
         $this->_filterparam->startdate = JRequest::getVar('startdate');
@@ -2183,6 +2184,7 @@ HTML;
 
             // invio email riferite ai coupon
             $genera_model = new gglmsModelGeneraCoupon();
+            $unita_model = new gglmsModelUnita();
             $iscrizioni = false;
             foreach ($arr_iscrizioni as $piva_key => $single_gen) {
 
@@ -2190,6 +2192,8 @@ HTML;
                 $company_infos = $arr_iscrizioni[$piva_key]['infos'];
 
                 $coupons = $arr_iscrizioni[$piva_key]['coupons'];
+                $registrati = $arr_iscrizioni[$piva_key]['registrati'];
+
                 $_html_users = "";
                 $_html_tutor = "";
                 $template = JPATH_COMPONENT . '/models/template/xml_coupons_mail.tpl';
@@ -2293,15 +2297,30 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
-                foreach ($coupons as $coupon_key => $sub_arr) {
+                foreach ($coupons as $coupon_key => $sub_coupon) {
 
-                    foreach ($sub_arr as $sub_key => $coupon) {
+                    foreach ($sub_coupon as $sub_coupon_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
                     }
 
                     $coupons_count++;
+                }
+
+                // loop registrati per corso
+                if (is_array($registrati)
+                    && count($registrati) > 0) {
+
+                    foreach ($registrati as $reg_key => $reg) {
+
+                        if ($reg == "" || strpos($reg, "|") === false)
+                            continue;
+
+                        $expl_reg = explode("|", $reg);
+                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
+
+                    }
                 }
 
                 $smarty = new EasySmarty();
@@ -2321,7 +2340,7 @@ HTML;
                 if (!$mailer->Send())
                     $email_status = 0;
 
-                utilityHelper::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
+                utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
 
             }
 
@@ -2635,6 +2654,34 @@ HTML;
         }
 
         return "UPDATED: " . $updated;
+    }
+
+    //generazione del coupon da una chiamata api per sbloccare un corso come demo
+    public function genera_coupon_demo_api() {
+
+        try {
+
+            $id_user = $this->_filterparam->user_id;
+            $id_gruppo = $this->_filterparam->gruppo_id;
+
+            if (!isset($id_user)
+                || !isset($id_gruppo)
+                || !is_numeric($id_user)
+                || !is_numeric($id_gruppo))
+                throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
+
+
+           $genera_coupon =  utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+
+            if(!isset($genera_coupon))
+                throw new Exception("Errore nella generazione del coupon demo", 1);
+
+        } catch(Exception $e) {
+
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_demo');
+            DEBUGG::error($e, __FUNCTION__, 1, true);
+        }
+
     }
 
 //	INUTILIZZATO

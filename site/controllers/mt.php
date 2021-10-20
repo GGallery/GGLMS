@@ -72,14 +72,48 @@ class gglmsControllerMt extends JControllerLegacy {
     public function test_() {
         try {
 
-            // 727182924==999102115
-            // 3Rdz7e5tpM+CU1mw6+1xIYKGK8GAIhe0IHS7N/VSbJg=
-            $enc = $this->encrypt_decrypt('encrypt', '727182924==999102115', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
-            echo $enc . '<br />';
+            $cf_s = array('FGLTZN71B47C627X',
+            'BRTRCR67L08L219X',
+            'BRTRST72M01L219Y',
+            'GNTPLA71E42L219F',
+            'PGTLCU76H07L219Y',
+            'VGNLRA69R52L219F',
+            'TMTMHL77B61L219S',
+            'MRZCHR75L50E379J',
+            'GNTFNC64C03D086X',
+            'LVSRRT68L02A479U',
+            'MNTMRA64R12A479F',
+            'PRNDNL66A49C627B',
+            'FRCGNN66C27A182C',
+            'BRRDVD71A13L219C',
+            'GRZMCL65M23F481W',
+            'CLNDRN67M12Z404T',
+            'LNEVNC86P62C349M',
+            'PLZVNT74L219O',
+            'GZZSRA75H68L219J',
+            'XX12286690016',
+            'MRTTLL61A04L219R',
+            'CVGDDG83M26Z110L',
+            'LSSGPP72P10A662E',
+            'PPEFTN64L20L219T',
+            'PPEFNC86S29L219W',
+            'MLNSVN74D44C665L',
+            'XX12286690016',
+            'LBRNCL75M28D600S',
+            'XX00471820019',
+            'DLFBBR68E70L219X',
+            'MSTMNC91D63L727R',
+            'MTTMZF73C13E020C',
+            'DLLGPP65H12I480L',
+            'LFFSVT82E21F839T',
+            'FNDRKE79C67C665Q',
+            'FRSMCR68S45L219K');
+            $check_cf = "LFFSVT82E21F839T";
 
-            // bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=
-            $dec = $this->encrypt_decrypt('decrypt', 'bG13UW9XcHJrTjVsZEtJdnNYQjg1dktRZWh6Y1g4UTROeWJESTBkWVNaQT0=', 'chiave-elearning', 'fvNN4F5y9sF6vtbv');
-            echo $dec;
+            echo in_array($check_cf, $cf_s) ? "SI" : "NO";
+
+
+
         }
         catch (Exception $e) {
             echo "ERRORE: " . $e->getMessage();
