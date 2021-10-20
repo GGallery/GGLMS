@@ -1995,7 +1995,7 @@ HTML;
 
     }
 
-    public static function get_corsi_options($_corsi) {
+    public static function get_corsi_options($_corsi, $sub_text = null, $sub_value = null, $select_default = 'Seleziona corso') {
 
         if (count($_corsi) == 0
             || empty($_corsi)
@@ -2003,13 +2003,28 @@ HTML;
             return "";
 
         $_html = <<<HTML
-        <option value="">Seleziona corso</option>
+        <option value="">{$select_default}</option>
 HTML;
 
-        foreach ($_corsi as $key_corso => $value_corso) {
-            $_html .= <<<HTML
-        <option value="{$value_corso->id}">{$value_corso->titolo}</option>
+        if (is_null($sub_value)
+            && is_null($sub_text)) {
+
+           foreach ($_corsi as $key_corso => $value_corso) {
+                $_html .= <<<HTML
+            <option value="{$value_corso->id}">{$value_corso->titolo}</option>
 HTML;
+
+            }
+        }
+        else {
+
+            foreach ($_corsi as $key_sub => $sub_array) {
+                $sub_array = !is_array($sub_array) ? (array) $sub_array : $sub_array;
+                $_html .= <<<HTML
+                <option value="{$sub_array[$sub_value]}">{$sub_array[$sub_text]}</option>
+HTML;
+
+            }
 
         }
 
