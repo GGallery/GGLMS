@@ -2297,12 +2297,14 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
+                $_attiva_coupons_arr = [];
                 foreach ($coupons as $coupon_key => $sub_coupon) {
 
                     foreach ($sub_coupon as $sub_coupon_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
+                        $_attiva_coupons_arr[] = $coupon;
                     }
 
                     $coupons_count++;
@@ -2321,6 +2323,8 @@ HTML;
                         $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
 
                     }
+                    // attivazione coupon
+                    $attiva_coupons_per_utenti = utilityHelper::attivazione_coupons_utenti($_attiva_coupons_arr, $registrati);
                 }
 
                 $smarty = new EasySmarty();
