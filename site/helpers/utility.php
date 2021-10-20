@@ -2424,6 +2424,8 @@ HTML;
                 $unita_model = new gglmsModelUnita();
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
+                    // codici fiscali ricorsivi su file multipli
+                    $cf_recursive = [];
                     // caso corsi
                     if (strpos($file, "Iscritti") !== false) {
                         $gruppo_corso = null;
@@ -2485,6 +2487,14 @@ HTML;
                                 || $cf_iscritto == ""
                                 || $mail_referente == "") {
                                 $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                            }
+                            // utente per il quale il coupon è stato già generato per file ricorsivi quindi salto
+                            else if (
+                                in_array(strtoupper($cf_iscritto), $cf_recursive)
+                                || in_array("XX" . strtoupper($cf_iscritto), $cf_recursive)
+                                ) {
+                                $_err_msg = "CF ricorsivo file multipli: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             // utente per il quale il coupon è stato già generato quindi salto
@@ -2609,6 +2619,9 @@ HTML;
                                         throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
                                 }
+
+                                $cf_recursive[] = $cf_iscritto;
+
                             } // check campi principali
 
                         } // iscritti loop
