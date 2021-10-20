@@ -2653,10 +2653,7 @@ HTML;
                                 }
 
                                 $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
-                                $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|"
-                                                                    . $cf_iscritto . "|"
-                                                                    . $gruppo_corso . "|"
-                                                                    . !is_null($check_user_id) ? $check_user_id : $_new_user_id;
+                                $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|" . $cf_iscritto;
 
                                 if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
                                     $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];

@@ -987,7 +987,7 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
-    function insert_utenti_iscritti_xml($codice_corso, $codice_fiscale) {
+    function insert_utenti_iscritti_xml($codice_corso, $codice_fiscale, $coupon) {
 
         try {
 
@@ -996,11 +996,13 @@ class gglmsModelUnita extends JModelLegacy
             $insert = "INSERT INTO #__gg_check_coupon_xml
                         (
                             codice_corso,
-                            codice_fiscale
+                            codice_fiscale,
+                            coupon
                         )
                         VALUES (
                             " . $this->_db->quote($codice_corso) . ",
-                            " . $this->_db->quote($codice_fiscale) . "
+                            " . $this->_db->quote($codice_fiscale) . ",
+                            " . $this->_db->quote($coupon) . "
                         )
                     ";
 

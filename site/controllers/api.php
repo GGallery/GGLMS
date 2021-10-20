@@ -2297,14 +2297,14 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
-                //$_attiva_coupons_arr = [];
+                $_attiva_coupons_arr = [];
                 foreach ($coupons as $coupon_key => $sub_coupon) {
 
                     foreach ($sub_coupon as $sub_coupon_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
-                        //$_attiva_coupons_arr[] = $coupon;
+                        $_attiva_coupons_arr[] = $coupon;
                     }
 
                     $coupons_count++;
@@ -2314,17 +2314,19 @@ HTML;
                 if (is_array($registrati)
                     && count($registrati) > 0) {
 
+                    $counter = 0;
                     foreach ($registrati as $reg_key => $reg) {
 
                         if ($reg == "" || strpos($reg, "|") === false)
                             continue;
 
                         $expl_reg = explode("|", $reg);
-                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
+                        $ref_coupon = isset($_attiva_coupons_arr[$counter]) ? $_attiva_coupons_arr[$counter] : "";
+                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1], $ref_coupon);
+
+                        $counter++;
 
                     }
-                    // attivazione coupon
-                    // $attiva_coupons_per_utenti = utilityHelper::attivazione_coupons_utenti($_attiva_coupons_arr, $registrati);
                 }
 
                 $smarty = new EasySmarty();
