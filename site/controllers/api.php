@@ -2671,11 +2671,15 @@ HTML;
                 throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
 
 
-            utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+           $genera_coupon =  utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+
+            if(!isset($genera_coupon))
+                throw new Exception("Errore nella generazione del coupon demo", 1);
 
         } catch(Exception $e) {
 
-            echo __FUNCTION__ . " error: " . $e->getMessage();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_demo');
+            DEBUGG::error($e, __FUNCTION__, 1, true);
         }
 
     }
