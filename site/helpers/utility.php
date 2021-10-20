@@ -2405,6 +2405,82 @@ HTML;
 
     }
 
+    public static function attivazione_coupons_utenti($coupons, $utenti) {
+
+        $db = JFactory::getDbo();
+
+        try {
+
+            /*
+            $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|"
+                                                                    . $cf_iscritto . "|"
+                                                                    . $gruppo_corso . "|"
+                                                                    . !is_null($check_user_id) ? $check_user_id : $_new_user_id;
+
+            */
+
+            if (!is_array($coupons)
+                || count($coupons) == 0
+                || !is_array($utenti)
+                || count($utenti) == 0
+                || count($coupons) != count($utenti)
+                )
+                throw new Exception("Dati necessari non presenti oppure di lunghezza diversa, impossibile continuare: "
+                . print_r($coupons, true) . "\n"
+                . print_r($utenti, true) , E_USER_ERROR);
+
+            $counter = 0;
+
+            $db->transactionStart();
+
+            foreach ($coupons as $coupon_key => $coupon) {
+
+                $reg = $utenti[$counter] ;
+                if ($reg == "" || strpos($reg, "|") === false)
+                    continue;
+
+                $expl_reg = explode("|", $reg);
+
+                // controllo dati per aggiornamento
+                $id_gruppi = $expl_reg[2];
+                $id_utente = $expl_reg[3];
+
+                if (is_null($id_gruppi)
+                    || $id_gruppi == "")
+                    continue;
+
+                    if (is_null($id_utente)
+                    || $id_utente == "")
+                    continue;
+
+                $query = $db->getQuery(true)
+                    ->update("#__gg_coupon")
+                    ->set('id_utente = ' . $db->quote($id_utente))
+                    ->set('data_abilitazione = ' . $db->quote(date('Y-m-d H:i:s')))
+                    ->where('coupon = ' . $db->quote($coupon))
+                    ->where('id_gruppi = ' . $db->quote($id_gruppi));
+
+                $db->setQuery((string) $query);
+
+                if (!$db->execute())
+                    continue;
+
+                $counter++;
+
+            }
+
+            $db->transactionCommit();
+            return [];
+
+        }
+        catch(Exception $e) {
+            $db->transactionRollback();
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso - utility per api.load_corsi_from_xml()
     public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $def_ragione_sociale = "", $def_piva = "", $def_email = "", $_err_label = '') {
 
@@ -2546,8 +2622,10 @@ HTML;
                                     $_new_user['username'] = $cf_iscritto;
                                     // email farlocca
                                     $_new_user['email'] = $_new_user['username'] . '@me.com';
-                                    $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
-                                    $_new_user['password'] = JUserHelper::hashPassword($password);
+                                    // password uguale al codice iscritto
+                                    //$password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                                    //$_new_user['password'] = JUserHelper::hashPassword($password);
+                                    $_new_user['password'] = JUserHelper::hashPassword($cf_iscritto);
                                     // inserimento utente in users
                                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
@@ -2575,7 +2653,10 @@ HTML;
                                 }
 
                                 $generazione_coupon[$piva_ente]['coupons'][] = $crea_coupon['coupons'];
-                                $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|" . $cf_iscritto;
+                                $generazione_coupon[$piva_ente]['registrati'][] = $codice_corso . "|"
+                                                                    . $cf_iscritto . "|"
+                                                                    . $gruppo_corso . "|"
+                                                                    . !is_null($check_user_id) ? $check_user_id : $_new_user_id;
 
                                 if (!isset($generazione_coupon[$piva_ente]['infos']['company_user'])) {
                                     $generazione_coupon[$piva_ente]['infos']['company_user'] = $crea_coupon['company_user'];
