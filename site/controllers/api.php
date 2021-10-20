@@ -2297,14 +2297,14 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
-                $_attiva_coupons_arr = [];
+                //$_attiva_coupons_arr = [];
                 foreach ($coupons as $coupon_key => $sub_coupon) {
 
                     foreach ($sub_coupon as $sub_coupon_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
-                        $_attiva_coupons_arr[] = $coupon;
+                        //$_attiva_coupons_arr[] = $coupon;
                     }
 
                     $coupons_count++;
