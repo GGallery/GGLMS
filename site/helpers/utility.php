@@ -2564,7 +2564,10 @@ HTML;
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
                             // utente per il quale il coupon è stato già generato quindi salto
-                            else if (in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)) {
+                            else if (
+                                    in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    || in_array("XX" . strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    ) {
                                     $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
