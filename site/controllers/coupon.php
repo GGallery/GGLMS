@@ -64,7 +64,10 @@ class gglmsControllerCoupon extends JControllerLegacy
                         $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_DUPLICATED') . "</p>";
                         $results['valido'] = 0;
                     } else {
-                        $model->assegnaCoupon($coupon);
+                        $assegnaCoupon = $model->assegnaCoupon($coupon);
+
+                        if(!isset($assegnaCoupon))
+                            throw new Exception("l'asegnazione del coupon mancante ",1);
 
                         if ($dettagli_coupon['id_gruppi'])
                             $model->setUsergroupUserGroup($dettagli_coupon['id_gruppi']);

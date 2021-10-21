@@ -110,22 +110,32 @@ class gglmsModelcoupon extends JModelLegacy
     {
 
         try {
+
+            if(!isset($this->_userid) || ($this->_userid < 0) || !is_numeric($this->_userid) || ($this->_userid == 0))
+                throw new Exception('id utente minore o uguale a zero',1);
+
+
             $query = '
                 UPDATE
                     #__gg_coupon 
-                SET id_utente = ' . $this->_userid . ', 
+                SET id_utente = ' . $this->_db->quote($this->_userid) . ', 
                 data_utilizzo = NOW()
                 WHERE 
-                    substring_index(coupon,"@",1)    =   "' . $coupon . '" 
-                ';
+                    substring_index(coupon,"@",1)    = ' . $this->_db->quote($coupon) ;
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            return true;
+
         } catch (Exception $e) {
+
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'assegnaCoupon');
             DEBUGG::error($e);
+            return null;
         }
-        return true;
+
     }
 
 
