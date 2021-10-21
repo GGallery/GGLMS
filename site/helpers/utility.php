@@ -1795,12 +1795,8 @@ HTML;
 
             $mailer = JFactory::getMailer();
             $mailer->setSender($sender);
-            if (!$is_debug) {
-                $mailer->addRecipient($to);
-                $mailer->addCc($recipients["cc"]);
-            }
-            else
-                $mailer->addRecipient($mail_debug);
+            $mailer->addRecipient($to);
+            $mailer->addCc($recipients["cc"]);
 
             $mailer->setSubject('Registrazione  ' . $alias_piattaforma);
 
@@ -1819,7 +1815,6 @@ HTML;
             if (!$mailer->Send())
                 $email_status = 0;
 
-            //self::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
             self::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
 
             return true;
@@ -2423,9 +2418,12 @@ HTML;
                 $coupon_model = new gglmsModelgeneracoupon();
                 $unita_model = new gglmsModelUnita();
 
+                // codici fiscali ricorsivi su file multipli
+                $cf_recursive = [];
+                $pre_iscrizione = "XX";
+
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
-                    // codici fiscali ricorsivi su file multipli
-                    $cf_recursive = [];
+
                     // caso corsi
                     if (strpos($file, "Iscritti") !== false) {
                         $gruppo_corso = null;
@@ -2479,6 +2477,7 @@ HTML;
                             // campi non più controllati perchè potrebbe essere legati ad un utente privato che non ha valorizzati piva_ente e ragione_sociale
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
+                            $cf_iscritto_tmp = null;
 
                             // dati mancanti per l'iscritto
                             if ($codice_iscritto == ""
@@ -2492,7 +2491,7 @@ HTML;
                             // utente per il quale il coupon è stato già generato per file ricorsivi quindi salto
                             else if (
                                 in_array(strtoupper($cf_iscritto), $cf_recursive)
-                                || in_array("XX" . strtoupper($cf_iscritto), $cf_recursive)
+                                || in_array($pre_iscrizione . strtoupper($cf_iscritto), $cf_recursive)
                                 ) {
                                 $_err_msg = "CF ricorsivo file multipli: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
@@ -2500,7 +2499,7 @@ HTML;
                             // utente per il quale il coupon è stato già generato quindi salto
                             else if (
                                     in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)
-                                    || in_array("XX" . strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    || in_array($pre_iscrizione . strtoupper($cf_iscritto), $check_utenti_iscritti)
                                     ) {
                                     $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
@@ -2528,7 +2527,8 @@ HTML;
                                 lo username sarà il suo CF anticipato da due XX altrimenti l'utente non sarà inserito
                                 */
                                 else if ($piva_ente == $cf_iscritto) {
-                                    $cf_iscritto = "XX" . $cf_iscritto;
+                                    $cf_iscritto_tmp = $cf_iscritto;
+                                    $cf_iscritto = $pre_iscrizione . $cf_iscritto;
 
                                     $_err_msg = "Caso persona azienda: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
@@ -2560,8 +2560,11 @@ HTML;
                                     // email farlocca
                                     $_new_user['email'] = $_new_user['username'] . '@me.com';
                                     // password uguale al codice iscritto
-                                    //$password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
-                                    //$_new_user['password'] = JUserHelper::hashPassword($password);
+                                    /*
+                                    $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                                    $_new_user['password'] = JUserHelper::hashPassword($password);
+                                    $password = !is_null($cf_iscritto_tmp) ? strtoupper($cf_iscritto_tmp) : $cf_iscritto;
+                                    */
                                     $password = $cf_iscritto;
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
                                     // inserimento utente in users
@@ -2630,7 +2633,6 @@ HTML;
                     } // check file
                 } // corso loop
             } // loop radice xml
-
 
             return $generazione_coupon;
         }

@@ -331,8 +331,10 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $crypt = JUserHelper::getCryptedPassword($password, $salt) . ':' . $salt;
 
             // se arrivo dall'importazione xml imposto la password del tutor uguale alla PIVA aziendale
-            if ($from_xml)
-                $crypt = JUserHelper::hashPassword($data['username']);
+            if ($from_xml) {
+                $password = $data['username'];
+                $crypt = JUserHelper::hashPassword($password);
+            }
 
             // creo nuovo user
             $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $this->_db->escape($data['ragione_sociale']), $this->_db->escape($data['username']), $crypt, $data['email']);

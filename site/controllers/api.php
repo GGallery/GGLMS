@@ -2241,7 +2241,11 @@ HTML;
     }
 
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma = 16, $ragione_sociale = "Utenti privati skillab", $piva = "08420380019", $email = "skillabfad@skillab.it", $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma = 16,
+        $ragione_sociale = "Utenti privati skillab",
+        $piva = "08420380019",
+        $email = "skillabfad@skillab.it",
+        $is_debug = true) {
 
         try {
 
@@ -2256,8 +2260,8 @@ HTML;
                     throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
             }
             else {
-                $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
-                $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
+                //$get_corsi[] = 'GGCorsiElenco_210520101221.xml';
+                $get_corsi = ['Iscritti_20211020085717.xml'];
             }
 
             // elaborazione dei corsi
@@ -2328,17 +2332,14 @@ HTML;
 
                 $mailer = JFactory::getMailer();
                 $mailer->setSender($sender);
-                if (!$is_debug) {
-                    $mailer->addRecipient($to);
-                    $mailer->addCc($recipients["cc"]);
-                }
-                else
-                    $mailer->addRecipient($this->mail_debug);
+                $mailer->addRecipient($to);
+                $mailer->addCc($recipients["cc"]);
 
                 $mailer->setSubject('Coupon corso ' . $_info_corso["titolo"]);
 
                 // costituisco il corpo della email
                 // creato tutor aziendale
+
                 if (isset($company_infos['company_user'])
                     && $company_infos['company_user'] != "") {
                     // nuovo tutor creato
@@ -2389,6 +2390,7 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
+                $arr_coupons = [];
                 foreach ($coupons as $coupon_key => $sub_coupon) {
 
                     foreach ($sub_coupon as $sub_coupon_key => $coupon) {
@@ -2396,7 +2398,7 @@ HTML;
                         {$coupon} <br />
 HTML;
                     }
-
+                    $arr_coupons[] = $coupon;
                     $coupons_count++;
                 }
 
@@ -2404,13 +2406,16 @@ HTML;
                 if (is_array($registrati)
                     && count($registrati) > 0) {
 
+                    $cc = 0;
                     foreach ($registrati as $reg_key => $reg) {
 
                         if ($reg == "" || strpos($reg, "|") === false)
                             continue;
 
                         $expl_reg = explode("|", $reg);
-                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
+                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1], $arr_coupons[$cc]);
+
+                        $cc++;
 
                     }
                 }
@@ -2429,11 +2434,11 @@ HTML;
                 $mailer->isHTML(true);
 
                 $email_status = 1;
+
                 if (!$mailer->Send())
                     $email_status = 0;
 
                 utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
-
             }
 
             echo 1;
