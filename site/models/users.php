@@ -501,7 +501,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_tutor_aziendale_details($id_gruppo_societa, $from_api) {
+    public function get_tutor_aziendale_details($id_gruppo_societa, $from_api=false) {
 
         try {
 
@@ -1428,6 +1428,69 @@ class gglmsModelUsers extends JModelLegacy
         }
         catch (Exception $e) {
             $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // dato id gruppo azienda seleziono le aziende - passo un array contenente gli id_gruppo
+    public function get_utenti_per_azienda($arr_ids) {
+
+        try {
+
+            $_ret = [];
+
+            $query = $this->_db->getQuery(true)
+                    ->select('utenti.id AS id_utente, utenti.username, ugm.group_id AS gruppo_utente')
+                    ->from('#__users AS utenti')
+                    ->join('inner', '#__user_usergroup_map ugm ON utenti.id = ugm.user_id')
+                    ->where('ugm.group_id IN (' . implode(",", $arr_ids) . ')');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssoclist();
+
+            $query_count = $this->_db->getQuery(true)
+                    ->select('COUNT(utenti.id) AS total_rows')
+                    ->from('#__users AS utenti')
+                    ->join('inner', '#__user_usergroup_map ugm ON utenti.id = ugm.user_id')
+                    ->where('ugm.group_id IN (' . implode(",", $arr_ids) . ')');
+
+            $this->_db->setQuery($query_count);
+            $result_count = $this->_db->loadResult();
+
+            $_ret['rows'] = $results;
+            $_ret['total_rows'] = $result_count;
+
+            return (is_array($_ret['rows']) && count($_ret['rows'])) ?  $_ret : null;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    // aggiorna la password di un utente con tutti i crismi del caso
+    public function update_users_password($user_id, $new_password) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                    ->update("#__users")
+                    ->set("password = " . $this->_db->quote(JUserHelper::hashPassword($new_password)))
+                    ->where("id = " . $this->_db->quote($user_id));
+
+            $this->_db->setQuery((string) $query);
+
+            if (!$this->_db->execute())
+                throw new Exception("update user password query ko -> " . $query, E_USER_ERROR);
+
+            return [];
+
+        }
+        catch(Exception $e) {
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }

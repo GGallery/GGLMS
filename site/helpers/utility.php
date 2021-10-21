@@ -2424,6 +2424,8 @@ HTML;
                 $unita_model = new gglmsModelUnita();
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
+                    // codici fiscali ricorsivi su file multipli
+                    $cf_recursive = [];
                     // caso corsi
                     if (strpos($file, "Iscritti") !== false) {
                         $gruppo_corso = null;
@@ -2487,8 +2489,19 @@ HTML;
                                 $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
+                            // utente per il quale il coupon è stato già generato per file ricorsivi quindi salto
+                            else if (
+                                in_array(strtoupper($cf_iscritto), $cf_recursive)
+                                || in_array("XX" . strtoupper($cf_iscritto), $cf_recursive)
+                                ) {
+                                $_err_msg = "CF ricorsivo file multipli: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                            }
                             // utente per il quale il coupon è stato già generato quindi salto
-                            else if (in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)) {
+                            else if (
+                                    in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    || in_array("XX" . strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    ) {
                                     $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
@@ -2546,7 +2559,10 @@ HTML;
                                     $_new_user['username'] = $cf_iscritto;
                                     // email farlocca
                                     $_new_user['email'] = $_new_user['username'] . '@me.com';
-                                    $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                                    // password uguale al codice iscritto
+                                    //$password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                                    //$_new_user['password'] = JUserHelper::hashPassword($password);
+                                    $password = $cf_iscritto;
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
                                     // inserimento utente in users
                                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
@@ -2604,6 +2620,9 @@ HTML;
                                         throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
                                 }
+
+                                $cf_recursive[] = $cf_iscritto;
+
                             } // check campi principali
 
                         } // iscritti loop
