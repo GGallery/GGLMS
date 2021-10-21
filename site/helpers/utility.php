@@ -2562,7 +2562,8 @@ HTML;
                                     // password uguale al codice iscritto
                                     //$password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
                                     //$_new_user['password'] = JUserHelper::hashPassword($password);
-                                    $_new_user['password'] = JUserHelper::hashPassword($cf_iscritto);
+                                    $password = $cf_iscritto;
+                                    $_new_user['password'] = JUserHelper::hashPassword($password);
                                     // inserimento utente in users
                                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
