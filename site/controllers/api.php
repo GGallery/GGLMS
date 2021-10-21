@@ -2249,7 +2249,7 @@ HTML;
         $ragione_sociale = "Utenti privati skillab",
         $piva = "08420380019",
         $email = "skillabfad@skillab.it",
-        $is_debug = true) {
+        $is_debug = false) {
 
         try {
 
