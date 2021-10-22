@@ -16,7 +16,7 @@ $log_status=$_GET['log_status'];
         }
     </style>
     <script type="application/javascript" src="js/jquery-3.2.1.min.js"></script>
-    <script type="application/javascript" src="js/userlog.js"></script>
+    <script type="application/javascript" src="js/userlog.js?<?php echo date('Ymd');?>"></script>
     <script type="application/javascript">
 
         <?php if($log_status==1) {
