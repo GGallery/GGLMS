@@ -2147,11 +2147,12 @@ HTML;
 
     }
 
+    // abilito i coupon in appoggio alla tabella di controllo
     public function attivazione_coupons_utenti($id_piattaforma) {
 
         try {
 
-            $_ret = [];
+            /*
             $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_corso, cpcheck.codice_fiscale, ugmp.idgruppo AS gruppo_corso, subq.id_gruppo AS gruppo_azienda, utenti.id AS user_id
                         FROM #__gg_check_coupon_xml cpcheck
                         INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
@@ -2162,6 +2163,12 @@ HTML;
                                         JOIN #__user_usergroup_map muum ON muum.group_id = mu.id
                                         WHERE mu.parent_id = " . $this->_db->quote($id_piattaforma) . ") AS subq ON subq.user_id = utenti.id
                                         WHERE cpcheck.coupon IS NULL";
+                                        */
+
+            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id
+                        FROM #__gg_check_coupon_xml cpcheck
+                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
+                        WHERE cpcheck.coupon IS NULL";
 
             $this->_db->setQuery($query);
             $results = $this->_db->loadAssocList();
@@ -2177,14 +2184,6 @@ HTML;
             foreach ($results as $key_result => $coupon) {
 
                 /*
-                'id_rif' => string '1' (length=1)
-                'codice_corso' => string '2187' (length=4)
-                'codice_fiscale' => string 'FGLTZN71B47C627X' (length=16)
-                'gruppo_corso' => string '29' (length=2)
-                'gruppo_azienda' => string '30' (length=2)
-                'user_id' => string '985' (length=3)
-                */
-
                 $update_coupon = "UPDATE #__gg_coupon
                                     SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
                                     WHERE id_gruppi = " . $this->_db->quote($coupon['gruppo_corso']) . "
@@ -2193,6 +2192,11 @@ HTML;
                                     ORDER BY creation_time DESC
                                     LIMIT 1
                                     ";
+                                    */
+
+                $update_coupon = "UPDATE #__gg_coupon
+                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
+                                    WHERE coupon = " . $this->_db->quote($coupon['codice_coupon']);
 
                 // inserisco utente in gruppo corso
                 $insert_ug = $user_model->insert_user_into_usergroup($coupon['user_id'], $coupon['gruppo_corso']);
@@ -2241,7 +2245,11 @@ HTML;
     }
 
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma = 16, $ragione_sociale = "Utenti privati skillab", $piva = "08420380019", $email = "skillabfad@skillab.it", $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma = 16,
+        $ragione_sociale = "Utenti privati skillab",
+        $piva = "08420380019",
+        $email = "skillabfad@skillab.it",
+        $is_debug = false) {
 
         try {
 
@@ -2256,8 +2264,8 @@ HTML;
                     throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
             }
             else {
-                $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
-                $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
+                //$get_corsi[] = 'GGCorsiElenco_210520101221.xml';
+                $get_corsi = ['Iscritti_20211020085717.xml'];
             }
 
             // elaborazione dei corsi
@@ -2328,17 +2336,14 @@ HTML;
 
                 $mailer = JFactory::getMailer();
                 $mailer->setSender($sender);
-                if (!$is_debug) {
-                    $mailer->addRecipient($to);
-                    $mailer->addCc($recipients["cc"]);
-                }
-                else
-                    $mailer->addRecipient($this->mail_debug);
+                $mailer->addRecipient($to);
+                $mailer->addCc($recipients["cc"]);
 
                 $mailer->setSubject('Coupon corso ' . $_info_corso["titolo"]);
 
                 // costituisco il corpo della email
                 // creato tutor aziendale
+
                 if (isset($company_infos['company_user'])
                     && $company_infos['company_user'] != "") {
                     // nuovo tutor creato
@@ -2389,6 +2394,7 @@ HTML;
 
                 $_html_coupons = "";
                 $coupons_count = 0;
+                $arr_coupons = [];
                 foreach ($coupons as $coupon_key => $sub_coupon) {
 
                     foreach ($sub_coupon as $sub_coupon_key => $coupon) {
@@ -2396,7 +2402,7 @@ HTML;
                         {$coupon} <br />
 HTML;
                     }
-
+                    $arr_coupons[] = $coupon;
                     $coupons_count++;
                 }
 
@@ -2404,13 +2410,16 @@ HTML;
                 if (is_array($registrati)
                     && count($registrati) > 0) {
 
+                    $cc = 0;
                     foreach ($registrati as $reg_key => $reg) {
 
                         if ($reg == "" || strpos($reg, "|") === false)
                             continue;
 
                         $expl_reg = explode("|", $reg);
-                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
+                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1], $arr_coupons[$cc]);
+
+                        $cc++;
 
                     }
                 }
@@ -2429,11 +2438,11 @@ HTML;
                 $mailer->isHTML(true);
 
                 $email_status = 1;
+
                 if (!$mailer->Send())
                     $email_status = 0;
 
                 utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
-
             }
 
             echo 1;
