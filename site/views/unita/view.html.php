@@ -54,7 +54,7 @@ class gglmsViewUnita extends JViewLegacy
         }
 
 
-        $this->sottounita = $this->unita->getSottoUnita();
+        $this->sottounita = $this->unita->getSottoUnita(null, null, 'DESC');
 //        DEBUGG::log($e, 'getSottoUnita');
 
         $this->contenuti = $this->unita->getContenuti_u($this->unita->id, null);

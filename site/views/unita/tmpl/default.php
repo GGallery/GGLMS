@@ -48,12 +48,25 @@ if ($this->sottounita) {
                         $corso_class = $unita->get_access_class($unita);
                         $corso_is_disabled = $corso_class == 'disabled';
 
+                        // se webinar verifico se la data di inizio è superiore ad oggi, nel caso non visualizzo il box
+                        if (isset($unita->modalita)
+                            && $unita->modalita == 1
+                            && !is_null($unita->data_inizio)
+                            && $unita->data_inizio != ""
+                            && $unita->data_inizio < date('Y-m-d')
+                            )
+                            continue;
 
+                        // verifico se è un webinar, quindi coloro il box
+                        $box_bg = "";
+                        if (isset($unita->modalita)
+                            && $unita->modalita == 1)
+                            $box_bg = "bg-warning";
                         ?>
 <!--   modifica box con card bootstrap responsive-->
                      <div class="col-sm-3 py-3 d-flex">
                            <!--                        <div class="g-block interno">-->
-                          <div class="card d-flex">
+                          <div class="card d-flex <?php echo $box_bg;?>">
                             <?php
                             // revisione caricamento immagini di background delle unità
                             /*

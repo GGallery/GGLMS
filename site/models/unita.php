@@ -93,8 +93,8 @@ class gglmsModelUnita extends JModelLegacy
         return $unit;
     }
 
-
-    public function getSottoUnita($pk = null, $is_attestato = null)
+    // se previsto ordino i contenuti per data e non per il metodo tradizionale
+    public function getSottoUnita($pk = null, $is_attestato = null, $order_by_data = '')
     {
         $query_id = $this->id;
         if ($pk != null) {
@@ -106,9 +106,15 @@ class gglmsModelUnita extends JModelLegacy
                 ->from('#__gg_unit as u')
 //                ->where('u.unitapadre  = ' . $this->id)
                 ->where('u.unitapadre  = ' . $query_id)
-                ->where('u.pubblicato = 1')
-                ->order('ordinamento')
-                ->order('id');
+                ->where('u.pubblicato = 1');
+
+            if ($order_by_data == '')
+                $query = $query
+                    ->order('ordinamento')
+                    ->order('id');
+            else
+                $query = $query->order('data_inizio ' . $order_by_data);
+
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList('', 'gglmsModelUnita');
 
