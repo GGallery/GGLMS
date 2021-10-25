@@ -2386,9 +2386,29 @@ HTML;
                                 Username: {$tutor_infos['piva']} / Password: {$tutor_infos['password']}
                             </div>
                             <p>
-                            suggeriamo di cambiare la propria password <b>(Menu Accedi/Registrati > Modifica Dati)</b>.
+                                Di seguito le modalit&agrave; di primo accesso al portale
+                            </p>
+                            <p>
+                                Per i tutor: <br />
+                                <ul>
+                                    <li>
+                                        Username: P.IVA aziendale / password: P.IVA aziendale <br />
+                                        Nel caso di Libero professionista o altro in cui &egrave; stato indicato lo stesso
+                                        dato sia come Codice fiscale che P.IVA, sar&agrave; necessario anteporre <b>XX</b>
+                                        (es XX123456789 / XX123456789 oppure XXFGCBCF11A12A969C / XXFGCBCF11A12A969C)
+                                    </li>
+                                </ul>
+                            </p>
+                            <p>
+                                Per gli utenti: <br />
+                                <ul>
+                                    <li>Username: Codice fiscale / password: Codice fiscale</li>
+                                </ul>
+                            </p>
+                            <p>
+                            Suggeriamo di cambiare la propria password <b>(Menu Accedi/Registrati > Modifica Dati)</b>.
                             <br />
-                            Se necessita di recuperare le credenziali contatti l’helpdesk tecnico
+                            Se necessita di recuperare le credenziali contatti l’helpdesk tecnico.
                             </p>
 HTML;
                 }
