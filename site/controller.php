@@ -72,7 +72,7 @@ class gglmsController extends JControllerLegacy
 
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css?20211025');
+        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupon.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupondispenser.css');
