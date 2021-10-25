@@ -2249,7 +2249,7 @@ HTML;
         $ragione_sociale = "Utenti privati skillab",
         $piva = "08420380019",
         $email = "skillabfad@skillab.it",
-        $is_debug = false) {
+        $is_debug = true) {
 
         try {
 
@@ -2343,7 +2343,7 @@ HTML;
 
                 // costituisco il corpo della email
                 // creato tutor aziendale
-
+                /*
                 if (isset($company_infos['company_user'])
                     && $company_infos['company_user'] != "") {
                     // nuovo tutor creato
@@ -2368,16 +2368,44 @@ HTML;
 
                     $iscrizioni = true;
 
+                } */
+
+                // nuovo tutor creato
+                if (isset($company_infos['company_user'])
+                    && $company_infos['company_user'] != "") {
+
+                        $tutor_infos = $company_infos['company_user'];
+
+                        $_html_tutor = <<<HTML
+                            <p>
+                            Le sue credenziali di accesso in qualit&agrave; di tutor aziendale sono:
+                            </p>
+                            <div style="font-family: monospace;">
+                                Username: {$tutor_infos['piva']} / Password: {$tutor_infos['password']}
+                            </div>
+                            <p>
+                            suggeriamo di cambiare la propria password <b>(Menu Accedi/Registrati > Modifica Dati)</b>.
+                            <br />
+                            Se necessita di recuperare le credenziali contatti l’helpdesk tecnico
+                            </p>
+HTML;
                 }
+
                 // creati utenti
                 if (isset($company_infos['new_users'])
                     && is_array($company_infos['new_users'])
                     && count($company_infos['new_users']) > 0) {
                     $_html_users = <<<HTML
-                    <p>Nuovi utenti creati:</p>
-                    <div style="font-family: monospace;">
+                        <p>
+                        In questa mail trover&agrave; gli account creati per i nuovi utenti non ancora registrati in piattaforma.
+                        Sia username che password corrispondono al codice fiscale (suggeriamo agli utenti di cambiare la propria password al primo accesso).
+                        Gli utenti gi&agrave; registrati dovranno invece continuare a utilizzare le credenziali gi&agrave; in loro possesso
+                        </p>
+                        <p>
+                            <h3>Ecco le credenziali per gli utenti non ancora registrati alla piattaforma https://{$info_piattaforma["dominio"]}</h3>
+                        </p>
+                        <div style="font-family: monospace;">
 HTML;
-
                     foreach ($company_infos['new_users'] as $key_user => $user) {
 
                         $_html_users .= <<<HTML
@@ -2385,11 +2413,18 @@ HTML;
                         <br />
 HTML;
                     }
-
                     $_html_users .= <<<HTML
-                    </div>
+                        </div>
 HTML;
+
                     $iscrizioni = true;
+                }
+                else {
+                    $_html_users = <<<HTML
+                    <p>
+                        <b>Tutti gli utenti iscritti sono gi&agrave; in possesso di un account e possono accedere con le proprie credenziali.</b>
+                    </p>
+HTML;
                 }
 
                 $_html_coupons = "";
@@ -2401,8 +2436,9 @@ HTML;
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
+                        $arr_coupons[] = $coupon;
                     }
-                    $arr_coupons[] = $coupon;
+
                     $coupons_count++;
                 }
 
@@ -2425,14 +2461,15 @@ HTML;
                 }
 
                 $smarty = new EasySmarty();
-                $smarty->assign('coupons', $_html_coupons);
-                $smarty->assign('coupons_count', $coupons_count);
+                //$smarty->assign('coupons', $_html_coupons);
+                //$smarty->assign('coupons_count', $coupons_count);
                 $smarty->assign('course_name', $_info_corso["titolo"]);
                 $smarty->assign('company_name', $company_infos['nome_societa']);
                 $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
                 $smarty->assign('recipient_name', $recipients["to"]->name);
                 $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
                 $smarty->assign('company_users', $_html_users);
+                $smarty->assign('creazione_tutor', $_html_tutor);
 
                 $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
                 $mailer->isHTML(true);

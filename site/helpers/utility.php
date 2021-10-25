@@ -2525,16 +2525,19 @@ HTML;
                                 $piva_ente -> <PIVA_ENTE><![CDATA[12286690016]]></PIVA_ENTE>
                                 persona che rappresenta la medesima azienda
                                 lo username sarà il suo CF anticipato da due XX altrimenti l'utente non sarà inserito
+                                lo applico al tutor, quindi alla partita iva, e non più all'utente sul CF
                                 */
                                 else if ($piva_ente == $cf_iscritto) {
-                                    $cf_iscritto_tmp = $cf_iscritto;
-                                    $cf_iscritto = $pre_iscrizione . $cf_iscritto;
+
+                                    //$cf_iscritto = $pre_iscrizione . $cf_iscritto;
+                                    $piva_ente = $pre_iscrizione . $piva_ente;
 
                                     $_err_msg = "Caso persona azienda: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                                 }
 
                                 $cf_iscritto = strtoupper($cf_iscritto);
+                                $piva_ente = strtoupper($piva_ente);
 
                                 // creazione coupon
                                 $coupon_data['username'] = $piva_ente;
@@ -2563,7 +2566,6 @@ HTML;
                                     /*
                                     $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
-                                    $password = !is_null($cf_iscritto_tmp) ? strtoupper($cf_iscritto_tmp) : $cf_iscritto;
                                     */
                                     $password = $cf_iscritto;
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
