@@ -61,7 +61,7 @@ if ($this->sottounita) {
                         $box_bg = "";
                         if (isset($unita->modalita)
                             && $unita->modalita == 1)
-                            $box_bg = "bg-warning";
+                            $box_bg = "webinar_footer";
                         ?>
 <!--   modifica box con card bootstrap responsive-->
                      <div class="col-sm-3 py-3 d-flex">
