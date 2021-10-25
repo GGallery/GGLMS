@@ -2249,7 +2249,7 @@ HTML;
         $ragione_sociale = "Utenti privati skillab",
         $piva = "08420380019",
         $email = "skillabfad@skillab.it",
-        $is_debug = true) {
+        $is_debug = false) {
 
         try {
 
@@ -2343,6 +2343,8 @@ HTML;
 
                 // costituisco il corpo della email
                 // creato tutor aziendale
+                // inibito l'invio di email al tutor per eventuale creazione
+                // l'azienda riceverà un email unica che contiene tutti dati necessari
                 /*
                 if (isset($company_infos['company_user'])
                     && $company_infos['company_user'] != "") {
