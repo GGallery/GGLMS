@@ -9,7 +9,28 @@
 ?>
 <div class="container-fluid">
 
-
+<small>
+    <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (is_null($this->_html)) :
+                    echo <<<HTML
+                    <tr>
+                        <td colspan="2">Nessun utente trovato</td>
+                    </tr>
+    HTML;
+                    else :
+                        echo $this->_html;
+                    endif;
+                ?>
+            </tbody>
+    </table>
+</small>
 
 <script type="text/javascript">
 
