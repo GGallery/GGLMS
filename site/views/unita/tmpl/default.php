@@ -66,7 +66,7 @@ if ($this->sottounita) {
 <!--   modifica box con card bootstrap responsive-->
                      <div class="col-sm-3 py-3 d-flex">
                            <!--                        <div class="g-block interno">-->
-                          <div class="card d-flex <?php echo $box_bg;?>">
+                          <div class="card d-flex">
                             <?php
                             // revisione caricamento immagini di background delle unità
                             /*
@@ -108,7 +108,7 @@ if ($this->sottounita) {
 
                            <div class="card-body my-0 px-0 py-0">
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
-                                    <div class="card-title text-center my-0"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                    <div class="card-title text-center my-0 <?php echo $box_bg;?>"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                 </a>
                            </div>
                                 <?php
