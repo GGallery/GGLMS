@@ -121,7 +121,7 @@ if ($this->sottounita) {
                                 </a>
                            <div class="card-body my-0 px-0 py-0">
                                    <a>
-                                       <div class="card-title text-center my-0"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                       <div class="card-title text-center my-0 <?php echo $box_bg;?>"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                    </a>
                            </div>
                             <?php } ?>
