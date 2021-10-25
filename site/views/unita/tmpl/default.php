@@ -61,7 +61,7 @@ if ($this->sottounita) {
                         $box_bg = "";
                         if (isset($unita->modalita)
                             && $unita->modalita == 1)
-                            $box_bg = "webinar_footer";
+                            $box_bg = 'style="background: #B7D7D5 !important;"';
                         ?>
 <!--   modifica box con card bootstrap responsive-->
                      <div class="col-sm-3 py-3 d-flex">
@@ -108,7 +108,7 @@ if ($this->sottounita) {
 
                            <div class="card-body my-0 px-0 py-0">
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
-                                    <div class="card-title text-center my-0 <?php echo $box_bg;?>"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                    <div class="card-title text-center my-0" <?php echo $box_bg;?>><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                 </a>
                            </div>
                                 <?php
@@ -121,7 +121,7 @@ if ($this->sottounita) {
                                 </a>
                            <div class="card-body my-0 px-0 py-0">
                                    <a>
-                                       <div class="card-title text-center my-0 <?php echo $box_bg;?>"><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
+                                       <div class="card-title text-center my-0" <?php echo $box_bg;?>><p class="my-0"><b><?php echo $unita->titolo; ?></b></p></div>
                                    </a>
                            </div>
                             <?php } ?>
