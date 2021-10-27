@@ -789,12 +789,14 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
+    //sbloccare il corso e i suoi contenuti
     public function set_corso_completed($id_gruppo_corso)
     {
 
         try {
 
             $corso_obj = $this->get_corso_from_gruppo($id_gruppo_corso);
+
             $all_contents = $corso_obj->getAllContentsByCorso();
 
             $content_model = new gglmsModelContenuto();
@@ -802,10 +804,12 @@ class gglmsModelUnita extends JModelLegacy
                 $content_obj = $content_model->getContenuto($c["id"]);
                 $content_obj->set_content_as_passed();
             }
+
+            return true;
+
         } catch (Exception $e) {
             DEBUGG::error($e, 'set_corso_completed');
-
-
+            return false;
         }
 
 
@@ -983,7 +987,7 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
-    function insert_utenti_iscritti_xml($codice_corso, $codice_fiscale) {
+    function insert_utenti_iscritti_xml($codice_corso, $codice_fiscale, $codice_coupon = '') {
 
         try {
 
@@ -992,11 +996,13 @@ class gglmsModelUnita extends JModelLegacy
             $insert = "INSERT INTO #__gg_check_coupon_xml
                         (
                             codice_corso,
-                            codice_fiscale
+                            codice_fiscale,
+                            codice_coupon
                         )
                         VALUES (
                             " . $this->_db->quote($codice_corso) . ",
-                            " . $this->_db->quote($codice_fiscale) . "
+                            " . $this->_db->quote($codice_fiscale) . ",
+                            " . $this->_db->quote($codice_coupon) . "
                         )
                     ";
 
@@ -1020,7 +1026,7 @@ class gglmsModelUnita extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                    ->select('codice_fiscale')
+                    ->select('UPPER(codice_fiscale) AS codice_fiscale')
                     ->from('#__gg_check_coupon_xml')
                     ->where('codice_corso = ' . $this->_db->quote($codice_corso));
 

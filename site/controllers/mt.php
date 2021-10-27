@@ -72,13 +72,46 @@ class gglmsControllerMt extends JControllerLegacy {
     public function test_() {
         try {
 
-            $codice_corso = 2187;
-            $unita_model = new gglmsModelUnita();
-            $utenti_iscritti = $unita_model->get_utenti_iscritti_xml($codice_corso);
-            $utenti_iscritti = is_array($utenti_iscritti) ? $utenti_iscritti : [];
-            $check_utenti_iscritti = utilityHelper::get_mono_array_from_multi_per_key($utenti_iscritti, 'codice_fiscale');
+            $cf_s = array('FGLTZN71B47C627X',
+            'BRTRCR67L08L219X',
+            'BRTRST72M01L219Y',
+            'GNTPLA71E42L219F',
+            'PGTLCU76H07L219Y',
+            'VGNLRA69R52L219F',
+            'TMTMHL77B61L219S',
+            'MRZCHR75L50E379J',
+            'GNTFNC64C03D086X',
+            'LVSRRT68L02A479U',
+            'MNTMRA64R12A479F',
+            'PRNDNL66A49C627B',
+            'FRCGNN66C27A182C',
+            'BRRDVD71A13L219C',
+            'GRZMCL65M23F481W',
+            'CLNDRN67M12Z404T',
+            'LNEVNC86P62C349M',
+            'PLZVNT74L219O',
+            'GZZSRA75H68L219J',
+            'XX12286690016',
+            'MRTTLL61A04L219R',
+            'CVGDDG83M26Z110L',
+            'LSSGPP72P10A662E',
+            'PPEFTN64L20L219T',
+            'PPEFNC86S29L219W',
+            'MLNSVN74D44C665L',
+            'XX12286690016',
+            'LBRNCL75M28D600S',
+            'XX00471820019',
+            'DLFBBR68E70L219X',
+            'MSTMNC91D63L727R',
+            'MTTMZF73C13E020C',
+            'DLLGPP65H12I480L',
+            'LFFSVT82E21F839T',
+            'FNDRKE79C67C665Q',
+            'FRSMCR68S45L219K');
+            $check_cf = "LFFSVT82E21F839T";
 
-            var_dump($check_utenti_iscritti);
+            echo in_array($check_cf, $cf_s) ? "SI" : "NO";
+
 
 
         }

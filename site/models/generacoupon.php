@@ -57,7 +57,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
     // entry point
-    public function insert_coupon($data, $from_api=false, $from_xml=false)
+    public function insert_coupon($data, $from_api=false, $from_xml=false, $disable_mail=false)
     {
 
         try {
@@ -204,55 +204,55 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             // leggo da configurazione se mandare le mail con i coupon generati
             // non invio email singola se sto generando i coupon da xml perchè ne invierò una cumulativa
-            $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
-            if ($send_mail == 1
-                && !$from_xml) {
+            if(!$disable_mail) {
+                $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
+                if ($send_mail == 1
+                    && !$from_xml) {
 
+                    // send new credentials
+                    if ($new_societa) {
 
-                // send new credentials
-                if ($new_societa) {
+                        if ($this->send_new_company_user_mail($company_user,
+                                $nome_societa,
+                                $id_gruppo_societa,
+                                $data["id_piattaforma"],
+                                $data['email_coupon'],
+                                $from_api) === false) {
+                            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                        }
 
-                    if ($this->send_new_company_user_mail($company_user,
+                    }
+
+                    if ($this->send_coupon_mail($coupons,
+                            $data["id_piattaforma"],
                             $nome_societa,
                             $id_gruppo_societa,
-                            $data["id_piattaforma"],
                             $data['email_coupon'],
                             $from_api) === false) {
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
+
                 }
 
-                if ($this->send_coupon_mail($coupons,
-                        $data["id_piattaforma"],
-                        $nome_societa,
-                        $id_gruppo_societa,
-                        $data['email_coupon'],
-                        $from_api) === false) {
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-                }
+                // leggo da configurazione se creare o meno forum
+                $genera_forum = $this->_config->getConfigValue('genera_forum');
+                if ($genera_forum == 1) {
 
+                    $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $from_api);
 
-            }
+                    if (empty($forum_corso)) {
 
-
-            // leggo da configurazione se creare o meno forum
-            $genera_forum = $this->_config->getConfigValue('genera_forum');
-            if ($genera_forum == 1) {
-
-                $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $from_api);
-
-                if (empty($forum_corso)) {
-
-                    if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa,
-                            $data['gruppo_corsi'],
-                            $nome_societa,
-                            null,
-                            $from_api))) {
-                        throw new RuntimeException('Error: cannot create forum corso', E_USER_ERROR);
+                        if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa,
+                                $data['gruppo_corsi'],
+                                $nome_societa,
+                                null,
+                                $from_api))) {
+                            throw new RuntimeException('Error: cannot create forum corso', E_USER_ERROR);
+                        }
                     }
-                }
 
+                }
             }
 
             // se sto generando il coupon da xml ritorno il codice che devo associare all'utente
@@ -329,6 +329,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $password = $this->_generate_pwd(8);
             $salt = JUserHelper::genRandomPassword(32);
             $crypt = JUserHelper::getCryptedPassword($password, $salt) . ':' . $salt;
+
+            // se arrivo dall'importazione xml imposto la password del tutor uguale alla PIVA aziendale
+            if ($from_xml) {
+                $password = $data['username'];
+                $crypt = JUserHelper::hashPassword($password);
+            }
 
             // creo nuovo user
             $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $this->_db->escape($data['ragione_sociale']), $this->_db->escape($data['username']), $crypt, $data['email']);

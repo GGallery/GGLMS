@@ -160,11 +160,18 @@ class gglmsViewdettagliutente extends JViewLegacy
 
             }
             else if ($layout == 'report_quiz_per_utente') {
-
                 $model_report = new gglmsModelReport();
                 $this->corsi = $model_report->getCorsi(true);
 
             }
+            else if ($layout == 'resend_info_corso') {
+
+                require_once JPATH_COMPONENT . '/controllers/users.php';
+                $user_controller = new gglmsControllerUsers();
+                $this->_html = $user_controller->get_utenti_per_societa();
+
+            }
+
         }
         catch (Exception $e){
             $this->_html = outputHelper::get_payment_form_error($e->getMessage());

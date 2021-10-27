@@ -44,6 +44,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam = new stdClass();
 
         $this->_filterparam->corso_id = JRequest::getVar('corso_id');
+        $this->_filterparam->gruppo_id = JRequest::getVar('gruppo_id');
         $this->_filterparam->current = JRequest::getVar('current');
         $this->_filterparam->rowCount = JRequest::getVar('rowCount');
         $this->_filterparam->startdate = JRequest::getVar('startdate');
@@ -2137,6 +2138,102 @@ HTML;
 
     }
 
+    public function attivazione_coupons_utenti_ep() {
+
+        $id_piattaforma = $this->_filterparam->id_piattaforma;
+        echo $this->attivazione_coupons_utenti($id_piattaforma);
+
+        $this->_japp->close();
+
+    }
+
+    // abilito i coupon in appoggio alla tabella di controllo
+    public function attivazione_coupons_utenti($id_piattaforma) {
+
+        try {
+
+            /*
+            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_corso, cpcheck.codice_fiscale, ugmp.idgruppo AS gruppo_corso, subq.id_gruppo AS gruppo_azienda, utenti.id AS user_id
+                        FROM #__gg_check_coupon_xml cpcheck
+                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
+                        INNER JOIN #__gg_unit AS unita ON unita.codice = cpcheck.codice_corso
+                        INNER JOIN #__gg_usergroup_map AS ugmp ON ugmp.idunita = unita.id
+                        INNER JOIN (SELECT DISTINCT mu.id AS id_gruppo, muum.user_id
+                                        FROM #__usergroups mu
+                                        JOIN #__user_usergroup_map muum ON muum.group_id = mu.id
+                                        WHERE mu.parent_id = " . $this->_db->quote($id_piattaforma) . ") AS subq ON subq.user_id = utenti.id
+                                        WHERE cpcheck.coupon IS NULL";
+                                        */
+
+            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id
+                        FROM #__gg_check_coupon_xml cpcheck
+                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
+                        WHERE cpcheck.coupon IS NULL";
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (!is_array($results)
+                || count($results) == 0)
+                throw new Exception("Nessuna referenza disponibile", E_USER_ERROR);
+
+            $user_model = new gglmsModelUsers();
+            $this->_db->transactionStart();
+            $updates_arr = [];
+
+            foreach ($results as $key_result => $coupon) {
+
+                /*
+                $update_coupon = "UPDATE #__gg_coupon
+                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
+                                    WHERE id_gruppi = " . $this->_db->quote($coupon['gruppo_corso']) . "
+                                    AND id_societa = " . $this->_db->quote($coupon['gruppo_azienda']) . "
+                                    AND id_utente IS NULL
+                                    ORDER BY creation_time DESC
+                                    LIMIT 1
+                                    ";
+                                    */
+
+                $update_coupon = "UPDATE #__gg_coupon
+                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
+                                    WHERE coupon = " . $this->_db->quote($coupon['codice_coupon']);
+
+                // inserisco utente in gruppo corso
+                $insert_ug = $user_model->insert_user_into_usergroup($coupon['user_id'], $coupon['gruppo_corso']);
+                if (is_null($insert_ug))
+                    throw new Exception("Inserimento utente in gruppo corso fallito: " . $coupon['user_id'] . ", " . $coupon['gruppo_corso'], E_USER_ERROR);
+
+                $this->_db->setQuery($update_coupon);
+                if (!$this->_db->execute())
+                    throw new Exception("update coupon query ko -> " . $update_coupon, 1);
+
+                $updates_arr[] = $coupon['id_rif'];
+
+            }
+
+            if (count($updates_arr) == 0)
+                throw new Exception("Nessuna referenza aggiornata in coupons", E_USER_ERROR);
+
+            // aggiorno la tabella dei riferimenti
+            $update_refs = "UPDATE #__gg_check_coupon_xml
+                            SET coupon = 1
+                            WHERE id IN (" . implode(",", $updates_arr) . ") ";
+            $this->_db->setQuery($update_refs);
+            if (!$this->_db->execute())
+                throw new Exception("update refs query ko -> " . $update_coupon, 1);
+
+            $this->_db->transactionCommit();
+
+            return "Riferimenti aggiornati: " . count($updates_arr);
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return 0;
+        }
+
+    }
+
     // importazione corsi da file xml chiamata api
     public function load_corsi_from_xml_ep() {
 
@@ -2148,7 +2245,11 @@ HTML;
     }
 
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma = 16, $ragione_sociale = "Utenti privati skillab", $piva = "08420380019", $email = "skillabfad@skillab.it", $is_debug = false) {
+    public function load_corsi_from_xml($id_piattaforma = 16,
+        $ragione_sociale = "Utenti privati skillab",
+        $piva = "08420380019",
+        $email = "skillabfad@skillab.it",
+        $is_debug = false) {
 
         try {
 
@@ -2163,8 +2264,8 @@ HTML;
                     throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
             }
             else {
-                $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
-                $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
+                //$get_corsi[] = 'GGCorsiElenco_210520101221.xml';
+                $get_corsi = ['Iscritti_20211020085717.xml'];
             }
 
             // elaborazione dei corsi
@@ -2235,17 +2336,16 @@ HTML;
 
                 $mailer = JFactory::getMailer();
                 $mailer->setSender($sender);
-                if (!$is_debug) {
-                    $mailer->addRecipient($to);
-                    $mailer->addCc($recipients["cc"]);
-                }
-                else
-                    $mailer->addRecipient($this->mail_debug);
+                $mailer->addRecipient($to);
+                $mailer->addCc($recipients["cc"]);
 
                 $mailer->setSubject('Coupon corso ' . $_info_corso["titolo"]);
 
                 // costituisco il corpo della email
                 // creato tutor aziendale
+                // inibito l'invio di email al tutor per eventuale creazione
+                // l'azienda riceverà un email unica che contiene tutti dati necessari
+                /*
                 if (isset($company_infos['company_user'])
                     && $company_infos['company_user'] != "") {
                     // nuovo tutor creato
@@ -2270,16 +2370,64 @@ HTML;
 
                     $iscrizioni = true;
 
+                } */
+
+                // nuovo tutor creato
+                if (isset($company_infos['company_user'])
+                    && $company_infos['company_user'] != "") {
+
+                        $tutor_infos = $company_infos['company_user'];
+
+                        $_html_tutor = <<<HTML
+                            <p>
+                            Le sue credenziali di accesso in qualit&agrave; di tutor aziendale sono:
+                            </p>
+                            <div style="font-family: monospace;">
+                                Username: {$tutor_infos['piva']} / Password: {$tutor_infos['password']}
+                            </div>
+                            <p>
+                                Di seguito le modalit&agrave; di primo accesso al portale
+                            </p>
+                            <p>
+                                Per i tutor: <br />
+                                <ul>
+                                    <li>
+                                        Username: P.IVA aziendale / password: P.IVA aziendale <br />
+                                        Nel caso di Libero professionista o altro in cui &egrave; stato indicato lo stesso
+                                        dato sia come Codice fiscale che P.IVA, sar&agrave; necessario anteporre <b>XX</b>
+                                        (es XX123456789 / XX123456789 oppure XXFGCBCF11A12A969C / XXFGCBCF11A12A969C)
+                                    </li>
+                                </ul>
+                            </p>
+                            <p>
+                                Per gli utenti: <br />
+                                <ul>
+                                    <li>Username: Codice fiscale / password: Codice fiscale</li>
+                                </ul>
+                            </p>
+                            <p>
+                            Suggeriamo di cambiare la propria password <b>(Menu Accedi/Registrati > Modifica Dati)</b>.
+                            <br />
+                            Se necessita di recuperare le credenziali contatti l’helpdesk tecnico.
+                            </p>
+HTML;
                 }
+
                 // creati utenti
                 if (isset($company_infos['new_users'])
                     && is_array($company_infos['new_users'])
                     && count($company_infos['new_users']) > 0) {
                     $_html_users = <<<HTML
-                    <p>Nuovi utenti creati:</p>
-                    <div style="font-family: monospace;">
+                        <p>
+                        In questa mail trover&agrave; gli account creati per i nuovi utenti non ancora registrati in piattaforma.
+                        Sia username che password corrispondono al codice fiscale (suggeriamo agli utenti di cambiare la propria password al primo accesso).
+                        Gli utenti gi&agrave; registrati dovranno invece continuare a utilizzare le credenziali gi&agrave; in loro possesso
+                        </p>
+                        <p>
+                            <h3>Ecco le credenziali per gli utenti non ancora registrati alla piattaforma https://{$info_piattaforma["dominio"]}</h3>
+                        </p>
+                        <div style="font-family: monospace;">
 HTML;
-
                     foreach ($company_infos['new_users'] as $key_user => $user) {
 
                         $_html_users .= <<<HTML
@@ -2287,21 +2435,30 @@ HTML;
                         <br />
 HTML;
                     }
-
                     $_html_users .= <<<HTML
-                    </div>
+                        </div>
 HTML;
+
                     $iscrizioni = true;
+                }
+                else {
+                    $_html_users = <<<HTML
+                    <p>
+                        <b>Tutti gli utenti iscritti sono gi&agrave; in possesso di un account e possono accedere con le proprie credenziali.</b>
+                    </p>
+HTML;
                 }
 
                 $_html_coupons = "";
                 $coupons_count = 0;
+                $arr_coupons = [];
                 foreach ($coupons as $coupon_key => $sub_coupon) {
 
                     foreach ($sub_coupon as $sub_coupon_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
+                        $arr_coupons[] = $coupon;
                     }
 
                     $coupons_count++;
@@ -2311,36 +2468,40 @@ HTML;
                 if (is_array($registrati)
                     && count($registrati) > 0) {
 
+                    $cc = 0;
                     foreach ($registrati as $reg_key => $reg) {
 
                         if ($reg == "" || strpos($reg, "|") === false)
                             continue;
 
                         $expl_reg = explode("|", $reg);
-                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1]);
+                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1], $arr_coupons[$cc]);
+
+                        $cc++;
 
                     }
                 }
 
                 $smarty = new EasySmarty();
-                $smarty->assign('coupons', $_html_coupons);
-                $smarty->assign('coupons_count', $coupons_count);
+                //$smarty->assign('coupons', $_html_coupons);
+                //$smarty->assign('coupons_count', $coupons_count);
                 $smarty->assign('course_name', $_info_corso["titolo"]);
                 $smarty->assign('company_name', $company_infos['nome_societa']);
                 $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
                 $smarty->assign('recipient_name', $recipients["to"]->name);
                 $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
                 $smarty->assign('company_users', $_html_users);
+                $smarty->assign('creazione_tutor', $_html_tutor);
 
                 $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
                 $mailer->isHTML(true);
 
                 $email_status = 1;
+
                 if (!$mailer->Send())
                     $email_status = 0;
 
                 utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
-
             }
 
             echo 1;
@@ -2653,6 +2814,34 @@ HTML;
         }
 
         return "UPDATED: " . $updated;
+    }
+
+    //generazione del coupon da una chiamata api per sbloccare un corso come demo
+    public function genera_coupon_demo_api() {
+
+        try {
+
+            $id_user = $this->_filterparam->user_id;
+            $id_gruppo = $this->_filterparam->gruppo_id;
+
+            if (!isset($id_user)
+                || !isset($id_gruppo)
+                || !is_numeric($id_user)
+                || !is_numeric($id_gruppo))
+                throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
+
+
+           $genera_coupon =  utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+
+            if(!isset($genera_coupon))
+                throw new Exception("Errore nella generazione del coupon demo", 1);
+
+        } catch(Exception $e) {
+
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_demo');
+            DEBUGG::error($e, __FUNCTION__, 1, true);
+        }
+
     }
 
 //	INUTILIZZATO

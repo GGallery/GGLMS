@@ -1795,12 +1795,8 @@ HTML;
 
             $mailer = JFactory::getMailer();
             $mailer->setSender($sender);
-            if (!$is_debug) {
-                $mailer->addRecipient($to);
-                $mailer->addCc($recipients["cc"]);
-            }
-            else
-                $mailer->addRecipient($mail_debug);
+            $mailer->addRecipient($to);
+            $mailer->addCc($recipients["cc"]);
 
             $mailer->setSubject('Registrazione  ' . $alias_piattaforma);
 
@@ -1819,7 +1815,6 @@ HTML;
             if (!$mailer->Send())
                 $email_status = 0;
 
-            //self::logMail(__FUNCTION__, $sender, $recipients['to'], $email_status);
             self::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
 
             return true;
@@ -2423,7 +2418,12 @@ HTML;
                 $coupon_model = new gglmsModelgeneracoupon();
                 $unita_model = new gglmsModelUnita();
 
+                // codici fiscali ricorsivi su file multipli
+                $cf_recursive = [];
+                $pre_iscrizione = "XX";
+
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
+
                     // caso corsi
                     if (strpos($file, "Iscritti") !== false) {
                         $gruppo_corso = null;
@@ -2477,6 +2477,7 @@ HTML;
                             // campi non più controllati perchè potrebbe essere legati ad un utente privato che non ha valorizzati piva_ente e ragione_sociale
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
+                            $cf_iscritto_tmp = null;
 
                             // dati mancanti per l'iscritto
                             if ($codice_iscritto == ""
@@ -2487,8 +2488,19 @@ HTML;
                                 $_err_msg = "Dati iscrizione corso incompleti: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
+                            // utente per il quale il coupon è stato già generato per file ricorsivi quindi salto
+                            else if (
+                                in_array(strtoupper($cf_iscritto), $cf_recursive)
+                                || in_array($pre_iscrizione . strtoupper($cf_iscritto), $cf_recursive)
+                                ) {
+                                $_err_msg = "CF ricorsivo file multipli: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
+                                self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
+                            }
                             // utente per il quale il coupon è stato già generato quindi salto
-                            else if (in_array($cf_iscritto, $check_utenti_iscritti)) {
+                            else if (
+                                    in_array(strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    || in_array($pre_iscrizione . strtoupper($cf_iscritto), $check_utenti_iscritti)
+                                    ) {
                                     $_err_msg = "Coupon presente in anagrafica: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                             }
@@ -2513,13 +2525,19 @@ HTML;
                                 $piva_ente -> <PIVA_ENTE><![CDATA[12286690016]]></PIVA_ENTE>
                                 persona che rappresenta la medesima azienda
                                 lo username sarà il suo CF anticipato da due XX altrimenti l'utente non sarà inserito
+                                lo applico al tutor, quindi alla partita iva, e non più all'utente sul CF
                                 */
                                 else if ($piva_ente == $cf_iscritto) {
-                                    $cf_iscritto = "XX" . $cf_iscritto;
+
+                                    //$cf_iscritto = $pre_iscrizione . $cf_iscritto;
+                                    $piva_ente = $pre_iscrizione . $piva_ente;
 
                                     $_err_msg = "Caso persona azienda: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                     self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
                                 }
+
+                                $cf_iscritto = strtoupper($cf_iscritto);
+                                $piva_ente = strtoupper($piva_ente);
 
                                 // creazione coupon
                                 $coupon_data['username'] = $piva_ente;
@@ -2529,6 +2547,7 @@ HTML;
                                 $coupon_data['id_piattaforma'] = $id_piattaforma;
                                 $coupon_data['gruppo_corsi'] = $gruppo_corso;
                                 $coupon_data['qty'] = 1;
+                                $coupon_data['abilitato'] = 'on';
 
                                 $crea_coupon = $coupon_model->insert_coupon($coupon_data, true, true);
                                 if (is_null($crea_coupon)
@@ -2540,10 +2559,15 @@ HTML;
 
                                 if (is_null($check_user_id)) {
                                     $_new_user['name'] = $codice_iscritto;
-                                    $_new_user['username'] = strtoupper($cf_iscritto);
+                                    $_new_user['username'] = $cf_iscritto;
                                     // email farlocca
                                     $_new_user['email'] = $_new_user['username'] . '@me.com';
+                                    // password uguale al codice iscritto
+                                    /*
                                     $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                                    $_new_user['password'] = JUserHelper::hashPassword($password);
+                                    */
+                                    $password = $cf_iscritto;
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
                                     // inserimento utente in users
                                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
@@ -2601,6 +2625,9 @@ HTML;
                                         throw new Exception("Inserimento utente in ug azienda fallito, utente: " . $_new_user_id . " ug: " . $ug_destinazione, E_USER_ERROR);
 
                                 }
+
+                                $cf_recursive[] = $cf_iscritto;
+
                             } // check campi principali
 
                         } // iscritti loop
@@ -2608,7 +2635,6 @@ HTML;
                     } // check file
                 } // corso loop
             } // loop radice xml
-
 
             return $generazione_coupon;
         }
@@ -3485,6 +3511,93 @@ HTML;
         }
 
         return $random_string;
+    }
+
+    //dati id_user e id_gruppo, funzione per creazione di coupon con unita e contenuti sbloccati (DEMO)
+    public static function genera_coupon_demo($id_user, $id_gruppo) {
+
+       try {
+
+           $model_user = new gglmsModelUsers();
+           $model_coupon = new gglmsModelcoupon();
+           $genera_coupon = new gglmsModelGeneraCoupon();
+           $unita_model = new gglmsModelUnita();
+
+           $user_soc = $model_user->get_user_societa($id_user, true);
+
+           //controllo se user appartiene ad una società
+           if (!isset($user_soc) || !is_numeric($user_soc[0]->id))
+               throw new Exception("questo user non appartiene a nessuna società", 1);
+
+           $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
+
+           //controllo tutor aziandale
+           if (!isset($tutor_id) || !is_numeric($tutor_id))
+               throw new Exception(" il tutor aziendale non esiste", 1);
+
+           //mi restituisca username del tutor aziendale perche mi serve nell'inserimento del coupon
+           $username_tutor = $model_user->get_user($tutor_id);
+
+           if (!isset($username_tutor))
+               throw new Exception("il username del tutor aziendale non esiste", 1);
+
+           $data = array();
+
+           $data['attestato'] = 'on';
+           $data['abilitato'] = 'on';
+           $data['stampatracciato'] = '';
+           $data['trial'] = 'on';
+           $data['venditore'] = '';
+           $data['gruppo_corsi'] = $id_gruppo;
+           $data['username'] = $username_tutor->username;
+           $data['ref_skill'] = '';
+           $data['qty'] = 1;
+
+           //inserimento del coupon senza assegnazione
+           $id_iscrizione = $genera_coupon->insert_coupon($data, true, false, true);
+           if (!isset($id_iscrizione))
+               throw new Exception("id_iscrizione mancante", 1);
+
+           //mi restituisca il coupon appena inserito
+           $coupon = $model_coupon->get_coupon($id_iscrizione);
+           if (!isset($coupon))
+               throw new Exception("coupon mancante", 1);
+
+           //check del coupon
+           $dettagli_coupon = $model_coupon->check_Coupon($coupon);
+
+           //assegnazione del coupon ad id_user
+           $assegna = $model_coupon->assegnaCoupon_user($id_user, $coupon);
+           if (!$assegna)
+               throw new Exception("l'assegnazione del coupon mancante", 1);
+
+           //settare gruppo all'utente su usergroup_map
+           if (isset($dettagli_coupon['id_gruppi']) && is_array($dettagli_coupon))
+               $insert_usergroup = $model_coupon->setUsergroup_user($dettagli_coupon['id_gruppi'], $id_user);
+
+           if (!$insert_usergroup)
+               throw new Exception("errore nell'inserimento in usergroup_map", 1);
+
+            //TRIAL, se il coupon è trial sblocco tutti i contenuti del corso
+           if ($dettagli_coupon["trial"] == 1) {
+
+              $set_corso = $unita_model->set_corso_completed($dettagli_coupon["id_gruppi"]);
+               if (!$set_corso)
+                   throw new Exception("sblocco del corso mancante", 1);
+
+               echo "Operazione di generazione del coupon e l'attivazione del corso terminata : " . date('d/m/Y H:i:s') . "per il coupon : " . $coupon;
+
+               return true;
+           }
+
+
+       } catch (Exception $e) {
+
+           echo __FUNCTION__ . " error: " . $e->getMessage();
+           return null;
+       }
+
+
     }
 
     /* Generiche */

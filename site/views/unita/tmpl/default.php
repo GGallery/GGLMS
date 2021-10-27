@@ -51,9 +51,9 @@ if ($this->sottounita) {
 
                         ?>
 <!--   modifica box con card bootstrap responsive-->
-                     <div class="col-sm-3 py-3 d-flex">
+                     <div class="col-sm-3 py-3 ">
                            <!--                        <div class="g-block interno">-->
-                          <div class="card d-flex">
+                          <div class="card ">
                             <?php
                             // revisione caricamento immagini di background delle unità
                             /*
@@ -160,8 +160,8 @@ if ($this->contenuti) {
         $count++;
         ?>
 
-        <div class="col-sm-3 py-3 d-flex">
-            <div class="card d-flex">
+        <div class="col-sm-3 py-3">
+            <div class="card">
 
                 <?php
                 // revisione caricamento immagini di background dei contenuti
@@ -199,7 +199,7 @@ if ($this->contenuti) {
                         <div class="card-title text-center my-0 px-0 py-0"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
                     </a>
                 </div>
-                  <div class="card-footer px-0 py-0">
+                <div class="card-footer px-0 py-0">
 
                         <?php
 
@@ -215,7 +215,7 @@ if ($this->contenuti) {
                         <p class="my-0">
                            <small><?php echo  JText::_('COM_GGLMS_GLOBAL_STATO') ?> <?php echo $stato->descrizione; ?></small>
                         </p>
-                  </div>
+                </div>
 
 
                     <?php
@@ -284,3 +284,19 @@ if (!$count)
     </div>
 </div>
 
+
+<script type="text/javascript">
+
+    var isIE = false || !!document.documentMode;
+
+    if(isIE) {
+
+        $('.card').addClass('d-block');
+        $(".card").addClass("h-100");
+
+    } else {
+
+        $('.col-sm-3').addClass('d-flex');
+        $('.card').addClass('d-flex');
+    }
+</script>
