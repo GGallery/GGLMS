@@ -1099,6 +1099,59 @@ class utilityHelper
 
     ////////////////////////////////////    export csv
 
+   //nel caso di portare tutti gli utenti su dettaglio Quiz
+    public static function _export_csv_dettaglio($filename, $data)
+    {
+
+        try {
+            if (!empty($data)) {
+
+                $quote = '"';
+                $CR = "\015\012";
+
+                $cnt_fields = count($data[1]);
+
+                // Make csv rows for data
+                $csv_values = '';
+                foreach ($data as $row_) {
+                    $i = 0;
+                    $comma = ';';
+                    foreach ($row_ as $name => $val) {
+                        $i++;
+                        if ($cnt_fields <= $i) $comma = '';
+                        $csv_values .= $quote . $val . $quote . $comma;
+                    }
+                    $csv_values .= $CR;
+                }
+
+                $csv_values = iconv('utf-8', 'us-ascii//TRANSLIT', $csv_values);
+                $csv_save = $CR .$csv_values;
+            }
+
+            echo $csv_save;
+
+            $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
+            $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
+            $filename = strtolower($filename);
+            $filename = trim($filename, '_');
+            $filename = preg_replace('~[^-\w]+~', '', $filename);
+            $filename .= "-" . date("d/m/Y");
+            $filename = $filename . ".csv";
+
+
+            header("Content-Type: text/plain");
+            header("Content-disposition: attachment; filename=$filename");
+            header("Content-Transfer-Encoding: binary");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+
+
+        } catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'export_csv_dettaglio');
+        }
+
+
+    }
 
     // esporta $data in un file csv
     // se $column_list != null esporta solo le colonne inidicate altrimenti le esporta tutte - utility per controllers.monitoracoupon.createCSV()
@@ -1180,8 +1233,8 @@ class utilityHelper
             header("Expires: 0");
 
 
-        } catch (exceptions $exception) {
-            echo $exception->getMessage();
+        } catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'export_data_csv');
         }
 
 

@@ -65,6 +65,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->offset = JRequest::getVar('offset');
         $this->_filterparam->cid = JRequest::getVar('cid');
         $this->_filterparam->user_id = JRequest::getVar('user_id');
+        $this->_filterparam->user_id = JRequest::getVar('all_users');
         $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
         $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
@@ -1931,46 +1932,122 @@ HTML;
     public function get_dettagli_quiz() {
 
         $_ret = array();
+        $dettaglio_tot = array();
 
         try {
 
             $params = JRequest::get($_GET);
             $quiz_id = $params["quiz_id"];
             $user_id = $params["user_id"];
+            $corso_id = $params["corso_id"];
+            $all_users = $params["all_users"];
+
+            $model_content = new gglmsModelContenuto();
+
+            if (!isset($all_users)
+                || $all_users == "")
+                throw new Exception("Missing all users", 1);
 
             if (!isset($quiz_id)
                 || $quiz_id == "")
                 throw new Exception("Missing quiz id", 1);
 
-            if (!isset($user_id)
-                || $user_id == "")
-                throw new Exception("Missing user id", 1);
+            //nel caso report per tutti utente
+            if ($all_users == 1 ) {
 
-            $model_content = new gglmsModelContenuto();
-            $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user_id);
+                if (!isset($corso_id)
+                    || $corso_id == "")
+                    throw new Exception("Missing corso id", 1);
 
-            if (!$dettagli_quiz
-                || !is_array($dettagli_quiz)
-                || count($dettagli_quiz) == 0)
-                throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
+                $users_id_arr = UtilityHelper::get_user_iscritti_corso($corso_id);
+                if (count($users_id_arr) == 0
+                     || !is_array($users_id_arr))
+                    throw new Exception("Nessun utente iscritto al corso selezionato", 1);
 
 
-            $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
-            $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
-            $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
+                $user_model = new gglmsModelUsers();
+                $users = $user_model->get_utenti_iscritti_corso($corso_id, $users_id_arr);
 
-            // chiusura della finestra dopo generazione del report
-            $_html = <<<HTML
+                if (is_null($users)
+                    || count($users) == 0)
+                    throw new Exception("Nessuna anagrafica disponibile per il corso selezionato", 1);
+
+
+                foreach ($users as $user) {
+
+                    $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user['id_utente']);
+
+                   if (is_null($dettagli_quiz)
+                       || !is_array($dettagli_quiz)
+                       || count($dettagli_quiz) == 0){
+
+                       //commentata l'exception perche nel caso di tutti utenti si ferma in quello che non ha ancora fatto il quiz
+                 //     throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
+                     continue;
+                  }
+
+                    $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
+
+                    $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
+
+
+                    $nome_user = ["nome" => $user['denominazione_utente']];
+
+
+                    array_push($dettaglio_tot,$nome_user);
+
+                    array_push($dettaglio_tot,$_csv_cols);
+
+                    foreach ($dettagli_quiz as $dettaglio){
+                        array_push($dettaglio_tot,$dettaglio);
+                    }
+
+                }
+
+
+                $_export_csv = utilityHelper::_export_csv_dettaglio(time() . '.csv',$dettaglio_tot);
+
+                // chiusura della finestra dopo generazione del report
+                $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+            } else {
+
+                if (!isset($user_id)
+                    || $user_id == "")
+                    throw new Exception("Missing user id", 1);
+
+
+                $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user_id);
+
+                if (!$dettagli_quiz
+                    || !is_array($dettagli_quiz)
+                    || count($dettagli_quiz) == 0)
+                    throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
+
+
+                $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
+                $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
+                $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
+
+
+//                 chiusura della finestra dopo generazione del report
+                $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
 
+            }
+
         }
         catch (Exception $e) {
-
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'get_dettagli_quiz');
             $_ret['error'] = $e->getMessage();
         }
+
 
         $this->_japp->close();
     }
