@@ -9,28 +9,23 @@
 ?>
 <div class="container-fluid">
 
-<small>
-    <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Azioni</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (is_null($this->_html)) :
-                    echo <<<HTML
-                    <tr>
-                        <td colspan="2">Nessun utente trovato</td>
-                    </tr>
-    HTML;
-                    else :
-                        echo $this->_html;
-                    endif;
-                ?>
-            </tbody>
-    </table>
-</small>
+<table
+            id="tbl_users"
+            data-toggle="table"
+            data-ajax="ajaxRequest"
+            data-search="true"
+            data-side-pagination="server"
+            data-pagination="true"
+            data-show-export="true"
+            data-page-list="[10, 25, 50, 100, 200, All]"
+    >
+    <thead>
+            <tr>
+                <th data-field="username">Username</th>
+                <th data-field="azioni" data-align="center">Azioni</th>
+            </tr>
+    </thead>
+</table>
 
 <script type="text/javascript">
 
@@ -97,6 +92,44 @@
             });
 
     }
+
+    function ajaxRequest(params) {
+
+        // data you may need
+        params.data.boot_table = 1;
+        console.log(params.data);
+
+        jQuery.ajax({
+            type: "GET",
+            url: "index.php?option=com_gglms&task=users.get_utenti_per_societa",
+            // You are expected to receive the generated JSON (json_encode($data))
+            data: params.data,
+            dataType: "json",
+            success: function (data) {
+
+                // controllo errore
+                if (typeof data != "object") {
+                    params.error(data);
+                    return;
+                }
+                else if (typeof data.error != "undefined") {
+                    params.error(data.error);
+                    return;
+                }
+                else {
+                    params.success({
+                        // By default, Bootstrap table wants a "rows" property with the data
+                        "rows": data.rows,
+                        // You must provide the total item ; here let's say it is for array length
+                        "total": data.total_rows
+                    })
+                }
+            },
+            error: function (er) {
+                params.error(er);
+            }
+        });
+}
 
 </script>
 
