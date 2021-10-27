@@ -1515,6 +1515,10 @@ HTML;
     public function get_utenti_per_societa() {
 
         $_html = "";
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+        $boot_table = isset($_REQUEST['boot_table']) ? true : false;
 
         try {
 
@@ -1537,8 +1541,31 @@ HTML;
             $_total_rows = $users['total_rows'];
             $Juser = JFactory::getUser();
 
-            // normalizzo array
-            foreach ($users['rows'] as $_key_user => $user) {
+            if($boot_table) {
+
+                $app = JFactory::getApplication();
+                $_total_rows = $_soci['total_rows'];
+
+                foreach ($users['rows'] as $_key_user => $user) {
+
+                    foreach ($user as $key => $value) {
+
+                        $_ret[$_key_user][$key] = $value;
+
+                    }
+                    $action_btn = $Juser->id == $user['id_utente'] ? '' : "resetPassword('" . $user['id_utente']. "', '" . $user['gruppo_utente'] . "')";
+                    $color_btn = $Juser->id == $user['id_utente'] ? '#ccc' : 'red';
+                    $_ret[$_key_user]['azioni'] = <<<HTML
+                    <span style="cursor: pointer; color:{$color_btn};" onclick="{$action_btn}"><i class="fas fa-times-circle fa-2x"></i></span>
+HTML;
+
+                }
+
+            }
+            else {
+
+                // normalizzo array
+                foreach ($users['rows'] as $_key_user => $user) {
 
                 // in tabella non deve essere inserito l'utente corrente (caso tutor...)
                 if ($Juser->id == $user['id_utente']) {
@@ -1554,15 +1581,35 @@ HTML;
                 </tr>
 HTML;
 
+                }
+
+                return $_html;
+
             }
+
+
 
         }
         catch(Exception $e) {
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+
+            if ($boot_table) {
+                $_ret['error'] = $e->getMessage();
+                echo json_encode($_ret);
+                $app->close();
+            }
+
             return null;
         }
 
-        return $_html;
+        if ($boot_table) {
+
+            $_rows['rows'] = $_ret;
+            $_rows['total_rows'] = $_total_rows;
+
+            echo json_encode($_rows);
+            $app->close();
+        }
 
     }
 }
