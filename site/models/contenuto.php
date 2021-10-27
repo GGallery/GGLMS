@@ -714,11 +714,15 @@ class gglmsModelContenuto extends JModelLegacy
             $this->_db->setQuery($query);
             $results = $this->_db->loadAssocList();
 
+            if(empty($results))
+                throw new Exception("quiz mancante all'utente : " . $user_id,1);
+
             return $results;
 
         }
         catch (Exception $e) {
-            return $e->getMessage();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'get_dettagli_quiz_per_utente');
+            return null;
         }
 
     }

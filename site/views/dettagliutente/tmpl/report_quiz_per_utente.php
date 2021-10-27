@@ -29,6 +29,15 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
                 </select>
             </div>
 
+            <div class="form-group to_show" id="div_option" style="display: none;">
+                <label for="selezione_utenti">Selezione utenti</label>
+                <select id="selezione_utenti" class="form-control">
+                    <option value="">-</option>
+                    <option value="1">Tutti utenti</option>
+                    <option value="2">Singolo utente</option>
+                </select>
+            </div>
+
             <div class="form-group to_show" id="div_utenti" style="display: none;">
                 <label for="utenti">Utenti corso</label>
                 <select id="utenti" class="form-control">
@@ -37,7 +46,7 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
             </div>
 
             <div class="form-group text-center to_show" id="btn_genera" style="display:none;">
-                <button class="btn btn-success">
+                <button class="btn btn-success" id="btn-report">
                     SCARICA REPORT
                 </button>
             </div>
@@ -138,6 +147,8 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
                                     }
 
                                     jQuery('#quiz').html(pSelectList);
+                                    jQuery('#utenti').val('');
+                                    jQuery('#selezione_utenti').val('');
                                     jQuery('#div_quiz').show();
 
                                 }
@@ -210,9 +221,9 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
 
                                         pSelectList += '<option value="' + pUtenteId + '">' + pDenominazione + '</option>';
                                     }
-
+                                    jQuery('#selezione_utenti').val('');
                                     jQuery('#utenti').html(pSelectList);
-                                    jQuery('#div_utenti').show();
+                                    jQuery('#div_option').show();
 
                                 }
 
@@ -227,12 +238,41 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
 
             });
 
+            //selezione utenti
+            jQuery('#selezione_utenti').on('change', function (e) {
+
+                var pQuiz = jQuery('#quiz').val();
+
+                showLoading('s');
+                if (pQuiz == ""
+                    || pQuiz == 0) {
+                    customAlertifyAlertSimple('Nessun quiz selezionato');
+                    showLoading('h');
+                    clearShowing();
+                    return;
+                }
+
+                if (jQuery("#selezione_utenti option:selected").val() == 1) {
+
+                    jQuery('#div_utenti').hide();
+                    jQuery('#btn_genera').show();
+                    showLoading('h');
+
+                } else {
+
+                    jQuery('#div_utenti').show();
+
+                }
+            });
+
+
             // selezione dell'utente
             jQuery('#utenti').on('change', function (e) {
 
                 var pQuiz = jQuery(this).val();
                 var pCorso = jQuery('#corso').val();
                 var pUtente = jQuery('#utenti').val();
+                var pOpzione = jQuery('#selezione_utenti').val();
 
                 showLoading('s');
                 if (pQuiz == ""
@@ -246,6 +286,14 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
                 if (pCorso == ""
                     || pCorso == 0) {
                     customAlertifyAlertSimple('Nessun corso selezionato');
+                    showLoading('h');
+                    clearShowing();
+                    return;
+                }
+
+                if (pOpzione == ""
+                    || pOpzione == 0) {
+                    customAlertifyAlertSimple('Nessun opzione per utenti selezionata');
                     showLoading('h');
                     clearShowing();
                     return;
@@ -265,16 +313,27 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
             });
 
             // clicca bottone report
-            jQuery('#btn_genera').on('click', function (e) {
+             jQuery('#btn-report').on('click', function (e) {
 
-                var pQuiz = jQuery('#quiz').val();
-                var pUtente = jQuery('#utenti').val();
+              var pQuiz = jQuery('#quiz').val();
+              var pCorso = jQuery('#corso').val();
+              var pUtente = jQuery('#utenti').val();
+              var pOption = jQuery("#selezione_utenti option:selected").val() ;
 
-                window.open("index.php?option=com_gglms&task=api.get_dettagli_quiz&quiz_id=" + pQuiz + "&user_id=" + pUtente, "_blank");
+                 if(pOption == 1) {
 
-            });
+                     window.open("index.php?option=com_gglms&task=api.get_dettagli_quiz&quiz_id=" + pQuiz + "&all_users=" + pOption + "&corso_id=" + pCorso, "_blank");
 
-        });
+                  } else {
+
+                      window.open("index.php?option=com_gglms&task=api.get_dettagli_quiz&quiz_id=" + pQuiz + "&user_id=" + pUtente + "&all_users=" + pOption, "_blank");
+                  }
+
+
+           });
+
+         });
+
     </script>
 
 </div>
