@@ -187,9 +187,9 @@ HTML;
             jQuery.ajax({
                 url: "index.php?option=com_gglms&task=contenuto.updateTrack",
                 data: {
-                    secondi: tempo,
-                    stato: 1,
-                    id_elemento: id_elemento
+                    "secondi": tempo,
+                    "stato": 1,
+                    "id_elemento": id_elemento
                 },
                 async: data_sync.async,
                 success: function () {

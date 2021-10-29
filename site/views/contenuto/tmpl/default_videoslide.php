@@ -102,9 +102,9 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                         jQuery.ajax({
                             url: "index.php?option=com_gglms&task=contenuto.updateTrack",
                             data: {
-                                secondi: mediaElement.duration.toFixed(0),
-                                stato: 1,
-                                id_elemento: id_elemento
+                                "secondi": mediaElement.duration.toFixed(0),
+                                "stato": 1,
+                                "id_elemento": id_elemento
                             },
                             async: data_sync.async,
                             success: function () {

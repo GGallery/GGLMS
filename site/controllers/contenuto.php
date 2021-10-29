@@ -36,6 +36,15 @@ class gglmsControllerContenuto extends JControllerLegacy
         $tmp->scoid = $id_elemento;
         $tmp->userid = $user_id;
 
+        $log_arr = array(
+                        'user_id' => $user_id,
+                        'secondi' => $secondi,
+                        'stato' => $stato,
+                        'id_elemento' => $id_elemento
+                    );
+
+        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
         try{
             if($stato == 1){
                 $tmp->varName = 'cmi.core.lesson_status';
@@ -54,7 +63,8 @@ class gglmsControllerContenuto extends JControllerLegacy
 
             echo 1;
         } catch (Exception $e) {
-            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
+            //DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
             echo 0;
         }
         $japp->close();
