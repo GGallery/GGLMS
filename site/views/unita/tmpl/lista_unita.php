@@ -41,12 +41,14 @@ foreach ($this->breadcrumbs as $key => $element) {
     $cls_active = ($counter <= ($bread_count-1)) ? '' : 'active';
 
     $element_link = "";
-    if (!is_null($element['link']))
+    if (!is_null($element['link'])) {
+        $href_enc = JRoute::_($element['link']);
         $element_link = <<<HTML
-        <a itemprop="item" href="{$element['link']}" class="{$cls_pathway}">
+        <a itemprop="item" href="/{$element['link']}" class="{$cls_pathway}">
             <span itemprop="name">{$element['name']}</span>
         </a>
 HTML;
+    }
     else
         $element_link = <<<HTML
         <span itemprop="name">{$element['name']}</span>
