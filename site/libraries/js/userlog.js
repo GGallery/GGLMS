@@ -79,16 +79,16 @@ function oldUpdateUserLog(uniqid) {
     });
     */
 
-    var data = null;
+    var data_sync = null;
     var pAsync = get_async_call();
-    data = {async: pAsync};
+    data_sync = {async: pAsync};
 
     jQuery.ajax({
         url: "index.php?option=com_gglms&task=report.updateUserLog",
         data: {
             "uniqid": uniqid,
         },
-        async: data.async,
+        async: data_sync.async,
         success: function () {
             console.log("oldUpdateUserLog success");
         }
@@ -99,9 +99,9 @@ function oldUpdateUserLog(uniqid) {
 // rimossa dalla vista soltanto per limitare la ripetitivià del codice
 function updateBookmark(tview, id_elemento) {
 
-    var data = null;
+    var data_sync = null;
     var pAsync = get_async_call();
-    data = {async: pAsync};
+    data_sync = {async: pAsync};
 
     jQuery.ajax({
         url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
@@ -109,7 +109,7 @@ function updateBookmark(tview, id_elemento) {
             time: tview,
             id_elemento: id_elemento
         },
-        async: data.async,
+        async: data_sync.async,
         success: function () {
             console.log("updateBookmark success");
         }

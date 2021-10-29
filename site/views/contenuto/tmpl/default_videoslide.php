@@ -87,10 +87,29 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                 if (!stato) {
                     mediaElement.addEventListener('ended', function (e) {
                         stato = 1;
+                        /*
                         jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
                             secondi: mediaElement.duration.toFixed(0),
                             stato: 1,
                             id_elemento: id_elemento
+                        });
+                        */
+
+                        var data_sync = null;
+                        var pAsync = get_async_call();
+                        data_sync = {async: pAsync};
+
+                        jQuery.ajax({
+                            url: "index.php?option=com_gglms&task=contenuto.updateTrack",
+                            data: {
+                                secondi: mediaElement.duration.toFixed(0),
+                                stato: 1,
+                                id_elemento: id_elemento
+                            },
+                            async: data_sync.async,
+                            success: function () {
+                                console.log("ended success");
+                            }
                         });
                     }, false);
 

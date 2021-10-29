@@ -168,14 +168,37 @@ HTML;
             }
         }
 
+
         function finish(tempo) {
             stato = 1;
+
+            /*
             jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
                 secondi: tempo,
                 stato: 1,
                 id_elemento: id_elemento
             });
+            */
+
+            var data_sync = null;
+            var pAsync = get_async_call();
+            data_sync = {async: pAsync};
+
+            jQuery.ajax({
+                url: "index.php?option=com_gglms&task=contenuto.updateTrack",
+                data: {
+                    secondi: tempo,
+                    stato: 1,
+                    id_elemento: id_elemento
+                },
+                async: data_sync.async,
+                success: function () {
+                    console.log("finish success");
+                }
+            });
+
         }
+
 
 
 //INIZIO COMPARSA JUMPER
