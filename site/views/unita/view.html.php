@@ -99,8 +99,8 @@ class gglmsViewUnita extends JViewLegacy
 
             $pathway = $app->getPathway();
             $pathway->setPathway(array());
-            $pathway->addItem('Corsi', $split_url['scheme'] . '://' . $split_url['host'] . '/' . $split_url['path']);
-            $pathway->addItem($this->box_title, null);
+            $pathway->addItem('Corsi', $split_url['scheme'] . '://' . $split_url['host'] . $split_url['path']);
+            $pathway->addItem('Box ' . $this->box_title, null);
             $this->breadcrumbs = $pathway->getPathway();
 
             $this->setLayout('lista_unita');
