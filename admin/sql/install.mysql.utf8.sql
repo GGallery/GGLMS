@@ -22,16 +22,17 @@ DROP TABLE IF EXISTS `#__gg_box_details`;
 CREATE TABLE `#__gg_box_details` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `description` varchar(255) NOT NULL,
+  `ordinamento` INT(10) UNSIGNED DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of #__gg_box_details
 -- ----------------------------
-INSERT INTO `#__gg_box_details` VALUES ('1', 'Corsi di formazione');
-INSERT INTO `#__gg_box_details` VALUES ('2', 'Corsi di aggiornamento');
-INSERT INTO `#__gg_box_details` VALUES ('3', 'Corsi Privacy e D.Lgs. 231/01');
-INSERT INTO `#__gg_box_details` VALUES ('4', 'Corsi riservati ad aziende clienti');
+INSERT INTO `#__gg_box_details` VALUES ('1', 'Corsi di formazione', 1);
+INSERT INTO `#__gg_box_details` VALUES ('2', 'Corsi di aggiornamento', 2);
+INSERT INTO `#__gg_box_details` VALUES ('3', 'Corsi Privacy e D.Lgs. 231/01', 3);
+INSERT INTO `#__gg_box_details` VALUES ('4', 'Corsi riservati ad aziende clienti', 4);
 
 -- ----------------------------
 -- Table structure for `#__gg_box_unit_map`

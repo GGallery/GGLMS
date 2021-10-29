@@ -5,12 +5,26 @@
 	</layout>
 	<fields name="request">
 		<fieldset name="request">
+
 			<field 	name="id"
 					  type="sql"
 					  label="Seleziona Unita"
 					  description="Seleziona unita"
 					  query="SELECT titolo AS id, id AS value FROM #__gg_unit"
 			/>
+
+			<field
+				name="box_unita"
+				type="radio"
+				label="Vista box unità"
+				description="Se abilitato non visualizza le unità ma il box dei corsi"
+				class="btn-group"
+				default="0"
+		>
+			<option value="1">ON</option>
+			<option value="0">OFF</option>
+			</field>
+
 		</fieldset>
 	</fields>
 

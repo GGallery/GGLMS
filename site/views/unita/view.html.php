@@ -23,10 +23,17 @@ class gglmsViewUnita extends JViewLegacy
 
     protected $params;
     protected $url_base;
+    protected $box_corsi;
+    protected $_html;
+    protected $model_unita;
+    protected $box_id = null;
+    protected $box_title = '';
 
     function display($tpl = null)
     {
 
+        $app = JFactory::getApplication();   // equivalent of $app = JFactory::getApplication();
+        $model_catalogo = new gglmsModelCatalogo();
         $this->unita = $this->get('Unita');
 
         //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb, lo so è una vaccata
@@ -41,26 +48,65 @@ class gglmsViewUnita extends JViewLegacy
         $arr_url = parse_url(JURI::base());
         $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
 
-        if (!$this->unita->access()) {
-            $app = JFactory::getApplication();
-            JFactory::getApplication()->enqueueMessage('Non puoi ancora accedere a questo corso', 'warning');
+        // verifica dalla vista se è abilitata la vista per box e non per unit
+        $box_unita = (null !== $app->input->get('box_unita') && $app->input->get('box_unita') == 1) ? true : false;
+        $layout = ($box_unita) ? 'box_unita' : 'default';
+        $this->setLayout($layout);
 
-            $url = ($this->_params->get('url_redirect_on_access_deny'))
-                ? $this->_params->get('url_redirect_on_access_deny')
-                : htmlspecialchars($_SERVER['HTTP_REFERER']);
+        // richiesta di visualizzazione per un determinato box_id
+        $this->box_id = (null !== $app->input->get('box_id')) ? $app->input->get('box_id') : null;
+
+        if (!$box_unita) {
+
+            if (!$this->unita->access()) {
+                $app = JFactory::getApplication();
+                JFactory::getApplication()->enqueueMessage('Non puoi ancora accedere a questo corso', 'warning');
+
+                $url = ($this->_params->get('url_redirect_on_access_deny'))
+                    ? $this->_params->get('url_redirect_on_access_deny')
+                    : htmlspecialchars($_SERVER['HTTP_REFERER']);
 
 
-            $app->redirect($url);
+                $app->redirect($url);
+            }
+
+
+            $this->sottounita = $this->unita->getSottoUnita(null, null, 'DESC');
+    //        DEBUGG::log($e, 'getSottoUnita');
+
+
+            $this->contenuti = $this->unita->getContenuti_u($this->unita->id, null);
+
+            $this->breadcrumbs = outputHelper::buildUnitBreadcrumb($this->unita->id);
         }
+        else if (!is_null($this->box_id)) {
 
+            require_once JPATH_COMPONENT . '/models/helpdesk.php';
 
-        $this->sottounita = $this->unita->getSottoUnita(null, null, 'DESC');
-//        DEBUGG::log($e, 'getSottoUnita');
+            $model_helpdesk = new gglmsModelHelpDesk();
 
-        $this->contenuti = $this->unita->getContenuti_u($this->unita->id, null);
+            $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
+            $this->dominio = $helpdesk_info->dominio;
+            $this->box_corsi = $model_catalogo->get_box_categorie_corso($this->box_id, $this->dominio);
+            $this->model_unita = new gglmsModelUnita();
+            $this->box_title = isset($this->box_corsi[0]->description) ? $this->box_corsi[0]->description : null;
 
-        $this->breadcrumbs = outputHelper::buildUnitBreadcrumb($this->unita->id);
+            $pathway = $app->getPathway();
+            $this->breadcrumbs = $pathway->setPathway(array());
+            $pathway->addItem( "Google", 'https://www.google.it');
+            $pathway->addItem( "Current page name", '');
 
+            var_dump($pathway);
+
+            $this->setLayout('lista_unita');
+
+        }
+        else {
+
+            $this->box_corsi = $model_catalogo->get_box_categorie_corso(null, null, true);
+            $this->_html = outputHelper::get_box_details($this->box_corsi);
+
+        }
 
         parent::display($tpl);
     }

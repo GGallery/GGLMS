@@ -16,3 +16,6 @@ CREATE TABLE IF NOT EXISTS `#__gg_categorie_evento` (
 INSERT INTO `#__gg_categorie_evento` (titolo) VALUES ('Webinar sincrono'),
                                                      ('In presenza'),
                                                      ('FAD asincrona');
+
+ALTER TABLE `#__gg_box_details`
+    ADD COLUMN `ordinamento` INT(10) UNSIGNED DEFAULT '0';
