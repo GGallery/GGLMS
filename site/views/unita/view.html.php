@@ -16,6 +16,9 @@ jimport('joomla.application.component.view');
 
 jimport('joomla.application.component.helper');
 
+jimport('joomla.application.pathway');
+
+
 require_once JPATH_COMPONENT . '/models/unita.php';
 
 class gglmsViewUnita extends JViewLegacy
@@ -92,11 +95,8 @@ class gglmsViewUnita extends JViewLegacy
             $this->box_title = isset($this->box_corsi[0]->description) ? $this->box_corsi[0]->description : null;
 
             $pathway = $app->getPathway();
+            $pathway->addItem( $this->box_title, null);
             $this->breadcrumbs = $pathway->setPathway(array());
-            $pathway->addItem( "Google", 'https://www.google.it');
-            $pathway->addItem( "Current page name", '');
-
-            var_dump($pathway);
 
             $this->setLayout('lista_unita');
 

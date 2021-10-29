@@ -4,11 +4,75 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-echo $this->loadTemplate('pathway');
+
+
+
+/*
+<ul itemscope="" itemtype="https://schema.org/BreadcrumbList" class="breadcrumb">
+    <li class="active"> <span class="divider icon-location"></span> </li>
+
+    <li itemprop="itemListElement" itemscope="" itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="/home/formazione/i-miei-corsi.html" class="pathway"><span itemprop="name">Corsi</span></a>
+            <span class="divider icon-chevron-right">  </span>
+            <meta itemprop="position" content="1">
+    </li>
+
+    <li itemprop="itemListElement" itemscope="" itemtype="https://schema.org/ListItem" class="active">
+        <span itemprop="name"> LA FARMACIA </span>
+        <meta itemprop="position" content="2">
+    </li>
+</ul>
+*/
+$counter = 1;
+$bread_count = count($this->breadcrumbs);
+
+var_dump($this->breadcrumbs);
 
 echo <<<HTML
-    <h1>Corsi {$this->box_title}</h1>
-HTML
+<ul itemscope="" itemtype="https://schema.org/BreadcrumbList" class="breadcrumb">
+    <li class="active">
+        <span class="divider icon-location"></span>
+    </li>
+HTML;
+foreach ($this->breadcrumbs as $key => $element) {
+
+    $element = (array) $element;
+    $cls_pathway = !is_null($element['link']) ? 'pathway' : '';
+    $cls_active = ($counter <= ($bread_count-1)) ? '' : 'active';
+
+    $element_link = "";
+    if (!is_null($element['link']))
+        $element_link = <<<HTML
+        <a itemprop="item" href="{$element['link']}" class="{$cls_pathway}">
+            <span itemprop="name">{$element['name']}</span>
+        </a>
+HTML;
+    else
+        $element_link = <<<HTML
+        <span itemprop="name">{$element['name']}</span>
+HTML;
+
+    echo <<<HTML
+        <li itemprop="itemListElement" itemscope="" itemtype="https://schema.org/ListItem" class="{$cls_active}">
+            {$element_link}
+HTML;
+        if ($counter <= ($bread_count-1))
+            echo <<<HTML
+            <span class="divider icon-chevron-right">  </span>
+            <meta itemprop="position" content="{$counter}">
+HTML;
+        echo <<<HTML
+        </li>
+HTML;
+
+    $counter++;
+
+}
+
+echo <<<HTML
+    </ul>
+HTML;
+
 
 ?>
 
