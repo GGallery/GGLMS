@@ -94,9 +94,14 @@ class gglmsViewUnita extends JViewLegacy
             $this->model_unita = new gglmsModelUnita();
             $this->box_title = isset($this->box_corsi[0]->description) ? $this->box_corsi[0]->description : null;
 
+            $uri = JUri::getInstance();
+            $split_url = parse_url($uri->toString());
+
             $pathway = $app->getPathway();
-            $pathway->addItem( $this->box_title, null);
-            $this->breadcrumbs = $pathway->setPathway(array());
+            $pathway->setPathway(array());
+            $pathway->addItem('Corsi', $split_url['scheme'] . '://' . $split_url['host'] . '/' . $split_url['path']);
+            $pathway->addItem($this->box_title, null);
+            $this->breadcrumbs = $pathway->getPathway();
 
             $this->setLayout('lista_unita');
 

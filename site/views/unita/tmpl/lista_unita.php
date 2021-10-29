@@ -26,8 +26,6 @@ defined('_JEXEC') or die('Restricted access');
 $counter = 1;
 $bread_count = count($this->breadcrumbs);
 
-var_dump($this->breadcrumbs);
-
 echo <<<HTML
 <ul itemscope="" itemtype="https://schema.org/BreadcrumbList" class="breadcrumb">
     <li class="active">
@@ -42,9 +40,9 @@ foreach ($this->breadcrumbs as $key => $element) {
 
     $element_link = "";
     if (!is_null($element['link'])) {
-        $href_enc = JRoute::_($element['link']);
+
         $element_link = <<<HTML
-        <a itemprop="item" href="/{$element['link']}" class="{$cls_pathway}">
+        <a itemprop="item" href="{$element['link']}" class="{$cls_pathway}">
             <span itemprop="name">{$element['name']}</span>
         </a>
 HTML;
