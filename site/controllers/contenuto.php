@@ -25,10 +25,15 @@ class gglmsControllerContenuto extends JControllerLegacy
         $secondi = JRequest::getVar('secondi');
         $stato = JRequest::getVar('stato');
         $id_elemento = JRequest::getVar('id_elemento');
+        $id_utente = JRequest::getVar('id_utente');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
 
+        if (is_null($user_id)
+            || $user_id == ""
+            || (int) $user_id == 0)
+            $user_id = $id_utente;
 
         $modelstato = new gglmsModelStatoContenuto();
         $tmp = new stdClass();
