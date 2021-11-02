@@ -97,7 +97,7 @@ function oldUpdateUserLog(uniqid) {
 }
 
 // rimossa dalla vista soltanto per limitare la ripetitivià del codice
-function updateBookmark(id_utente, tview, id_elemento) {
+function updateBookmark(tview, id_elemento, id_utente) {
 
     var data_sync = null;
     var pAsync = get_async_call();
@@ -106,9 +106,9 @@ function updateBookmark(id_utente, tview, id_elemento) {
     jQuery.ajax({
         url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
         data: {
-            "id_utente" : id_utente,
             "time": tview,
-            "id_elemento": id_elemento
+            "id_elemento": id_elemento,
+            "id_utente" : id_utente
         },
         async: data_sync.async,
         success: function () {

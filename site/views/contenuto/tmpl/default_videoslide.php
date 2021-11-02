@@ -160,7 +160,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             var id_utente = '<?php echo $this->id_utente;?>';
             var id_elemento = '<?php echo $this->contenuto->id; ?>';
 
-            updateBookmark(id_utente, tview, id_elemento);
+            updateBookmark(tview, id_elemento, id_utente);
             <?php
             // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
             echo <<<HTML
