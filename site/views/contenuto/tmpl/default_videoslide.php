@@ -34,6 +34,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         var hasPlayed = false;
         var player;
         var old_tempo;
+        var tview = 0;
         var bookmark =<?php echo $stato->bookmark; ?>;
 
 
