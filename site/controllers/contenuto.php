@@ -92,6 +92,8 @@ class gglmsControllerContenuto extends JControllerLegacy
             || (int) $user_id == 0)
             $user_id = $id_utente;
 
+        utilityHelper::make_debug_log(__FUNCTION__, print_r($_REQUEST, true), __FUNCTION__);
+
 
         $modelstato = new gglmsModelStatoContenuto();
         $tmp = new stdClass();
