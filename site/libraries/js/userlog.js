@@ -106,9 +106,9 @@ function updateBookmark(id_utente, tview, id_elemento) {
     jQuery.ajax({
         url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
         data: {
-            id_utente : id_utente,
-            time: tview,
-            id_elemento: id_elemento
+            "id_utente" : id_utente,
+            "time": tview,
+            "id_elemento": id_elemento
         },
         async: data_sync.async,
         success: function () {
