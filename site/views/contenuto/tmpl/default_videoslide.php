@@ -156,7 +156,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
 
-            updateBookmark(tview, id_elemento);
+            updateBookmark(id_utente, tview, id_elemento);
             <?php
             // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
             echo <<<HTML
