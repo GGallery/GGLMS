@@ -14,8 +14,6 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 <script type="text/javascript">
 
-    var id_utente = '<?php echo $this->id_utente;?>';
-
     jQuery(document).ready(function ($) {
 
         <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);'?>
@@ -185,6 +183,7 @@ HTML;
             var data_sync = null;
             var pAsync = get_async_call();
             data_sync = {async: pAsync};
+            var id_utente = '<?php echo $this->id_utente;?>';
 
             jQuery.ajax({
                 url: "index.php?option=com_gglms&task=contenuto.updateTrack",
