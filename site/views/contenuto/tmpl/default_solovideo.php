@@ -25,7 +25,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         var old_tempo;
         var bookmark =<?php echo $stato->bookmark; ?>;
 
-        var id_elemento = <?php echo $this->contenuto->id; ?>;
+
         var stato = <?php echo $this->contenuto->getStato()->completato; ?>;
         var features = null;
 
@@ -125,6 +125,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
             var id_utente = '<?php echo $this->id_utente;?>';
+            var id_elemento = '<?php echo $this->contenuto->id; ?>';
 
             updateBookmark(id_utente, tview, id_elemento);
             <?php
@@ -185,6 +186,7 @@ HTML;
             var pAsync = get_async_call();
             data_sync = {async: pAsync};
             var id_utente = '<?php echo $this->id_utente;?>';
+            var id_elemento = '<?php echo $this->contenuto->id; ?>';
 
             jQuery.ajax({
                 url: "index.php?option=com_gglms&task=contenuto.updateTrack",
