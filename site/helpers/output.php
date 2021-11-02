@@ -2193,6 +2193,15 @@ HTML;
                     continue;
             }
 
+            // se modalità webinar e data minore di oggi non visualizzo
+            if (isset($corso->modalita)
+                && $corso->modalita == 1
+                && !is_null($corso->data_inizio)
+                && $corso->data_inizio != ""
+                && $corso->data_inizio < date('Y-m-d')
+            )
+                continue;
+
             $posti_disponibili = $corso->posti_disponibili > 0 ? $corso->posti_disponibili : JText::_('COM_GGLMS_BOXES_POSTI_NO_LIMIT');
             $data_inizio = (!is_null($corso->data_inizio) && $corso->data_inizio != "") ? utilityHelper::convert_dt_in_format($corso->data_inizio, 'd/m/Y') : "-";
             $data_fine = (!is_null($corso->data_fine) && $corso->data_fine != "") ? utilityHelper::convert_dt_in_format($corso->data_fine, 'd/m/Y') : "-";

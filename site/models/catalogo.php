@@ -46,6 +46,7 @@ class gglmsModelCatalogo extends JModelLegacy
                         u.data_inizio,
                         u.data_fine,
                         u.bookable_a_gruppi,
+                        u.modalita,
                         b1.description,
                         b.order')
             ->from('#__gg_unit as u')
