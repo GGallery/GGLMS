@@ -150,12 +150,14 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
                     $data->id_corso = $corso->id;
                     $data->id_event_booking = ($corso->id_event_booking) ? $corso->id_event_booking : 0;
+                    $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
                     $log_arr = array(
-                        'user_id' => $data->id_utente
+                        'user_id' => $data->id_utente,
+                        'id_anagrafica' => $data->id_anagrafica
                     );
 
                     utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
-                    $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
 //                     DEBUGG::log($data, 'Data to store_report' );
 
