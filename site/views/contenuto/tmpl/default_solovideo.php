@@ -124,6 +124,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
+            var id_utente = '<?php echo $this->id_utente;?>';
 
             updateBookmark(id_utente, tview, id_elemento);
             <?php
