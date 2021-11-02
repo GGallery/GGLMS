@@ -82,9 +82,15 @@ class gglmsControllerContenuto extends JControllerLegacy
 
         $time = JRequest::getVar('time');
         $id_elemento = JRequest::getVar('id_elemento');
+        $id_utente = JRequest::getVar('id_utente');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
+
+        if (is_null($user_id)
+            || $user_id == ""
+            || (int) $user_id == 0)
+            $user_id = $id_utente;
 
 
         $modelstato = new gglmsModelStatoContenuto();
@@ -93,14 +99,23 @@ class gglmsControllerContenuto extends JControllerLegacy
         $tmp->scoid = $id_elemento;
         $tmp->userid = $user_id;
 
+        $log_arr = array(
+            'user_id' => $user_id,
+            'time' => $time,
+            'id_elemento' => $id_elemento
+        );
+
+        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
         try{
             $tmp->varName = 'bookmark';
             $tmp->varValue = $time;
             $modelstato->setStato($tmp);
         } catch (Exception $e) {
             //DEBUGG::log($e);
-            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
-        }
+//            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+       }
         $japp->close();
     }
 
