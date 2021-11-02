@@ -43,7 +43,7 @@ class gglmsViewContenuto extends JViewLegacy
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/fix_tz_meetup.css');
         }
 
-        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js?v=2021110202');
+        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js?v=20211102'.time());
         $this->contenuto = $this->get('Contenuto');
 
         $this->contenuto->setStato(); //  D A R I A B I L I T A R E -----------------------------------------------------------------------------------------------------------------------------
