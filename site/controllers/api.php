@@ -65,7 +65,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->offset = JRequest::getVar('offset');
         $this->_filterparam->cid = JRequest::getVar('cid');
         $this->_filterparam->user_id = JRequest::getVar('user_id');
-        $this->_filterparam->user_id = JRequest::getVar('all_users');
+        $this->_filterparam->all_users = JRequest::getVar('all_users');
         $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
         $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
