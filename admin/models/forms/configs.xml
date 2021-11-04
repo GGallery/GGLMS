@@ -450,7 +450,18 @@
 
 
         <!-- I N I Z I O CONTENUTO -->
-
+        <field
+                name="visualizza_link_semplice"
+                type="radio"
+                class="btn-group"
+                label="Webinar - Visualizza link evento cliccabile sotto pulsante Avvia contenuto"
+                labelclass="control-label"
+                description="Se abilitato, sotto il pulsante Avvia contenuto, verrà visualizzata una dicitura per consentire all'utente di aprire il contenuto in una nuova scheda del browser"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
         <field
                 name="testo_invito_scaricare_pdfsingolo"

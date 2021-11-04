@@ -136,6 +136,8 @@ INSERT INTO `#__gg_configs` VALUES ('67', 'xml_ip_dest', '31.14.141.98');
 INSERT INTO `#__gg_configs` VALUES ('68', 'xml_ip_dest', '21');
 INSERT INTO `#__gg_configs` VALUES ('69', 'xml_read_dir_dest', 'R2k');
 INSERT INTO `#__gg_configs` VALUES ('70', 'xml_write_dir_dest', 'GGallery');
+INSERT INTO `#__gg_configs` VALUES ('71', 'visualizza_link_semplice', '0');
+INSERT INTO `#__gg_configs` VALUES ('72', 'attiva_blocco_video_focus', '0');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------
