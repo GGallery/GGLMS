@@ -53,6 +53,16 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         }
         ?>
 
+        //stoppo il video quando cambia focus
+        <?php if ($this->attiva_blocco_video_focus == 1) { ?>
+
+        jQuery(window).on('blur',function() {
+            console.log('blur');
+            player.pause();
+
+        });
+        <?php } ?>
+
         // declare object for video
         player = new MediaElementPlayer('video', {
             features: features,
@@ -111,13 +121,13 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 
         player.play();
-        jQuery('.jumper.enabled').click(function () {
+        jQuery('.jumper.enabled').on('click',function () {
             var rel = jQuery(this).attr('rel');
             player.setCurrentTime(rel);
             sliding(time);
         });
 
-        jQuery('.jumper.disabled').click(function () {
+        jQuery('.jumper.disabled').on('click',function () {
             alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
         });
 

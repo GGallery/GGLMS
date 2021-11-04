@@ -29,6 +29,7 @@ class gglmsViewContenuto extends JViewLegacy
     protected $jumper;
     protected $att_scaricabile;
     protected $id_unita;
+    public $attiva_blocco_video_focus = 1;
 
 
     function display($tpl = null)
@@ -56,6 +57,10 @@ class gglmsViewContenuto extends JViewLegacy
         $arr_url = parse_url(JURI::base());
         $this->slide_pdf = null;
         $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
+
+        // leggo parametro attiva_blocco_video_focus
+        // se 1 blocco il video se 0 non lo blocco
+        $this->attiva_blocco_video_focus = utilityHelper::get_display_from_configuration($this->attiva_blocco_video_focus, 'attiva_blocco_video_focus');
 
         switch ($this->contenuto->tipologia_contenuto) {
             case 'videoslide':

@@ -25,11 +25,12 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             return false;
         });
 
-        jQuery('#file-download').click(function() {
+        jQuery('#file-download').on('click',function() {
             var pHref = jQuery(this).attr("data-href");
             //window.location = pHref;
             window.open(pHref, '_blank');
         });
+
 
         var hasPlayed = false;
         var player;
@@ -64,6 +65,16 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         <?php
         }
         ?>
+
+        //stoppo il video quando cambia focus
+        <?php if ($this->attiva_blocco_video_focus == 1) { ?>
+
+        jQuery(window).on('blur',function() {
+            console.log('blur');
+            player.pause();
+
+        });
+        <?php } ?>
 
         // declare object for video
         player = new MediaElementPlayer('video', {
@@ -142,14 +153,14 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         });
 
         player.play();
-        jQuery('.jumper.enabled').click(function () {
+        jQuery('.jumper.enabled').on('click',function () {
             var rel = jQuery(this).attr('rel');
             player.setCurrentTime(rel);
             //sliding(time);
             sliding(rel);
         });
 
-        jQuery('.jumper.disabled').click(function () {
+        jQuery('.jumper.disabled').on('click',function () {
             alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
         });
 
