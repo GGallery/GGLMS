@@ -344,6 +344,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
             //$users = $this->get_users_id($this->params->get('data_sync'));
             $users = $this->get_users_id($_dt_ref, $integrazione);
 
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($users, true), __FUNCTION__);
+
             foreach ($users as $user) {
                 $modelUser = new gglmsModelUsers();
 
@@ -364,7 +366,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 $log_arr = array(
                     'user_id' => $tmp->id_user,
                     'nome' => $tmp->nome,
-                    'cognome' => $tmp->cognome
+                    'cognome' => $tmp->cognome,
+                    'data_ref' => $_dt_ref
                 );
 
                 utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
