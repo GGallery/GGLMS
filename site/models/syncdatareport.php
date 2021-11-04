@@ -152,6 +152,33 @@ class gglmsModelSyncdatareport extends JModelLegacy
                     $data->id_event_booking = ($corso->id_event_booking) ? $corso->id_event_booking : 0;
                     $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
+                    if($data->id_anagrafica == 0){
+                        $modelUser = new gglmsModelUsers();
+                        $tmpuser = $modelUser->get_user($data->id_utente, $data->id_event_booking);
+
+                        $tmp = new stdClass();
+                        $tmp->id = $data->id_utente;
+                        $tmp->id_event_booking = $data->id_event_booking;
+                        $tmp->id_user = $data->id_utente;
+                        $tmp->nome = $this->_db->quote($tmpuser->nome);
+                        $tmp->cognome = $this->_db->quote($tmpuser->cognome);
+                        $tmp->fields = $this->_db->quote(json_encode($tmpuser));
+                        $this->store_report_users($tmp);
+
+                        $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
+                        $log_arr = array(
+                            'user_id' => $data->id_utente,
+                            'id_anagrafica' => $data->id_anagrafica,
+                            'id_event_booking' => $data->id_event_booking,
+                            'nome' => $tmpuser->nome,
+                            'cognome' => $tmpuser->cognome
+                        );
+
+                        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+                    }
+
                     $log_arr = array(
                         'user_id' => $data->id_utente,
                         'id_anagrafica' => $data->id_anagrafica
