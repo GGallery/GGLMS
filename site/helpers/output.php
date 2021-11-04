@@ -2120,4 +2120,22 @@ HTML;
 
     }
 
+    public static function visualizza_link_semplice_contenuto($link) {
+
+        $_html = "";
+        $link_semplice_contenuto1 = JText::_('COM_GGLMS_VISUALIZZA_LINK1');
+        $link_semplice_contenuto2 = JText::_('COM_GGLMS_VISUALIZZA_LINK2');
+
+        if (!is_null($link)
+            && $link != "")
+            $_html =  <<<HTML
+            <p class="text-center">
+                <u>{$link_semplice_contenuto1} <a href="{$link}" target="_blank">{$link_semplice_contenuto2}</a></u>
+            </p>
+HTML;
+
+        return $_html;
+
+    }
+
 }
