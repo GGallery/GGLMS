@@ -16,6 +16,15 @@
 
     </div>
 </div>
+
+<div class="row-fluid">
+    <div>
+        <?php echo $this->form->renderField('visualizza_link_semplice'); ?>
+    </div>
+
+</div>
+
+
 <div class="row-fluid">
     <div>
         <?php echo $this->form->renderField('testo_invito_scaricare_pdfsingolo'); ?>
