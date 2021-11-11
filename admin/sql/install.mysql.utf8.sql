@@ -491,7 +491,7 @@ CREATE TABLE `#__gg_unit` (
   `sconti_particolari` tinyint(1) UNSIGNED DEFAULT '0',
   `riduzione_webinar` tinyint(1) UNSIGNED DEFAULT '0',
   `sc_webinar_perc` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto percentuale per acquisto in modalita webinar',
-  `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
+  `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
