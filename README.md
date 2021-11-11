@@ -3,6 +3,9 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.6
+-D: aggiunta della colonna disabilita_aquisto_presenza alla tabella gg_unit
+
 4.1.5
 -D: aggiunta tabella gg_check_coupon_xml di appoggio per creazione anagrafica utenti da xml
 
