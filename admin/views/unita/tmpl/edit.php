@@ -330,6 +330,10 @@ JHtml::_('formbehavior.chosen', 'select');
                     <?php echo $this->form->renderField('sc_webinar_perc'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('disabilita_aquisto_presenza'); ?>
+                </div>
+
                 <h4>Scontistica per data</h4>
 
                 <div class="row-fluid">
