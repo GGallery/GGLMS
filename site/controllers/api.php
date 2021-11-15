@@ -2152,7 +2152,8 @@ HTML;
             else {
                 $_json = $_get_event['success']['response'];
                 $_participants = json_decode($_json);
-                $_csv_cols = $_participants[0];
+                $_csv_cols = utilityHelper::get_cols_from_array((array) $_participants[0]);
+
             }
 
             $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, time() . '.csv');
