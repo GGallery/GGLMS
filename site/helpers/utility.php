@@ -1097,6 +1097,30 @@ class utilityHelper
     }
 
 
+    // header necessario per scaricare xml encodato
+    public static function _export_csv_echo($filename, $csv_save) {
+
+        $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
+        $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
+        $filename = strtolower($filename);
+        $filename = trim($filename, '_');
+        $filename = preg_replace('~[^-\w]+~', '', $filename);
+        $filename .= "-" . date("d/m/Y");
+        $filename = $filename . ".csv";
+
+        header('Content-Description: File Transfer');
+		header('Content-Type: application/octet-stream');
+		header("Content-disposition: attachment; filename=$filename");
+		header('Content-Transfer-Encoding: binary');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: public');
+		echo "\xEF\xBB\xBF"; // UTF-8 BOM
+		echo $csv_save;
+
+
+    }
+
     ////////////////////////////////////    export csv
 
    //nel caso di portare tutti gli utenti su dettaglio Quiz
@@ -1124,30 +1148,13 @@ class utilityHelper
                     $csv_values .= $CR;
                 }
 
-                $csv_values = iconv('utf-8', 'us-ascii//TRANSLIT', $csv_values);
                 $csv_save = $CR .$csv_values;
             }
 
-            echo $csv_save;
-
-            $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
-            $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
-            $filename = strtolower($filename);
-            $filename = trim($filename, '_');
-            $filename = preg_replace('~[^-\w]+~', '', $filename);
-            $filename .= "-" . date("d/m/Y");
-            $filename = $filename . ".csv";
-
-
-            header("Content-Type: text/plain");
-            header("Content-disposition: attachment; filename=$filename");
-            header("Content-Transfer-Encoding: binary");
-            header("Pragma: no-cache");
-            header("Expires: 0");
-
+            self::_export_csv_echo($filename, $csv_save);
 
         } catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'export_csv_dettaglio');
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
         }
 
 
@@ -1212,29 +1219,11 @@ class utilityHelper
 
                 $csv_save = $csv_fields . $CR . $csv_values;
             }
-            echo $csv_save;
 
-
-//                $filename = 'monitora_coupon';
-
-            $filename = preg_replace('~[^\\pL\d]+~u', '_', $filename);
-            $filename = iconv('utf-8', 'us-ascii//TRANSLIT', $filename);
-            $filename = strtolower($filename);
-            $filename = trim($filename, '_');
-            $filename = preg_replace('~[^-\w]+~', '', $filename);
-            $filename .= "-" . date("d/m/Y");
-            $filename = $filename . ".csv";
-
-
-            header("Content-Type: text/plain");
-            header("Content-disposition: attachment; filename=$filename");
-            header("Content-Transfer-Encoding: binary");
-            header("Pragma: no-cache");
-            header("Expires: 0");
-
+            self::_export_csv_echo($filename, $csv_save);
 
         } catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'export_data_csv');
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
         }
 
 

@@ -232,17 +232,18 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                preload="auto" class="img-thumbnail">
             <source type="video/mp4"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.mp4'; ?>"/>
-            <?php /*
-            <source type="video/webm"
-                    src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.webm'; ?>"/>
-            <source type="video/ogg"
-                    src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.ogv'; ?>"/>
-            */?>
+
             <track
                     kind="slides"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/'; ?>vtt_slide.vtt"
                     label="slides"
                     srclang="" />
+
+            <?php
+                // se presenti nella directory del contenuto vengono caricati i file dei sottotitoli che devono essere nel formato srt
+                // e con questi nominativi subtitle_english_en.srt, subtitle_french_fr.srt, subtitle_german_de.srt, ecc
+                echo OutputHelper::check_subtitles_solovideo($_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $this->contenuto->id, PATH_CONTENUTI . '/' . $this->contenuto->id);
+            ?>
 
         </video>
 

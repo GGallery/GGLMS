@@ -136,6 +136,7 @@ INSERT INTO `#__gg_configs` VALUES ('67', 'xml_ip_dest', '31.14.141.98');
 INSERT INTO `#__gg_configs` VALUES ('68', 'xml_ip_dest', '21');
 INSERT INTO `#__gg_configs` VALUES ('69', 'xml_read_dir_dest', 'R2k');
 INSERT INTO `#__gg_configs` VALUES ('70', 'xml_write_dir_dest', 'GGallery');
+INSERT INTO `#__gg_configs` VALUES ('71', 'visualizza_link_semplice', '0');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------
@@ -490,6 +491,7 @@ CREATE TABLE `#__gg_unit` (
   `sconti_particolari` tinyint(1) UNSIGNED DEFAULT '0',
   `riduzione_webinar` tinyint(1) UNSIGNED DEFAULT '0',
   `sc_webinar_perc` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto percentuale per acquisto in modalita webinar',
+  `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
