@@ -85,6 +85,29 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function user_attivati() {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                        ->select('COUNT(id) AS attivi')
+                        ->from('#__users')
+                        ->where('block = 0');
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            echo !is_null($result) ? $result : 0;
+
+        }
+        catch(Exception $e) {
+            echo "Si è verificato un errore: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
 
 
     public function get_tz() {
