@@ -2325,7 +2325,7 @@ HTML;
     // importazione corsi da file xml
     public function load_corsi_from_xml($id_piattaforma = 16,
         $ragione_sociale = "Utenti privati skillab",
-        $piva = "08420380019",
+        $piva = "00000000000",
         $email = "skillabfad@skillab.it",
         $is_debug = false) {
 
