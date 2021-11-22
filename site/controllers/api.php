@@ -2114,7 +2114,10 @@ HTML;
             $_participants = null;
 
             $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
-            $_events = $zoom_call->get_event_participants($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
+
+            $event_id = urlencode($this->_filterparam->zoom_event_id);
+            $_events = $zoom_call->get_event_participants($event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
+
 
             if (isset($_events['error']))
                 throw new Exception($_events['error'], 1);
@@ -2134,11 +2137,11 @@ HTML;
 
             // inserisco l'evento a database se non è già presente
             $_zoom_model = new gglmsModelZoom();
-            $_get_event = $_zoom_model->get_event($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo);
+            $_get_event = $_zoom_model->get_event($event_id, $this->_filterparam->zoom_tipo);
 
             if (is_null($_get_event)
                 || !is_array($_get_event)) {
-                $_store_event = $_zoom_model->store_events($this->_filterparam->zoom_event_id,
+                $_store_event = $_zoom_model->store_events($event_id,
                                                             $this->_filterparam->zoom_tipo,
                                                             $this->_filterparam->zoom_event_label,
                                                             $_event_json->participants);
