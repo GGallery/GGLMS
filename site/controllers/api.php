@@ -2233,22 +2233,10 @@ HTML;
 
         try {
 
-            /*
-            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_corso, cpcheck.codice_fiscale, ugmp.idgruppo AS gruppo_corso, subq.id_gruppo AS gruppo_azienda, utenti.id AS user_id
+            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id, coupon.id_gruppi AS gruppo_corso
                         FROM #__gg_check_coupon_xml cpcheck
                         INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
-                        INNER JOIN #__gg_unit AS unita ON unita.codice = cpcheck.codice_corso
-                        INNER JOIN #__gg_usergroup_map AS ugmp ON ugmp.idunita = unita.id
-                        INNER JOIN (SELECT DISTINCT mu.id AS id_gruppo, muum.user_id
-                                        FROM #__usergroups mu
-                                        JOIN #__user_usergroup_map muum ON muum.group_id = mu.id
-                                        WHERE mu.parent_id = " . $this->_db->quote($id_piattaforma) . ") AS subq ON subq.user_id = utenti.id
-                                        WHERE cpcheck.coupon IS NULL";
-                                        */
-
-            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id
-                        FROM #__gg_check_coupon_xml cpcheck
-                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
+                        INNER JOIN #__gg_coupon coupon ON cpcheck.codice_coupon = coupon.coupon
                         WHERE cpcheck.coupon IS NULL";
 
             $this->_db->setQuery($query);
@@ -2264,19 +2252,9 @@ HTML;
 
             foreach ($results as $key_result => $coupon) {
 
-                /*
                 $update_coupon = "UPDATE #__gg_coupon
-                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
-                                    WHERE id_gruppi = " . $this->_db->quote($coupon['gruppo_corso']) . "
-                                    AND id_societa = " . $this->_db->quote($coupon['gruppo_azienda']) . "
-                                    AND id_utente IS NULL
-                                    ORDER BY creation_time DESC
-                                    LIMIT 1
-                                    ";
-                                    */
-
-                $update_coupon = "UPDATE #__gg_coupon
-                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
+                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ",
+                                        data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
                                     WHERE coupon = " . $this->_db->quote($coupon['codice_coupon']);
 
                 // inserisco utente in gruppo corso
@@ -2328,7 +2306,7 @@ HTML;
     // importazione corsi da file xml
     public function load_corsi_from_xml($id_piattaforma = 16,
         $ragione_sociale = "Utenti privati skillab",
-        $piva = "08420380019",
+        $piva = "00000000000",
         $email = "skillabfad@skillab.it",
         $is_debug = false) {
 

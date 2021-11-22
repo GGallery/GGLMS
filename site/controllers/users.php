@@ -448,6 +448,9 @@ HTML;
             if (is_null($reader))
                 throw new Exception('Nessun formato file impostato');
 
+            // non formatta le date in Date object restituendole in formato string
+            $reader->setShouldFormatDates(true);
+
             // indice da cui partirà il loop sul foglio
             $numero_prima_riga = isset($json_config['cols_schema']['numero_prima_riga']) ? (int)$json_config['cols_schema']['numero_prima_riga'] : 0;
 
