@@ -3,6 +3,10 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.7
+-D: aggiunta della colonna id_evento alla tabella gg_contenuti
+-D: aggiunta della colonna tipo_zoom alla tabella gg_contenuti
+
 4.1.6
 -D: aggiunta della colonna disabilita_aquisto_presenza alla tabella gg_unit
 

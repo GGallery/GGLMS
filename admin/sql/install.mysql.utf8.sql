@@ -164,6 +164,8 @@ CREATE TABLE `#__gg_contenuti` (
   `attestato_path` varchar(255) DEFAULT NULL,
   `orientamento` varchar(1) DEFAULT NULL,
   `path_pdf` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
+  `id_evento` varchar(25) NULL COMMENT 'aggiunta per le chiamate api zoom',
+  `tipo_zoom` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'aggiunta per distinguere webinar da meeting',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
