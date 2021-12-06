@@ -26,7 +26,7 @@
         data-page-list="[10, 25, 50, 100, 200, Tutte]">
             <thead>
                 <tr>
-                    <th data-field="id_unita" data-sortable="true">#</th>
+                    <th data-field="id_unita" data-align="center" data-sortable="true">#</th>
                     <th data-field="titolo" data-sortable="true">Corso</th>
                     <th data-field="report_extra" data-sortable="false" data-align="center">Report</th>
                 </tr>
