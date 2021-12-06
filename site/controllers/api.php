@@ -78,6 +78,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->c_name = JRequest::getVar('c_name');
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
         $this->_filterparam->dominio = JRequest::getVar('dominio');
+        $this->_filterparam->gruppo_id_piattaforma = JRequest::getVar('gruppo_id_piattaforma');
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
@@ -3037,6 +3038,75 @@ HTML;
         $this->_japp->close();
     }
 
+    public function get_report_per_completamento_corso() {
+
+        $_ret = array();
+
+        try {
+
+            $model_report = new gglmsModelReport();
+            $_tmp = array();
+            $filename = "";
+            $first_id = 0;
+
+            if (!isset($this->_filterparam->corso_id)
+                || $this->_filterparam->corso_id == "")
+                throw new Exception("Impossibile continuare, corso_id non specificato", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->gruppo_id_piattaforma)
+                || $this->_filterparam->gruppo_id_piattaforma == "")
+                throw new Exception("Impossibile continuare, gruppo_id_piattaforma non specificato", E_USER_ERROR);
+
+            $get_report = $model_report->get_report_utenti_completamento_corso($this->_filterparam->corso_id, $this->_filterparam->gruppo_id_piattaforma);
+
+            // errore
+            if (is_null($get_report))
+                throw new Exception("Si è verificato un errore durante la generazione del report", E_USER_ERROR);
+
+            // nessun risultato
+            if (count($get_report) == 0)
+                throw new Exception("Nessun risultato disponibile per il corso selezionato", E_USER_ERROR);
+
+            // processo il risultato
+            foreach ($get_report as $key_report => $single_report) {
+
+                if ($filename == "") $filename = preg_replace('/\s+/', '', strtolower($single_report['titolo_corso']));
+
+                if ($first_id == 0) $first_id = $single_report['id_utente'];
+
+                $_tmp[$single_report['id_utente']]['titolo_corso'] = $single_report['titolo_corso'];
+                $_tmp[$single_report['id_utente']]['nominativo'] = $single_report['nominativo'];
+                $_tmp[$single_report['id_utente']]['codice_fiscale'] = $single_report['codice_fiscale'];
+                $_tmp[$single_report['id_utente']]['email'] = $single_report['email'];
+                $_tmp[$single_report['id_utente']]['ragione_sociale'] = $single_report['ragione_sociale'];
+                $_tmp[$single_report['id_utente']]['stato_corso'] = $single_report['stato_corso'];
+
+            }
+
+            $_csv_cols = utilityHelper::get_cols_from_array($_tmp[$first_id]);
+            $_export_csv = utilityHelper::esporta_csv_spout($_tmp, $_csv_cols, $filename . '.csv');
+
+            $this->_japp->close();
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+
+    }
+
     // report iscritti per corso
     public function get_report_per_corso() {
 
@@ -3044,12 +3114,15 @@ HTML;
 
         try {
 
-            $site_root = JURI::root();
             $model_report = new gglmsModelReport();
             $model_helpdesk = new gglmsModelHelpDesk();
             $_tmp = array();
             $filename = "";
             $first_id = 0;
+
+            if (!isset($this->_filterparam->corso_id)
+                || $this->_filterparam->corso_id == "")
+                throw new Exception("Impossibile continuare, corso_id non specificato", E_USER_ERROR);
 
             if (!isset($this->_filterparam->dominio)
                 || $this->_filterparam->dominio == "")
@@ -3107,6 +3180,65 @@ HTML;
         echo json_encode($_ret);
 
         $this->_japp->close();
+    }
+
+    // visualizza elenco corsi per report
+    public function get_rows_partecipazione_corsi() {
+
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $gruppo_id_piattaforma = (isset($_call_params['gruppo_id_piattaforma']) && $_call_params['gruppo_id_piattaforma'] != "") ? $_call_params['gruppo_id_piattaforma'] : null;
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $model_catalogo = new gglmsModelCatalogo();
+            $corsi = $model_catalogo->get_svolgimento_corsi($_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($corsi['rows'])) {
+
+                $_total_rows = $corsi['total_rows'];
+
+                foreach ($corsi['rows'] as $_key_corso => $corso) {
+
+                    foreach ($corso as $key => $value) {
+
+                        if ($key == 'report_extra') {
+                            $value = <<<HTML
+                                <span
+                                    style="color: red; cursor: pointer;"
+                                    onclick="window.open('index.php?option=com_gglms&task=api.get_report_per_completamento_corso&corso_id={$corso['id_unita']}&gruppo_id_piattaforma={$gruppo_id_piattaforma}')">
+                                        <i class="fas fa-file-download fa-2x"></i>
+                                </span>
+HTML;
+                        }
+
+                        $_ret[$_key_corso][$key] = $value;
+
+                    }
+
+                }
+
+            }
+        }
+        catch(Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+
+        $this->_japp->close();
+
     }
 
     // visualizza il calendario corsi

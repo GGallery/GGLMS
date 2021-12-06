@@ -455,6 +455,46 @@ class gglmsModelReport extends JModelLegacy
 
     }
 
+    public function get_report_utenti_completamento_corso($id_corso, $gruppo_id_piattaforma) {
+
+        try {
+
+            $db = JFactory::getDbo();
+
+            $query_mode = "SET SQL_MODE='';";
+            $db->setQuery($query_mode);
+
+            $query = "SELECT u.id AS id_utente,
+                            u.name AS nominativo,
+                            u.username AS codice_fiscale,
+                            u.email AS email,
+                            jgmf.ragione_sociale,
+                            IF(v.stato = 1, 'COMPLETATO', 'NON COMPLETATO') AS stato_corso,
+                            unita.titolo AS titolo_corso
+                        FROM #__users u
+                        JOIN #__gg_report_users r ON u.id = r.id_user
+                        JOIN #__gg_view_stato_user_unita v ON r.id = v.id_anagrafica
+                        JOIN #__user_usergroup_map juum ON u.id = juum.user_id
+                        JOIN #__usergroups ju2 ON juum.group_id = ju2.id
+                        JOIN #__gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo
+                        JOIN #__gg_unit unita ON v.id_unita = unita.id
+                        WHERE v.id_unita = " . $db->quote($id_corso) . "
+                        AND ju2.parent_id = " . $db->quote($gruppo_id_piattaforma) . "
+                        GROUP BY u.username";
+
+            $db->setQuery($query);
+            $results = $db->loadAssocList();
+
+            return $results;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     public function get_report_utenti_iscritti_per_corso($id_corso, $dominio, $dominio_group_id) {
 
         try {
@@ -483,7 +523,7 @@ class gglmsModelReport extends JModelLegacy
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
 

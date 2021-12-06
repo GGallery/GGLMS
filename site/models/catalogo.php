@@ -91,6 +91,75 @@ class gglmsModelCatalogo extends JModelLegacy
         return $catalogo;
     }
 
+    public function get_svolgimento_corsi($_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
+
+        try {
+
+            $_ret = array();
+
+            $query = $this->_db->getQuery(true)
+                    ->select('jgu.id AS id_unita , jgu.titolo, 1 as report_extra');
+
+            $count_query = $this->_db->getQuery(true)
+                    ->select('COUNT(jgu.id)');
+
+            $query = $query->from('#__gg_view_stato_user_unita jgvsuu')
+                        ->join('inner', '#__gg_unit jgu ON jgvsuu.id_unita = jgu.id');
+
+            $count_query = $count_query->from('#__gg_view_stato_user_unita jgvsuu')
+                        ->join('inner', '#__gg_unit jgu ON jgvsuu.id_unita = jgu.id');
+
+            // ricerca
+            if (!is_null($_search)) {
+
+                $query = $query->where('(
+                    jgu.id LIKE \'%' . $_search . '%\'
+                    OR jgu.titolo LIKE \'%' . $_search . '%\'
+                    )
+                ');
+
+                $count_query = $count_query->where('(
+                    jgu.id LIKE \'%' . $_search . '%\'
+                    OR jgu.titolo LIKE \'%' . $_search . '%\'
+                    )
+                ');
+
+            }
+
+            $query = $query->group('jgvsuu.id_unita');
+            $count_query = $count_query->group('jgvsuu.id_unita');
+
+            // ordinamento per colonna - di default per data inizio
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('jgu.id');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return $_ret;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+    }
+
     public function get_calendario_corsi($dominio, $modalita="1,2", $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null, $before_today=false) {
 
         try
@@ -142,7 +211,6 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->where('u.pubblicato = 1')
                 ->where('u.modalita IN (' . $modalita . ')')
                 ->where('u.data_inizio ' . $dt_ref . ' ' . $this->_db->quote(date('Y-m-d')));
-
 
             // ricerca
             if (!is_null($_search)) {

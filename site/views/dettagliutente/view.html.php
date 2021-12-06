@@ -47,6 +47,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $gruppo_corso;
     protected $posti_disponibili;
     protected $prenota_url;
+    protected $group_id_piattaforma;
     protected $dominio = null;
 
     function display($tpl = null)
@@ -289,6 +290,12 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
                 $this->dominio = $helpdesk_info->dominio;
 
+
+            }
+            else if ($layout == "report_svolgimento_corsi") {
+
+                $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
+                $this->group_id_piattaforma = $helpdesk_info->group_id;
 
             }
         }
