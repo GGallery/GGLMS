@@ -3,7 +3,7 @@
     <div id="toolbar">
         <div class="form-inline" role="form">
             <div class="form-group ml-2">
-                <input id="search" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit !important;" />
+                <input id="search" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit; line-height:24px; font-family: sans-serif; display:block;" />
             </div>
         </div>
     </div>
