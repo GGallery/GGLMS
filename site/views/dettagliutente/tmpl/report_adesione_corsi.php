@@ -17,7 +17,7 @@ HTML;
                 </select>
             </div>
             <div class="form-group ml-2">
-                <input id="search" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit;" />
+                <input id="search" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit !important;" />
             </div>
 
         </div>
