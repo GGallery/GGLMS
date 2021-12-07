@@ -21,12 +21,11 @@
         data-loading-template="loadingTemplate"
         data-header-style="headerStyle"
         data-row-style="rowStyle"
-        data-sort-name="id_unita"
+        data-sort-name="data_inizio"
         data-sort-order="asc"
         data-page-list="[10, 25, 50, 100, 200, Tutte]">
             <thead>
                 <tr>
-                    <th data-field="id_unita" data-align="center" data-sortable="true">#</th>
                     <th data-field="titolo" data-sortable="true">Corso</th>
                     <th data-field="data_inizio" data-sortable="true">Data inizio</th>
                     <th data-field="report_extra" data-sortable="false" data-align="center">Report</th>

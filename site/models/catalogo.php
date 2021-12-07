@@ -113,14 +113,14 @@ class gglmsModelCatalogo extends JModelLegacy
             if (!is_null($_search)) {
 
                 $query = $query->where('(
-                    jgu.id LIKE \'%' . $_search . '%\'
-                    OR jgu.titolo LIKE \'%' . $_search . '%\'
+                    jgu.titolo LIKE \'%' . $_search . '%\'
+                    OR jgu.data_inzio LIKE \'%' . $_search . '%\'
                     )
                 ');
 
                 $count_query = $count_query->where('(
-                    jgu.id LIKE \'%' . $_search . '%\'
-                    OR jgu.titolo LIKE \'%' . $_search . '%\'
+                    jgu.titolo LIKE \'%' . $_search . '%\'
+                    OR jgu.data_inzio LIKE \'%' . $_search . '%\'
                     )
                 ');
 
