@@ -28,6 +28,7 @@
                 <tr>
                     <th data-field="id_unita" data-align="center" data-sortable="true">#</th>
                     <th data-field="titolo" data-sortable="true">Corso</th>
+                    <th data-field="data_inizio" data-sortable="true">Data inizio</th>
                     <th data-field="report_extra" data-sortable="false" data-align="center">Report</th>
                 </tr>
                 </thead>
@@ -77,6 +78,9 @@
                 css: {background: '#00313C', color: '#fff'}
             },
             titolo: {
+                css: {background: '#00313C', color: '#fff'}
+            },
+            data_inizio: {
                 css: {background: '#00313C', color: '#fff'}
             },
             report_extra: {

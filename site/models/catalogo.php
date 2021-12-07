@@ -98,7 +98,7 @@ class gglmsModelCatalogo extends JModelLegacy
             $_ret = array();
 
             $query = $this->_db->getQuery(true)
-                    ->select('jgu.id AS id_unita , jgu.titolo, 1 as report_extra');
+                    ->select('jgu.id AS id_unita , jgu.titolo, jgu.data_inizio, 1 as report_extra');
 
             $count_query = $this->_db->getQuery(true)
                     ->select('COUNT(jgu.id)');
