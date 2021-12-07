@@ -114,13 +114,13 @@ class gglmsModelCatalogo extends JModelLegacy
 
                 $query = $query->where('(
                     jgu.titolo LIKE \'%' . $_search . '%\'
-                    OR jgu.data_inzio LIKE \'%' . $_search . '%\'
+                    OR jgu.data_inizio LIKE \'%' . $_search . '%\'
                     )
                 ');
 
                 $count_query = $count_query->where('(
                     jgu.titolo LIKE \'%' . $_search . '%\'
-                    OR jgu.data_inzio LIKE \'%' . $_search . '%\'
+                    OR jgu.data_inizio LIKE \'%' . $_search . '%\'
                     )
                 ');
 
