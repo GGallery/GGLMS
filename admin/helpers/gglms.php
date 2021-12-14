@@ -662,4 +662,29 @@ class gglmsHelper
         return $columns;
     }
 
+    public static function GetContenutoZoom($item,$data_evento)
+    {
+
+        $db = JFactory::getDBO();
+
+        try {
+
+                $query = $db->getQuery(true);
+                $query->select('id')
+                    ->from('#__gg_contenuti')
+                    ->where("id_evento = " . $item['id_evento']." and data_evento = '" .$data_evento ."'")
+                     ->where('id != ' .$item['id']);
+
+                $db->setQuery($query);
+                $res = $db->loadResult();
+
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore GetContenutoZoom");
+        }
+
+           return $res;
+    }
+
 }

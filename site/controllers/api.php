@@ -2178,6 +2178,229 @@ HTML;
         $this->_japp->close();
     }
 
+
+    //inserimento del Report di zoom su gg_log
+    public function get_event_log() {
+
+        $_users_orfani = array();
+        $_tipo_evento = '';
+
+        try {
+
+            $_config = new gglmsModelConfig();
+            $api_key = $_config->getConfigValue('zoom_api_key');
+            $api_secret = $_config->getConfigValue('zoom_api_secret');
+            $api_endpoint = $_config->getConfigValue('zoom_api_endpoint');
+            $api_version = $_config->getConfigValue('zoom_api_version');
+            $api_scadenza_token = $_config->getConfigValue('zoom_api_scadenza_token');
+
+            $db  = JFactory::getDBO();
+            $db->truncateTable('#__gg_zoom_log');
+            $db->truncateTable('#__gg_zoom_codice_fiscale');
+
+            $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
+            $zoom_users = $zoom_call->get_users();
+
+            $users = json_decode($zoom_users['success']);
+
+            foreach ($users->users as $key_user => $user) {
+                $_zoom_model = new gglmsModelZoom();
+                $user_check = $_zoom_model->check_zoom_users($user->id);
+                if(isset($user_check) || $user_check > 0)
+                    continue;
+                $_store_users = $_zoom_model->store_zoom_users($user->id, $user->email);
+
+                if (!is_array($_store_users))
+                    throw new Exception($_store_users, 1);
+            }
+
+            $dt = new DateTime();
+            $oggi = $dt->format('Y-m-d');
+            //ieri
+            $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
+//            $data_rif = strtotime('2021/11/27');
+//            $_dt_ref = date('Y-m-d',$data_rif);
+
+            $query = $this->_db->getQuery(true)
+                ->select('id, id_evento, tipo_evento, id_utente_zoom')
+                ->from('#__gg_contenuti')
+                ->where('DATE_FORMAT(data_evento, "%Y-%m-%d") = ' . $this->_db->quote($_dt_ref));
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (count($results) == 0)
+                throw new Exception("Nessun evento per data : " . $_dt_ref, E_USER_ERROR);
+
+            foreach ($results as $key_res => $res) {
+
+                $uuid_evento = '';
+                $id_contenuto = $res['id'];
+
+                $_zoom_model = new gglmsModelZoom();
+                $get_user = $_zoom_model->get_zoom_users($res['id_utente_zoom']);
+
+                $mese_zoom = date('Y-m',$_dt_ref);
+
+                $_events = $zoom_call->get_events($get_user, 'meetings', $mese_zoom);
+
+                if (isset($_events['error']))
+                    throw new Exception($_events['error'], 1);
+
+                if (!isset($_events['success'])
+                    || $_events['success'] == "")
+                    throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
+
+                $_event_json = json_decode($_events['success']);
+                foreach ($_event_json->meetings as $key_event => $event){
+
+                    $start_date = strtotime($event->start_time);
+                    $data_evento = date('Y-m-d',$start_date);
+
+                    if(($event->id == $res['id_evento']) && ($data_evento == $_dt_ref)) {
+
+                        $_zoom_model = new gglmsModelZoom();
+                        $store_event = $_zoom_model->store_zoom_riferimento($event->uuid, $event->id, $data_evento, $id_contenuto);
+
+                        if (!is_array($store_event))
+                            throw new Exception($store_event, 1);
+
+                        $uuid_evento = $event->uuid;
+
+                    }else{
+                        continue;
+                    }
+                }
+
+
+                $_registrants = $zoom_call->get_event_registrants($res['id_evento'], $res['tipo_evento']);
+
+                if (isset($_registrants['error']))
+                    throw new Exception($_registrants['error'], 1);
+
+                if (!isset($_registrants['success'])
+                    || $_registrants['success'] == "")
+                    throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
+
+                $_response = json_decode($_registrants['success']);
+
+                if (!isset($_response->registrants)
+                    || count($_response->registrants) == 0)
+                    throw new Exception("Nessun dettaglio disponibile per l'evento selezionato", 1);
+
+
+                foreach ($_response->registrants as $key_resp => $resp) {
+
+                    $create_date = strtotime($resp->create_time);
+                    $data_riferimento = date('Y-m-d',$create_date);
+
+                    if($data_riferimento != $_dt_ref){
+                        continue;
+                    }
+
+                    $query_user = $this->_db->getQuery(true)
+                        ->select('cp.user_id')
+                        ->from('#__comprofiler as cp')
+                        ->where(' cp.cb_codicefiscale = ' . $this->_db->quote($resp->custom_questions[0]->value));
+                    $this->_db->setQuery($query_user);
+                    $user_id = $this->_db->loadResult();
+
+                    if($user_id == 0 || !isset($user_id)) {
+                        array_push($_users_orfani, $resp->id);
+                        UtilityHelper::make_debug_log(__FUNCTION__, 'utente non registrato sulla piattaforma: '. $user_id, 'get_event_log');
+                        continue;
+                    }
+
+                    $_zoom_model = new gglmsModelZoom();
+                    $_store = $_zoom_model->store_zoom_log($resp->custom_questions[0]->value, $user_id, $id_contenuto);
+
+                    if (!is_array($_store))
+                        throw new Exception($_store, 1);
+
+                    $_store_codice_fiscale = $_zoom_model->store_zoom_codice_fiscale($user_id,$resp->custom_questions[0]->value, $resp->id);
+
+                    if (!is_array($_store_codice_fiscale))
+                        throw new Exception($_store_codice_fiscale, 1);
+
+                }
+
+
+                if($res['tipo_evento'] == 1){
+
+                    $_tipo_evento = 'webinars';
+
+                }else{
+
+                    $_tipo_evento = 'meetings';
+                }
+
+                $_events = $zoom_call->get_event_participants($uuid_evento, $_tipo_evento, $res['tipo_evento']);
+
+                if (isset($_events['error']))
+                    throw new Exception($_events['error'], 1);
+
+                if (!isset($_events['success'])
+                    || $_events['success'] == "")
+                    throw new Exception("Il servizio non ha prodotto alcuna risposta", 1);
+
+                $_participants = json_decode($_events['success']);
+
+                if (!isset($_participants->participants)
+                    || count($_participants->participants) == 0)
+                    throw new Exception("Nessun dettaglio disponibile per l'evento selezionato", 1);
+
+                // conversione date nella timezone corretta - zoom registra le date sul meridiano di Greenwich
+                $_participants_json = UtilityHelper::convert_zoom_response($_participants->participants);
+
+                $_zoom_model = new gglmsModelZoom();
+
+                foreach ($_participants_json as $key_part => $participant) {
+
+                    $user_zoom = $_zoom_model->get_user_id_zoom($participant->id);
+                    if(!isset($user_zoom))
+                        continue;
+
+
+                    $_update = $_zoom_model->update_zoom_codice_fiscale($participant->id, $participant->duration, $participant->join_time);
+
+                    if (!is_array($_update))
+                        throw new Exception($_update, 1);
+
+
+
+                }
+
+                $user_details = $_zoom_model->get_user_details_zoom();
+
+                foreach ($user_details as $key_user => $user_detail) {
+
+
+                    $_update_log = $_zoom_model->update_zoom_log($user_detail['id_utente'], $user_detail['codice_fiscale'], $id_contenuto, $user_detail['durata'], $user_detail['data_accesso']);
+
+                    if (!is_array($_update_log))
+                        throw new Exception($_update_log, 1);
+                }
+
+
+            }
+
+            var_dump('finish');die();
+            $store_log = $_zoom_model->store_zoom_gg_log();
+
+            if (!is_array($store_log))
+                throw new Exception($store_log, 1);
+
+            echo "Report zoom terminato per : " . date('d/m/Y H:i:s');
+        }
+        catch (Exception $e) {
+
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'get_event_log_exception');
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
+
     public function get_event_list() {
 
         $_ret = array();

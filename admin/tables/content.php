@@ -31,7 +31,7 @@ class gglmsTableContent extends JTable {
     public function bind($array, $ignore = '') {
 
 
-
+        $app = JFactory::getApplication();
 
         if (isset($array['categoria'])) {
             if(is_array($array['categoria']))
@@ -49,6 +49,18 @@ class gglmsTableContent extends JTable {
 
         if (is_array($array['prerequisiti'])){
             $array['prerequisiti'] = implode(',',$array['prerequisiti']);
+        }
+
+        if (isset($array['data_evento']) && isset($_REQUEST['jform']['data_evento'])) {
+
+           $get_zoom = gglmsHelper::GetContenutoZoom($array,$_REQUEST['jform']['data_evento']);
+
+
+           if((isset($get_zoom)) && ($get_zoom > 0)){
+
+               $app->redirect(JRoute::_('index.php?option=com_gglms&view=content&layout=edit&id=' . $array['id'], false), $app->enqueueMessage('Esiste già un contenuto legato a questo evento nello stesso giorno!', 'Warning'));
+
+           }
         }
 
         return parent::bind($array, $ignore);

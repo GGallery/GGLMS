@@ -165,7 +165,9 @@ CREATE TABLE `#__gg_contenuti` (
   `orientamento` varchar(1) DEFAULT NULL,
   `path_pdf` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   `id_evento` varchar(25) NULL COMMENT 'aggiunta per le chiamate api zoom',
-  `tipo_zoom` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'aggiunta per distinguere webinar da meeting',
+  `tipo_evento` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'aggiunta per distinguere webinar da meeting',
+  `data_evento` date DEFAULT NULL  COMMENT 'aggiunta per gestire le chiamate api',
+  `id_utente_zoom` int(10) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -752,6 +754,64 @@ CREATE TABLE IF NOT EXISTS `#__gg_zoom_events` (
   `data_registrazione`  datetime NOT NULL ,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_zoom_log`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_zoom_log`;
+CREATE TABLE `#__gg_zoom_log` (
+  `id_utente` int(255) NOT NULL,
+  `codice_fiscale` varchar (255) NOT NULL,
+  `id_contenuto` int(10) NULL DEFAULT NULL,
+  `data_accesso` datetime NULL,
+  `durata` int(255) NOT NULL,
+  PRIMARY KEY (`id_utente`,`codice_fiscale`,`id_contenuto`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_zoom_users`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_zoom_users`;
+CREATE TABLE `#__gg_zoom_users`  (
+   `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_user_zoom` varchar (255) NOT NULL,
+  `email` varchar (255) NOT NULL,
+  PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8;
+
+
+-- ----------------------------
+-- Table structure for `#__gg_zoom_riferimento`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_zoom_riferimento`;
+CREATE TABLE `#__gg_zoom_riferimento`  (
+  `id_evento` varchar(25) NULL,
+  `uuid_evento` varchar (255) NOT NULL,
+  `id_contenuto` int(10) NULL DEFAULT NULL,
+  `data_evento` date DEFAULT NULL,
+  PRIMARY KEY (`uuid_evento`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_zoom_codice_fiscale`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_zoom_codice_fiscale`;
+CREATE TABLE `#__gg_zoom_codice_fiscale`  (
+  `id_utente` int(255) NOT NULL DEFAULT '0',
+  `codice_fiscale` varchar (255) NOT NULL DEFAULT '0',
+  `id_zoom_user` varchar (255) NOT NULL DEFAULT '0',
+  `data_accesso` datetime NULL,
+  `durata` int(255) NOT NULL,
+  PRIMARY KEY (`id_utente`,`codice_fiscale`,`id_zoom_user`,`durata`)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8;
 
 -- ----------------------------
 -- Table structure for `#__gg_check_coupon_xml`

@@ -149,8 +149,8 @@
 		<field
 				name="path"
 				type="text"
-				label="Percorso entryfile/Webinar Id"
-				description="Percorso entryfile dello scorm / Identificativo Webinar"
+				label="Percorso entryfile/Webinar"
+				description="Percorso entryfile dello scorm / Webinar"
 				class="inputbox"
 				required=""
 				showon="tipologia:4[OR]tipologia:10"
@@ -175,7 +175,40 @@
 		</field>
 
 		<field
-				name="tipo_zoom"
+				name="id_utente_zoom"
+				type="sql"
+				label="Utente Zoom"
+				description="Email dell'utente Zoom"
+				class="inputbox"
+				query="SELECT
+						z.id AS value,
+						z.email AS email
+						FROM #__gg_zoom_users as z
+
+						ORDER BY z.id ASC
+						"
+				showon="tipologia:10"
+				default=""
+				key_field="value"
+				value_field="email"
+
+		>
+			<option value="">Seleziona....</option>
+		</field>
+
+		<field
+				name="data_evento"
+				type="calendar"
+				label="Data Evento"
+				description="data effettiva del giorno dell'evento"
+				size="15"
+				required=""
+				showon="tipologia:10"
+				default="NOW"
+		/>
+
+		<field
+				name="tipo_evento"
 				type="radio"
 				label="tipo evento su zoom"
 				description="tipo evento su zoom webinar/meeting"
