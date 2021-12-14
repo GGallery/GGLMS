@@ -538,7 +538,8 @@ INSERT INTO `#__gg_unit` VALUES (
                                 6,
                                 0,
                                 0,
-                                null);
+                                null,
+								0);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`
