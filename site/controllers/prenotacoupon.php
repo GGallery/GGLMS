@@ -180,11 +180,11 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
 
         if (!$mailer->Send()) {
 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-            utilityHelper::logMail('book_coupons_mail', $sender, $to, 0);
+            utilityHelper::logMail('book_coupons_mail', $sender, implode(", ", $to), 0);
         }
 
         //log mail sent
-        utilityHelper::logMail('book_coupons_mail', $sender, $to, 1);
+        utilityHelper::logMail('book_coupons_mail', $sender, implode(", ", $to), 1);
         return true;
 
 
