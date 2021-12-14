@@ -205,6 +205,65 @@ class gglmsControllerZoom extends JControllerLegacy
         $this->_japp->close();
     }
 
+    function get_event_registrants($id_evento, $tipo_evento, $type = 'meetings', $page_size = 20) {
+
+        $client = new GuzzleHttp\Client($this->config_client);
+        $get_token = $this->get_access_token();
+
+        if (!is_array($get_token))
+            throw new Exception($get_token, 1);
+
+        $this->access_token = $get_token['success'];
+
+        if ($tipo_evento == 1)
+            $type = 'webinars';
+
+        $_ret = array();
+        $result = array();
+        try {
+
+            $response = $client->request('GET', '/v2/' . $type . '/' . $id_evento . '/registrants?status=approved&page_size=' . $page_size, [
+                "headers" => [
+                    "Authorization" => "Bearer $this->access_token"
+                ]
+            ]);
+
+            $data = json_encode(json_decode($response->getBody()),true);
+            $result['registrants'] = json_decode($data)->registrants;
+
+            $resp = json_decode($data);
+
+            //rifaccio la chiamata nel caso c fossero piu di 300 participants
+            while(!empty($resp->next_page_token)){
+
+                $next_token = $resp->next_page_token;
+
+                $response = $client->request('GET', '/v2/' . $type . '/' . $id_evento . '/registrants?status=approved&page_size=' . $page_size . '&next_page_token=' . $next_token, [
+                    "headers" => [
+                        "Authorization" => "Bearer $this->access_token"
+                    ]
+                ]);
+
+                $data = json_encode(json_decode($response->getBody()),true);
+
+                $resp = json_decode($data);
+
+                $result['registrants'] = array_merge($result['registrants'],$resp->registrants);
+
+
+            }
+
+            $_ret['success'] = json_encode($result);
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        return $_ret;
+
+        $this->_japp->close();
+    }
+
     function get_event_participants($event_id, $type = 'meetings', $event_type, $page_size = 300) {
 
         $client = new GuzzleHttp\Client($this->config_client);
