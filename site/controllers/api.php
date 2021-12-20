@@ -3078,6 +3078,7 @@ HTML;
                 $_tmp[$single_report['id_utente']]['nominativo'] = $single_report['nominativo'];
                 $_tmp[$single_report['id_utente']]['codice_fiscale'] = $single_report['codice_fiscale'];
                 $_tmp[$single_report['id_utente']]['email'] = $single_report['email'];
+                $_tmp[$single_report['id_utente']]['qualifica'] = $single_report['qualifica'];
                 $_tmp[$single_report['id_utente']]['ragione_sociale'] = $single_report['ragione_sociale'];
                 $_tmp[$single_report['id_utente']]['stato_corso'] = $single_report['stato_corso'];
 
