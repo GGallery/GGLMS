@@ -2196,6 +2196,119 @@ HTML;
         //$this->_japp->close();
     }
 
+    // per sistemare il riordino delle anagrafiche dei corsi e relativa visualizzazione dei riferimenti a coupon nella tabella report
+    public function fix_coupon_adesioni($old_gruppo, $arr_servizi)
+    {
+
+        /*
+        SERVIZI
+        231 -> 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433
+        */
+        /*
+        LA FARMACIA
+        297 -> 434, 435, 436
+        */
+        try {
+
+            $generation_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $generated_coupon_code = [];
+            $generated_id_iscrizione = [];
+            $codice_coupon = "";
+            $id_iscrizione = "";
+            $servizi_inserted = 0;
+            $delete_servizi = [];
+
+            $query = "SELECT *
+                        FROM #__gg_coupon
+                        WHERE id_gruppi = " . $this->_db->quote($old_gruppo);
+
+            $this->_db->setQuery($query);
+            $rif_servizi = $this->_db->loadAssocList();
+
+            // esistono riferimenti
+            if (count($rif_servizi)) {
+
+                $this->_db->transactionStart();
+
+                foreach ($rif_servizi as $key_servizio => $servizio) {
+
+                    $insert_query = "INSERT INTO #__gg_coupon (
+                        coupon,
+                        id_utente,
+                        gruppo,
+                        creation_time,
+                        abilitato,
+                        id_iscrizione,
+                        data_utilizzo,
+                        data_abilitazione,
+                        durata,
+                        id_societa,
+                        id_gruppi
+                    ) VALUES ";
+
+                    foreach ($arr_servizi as $key_gruppo => $id_gruppi) {
+
+                        // codice coupon
+                        $codice_coupon = 'X-' . substr(str_shuffle($generation_chars), 0, 32);
+                        while(!in_array($codice_coupon, $generated_coupon_code)) {
+                            $codice_coupon = 'X-' . substr(str_shuffle($generation_chars), 0, 32);
+                            $generated_coupon_code[] = $codice_coupon;
+                        }
+
+                        // id iscrizione
+                        $id_iscrizione = $servizio['gruppo'] . '_' . substr(str_shuffle($generation_chars), 0, 16) . '_' . $servizio['id_utente'];
+                        while(!in_array($id_iscrizione, $generated_id_iscrizione)) {
+                            $id_iscrizione = $servizio['gruppo'] . '_' . substr(str_shuffle($generation_chars), 0, 16) . '_' . $servizio['id_utente'];
+                            $generated_id_iscrizione[] = $id_iscrizione;
+                        }
+
+                        $insert_query .= "
+                            (
+                                " . $this->_db->quote($codice_coupon) . ",
+                                " . $this->_db->quote($servizio['id_utente']) . ",
+                                " . $this->_db->quote($servizio['gruppo']) . ",
+                                " . $this->_db->quote($servizio['creation_time']) . ",
+                                " . $this->_db->quote($servizio['abilitato']) . ",
+                                " . $this->_db->quote($id_iscrizione) . ",
+                                " . $this->_db->quote($servizio['data_utilizzo']) . ",
+                                " . $this->_db->quote($servizio['data_abilitazione']) . ",
+                                " . $this->_db->quote($servizio['durata']) . ",
+                                " . $this->_db->quote($servizio['id_societa']) . ",
+                                " . $this->_db->quote($id_gruppi) . "
+                            ),
+                        ";
+
+                    }
+
+                    $insert_query = rtrim(trim($insert_query), ",") . ";";
+                    $this->_db->setQuery($insert_query);
+                    if (!$this->_db->execute()) throw new Exception("Query inserimento gg_coupon utente: " . $insert_query, E_USER_ERROR);
+
+                    $delete_servizi[] = $servizio['coupon'];
+                    $servizi_inserted++;
+
+                }
+
+                // cancello tutti i coupon vecchi associati al gruppo corso estinto
+                $imp = "'" . implode( "','", $delete_servizi) . "'";
+                $delete_query = "DELETE FROM #__gg_coupon WHERE coupon IN (" . $imp . ")";
+                $this->_db->setQuery($delete_query);
+                if (!$this->_db->execute()) throw new Exception("Query cancellazione vecchi riferimenti coupon: " . $delete_query, E_USER_ERROR);
+
+                $this->_db->transactionCommit();
+
+            } // servizi
+
+            return "SONO STATI INSERITI " . $servizi_inserted . ", SONO STATI CANCELLATI " . count($delete_servizi);
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            return __FUNCTION__ . " - FIX NON COMPLETATO: " . $e->getMessage();
+        }
+
+    }
+
     // rintraccia tutti gli utenti dei report senza riferimenti in anagrafica, la crea ed aggiorna i riferimenti nelle tabelle dei report
     public function fix_anagrafica_report() {
 
