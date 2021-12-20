@@ -74,6 +74,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_event_type = JRequest::getVar('zoom_event_type');
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
+        $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -2901,6 +2902,74 @@ HTML;
             DEBUGG::error($e, __FUNCTION__, 1, true);
         }
 
+    }
+
+    //generazione di report quiz dettagliato con domande e risposte
+    public function get_report_dettaglio_quiz()
+    {
+
+     try{
+         $id_quiz = $this->_filterparam->id_quiz;
+
+         if(!isset($id_quiz)
+             || !is_numeric($id_quiz))
+             throw new Exception("id_quiz devono essere di tipo numerico", 1);
+
+         $contenuto_model = new gglmsModelContenuto();
+
+         $user_questions_survey = $contenuto_model->get_quiz_response_survey($id_quiz);
+         $user_questions_choice = $contenuto_model->get_quiz_response_choice($id_quiz);
+
+         if(!isset($user_questions_survey) || !is_array($user_questions_survey))
+             throw new Exception("Erore nella generazione di quiz survey", 1);
+
+         if(!isset($user_questions_choice) || !is_array($user_questions_choice))
+             throw new Exception("Erore nella generazione di quiz choice", 1);
+
+         $user_questions = array();
+         $key_prec = '';
+
+        foreach ($user_questions_choice as $key_choice=>$choice){
+
+            if ($choice['Id_user_quiz'] != $key_prec){
+                foreach ($user_questions_survey as $key_survey=>$survey){
+
+                if($survey['Id_user_quiz'] == $choice['Id_user_quiz']){
+
+                    if(array_key_exists('Domanda',$survey))
+                        $survey['Domanda'] = strip_tags($survey['Domanda']);
+                    $key_prec = $survey['Id_user_quiz'];
+                    array_push($user_questions,$survey);
+                }
+
+               }
+            }
+
+            if(array_key_exists('Domanda',$survey))
+                $choice['Domanda'] = strip_tags($choice['Domanda']);
+
+            array_push($user_questions,$choice);
+
+        }
+
+         $_csv_cols = utilityHelper::get_cols_from_array((array) $user_questions[0]);
+
+        $_export_csv = utilityHelper::esporta_csv_spout($user_questions , $_csv_cols, time() . '.csv');
+
+        // chiusura della finestra dopo generazione del report
+$_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+//echo $_html;
+     } catch (Exception $e) {
+    //$_ret['error'] = $e->getMessage();
+          echo $e->getMessage();
+      }
+
+        $this->_japp->close();
     }
 
 //	INUTILIZZATO
