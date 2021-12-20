@@ -468,6 +468,7 @@ class gglmsModelReport extends JModelLegacy
                             u.name AS nominativo,
                             u.username AS codice_fiscale,
                             u.email AS email,
+                            COALESCE(comp.cb_descrizionequalifica, '') AS qualifica,
                             jgmf.ragione_sociale,
                             IF(v.stato = 1, 'COMPLETATO', 'NON COMPLETATO') AS stato_corso,
                             unita.titolo AS titolo_corso
@@ -478,6 +479,7 @@ class gglmsModelReport extends JModelLegacy
                         JOIN #__usergroups ju2 ON juum.group_id = ju2.id
                         JOIN #__gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo
                         JOIN #__gg_unit unita ON v.id_unita = unita.id
+                        JOIN #__comprofiler comp ON u.id = comp.user_id
                         WHERE v.id_unita = " . $db->quote($id_corso) . "
                         AND ju2.parent_id = " . $db->quote($gruppo_id_piattaforma) . "
                         GROUP BY u.username";
