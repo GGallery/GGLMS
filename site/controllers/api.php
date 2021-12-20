@@ -342,8 +342,17 @@ class gglmsControllerApi extends JControllerLegacy
 
                     $att_id_string = $this->getAttestati($id_corso);
 
+                    if(strpos($att_id_string,'|')){
+
+                        $attestati = explode('|',$att_id_string);
+                        $attestato = $attestati[1];
+                        $attestato_hidden = $attestati[0];
+                    }else{
+                        $attestato_hidden = $att_id_string;
+                    }
+
                     $query = $this->_db->getQuery(true);
-                    $query->select('vista.id_anagrafica as id_anagrafica,"' . $att_id_string . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
+                    $query->select('vista.id_anagrafica as id_anagrafica,"'. $attestato .'" as Attestato,"' . $attestato_hidden . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
                     $query->from('#__gg_view_stato_user_corso  as vista');
                     $query->where('id_corso=' . $id_corso);
                     switch ($filters['filterstato']) {
@@ -362,7 +371,8 @@ class gglmsControllerApi extends JControllerLegacy
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_fine", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "scadenza", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "attestati_hidden", 'outer');
-                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                            $users = $this->addColumn($users, $datas, "id_anagrafica", null, "Attestato", 'outer');
+                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields','attestati_hidden','Attestato');
 
                             $rows = $users;
 
@@ -414,7 +424,7 @@ class gglmsControllerApi extends JControllerLegacy
                             $datas = $this->addColumn($datas, $users, "id_anagrafica", null, "fields", 'inner');
                             $rows = $datas;
 
-                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden','Attestato');
 
                             break;
 
@@ -517,7 +527,17 @@ HTML;
                             $_ret[$_key_row][$key] = <<<HTML
                             <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
 HTML;
-                        } else if(($disable == '0')&&($key == 'attestati_hidden')){
+                        }else if(($disable == '1')&&($key == 'Attestato')&&($attestato != '')){
+                            $content_id = explode('#',$_row['Attestato'])[0];
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1;
+                            $_ret[$_key_row][$key] = <<<HTML
+                            <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
+HTML;
+                        }else if(($disable == '0')&&($key == 'attestati_hidden')){
+                            $_ret[$_key_row][$key] = <<<HTML
+                            <span></span>
+HTML;
+                        }else if(($disable == '0')&&($key == 'attestato')){
                             $_ret[$_key_row][$key] = <<<HTML
                             <span></span>
 HTML;
