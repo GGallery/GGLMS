@@ -51,8 +51,7 @@ class gglmsControllerPdf extends JControllerLegacy
     public function generateAttestato($user_id = null,
                                       $id_content = null,
                                       $generate_pdf = true,
-                                      $id_corso = null,
-                                      $data_inizio = null)
+                                      $id_corso = null)
     {
 
         try {
@@ -62,7 +61,6 @@ class gglmsControllerPdf extends JControllerLegacy
 //            var_dump($user_id);
             $db = JFactory::getDbo();
             $postData = $this->_japp->input->get;
-            $data_inizio_pdf = $data_inizio != null ? $data_inizio : $postData->get('data_inizio', 0, 'date');
             $id_elemento = $id_content != null ? $id_content : $postData->get('content', 0, 'int');
             $user_id = $user_id != null ? $user_id : $this->_user->get('id');
             // da vista o come argomento
@@ -291,8 +289,7 @@ class gglmsControllerPdf extends JControllerLegacy
                                     $ateco,
                                     $coupon,
                                     false,
-                                    $dati_corso,
-                                    $data_inizio_pdf);
+                                    $dati_corso);
             } else {
 
 

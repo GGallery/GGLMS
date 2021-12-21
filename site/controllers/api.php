@@ -314,8 +314,14 @@ class gglmsControllerApi extends JControllerLegacy
 
         //$this->_filterparam->task = JRequest::getVar('task');
         //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
+        if(strpos($this->_filterparam->corso_id,'|')){
+
+            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+            $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
+        }else{
+            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        }
+
         $alert_days_before = $this->_params->get('alert_days_before');
         $tipo_report = $this->_filterparam->tipo_report;
         $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
@@ -523,13 +529,13 @@ HTML;
 HTML;
                         }else if(($disable == '1')&&($key == 'attestati_hidden')){ //aggiungo buttone per scaricare l'attestato
                             $content_id = explode('#',$_row['attestati_hidden'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&data_inizio='.$_row['data_inizio'];
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
                             $_ret[$_key_row][$key] = <<<HTML
                             <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
 HTML;
                         }else if(($disable == '1')&&($key == 'Attestato')&&($attestato != '')){
                             $content_id = explode('#',$_row['Attestato'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&data_inizio='.$_row['data_inizio'];
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
                             $_ret[$_key_row][$key] = <<<HTML
                             <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
 HTML;

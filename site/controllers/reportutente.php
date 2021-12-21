@@ -111,9 +111,10 @@ class gglmsControllerReportUtente extends JControllerLegacy
             $postData = $this->_japp->input->get;
             $content_id = $postData->get('content_id', null, 'int');
             $user_id = $postData->get('user_id', null, 'int');
+            $id_corso = $postData->get('id_corso', null, 'int');
 
             $pdf_ctrl = new gglmsControllerPdf();
-            $pdf_ctrl->generateAttestato($user_id, $content_id, $data_superamento, true);
+            $pdf_ctrl->generateAttestato($user_id, $content_id, true, $id_corso);
 
 
         } catch (Exception $e) {
