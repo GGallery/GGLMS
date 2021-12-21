@@ -262,9 +262,9 @@ if (!$count)
 //    echo "<h3>Non ci sono contenuti per te visualizzabili in questa unità</h3>";
 ?>
 
-
+<!--data-backdrop="static" class="modal fade"-->
 <!-- Modal Corso Disabilitato-->
-<div id="exampleModal" class="modal fade" role="dialog" data-backdrop="static">
+<div id="exampleModal" role="dialog" class="modal">
     <div class="modal-dialog">
 
         <!-- Modal content-->
