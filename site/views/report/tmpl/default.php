@@ -153,8 +153,8 @@ defined('_JEXEC') or die;
             <th data-class="showColumn" data-field="Questionario di valutazione della qualità" >Questionario Di Valutazione Della Qualità</th>
             <th data-field="cb_codicefiscale" ><?php echo JText::_('COM_GGLMS_REPORT_CODICE_FISCALE'); ?></th>
             <th data-field="cb_azienda" ><?php echo JText::_('COM_GGLSM_REPORT_AZIENDA'); ?></th>
-            <th data-field="attestati_hidden" ><?php echo JText::_('COM_GGLMS_REPORT_ATTESTATI'); ?></th>
-            <th data-field="Attestato" >ATTESTATO - Formazione Generale</th>
+            <th data-field="attestati_hidden" >Attestato 1</th>
+            <th data-field="Attestato" >Attestato 2</th>
         </tr>
         </thead>
     </table>
