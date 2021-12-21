@@ -523,13 +523,13 @@ HTML;
 HTML;
                         }else if(($disable == '1')&&($key == 'attestati_hidden')){ //aggiungo buttone per scaricare l'attestato
                             $content_id = explode('#',$_row['attestati_hidden'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1;
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&data_inizio='.$_row['data_inizio'];
                             $_ret[$_key_row][$key] = <<<HTML
                             <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
 HTML;
                         }else if(($disable == '1')&&($key == 'Attestato')&&($attestato != '')){
                             $content_id = explode('#',$_row['Attestato'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1;
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&data_inizio='.$_row['data_inizio'];
                             $_ret[$_key_row][$key] = <<<HTML
                             <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
 HTML;

@@ -44,7 +44,8 @@ class gglmsModelPdf extends JModelLegacy
                                   $ateco ,
                                   $coupon,
                                   $multi = false,
-                                  $dati_corso = null)
+                                  $dati_corso = null,
+                                  $data_inizio = null)
     {
 
 
@@ -97,9 +98,12 @@ class gglmsModelPdf extends JModelLegacy
             // header aggiuntivi per data inizio/fine corso
             if (!is_null($dati_corso)
                 && !empty($dati_corso)) {
-                $info['data_inizio_corso'] = isset($dati_corso[0]->data_inizio_corso) ? $dati_corso[0]->data_inizio_corso : "";
+                $info['data_inizio_corso'] = isset($dati_corso[0]->data_inizio_corso) ? $dati_corso[0]->data_inizio_corso : $data_inizio;
                 $info['data_fine_corso'] = isset($dati_corso[0]->data_fine_corso) ? $dati_corso[0]->data_fine_corso : "";
             }
+
+            if(isset($data_inizio) && !empty($data_inizio))
+                $info['data_inizio_corso'] = $data_inizio;
 
             // modifica per integrare il template in base alla tipologia
             $db = JFactory::getDbo();
