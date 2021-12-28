@@ -1418,7 +1418,8 @@ class gglmsModelUsers extends JModelLegacy
 
             $this->_db->setQuery($insertquery_map);
 
-            if (false === $this->_db->execute())
+            //if (false === $this->_db->execute())
+            if (!$this->_db->execute())
                 throw new Exception("Si è verificato un errore durante l'inserimento", E_USER_ERROR);
 
             $this->_db->transactionCommit();

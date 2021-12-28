@@ -74,6 +74,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->zoom_event_type = JRequest::getVar('zoom_event_type');
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
+        $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -311,8 +312,14 @@ class gglmsControllerApi extends JControllerLegacy
 
         //$this->_filterparam->task = JRequest::getVar('task');
         //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
+        if(strpos($this->_filterparam->corso_id,'|')){
+
+            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+            $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
+        }else{
+            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        }
+
         $alert_days_before = $this->_params->get('alert_days_before');
         $tipo_report = $this->_filterparam->tipo_report;
         $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
@@ -339,8 +346,17 @@ class gglmsControllerApi extends JControllerLegacy
 
                     $att_id_string = $this->getAttestati($id_corso);
 
+                    if(strpos($att_id_string,'|')){
+
+                        $attestati = explode('|',$att_id_string);
+                        $attestato = $attestati[1];
+                        $attestato_hidden = $attestati[0];
+                    }else{
+                        $attestato_hidden = $att_id_string;
+                    }
+
                     $query = $this->_db->getQuery(true);
-                    $query->select('vista.id_anagrafica as id_anagrafica,"' . $att_id_string . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
+                    $query->select('vista.id_anagrafica as id_anagrafica,"'. $attestato .'" as Attestato,"' . $attestato_hidden . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
                     $query->from('#__gg_view_stato_user_corso  as vista');
                     $query->where('id_corso=' . $id_corso);
                     switch ($filters['filterstato']) {
@@ -359,7 +375,8 @@ class gglmsControllerApi extends JControllerLegacy
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_fine", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "scadenza", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "attestati_hidden", 'outer');
-                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                            $users = $this->addColumn($users, $datas, "id_anagrafica", null, "Attestato", 'outer');
+                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields','attestati_hidden','Attestato');
 
                             $rows = $users;
 
@@ -411,7 +428,7 @@ class gglmsControllerApi extends JControllerLegacy
                             $datas = $this->addColumn($datas, $users, "id_anagrafica", null, "fields", 'inner');
                             $rows = $datas;
 
-                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
+                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden','Attestato');
 
                             break;
 
@@ -510,11 +527,21 @@ HTML;
 HTML;
                         }else if(($disable == '1')&&($key == 'attestati_hidden')){ //aggiungo buttone per scaricare l'attestato
                             $content_id = explode('#',$_row['attestati_hidden'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1;
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
                             $_ret[$_key_row][$key] = <<<HTML
                             <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
 HTML;
-                        } else if(($disable == '0')&&($key == 'attestati_hidden')){
+                        }else if(($disable == '1')&&($key == 'Attestato')&&($attestato != '')){
+                            $content_id = explode('#',$_row['Attestato'])[0];
+                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
+                            $_ret[$_key_row][$key] = <<<HTML
+                            <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
+HTML;
+                        }else if(($disable == '0')&&($key == 'attestati_hidden')){
+                            $_ret[$_key_row][$key] = <<<HTML
+                            <span></span>
+HTML;
+                        }else if(($disable == '0')&&($key == 'attestato')){
                             $_ret[$_key_row][$key] = <<<HTML
                             <span></span>
 HTML;
@@ -2112,7 +2139,10 @@ HTML;
             $_participants = null;
 
             $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
-            $_events = $zoom_call->get_event_participants($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
+
+            $event_id = urlencode($this->_filterparam->zoom_event_id);
+            $_events = $zoom_call->get_event_participants($event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
+
 
             if (isset($_events['error']))
                 throw new Exception($_events['error'], 1);
@@ -2132,11 +2162,11 @@ HTML;
 
             // inserisco l'evento a database se non è già presente
             $_zoom_model = new gglmsModelZoom();
-            $_get_event = $_zoom_model->get_event($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo);
+            $_get_event = $_zoom_model->get_event($event_id, $this->_filterparam->zoom_tipo);
 
             if (is_null($_get_event)
                 || !is_array($_get_event)) {
-                $_store_event = $_zoom_model->store_events($this->_filterparam->zoom_event_id,
+                $_store_event = $_zoom_model->store_events($event_id,
                                                             $this->_filterparam->zoom_tipo,
                                                             $this->_filterparam->zoom_event_label,
                                                             $_event_json->participants);
@@ -2150,7 +2180,8 @@ HTML;
             else {
                 $_json = $_get_event['success']['response'];
                 $_participants = json_decode($_json);
-                $_csv_cols = $_participants[0];
+                $_csv_cols = utilityHelper::get_cols_from_array((array) $_participants[0]);
+
             }
 
             $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, time() . '.csv');
@@ -2227,22 +2258,10 @@ HTML;
 
         try {
 
-            /*
-            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_corso, cpcheck.codice_fiscale, ugmp.idgruppo AS gruppo_corso, subq.id_gruppo AS gruppo_azienda, utenti.id AS user_id
+            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id, coupon.id_gruppi AS gruppo_corso
                         FROM #__gg_check_coupon_xml cpcheck
                         INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
-                        INNER JOIN #__gg_unit AS unita ON unita.codice = cpcheck.codice_corso
-                        INNER JOIN #__gg_usergroup_map AS ugmp ON ugmp.idunita = unita.id
-                        INNER JOIN (SELECT DISTINCT mu.id AS id_gruppo, muum.user_id
-                                        FROM #__usergroups mu
-                                        JOIN #__user_usergroup_map muum ON muum.group_id = mu.id
-                                        WHERE mu.parent_id = " . $this->_db->quote($id_piattaforma) . ") AS subq ON subq.user_id = utenti.id
-                                        WHERE cpcheck.coupon IS NULL";
-                                        */
-
-            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id
-                        FROM #__gg_check_coupon_xml cpcheck
-                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
+                        INNER JOIN #__gg_coupon coupon ON cpcheck.codice_coupon = coupon.coupon
                         WHERE cpcheck.coupon IS NULL";
 
             $this->_db->setQuery($query);
@@ -2258,19 +2277,9 @@ HTML;
 
             foreach ($results as $key_result => $coupon) {
 
-                /*
                 $update_coupon = "UPDATE #__gg_coupon
-                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
-                                    WHERE id_gruppi = " . $this->_db->quote($coupon['gruppo_corso']) . "
-                                    AND id_societa = " . $this->_db->quote($coupon['gruppo_azienda']) . "
-                                    AND id_utente IS NULL
-                                    ORDER BY creation_time DESC
-                                    LIMIT 1
-                                    ";
-                                    */
-
-                $update_coupon = "UPDATE #__gg_coupon
-                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ", data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
+                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ",
+                                        data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
                                     WHERE coupon = " . $this->_db->quote($coupon['codice_coupon']);
 
                 // inserisco utente in gruppo corso
@@ -2322,7 +2331,7 @@ HTML;
     // importazione corsi da file xml
     public function load_corsi_from_xml($id_piattaforma = 16,
         $ragione_sociale = "Utenti privati skillab",
-        $piva = "08420380019",
+        $piva = "00000000000",
         $email = "skillabfad@skillab.it",
         $is_debug = false) {
 
@@ -2917,6 +2926,74 @@ HTML;
             DEBUGG::error($e, __FUNCTION__, 1, true);
         }
 
+    }
+
+    //generazione di report quiz dettagliato con domande e risposte
+    public function get_report_dettaglio_quiz()
+    {
+
+     try{
+         $id_quiz = $this->_filterparam->id_quiz;
+
+         if(!isset($id_quiz)
+             || !is_numeric($id_quiz))
+             throw new Exception("id_quiz devono essere di tipo numerico", 1);
+
+         $contenuto_model = new gglmsModelContenuto();
+
+         $user_questions_survey = $contenuto_model->get_quiz_response_survey($id_quiz);
+         $user_questions_choice = $contenuto_model->get_quiz_response_choice($id_quiz);
+
+         if(!isset($user_questions_survey) || !is_array($user_questions_survey))
+             throw new Exception("Erore nella generazione di quiz survey", 1);
+
+         if(!isset($user_questions_choice) || !is_array($user_questions_choice))
+             throw new Exception("Erore nella generazione di quiz choice", 1);
+
+         $user_questions = array();
+         $key_prec = '';
+
+        foreach ($user_questions_choice as $key_choice=>$choice){
+
+            if ($choice['Id_user_quiz'] != $key_prec){
+                foreach ($user_questions_survey as $key_survey=>$survey){
+
+                if($survey['Id_user_quiz'] == $choice['Id_user_quiz']){
+
+                    if(array_key_exists('Domanda',$survey))
+                        $survey['Domanda'] = strip_tags($survey['Domanda']);
+                    $key_prec = $survey['Id_user_quiz'];
+                    array_push($user_questions,$survey);
+                }
+
+               }
+            }
+
+            if(array_key_exists('Domanda',$survey))
+                $choice['Domanda'] = strip_tags($choice['Domanda']);
+
+            array_push($user_questions,$choice);
+
+        }
+
+         $_csv_cols = utilityHelper::get_cols_from_array((array) $user_questions[0]);
+
+        $_export_csv = utilityHelper::esporta_csv_spout($user_questions , $_csv_cols, time() . '.csv');
+
+        // chiusura della finestra dopo generazione del report
+$_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+//echo $_html;
+     } catch (Exception $e) {
+    //$_ret['error'] = $e->getMessage();
+          echo $e->getMessage();
+      }
+
+        $this->_japp->close();
     }
 
 //	INUTILIZZATO

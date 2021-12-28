@@ -151,10 +151,10 @@ defined('_JEXEC') or die;
             <th data-class="showColumn" data-field="Slide scaricabili" >Slide Scaricabili</th>
             <th data-class="showColumn" data-field="TEST FINALE - Formazione generale" >TEST FINALE - Formazione Generale</th>
             <th data-class="showColumn" data-field="Questionario di valutazione della qualità" >Questionario Di Valutazione Della Qualità</th>
-            <th data-class="showColumn" data-field="ATTESTATO - Formazione generale" >ATTESTATO - Formazione Generale</th>
             <th data-field="cb_codicefiscale" ><?php echo JText::_('COM_GGLMS_REPORT_CODICE_FISCALE'); ?></th>
             <th data-field="cb_azienda" ><?php echo JText::_('COM_GGLSM_REPORT_AZIENDA'); ?></th>
-            <th data-field="attestati_hidden" ><?php echo JText::_('COM_GGLMS_REPORT_ATTESTATI'); ?></th>
+            <th data-field="attestati_hidden" >Attestato 1</th>
+            <th data-field="Attestato" >Attestato 2</th>
         </tr>
         </thead>
     </table>
@@ -221,7 +221,6 @@ defined('_JEXEC') or die;
             pTable.bootstrapTable('showColumn', 'Slide scaricabili');
             pTable.bootstrapTable('showColumn', 'TEST FINALE - Formazione generale');
             pTable.bootstrapTable('showColumn', 'Questionario di valutazione della qualità');
-            pTable.bootstrapTable('showColumn', 'ATTESTATO - Formazione generale');
 
         } else if(pTipo == 1){
           //per Unità nacondo le altre colonne
@@ -251,7 +250,6 @@ defined('_JEXEC') or die;
             pTable.bootstrapTable('hideColumn', 'Slide scaricabili');
             pTable.bootstrapTable('hideColumn', 'TEST FINALE - Formazione generale');
             pTable.bootstrapTable('hideColumn', 'Questionario di valutazione della qualità');
-            pTable.bootstrapTable('hideColumn', 'ATTESTATO - Formazione generale');
 
 
         } else if(pTipo == 0){
@@ -282,7 +280,7 @@ defined('_JEXEC') or die;
             pTable.bootstrapTable('hideColumn', 'Slide scaricabili');
             pTable.bootstrapTable('hideColumn', 'TEST FINALE - Formazione generale');
             pTable.bootstrapTable('hideColumn', 'Questionario di valutazione della qualità');
-            pTable.bootstrapTable('hideColumn', 'ATTESTATO - Formazione generale');
+
         }
 
         jQuery.ajax({

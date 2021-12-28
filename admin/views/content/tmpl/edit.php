@@ -84,6 +84,18 @@ $fieldsets = $this->form->getFieldsets();
                     if($this->item->id)
                     echo $this->form->renderField('path'); ?>
                 </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('id_evento'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('tipo_zoom'); ?>
+                </div>
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)

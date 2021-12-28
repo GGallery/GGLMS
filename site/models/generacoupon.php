@@ -634,7 +634,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
                 utilityHelper::logMail('coupons_mail_send_error',
                     $sender,
-                    implode(",", $to),
+                    $to,
                     0,
                     implode(", ", $recipients['cc']),
                     $this->_info_corso["idgruppo"]);
@@ -644,7 +644,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // rimosso il riferimento a $recipients["to"]->email
             utilityHelper::logMail('coupons_mail',
                 $sender,
-                implode(",", $to),
+                $to,
                 1,
                 implode(", ", $recipients['cc']),
                 $this->_info_corso["idgruppo"]);
@@ -932,11 +932,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             if (!$mailer->Send()) {
                 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-                utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 0);
+                utilityHelper::logMail('new_tutor_mail', $sender, $to, 0, implode(", ", $recipients['cc']));
 
             }
 
-            utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 1);
+            utilityHelper::logMail('new_tutor_mail', $sender, $to, 1, implode(", ", $recipients['cc']));
             return true;
         }
         catch (Exception $e) {
