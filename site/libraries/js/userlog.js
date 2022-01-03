@@ -1,17 +1,22 @@
+
+var gUniqid = Math.floor(Math.random()*10000000);
+
 function UserLog(id_utente,id_contenuto,supporto){
 
     var _this=this;
     console.log("Userlog "+id_utente+" - "+id_contenuto);
-    var uniqid=Math.floor(Math.random()*10000000);
+    //var uniqid=Math.floor(Math.random()*10000000);
 
-    jQuery.when(jQuery.get("index.php?option=com_gglms&id_utente="+id_utente+"&id_contenuto="+id_contenuto+"&supporto="+supporto+"&uniqid="+uniqid+"&task=report.insertUserLog"))
+    //jQuery.when(jQuery.get("index.php?option=com_gglms&id_utente="+id_utente+"&id_contenuto="+id_contenuto+"&supporto="+supporto+"&uniqid="+uniqid+"&task=report.insertUserLog"))
+    jQuery.when(jQuery.get("index.php?option=com_gglms&id_utente="+id_utente+"&id_contenuto="+id_contenuto+"&supporto="+supporto+"&uniqid="+gUniqid+"&task=report.insertUserLog"))
         .done(function(data){
             console.log(data);
             data=JSON.parse(data);
             console.log(data);
             if(data=='true') {
                 //setInterval(function(){_this.updateUserLog(uniqid, id_utente, id_contenuto);},10000);
-                _this.updateUserLog(uniqid, id_utente, id_contenuto);
+                //_this.updateUserLog(uniqid, id_utente, id_contenuto);
+                _this.updateUserLog(gUniqid, id_utente, id_contenuto);
             } else {
                 console.log("UserLog DONE - fallito update log:" + data);
             }
@@ -26,6 +31,8 @@ function UserLog(id_utente,id_contenuto,supporto){
 
 // se esiste window.sessionStorage procedo uso il nuovo metodo altrimenti vado avanti con il vecchio che aggiorna ogni 10 sec
 function updateUserLog(uniqid, id_utente, id_contenuto) {
+
+    console.log("Global uniqid: " + uniqid);
 
     if (typeof(window.sessionStorage) != 'object') {
         //oldUpdateUserLog(uniqid);
@@ -48,13 +55,19 @@ function newUpdateUserLog(uniqid, id_utente, id_contenuto) {
 }
 
 // aggiorno il gg_log con la vecchia chiamata
+// gestione caso estremo di sessionStorage non salvata
 function getUpdateSessionStorage(id_utente, id_contenuto) {
 
     if (window.sessionStorage.getItem('update_user_log_' + id_utente + '_' + id_contenuto) != null
         && window.sessionStorage.getItem('update_user_log_' + id_utente + '_' + id_contenuto) != "") {
 
+        console.log("sessionStorage UPDATE")
         oldUpdateUserLog(window.sessionStorage.getItem('update_user_log_' + id_utente + '_' + id_contenuto));
 
+    }
+    else {
+        console.log("global UPDATE");
+        oldUpdateUserLog(gUniqid);
     }
 
 }
