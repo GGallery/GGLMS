@@ -3523,7 +3523,7 @@ HTML;
                 );
 
                 if (!$result_login)
-                    throw new Exception("Login fallito", E_USER_ERROR);
+                    throw new Exception("Login fallito oppure l'utente non è ancora stato attivato", E_USER_ERROR);
 
                 utilityHelper::_set_cookie_by_name("logged_in", time(), time()+3600);
                 $_ret['success'] = 'logged_in';
@@ -3537,7 +3537,7 @@ HTML;
             // controllo se l'utente esiste
             $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
             if (is_null($check_user_id))
-                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+                throw new Exception("Il Codice fiscale " . $cb_codicefiscale . " non è stato trovato", E_USER_ERROR);
 
             // parametri da configurazione del modulo farmacie
             $_params = utilityHelper::get_params_from_module('mod_farmacie');
@@ -3719,7 +3719,7 @@ HTML;
             // l'utente deve essere privo di blocchi
             $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, true);
             if (is_null($check_user_id))
-                throw new Exception("Il Codice fiscale non è stato trovato o l'utente non è ancora attivo", E_USER_ERROR);
+                throw new Exception("Il Codice fiscale non è stato trovato o l'utente non è ancora stato attivato", E_USER_ERROR);
 
             // se esiste permetto all'utente di effettuare il reset sul codice fiscale corrente
             // parametri da configurazione del modulo farmacie
