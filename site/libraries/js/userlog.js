@@ -34,6 +34,9 @@ function updateUserLog(uniqid, id_utente, id_contenuto) {
 
     console.log("Global uniqid: " + uniqid);
 
+    /*
+    cambio il metodo di controllo sullo sessionStorage
+
     if (typeof(window.sessionStorage) != 'object') {
         //oldUpdateUserLog(uniqid);
         setInterval(function() {
@@ -42,6 +45,16 @@ function updateUserLog(uniqid, id_utente, id_contenuto) {
     }
     else
         newUpdateUserLog(uniqid, id_utente, id_contenuto)
+    */
+
+    if (typeof(Storage) !== "undefined") {
+        newUpdateUserLog(uniqid, id_utente, id_contenuto);
+    }
+    else {
+        setInterval(function() {
+            oldUpdateUserLog(uniqid);
+        },10000);
+    }
 
 }
 
