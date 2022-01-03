@@ -387,7 +387,11 @@ class gglmsModelReport extends JModelLegacy
 
         try {
 
-            $updatequery = 'UPDATE #__gg_log set permanenza=TIME_TO_SEC(TIMEDIFF(NOW(),data_accesso)) where uniqid=' . $uniquid;
+            $updatequery = 'UPDATE #__gg_log
+                                        set permanenza=TIME_TO_SEC(TIMEDIFF(NOW(),data_accesso))
+                                        where uniqid=' . $uniquid;
+
+            utilityHelper::make_debug_log(__FUNCTION__, $updatequery, __FUNCTION__);
 
             $this->_db->setQuery($updatequery);
             $this->_db->execute();
