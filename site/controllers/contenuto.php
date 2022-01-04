@@ -9,6 +9,8 @@
 
 defined('_JEXEC') or die;
 
+require_once JPATH_COMPONENT . '/models/report.php';
+
 /**
  * Controller for single contact view
  *
@@ -26,6 +28,8 @@ class gglmsControllerContenuto extends JControllerLegacy
         $stato = JRequest::getVar('stato');
         $id_elemento = JRequest::getVar('id_elemento');
         $id_utente = JRequest::getVar('id_utente');
+        // per aggiornamento gg_log
+        $uniquid = JRequest::getVar('uniquid');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
@@ -50,7 +54,7 @@ class gglmsControllerContenuto extends JControllerLegacy
 
         utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
-        try{
+        try {
             if($stato == 1){
                 $tmp->varName = 'cmi.core.lesson_status';
                 $tmp->varValue = 'completed';
@@ -65,6 +69,19 @@ class gglmsControllerContenuto extends JControllerLegacy
             $tmp->varName = 'cmi.core.total_time';
             $tmp->varValue = $secondi;
             $modelstato->setStato($tmp);
+
+            // passando uniquid forzo l'esecuzione di updateUserLog
+            if ($uniquid != ""
+                && !is_null($uniquid)
+                && !empty($uniquid)
+                && $uniquid != "undefined"
+                && $uniquid != "null") {
+
+                $report = new gglmsModelReport();
+                if (!$report->updateUserLog($uniquid))
+                    utilityHelper::make_debug_log(__FUNCTION__, "uniquid non aggiornato -> " . $uniquid, __FUNCTION__);
+
+            }
 
             echo 1;
         } catch (Exception $e) {

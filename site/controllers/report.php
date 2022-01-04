@@ -197,7 +197,6 @@ class gglmsControllerReport extends JControllerLegacy
             $uniquid = $this->_filterparam->uniqid = JRequest::getVar('uniqid');
             $report = new gglmsModelReport();
             if ($report->updateUserLog($uniquid) == true) {
-
                 echo json_encode('true');
             } else {
                 echo json_encode('false');

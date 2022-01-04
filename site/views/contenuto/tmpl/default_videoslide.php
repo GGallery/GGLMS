@@ -113,13 +113,17 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                         var id_utente = '<?php echo $this->id_utente;?>';
                         var id_elemento = '<?php echo $this->contenuto->id; ?>';
 
+                        // passando uniquid forzo l'esecuzione di updateUserLog
+                        var globalUniq = (typeof gUniqid != 'undefined' ?  gUniqid : "");
+
                         jQuery.ajax({
                             url: "index.php?option=com_gglms&task=contenuto.updateTrack",
                             data: {
                                 "secondi": mediaElement.duration.toFixed(0),
                                 "stato": 1,
                                 "id_elemento": id_elemento,
-                                "id_utente" : id_utente
+                                "id_utente" : id_utente,
+                                "uniquid" : globalUniq
                             },
                             async: data_sync.async,
                             success: function () {
