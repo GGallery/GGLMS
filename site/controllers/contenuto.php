@@ -49,7 +49,8 @@ class gglmsControllerContenuto extends JControllerLegacy
                         'user_id' => $user_id,
                         'secondi' => $secondi,
                         'stato' => $stato,
-                        'id_elemento' => $id_elemento
+                        'id_elemento' => $id_elemento,
+                        'uniquid' => $uniquid,
                     );
 
         utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
