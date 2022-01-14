@@ -446,6 +446,80 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function sinpe_insert_quote()
+    {
+
+        try {
+
+            $arr_ids = [
+                        755,
+                        848,
+                        1144,
+                        493,
+                        508,
+                        4988,
+                        435,
+                        467,
+                        136,
+                        702,
+                        1109,
+                        358,
+                        357,
+                        1250
+                    ];
+            $completed = 0;
+
+            $this->_db->transactionStart();
+            foreach ($arr_ids as $key_user => $user_id) {
+
+                // cb_ultimoannoinregola
+                $query_update = "UPDATE #__comprofiler
+                                SET cb_ultimoannoinregola = 2022
+                                WHERE user_id = " . $this->_db->quote($user_id);
+
+                $this->_db->setQuery($query_update);
+                if (!$this->_db->execute())
+                    throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
+
+                $now = date('Y-m-d H:i:s');
+                $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
+                                                user_id,
+                                                anno,
+                                                tipo_quota,
+                                                tipo_pagamento,
+                                                data_pagamento,
+                                                dettagli_transazione
+                                                )
+                                            VALUES (
+                                                " . $this->_db->quote($user_id) . ",
+                                                2022,
+                                                'quota',
+                                                'bonifico',
+                                                " . $this->_db->quote($now) . ",
+                                                'Socio onorario 2022'
+                                            )";
+                $this->_db->setQuery($query_quote);
+                if (!$this->_db->execute())
+                    throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+
+                $completed++;
+
+            }
+
+            $this->_db->transactionCommit();
+
+            echo "TOTALI: " . count($arr_ids) . " | ELABORATI: " . $completed;
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            echo "ERRORE: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
     public function sinpe_ug_move() {
 
         try {
@@ -563,7 +637,6 @@ class gglmsControllerMt extends JControllerLegacy {
 
             $this->_db->transactionStart();
             foreach ($arr_ids as $key_user => $user_id) {
-
 
                 // rimuovo utente da gruppi evento
                 $query_del = "DELETE
