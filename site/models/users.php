@@ -1680,6 +1680,42 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // utenti attivi in base alle metriche della farmacia block = 0 e relativo gruppo farmacia
+    public function get_activated_users_details()
+    {
+
+        try {
+
+            $query_mode = "SET SQL_MODE='';";
+            $this->_db->setQuery($query_mode);
+
+            $query = "SELECT u.id AS id_utente,
+                        u.name AS nominativo,
+                        u.username AS codice_fiscale,
+                        u.email AS email,
+                        COALESCE(comp.cb_descrizionequalifica, '') AS qualifica,
+                        jgmf.ragione_sociale
+                        FROM jos_users u
+                        JOIN jos_user_usergroup_map juum ON u.id = juum.user_id
+                        JOIN jos_usergroups ju2 ON juum.group_id = ju2.id
+                        JOIN jos_gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo
+                        JOIN jos_comprofiler comp ON u.id = comp.user_id
+                        WHERE u.block = 0
+                        GROUP BY u.username";
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results;
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
 
 
 }

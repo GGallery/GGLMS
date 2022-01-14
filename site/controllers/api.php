@@ -16,6 +16,7 @@ require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/models/catalogo.php';
 require_once JPATH_COMPONENT . '/models/helpdesk.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/users.php';
 
@@ -3294,6 +3295,47 @@ HTML;
         echo json_encode($_ret);
 
         $this->_japp->close();
+    }
+
+    // il numero di utenti correntemente attivati
+    public function get_activated_users()
+    {
+
+        try {
+
+            $_tmp = array();
+            $filename = "utenteIscritti-" . time();
+            $first_id = 0;
+            $user_model = new gglmsModelUsers();
+            $activatedUsers = $user_model->get_activated_users_details();
+
+            if (is_null($activatedUsers))
+                throw new Exception("Nessun dato disponibile al momento", 1);
+
+            // processo il risultato
+            foreach ($activatedUsers as $key_report => $single_user) {
+
+                if ($first_id == 0) $first_id = $single_user['id_utente'];
+
+                $_tmp[$single_user['id_utente']]['nominativo'] = $single_user['nominativo'];
+                $_tmp[$single_user['id_utente']]['codice_fiscale'] = $single_user['codice_fiscale'];
+                $_tmp[$single_user['id_utente']]['email'] = $single_user['email'];
+                $_tmp[$single_user['id_utente']]['qualifica'] = $single_user['qualifica'];
+                $_tmp[$single_user['id_utente']]['ragione_sociale'] = $single_user['ragione_sociale'];
+
+            }
+
+            $_csv_cols = utilityHelper::get_cols_from_array($_tmp[$first_id]);
+            $_export_csv = utilityHelper::esporta_csv_spout($_tmp, $_csv_cols, $filename . '.csv');
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
     }
 
     // visualizza elenco corsi per report
