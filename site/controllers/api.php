@@ -3304,13 +3304,13 @@ HTML;
         try {
 
             $_tmp = array();
-            $filename = "utenteIscritti-" . time();
+            $filename = "utentiAttivi-" . time();
             $first_id = 0;
             $user_model = new gglmsModelUsers();
             $activatedUsers = $user_model->get_activated_users_details();
 
             if (is_null($activatedUsers))
-                throw new Exception("Nessun dato disponibile al momento", 1);
+                throw new Exception("Nessun utente attivo al momento", E_USER_ERROR);
 
             // processo il risultato
             foreach ($activatedUsers as $key_report => $single_user) {
