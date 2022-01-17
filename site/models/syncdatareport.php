@@ -152,6 +152,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                     $data->id_event_booking = ($corso->id_event_booking) ? $corso->id_event_booking : 0;
                     $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
+                    // se utente non presente in gg_report_users (id_anagrafica = 0) viene aggiunto qui
                     if($data->id_anagrafica == 0){
                         $modelUser = new gglmsModelUsers();
                         $tmpuser = $modelUser->get_user($data->id_utente, $data->id_event_booking);
