@@ -181,6 +181,7 @@ class gglmsModelCatalogo extends JModelLegacy
                         IF(u.obbligatorio = 1, "' . JText::_('COM_GGLMS_BOXES_PRENOTAZIONE_OBBLIGATORIO') . '", "") AS tipologia,
                         u.obbligatorio,
                         u.orario,
+                        u.webinar_access,
                         b1.description as area,
                         ugm.idgruppo as gruppo_corso,
                         1 as report_extra

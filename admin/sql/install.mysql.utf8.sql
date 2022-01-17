@@ -496,6 +496,7 @@ CREATE TABLE `#__gg_unit` (
   `sede` varchar(200) DEFAULT NULL COMMENT 'La sede di organizzazione',
   `obbligatorio` tinyint(1) NOT NULL DEFAULT 0,
   `orario` VARCHAR(100) DEFAULT NULL COMMENT 'Riferimento orario del corso',
+  `webinar_access` TEXT NULL
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -544,7 +545,8 @@ INSERT INTO `#__gg_unit` VALUES (
                                 null,
                                 null,
                                 0,
-                                null);
+                                null,
+								null);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`

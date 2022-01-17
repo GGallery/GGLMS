@@ -519,6 +519,19 @@
         </field>
 
         <field
+                name="webinar_access"
+                type="textarea"
+                default=""
+                label="Accessi webinar"
+                showon="modalita:1"
+                description="Credenziali ed istruzioni per accedere ad un webinar"
+                rows="10"
+                cols="5"
+                filter="raw"
+        />
+
+
+        <field
                 name="sede"
                 type="text"
                 label="Sede"

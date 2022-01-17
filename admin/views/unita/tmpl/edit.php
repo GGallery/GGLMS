@@ -407,6 +407,10 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
 
                 <div class="row-fluid">
+                    <?php echo $this->form->renderField('webinar_access'); ?>
+                </div>
+
+                <div class="row-fluid">
                     <?php echo $this->form->renderField('sede'); ?>
                 </div>
 
