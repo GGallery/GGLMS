@@ -5,8 +5,17 @@ CHANGELOG
 F:Frontend, B:Backend, D:Database, G:Generale
 
 4.1.4
--D aggiunta della colonna bookable alla tabella gg_unit 
--D aggiunta della colonna bookable_a_gruppi alla tabella gg_unit
+-D: aggiunta della colonna bookable alla tabella gg_unit 
+-D: aggiunta della colonna bookable_a_gruppi alla tabella gg_unit
+-D: aggiunta della colonna is_bookable alla tabella gg_unit
+-D: aggiunta della colonna bookable_a_gruppi alla tabella gg_unit
+-D: aggiunta della colonna posti_disponibili alla tabella gg_unit
+-D: aggiunta della colonna modalita alla tabella gg_unit
+-D: aggiunta della colonna sede alla tabella gg_unit
+-D: aggiunta della colonna obbligatorio alla tabella gg_unit
+-D: aggiunta della colonna orario alla tabella gg_unit
+-D: aggiunta della colonna webinar_access alla tabella gg_unit
+-D aggiunta tabella gg_categorie_evento
 
 4.1.3
 -D: aggiunta della colonna ref_skill alla tabella gg_coupon
