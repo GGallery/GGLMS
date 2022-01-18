@@ -8,6 +8,8 @@
 // No direct access to this file
 defined('_JEXEC') or die;
 
+require_once JPATH_COMPONENT . '/models/catalogo.php';
+
 class outputHelper {
 
     public static function buildContentBreadcrumb($id){
@@ -2379,6 +2381,14 @@ HTML;
             return self::get_no_corsi_error(JText::_('COM_GGLMS_BOXES_NO_BOX'));
         }
 
+        // conteggio quante unità ho per box e visualizzo soltanto quelle con delle unità associate
+        $model_catalogo = new gglmsModelCatalogo();
+        $boxArr = $model_catalogo->get_unita_per_box();
+        $boxIds = null;
+
+        if (is_array($boxArr) && count($boxArr))
+            $boxIds = utilityHelper::normalizza_loadassoc($boxArr, null, 'box', true);
+
         $site_root = JUri::root();
         $num_cols = 3;
         $row_count = 0;
@@ -2386,6 +2396,10 @@ HTML;
         $_show = JText::_('COM_GGLMS_BOXES_READ_BOX');
         $uri = JUri::getInstance();
         foreach ($boxes as $key_box => $box) {
+
+            // se il box non contiene unità non lo visualizzo
+            if (!is_null($boxIds) && !in_array($box['id'], $boxIds))
+                continue;
 
             $_descrizione = $box['description'];
             $_img_src = $site_root . '/images/box_' . $box['id'] . '.jpg';

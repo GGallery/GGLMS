@@ -315,6 +315,34 @@ class gglmsModelCatalogo extends JModelLegacy
         }
     }
 
+    // il numero di unità per box
+    public function get_unita_per_box()
+    {
+
+        try {
+
+            $query = $this->_db->getQuery(true);
+
+            $query = $query->select('box, COUNT(box) AS conta')
+                        ->from('#__gg_box_unit_map')
+                        ->group('box')
+                        ->having('conta > 0');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (!count($results))
+                throw new Exception("Nessun box definito", E_USER_ERROR);
+
+            return $results;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
 
 
 }
