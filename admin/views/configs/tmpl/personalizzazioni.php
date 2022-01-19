@@ -10,6 +10,12 @@
 <!-- Genera coupon -->
 <div class="row-fluid">
 
+    <h4>Contenuto</h4>
+
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('attiva_blocco_video_focus'); ?>
+    </div>
+
     <h4>Associa coupon</h4>
 
     <div class="row-fluid">

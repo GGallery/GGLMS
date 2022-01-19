@@ -91,7 +91,7 @@ if ($this->sottounita) {
                                 <!-- visualizzazione corsi abilitati-->
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
                                     <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
-                               </a>
+                                </a>
 
                            <div class="card-body my-0 px-0 py-0">
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">

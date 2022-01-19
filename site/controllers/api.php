@@ -133,27 +133,22 @@ class gglmsControllerApi extends JControllerLegacy
                          throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
 
 
-                     //seleziono id_contenuto per ogni unita
-                     $query_contenuti = $this->_db->getQuery(true)
-                         ->select('idcontenuto')
-                         ->from('#__gg_unit_map')
-                         ->where('idunita = ' . $id_corso);
-
-                     $this->_db->setQuery($query_contenuti);
-                     $contents = $this->_db->loadAssocList();
+                     //seleziono tutti i contenuti del corso
+                     $model_report = new gglmsModelReport();
+                     $contents = $model_report->getContenutiArrayList($id_corso);
 
 
                      if(!isset($contents) || !is_array($contents))
                          throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
 
                      foreach ($contents as $content) {
-                         if (isset($content['idcontenuto'])) {
+                         if (isset($content['id'])) {
 
                              //controllo tabella di log
                              $countquery = $this->_db->getQuery(true)
                                  ->select('count(*)')
                                  ->from('#__gg_log')
-                                 ->where('id_contenuto =' . $this->_db->quote($content['idcontenuto']) . 'and id_utente =' . $id_user);
+                                 ->where('id_contenuto =' . $this->_db->quote($content['id']) . 'and id_utente =' . $id_user);
 
                              $this->_db->setQuery($countquery);
                              $count = $this->_db->loadResult();
@@ -163,7 +158,7 @@ class gglmsControllerApi extends JControllerLegacy
 
                                  //cancello utente per corso dal log
                                 $delete_log = "DELETE FROM #__gg_log"
-                                            . " WHERE id_contenuto = " . $this->_db->quote($content['idcontenuto']) . " AND id_utente = " . $id_user ;
+                                            . " WHERE id_contenuto = " . $this->_db->quote($content['id']) . " AND id_utente = " . $id_user ;
                                 $this->_db->setQuery($delete_log);
 
                                 if (!$this->_db->execute())
@@ -174,7 +169,7 @@ class gglmsControllerApi extends JControllerLegacy
                              $query_report = $this->_db->getQuery(true)
                                  ->select('id_anagrafica')
                                  ->from('#__gg_report')
-                                 ->where('id_contenuto = ' . $this->_db->quote($content['idcontenuto']) . ' and id_utente = ' . $id_user);
+                                 ->where('id_contenuto = ' . $this->_db->quote($content['id']) . ' and id_utente = ' . $id_user);
 
                              $this->_db->setQuery($query_report);
                              $anagrafica_id = $this->_db->loadResult();
@@ -192,7 +187,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
                                  $delete_stato_unita = "DELETE FROM #__gg_view_stato_user_unita"
-                                     . " WHERE id_anagrafica = " . $this->_db->quote($anagrafica_id) . " AND id_unita = " . $id_corso ;
+                                     . " WHERE id_anagrafica = " . $this->_db->quote($anagrafica_id) . " AND id_corso = " . $id_corso ;
                                  $this->_db->setQuery($delete_stato_unita);
 
                                  if (!$this->_db->execute())
@@ -200,7 +195,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
                                  $delete_report = "DELETE FROM #__gg_report"
-                                     . " WHERE id_contenuto = " . $this->_db->quote($content['idcontenuto']) . " AND id_utente = " . $id_user ;
+                                     . " WHERE id_contenuto = " . $this->_db->quote($content['id']) . " AND id_utente = " . $id_user ;
                                  $this->_db->setQuery($delete_report);
 
                                  if (!$this->_db->execute())
@@ -213,13 +208,13 @@ class gglmsControllerApi extends JControllerLegacy
                              $query_tipologia = $this->_db->getQuery(true)
                                  ->select('tipologia as tipologia_contenuto, id_quizdeluxe')
                                  ->from('#__gg_contenuti')
-                                 ->where('id = ' . $this->_db->quote($content['idcontenuto']));
+                                 ->where('id = ' . $this->_db->quote($content['id']));
 
                              $this->_db->setQuery($query_tipologia);
                              $tipologie = $this->_db->loadAssocList();
 
                              if(!isset($tipologie) || !is_array($tipologie))
-                                 throw new Exception("Nessun tipologia per il contenuto " . $content['idcontenuto'], 1);
+                                 throw new Exception("Nessun tipologia per il contenuto " . $content['id'], 1);
 
                              foreach ($tipologie as $tipologia) {
                                  if (isset($tipologia)) {
@@ -252,7 +247,7 @@ class gglmsControllerApi extends JControllerLegacy
                                          $countquery = $this->_db->getQuery(true)
                                              ->select("count(*)")
                                              ->from("#__gg_scormvars")
-                                             ->where('scoid = ' . $this->_db->quote($content['idcontenuto']) . ' and userid =' . $id_user);
+                                             ->where('scoid = ' . $this->_db->quote($content['id']) . ' and userid =' . $id_user);
 
 
                                          $this->_db->setQuery($countquery);
@@ -261,7 +256,7 @@ class gglmsControllerApi extends JControllerLegacy
                                          if (isset($count) && $count > 0) {
 
                                              $delete_scormvars = "DELETE FROM #__gg_scormvars"
-                                                 . " WHERE scoid = " . $this->_db->quote($content['idcontenuto']) . " AND userid = " . $id_user ;
+                                                 . " WHERE scoid = " . $this->_db->quote($content['id']) . " AND userid = " . $id_user ;
                                              $this->_db->setQuery($delete_scormvars);
 
                                              if (!$this->_db->execute())
@@ -284,6 +279,9 @@ class gglmsControllerApi extends JControllerLegacy
                  }
 
                  $this->_db->transactionCommit();
+             } elseif (!isset($gruppo) || !is_numeric($gruppo)){
+
+                 throw new Exception("corso non ha un gruppo su usergroup ->" .$gruppo, 1);
              }
 
 

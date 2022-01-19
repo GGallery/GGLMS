@@ -936,6 +936,19 @@
         <!-- INIZIO PERSONALIZZAZIONI -->
 
         <field
+                name="attiva_blocco_video_focus"
+                type="radio"
+                class="btn-group"
+                label="Attiva blocco video su focus"
+                labelclass="control-label"
+                description="OFF per sbloccare, ON per bloccare"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
                 name="genera_coupon_label_partita_iva"
                 type="listafieldxlang"
                 class=""

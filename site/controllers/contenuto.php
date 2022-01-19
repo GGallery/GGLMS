@@ -9,6 +9,8 @@
 
 defined('_JEXEC') or die;
 
+require_once JPATH_COMPONENT . '/models/report.php';
+
 /**
  * Controller for single contact view
  *
@@ -25,10 +27,17 @@ class gglmsControllerContenuto extends JControllerLegacy
         $secondi = JRequest::getVar('secondi');
         $stato = JRequest::getVar('stato');
         $id_elemento = JRequest::getVar('id_elemento');
+        $id_utente = JRequest::getVar('id_utente');
+        // per aggiornamento gg_log
+        $uniquid = JRequest::getVar('uniquid');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
 
+        if (is_null($user_id)
+            || $user_id == ""
+            || (int) $user_id == 0)
+            $user_id = $id_utente;
 
         $modelstato = new gglmsModelStatoContenuto();
         $tmp = new stdClass();
@@ -36,7 +45,17 @@ class gglmsControllerContenuto extends JControllerLegacy
         $tmp->scoid = $id_elemento;
         $tmp->userid = $user_id;
 
-        try{
+        $log_arr = array(
+                        'user_id' => $user_id,
+                        'secondi' => $secondi,
+                        'stato' => $stato,
+                        'id_elemento' => $id_elemento,
+                        'uniquid' => $uniquid,
+                    );
+
+        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+        try {
             if($stato == 1){
                 $tmp->varName = 'cmi.core.lesson_status';
                 $tmp->varValue = 'completed';
@@ -52,9 +71,23 @@ class gglmsControllerContenuto extends JControllerLegacy
             $tmp->varValue = $secondi;
             $modelstato->setStato($tmp);
 
+            // passando uniquid forzo l'esecuzione di updateUserLog
+            if ($uniquid != ""
+                && !is_null($uniquid)
+                && !empty($uniquid)
+                && $uniquid != "undefined"
+                && $uniquid != "null") {
+
+                $report = new gglmsModelReport();
+                if (!$report->updateUserLog($uniquid))
+                    utilityHelper::make_debug_log(__FUNCTION__, "uniquid non aggiornato -> " . $uniquid, __FUNCTION__);
+
+            }
+
             echo 1;
         } catch (Exception $e) {
-            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
+            //DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
             echo 0;
         }
         $japp->close();
@@ -67,9 +100,17 @@ class gglmsControllerContenuto extends JControllerLegacy
 
         $time = JRequest::getVar('time');
         $id_elemento = JRequest::getVar('id_elemento');
+        $id_utente = JRequest::getVar('id_utente');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
+
+        if (is_null($user_id)
+            || $user_id == ""
+            || (int) $user_id == 0)
+            $user_id = $id_utente;
+
+        utilityHelper::make_debug_log(__FUNCTION__, print_r($_REQUEST, true), __FUNCTION__);
 
 
         $modelstato = new gglmsModelStatoContenuto();
@@ -78,14 +119,23 @@ class gglmsControllerContenuto extends JControllerLegacy
         $tmp->scoid = $id_elemento;
         $tmp->userid = $user_id;
 
+        $log_arr = array(
+            'user_id' => $user_id,
+            'time' => $time,
+            'id_elemento' => $id_elemento
+        );
+
+        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
         try{
             $tmp->varName = 'bookmark';
             $tmp->varValue = $time;
             $modelstato->setStato($tmp);
         } catch (Exception $e) {
             //DEBUGG::log($e);
-            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
-        }
+//            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__, 0, 1, 0 );
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+       }
         $japp->close();
     }
 

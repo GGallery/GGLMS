@@ -18,7 +18,7 @@ $pathscorm = $this->contenuto->path;
 
 ?>
 <!--<script type="text/javascript">-->
-<!--    --><?php //if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+<!--    --><?php //if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo ' '.$this->id_utente.','.$this->contenuto->id.', null);' ?>
 <!--</script>-->
 
 <p style="text-align:center; margin: 100px;">
