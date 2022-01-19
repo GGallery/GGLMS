@@ -1039,6 +1039,16 @@
         >
         </field>
 
+        <field
+                name="durata_massima"
+                type="text"
+                class=""
+                label="La durata massima per riacquisto dello stesso corso(in mesi)"
+                labelclass="control-label"
+                default="12"
+                description="La durata massima per riacquistare un coupon di un corso che ha già fatto lo stesso utente(la durata in mesi)"
+        />
+
         <field name="summary_report_nascondi_colonne"
                type="listacolssummaryreport"
                label="Scegli le colonne che saranno nascoste nel Summary Report"
