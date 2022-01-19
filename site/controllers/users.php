@@ -54,7 +54,7 @@ class gglmsControllerUsers extends JControllerLegacy
             $app->enqueueMessage("Credenziali errate", 'danger');
         }
 
-        $app->redirect('/home');
+        $app->redirect(JURI::root());
     }
 
     public function reset(){
