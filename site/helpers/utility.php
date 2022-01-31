@@ -908,7 +908,9 @@ class utilityHelper
 
         }
         catch (Exception $e) {
-            DEBUGG::error($e, __FUNCTION__);
+            //DEBUGG::error($e, __FUNCTION__);
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return null;
         }
 
     }
