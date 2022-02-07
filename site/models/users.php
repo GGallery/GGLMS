@@ -1226,6 +1226,7 @@ class gglmsModelUsers extends JModelLegacy
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_datadinascita LIKE \'%' . $_search . '%\'
                                     OR cp.cb_ultimoannoinregola LIKE \'%' . $_search . '%\'
                                     OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
@@ -1235,6 +1236,7 @@ class gglmsModelUsers extends JModelLegacy
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_datadinascita LIKE \'%' . $_search . '%\'
                                     OR cp.cb_ultimoannoinregola LIKE \'%' . $_search . '%\'
                                     OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
