@@ -707,7 +707,7 @@ class gglmsModelContenuto extends JModelLegacy
                             JOIN #__quiz_r_student_choice ON #__quiz_r_student_question.c_id = #__quiz_r_student_choice.c_sq_id
                             JOIN #__quiz_t_question ON #__quiz_r_student_question.c_question_id = #__quiz_t_question.c_id
                             JOIN #__quiz_t_qtypes ON #__quiz_t_question.c_type = #__quiz_t_qtypes.c_id
-                            JOIN #__quiz_t_choice  ON #__quiz_r_student_choice.c_choice_id = #__quiz_t_choice.c_id
+                            JOIN #__quiz_t_choice  ON #__quiz_r_student_choice.c_choice_id = #__quiz_t_choice.c_id AND #__quiz_r_student_question.c_question_id = #__quiz_t_choice.c_question_id
                         WHERE #__quiz_r_student_quiz.c_quiz_id = " . $this->_db->quote($quiz_id) . "
                         AND #__quiz_r_student_quiz.c_student_id = " . $this->_db->quote($user_id);
 

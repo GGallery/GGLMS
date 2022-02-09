@@ -2030,14 +2030,26 @@ HTML;
                 }
 
 
-                $_export_csv = utilityHelper::_export_csv_dettaglio(time() . '.csv',$dettaglio_tot);
+                if(empty($dettaglio_tot)
+                    || is_null($dettaglio_tot)){
 
-                // chiusura della finestra dopo generazione del report
-                $_html = <<<HTML
+                    echo "<script type='text/javascript'>
+                         if (confirm('Report per utente selezionato non esiste, contattare Help Desk.')){
+                                   window.close();
+                                }</script>";
+
+                }else {
+
+                    $_export_csv = utilityHelper::_export_csv_dettaglio(time() . '.csv', $dettaglio_tot);
+
+                    // chiusura della finestra dopo generazione del report
+                    $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
+                }
+
             } else {
 
                 if (!isset($user_id)
@@ -2047,24 +2059,30 @@ HTML;
 
                 $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user_id);
 
-                if (!$dettagli_quiz
-                    || !is_array($dettagli_quiz)
-                    || count($dettagli_quiz) == 0)
-                    throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
 
+                if(empty($dettagli_quiz)
+                   || is_null($dettagli_quiz)){
 
-                $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
-                $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
-                $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
+                    echo "<script type='text/javascript'>
+                        if (confirm('Report per utente selezionato non esiste, contattare Help Desk.')){
+                                 window.close();
+                              }</script>";
+
+                }else {
+
+                    $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
+                    $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
+
+                    $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
 
 
 //                 chiusura della finestra dopo generazione del report
-                $_html = <<<HTML
+                    $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
-
+                }
             }
 
         }
