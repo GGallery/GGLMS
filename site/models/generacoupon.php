@@ -98,7 +98,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $company_user = null;
             $new_societa = false;
 
+            // utente non esistente, devo crearlo insieme a gruppo e forum
             if (empty($user_id)) {
+
+                // controllo se l'email è già esistente (caso tutor con email multiple che produce un errore subdolo)
+                if (utilityHelper::check_user_by_column('email', $data['email'])) {
+                    throw new RuntimeException("email tutor esistente: ". $data['email'], E_USER_ERROR);
+                }
 
                 // prima di procedere controllo se lo usergroups è già esistente visto che viene inizializzato come la ragione sociale e joomla non accetta gruppi con lo stesso nome
                 $check_usergroups = $this->_check_usergroups((string)$data['ragione_sociale'], $from_api);

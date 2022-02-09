@@ -1189,10 +1189,11 @@ class gglmsModelUsers extends JModelLegacy
             }
 
             $query = $this->_db->getQuery(true)
-                    ->select('u.id AS user_id, u.username, u.email,
+                    ->select("u.id AS user_id, u.username, u.email,
                                     cp.cb_nome AS nome, cp.cb_cognome AS cognome,
-                                    cp.cb_codicefiscale AS codice_fiscale, cp.cb_ultimoannoinregola AS ultimo_anno,
-                                    ug.title AS tipo_socio, ug.id AS id_group');
+                                    cp.cb_codicefiscale AS codice_fiscale,
+                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita, cp.cb_ultimoannoinregola AS ultimo_anno,
+                                    ug.title AS tipo_socio, ug.id AS id_group");
 
             $count_query = $this->_db->getQuery(true)
                     ->select('COUNT(*)');
@@ -1225,6 +1226,7 @@ class gglmsModelUsers extends JModelLegacy
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_datadinascita LIKE \'%' . $_search . '%\'
                                     OR cp.cb_ultimoannoinregola LIKE \'%' . $_search . '%\'
                                     OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
@@ -1234,6 +1236,7 @@ class gglmsModelUsers extends JModelLegacy
                                     OR cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_datadinascita LIKE \'%' . $_search . '%\'
                                     OR cp.cb_ultimoannoinregola LIKE \'%' . $_search . '%\'
                                     OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
