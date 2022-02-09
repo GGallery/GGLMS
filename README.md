@@ -3,6 +3,8 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.5
+-D: modificata vista __view_report per riferimento cb_codiceestrenocdc3
 
 4.1.4
 -D: aggiunta della colonna bookable alla tabella gg_unit 
