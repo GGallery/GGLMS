@@ -3194,6 +3194,7 @@ HTML;
                 $_tmp[$single_report['id_utente']]['email'] = $single_report['email'];
                 $_tmp[$single_report['id_utente']]['qualifica'] = $single_report['qualifica'];
                 $_tmp[$single_report['id_utente']]['ragione_sociale'] = $single_report['ragione_sociale'];
+                $_tmp[$single_report['id_utente']]['cod_farmacia'] = $single_report['cod_farmacia'];
                 $_tmp[$single_report['id_utente']]['stato_corso'] = $single_report['stato_corso'];
 
             }

@@ -469,6 +469,7 @@ class gglmsModelReport extends JModelLegacy
                             u.username AS codice_fiscale,
                             u.email AS email,
                             COALESCE(comp.cb_descrizionequalifica, '') AS qualifica,
+                            COALESCE(comp.cb_codiceestrenocdc3, '') AS cod_farmacia,
                             jgmf.ragione_sociale,
                             IF(v.stato = 1, 'COMPLETATO', 'NON COMPLETATO') AS stato_corso,
                             unita.titolo AS titolo_corso
