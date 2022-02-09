@@ -3272,6 +3272,7 @@ HTML;
                 $_tmp[$single_report['id_utente']]['gruppo_utente'] = isset($_tmp[$single_report['id_utente']]['gruppo_utente'])
                     ? $_tmp[$single_report['id_utente']]['gruppo_utente'] . "," . $single_report['gruppo_utente']
                     : $single_report['gruppo_utente'];
+                $_tmp[$single_report['id_utente']]['cod_farmacia'] = str_pad($single_report['cod_farmacia'], 6, '0', STR_PAD_LEFT);
 
             }
 

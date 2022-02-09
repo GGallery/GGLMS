@@ -504,18 +504,23 @@ class gglmsModelReport extends JModelLegacy
 
             $db = JFactory::getDbo();
 
-            $query = "SELECT ugrs.title AS titolo_corso, utente.id AS id_utente, utente.name AS nominativo, utente.username, subq.title AS gruppo_utente, unit.alias
-                            FROM jos_gg_unit as unit
-                            INNER JOIN jos_gg_piattaforma_corso_map as piattamap on piattamap.id_unita=unit.id
-                            INNER JOIN jos_usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma
-                            INNER JOIN jos_gg_usergroup_map as ggm on ggm.idunita = unit.id
-                            INNER JOIN jos_user_usergroup_map ugm on ugm.group_id = ggm.idgruppo
-                            INNER JOIN jos_users utente on utente.id = ugm.user_id
-                            INNER JOIN jos_usergroups ugrs on ugrs.id = ugm.group_id
-                            INNER JOIN (SELECT ju.title, juum.user_id
-			                                FROM jos_usergroups ju
-			                                JOIN jos_user_usergroup_map juum ON ju.id = juum.group_id
-			                                WHERE ju.parent_id = " . $db->quote($dominio_group_id) . ") AS subq ON utente.id = subq.user_id
+            $query = "SELECT ugrs.title AS titolo_corso, utente.id AS id_utente, utente.name AS nominativo,
+                            utente.username, subq.title AS gruppo_utente,
+                            unit.alias, COALESCE(comp.cb_codiceestrenocdc3, '') AS cod_farmacia
+                            FROM #__gg_unit as unit
+                            INNER JOIN #__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=unit.id
+                            INNER JOIN #__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma
+                            INNER JOIN #__gg_usergroup_map as ggm on ggm.idunita = unit.id
+                            INNER JOIN #__user_usergroup_map ugm on ugm.group_id = ggm.idgruppo
+                            INNER JOIN #__users utente on utente.id = ugm.user_id
+                            INNER JOIN #__comprofiler comp on comp.user_id = utente.id
+                            INNER JOIN #__usergroups ugrs on ugrs.id = ugm.group_id
+                            INNER JOIN (
+                                            SELECT ju.title, juum.user_id
+			                                FROM #__usergroups ju
+			                                JOIN #__user_usergroup_map juum ON ju.id = juum.group_id
+			                                WHERE ju.parent_id = " . $db->quote($dominio_group_id) . "
+                                        ) AS subq ON utente.id = subq.user_id
                         WHERE det.dominio = " . $db->quote($dominio) . "
                         AND unit.id = " . $db->quote($id_corso);
 
