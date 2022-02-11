@@ -2383,7 +2383,7 @@ HTML;
 
             }
 
-            var_dump('finish');die();
+//            var_dump('finish');
             $store_log = $_zoom_model->store_zoom_gg_log();
 
             if (!is_array($store_log))
