@@ -51,17 +51,18 @@ class gglmsTableContent extends JTable {
             $array['prerequisiti'] = implode(',',$array['prerequisiti']);
         }
 
-        if (isset($array['data_evento']) && isset($_REQUEST['jform']['data_evento'])) {
+        if (isset($array['data_evento']) && isset($array['id_evento']) && !empty($array['data_evento']) && !empty($array['id_evento'])) {
 
-           $get_zoom = gglmsHelper::GetContenutoZoom($array,$_REQUEST['jform']['data_evento']);
+            $get_zoom = gglmsHelper::GetContenutoZoom($array, $_REQUEST['jform']['data_evento']);
 
 
-           if((isset($get_zoom)) && ($get_zoom > 0)){
+            if ((isset($get_zoom)) && ($get_zoom > 0)) {
 
-               $app->redirect(JRoute::_('index.php?option=com_gglms&view=content&layout=edit&id=' . $array['id'], false), $app->enqueueMessage('Esiste già un contenuto legato a questo evento nello stesso giorno!', 'Warning'));
+                $app->redirect(JRoute::_('index.php?option=com_gglms&view=content&layout=edit&id=' . $array['id'], false), $app->enqueueMessage('Esiste già un contenuto legato a questo evento nello stesso giorno!', 'Warning'));
 
-           }
+            }
         }
+
 
         return parent::bind($array, $ignore);
     }
