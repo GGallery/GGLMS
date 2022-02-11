@@ -152,6 +152,41 @@ class gglmsModelSyncdatareport extends JModelLegacy
                     $data->id_event_booking = ($corso->id_event_booking) ? $corso->id_event_booking : 0;
                     $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
 
+                    // se utente non presente in gg_report_users (id_anagrafica = 0) viene aggiunto qui
+                    if($data->id_anagrafica == 0){
+                        $modelUser = new gglmsModelUsers();
+                        $tmpuser = $modelUser->get_user($data->id_utente, $data->id_event_booking);
+
+                        $tmp = new stdClass();
+                        $tmp->id = $data->id_utente;
+                        $tmp->id_event_booking = $data->id_event_booking;
+                        $tmp->id_user = $data->id_utente;
+                        $tmp->nome = $this->_db->quote($tmpuser->nome);
+                        $tmp->cognome = $this->_db->quote($tmpuser->cognome);
+                        $tmp->fields = $this->_db->quote(json_encode($tmpuser));
+                        $this->store_report_users($tmp);
+
+                        $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
+                        $log_arr = array(
+                            'user_id' => $data->id_utente,
+                            'id_anagrafica' => $data->id_anagrafica,
+                            'id_event_booking' => $data->id_event_booking,
+                            'nome' => $tmpuser->nome,
+                            'cognome' => $tmpuser->cognome
+                        );
+
+                        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+                    }
+
+                    $log_arr = array(
+                        'user_id' => $data->id_utente,
+                        'id_anagrafica' => $data->id_anagrafica
+                    );
+
+                    utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
 //                     DEBUGG::log($data, 'Data to store_report' );
 
                     $this->store_report($data);
@@ -337,6 +372,8 @@ class gglmsModelSyncdatareport extends JModelLegacy
             //$users = $this->get_users_id($this->params->get('data_sync'));
             $users = $this->get_users_id($_dt_ref, $integrazione);
 
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($users, true), __FUNCTION__);
+
             foreach ($users as $user) {
                 $modelUser = new gglmsModelUsers();
 
@@ -353,6 +390,15 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 $tmp->cognome = $this->_db->quote($tmpuser->cognome);
                 $tmp->fields = $this->_db->quote(json_encode($tmpuser));
                 $this->store_report_users($tmp);
+
+                $log_arr = array(
+                    'user_id' => $tmp->id_user,
+                    'nome' => $tmp->nome,
+                    'cognome' => $tmp->cognome,
+                    'data_ref' => $_dt_ref
+                );
+
+                utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
             }
             DEBUGG::log('sync_report_users', 'sync_report_users, caricati: ' . count($users) . ' utenti', 0, 1, 0);
@@ -475,9 +521,18 @@ class gglmsModelSyncdatareport extends JModelLegacy
             if ($ret_last_inserted_id)
                 return $this->_db->insertid();
 
+            $log_arr = array(
+                'user_id' => $data->id_user,
+                'nome' => $data->nome,
+                'cognome' => $data->cognome
+            );
+
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
         } catch (Exception $e) {
 
             DEBUGG::log($e, 'error store users  report', 1, 1, 0);
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
         }
     }
 

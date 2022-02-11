@@ -13,7 +13,6 @@ require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/coupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/report.php';
-//require_once JPATH_COMPONENT . '/models/unita.php';
 
 /**
  * WebTVContenuto Model

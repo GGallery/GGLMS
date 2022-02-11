@@ -91,7 +91,7 @@ if ($this->sottounita) {
                                 <!-- visualizzazione corsi abilitati-->
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
                                     <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
-                               </a>
+                                </a>
 
                            <div class="card-body my-0 px-0 py-0">
                                 <a href="<?php echo JRoute::_('index.php?option=com_gglms&view=unita&alias=' . $unita->alias) ?>">
@@ -262,9 +262,9 @@ if (!$count)
 //    echo "<h3>Non ci sono contenuti per te visualizzabili in questa unità</h3>";
 ?>
 
-
+<!--data-backdrop="static" class="modal fade"-->
 <!-- Modal Corso Disabilitato-->
-<div id="exampleModal" class="modal fade" role="dialog" data-backdrop="static">
+<div id="exampleModal" role="dialog" class="modal">
     <div class="modal-dialog">
 
         <!-- Modal content-->
