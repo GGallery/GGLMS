@@ -2351,7 +2351,8 @@ HTML;
         $ragione_sociale = "Utenti privati skillab",
         $piva = "00000000000",
         $email = "skillabfad@skillab.it",
-        $is_debug = false) {
+        $is_debug = false,
+        $lista_file_locali = array()) {
 
         try {
 
@@ -2362,13 +2363,13 @@ HTML;
             $local_file = JPATH_ROOT . '/tmp/';
             if (!$is_debug) {
                 $get_corsi = UtilityHelper::get_xml_remote($local_file, true, __FUNCTION__);
-                if (!is_array($get_corsi))
-                    throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
             }
             else {
-                //$get_corsi[] = 'GGCorsiElenco_210520101221.xml';
-                $get_corsi = ['Iscritti_20211020085717.xml'];
+                $get_corsi = $lista_file_locali;
             }
+
+            if (!is_array($get_corsi))
+                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
 
             // elaborazione dei corsi
             $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file);
@@ -2584,26 +2585,30 @@ HTML;
                     }
                 }
 
-                $smarty = new EasySmarty();
-                //$smarty->assign('coupons', $_html_coupons);
-                //$smarty->assign('coupons_count', $coupons_count);
-                $smarty->assign('course_name', $_info_corso["titolo"]);
-                $smarty->assign('company_name', $company_infos['nome_societa']);
-                $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
-                $smarty->assign('recipient_name', $recipients["to"]->name);
-                $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
-                $smarty->assign('company_users', $_html_users);
-                $smarty->assign('creazione_tutor', $_html_tutor);
+                if (!$is_debug) {
 
-                $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
-                $mailer->isHTML(true);
+                    $smarty = new EasySmarty();
+                    //$smarty->assign('coupons', $_html_coupons);
+                    //$smarty->assign('coupons_count', $coupons_count);
+                    $smarty->assign('course_name', $_info_corso["titolo"]);
+                    $smarty->assign('company_name', $company_infos['nome_societa']);
+                    $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
+                    $smarty->assign('recipient_name', $recipients["to"]->name);
+                    $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
+                    $smarty->assign('company_users', $_html_users);
+                    $smarty->assign('creazione_tutor', $_html_tutor);
 
-                $email_status = 1;
+                    $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+                    $mailer->isHTML(true);
 
-                if (!$mailer->Send())
-                    $email_status = 0;
+                    $email_status = 1;
 
-                utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
+                    if (!$mailer->Send())
+                        $email_status = 0;
+
+                    utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
+
+                }
             }
 
             echo 1;

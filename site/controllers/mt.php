@@ -16,6 +16,7 @@ require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/controllers/api.php';
 
 class gglmsControllerMt extends JControllerLegacy {
 
@@ -74,6 +75,22 @@ class gglmsControllerMt extends JControllerLegacy {
 
         echo __FUNCTION__;
 
+    }
+
+    public function test_xml_import()
+    {
+        $api = new gglmsControllerApi();
+        $ragione_sociale = "Utenti privati skillab";
+        $piva = "00000000000";
+        $email = "skillabfad@skillab.it";
+        $get_corsi = [
+            'Iscritti_20220214153157.xml',
+            'Corsi_20220214153157.xml',
+            'Corsi_20220214150901.xml',
+            'Iscritti_20220214150901.xml'
+        ];
+
+        echo $api->load_corsi_from_xml(16, $ragione_sociale, $piva, $email, true, $get_corsi);
     }
 
     public function sinpe_set_morosi()
