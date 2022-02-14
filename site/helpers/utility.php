@@ -2613,6 +2613,8 @@ HTML;
                                     */
                                     $password = $cf_iscritto;
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
+                                    // registerDate
+                                    $_new_user['registerDate'] = self::convert_time_to_tz(date('Y-m-d H:i:s'));
                                     // inserimento utente in users
                                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
