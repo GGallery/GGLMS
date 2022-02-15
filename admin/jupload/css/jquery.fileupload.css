@@ -28,6 +28,12 @@
   cursor: pointer;
 }
 
+.progress-bar {
+  background-color: green;
+  height: 20px;
+  width: 0%;
+}
+
 /* Fixes for IE < 8 */
 @media screen\9 {
   .fileinput-button input {

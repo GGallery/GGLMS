@@ -49,8 +49,10 @@ class UploadHandler
     public function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
-            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
-            'upload_url' => $this->get_full_url().'/files/',
+//            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
+//            'upload_url' => $this->get_full_url().'/files/',
+            'upload_dir' => $_POST['path'].$_POST['subpath'],
+            'upload_url' => $_POST['url'].$_POST['subpath'],
             'input_stream' => 'php://input',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
@@ -504,18 +506,18 @@ class UploadHandler
 
     protected function get_unique_filename($file_path, $name, $size, $type, $error,
         $index, $content_range) {
-        while(is_dir($this->get_upload_path($name))) {
-            $name = $this->upcount_name($name);
-        }
-        // Keep an existing filename if this is part of a chunked upload:
-        $uploaded_bytes = $this->fix_integer_overflow((int)@$content_range[1]);
-        while (is_file($this->get_upload_path($name))) {
-            if ($uploaded_bytes === $this->get_file_size(
-                    $this->get_upload_path($name))) {
-                break;
-            }
-            $name = $this->upcount_name($name);
-        }
+//        while(is_dir($this->get_upload_path($name))) {
+//            $name = $this->upcount_name($name);
+//        }
+//        // Keep an existing filename if this is part of a chunked upload:
+//        $uploaded_bytes = $this->fix_integer_overflow((int)@$content_range[1]);
+//        while (is_file($this->get_upload_path($name))) {
+//            if ($uploaded_bytes === $this->get_file_size(
+//                    $this->get_upload_path($name))) {
+//                break;
+//            }
+//            $name = $this->upcount_name($name);
+//        }
         return $name;
     }
 
@@ -1139,6 +1141,7 @@ class UploadHandler
 
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
         $index = null, $content_range = null) {
+        $name = $this->renaming($name);
         $file = new \stdClass();
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
@@ -1274,6 +1277,37 @@ class UploadHandler
             default:
                 return '';
         }
+    }
+
+    protected function renaming($name){
+        //Tony
+        switch ($_POST['tipologia']) {
+            case 'slide':
+                $estensione = explode('.',$name);
+                $estensione = strtolower(array_pop($estensione));
+                $name = str_ireplace("Diapositiva", "Slide", $_POST['idelemento']);
+                $name = $name.".".$estensione;
+
+                break;
+
+            case 'allegati':
+
+                $estensione = explode('.',$name);
+                $estensione = array_pop($estensione);
+                $name = $_POST['jform']['filename']; //RS $name = $_POST['jform']['name'];
+                $temp_name = explode ('.',$name);
+                $name = strtolower($temp_name[0].".".$estensione);
+
+
+                break;
+
+            default:
+                $estensione = explode('.',$name);
+                $estensione = array_pop($estensione);
+                $name = strtolower($_POST['idelemento'].".".$estensione);
+                break;
+        }
+        return $name;
     }
 
     protected function download() {
