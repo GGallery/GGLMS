@@ -2447,9 +2447,11 @@ HTML;
     // creo anagrafica delle aziende con relativi gruppi ed utenti iscritti al corso - utility per api.load_corsi_from_xml()
     public static function create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $def_ragione_sociale = "", $def_piva = "", $def_email = "", $_err_label = '') {
 
-        $jumped = array();
-
         try {
+
+            // su più file i riferimenti agli array si resettano, per cui vanno spostati qui
+            $cf_recursive = array();
+            $generazione_coupon = array();
 
             foreach ($get_corsi as $key_corso => $file) {
 
@@ -2458,12 +2460,10 @@ HTML;
                 if (count($xml->CORSO) == 0)
                     throw new Exception("Nessuna anagrafica corso disponibile", E_USER_ERROR);
 
-                $generazione_coupon = array();
                 $coupon_model = new gglmsModelgeneracoupon();
                 $unita_model = new gglmsModelUnita();
 
                 // codici fiscali ricorsivi su file multipli
-                $cf_recursive = [];
                 $pre_iscrizione = "XX";
 
                 for ($i = 0; $i < count($xml->CORSO); $i++) {
@@ -2507,6 +2507,7 @@ HTML;
 
                         // iscritti
                         for ($n = 0; $n < count($xml->CORSO[$i]->ISCRITTI->ISCRITTO); $n++) {
+
                             $_new_user = array();
                             $_new_user_cp = array();
                             $coupon_data = array();
@@ -2521,7 +2522,6 @@ HTML;
                             // campi non più controllati perchè potrebbe essere legati ad un utente privato che non ha valorizzati piva_ente e ragione_sociale
                             $ragione_sociale = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->AZIENDA_ENTE);
                             $piva_ente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->PIVA_ENTE);
-                            $cf_iscritto_tmp = null;
 
                             // dati mancanti per l'iscritto
                             if ($codice_iscritto == ""
@@ -2534,8 +2534,8 @@ HTML;
                             }
                             // utente per il quale il coupon è stato già generato per file ricorsivi quindi salto
                             else if (
-                                in_array(strtoupper($cf_iscritto), $cf_recursive)
-                                || in_array($pre_iscrizione . strtoupper($cf_iscritto), $cf_recursive)
+                                in_array(strtoupper($codice_corso . "_" . $cf_iscritto), $cf_recursive)
+                                || in_array($pre_iscrizione . strtoupper($codice_corso . "_" . $cf_iscritto), $cf_recursive)
                                 ) {
                                 $_err_msg = "CF ricorsivo file multipli: " . print_r($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n], true);
                                 self::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . "_error");
@@ -2613,6 +2613,8 @@ HTML;
                                     */
                                     $password = $cf_iscritto;
                                     $_new_user['password'] = JUserHelper::hashPassword($password);
+                                    // registerDate
+                                    $_new_user['registerDate'] = self::convert_time_to_tz(date('Y-m-d H:i:s'));
                                     // inserimento utente in users
                                     $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
                                     $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
@@ -2670,7 +2672,8 @@ HTML;
 
                                 }
 
-                                $cf_recursive[] = $cf_iscritto;
+                                // nell'array indico anche il riferimento al corso non più soltanto al CF
+                                $cf_recursive[] = $codice_corso . "_" . $cf_iscritto;
 
                             } // check campi principali
 
