@@ -669,6 +669,8 @@ class gglmsHelper
 
         try {
 
+            $item['id_evento'] = trim($item['id_evento']);
+
                 $query = $db->getQuery(true);
                 $query->select('id')
                     ->from('#__gg_contenuti')
