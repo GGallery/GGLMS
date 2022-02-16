@@ -666,6 +666,11 @@ class gglmsHelper
     {
 
         $db = JFactory::getDBO();
+        $res = array();
+
+        $item['id_evento'] = trim($item['id_evento']);
+        if (!$item['id_evento'])
+            return $res;
 
         try {
 

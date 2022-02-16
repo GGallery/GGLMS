@@ -56,10 +56,13 @@ class gglmsTableContent extends JTable {
             $get_zoom = gglmsHelper::GetContenutoZoom($array, $_REQUEST['jform']['data_evento']);
 
 
-            if ((isset($get_zoom)) && ($get_zoom > 0)) {
+            if ((isset($get_zoom)) && ($get_zoom > 0 && !empty($get_zoom))) {
 
                 $app->redirect(JRoute::_('index.php?option=com_gglms&view=content&layout=edit&id=' . $array['id'], false), $app->enqueueMessage('Esiste già un contenuto legato a questo evento nello stesso giorno!', 'Warning'));
 
+            }elseif(empty($get_zoom) && is_array($get_zoom)){
+
+                $app->redirect(JRoute::_('index.php?option=com_gglms&view=content&layout=edit&id=' . $array['id'], false), $app->enqueueMessage('Manca id evento oppure la data evento', 'Warning'));
             }
         }
 
