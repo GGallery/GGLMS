@@ -103,7 +103,8 @@ class UploadHandler
             // e.g. PHP scripts, nor executed by the browser when downloaded,
             // e.g. HTML files with embedded JavaScript code.
             // Please also read the SECURITY.md document in this repository.
-            'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+//            'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+            'accept_file_types' => '/.+$/i',
             // Replaces dots in filenames with the given string.
             // Can be disabled by setting it to false or an empty string.
             // Note that this is a security feature for servers that support
@@ -122,6 +123,7 @@ class UploadHandler
             // The maximum number of files for the upload directory:
             'max_number_of_files' => null,
             // Reads first file bytes to identify and correct file extensions:
+            'image_file_types' => '/\.(gif|jpe?g|png)$/i',
             'correct_image_extensions' => false,
             // Image resolution restrictions:
             'max_width' => null,
