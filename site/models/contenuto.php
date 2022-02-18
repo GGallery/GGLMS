@@ -885,6 +885,32 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
+    public function get_access_contenuto($contenuto)
+    {
+        $retval = '';
+
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('c.datapubblicazione')
+                ->from('#__gg_contenuti as c')
+                ->where('c.id = ' . $contenuto->id);
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadResult();
+
+            $oggi = date("Y-m-d");
+            if($oggi < $data) {
+                $retval = 'disabled';
+            }
+            return $retval;
+
+        } catch (Exception $e) {
+
+            DEBUGG::log($e->getMessage(), 'error in get_access_contenuto', 0, 1, 0);
+            return $retval;
+        }
+    }
+
 
 }
 

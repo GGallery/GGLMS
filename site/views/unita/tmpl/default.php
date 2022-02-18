@@ -181,24 +181,52 @@ if ($this->contenuti) {
                     $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
 
                 $stato = $contenuto->getStato();
+                $contenutoObj = new gglmsModelContenuto();
+                $contenuto_access = $contenutoObj->get_access_contenuto($contenuto);
+                $contenuto_is_disabled = $contenuto_access == 'disabled';
 
                 if ($contenuto->getPropedeuticita()) {
 
                     if ($stato->completato)
                         echo '<div class="corner corner_green"></div>';
+                    else if ($contenuto_is_disabled)
+
+                        echo '<div class="corner corner_grey"></div>';
                     else
                         echo '<div class="corner corner_yellow"></div>';
+
+
                     ?>
 
-                <a <?php echo $contenuto->getUrlLink(); ?>/>
-                    <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
-                </a>
+                    <?php
 
-                <div class="card-body my-0 px-0 py-0">
+                 if (!$contenuto_is_disabled) {?>
+                     <!--visualizzazione contenuti  abilitati-->
                     <a <?php echo $contenuto->getUrlLink(); ?>/>
-                        <div class="card-title text-center my-0 px-0 py-0"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
+                        <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
                     </a>
-                </div>
+
+                    <div class="card-body my-0 px-0 py-0">
+                        <a <?php echo $contenuto->getUrlLink(); ?>/>
+                            <div class="card-title text-center my-0 px-0 py-0"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
+                        </a>
+                    </div>
+
+                     <?php
+
+                 } else { ?>
+
+                     <!--visualizzazione contenuti non  abilitati-->
+                     <a data-toggle="modal" data-target="#contenutoModal">
+                         <img class="card-img-top img-fluid"  src="<?php echo $img; ?>" alt="<?php echo $img; ?>">
+                     </a>
+                     <div class="card-body my-0 px-0 py-0">
+                         <a>
+                             <div class="card-title text-center my-0"><p class="my-0"><b><?php echo $contenuto->titolo; ?></b></p></div>
+                         </a>
+                     </div>
+                 <?php } ?>
+
                 <div class="card-footer px-0 py-0">
 
                         <?php
@@ -275,6 +303,27 @@ if (!$count)
             </div>
             <div class="modal-body">
                 <?php echo  JText::_('COM_GGLMS_UNITA_CORSO_SCADUTO') ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"> <?php echo  JText::_('COM_GGLMS_GLOBAL_CLOSE') ?></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Contenuto Disabilitato-->
+<div id="contenutoModal" role="dialog" class="modal">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><?php echo  JText::_('COM_GGLMS_UNITA_DETTAGLI_CONTENUTO') ?></h4>
+            </div>
+            <div class="modal-body">
+                <?php echo  JText::_('COM_GGLMS_UNITA_CONTENUTO_NON_PUBBLICATO') ?>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"> <?php echo  JText::_('COM_GGLMS_GLOBAL_CLOSE') ?></button>
