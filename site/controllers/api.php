@@ -2272,7 +2272,7 @@ HTML;
             $results = $this->_db->loadAssocList();
 
             if (count($results) == 0)
-                throw new Exception("Nessun evento per data : " . $_dt_ref, E_USER_ERROR);
+                throw new Exception("Nessun evento per data : " . $_dt_ref, 1);
 
             foreach ($results as $key_res => $res) {
 
