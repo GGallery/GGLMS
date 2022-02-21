@@ -2261,7 +2261,7 @@ HTML;
             $oggi = $dt->format('Y-m-d');
             //ieri
             $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
-//            $data_rif = strtotime('2021/11/27');
+//            $data_rif = strtotime('2022/02/17');
 //            $_dt_ref = date('Y-m-d',$data_rif);
 
             $query = $this->_db->getQuery(true)
@@ -2279,10 +2279,15 @@ HTML;
                 $uuid_evento = '';
                 $id_contenuto = $res['id'];
 
+
+                if(!isset($res['id_evento']) || !is_numeric($res['id_evento']) || is_null($res['id_evento']))
+                    continue;
+
                 $_zoom_model = new gglmsModelZoom();
                 $get_user = $_zoom_model->get_zoom_users($res['id_utente_zoom']);
 
-                $mese_zoom = date('Y-m',$_dt_ref);
+
+                $mese_zoom = date('Y-m',strtotime($_dt_ref));
 
                 $_events = $zoom_call->get_events($get_user, 'meetings', $mese_zoom);
 
@@ -2299,7 +2304,7 @@ HTML;
                     $start_date = strtotime($event->start_time);
                     $data_evento = date('Y-m-d',$start_date);
 
-                    if(($event->id == $res['id_evento']) && ($data_evento == $_dt_ref)) {
+                    if(($event->id == trim($res['id_evento'])) && ($data_evento == $_dt_ref)) {
 
                         $_zoom_model = new gglmsModelZoom();
                         $store_event = $_zoom_model->store_zoom_riferimento($event->uuid, $event->id, $data_evento, $id_contenuto);
@@ -2315,10 +2320,12 @@ HTML;
                 }
 
 
-                $_registrants = $zoom_call->get_event_registrants($res['id_evento'], $res['tipo_evento']);
+                $_registrants = $zoom_call->get_event_registrants(trim($res['id_evento']), $res['tipo_evento']);
 
-                if (isset($_registrants['error']))
-                    throw new Exception($_registrants['error'], 1);
+                if (isset($_registrants['error'])){
+                    UtilityHelper::make_debug_log(__FUNCTION__, $_registrants['error'], 'get_event_log');
+                    continue;
+                    }
 
                 if (!isset($_registrants['success'])
                     || $_registrants['success'] == "")
