@@ -2431,6 +2431,7 @@ HTML;
                 }
 
 
+                UtilityHelper::make_debug_log(__FUNCTION__, "termine elaborazione di id_evento : " . $res['id_evento'] ." per giorno ". $_dt_ref, 'get_event_log');
             }
 
 //            var_dump('finish');
@@ -2439,6 +2440,7 @@ HTML;
             if (!is_array($store_log))
                 throw new Exception($store_log, 1);
 
+            UtilityHelper::make_debug_log(__FUNCTION__, "Report zoom terminato per : " . date('d/m/Y H:i:s'), 'get_event_log');
             echo "Report zoom terminato per : " . date('d/m/Y H:i:s');
         }
         catch (Exception $e) {

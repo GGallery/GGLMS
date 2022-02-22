@@ -447,6 +447,7 @@ class gglmsModelZoom extends JModelLegacy {
             $this->_db->transactionCommit();
             $_ret['success'] = 'tuttook';
 
+            UtilityHelper::make_debug_log(__FUNCTION__, 'elaborazione di  id_evento : '. $id_evento, 'zoom_riferimento');
             return $_ret;
         }
         catch (Exception $e) {
