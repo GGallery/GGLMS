@@ -315,6 +315,38 @@ class gglmsModelCatalogo extends JModelLegacy
         }
     }
 
+    // i box dalle unità di adesione dell'utente
+    public function get_box_per_user_unita($id_utente) {
+
+        try {
+
+            $query = "SELECT box
+                        FROM #__gg_box_unit_map jgbum
+                        JOIN (
+                            SELECT idunita
+                            FROM #__gg_usergroup_map jgum
+                            JOIN #__user_usergroup_map juum2 ON jgum.idgruppo = juum2.group_id
+                            WHERE juum2.user_id  = " . $this->_db->quote($id_utente) . "
+                        ) sub ON jgbum.id_unita = sub.idunita
+                        GROUP BY box";
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssocList()))
+                throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            if (!count($results))
+                throw new Exception("Nessun box definito", E_USER_ERROR);
+
+            return $results;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // il numero di unità per box
     public function get_unita_per_box()
     {

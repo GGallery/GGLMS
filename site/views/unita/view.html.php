@@ -108,8 +108,9 @@ class gglmsViewUnita extends JViewLegacy
         }
         else {
 
+            $_current_user = JFactory::getUser();
             $this->box_corsi = $model_catalogo->get_box_categorie_corso(null, null, true);
-            $this->_html = outputHelper::get_box_details($this->box_corsi);
+            $this->_html = outputHelper::get_box_details($this->box_corsi, $_current_user->id);
 
         }
 

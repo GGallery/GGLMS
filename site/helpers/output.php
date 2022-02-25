@@ -2373,7 +2373,7 @@ HTML;
 
     }
 
-    public static function get_box_details($boxes) {
+    public static function get_box_details($boxes, $checkUserId = null) {
 
         $_html = "";
         if (!is_array($boxes)
@@ -2383,7 +2383,7 @@ HTML;
 
         // conteggio quante unità ho per box e visualizzo soltanto quelle con delle unità associate
         $model_catalogo = new gglmsModelCatalogo();
-        $boxArr = $model_catalogo->get_unita_per_box();
+        $boxArr = is_null($checkUserId) ? $model_catalogo->get_unita_per_box() : $model_catalogo->get_box_per_user_unita($checkUserId);
         $boxIds = null;
 
         if (is_array($boxArr) && count($boxArr))
