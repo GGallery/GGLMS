@@ -2261,7 +2261,7 @@ HTML;
             $oggi = $dt->format('Y-m-d');
             //ieri
             $_dt_ref = date('Y-m-d', strtotime('-1 day', strtotime($oggi)));
-//            $data_rif = strtotime('2022/02/17');
+//            $data_rif = strtotime('2022/02/25');
 //            $_dt_ref = date('Y-m-d',$data_rif);
 
             $query = $this->_db->getQuery(true)
@@ -2343,9 +2343,9 @@ HTML;
                     $create_date = strtotime($resp->create_time);
                     $data_riferimento = date('Y-m-d',$create_date);
 
-                    if($data_riferimento != $_dt_ref){
-                        continue;
-                    }
+//                    if($data_riferimento != $_dt_ref){
+//                        continue;
+//                    }
 
                     $query_user = $this->_db->getQuery(true)
                         ->select('cp.user_id')
