@@ -14,7 +14,11 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/catalogo.php';
+require_once JPATH_COMPONENT . '/models/helpdesk.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/controllers/users.php';
 
 /**
  * Controller for single contact view
@@ -44,7 +48,6 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam = new stdClass();
 
         $this->_filterparam->corso_id = JRequest::getVar('corso_id');
-        $this->_filterparam->gruppo_id = JRequest::getVar('gruppo_id');
         $this->_filterparam->current = JRequest::getVar('current');
         $this->_filterparam->rowCount = JRequest::getVar('rowCount');
         $this->_filterparam->startdate = JRequest::getVar('startdate');
@@ -52,7 +55,6 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->filterstato = JRequest::getVar('filterstato');
         $this->_filterparam->usergroups = JRequest::getVar('usergroups');
         $this->_filterparam->sort = JRequest::getVar('sort');
-        $this->_filterparam->order = JRequest::getVar('order');
         $this->_filterparam->searchPhrase = JRequest::getVar('searchPhrase');
         $this->_filterparam->csvlimit = JRequest::getVar('csvlimit');
         $this->_filterparam->csvoffset = JRequest::getVar('csvoffset');
@@ -65,234 +67,29 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->offset = JRequest::getVar('offset');
         $this->_filterparam->cid = JRequest::getVar('cid');
         $this->_filterparam->user_id = JRequest::getVar('user_id');
-        $this->_filterparam->all_users = JRequest::getVar('all_users');
         $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
         $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
         $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
         $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
         $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
         $this->_filterparam->zoom_event_type = JRequest::getVar('zoom_event_type');
+        $this->_filterparam->cf = JRequest::getVar('cf');
+        $this->_filterparam->pw = JRequest::getVar('pw');
+        $this->_filterparam->rep_pw = JRequest::getVar('rep_pw');
+        $this->_filterparam->c_name = JRequest::getVar('c_name');
+        $this->_filterparam->ref_token = JRequest::getVar('ref_token');
+        $this->_filterparam->dominio = JRequest::getVar('dominio');
+        $this->_filterparam->gruppo_id_piattaforma = JRequest::getVar('gruppo_id_piattaforma');
+
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
-        $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
+        $this->_filterparam->force_debug = JRequest::getVar('force_debug');
+        $this->_filterparam->function_name = JRequest::getVar('function_name', null);
+        $this->_filterparam->db_target = JRequest::getVar('db_target', null);
+
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
-
-    }
-
-    // dati id_utente e id_corso rimuove tutti i riferimenti di quell'utente dalle tabelle dei coupon, report e quiz
-    public function reset_corso(){
-
-       try {
-
-           $id_user = $this->_filterparam->user_id;
-           $id_corso = $this->_filterparam->corso_id;
-
-         if(!isset($id_corso)
-            || !isset($id_user)
-            || !is_numeric($id_corso)
-            || !is_numeric($id_user))
-             throw new Exception("id_corso e id_user devono essere di tipo numerico", 1);
-
-            // cerco il gruppo del corso
-            // usiamo il modello unita
-            $model_unita = new gglmsModelUnita();
-            $gruppo = $model_unita->get_id_gruppo_unit($id_corso);
-
-             if (isset($gruppo) && is_numeric($gruppo)) {
-
-                 $this->_db->transactionStart();
-
-                 //controllo il coupon
-                 $query_coupon = $this->_db->getQuery(true)
-                     ->select('count(*)')
-                     ->from('#__gg_coupon')
-                     ->where('id_utente = ' . $id_user . ' and id_gruppi = ' . $this->_db->quote($gruppo));
-
-                 $this->_db->setQuery($query_coupon);
-                 $count_coupon = $this->_db->loadResult();
-
-
-                 if (isset($count_coupon) && $count_coupon > 0) {
-
-                     //libero user dal coupon
-                     $update_coupon = 'UPDATE #__gg_coupon SET id_utente = NULL '
-                         . ' WHERE id_utente = ' . $id_user . ' AND id_gruppi = ' . $this->_db->quote($gruppo);
-                     $this->_db->setQuery($update_coupon);
-
-                     if (!$this->_db->execute())
-                         throw new Exception("update coupon query ko -> " . $update_coupon, 1);
-
-                     //cancello da user_usergroup corso per utente
-                     $delete_usergroup = "DELETE FROM #__user_usergroup_map"
-                         . " WHERE group_id = " . $this->_db->quote($gruppo) . " AND user_id = " . $id_user;
-                     $this->_db->setQuery($delete_usergroup);
-
-                     if (!$this->_db->execute())
-                         throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
-
-
-                     //seleziono tutti i contenuti del corso
-                     $model_report = new gglmsModelReport();
-                     $contents = $model_report->getContenutiArrayList($id_corso);
-
-
-                     if(!isset($contents) || !is_array($contents))
-                         throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
-
-                     foreach ($contents as $content) {
-                         if (isset($content['id'])) {
-
-                             //controllo tabella di log
-                             $countquery = $this->_db->getQuery(true)
-                                 ->select('count(*)')
-                                 ->from('#__gg_log')
-                                 ->where('id_contenuto =' . $this->_db->quote($content['id']) . 'and id_utente =' . $id_user);
-
-                             $this->_db->setQuery($countquery);
-                             $count = $this->_db->loadResult();
-
-
-                             if (isset($count) && $count > 0) {
-
-                                 //cancello utente per corso dal log
-                                $delete_log = "DELETE FROM #__gg_log"
-                                            . " WHERE id_contenuto = " . $this->_db->quote($content['id']) . " AND id_utente = " . $id_user ;
-                                $this->_db->setQuery($delete_log);
-
-                                if (!$this->_db->execute())
-                                    throw new Exception("Delete log query ko -> " . $delete_log, 1);
-
-                             }
-
-                             $query_report = $this->_db->getQuery(true)
-                                 ->select('id_anagrafica')
-                                 ->from('#__gg_report')
-                                 ->where('id_contenuto = ' . $this->_db->quote($content['id']) . ' and id_utente = ' . $id_user);
-
-                             $this->_db->setQuery($query_report);
-                             $anagrafica_id = $this->_db->loadResult();
-
-
-                             if (isset($anagrafica_id) && is_numeric($anagrafica_id) && $anagrafica_id > 0) {
-
-
-                                 $delete_stato_corso = "DELETE FROM #__gg_view_stato_user_corso"
-                                     . " WHERE id_anagrafica = " . $this->_db->quote($anagrafica_id) . " AND id_corso = " . $id_corso ;
-                                 $this->_db->setQuery($delete_stato_corso);
-
-                                 if (!$this->_db->execute())
-                                     throw new Exception("Delete stato corso query ko -> " . $delete_stato_corso, 1);
-
-
-                                 $delete_stato_unita = "DELETE FROM #__gg_view_stato_user_unita"
-                                     . " WHERE id_anagrafica = " . $this->_db->quote($anagrafica_id) . " AND id_corso = " . $id_corso ;
-                                 $this->_db->setQuery($delete_stato_unita);
-
-                                 if (!$this->_db->execute())
-                                     throw new Exception("Delete stato unita query ko -> " . $delete_stato_unita, 1);
-
-
-                                 $delete_report = "DELETE FROM #__gg_report"
-                                     . " WHERE id_contenuto = " . $this->_db->quote($content['id']) . " AND id_utente = " . $id_user ;
-                                 $this->_db->setQuery($delete_report);
-
-                                 if (!$this->_db->execute())
-                                     throw new Exception("Delete report query ko -> " . $delete_report, 1);
-
-                             }
-
-
-                             //cerco tipologia di ogni contenuto
-                             $query_tipologia = $this->_db->getQuery(true)
-                                 ->select('tipologia as tipologia_contenuto, id_quizdeluxe')
-                                 ->from('#__gg_contenuti')
-                                 ->where('id = ' . $this->_db->quote($content['id']));
-
-                             $this->_db->setQuery($query_tipologia);
-                             $tipologie = $this->_db->loadAssocList();
-
-                             if(!isset($tipologie) || !is_array($tipologie))
-                                 throw new Exception("Nessun tipologia per il contenuto " . $content['id'], 1);
-
-                             foreach ($tipologie as $tipologia) {
-                                 if (isset($tipologia)) {
-
-                                     if ($tipologia['tipologia_contenuto'] == 7 ) {
-
-                                         //conto se c sono dati in quiz
-                                         $countquery = $this->_db->getQuery(true)
-                                             ->select("count(*)")
-                                             ->from("#__quiz_r_student_quiz")
-                                             ->where('c_quiz_id = ' . $this->_db->quote($tipologia['id_quizdeluxe']) . ' and c_student_id = ' . $id_user);
-
-
-                                         $this->_db->setQuery($countquery);
-                                         $count = $this->_db->loadResult();
-
-                                         if (isset($count) && $count > 0) {
-
-                                             $delete_quiz = "DELETE FROM #__quiz_r_student_quiz"
-                                                 . " WHERE c_quiz_id = " . $this->_db->quote($tipologia['id_quizdeluxe']) . " AND c_student_id = " . $id_user ;
-                                             $this->_db->setQuery($delete_quiz);
-
-                                             if (!$this->_db->execute())
-                                                 throw new Exception("Delete quiz query ko ->" . $delete_quiz, 1);
-                                         }
-
-                                     } else {
-
-                                         //conto se c sono dati in scormvars
-                                         $countquery = $this->_db->getQuery(true)
-                                             ->select("count(*)")
-                                             ->from("#__gg_scormvars")
-                                             ->where('scoid = ' . $this->_db->quote($content['id']) . ' and userid =' . $id_user);
-
-
-                                         $this->_db->setQuery($countquery);
-                                         $count = $this->_db->loadResult();
-
-                                         if (isset($count) && $count > 0) {
-
-                                             $delete_scormvars = "DELETE FROM #__gg_scormvars"
-                                                 . " WHERE scoid = " . $this->_db->quote($content['id']) . " AND userid = " . $id_user ;
-                                             $this->_db->setQuery($delete_scormvars);
-
-                                             if (!$this->_db->execute())
-                                                 throw new Exception("Delete scormvars query ko ->" . $delete_scormvars, 1);
-
-                                         }
-
-
-                                     }
-
-                                 }
-
-                             }
-
-
-                         }
-                     }
-
-
-                 }
-
-                 $this->_db->transactionCommit();
-             } elseif (!isset($gruppo) || !is_numeric($gruppo)){
-
-                 throw new Exception("corso non ha un gruppo su usergroup ->" .$gruppo, 1);
-             }
-
-
-           echo "Operazione di cancellazione del corso terminata: " . date('d/m/Y H:i:s');
-
-       }catch (Exception $e) {
-           $this->_db->transactionRollback();
-           echo __FUNCTION__ . " error: " . $e->getMessage();
-       }
-
-        $this->_japp->close();
 
     }
 
@@ -307,26 +104,15 @@ class gglmsControllerApi extends JControllerLegacy
 
     private function new_get_data($offsetforcsv = null)
     {
-        $_ret = array();
-
 
         //$this->_filterparam->task = JRequest::getVar('task');
         //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-        if(strpos($this->_filterparam->corso_id,'|')){
-
-            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-            $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
-        }else{
-            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        }
-
+        $id_corso = explode('|', $this->_filterparam->corso_id)[0];
+        $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
         $alert_days_before = $this->_params->get('alert_days_before');
         $tipo_report = $this->_filterparam->tipo_report;
-        $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
-       $limit = (isset($this->_filterparam->limit) && $this->_filterparam->limit != "") ? $this->_filterparam->limit : 5;
-       $_sort = (isset($this->_filterparam->sort) && $this->_filterparam->sort != "") ? $this->_filterparam->sort : null;
-       $_order = (isset($this->_filterparam->order) && $this->_filterparam->order != "") ? $this->_filterparam->order : null;
-
+        $limit = $this->_filterparam->limit;
+        $offset = $this->_filterparam->offset;
         $filters = array(
                         'startdate' => $this->_filterparam->startdate,
                         'finishdate' => $this->_filterparam->finishdate,
@@ -338,7 +124,6 @@ class gglmsControllerApi extends JControllerLegacy
 
 
             $columns = array();
-            $rows = array();
             switch ($tipo_report) {
 
                 case 0: //PER CORSO
@@ -346,40 +131,30 @@ class gglmsControllerApi extends JControllerLegacy
 
                     $att_id_string = $this->getAttestati($id_corso);
 
-                    if(strpos($att_id_string,'|')){
-
-                        $attestati = explode('|',$att_id_string);
-                        $attestato = $attestati[1];
-                        $attestato_hidden = $attestati[0];
-                    }else{
-                        $attestato_hidden = $att_id_string;
-                    }
-
                     $query = $this->_db->getQuery(true);
-                    $query->select('vista.id_anagrafica as id_anagrafica,"'. $attestato .'" as Attestato,"' . $attestato_hidden . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
+                    $query->select('vista.id_anagrafica as id_anagrafica,"' . $att_id_string . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
                     $query->from('#__gg_view_stato_user_corso  as vista');
                     $query->where('id_corso=' . $id_corso);
                     switch ($filters['filterstato']) {
 
                         case 0: //qualsiasi stato
-
-                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $_order, $_sort, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
+                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                             $users = $arrayresult[0];
                             $count = $arrayresult[1];
                             $queryGeneralCube = $arrayresult[2];
                             $queryGeneralCubeCount = $arrayresult[3];
-//                            $result['secondaryCubeQuery'] = (string)$query;
+                            $result['secondaryCubeQuery'] = (string)$query;
                             $datas = $this->buildPrimaryDataCube($query);
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "stato", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_inizio", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_fine", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "scadenza", 'outer');
                             $users = $this->addColumn($users, $datas, "id_anagrafica", null, "attestati_hidden", 'outer');
-                            $users = $this->addColumn($users, $datas, "id_anagrafica", null, "Attestato", 'outer');
-                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields','attestati_hidden','Attestato');
+                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
 
                             $rows = $users;
-
+//                            var_dump($rows);
+////                            die();
 
                             break;
 
@@ -403,19 +178,15 @@ class gglmsControllerApi extends JControllerLegacy
                                 $query->where('id_anagrafica in (select anagrafica.id from #__gg_report_users as anagrafica where anagrafica.cognome LIKE \'%' . $filters['searchPhrase'] . '%\')');
 
                             }
-                           // $result['secondaryCubeQuery'] = (string)$query;
-
-
+                            $result['secondaryCubeQuery'] = (string)$query;
 
 
 //                            $count = $this->countPrimaryDataCube($query);!!! BUG il count che viene su da qui non è filtrato per azienda!!
 //                            $datas = $this->buildPrimaryDataCube($query,$offset, $limit); !!! BUG offset e limit erano invertiti!!
-                            $datas = $this->buildPrimaryDataCube($query,null,null);
+                            $datas = $this->buildPrimaryDataCube($query, $limit, $offset);
 
 
-
-
-                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $_order, $_sort, $limit, $offset, $filters['searchPhrase'], $filters['usergroups'], implode(",", (array_column($datas, "id_anagrafica"))));
+                            $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, null, null, $filters['searchPhrase'], $filters['usergroups'], implode(",", (array_column($datas, "id_anagrafica"))));
                             $users = $arrayresult[0];
 
                             // in sostituzione del count commentato sopra --> il count era già presente come parametro di ritorno ma non veniva usato
@@ -428,7 +199,7 @@ class gglmsControllerApi extends JControllerLegacy
                             $datas = $this->addColumn($datas, $users, "id_anagrafica", null, "fields", 'inner');
                             $rows = $datas;
 
-                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden','Attestato');
+                            $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden');
 
                             break;
 
@@ -439,7 +210,7 @@ class gglmsControllerApi extends JControllerLegacy
 
 
                 case 1: //PER UNITA'
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $_order, $_sort, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
+                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                     $users = $arrayresult[0];
                     $count = $arrayresult[1];
                     $queryGeneralCube = $arrayresult[2];
@@ -449,14 +220,14 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->from('#__gg_view_stato_user_unita  as vista');
                     $query->join('inner', '#__gg_unit as u on vista.id_unita=u.id');
                     $query->where('id_corso=' . $id_corso);
-//                    $result['secondaryCubeQuery'] = (string)$query;
+                    $result['secondaryCubeQuery'] = (string)$query;
                     $datas = $this->buildPrimaryDataCube($query);
                     $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_unita", "stato", 'outer');
                     $columns = $this->buildColumnsforUnitaView($id_corso);
                     $rows = $users;
                     break;
                 case 2://PER CONTENUTO
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $_order, $_sort, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
+                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
                     $users = $arrayresult[0];
                     $count = $arrayresult[1];
                     $queryGeneralCube = $arrayresult[2];
@@ -467,7 +238,7 @@ class gglmsControllerApi extends JControllerLegacy
                     $query->from('#__gg_report  as vista ');
                     $query->join('inner', '#__gg_contenuti as c on vista.id_contenuto=c.id');
                     $query->where('id_corso=' . $id_corso);
-//                    $result['secondaryCubeQuery'] = (string)$query;
+                    $result['secondaryCubeQuery'] = (string)$query;
                     $datas = $this->buildPrimaryDataCube($query);
                     $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "stato", 'outer');
 //                    $users = $this->addColumn($users, $datas, "id_anagrafica", "titolo_contenuto", "last_visit", 'outer'); // mostro ultima data di visita al posto di spunta verde in report per contenuto
@@ -490,84 +261,16 @@ class gglmsControllerApi extends JControllerLegacy
             //DEBUGG::error($e, 'error', 1);
         }
 
-        if (isset($rows)) {
-            foreach ($rows as $_key_row => $_row) {
-
-                 $disable = '0';
-                 //rows da colorare
-                if($_row['stato'] == 1){
-                 $color_cell = 'color:green';
-                 $disable = '1';
-                }else if($_row['scadenza'] == 1) {
-                    $color_cell = 'color:red';
-                }else{
-                    $color_cell = '';
-                }
-
-                    foreach ($_row as $key => $value) {
-                        $user_id1 = $_row['fields']->user_id;
-
-                        //salto i fields perche un object
-                        if($key == 'fields')continue;
-
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <span style="{$color_cell}" >{$value}</span>
-HTML;
-                        if($value == '1'){
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <i title="completato" class="fas fa-check-square fa-2x" style="color:green;"></i>
-HTML;
-                        }else if($value == '0'){
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <i title="iniziato" class="fas fa-sign-in-alt fa-2x" style="color:#4169e1;"></i>
-HTML;
-                        }else if($value == '0000-00-00'){
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <span ></span>
-HTML;
-                        }else if(($disable == '1')&&($key == 'attestati_hidden')){ //aggiungo buttone per scaricare l'attestato
-                            $content_id = explode('#',$_row['attestati_hidden'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
-HTML;
-                        }else if(($disable == '1')&&($key == 'Attestato')&&($attestato != '')){
-                            $content_id = explode('#',$_row['Attestato'])[0];
-                            $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
-HTML;
-                        }else if(($disable == '0')&&($key == 'attestati_hidden')){
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <span></span>
-HTML;
-                        }else if(($disable == '0')&&($key == 'attestato')){
-                            $_ret[$_key_row][$key] = <<<HTML
-                            <span></span>
-HTML;
-                        }
-
-
-                    }
-                    //aggiungo i fields
-                $_ret[$_key_row]['fields'] = $_row['fields'];
-
-            }
-
-        }
-
-
-
-//       $result['queryGeneralCube'] = (string)$queryGeneralCube;
+        $result['queryGeneralCube'] = (string)$queryGeneralCube;
 
 //        $result['datas'] = $datas;
 //        $result['buildGeneralDataCubeUtentiInCorso'] = $arrayresult[0];
         //$result['current']=$this->_filterparam->current;
-//        $result['columns'] = $columns;
+        $result['columns'] = $columns;
         $result['rowCount'] = $count;
-        $result['rows'] = $_ret;
+        $result['rows'] = $rows;
         //$result['total']=$total;
-//       $result['totalquery'] = (string)$queryGeneralCubeCount;
+        $result['totalquery'] = (string)$queryGeneralCubeCount;
         //echo json_encode($result);
         return $result;
     }
@@ -982,10 +685,9 @@ HTML;
 
 
 
-    private function buildGeneralDataCubeUtentiInCorso($id_corso, $order, $sort, $limit, $offset, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
+    private function buildGeneralDataCubeUtentiInCorso($id_corso, $offset, $limit, $searchPrase, $gruppo_azienda, $anagrafica_filter = null)
     {
         try {
-
             $query = $this->_db->getQuery(true);
             $query->select("accesso");
             $query->from("#__gg_unit as u");
@@ -999,6 +701,8 @@ HTML;
             $countquery->select("count(*)");
             $query->from("#__gg_report_users as anagrafica");
             $countquery->from("#__gg_report_users as anagrafica");
+
+//            var_dump($accesso);
 
 //            $usergroups --> aziende
 
@@ -1062,24 +766,17 @@ HTML;
                 $query->where('anagrafica.id in(' . $anagrafica_filter . ')');
                 $countquery->where('anagrafica.id in(' . $anagrafica_filter . ')');
             }
-//            $query->order('anagrafica.cognome', 'asc');
-            // ordinamento per colonna - di default per id utente
-            if (!is_null($sort)
-                && !is_null($order)) {
-                $query = $query->order($sort . ' ' . $order);
-            }
-            else
-                $query = $query->order('anagrafica.cognome', 'asc');
+            $query->order('anagrafica.cognome', 'asc');
 
+//            var_dump((string)$query);
 
-
-            $this->_db->setQuery($query,$offset,$limit);
+            $query->setlimit($offset, $limit);
+            $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
-
             foreach ($rows as &$row) {//FILTRO PER CAMPI DI FIELDS
                 $row['fields'] = json_decode($row['fields']);
                 unset($row['fields']->password);
-  //              $row['fields'] = json_encode($row['fields']);
+                $row['fields'] = json_encode($row['fields']);
             }
             $this->_db->setQuery($countquery);
             $count = $this->_db->loadResult();
@@ -1132,7 +829,7 @@ HTML;
 
         $reportObj = new gglmsModelReport();
         $unitas = $reportObj->getSottoUnitaArrayList($id_corso);
-        $columns = ['id_anagrafica', 'cognome', 'nome', 'fields','attestati_hidden'];
+        $columns = ['id_anagrafica', 'cognome', 'nome', 'fields'];
         foreach ($unitas as $unita) {
             array_push($columns, $unita['titolo']);
         }
@@ -1145,7 +842,7 @@ HTML;
         $reportObj = new gglmsModelReport();
         $contenuti = $reportObj->getContenutiArrayList($id_corso);
 
-        $columns = ['id_anagrafica', 'cognome', 'nome', 'fields','attestati_hidden'];
+        $columns = ['id_anagrafica', 'cognome', 'nome', 'fields'];
         foreach ($contenuti as $contenuto) {
             array_push($columns, $contenuto['titolo']);
         }
@@ -1169,11 +866,8 @@ HTML;
                     $row{$column} = $nullvalue;
                 }
             }
-            //non serve json
-//            $userFields = json_decode($row['fields']);
-              $userFields = $row['fields'];
 
-
+            $userFields = json_decode($row['fields']);
             foreach ($fields as $field) {
                 if (isset($userFields->$field)) {
                     $row{$field} = $userFields->$field;
@@ -1957,140 +1651,46 @@ HTML;
     public function get_dettagli_quiz() {
 
         $_ret = array();
-        $dettaglio_tot = array();
 
         try {
 
             $params = JRequest::get($_GET);
             $quiz_id = $params["quiz_id"];
             $user_id = $params["user_id"];
-            $corso_id = $params["corso_id"];
-            $all_users = $params["all_users"];
-
-            $model_content = new gglmsModelContenuto();
-
-            if (!isset($all_users)
-                || $all_users == "")
-                throw new Exception("Missing all users", 1);
 
             if (!isset($quiz_id)
                 || $quiz_id == "")
                 throw new Exception("Missing quiz id", 1);
 
-            //nel caso report per tutti utente
-            if ($all_users == 1 ) {
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", 1);
 
-                if (!isset($corso_id)
-                    || $corso_id == "")
-                    throw new Exception("Missing corso id", 1);
+            $model_content = new gglmsModelContenuto();
+            $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user_id);
 
-                $users_id_arr = UtilityHelper::get_user_iscritti_corso($corso_id);
-                if (count($users_id_arr) == 0
-                     || !is_array($users_id_arr))
-                    throw new Exception("Nessun utente iscritto al corso selezionato", 1);
-
-
-                $user_model = new gglmsModelUsers();
-                $users = $user_model->get_utenti_iscritti_corso($corso_id, $users_id_arr);
-
-                if (is_null($users)
-                    || count($users) == 0)
-                    throw new Exception("Nessuna anagrafica disponibile per il corso selezionato", 1);
+            if (!$dettagli_quiz
+                || !is_array($dettagli_quiz)
+                || count($dettagli_quiz) == 0)
+                throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
 
 
-                foreach ($users as $user) {
+            $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
+            $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
+            $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
 
-                    $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user['id_utente']);
-
-                   if (is_null($dettagli_quiz)
-                       || !is_array($dettagli_quiz)
-                       || count($dettagli_quiz) == 0){
-
-                       //commentata l'exception perche nel caso di tutti utenti si ferma in quello che non ha ancora fatto il quiz
-                 //     throw new Exception("Nessun dettaglio disponibile per il quiz e per lo user selezionati", E_USER_ERROR);
-                     continue;
-                  }
-
-                    $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
-
-                    $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
-
-
-                    $nome_user = ["nome" => $user['denominazione_utente']];
-
-
-                    array_push($dettaglio_tot,$nome_user);
-
-                    array_push($dettaglio_tot,$_csv_cols);
-
-                    foreach ($dettagli_quiz as $dettaglio){
-                        array_push($dettaglio_tot,$dettaglio);
-                    }
-
-                }
-
-
-                if(empty($dettaglio_tot)
-                    || is_null($dettaglio_tot)){
-
-                    echo "<script type='text/javascript'>
-                         if (confirm('Report per utente selezionato non esiste, contattare Help Desk.')){
-                                   window.close();
-                                }</script>";
-
-                }else {
-
-                    $_export_csv = utilityHelper::_export_csv_dettaglio(time() . '.csv', $dettaglio_tot);
-
-                    // chiusura della finestra dopo generazione del report
-                    $_html = <<<HTML
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
-                }
-
-            } else {
-
-                if (!isset($user_id)
-                    || $user_id == "")
-                    throw new Exception("Missing user id", 1);
-
-
-                $dettagli_quiz = $model_content->get_dettagli_quiz_per_utente($quiz_id, $user_id);
-
-
-                if(empty($dettagli_quiz)
-                   || is_null($dettagli_quiz)){
-
-                    echo "<script type='text/javascript'>
-                        if (confirm('Report per utente selezionato non esiste, contattare Help Desk.')){
-                                 window.close();
-                              }</script>";
-
-                }else {
-
-                    $_csv_cols = utilityHelper::get_cols_from_array($dettagli_quiz[0]);
-                    $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
-
-                    $_export_csv = utilityHelper::esporta_csv_spout($dettagli_quiz, $_csv_cols, time() . '.csv');
-
-
-//                 chiusura della finestra dopo generazione del report
-                    $_html = <<<HTML
-            <script type="text/javascript">
-                window.close();
-            </script>
-HTML;
-                }
-            }
 
         }
         catch (Exception $e) {
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'get_dettagli_quiz');
+
             $_ret['error'] = $e->getMessage();
         }
-
 
         $this->_japp->close();
     }
@@ -2141,7 +1741,7 @@ HTML;
 
     }
 
-    public function get_event_participants() {
+    function get_event_participants() {
 
         $_ret = array();
 
@@ -2157,10 +1757,7 @@ HTML;
             $_participants = null;
 
             $zoom_call = new gglmsControllerZoom($api_key, $api_secret, $api_endpoint, $api_version, $api_scadenza_token, true);
-
-            $event_id = urlencode($this->_filterparam->zoom_event_id);
-            $_events = $zoom_call->get_event_participants($event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
-
+            $_events = $zoom_call->get_event_participants($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo, $this->_filterparam->zoom_event_type);
 
             if (isset($_events['error']))
                 throw new Exception($_events['error'], 1);
@@ -2180,11 +1777,11 @@ HTML;
 
             // inserisco l'evento a database se non è già presente
             $_zoom_model = new gglmsModelZoom();
-            $_get_event = $_zoom_model->get_event($event_id, $this->_filterparam->zoom_tipo);
+            $_get_event = $_zoom_model->get_event($this->_filterparam->zoom_event_id, $this->_filterparam->zoom_tipo);
 
             if (is_null($_get_event)
                 || !is_array($_get_event)) {
-                $_store_event = $_zoom_model->store_events($event_id,
+                $_store_event = $_zoom_model->store_events($this->_filterparam->zoom_event_id,
                                                             $this->_filterparam->zoom_tipo,
                                                             $this->_filterparam->zoom_event_label,
                                                             $_event_json->participants);
@@ -2198,8 +1795,7 @@ HTML;
             else {
                 $_json = $_get_event['success']['response'];
                 $_participants = json_decode($_json);
-                $_csv_cols = utilityHelper::get_cols_from_array((array) $_participants[0]);
-
+                $_csv_cols = $_participants[0];
             }
 
             $_export_csv = utilityHelper::esporta_csv_spout($_participants, $_csv_cols, time() . '.csv');
@@ -2262,97 +1858,8 @@ HTML;
 
     }
 
-    public function attivazione_coupons_utenti_ep() {
-
-        $id_piattaforma = $this->_filterparam->id_piattaforma;
-        echo $this->attivazione_coupons_utenti($id_piattaforma);
-
-        $this->_japp->close();
-
-    }
-
-    // abilito i coupon in appoggio alla tabella di controllo
-    public function attivazione_coupons_utenti($id_piattaforma) {
-
-        try {
-
-            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id, coupon.id_gruppi AS gruppo_corso
-                        FROM #__gg_check_coupon_xml cpcheck
-                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
-                        INNER JOIN #__gg_coupon coupon ON cpcheck.codice_coupon = coupon.coupon
-                        WHERE cpcheck.coupon IS NULL";
-
-            $this->_db->setQuery($query);
-            $results = $this->_db->loadAssocList();
-
-            if (!is_array($results)
-                || count($results) == 0)
-                throw new Exception("Nessuna referenza disponibile", E_USER_ERROR);
-
-            $user_model = new gglmsModelUsers();
-            $this->_db->transactionStart();
-            $updates_arr = [];
-
-            foreach ($results as $key_result => $coupon) {
-
-                $update_coupon = "UPDATE #__gg_coupon
-                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ",
-                                        data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
-                                    WHERE coupon = " . $this->_db->quote($coupon['codice_coupon']);
-
-                // inserisco utente in gruppo corso
-                $insert_ug = $user_model->insert_user_into_usergroup($coupon['user_id'], $coupon['gruppo_corso']);
-                if (is_null($insert_ug))
-                    throw new Exception("Inserimento utente in gruppo corso fallito: " . $coupon['user_id'] . ", " . $coupon['gruppo_corso'], E_USER_ERROR);
-
-                $this->_db->setQuery($update_coupon);
-                if (!$this->_db->execute())
-                    throw new Exception("update coupon query ko -> " . $update_coupon, 1);
-
-                $updates_arr[] = $coupon['id_rif'];
-
-            }
-
-            if (count($updates_arr) == 0)
-                throw new Exception("Nessuna referenza aggiornata in coupons", E_USER_ERROR);
-
-            // aggiorno la tabella dei riferimenti
-            $update_refs = "UPDATE #__gg_check_coupon_xml
-                            SET coupon = 1
-                            WHERE id IN (" . implode(",", $updates_arr) . ") ";
-            $this->_db->setQuery($update_refs);
-            if (!$this->_db->execute())
-                throw new Exception("update refs query ko -> " . $update_coupon, 1);
-
-            $this->_db->transactionCommit();
-
-            return "Riferimenti aggiornati: " . count($updates_arr);
-        }
-        catch(Exception $e) {
-            $this->_db->transactionRollback();
-            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return 0;
-        }
-
-    }
-
-    // importazione corsi da file xml chiamata api
-    public function load_corsi_from_xml_ep() {
-
-        $id_piattaforma = $this->_filterparam->id_piattaforma;
-        echo $this->load_corsi_from_xml($id_piattaforma);
-
-        $this->_japp->close();
-
-    }
-
     // importazione corsi da file xml
-    public function load_corsi_from_xml($id_piattaforma = 16,
-        $ragione_sociale = "Utenti privati skillab",
-        $piva = "00000000000",
-        $email = "skillabfad@skillab.it",
-        $is_debug = false,
-        $lista_file_locali = array()) {
+    public function load_corsi_from_xml($id_piattaforma, $is_debug = false) {
 
         try {
 
@@ -2362,17 +1869,17 @@ HTML;
 
             $local_file = JPATH_ROOT . '/tmp/';
             if (!$is_debug) {
-                $get_corsi = UtilityHelper::get_xml_remote($local_file, true, __FUNCTION__);
+                $get_corsi = UtilityHelper::get_xml_remote($local_file, __FUNCTION__);
+                if (!is_array($get_corsi))
+                    throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
             }
             else {
-                $get_corsi = $lista_file_locali;
+                $get_corsi[] = 'GGCorsiElenco_210520101221.xml';
+                $get_corsi[] = 'GGCorsoIscritti_210520101221.xml';
             }
 
-            if (!is_array($get_corsi))
-                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
-
             // elaborazione dei corsi
-            $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file);
+            $arr_anagrafica_corsi = UtilityHelper::create_unit_group_corso($get_corsi, $local_file, __FUNCTION__);
             /*
              if (is_null($arr_anagrafica_corsi)
                 || count($arr_anagrafica_corsi) == 0)
@@ -2380,23 +1887,18 @@ HTML;
             */
 
             // elaborazione delle aziende e degli iscritti
-            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, $ragione_sociale, $piva, $email, __FUNCTION__);
+            $arr_iscrizioni = UtilityHelper::create_aziende_group_users_iscritti($get_corsi, $local_file, $id_piattaforma, __FUNCTION__);
             if (is_null($arr_iscrizioni)
                 || !is_array($arr_iscrizioni))
                 throw new Exception("Si è verificato un problema durante la generazione dei coupon", E_USER_ERROR);
 
             // invio email riferite ai coupon
             $genera_model = new gglmsModelGeneraCoupon();
-            $unita_model = new gglmsModelUnita();
-            $iscrizioni = false;
             foreach ($arr_iscrizioni as $piva_key => $single_gen) {
 
                 // informazioni dell'azienda per email
                 $company_infos = $arr_iscrizioni[$piva_key]['infos'];
-
                 $coupons = $arr_iscrizioni[$piva_key]['coupons'];
-                $registrati = $arr_iscrizioni[$piva_key]['registrati'];
-
                 $_html_users = "";
                 $_html_tutor = "";
                 $template = JPATH_COMPONENT . '/models/template/xml_coupons_mail.tpl';
@@ -2404,16 +1906,16 @@ HTML;
                 // get recipients --> tutor piattaforma (cc) + tutor aziendale (to)
                 $recipients = $genera_model->get_coupon_mail_recipients($company_infos['id_piattaforma'], $company_infos['id_gruppo_societa'], $company_infos['email_coupon'], true);
                 if (!$recipients)
-                    throw new Exception("Non ci sono tutor piattaforma configurati per questa piattaforma: " . print_r($company_infos, true), E_USER_ERROR);
+                    throw new Exception("Non ci sono tutor piattaforma configurati per questa piattaforma", E_USER_ERROR);
                 // get sender
                 $sender = $genera_model->get_mail_sender($company_infos['id_piattaforma'], true);
                 if (!$sender)
-                    throw new Exception("Non è configurato un indirizzo mail di piattaforma: " . print_r($company_infos, true), E_USER_ERROR);
+                    throw new Exception("Non è configurato un indirizzo mail di piattaforma", E_USER_ERROR);
 
                 $info_piattaforma = $genera_model->get_info_piattaforma($company_infos['id_piattaforma'], true);
                 if (is_null($info_piattaforma)
                     || !is_array($info_piattaforma))
-                    throw new Exception("Nessuna info piattaforma", E_USER_ERROR);
+                    throw new Exception("nessun info piattaforma", E_USER_ERROR);
 
                 // se viene fornita una mail a cui inviare i coupon  non la mando al tutor aziendale ma alla mail fornita
                 $to = $company_infos['email_coupon'] != '' ? $company_infos['email_coupon'] : $recipients["to"]->email;
@@ -2426,7 +1928,7 @@ HTML;
 
                 if ($info_piattaforma['mail_from_default'] == 1) {
 
-                    // ricavo alias e name dalla piattaforma di default
+                    //            ricavo alias e name dalla piattaforma di default
                     $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
                     if (is_null($piattaforma_default)
                         || !is_array($piattaforma_default))
@@ -2435,102 +1937,49 @@ HTML;
                     $info_piattaforma["alias"] = $piattaforma_default['alias'];
                     $info_piattaforma["name"] = $piattaforma_default['name'];
                     $info_piattaforma["dominio"] = $piattaforma_default['dominio'];
+                    //
                 }
 
                 $mailer = JFactory::getMailer();
                 $mailer->setSender($sender);
-                $mailer->addRecipient($to);
-                $mailer->addCc($recipients["cc"]);
+                if (!$is_debug) {
+                    $mailer->addRecipient($to);
+                    $mailer->addCc($recipients["cc"]);
+                }
+                else
+                    $mailer->addRecipient($this->mail_debug);
 
                 $mailer->setSubject('Coupon corso ' . $_info_corso["titolo"]);
 
                 // costituisco il corpo della email
                 // creato tutor aziendale
-                // inibito l'invio di email al tutor per eventuale creazione
-                // l'azienda riceverà un email unica che contiene tutti dati necessari
-                /*
                 if (isset($company_infos['company_user'])
                     && $company_infos['company_user'] != "") {
                     // nuovo tutor creato
-                    $template_tutor = JPATH_COMPONENT . '/models/template/xml_new_tutor_mail.tpl';
                     $tutor_infos = $company_infos['company_user'];
-
-                    $tutor_email_send = utilityHelper::invia_email_tutor_template($info_piattaforma["name"],
-                        $info_piattaforma["alias"],
-                        $info_piattaforma["dominio"],
-                        $tutor_infos['piva'],
-                        $tutor_infos['password'],
-                        $template_tutor,
-                        $sender,
-                        $this->mail_debug,
-                        $to,
-                        $recipients,
-                        $is_debug
-                    );
-
-                    if (is_null($tutor_email_send))
-                        throw new Exception("Errore durante l'invio della email di registrazione tutor", E_USER_ERROR);
-
-                    $iscrizioni = true;
-
-                } */
-
-                // nuovo tutor creato
-                if (isset($company_infos['company_user'])
-                    && $company_infos['company_user'] != "") {
-
-                        $tutor_infos = $company_infos['company_user'];
-
-                        $_html_tutor = <<<HTML
-                            <p>
-                            Le sue credenziali di accesso in qualit&agrave; di tutor aziendale sono:
-                            </p>
-                            <div style="font-family: monospace;">
-                                Username: {$tutor_infos['piva']} / Password: {$tutor_infos['password']}
-                            </div>
-                            <p>
-                                Di seguito le modalit&agrave; di primo accesso al portale
-                            </p>
-                            <p>
-                                Per i tutor: <br />
-                                <ul>
-                                    <li>
-                                        Username: P.IVA aziendale / password: P.IVA aziendale <br />
-                                        Nel caso di Libero professionista o altro in cui &egrave; stato indicato lo stesso
-                                        dato sia come Codice fiscale che P.IVA, sar&agrave; necessario anteporre <b>XX</b>
-                                        (es XX123456789 / XX123456789 oppure XXFGCBCF11A12A969C / XXFGCBCF11A12A969C)
-                                    </li>
-                                </ul>
-                            </p>
-                            <p>
-                                Per gli utenti: <br />
-                                <ul>
-                                    <li>Username: Codice fiscale / password: Codice fiscale</li>
-                                </ul>
-                            </p>
-                            <p>
-                            Suggeriamo di cambiare la propria password <b>(Menu Accedi/Registrati > Modifica Dati)</b>.
-                            <br />
-                            Se necessita di recuperare le credenziali contatti l’helpdesk tecnico.
-                            </p>
+                    $_html_tutor = <<<HTML
+                    <p>
+                        La informiamo che è stato creato un account aziendale sulla piattaforma <a href="https://{$info_piattaforma['dominio']}">{$info_piattaforma["alias"]}</a>
+                    </p>
+                    <p>
+                        Per accedere in qualità di tutor aziendale e monitorare la formazione degli utenti, è possibile utilizzare le seguenti credenziali:
+                    </p>
+                    <div style="font-family: monospace;">
+                        <b> USERNAME:</b> {$tutor_infos['piva']}
+                        <br />
+                        <b> PASSWORD:</b> {$tutor_infos['password']}
+                    </div>
 HTML;
                 }
-
                 // creati utenti
                 if (isset($company_infos['new_users'])
                     && is_array($company_infos['new_users'])
                     && count($company_infos['new_users']) > 0) {
                     $_html_users = <<<HTML
-                        <p>
-                        In questa mail trover&agrave; gli account creati per i nuovi utenti non ancora registrati in piattaforma.
-                        Sia username che password corrispondono al codice fiscale (suggeriamo agli utenti di cambiare la propria password al primo accesso).
-                        Gli utenti gi&agrave; registrati dovranno invece continuare a utilizzare le credenziali gi&agrave; in loro possesso
-                        </p>
-                        <p>
-                            <h3>Ecco le credenziali per gli utenti non ancora registrati alla piattaforma https://{$info_piattaforma["dominio"]}</h3>
-                        </p>
-                        <div style="font-family: monospace;">
+                    <p>Nuovi utenti creati:</p>
+                    <div style="font-family: monospace;">
 HTML;
+
                     foreach ($company_infos['new_users'] as $key_user => $user) {
 
                         $_html_users .= <<<HTML
@@ -2538,79 +1987,44 @@ HTML;
                         <br />
 HTML;
                     }
-                    $_html_users .= <<<HTML
-                        </div>
-HTML;
 
-                    $iscrizioni = true;
-                }
-                else {
-                    $_html_users = <<<HTML
-                    <p>
-                        <b>Tutti gli utenti iscritti sono gi&agrave; in possesso di un account e possono accedere con le proprie credenziali.</b>
-                    </p>
+                    $_html_users .= <<<HTML
+                    </div>
 HTML;
                 }
 
                 $_html_coupons = "";
                 $coupons_count = 0;
-                $arr_coupons = [];
-                foreach ($coupons as $coupon_key => $sub_coupon) {
+                foreach ($coupons as $coupon_key => $sub_arr) {
 
-                    foreach ($sub_coupon as $sub_coupon_key => $coupon) {
+                    foreach ($sub_arr as $sub_key => $coupon) {
                         $_html_coupons .= <<<HTML
                         {$coupon} <br />
 HTML;
-                        $arr_coupons[] = $coupon;
                     }
 
                     $coupons_count++;
                 }
 
-                // loop registrati per corso
-                if (is_array($registrati)
-                    && count($registrati) > 0) {
+                $smarty = new EasySmarty();
+                $smarty->assign('coupons', $_html_coupons);
+                $smarty->assign('coupons_count', $coupons_count);
+                $smarty->assign('course_name', $_info_corso["titolo"]);
+                $smarty->assign('company_name', $company_infos['nome_societa']);
+                $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
+                $smarty->assign('recipient_name', $recipients["to"]->name);
+                $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
+                $smarty->assign('company_tutor', $_html_tutor);
+                $smarty->assign('company_users', $_html_users);
 
-                    $cc = 0;
-                    foreach ($registrati as $reg_key => $reg) {
+                $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
+                $mailer->isHTML(true);
 
-                        if ($reg == "" || strpos($reg, "|") === false)
-                            continue;
-
-                        $expl_reg = explode("|", $reg);
-                        $insert_check_user = $unita_model->insert_utenti_iscritti_xml($expl_reg[0], $expl_reg[1], $arr_coupons[$cc]);
-
-                        $cc++;
-
-                    }
+                if (!$mailer->Send()) {
+                    utilityHelper::logMail(__FUNCTION__, $sender, $recipients, 0);
                 }
 
-                if (!$is_debug) {
-
-                    $smarty = new EasySmarty();
-                    //$smarty->assign('coupons', $_html_coupons);
-                    //$smarty->assign('coupons_count', $coupons_count);
-                    $smarty->assign('course_name', $_info_corso["titolo"]);
-                    $smarty->assign('company_name', $company_infos['nome_societa']);
-                    $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
-                    $smarty->assign('recipient_name', $recipients["to"]->name);
-                    $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
-                    $smarty->assign('company_users', $_html_users);
-                    $smarty->assign('creazione_tutor', $_html_tutor);
-
-                    $mailer->setBody($smarty->fetch_template($template, null, true, false, 0));
-                    $mailer->isHTML(true);
-
-                    $email_status = 1;
-
-                    if (!$mailer->Send())
-                        $email_status = 0;
-
-                    utilityHelper::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
-
-                }
             }
-
             echo 1;
         }
         catch (Exception $e) {
@@ -2741,10 +2155,8 @@ HTML;
                 }
 
                 // data inizio / data fine corso nel formato Y-m-d
-                if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso']) {
-                    //$arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
-                    $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['data_inizio_corso'] . '||' . $sub_res['data_fine_corso'];
-                }
+                if ($sub_res['dt_inizio_corso'] != "" && $sub_res['dt_fine_corso'])
+                    $arr_dt_corsi[$sub_res['id_corso']] = $sub_res['dt_inizio_corso'] . '||' . $sub_res['dt_fine_corso'];
 
                 $arr_gruppi[$sub_res['id_corso']] = $sub_res['gruppo_corso'];
             }
@@ -2783,6 +2195,119 @@ HTML;
         }
 
         //$this->_japp->close();
+    }
+
+    // per sistemare il riordino delle anagrafiche dei corsi e relativa visualizzazione dei riferimenti a coupon nella tabella report
+    public function fix_coupon_adesioni($old_gruppo, $arr_servizi)
+    {
+
+        /*
+        SERVIZI
+        231 -> 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433
+        */
+        /*
+        LA FARMACIA
+        297 -> 434, 435, 436
+        */
+        try {
+
+            $generation_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $generated_coupon_code = [];
+            $generated_id_iscrizione = [];
+            $codice_coupon = "";
+            $id_iscrizione = "";
+            $servizi_inserted = 0;
+            $delete_servizi = [];
+
+            $query = "SELECT *
+                        FROM #__gg_coupon
+                        WHERE id_gruppi = " . $this->_db->quote($old_gruppo);
+
+            $this->_db->setQuery($query);
+            $rif_servizi = $this->_db->loadAssocList();
+
+            // esistono riferimenti
+            if (count($rif_servizi)) {
+
+                $this->_db->transactionStart();
+
+                foreach ($rif_servizi as $key_servizio => $servizio) {
+
+                    $insert_query = "INSERT INTO #__gg_coupon (
+                        coupon,
+                        id_utente,
+                        gruppo,
+                        creation_time,
+                        abilitato,
+                        id_iscrizione,
+                        data_utilizzo,
+                        data_abilitazione,
+                        durata,
+                        id_societa,
+                        id_gruppi
+                    ) VALUES ";
+
+                    foreach ($arr_servizi as $key_gruppo => $id_gruppi) {
+
+                        // codice coupon
+                        $codice_coupon = 'X-' . substr(str_shuffle($generation_chars), 0, 32);
+                        while(!in_array($codice_coupon, $generated_coupon_code)) {
+                            $codice_coupon = 'X-' . substr(str_shuffle($generation_chars), 0, 32);
+                            $generated_coupon_code[] = $codice_coupon;
+                        }
+
+                        // id iscrizione
+                        $id_iscrizione = $servizio['gruppo'] . '_' . substr(str_shuffle($generation_chars), 0, 16) . '_' . $servizio['id_utente'];
+                        while(!in_array($id_iscrizione, $generated_id_iscrizione)) {
+                            $id_iscrizione = $servizio['gruppo'] . '_' . substr(str_shuffle($generation_chars), 0, 16) . '_' . $servizio['id_utente'];
+                            $generated_id_iscrizione[] = $id_iscrizione;
+                        }
+
+                        $insert_query .= "
+                            (
+                                " . $this->_db->quote($codice_coupon) . ",
+                                " . $this->_db->quote($servizio['id_utente']) . ",
+                                " . $this->_db->quote($servizio['gruppo']) . ",
+                                " . $this->_db->quote($servizio['creation_time']) . ",
+                                " . $this->_db->quote($servizio['abilitato']) . ",
+                                " . $this->_db->quote($id_iscrizione) . ",
+                                " . $this->_db->quote($servizio['data_utilizzo']) . ",
+                                " . $this->_db->quote($servizio['data_abilitazione']) . ",
+                                " . $this->_db->quote($servizio['durata']) . ",
+                                " . $this->_db->quote($servizio['id_societa']) . ",
+                                " . $this->_db->quote($id_gruppi) . "
+                            ),
+                        ";
+
+                    }
+
+                    $insert_query = rtrim(trim($insert_query), ",") . ";";
+                    $this->_db->setQuery($insert_query);
+                    if (!$this->_db->execute()) throw new Exception("Query inserimento gg_coupon utente: " . $insert_query, E_USER_ERROR);
+
+                    $delete_servizi[] = $servizio['coupon'];
+                    $servizi_inserted++;
+
+                }
+
+                // cancello tutti i coupon vecchi associati al gruppo corso estinto
+                $imp = "'" . implode( "','", $delete_servizi) . "'";
+                $delete_query = "DELETE FROM #__gg_coupon WHERE coupon IN (" . $imp . ")";
+                $this->_db->setQuery($delete_query);
+                if (!$this->_db->execute()) throw new Exception("Query cancellazione vecchi riferimenti coupon: " . $delete_query, E_USER_ERROR);
+
+                $this->_db->transactionCommit();
+
+            } // servizi
+
+            return "SONO STATI INSERITI " . $servizi_inserted . ", SONO STATI CANCELLATI " . count($delete_servizi);
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            return __FUNCTION__ . " - FIX NON COMPLETATO: " . $e->getMessage();
+        }
+
     }
 
     // rintraccia tutti gli utenti dei report senza riferimenti in anagrafica, la crea ed aggiorna i riferimenti nelle tabelle dei report
@@ -2923,100 +2448,1686 @@ HTML;
         return "UPDATED: " . $updated;
     }
 
-    //generazione del coupon da una chiamata api per sbloccare un corso come demo
-    public function genera_coupon_demo_api() {
+    // utility per inviare email da dominio di appoggio per procedure cli
+    // richiede i parametri function_name=importa_anagrafica_farmacie&db_target (opzionale)
+    public function get_debug_log() {
 
         try {
 
-            $id_user = $this->_filterparam->user_id;
-            $id_gruppo = $this->_filterparam->gruppo_id;
+            if (is_null($this->_filterparam->function_name)
+                || $this->_filterparam->function_name == "")
+                throw new Exception("Nessun nome di funzione definito", E_USER_ERROR);
 
-            if (!isset($id_user)
-                || !isset($id_gruppo)
-                || !is_numeric($id_user)
-                || !is_numeric($id_gruppo))
-                throw new Exception("id_gruppo e id_user devono essere di tipo numerico", 1);
+            // importa_anagrafica_farmacie_master_gg_dev_error
+            $where_build = $this->_filterparam->function_name;
+            $where_build .= (!is_null($this->_filterparam->db_target) && $this->_filterparam->db_target != "") ? "_" . $this->_filterparam->db_target : "";
+            $where_build .= "_error";
+            $dt_ref = date('Y-m-d');
+            $email_dest = (!is_null($this->_filterparam->to) && $this->_filterparam->to != "") ? $this->_filterparam->to : $this->mail_debug;
 
+            $query = $this->_db->getQuery(true)
+                ->select('messaggio')
+                ->from('#__gg_error_log')
+                ->where('messaggio LIKE ' . $this->_db->quote('%' . $where_build . '%'))
+                ->where('timestamp LIKE ' . $this->_db->quote($dt_ref . '%'))
+                ->order('id DESC');
 
-           $genera_coupon =  utilityHelper::genera_coupon_demo($id_user, $id_gruppo);
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
 
-            if(!isset($genera_coupon))
-                throw new Exception("Errore nella generazione del coupon demo", 1);
+            if (is_null($result)
+                || !isset($result['messaggio'])
+                || $result['messaggio'] == "")
+                throw new Exception("Nessun riferimento trovato nei log", 1);
 
-        } catch(Exception $e) {
+            $_response = preg_replace('/\s/', '', $result['messaggio']);
+            $_response = str_replace($where_build . ":", "", $_response);
+            $_response = str_replace($this->_filterparam->function_name . ":", "", $_response);
+            $_response = str_replace('\\n', '<br/>', $_response);
 
-            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_demo');
-            DEBUGG::error($e, __FUNCTION__, 1, true);
+            UtilityHelper::send_email("Errore " . $where_build, $_response, array($email_dest));
+
+            echo "email inviata";
+
         }
+        catch (Exception $e) {
+            echo "Errore: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
 
     }
 
-    //generazione di report quiz dettagliato con domande e risposte
-    public function get_report_dettaglio_quiz()
-    {
+    // importazione dell'anagrafica della farmacie da chiamata API
+    public function importa_master_farmacie($db_host = null,
+                                            $db_user = null,
+                                            $db_password = null,
+                                            $db_database = null,
+                                            $db_prefix = null,
+                                            $db_driver = null,
+                                            $is_debug = false,
+                                            $from_local = '') {
 
-     try{
-         $id_quiz = $this->_filterparam->id_quiz;
+        $exists_check = array();
+        $db_option = array();
 
-         if(!isset($id_quiz)
-             || !is_numeric($id_quiz))
-             throw new Exception("id_quiz devono essere di tipo numerico", 1);
+        try {
 
-         $contenuto_model = new gglmsModelContenuto();
+            // gestisco la chiamata per andare su di un altro database
+            if (!is_null($db_host)) {
 
-         $user_questions_survey = $contenuto_model->get_quiz_response_survey($id_quiz);
-         $user_questions_choice = $contenuto_model->get_quiz_response_choice($id_quiz);
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
 
-         if(!isset($user_questions_survey) || !is_array($user_questions_survey))
-             throw new Exception("Erore nella generazione di quiz survey", 1);
-
-         if(!isset($user_questions_choice) || !is_array($user_questions_choice))
-             throw new Exception("Erore nella generazione di quiz choice", 1);
-
-         $user_questions = array();
-         $key_prec = '';
-
-        foreach ($user_questions_choice as $key_choice=>$choice){
-
-            if ($choice['Id_user_quiz'] != $key_prec){
-                foreach ($user_questions_survey as $key_survey=>$survey){
-
-                if($survey['Id_user_quiz'] == $choice['Id_user_quiz']){
-
-                    if(array_key_exists('Domanda',$survey))
-                        $survey['Domanda'] = strip_tags($survey['Domanda']);
-                    $key_prec = $survey['Id_user_quiz'];
-                    array_push($user_questions,$survey);
-                }
-
-               }
+                $this->_db = JDatabaseDriver::getInstance($db_option);
             }
 
-            if(array_key_exists('Domanda',$survey))
-                $choice['Domanda'] = strip_tags($choice['Domanda']);
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie', $db_option);
+            $api_endpoint_farmacie = utilityHelper::get_ug_from_object($_params, "api_endpoint_farmacie");
+            $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
+            $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
 
-            array_push($user_questions,$choice);
+            $local_file = JPATH_ROOT . '/tmp/';
+            $filename = "master_farmacie.csv";
+            if (isset($this->_filterparam->force_debug))
+                $is_debug = true;
+
+            // provo a scaricare il master delle farmacie
+            $farmacie = utilityHelper::get_csv_remote($api_endpoint_farmacie, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug, $from_local);
+            if (!$farmacie)
+                throw new Exception("Impossibile continuare, si è verificato un errore durante lo scaricamento di " . $filename , E_USER_ERROR);
+
+            // la piattaforma di default del sistema
+            $genera_model = new gglmsModelgeneracoupon();
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true, $db_option);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+            /*
+            // una volta scaricato devo confrontare eventuali differenze nelle anagrafiche
+            $model_user = new gglmsModelUsers();
+            $local_master = $model_user->get_all_farmacie();
+
+            // se il master non è vuoto devo controllare eventuali modifiche
+            if ($local_master) {
+                // controllo delle anagrafiche
+            }
+            */
+
+            // inserisco in tabella master e creo i gruppi sulla denominazione
+            $this->_db->transactionStart();
+            //$query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
+            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 2";
+
+            $this->_db->setQuery($query_truncate);
+            if (!$this->_db->execute())
+                throw new Exception("Query troncamento #__gg_master_farmacie fallita!", E_USER_ERROR);
+
+            $query_insert = "INSERT INTO #__gg_master_farmacie
+                                (id,
+                                hh_store_code,
+                                ragione_sociale,
+                                comune,
+                                tipologia,
+                                legale_rappresentante,
+                                hh_status,
+                                ordine,
+                                partita_iva,
+                                indirizzo,
+                                cap,
+                                regione,
+                                nazione,
+                                telefono,
+                                longitudine,
+                                latitudine,
+                                sigla_prov) VALUES ";
+
+            $insert_farmacia = "";
+            $arr_insert = array();
+            $miss_check = array();
+            // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
+            // inietto HIPPOCRATES HOLDING che non viene passato dalla chiamata API per i dipendenti interni
+            $arr_ragsoc = ['ITALSALUTE SRL', 'HIPPOCRATES HOLDING'];
+            $counter = 1;
+            $farma_id = 3;
+            foreach ($farmacie as $key_farmacia => $farmacia) {
+
+                // per gestire eventuali codici a 5 cifre è necessario effettuare un controllo
+                $hh_store_code = trim($farmacia[0]);
+                if (strlen($hh_store_code) < 6)
+                    $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+
+                $ragione_sociale = trim($farmacia[3]);
+                $comune = trim($farmacia[4]);
+                $tipologia = trim($farmacia[6]);
+                $legale_rappresentante = trim($farmacia[7]);
+                $hh_status = trim($farmacia[8]);
+                $ordine = trim($farmacia[9]);
+                $partita_iva = trim($farmacia[13]);
+                $indirizzo = trim($farmacia[14]);
+                $cap = trim($farmacia[15]);
+                $regione = trim($farmacia[16]);
+                $nazione = trim($farmacia[17]);
+                $telefono = trim($farmacia[18]);
+                $longitudine = trim($farmacia[19]);
+                $latitudine = trim($farmacia[20]);
+                $sigla_prov = trim($farmacia[28]);
+
+
+                // se non è impostata il codice di riferimento per gli utenti o la ragione sociale continuo
+                if ($hh_store_code == ""
+                    || $ragione_sociale == "") {
+                    $miss_check[] = $counter;
+                    $counter++;
+                    continue;
+                }
+
+                // se piva esiste non inserisco di nuovo
+                if (in_array($hh_store_code, $exists_check))
+                    continue;
+
+                $insert_farmacia =  "(" .
+                    $farma_id . "," .
+                    $this->_db->quote($hh_store_code) . "," .
+                    $this->_db->quote($this->_db->escape($ragione_sociale)) . "," .
+                    $this->_db->quote($this->_db->escape($comune)) . "," .
+                    $this->_db->quote($tipologia) . "," .
+                    $this->_db->quote($this->_db->escape($legale_rappresentante)) . "," .
+                    $this->_db->quote($hh_status) . "," .
+                    $this->_db->quote($ordine) . "," .
+                    $this->_db->quote($partita_iva) . "," .
+                    $this->_db->quote($this->_db->escape($indirizzo)) . "," .
+                    $this->_db->quote($cap) . "," .
+                    $this->_db->quote($this->_db->escape($regione)) . "," .
+                    $this->_db->quote($this->_db->escape($nazione)) . "," .
+                    $this->_db->quote($telefono) . "," .
+                    $this->_db->quote($longitudine) . "," .
+                    $this->_db->quote($latitudine) . "," .
+                    $this->_db->quote($sigla_prov)
+                    . "),";
+
+                $arr_insert[] = $insert_farmacia;
+                $exists_check[] = $hh_store_code;
+
+                if (!in_array($ragione_sociale, $arr_ragsoc))
+                    $arr_ragsoc[] = $ragione_sociale;
+
+                $counter++;
+                $farma_id++;
+
+            }
+
+
+            $_arr_query_chunked = array_chunk($arr_insert, 500);
+
+            foreach ($_arr_query_chunked as $key => $sub_query) {
+
+                $_executed_query = "";
+
+                foreach ($sub_query as $kk => $vv) {
+
+                    $_executed_query .= $vv;
+
+                }
+
+                $_executed_query = (substr(trim($_executed_query), -1) == ",") ? substr(trim($_executed_query), 0, -1) : $_executed_query;
+                $_row_query = $query_insert . $_executed_query . ";";
+
+                $this->_db->setQuery($_row_query);
+                if (!$this->_db->execute())
+                    throw new Exception("Query inserimento master farmacie fallita:
+                    " . $_row_query, E_USER_ERROR);
+
+            }
+
+            // finito questo giro creo tutti i gruppi relativi alle farmacie
+            foreach ($arr_ragsoc as $key_ragsoc => $ragsoc) {
+
+                // controllo l'esistenza del gruppo qualifica
+                $ug_farmacia = utilityHelper::check_usergroups_by_name($ragsoc, $db_option);
+                // se lo usergroup non esiste lo creo
+                if (is_null($ug_farmacia)) {
+                    $ug_farmacia = utilityHelper::insert_new_usergroups($ragsoc, $piattaforma_default['id'], false, $db_option);
+
+                    if (is_null($ug_farmacia))
+                        throw new Exception("Errore durante l'inserimento dello usergroup " . $ragsoc, E_USER_ERROR);
+
+                }
+
+                $update_ug = "UPDATE #__gg_master_farmacie
+                                    SET id_gruppo = " . $this->_db->quote($ug_farmacia) . "
+                                    WHERE ragione_sociale = " . $this->_db->quote(addslashes(trim($ragsoc)));
+
+                $this->_db->setQuery($update_ug);
+                if (!$this->_db->execute())
+                    throw new Exception("Query aggiornamento usergroup master farmacie fallita:
+                    " . $update_ug, E_USER_ERROR);
+
+            }
+
+            $rebuild = utilityHelper::rebuild_ug_index(null, $db_option);
+
+            $this->_db->transactionCommit();
+
+            return 1;
 
         }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            $_err_msg = $e->getMessage() . "\n" . print_r($exists_check, true);
+            UtilityHelper::make_debug_log(__FUNCTION__, $_err_msg, __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
 
-         $_csv_cols = utilityHelper::get_cols_from_array((array) $user_questions[0]);
+            // solo in produzione e non in cli
+            if (!$is_debug && is_null($db_host))
+                UtilityHelper::send_email("Errore " . __FUNCTION__, $_err_msg, array($this->mail_debug));
 
-        $_export_csv = utilityHelper::esporta_csv_spout($user_questions , $_csv_cols, time() . '.csv');
+            return 0;
+        }
 
-        // chiusura della finestra dopo generazione del report
-$_html = <<<HTML
+        $this->_japp->close();
+
+    }
+
+    // importazione anagrafica dipendenti delle farmacie da API
+    // oppure in locale se si tratta di LP (esempio) from_local è il nome file che attesta se fare riferimento a questo file che si trova nella cartella JPATH_ROOT/tmp/
+    public function importa_anagrafica_farmacie($db_host = null,
+                                                $db_user = null,
+                                                $db_password = null,
+                                                $db_database = null,
+                                                $db_prefix = null,
+                                                $db_driver = null,
+                                                $is_debug = false,
+                                                $from_local = '') {
+
+        try {
+
+            $db_option = array();
+
+            /*
+             * In fase di importazione devo creare un gruppo relativo a cb_descrizione_qualifica
+             * a cui l'utente sarà poi associato
+             * */
+
+            // gestisco la chiamata per andare su di un altro database
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $this->_db = JDatabaseDriver::getInstance( $db_option );
+            }
+
+            $local_file = JPATH_ROOT . '/tmp/';
+            $_new_user = array();
+            $_new_user_cp = array();
+            $arr_farmacie = array();
+            $jumped = array();
+            $inserted_ug = false;
+            $counter = 1;
+
+            $get_farmacie = null;
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie', $db_option);
+            // scarico il file csv dal repository remoto
+            $api_endpoint_dipendenti = utilityHelper::get_ug_from_object($_params, "api_endpoint_dipendenti");
+            $api_user_auth = utilityHelper::get_ug_from_object($_params, "api_user_auth");
+            $api_user_password = utilityHelper::get_ug_from_object($_params, "api_user_password");
+            $filename = "anagrafica_dipendenti.csv";
+
+            // array dei codici qualifica, necessario per categorizzare i gruppi professione degli utenti
+            $gruppi_qualifica = utilityHelper::get_codici_qualifica_farmacie($db_option);
+            if (is_null($gruppi_qualifica))
+                throw new Exception("Impossibile continuare, nessun codice qualifica trovato", E_USER_ERROR);
+
+            $get_farmacie = utilityHelper::get_csv_remote($api_endpoint_dipendenti, $api_user_auth, $api_user_password, $local_file, $filename, false, $is_debug, $from_local);
+
+            if (!is_array($get_farmacie)
+                || is_null($get_farmacie))
+                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+
+            // la piattaforma di default del sistema
+            $genera_model = new gglmsModelgeneracoupon();
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true, $db_option);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+            $model_user = new gglmsModelUsers();
+
+            // mapputura dei campi da modulo
+            $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name', $db_option);
+            $_campo_cb_filiale = utilityHelper::get_cb_field_name($_params, 'campo_cb_filiale', 'name', $db_option);
+            $_campo_cb_matricola = utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name', $db_option);
+            $_campo_cb_cognome = utilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name', $db_option);
+            $_campo_cb_nome = utilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name', $db_option);
+            $_campo_cb_codicefiscale = utilityHelper::get_cb_field_name($_params, 'campo_cb_codicefiscale', 'name', $db_option);
+            $_campo_cb_data_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name', $db_option);
+            $_campo_cb_codice_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_comune_nascita', 'name', $db_option);
+            $_campo_cb_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_nascita', 'name', $db_option);
+            $_campo_cb_pv_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_nascita', 'name', $db_option);
+            $_campo_cb_indirizzo_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo_residenza', 'name', $db_option);
+            $_campo_cb_cap_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_cap_residenza', 'name', $db_option);
+            $_campo_cb_comune_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_residenza', 'name', $db_option);
+            $_campo_cb_pv_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_residenza', 'name', $db_option);
+            $_campo_cb_data_assunzione = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_assunzione', 'name', $db_option);
+            $_campo_cb_data_inizio_rapporto = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_inizio_rapporto', 'name', $db_option);
+            $_campo_cb_data_licenziamento = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_licenziamento', 'name', $db_option);
+            $_campo_cb_stato_dipendente = utilityHelper::get_cb_field_name($_params, 'campo_cb_stato_dipendente', 'name', $db_option);
+            $_campo_cb_descrizione_qualifica = utilityHelper::get_cb_field_name($_params, 'campo_cb_descrizione_qualifica', 'name', $db_option);
+            $_campo_cb_email = utilityHelper::get_cb_field_name($_params, 'campo_cb_email', 'name', $db_option);
+            $_campo_cb_codice_esterno_cdc_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_2', 'name', $db_option);
+            $_campo_cb_codice_esterno_cdc_3 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_3', 'name', $db_option);
+            $_campo_cb_esterno_rep_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_esterno_rep_2', 'name', $db_option);
+
+            $this->_db->transactionStart();
+
+            // grande loop di inserimento degli utenti
+            // la chiave per controllare l'esistenza dell'utente sarà il codice fiscale impostato anche come username
+            foreach ($get_farmacie as $row_key => $row_arr) {
+                // colonna 0 - anno - no
+                // colonna 1 - mese - no
+                // colonna 2 - azienda - si
+                $cb_azienda = trim($row_arr[2]);
+                // colonna 3 - filiale - si
+                $cb_filiale = trim($row_arr[3]);
+                // colonna 4 - ragione sociale - no
+                // colonna 5 - descrizione filiale - no
+                // colonna 6 - matricola - si
+                $cb_matricola = trim($row_arr[6]);
+                // colonna 7 - cognome - si
+                $cb_cognome = utilityHelper::normalizza_stringa($row_arr[7]);
+                // colonna 8 - nome - si
+                $cb_nome = utilityHelper::normalizza_stringa($row_arr[8]);
+                // colonna 9 - codice fiscale - si
+                $cb_codicefiscale = trim($row_arr[9]);
+                // colonna 10 - data di nascita - si
+                $cb_data_nascita = utilityHelper::convert_dt_in_mysql(trim($row_arr[10]));
+                // colonna 11 - codice comune di nascita - si
+                $cb_codice_comune_nascita = trim($row_arr[11]);
+                // colonna 12 - comune di nascita - si
+                $cb_comune_nascita = trim($row_arr[12]);
+                // colonna 13 - provincia di nascita - si
+                $cb_pv_nascita = trim($row_arr[13]);
+                // colonna 14 - indirizzo di residenza - si
+                $cb_indirizzo_residenza = trim($row_arr[14]);
+                // colonna 15 - cap di residenza - si
+                $cb_cap_residenza = trim($row_arr[15]);
+                // colonna 16 - comune di residenza - si
+                $cb_comune_residenza = trim($row_arr[16]);
+                // colonna 17 - provincia di residenza - si
+                $cb_pv_residenza = trim($row_arr[17]);
+                // colonna 18 - data assunzione - si
+                $cb_data_assunzione = utilityHelper::convert_dt_in_mysql(trim($row_arr[18]));
+                // colonna 19 - data licenziamento - si
+                $cb_data_licenziamento = utilityHelper::convert_dt_in_mysql(trim($row_arr[19]));
+                // colonna 20 - stato del dipendente - si
+                $cb_stato_dipendente = trim($row_arr[20]);
+                // colonna 21 - Cod.tab.qualifica - in base a questo si decide il gruppo di appartenenza dell'utente
+                $codice_tab_qualifica = trim($row_arr[21]);
+                // colonna 22 - descrizione qualifica - si
+                // questo campo se uguale a DIRETTORE FARMACIA lo elegge a tutor aziendale
+                // al momento però non è richiesta questa differenziazione
+                $cb_descrizione_qualifica = utilityHelper::normalizza_stringa($row_arr[22]);
+                // colonna 23 - email - si
+                $cb_email = trim($row_arr[23]);
+                // colonna 24 - codice esterno cdc 2 - si
+                $cb_codice_esterno_cdc_2 = trim($row_arr[24]);
+                // colonna 25 - codice esterno cdc 3 - si
+                // chiave univoca per fare riferimento al master delle farmacie
+                // per gestire eventuali codici a 5 cifre è necessario effettuare un controllo
+                $cb_codice_esterno_cdc_3 = trim($row_arr[25]);
+                if (strlen($cb_codice_esterno_cdc_3) < 6)
+                    $cb_codice_esterno_cdc_3 = str_pad((string)$cb_codice_esterno_cdc_3, 6, '0', STR_PAD_LEFT);
+
+                // colonna 26 - codice esterno rep 2 - si
+                $cb_esterno_rep_2 = (isset($row_arr[26]) && !is_null($row_arr[26]) && $row_arr[26] != "") ? trim($row_arr[26]) : "";
+                // colonna 27 - data inizio rapporti - si
+                $cb_data_inizio_rapporto = utilityHelper::convert_dt_in_mysql(trim($row_arr[27]));
+
+                // controllo se la data di licenziamento è maggiore di oggi
+                if (!is_null($cb_data_licenziamento)
+                    && $cb_data_licenziamento != ""
+                    && utilityHelper::check_dt_major(date('Y-m-d'), $cb_data_licenziamento))
+                    $cb_stato_dipendente = 9;
+                else
+                    $cb_stato_dipendente = (is_null($cb_stato_dipendente) || $cb_stato_dipendente == "") ? 0 : $cb_stato_dipendente;
+
+                $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, false, $db_option);
+                $_new_user_id = null;
+                $new_user = false;
+                $ug_qualifica = null;
+                $master_farmacia = null;
+                $ug_farmacia = null;
+
+                // per il momento non restituisco errore ma vado avanti nell'inserimento delle utenze
+                if (is_null($cb_codicefiscale)
+                    || $cb_codicefiscale == "") {
+                    $jumped[] = "Riferimento a codice fiscale non valorizzato -> riga: " . $counter . " -> " . $cb_email . " | " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // codice di riferimento che lega l'utente ad una farmacia
+                if (is_null($cb_codice_esterno_cdc_3)
+                    || $cb_codice_esterno_cdc_3 == "") {
+                    $jumped[] = "Riferimento a codice_esterno_cdc_3 non valorizzato -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // codice che determina la qualifica dell'utente
+                if (is_null($codice_tab_qualifica)
+                    || $codice_tab_qualifica == ""
+                    || (int) $codice_tab_qualifica == 0) {
+                    $jumped[] = "Riferimento a codice_tab_qualifica non valorizzato -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // email dell'utente
+                if (is_null($cb_email)
+                    || $cb_email == "") {
+                    $jumped[] = "Riferimento a email non valorizzato -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // validita email
+                if (!filter_var($cb_email, FILTER_VALIDATE_EMAIL)) {
+                    $jumped[] = "Riferimento a email non valida -> CF: " . $cb_codicefiscale;
+                    continue;
+                }
+
+                // carico la farmacia di riferimento in relazione al $cb_codice_esterno_cdc_3
+                if (!in_array($cb_codice_esterno_cdc_3, $arr_farmacie)) {
+                    $master_farmacia = $model_user->get_farmacie($cb_codice_esterno_cdc_3, $db_option);
+
+                    if (is_null($master_farmacia)) {
+                        $jumped[] = "Impossibile specificare il gruppo farmacia per " . $cb_codice_esterno_cdc_3;
+                        continue;
+                    }
+
+                    // associo il gruppo alla farmacia in base al codice
+                    $arr_farmacie[$cb_codice_esterno_cdc_3] = $master_farmacia['id_gruppo'];
+                }
+
+                $ug_farmacia = $arr_farmacie[$cb_codice_esterno_cdc_3];
+
+                // utente non esistente che quindi va creato
+                if (is_null($check_user_id)) {
+                    $_new_user['name'] = addslashes($cb_nome) . " " . addslashes($cb_cognome);
+                    $_new_user['username'] = $cb_codicefiscale;
+                    $_new_user['email'] = $cb_email;
+                    $password = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+                    $_new_user['password'] = JUserHelper::hashPassword($password);
+
+                    // imposto l'utente bloccato a priori
+                    // se licenziato l'utente va bloccato
+                    // if ((int) $cb_stato_dipendente == 9)
+                    $_new_user['block'] = 1;
+
+                    $_user_insert_query = UtilityHelper::get_insert_query("users", $_new_user);
+                    $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query, true, $db_option);
+                    if (!is_array($_user_insert_query_result))
+                        throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result . " -> query: " . $_user_insert_query, E_USER_ERROR);
+
+                    $_new_user_id = $_user_insert_query_result['success'];
+                    // riferimento id per CP
+                    $_new_user_cp['id'] = $_new_user_id;
+                    $_new_user_cp['user_id'] = $_new_user_id;
+
+                    $new_user = true;
+                }
+
+                // cablo i campi per popolare CB
+                $_new_user_cp[$_campo_cb_azienda] = $cb_azienda;
+                $_new_user_cp[$_campo_cb_filiale] = addslashes($cb_filiale);
+                $_new_user_cp[$_campo_cb_matricola] = $cb_matricola;
+                $_new_user_cp[$_campo_cb_cognome] = addslashes($cb_cognome);
+                $_new_user_cp[$_campo_cb_nome] = addslashes($cb_nome);
+                $_new_user_cp[$_campo_cb_codicefiscale] = $cb_codicefiscale;
+                $_new_user_cp[$_campo_cb_data_nascita] = $cb_data_nascita;
+                $_new_user_cp[$_campo_cb_codice_comune_nascita] = $cb_codice_comune_nascita;
+                $_new_user_cp[$_campo_cb_comune_nascita] = addslashes($cb_comune_nascita);
+                $_new_user_cp[$_campo_cb_pv_nascita] = addslashes($cb_pv_nascita);
+                $_new_user_cp[$_campo_cb_indirizzo_residenza] = addslashes($cb_indirizzo_residenza);
+                $_new_user_cp[$_campo_cb_cap_residenza] = $cb_cap_residenza;
+                $_new_user_cp[$_campo_cb_comune_residenza] = addslashes($cb_comune_residenza);
+                $_new_user_cp[$_campo_cb_pv_residenza] = $cb_pv_residenza;
+                $_new_user_cp[$_campo_cb_data_assunzione] = $cb_data_assunzione;
+                $_new_user_cp[$_campo_cb_data_inizio_rapporto] = $cb_data_inizio_rapporto;
+                $_new_user_cp[$_campo_cb_data_licenziamento] = $cb_data_licenziamento;
+                $_new_user_cp[$_campo_cb_stato_dipendente] = $cb_stato_dipendente;
+                $_new_user_cp[$_campo_cb_descrizione_qualifica] = addslashes($cb_descrizione_qualifica);
+                //$_new_user_cp[$_campo_cb_email] = $cb_email;
+                $_new_user_cp[$_campo_cb_codice_esterno_cdc_2] = $cb_codice_esterno_cdc_2;
+                $_new_user_cp[$_campo_cb_codice_esterno_cdc_3] = $cb_codice_esterno_cdc_3;
+                $_new_user_cp[$_campo_cb_esterno_rep_2] = $cb_esterno_rep_2;
+
+                // se l'utente non esiste lo aggiungo
+                // inserimento utente in CP
+                if ($new_user) {
+                    $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                    $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query, true, $db_option);
+                    if (!is_array($_cp_insert_query_result))
+                        throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento -> query: " . $_cp_insert_query, E_USER_ERROR);
+
+                    // aggiungo il suo riferimento nella tabella farmacie_dipendenti
+                    $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
+                    if (is_null($user_farmacia))
+                        throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+                    // devo associare l'utente ad un gruppo farmacia
+                    $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($_new_user_id, (array) $ug_farmacia, $db_option);
+                    if (!is_array($insert_user_ug_farmacia))
+                        throw new Exception("Si è verificato un errore durante l'inserimento dell'utente nel gruppo farmacia " . $_new_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
+
+                }
+                else { // utente esiste devo aggiornarlo
+
+                    unset($_new_user_cp['id']);
+                    unset($_new_user_cp['user_id']);
+
+                    $_cp_update_query = utilityHelper::get_update_query("comprofiler", $_new_user_cp, "user_id = '". $check_user_id . "'");
+                    $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query, $db_option);
+                    if (!is_array($_cp_update_query_result))
+                        throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
+
+                    // se licenziato l'utente va bloccato
+                    if ((int) $cb_stato_dipendente == 9) {
+                        // uso un array di appoggio altrimenti può generare errori di chiave unica duplicata in update
+                        //$_new_user['block'] = 1;
+                        $_update_tmp['block'] = 1;
+                        $_cp_update_query = utilityHelper::get_update_query("users", $_update_tmp, "id = '". $check_user_id . "'");
+                        $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query, $db_option);
+                        if (!is_array($_cp_update_query_result))
+                            throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
+
+                    }
+
+                    // verifico se l'utente ha cambiato farmacia oppure
+                    $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3, $db_option);
+
+                    if (is_null($get_user_farmacia)
+                        || count($get_user_farmacia) == 0) {
+
+                        // mi serve l'ultimo gruppo dell'utente
+                        $last_farmacia = $model_user->get_user_farmacia($check_user_id, null, $db_option);
+                        if (is_null($last_farmacia))
+                            throw new Exception("Nessun gruppo farmacia precedente per " . $check_user_id, E_USER_ERROR);
+
+                        // rimuovo utente dal vecchio gruppo
+                        $remove_ug_user = utilityHelper::remove_user_from_usergroup($check_user_id, (array) $last_farmacia['id_gruppo'], $db_option);
+                        if (is_null($remove_ug_user))
+                            throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
+
+                        // ha cambiato farmacia (o non c'è nessun riferimento)
+                        $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
+                        if (is_null($user_farmacia))
+                            throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
+
+                        // inserimento dell'utente nel gruppo farmacia nuovo
+                        $insert_user_ug_farmacia = utilityHelper::set_usergroup_generic($check_user_id, (array) $ug_farmacia, $db_option);
+                        if (!is_array($insert_user_ug_farmacia))
+                            throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $check_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
+
+                    }
+                    else {
+                        // è nella medesima - aggiorno i campi perchè potrebbe essere stato licenziato
+                        $user_farmacia = $model_user->update_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento, $db_option);
+                        if (is_null($user_farmacia))
+                            throw new Exception("Aggiornamento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+                    }
+                }
+
+                // controllo l'esistenza del gruppo qualifica
+                // Attenzione!!!
+                // il gruppo non punta più cb_descrizione_qualifica ma fa riferimento al codice codice_tab_qualifica ed all'array gruppi_qualifica
+                if (!isset($gruppi_qualifica[$codice_tab_qualifica])
+                    || $gruppi_qualifica[$codice_tab_qualifica] == "") {
+                    $jumped[] = "Gruppo qualifica non trovato -> GRUPPO: " . $codice_tab_qualifica . " CF: " . $cb_codicefiscale;
+                    continue;
+                }
+                //$ug_qualifica = utilityHelper::check_usergroups_by_name($cb_descrizione_qualifica, $db_option);
+                $ug_qualifica = utilityHelper::check_usergroups_by_name($gruppi_qualifica[$codice_tab_qualifica], $db_option);
+                // se lo usergroup non esiste lo creo
+                if (is_null($ug_qualifica)) {
+                    //$ug_qualifica = utilityHelper::insert_new_usergroups($cb_descrizione_qualifica, $piattaforma_default['id'], false, $db_option);
+                    $ug_qualifica = utilityHelper::insert_new_usergroups($gruppi_qualifica[$codice_tab_qualifica], $piattaforma_default['id'], false, $db_option);
+                    if (is_null($ug_qualifica)) {
+                        //throw new Exception("Errore durante l'inserimento dello usergroup " . $cb_descrizione_qualifica, E_USER_ERROR);
+                        throw new Exception("Errore durante l'inserimento dello usergroup " . $gruppi_qualifica[$codice_tab_qualifica], E_USER_ERROR);
+                    }
+
+                    $inserted_ug = true;
+
+                }
+
+                $_user_id_ref = !is_null($check_user_id) ? $check_user_id : $_new_user_id;
+
+                // controllo se l'utente è nel gruppo mansione in caso contrario lo aggiungo
+                $check_user_ug = utilityHelper::check_user_into_ug($_user_id_ref, (array) $ug_qualifica, $db_option);
+                if (!$check_user_ug) {
+                    $insert_user_ug = utilityHelper::set_usergroup_generic($_user_id_ref, (array) $ug_qualifica, $db_option);
+                    if (!is_array($insert_user_ug))
+                        throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $_user_id_ref . " nel gruppo: " . $cb_descrizione_qualifica . " errore: " . $insert_user_ug, E_USER_ERROR);
+                }
+
+                $counter++;
+
+            }
+
+            // se ho inserito un nuovo gruppo faccio rebuild
+            if ($inserted_ug)
+                $rebuild = utilityHelper::rebuild_ug_index(null, $db_option);
+
+            $this->_db->transactionCommit();
+
+            // mail inibite se processo da terminale
+            if (count($jumped) > 0) {
+                //UtilityHelper::send_email("Utenti non inseriti per dati mancanti " . __FUNCTION__, print_r($jumped, true), array($this->mail_debug));
+                UtilityHelper::make_debug_log(__FUNCTION__, "Utenti non inseriti per dati mancanti " . print_r($jumped, true), __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
+            }
+
+            return 1;
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__ . (!is_null($db_host)) ? $db_host : "", $e->getMessage(), __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
+
+            if (is_null($db_host))
+                UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+
+            return 0;
+        }
+
+        $this->_japp->close();
+    }
+
+    public function get_report_per_completamento_corso() {
+
+        $_ret = array();
+
+        try {
+
+            $model_report = new gglmsModelReport();
+            $_tmp = array();
+            $filename = "";
+            $first_id = 0;
+
+            if (!isset($this->_filterparam->corso_id)
+                || $this->_filterparam->corso_id == "")
+                throw new Exception("Impossibile continuare, corso_id non specificato", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->gruppo_id_piattaforma)
+                || $this->_filterparam->gruppo_id_piattaforma == "")
+                throw new Exception("Impossibile continuare, gruppo_id_piattaforma non specificato", E_USER_ERROR);
+
+            $get_report = $model_report->get_report_utenti_completamento_corso($this->_filterparam->corso_id, $this->_filterparam->gruppo_id_piattaforma);
+
+            // errore
+            if (is_null($get_report))
+                throw new Exception("Si è verificato un errore durante la generazione del report", E_USER_ERROR);
+
+            // nessun risultato
+            if (count($get_report) == 0)
+                throw new Exception("Nessun risultato disponibile per il corso selezionato", E_USER_ERROR);
+
+            // processo il risultato
+            foreach ($get_report as $key_report => $single_report) {
+
+                if ($filename == "") $filename = preg_replace('/\s+/', '', strtolower($single_report['titolo_corso']));
+
+                if ($first_id == 0) $first_id = $single_report['id_utente'];
+
+                $_tmp[$single_report['id_utente']]['titolo_corso'] = $single_report['titolo_corso'];
+                $_tmp[$single_report['id_utente']]['nominativo'] = $single_report['nominativo'];
+                $_tmp[$single_report['id_utente']]['codice_fiscale'] = $single_report['codice_fiscale'];
+                $_tmp[$single_report['id_utente']]['email'] = $single_report['email'];
+                $_tmp[$single_report['id_utente']]['qualifica'] = $single_report['qualifica'];
+                $_tmp[$single_report['id_utente']]['ragione_sociale'] = $single_report['ragione_sociale'];
+                $_tmp[$single_report['id_utente']]['cod_farmacia'] = str_pad($single_report['cod_farmacia'], 6, '0', STR_PAD_LEFT);
+                $_tmp[$single_report['id_utente']]['stato_corso'] = $single_report['stato_corso'];
+
+            }
+
+            $_csv_cols = utilityHelper::get_cols_from_array($_tmp[$first_id]);
+            $_export_csv = utilityHelper::esporta_csv_spout($_tmp, $_csv_cols, $filename . '.csv');
+
+            $this->_japp->close();
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
 
-//echo $_html;
-     } catch (Exception $e) {
-    //$_ret['error'] = $e->getMessage();
-          echo $e->getMessage();
-      }
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
 
         $this->_japp->close();
+
+    }
+
+    // report iscritti per corso
+    public function get_report_per_corso() {
+
+        $_ret = array();
+
+        try {
+
+            $model_report = new gglmsModelReport();
+            $model_helpdesk = new gglmsModelHelpDesk();
+            $_tmp = array();
+            $filename = "";
+            $first_id = 0;
+
+            if (!isset($this->_filterparam->corso_id)
+                || $this->_filterparam->corso_id == "")
+                throw new Exception("Impossibile continuare, corso_id non specificato", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->dominio)
+                || $this->_filterparam->dominio == "")
+                throw new Exception("Impossibile continuare, dominio non specificato", E_USER_ERROR);
+
+            $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo($this->_filterparam->dominio);
+            $get_report = $model_report->get_report_utenti_iscritti_per_corso($this->_filterparam->corso_id, $this->_filterparam->dominio, $helpdesk_info->group_id);
+
+            // errore
+            if (is_null($get_report))
+                throw new Exception("Si è verificato un errore durante la generazione del report", E_USER_ERROR);
+
+            // nessun risultato
+            if (count($get_report) == 0)
+                throw new Exception("Nessun risultato disponibile per il corso selezionato", E_USER_ERROR);
+
+            // processo il risultato
+            foreach ($get_report as $key_report => $single_report) {
+
+                if ($filename == "")
+                    $filename = (isset($single_report['alias']) && $single_report['alias'] != "")
+                        ? $single_report['alias']
+                        : preg_replace('/\s+/', '', strtolower($single_report['titolo_corso']));
+
+                if ($first_id == 0)
+                    $first_id = $single_report['id_utente'];
+
+                //$_tmp[$single_report['id_utente']]['titolo_corso'] = $single_report['titolo_corso'];
+                $_tmp[$single_report['id_utente']]['nominativo'] = $single_report['nominativo'];
+                $_tmp[$single_report['id_utente']]['username'] = $single_report['username'];
+                $_tmp[$single_report['id_utente']]['gruppo_utente'] = isset($_tmp[$single_report['id_utente']]['gruppo_utente'])
+                    ? $_tmp[$single_report['id_utente']]['gruppo_utente'] . "," . $single_report['gruppo_utente']
+                    : $single_report['gruppo_utente'];
+                $_tmp[$single_report['id_utente']]['cod_farmacia'] = str_pad($single_report['cod_farmacia'], 6, '0', STR_PAD_LEFT);
+
+            }
+
+            $_csv_cols = utilityHelper::get_cols_from_array($_tmp[$first_id]);
+            $_export_csv = utilityHelper::esporta_csv_spout($_tmp, $_csv_cols, $filename . '.csv');
+
+            $this->_japp->close();
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    // il numero di utenti correntemente attivati
+    public function get_activated_users()
+    {
+
+        try {
+
+            $_tmp = array();
+            $filename = "utentiAttivi-" . time();
+            $first_id = 0;
+            $user_model = new gglmsModelUsers();
+            $activatedUsers = $user_model->get_activated_users_details();
+
+            if (is_null($activatedUsers))
+                throw new Exception("Nessun utente attivo al momento", E_USER_ERROR);
+
+            // processo il risultato
+            foreach ($activatedUsers as $key_report => $single_user) {
+
+                if ($first_id == 0) $first_id = $single_user['id_utente'];
+
+                $_tmp[$single_user['id_utente']]['nominativo'] = $single_user['nominativo'];
+                $_tmp[$single_user['id_utente']]['codice_fiscale'] = $single_user['codice_fiscale'];
+                $_tmp[$single_user['id_utente']]['email'] = $single_user['email'];
+                $_tmp[$single_user['id_utente']]['qualifica'] = $single_user['qualifica'];
+                $_tmp[$single_user['id_utente']]['ragione_sociale'] = $single_user['ragione_sociale'];
+
+            }
+
+            $_csv_cols = utilityHelper::get_cols_from_array($_tmp[$first_id]);
+            $_export_csv = utilityHelper::esporta_csv_spout($_tmp, $_csv_cols, $filename . '.csv');
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
+    // visualizza elenco corsi per report
+    public function get_rows_partecipazione_corsi() {
+
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $gruppo_id_piattaforma = (isset($_call_params['gruppo_id_piattaforma']) && $_call_params['gruppo_id_piattaforma'] != "") ? $_call_params['gruppo_id_piattaforma'] : null;
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $model_catalogo = new gglmsModelCatalogo();
+            $corsi = $model_catalogo->get_svolgimento_corsi($_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($corsi['rows'])) {
+
+                $_total_rows = $corsi['total_rows'];
+
+                foreach ($corsi['rows'] as $_key_corso => $corso) {
+
+                    foreach ($corso as $key => $value) {
+
+                        if ($key == 'report_extra') {
+                            $value = <<<HTML
+                                <span
+                                    style="color: red; cursor: pointer;"
+                                    onclick="window.open('index.php?option=com_gglms&task=api.get_report_per_completamento_corso&corso_id={$corso['id_unita']}&gruppo_id_piattaforma={$gruppo_id_piattaforma}')">
+                                        <i class="fas fa-file-download fa-2x"></i>
+                                </span>
+HTML;
+                        }
+
+                        $_ret[$_key_corso][$key] = $value;
+
+                    }
+
+                }
+
+            }
+        }
+        catch(Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+
+        $this->_japp->close();
+
+    }
+
+    // visualizza il calendario corsi
+    public function get_rows_tabella_corsi() {
+
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $dominio = (isset($_call_params['dominio']) && $_call_params['dominio'] != "") ? $_call_params['dominio'] : null;
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+            $modalita = (isset($_call_params['modalita']) && $_call_params['modalita'] != "") ? $_call_params['modalita'] : "1,2";
+            $_before_today = (isset($_call_params['before_today'])) ? true : false;
+
+            $model_catalogo = new gglmsModelCatalogo();
+            $corsi = $model_catalogo->get_calendario_corsi($dominio, $modalita, $_offset, $_limit, $_search, $_sort, $_order, $_before_today);
+
+            if (isset($corsi['rows'])) {
+                // verifico se l'utente è loggato
+                $_current_user = JFactory::getUser();
+
+                $usergroups = utilityHelper::get_usergroups_list();
+                $categorie_evento = utilityHelper::get_categorie_evento();
+                $_total_rows = $corsi['total_rows'];
+
+                foreach ($corsi['rows'] as $_key_corso => $corso) {
+
+                    foreach ($corso as $key => $value) {
+
+                        $_new = "";
+
+                        if ($key == 'data')
+                            $value = utilityHelper::convert_dt_in_format($value, 'd-m-Y');
+                        else if ($key == 'destinatari') {
+                            $explode_arr = explode(",", $value);
+                            // se ci sono più di 5 elementi visualizzo la dicitura gruppi multipli
+                            if (count($explode_arr) <= 5) {
+                                foreach ($explode_arr as $comma) {
+                                    $_new .= $usergroups[$comma] . ",";
+                                }
+                                $value = rtrim($_new, ',');
+                            }
+                            else
+                                $value = JText::_('COM_GGLMS_BOXES_SCHEDA_GRUPPI_MULTI');
+                        }
+                        else if ($key == 'tipologia') {
+                            $value = $corso['obbligatorio'] == 1 ? '<span style="color: #E82B31">' . strtoupper($value) . '</span>' : $value;
+                        }
+                        else if ($key == 'modalita') {
+
+                            if (isset($categorie_evento[$value]))
+                                $value = $categorie_evento[$value];
+
+                        }
+                        else if ($key == 'note') {
+                            $booked = false;
+                            // se l'utente è loggato verifico se è già iscritto
+                            if ($_current_user->id) {
+                                /*
+                                if (!is_null($corso['destinatari']) && $corso['destinatari'] != "") {
+                                    $explode_arr = explode(",", $corso['destinatari']);
+                                    foreach ($explode_arr as $group_id => $group) {
+                                        if (isset($_current_user->groups)
+                                            && in_array($group_id, $_current_user->groups)) {
+                                            $booked = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (in_array($corso['gruppo_corso'], $_current_user->groups))
+                                        $booked = true;
+                                }
+                                */
+
+                                if (in_array($corso['gruppo_corso'], $_current_user->groups)) {
+                                    $value = '<span style="color: red">' . JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO') . '</span>';
+                                    $booked = true;
+                                }
+
+                            }
+
+                            // in base al fatto che sia prenotabile o meno visualizzo un pulsante
+                            // $corso['is_bookable'] == 1
+                            if (!$booked) {
+                                $user_id =  $_current_user->id ? $_current_user->id : 0;
+                                $value = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="iscriviUtenteCorso(' . $corso['id'] . ', ' . $user_id . ', \'' . $dominio . '\')">' . JText::_('COM_GGLMS_BOXES_SCHEDA') . '</a>';
+                            }
+                            else
+                                $value = ucfirst($value);
+
+                        }
+                        else if ($_before_today
+                            && $key == 'report_extra') {
+                            $value = <<<HTML
+                                <span
+                                    style="color: red; cursor: pointer;"
+                                    onclick="window.open('index.php?option=com_gglms&task=api.get_report_per_corso&corso_id={$corso['id']}&dominio={$dominio}')">
+                                        <i class="fas fa-file-download fa-2x"></i>
+                                </span>
+HTML;
+                        }
+
+                        $_ret[$_key_corso][$key] = $value;
+
+                    }
+
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+
+        $this->_japp->close();
+
+    }
+
+    // primo login l'utente viene attivato per codice fiscale
+    public function active_dipendente_by_cf() {
+
+        $_ret = array();
+
+        try {
+
+            // controllo del cf
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+            $user_password = trim($this->_filterparam->pw);
+            $c_name = trim($this->_filterparam->c_name);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Il Codice fiscale deve essere compilato!", E_USER_ERROR);
+
+            if ($c_name == "")
+                throw new Exception("Nessun riferimento al valore cookie da impostare", E_USER_ERROR);
+
+            $check_cf = utilityHelper::conformita_cf($cb_codicefiscale);
+            if ($check_cf['valido'] == 0)
+                throw new Exception($check_cf['cf'] . ': ' . $check_cf['msg'], E_USER_ERROR);
+
+            if (isset($user_password)
+                && $user_password != "") {
+
+                // devo fare login
+                $result_login = JFactory::getApplication()->login(
+                    [
+                        'username' => $cb_codicefiscale,
+                        'password' => $user_password
+                    ],
+                    [
+                        'remember' => true,
+                        'silent'   => true
+                    ]
+                );
+
+                if (!$result_login)
+                    throw new Exception("Login fallito oppure l'utente non è ancora stato attivato", E_USER_ERROR);
+
+                utilityHelper::_set_cookie_by_name("logged_in", time(), time()+3600);
+                $_ret['success'] = 'logged_in';
+
+                echo json_encode($_ret);
+
+                $this->_japp->close();
+
+            }
+
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale " . $cb_codicefiscale . " non è stato trovato", E_USER_ERROR);
+
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+
+            // controllo se il codice fiscale è già stato attivato
+            $model_user = new gglmsModelUsers();
+            $check_activation = $model_user->check_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+            $crypted_cf = utilityHelper::encrypt_decrypt('encrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            $decrypt_c_name = utilityHelper::encrypt_decrypt('decrypt', $c_name, $secret_key, $secret_iv);
+
+            // se l'utente non è stato attivato inserisco il record nella tabella di riferimento
+            if (!$check_activation) {
+
+                $this->_db->transactionStart();
+
+                // per sicurezza - nel caso fosse già in tabella - cancello il suo record
+                $delete_activation = $model_user->delete_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+                if (is_null($delete_activation))
+                    throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
+                    " . $check_user_id .
+                        " CF: " . $cb_codicefiscale, E_USER_ERROR);
+
+                $insert_activation = $model_user->insert_activation_user_farmarcie($check_user_id, $cb_codicefiscale);
+                if (is_null($insert_activation))
+                    throw new Exception("Si è verificato un errore durante l'attivazione dell'utente:
+                    " . $check_user_id .
+                        " CF: " . $cb_codicefiscale, E_USER_ERROR);
+
+                $this->_db->transactionCommit();
+
+                $_ret['success'] = 'set_password';
+                // imposto cookie di set_password di 1 ora
+                utilityHelper::_set_cookie_by_name("set_password", $crypted_cf, time()+3600);
+            }
+            else {
+                // l'utente è già presente nella tabella di attivazione
+                $_ret['success'] = 'is_activated';
+                // imposto cookie di is_activated di 5 minuti
+                utilityHelper::_set_cookie_by_name("is_activated", $crypted_cf, time()+300);
+                // cookie attivazione 10 anni
+                utilityHelper::_set_cookie_by_name($decrypt_c_name, $crypted_cf, time() + (10 * 365 * 24 * 60 * 60));
+            }
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    // imposta password dell'utente al primo login
+    public function set_dipendente_password() {
+
+        $_ret = array();
+
+        try {
+            $user_password = trim($this->_filterparam->pw);
+            $user_password_rep = trim($this->_filterparam->rep_pw);
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+            $c_name = trim($this->_filterparam->c_name);
+
+            // controllo dei dati
+            if ($user_password == "")
+                throw new Exception("La password non può essere vuota", E_USER_ERROR);
+
+            if ($user_password != $user_password_rep)
+                throw new Exception("Password e Ripeti password non corrispondono", E_USER_ERROR);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
+
+            if ($c_name == "")
+                throw new Exception("Nessun riferimento al valore cookie da impostare", E_USER_ERROR);
+
+            // decriptazione del codice fiscale
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // email di comunicazione
+            $email_default = utilityHelper::get_ug_from_object($_params, "email_default");
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $decrypt_c_name = utilityHelper::encrypt_decrypt('decrypt', $c_name, $secret_key, $secret_iv);
+            $decrypt_cf = utilityHelper::encrypt_decrypt('decrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($decrypt_cf);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            $site_config = JFactory::getConfig();
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+
+            $this->_db->transactionStart();
+
+            $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
+            if (is_null($update_password))
+                throw new Exception("Si è verificato un errore durante l'aggiornamento della password", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            // accendo cookie di 10 anni
+            utilityHelper::_unset_cookie_by_name("set_password");
+            // cookie completed 1 ora
+            utilityHelper::_set_cookie_by_name("completed", $cb_codicefiscale, time()+3600);
+            // cookie attivazione 10 anni
+            utilityHelper::_set_cookie_by_name($decrypt_c_name, $cb_codicefiscale, time() + (10 * 365 * 24 * 60 * 60));
+
+            // invio email a utente
+            $controller_user = new gglmsControllerUsers();
+
+            // controllo validità email
+            if (!utilityHelper::check_email_validation($get_user->email)) {
+                throw new Exception("E-mail utente non valida", E_USER_ERROR);
+            }
+
+            /*
+             * andrebbe modificato sendMail
+             * aggiungendo nella funzione addCc
+            if (utilityHelper::check_email_validation($email_default))
+                $destinatari[] = $email_default;
+            */
+
+            $oggetto ="Nuove credenziali per accesso a " . $site_config['sitename'];
+            $site_root = JURI::root();
+            $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
+            $activation_params = $decrypt_cf . '||' . $check_user_id . '||' . $dt_now;
+            $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
+            $activation_link = $site_root . 'index.php?option=com_gglms&task=api.confirm_dipendente_activation&ref_token=' . $crypt_activation_params;
+            $body = <<<HTML
+                <p>Questa è un messaggio generato automaticamente e contiene le tue credenziali per accedere a {$site_config['sitename']}</p>
+                <p>I tuoi dati sono:</p>
+                <p>Username: {$decrypt_cf}</p>
+                <p>Password: {$user_password}</p>
+                <p>Per completare l'attivazione del tuo profilo clicca su questo <a href="{$activation_link}" target="_blank">LINK</a></p>
+                <br /><br />
+                <p>
+                    <i>Cogliamo l'occasione per ringraziarti, lo staff di {$site_config['sitename']}</i>
+                </p>
+HTML;
+
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
+
+            $_ret['success'] = 'completed';
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    // prima di resettare la password invio una email informativa all'utente
+    public function reset_password_dipendente_by_cf() {
+
+        $_ret = array();
+
+        try {
+
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+            if ($cb_codicefiscale == "")
+                throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
+
+            // controllo se l'utente esiste
+            // l'utente deve essere privo di blocchi
+            $check_user_id = utilityHelper::check_user_by_username($cb_codicefiscale, true);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato o l'utente non è ancora stato attivato", E_USER_ERROR);
+
+            // se esiste permetto all'utente di effettuare il reset sul codice fiscale corrente
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $crypted_cf = utilityHelper::encrypt_decrypt('encrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            // cookie reset_password_exec 5 minuti
+            utilityHelper::_set_cookie_by_name("reset_password_exec", $crypted_cf, time()+3600);
+
+            $site_config = JFactory::getConfig();
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+
+            // invio email a utente
+            $controller_user = new gglmsControllerUsers();
+            // controllo validità email
+            if (!utilityHelper::check_email_validation($get_user->email)) {
+                throw new Exception("E-mail utente non valida", E_USER_ERROR);
+            }
+
+            $site_root = JURI::root();
+            $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
+            $activation_params = $cb_codicefiscale . '||' . $check_user_id . '||' . $dt_now;
+            $crypt_activation_params = utilityHelper::encrypt_decrypt('encrypt', $activation_params, $secret_key, $secret_iv);
+            /*
+             * nessuna email reindirizzo l'utente passandogli il token come parametro
+            $oggetto ="Richiesta reset password da " . $site_config['sitename'];
+            $body = <<<HTML
+                <p>Questa è un messaggio generato automaticamente dal sito {$site_config['sitename']} per effettuare il reset della password di accesso</p>
+                <p>Username: {$cb_codicefiscale}</p>
+                <p>Per confermare il procedimento copia e incolla questa stringa nel campo Token di conferma {$crypt_activation_params}</p>
+                <br /><br />
+                <p>
+                    <i>Cogliamo l'occasione per ringraziarti, lo staff di {$site_config['sitename']}</i>
+                </p>
+HTML;
+
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body, true);
+            */
+
+            $_ret['success'] = 'reset_password_exec&token=' . $crypt_activation_params;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    // reset password
+    public function reset_dipendente_password() {
+
+        $_ret = array();
+
+        try {
+            $user_password = trim($this->_filterparam->pw);
+            $user_password_rep = trim($this->_filterparam->rep_pw);
+            $cb_codicefiscale = trim($this->_filterparam->cf);
+            $confirm_token = trim($this->_filterparam->ref_token);
+
+            // controllo dei dati
+            if ($user_password == "")
+                throw new Exception("La password non può essere vuota", E_USER_ERROR);
+
+            if ($user_password != $user_password_rep)
+                throw new Exception("Password e Ripeti password non corrispondono", E_USER_ERROR);
+
+            if ($cb_codicefiscale == "")
+                throw new Exception("Nessun riferimento al Codice fiscale", E_USER_ERROR);
+
+            // decriptazione del codice fiscale
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            // email di comunicazione
+            $email_default = utilityHelper::get_ug_from_object($_params, "email_default");
+            // la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $decrypt_cf = utilityHelper::encrypt_decrypt('decrypt', $cb_codicefiscale, $secret_key, $secret_iv);
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($decrypt_cf);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            $site_config = JFactory::getConfig();
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+
+            // controllo token
+            $decrypt_ref_token = utilityHelper::encrypt_decrypt('decrypt', $confirm_token, $secret_key, $secret_iv);
+
+            // il token deve contenere il codice fiscale e lo user_id altrimenti restituisco errore
+            $activation_params = explode("||", $decrypt_ref_token);
+            if (count($activation_params) < 3)
+                throw new Exception("Il token ricevuto non è corretto", E_USER_ERROR);
+
+            // il primo elemento deve essere un codice fiscale valido
+            if ($decrypt_cf != $activation_params[0])
+                throw new Exception("Il Codice fiscale per il quale si sta richiedendo il reset non è corrispondente", E_USER_ERROR);
+
+            // il secondo elemento deve essere user_id
+            if ($check_user_id != $activation_params[1])
+                throw new Exception("Il codice utente per il quale si sta richiedendo il reset non è corrispondente", E_USER_ERROR);
+
+            // il terzo elemento è una data - controllo se la differenza non è superiore all'ora
+            $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
+            $hours_diff = utilityHelper::get_hours_diff($dt_now, $activation_params[2]);
+            if ($hours_diff > 1)
+                throw new Exception("Token di reset password scaduto!", E_USER_ERROR);
+
+            $this->_db->transactionStart();
+            $update_password = $model_user->update_password_user_farmacia($decrypt_cf, $user_password);
+            if (is_null($update_password))
+                throw new Exception("Si è verificato un errore durante l'aggiornamento della password", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            // invio email a utente
+            $controller_user = new gglmsControllerUsers();
+            // controllo validità email
+            if (!utilityHelper::check_email_validation($get_user->email)) {
+                throw new Exception("E-mail utente non valida", E_USER_ERROR);
+            }
+
+            $oggetto ="Richiesto reset password per " . $site_config['sitename'];
+            $body = <<<HTML
+                <p>Il reset password richiesto è andato a buone fine!</p>
+                <p>Le tue credenziali per accedere a {$site_config['sitename']} sono:</p>
+                <p>Username: {$decrypt_cf}</p>
+                <p>Password: {$user_password}</p>
+                <br /><br />
+                <p>
+                    <i>Lo staff di {$site_config['sitename']}</i>
+                </p>
+HTML;
+
+            $send_email = $controller_user->sendMail($get_user->email, $oggetto, $body);
+
+            $_ret['success'] = 'La tua password è stata correttamente aggiornata. Si prega di controllare ' . $get_user->email;
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $this->_japp->close();
+    }
+
+    // invia una email all'utente per confermare l'avvenuta attivazione
+    public function confirm_dipendente_activation() {
+
+        try {
+
+            // controllo la presenza del token
+            if (!isset($this->_filterparam->ref_token)
+                || $this->_filterparam->ref_token == "")
+                throw new Exception("Il procedimento non può essere completato, token di riferimento mancante", E_USER_ERROR);
+
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');// la chiave di criptazione di default
+            $secret_key = $secret_iv = utilityHelper::get_ug_from_object($_params, "secret_key");
+            $decrypt_ref_token = utilityHelper::encrypt_decrypt('decrypt', $this->_filterparam->ref_token, $secret_key, $secret_iv);
+            $_new_user = array();
+
+            // il token deve contenere il codice fiscale e lo user_id altrimenti restituisco errore
+            $activation_params = explode("||", $decrypt_ref_token);
+            if (count($activation_params) < 3)
+                throw new Exception("Il token ricevuto non è corretto", E_USER_ERROR);
+
+            // il terzo elemento è una data - controllo se la differenza non è superiore all'ora
+            $dt_now = utilityHelper::convert_time_to_tz(date('Y-m-d H:i:s'));
+            $hours_diff = utilityHelper::get_hours_diff($dt_now, $activation_params[2]);
+            if ($hours_diff > 24)
+                throw new Exception("Token di attivazione account scaduto!", E_USER_ERROR);
+
+            // il primo elemento deve essere un codice fiscale valido
+            $codice_fiscale = $activation_params[0];
+            // il secondo elemento deve essere user_id
+            $user_id = $activation_params[1];
+
+            // controllo se effettivamente lo è
+            $check_cf = utilityHelper::conformita_cf($codice_fiscale);
+            if ($check_cf['valido'] == 0)
+                throw new Exception($check_cf['cf'] . ': ' . $check_cf['msg'], E_USER_ERROR);
+
+            // controllo se l'utente esiste
+            $check_user_id = utilityHelper::check_user_by_username($codice_fiscale);
+            if (is_null($check_user_id))
+                throw new Exception("Il Codice fiscale non è stato trovato", E_USER_ERROR);
+
+            // controllo se mi risulta lo user_id arrivato dalla chiamata con quello a database
+            if ($check_user_id != $user_id)
+                throw new Exception("L'identificativo utente non è congruente ai parametri di sistema", E_USER_ERROR);
+
+            // controllo se l'utente è già stato sbloccato
+            $model_user = new gglmsModelUsers();
+            $get_user = $model_user->get_user($check_user_id);
+            if ($get_user->block == 0)
+                throw new Exception("L'utente è già stato attivato", E_USER_ERROR);
+
+            $this->_db->transactionStart();
+
+            $_new_user['block'] = 0;
+            // procedo all'attivazione dell'utente
+            $_cp_update_query = utilityHelper::get_update_query("users", $_new_user, "username = '". $codice_fiscale . "'");
+            $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+            if (!is_array($_cp_update_query_result))
+                throw new Exception("Si è verificato un errore durante l'aggiornamento", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            echo "Utente correttamente attivato";
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            //UtilityHelper::send_email("Errore " . __FUNCTION__, $e->getMessage(), array($this->mail_debug));
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
+    public function popola_codici_qualifica_farmacie() {
+
+        try {
+
+            $this->_db->transactionStart();
+
+            $query_truncate = "TRUNCATE #__gg_codici_qualifica_farmacie";
+
+            $this->_db->setQuery($query_truncate);
+            if (!$this->_db->execute())
+                throw new Exception("Query troncamento #__gg_codici_qualifica_farmacie fallita!", E_USER_ERROR);
+
+            $insert_query = "INSERT INTO #__gg_codici_qualifica_farmacie (codice, rif_gruppo) VALUES ";
+
+            // Farmacisti
+            // Dal 110 al 119 + 166 e 167
+            $insert_farmacisti = "";
+            for ($i=110; $i<=119; $i++) {
+                $insert_farmacisti .= " (" . $i . ", 'Farmacisti'), ";
+            }
+            $insert_farmacisti .= "(166, 'Farmacisti') , (167, 'Farmacisti'), ";
+
+            // Commessi
+            // Dal 120 al 125 + 168 e 169
+            $insert_commessi = "";
+            for ($i=120; $i<=125; $i++) {
+                $insert_commessi .= " (" . $i . ", 'Commessi'), ";
+            }
+            $insert_commessi .= "(168, 'Commessi') , (169, 'Commessi'), ";
+
+            // Magazzino
+            // Dal 126 al 131 + 170 e 171
+            $insert_magazzino = "";
+            for ($i=126; $i<=131; $i++) {
+                $insert_magazzino .= " (" . $i . ", 'Magazzino'), ";
+            }
+            $insert_magazzino .= "(170, 'Magazzino') , (171, 'Magazzino'), ";
+
+            // Dermocosmesi
+            // Dal 132 al 137 + 172 e 173
+            $insert_dermoc = "";
+            for ($i=132; $i<=137; $i++) {
+                $insert_dermoc .= " (" . $i . ", 'Dermocosmesi'), ";
+            }
+            $insert_dermoc .= "(172, 'Dermocosmesi') , (173, 'Dermocosmesi'), ";
+
+            // Pulizie
+            // Dal 138 al 141
+            $insert_pulizie = "";
+            for ($i=138; $i<=141; $i++) {
+                $insert_pulizie .= " (" . $i . ", 'Pulizie'), ";
+            }
+
+            // Estetica
+            // Dal 142 al 147 + 174 e 175
+            $insert_estetica = "";
+            for ($i=142; $i<=147; $i++) {
+                $insert_estetica .= " (" . $i . ", 'Estetica'), ";
+            }
+            $insert_estetica .= "(174, 'Estetica') , (175, 'Estetica'), ";
+
+            // Laboratorio
+            // Dal 148 al 153 + 176 e 177
+            $insert_lab = "";
+            for ($i=148; $i<=153; $i++) {
+                $insert_lab .= " (" . $i . ", 'Laboratorio'), ";
+            }
+            $insert_lab .= "(176, 'Laboratorio') , (177, 'Laboratorio'), ";
+
+            // Infermieri
+            // Dal 182 al 185
+            $insert_inf = "";
+            for ($i=182; $i<=185; $i++) {
+                $insert_inf .= " (" . $i . ", 'Infermieri'), ";
+            }
+
+            // Segreteria
+            // Dal 154 al 159 + 178 e 179
+            $insert_segreteria = "";
+            for ($i=154; $i<=159; $i++) {
+                $insert_segreteria .= " (" . $i . ", 'Segreteria'), ";
+            }
+            $insert_segreteria .= "(178, 'Segreteria') , (179, 'Segreteria'), ";
+
+            // Imp. Amministr.
+            // Dal 160 al 165 + 180 e 181
+            $insert_impieg = "";
+            for ($i=160; $i<=165; $i++) {
+                $insert_impieg .= " (" . $i . ", 'Imp. Amministr.'), ";
+            }
+            $insert_impieg .= "(180, 'Imp. Amministr.') , (181, 'Imp. Amministr.'), ";
+
+            // Resp Ottica
+            // 191
+            $insert_ottica = "(191, 'Resp Ottica'), ";
+
+            // Gruppi extra
+            $insert_extra = "(88888, 'Liberi Professionisti'), (99999, 'Dipendenti Holding')";
+
+            // eseguo query inserimento
+            $this->_db->setQuery($insert_query .
+                $insert_farmacisti .
+                $insert_commessi .
+                $insert_magazzino .
+                $insert_dermoc .
+                $insert_pulizie .
+                $insert_estetica .
+                $insert_lab .
+                $insert_inf .
+                $insert_segreteria .
+                $insert_impieg .
+                $insert_ottica .
+                $insert_extra);
+            if (!$this->_db->execute())
+                throw new Exception("Query inserimento #__gg_codici_qualifica_farmacie fallita!", E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            echo "OK!";
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
     }
 
 //	INUTILIZZATO
