@@ -1305,7 +1305,8 @@ class gglmsModelUsers extends JModelLegacy
                                 COALESCE(cp.cb_partitaiva, '') AS partita_iva,
                                 COALESCE(cp.cb_codicedestinatario, '') AS codice_destinatario,
                                 COALESCE(cp.cb_professionedisciplina, '') AS professione,
-                                COALESCE(cp.cb_telefono, '') AS telefono
+                                COALESCE(cp.cb_telefono, '') AS telefono,
+                                COALESCE(cp.cb_nazionalita, '') AS nazionalita
                                 ";
             }
 
