@@ -2101,7 +2101,6 @@ HTML;
     }
 
     // importazione corsi da file xml
-    // importazione corsi da file xml
     public function load_corsi_from_xml($id_piattaforma = 16,
         $ragione_sociale = "Utenti privati skillab",
         $piva = "00000000000",
