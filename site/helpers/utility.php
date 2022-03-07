@@ -2515,8 +2515,8 @@ HTML;
                             $new_user = false;
 
                             $codice_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_ISCRITTO);
-                            $cognome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->COGNOME);
-                            $nome_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->NOME);
+                            $cognome_iscritto = addslashes(trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->COGNOME));
+                            $nome_iscritto = addslashes(trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->NOME));
                             $cf_iscritto = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->CODICE_FISCALE);
                             $mail_referente = trim($xml->CORSO[$i]->ISCRITTI->ISCRITTO[$n]->MAIL_REFERENTE);
                             // campi non più controllati perchè potrebbe essere legati ad un utente privato che non ha valorizzati piva_ente e ragione_sociale
