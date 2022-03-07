@@ -2090,6 +2090,80 @@ HTML;
 
     }
 
+    public function attivazione_coupons_utenti_ep() {
+
+        $id_piattaforma = $this->_filterparam->id_piattaforma;
+        echo $this->attivazione_coupons_utenti($id_piattaforma);
+
+        $this->_japp->close();
+
+    }
+
+    // abilito i coupon in appoggio alla tabella di controllo
+    public function attivazione_coupons_utenti($id_piattaforma) {
+
+        try {
+
+            $query = "SELECT cpcheck.id AS id_rif, cpcheck.codice_coupon, utenti.id AS user_id, coupon.id_gruppi AS gruppo_corso
+                        FROM #__gg_check_coupon_xml cpcheck
+                        INNER JOIN #__users AS utenti ON utenti.username = cpcheck.codice_fiscale
+                        INNER JOIN #__gg_coupon coupon ON cpcheck.codice_coupon = coupon.coupon
+                        WHERE cpcheck.coupon IS NULL";
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            if (!is_array($results)
+                || count($results) == 0)
+                throw new Exception("Nessuna referenza disponibile", E_USER_ERROR);
+
+            $user_model = new gglmsModelUsers();
+            $this->_db->transactionStart();
+            $updates_arr = [];
+
+            foreach ($results as $key_result => $coupon) {
+
+                $update_coupon = "UPDATE #__gg_coupon
+                                    SET id_utente = " . $this->_db->quote($coupon['user_id']) . ",
+                                        data_utilizzo = " . $this->_db->quote(date('Y-m-d H:i:s')) . "
+                                    WHERE coupon = " . $this->_db->quote($coupon['codice_coupon']);
+
+                // inserisco utente in gruppo corso
+                $insert_ug = $user_model->insert_user_into_usergroup($coupon['user_id'], $coupon['gruppo_corso']);
+                if (is_null($insert_ug))
+                    throw new Exception("Inserimento utente in gruppo corso fallito: " . $coupon['user_id'] . ", " . $coupon['gruppo_corso'], E_USER_ERROR);
+
+                $this->_db->setQuery($update_coupon);
+                if (!$this->_db->execute())
+                    throw new Exception("update coupon query ko -> " . $update_coupon, 1);
+
+                $updates_arr[] = $coupon['id_rif'];
+
+            }
+
+            if (count($updates_arr) == 0)
+                throw new Exception("Nessuna referenza aggiornata in coupons", E_USER_ERROR);
+
+            // aggiorno la tabella dei riferimenti
+            $update_refs = "UPDATE #__gg_check_coupon_xml
+                            SET coupon = 1
+                            WHERE id IN (" . implode(",", $updates_arr) . ") ";
+            $this->_db->setQuery($update_refs);
+            if (!$this->_db->execute())
+                throw new Exception("update refs query ko -> " . $update_coupon, 1);
+
+            $this->_db->transactionCommit();
+
+            return "Riferimenti aggiornati: " . count($updates_arr);
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return 0;
+        }
+
+    }
+
     // importazione corsi da file xml chiamata api
     public function load_corsi_from_xml_ep() {
 
