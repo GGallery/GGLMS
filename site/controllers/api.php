@@ -2449,7 +2449,7 @@ HTML;
     }
 
     // utility per inviare email da dominio di appoggio per procedure cli
-    // richiede i parametri function_name=importa_anagrafica_farmacie&db_target (opzionale)
+    // richiede i parametri function_name=get_debug_log&db_target (opzionale)
     public function get_debug_log() {
 
         try {
