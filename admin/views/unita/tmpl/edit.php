@@ -327,6 +327,10 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
 
                 <div class="row-fluid">
+                    <?php echo $this->form->renderField('prezzo_webinar_fisso'); ?>
+                </div>
+
+                <div class="row-fluid">
                     <?php echo $this->form->renderField('sc_webinar_perc'); ?>
                 </div>
 
