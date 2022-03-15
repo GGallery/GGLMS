@@ -607,7 +607,8 @@ interfaces.
   when creating POST requests to force multipart bodies.
   See https://github.com/guzzle/guzzle/issues/768
 
-## 4.1.7 - 2014-08-07
+## 
+ - 2014-08-07
 
 * Fixed an error in the HistoryPlugin that caused the same request and response
   to be logged multiple times when an HTTP protocol error occurs.

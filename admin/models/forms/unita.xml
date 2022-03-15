@@ -352,6 +352,20 @@
             <option value="0">No</option>
         </field>
 
+         <!-- prezzo webinar fisso -->
+        <field
+                name="prezzo_webinar_fisso"
+                type="radio"
+                label="Prezzo webinar fisso"
+                description="Se abilitato legge il prezzo fisso impostato negli sconti particolari"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo[AND]sconti_particolari:1"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
         <field
                 name="sc_webinar_perc"
                 type="text"
@@ -359,7 +373,7 @@
                 description="Lo sconto applicato al Prezzo corso se acquistato in webinar. Se ci sono altri sconti riduce le quote della parcentuale indicata"
                 size="20"
                 class="inputbox"
-                showon="sconti_particolari:1[AND]riduzione_webinar:1"
+                showon="sconti_particolari:1[AND]riduzione_webinar:1[AND]prezzo_webinar_fisso:0"
                 default="0"
                 key_field="value"
         />
