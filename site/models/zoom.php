@@ -499,10 +499,12 @@ class gglmsModelZoom extends JModelLegacy {
 
             $_ret = array();
 
+            $date_tz = UtilityHelper::convert_time_to_tz($data_accesso);
+
             $this->_db->transactionStart();
 
-            $query = "UPDATE #__gg_zoom_codice_fiscale SET data_accesso = CASE WHEN data_accesso = NULL THEN ". $this->_db->quote($data_accesso)
-                ." WHEN data_accesso < ". $this->_db->quote($data_accesso) ." THEN data_accesso ELSE ". $this->_db->quote($data_accesso)
+            $query = "UPDATE #__gg_zoom_codice_fiscale SET data_accesso = CASE WHEN data_accesso = NULL THEN ". $this->_db->quote($date_tz)
+                ." WHEN data_accesso < ". $this->_db->quote($date_tz) ." THEN data_accesso ELSE ". $this->_db->quote($date_tz)
                 ."END ,durata = durata + ". $this->_db->quote($durata) ." WHERE id_zoom_user = " . $this->_db->quote($id_zoom_user) ;
 
             $this->_db->setQuery($query);
