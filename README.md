@@ -1,97 +1,5 @@
 # Custom LMS Joomla - GGallery
 
-<<<<<<< HEAD
-CHANGELOG 
-
-F:Frontend, B:Backend, D:Database, G:Generale
-4.1.8
--D: aggiunta della colonna data_evento alla tabella gg_contenuti
--D: aggiunta della tabella appoggio gg_zoom_log
-
-4.1.7
--D: aggiunta della colonna id_evento alla tabella gg_contenuti
--D: aggiunta della colonna tipo_evento alla tabella gg_contenuti
-
-4.1.6
--D: aggiunta della colonna disabilita_aquisto_presenza alla tabella gg_unit
-
-4.1.5
--D: aggiunta tabella gg_check_coupon_xml di appoggio per creazione anagrafica utenti da xml
-
-4.1.4
--D: aggiunta della colonna sconti_particolari alla tabella gg_unit
--D: aggiunta della colonna riduzione_webinar alla tabella gg_unit
--D: aggiunta della colonna sc_webinar_perc alla tabella gg_unit
--D: aggiunta tabella gg_vendita_sconti_particolari
-
-4.1.3
--D: aggiunta della colonna ref_skill alla tabella gg_coupon
-
-4.1.2
--D: aggiunta della colonna codice alla tabella gg_unit
--D: aggiunta della colonna codice_alfanumerico alla tabella gg_unit
-
-4.1.1
--D: modificata colonna welcome della tabella usergroups_details
-
-4.1.0
--D: aggiunta della colonna usa_coupon alla tabella gg_unit
-
-4.0.9
-- D: modificata colonna id_evento delle tabella gg_zoom_report
-
-4.0.8
-- D: aggiunta tabella gg_zoom
-- D: aggiunta tabella gg_zoom_events
-- D: aggiunta della colonna data_primo_accesso nella tabella gg_report
-- D: aggiunta della colonna on_sale alla tabella gg_unit
-- D: aggiunta della colonna disponibile_dal alla tabella gg_unit
-- D: aggiunta della colonna disponibile_al alla tabella gg_unit
-- D: aggiunta della colonna prezzo alla tabella gg_unit
-- D: aggiunta della colonna sc_a_data alla tabella gg_unit
-- D: aggiunta della colonna sc_valore_data alla tabella gg_unit
-- D: aggiunta della colonna sc_a_data_gruppi alla tabella gg_unit
-- D: aggiunta della colonna sc_valore_data_gruppi alla tabella gg_unit
-- D: aggiunta della colonna sc_a_gruppi alla tabella gg_unit
-- D: aggiunta della colonna sc_valore_gruppi alla tabella gg_unit
-- D: aggiunta della colonna sc_da_data alla tabella gg_unit
-- D: aggiunta della colonna sc_custom_cb alla tabella gg_unit
-- D: aggiunta della colonna sc_semaforo_custom_cb alla tabella gg_unit
-- D: aggiunta della colonna sc_valore_custom_cb alla tabella gg_unit
-- G: aggiunta integrazione report Zoom per Meeting e Webinar
-
-4.0.7
-- D: aggiunta della colonna data_inizio_extra nella vista _view_report
-- D: aggiunta della colonna data_fine_extra nella vista _view_report
-
-4.0.6
-- D: aggiunta della colonna data_extra nella tabella gg_report
-- D: aggiunta della colonna data_inizio_extra nella tabella gg_view_stato_user_unita
-- D: aggiunta della colonna data_fine_extra nella tabella gg_view_stato_user_unita
-- D: aggiunta della colonna data_inizio_extra nella tabella gg_view_stato_user_corso
-- D: aggiunta della colonna data_fine_extra nella tabella gg_view_stato_user_corso
-
-4.0.5
-- F: aggiunta tipologia coupon per la gestione di template customizzati in Genera coupon
-- D: aggiunta della colonna tipologia_coupon nella tabella gg_coupon
-- D: aggiunta della colonna template nella tabella gg_coupon
-- D: aggiunta della colonna attestato nella tabella gg_unit
-- D: aggiunta della colonna path_pdf nella tabella gg_contenuti
-- D: modifica della colonna messaggio in text nella tabella gg_error_log
-
-4.0.4 
- - G: aggiunta vista webinar
- - G: aggiunto Coupon Dispenser
-
-4.0.3 
- - G: aggiunti campi custom report selezionabili da backend.
-
-4.0.1
- - B: ordinamento unità backend
- 
-4.0.1
- - G: coupon trial
-=======
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
@@ -143,7 +51,6 @@ F:Frontend, B:Backend, D:Database, G:Generale
 * D: modificata colonna id_evento delle tabella gg_zoom_report
 
 # 4.0.8
->>>>>>> master
 
 * D: aggiunta tabella gg_zoom
 * D: aggiunta tabella gg_zoom_events
