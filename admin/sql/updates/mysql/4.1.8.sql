@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ALTER TABLE `#__gg_contenuti`
 ADD COLUMN `data_evento` date DEFAULT NULL,
 ADD COLUMN `id_utente_zoom` int(10) NOT NULL;
@@ -44,3 +45,10 @@ CREATE TABLE `#__gg_zoom_codice_fiscale`  (
 )
 ENGINE=InnoDB
 DEFAULT CHARACTER SET=utf8;
+=======
+ALTER TABLE `#__gg_vendita_sconti_particolari`
+ADD COLUMN `prezzo_webinar` decimal(6,2) NULL;
+
+ALTER TABLE `#__gg_unit`
+ADD COLUMN `prezzo_webinar_fisso` tinyint(1) NOT NULL DEFAULT 0;
+>>>>>>> master
