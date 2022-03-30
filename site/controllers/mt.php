@@ -41,6 +41,7 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_filterparam->id_utente = JRequest::getVar('id_utente');
         $this->_filterparam->id_corso = JRequest::getVar('id_corso');
         $this->_filterparam->anno_ref = JRequest::getVar('anno_ref');
+        $this->_filterparam->secret = JRequest::getVar('secret');
 
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -73,7 +74,8 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        echo __FUNCTION__;
+        echo $this->encrypt_decrypt('encrypt', 'GGallery00!!!__', 'GGallery00__', 'GGallery00__');
+        $this->_db->close();
 
     }
 
@@ -91,6 +93,40 @@ class gglmsControllerMt extends JControllerLegacy {
         ];
 
         echo $api->load_corsi_from_xml(16, $ragione_sociale, $piva, $email, true, $get_corsi);
+    }
+
+    public function massive_password_update()
+    {
+
+        try {
+
+            $secret = trim($this->_filterparam->secret);
+            $local_secret = $this->encrypt_decrypt('encrypt', 'GGallery00!!!__', 'GGallery00__', 'GGallery00__');
+
+            if ($secret != $local_secret)
+                throw new Exception("Secret key error", E_USER_ERROR);
+
+            $new_password = 'JCcW*3lY7W';
+
+            $query = $this->_db->getQuery(true);
+            $query->update("#__users");
+            $query->set("password = " . $this->_db->quote(JUserHelper::hashPassword($new_password)));
+            $query->where('id > 295');
+
+            $this->_db->setQuery((string) $query);
+
+            if (!$this->_db->execute())
+                throw new Exception("update query ko -> " . $query, E_USER_ERROR);
+
+            echo "FATTO!";
+
+        }
+        catch(Exception $e) {
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+
     }
 
     public function sinpe_set_morosi()
