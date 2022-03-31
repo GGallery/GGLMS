@@ -204,7 +204,6 @@
 				size="15"
 				required=""
 				showon="tipologia:10"
-				default=""
 		/>
 
 		<field
