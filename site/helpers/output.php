@@ -1899,7 +1899,7 @@ HTML;
         if ($_testo_pagamento_bonifico != "")
             $_html = <<<HTML
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 text-center">
                         {$_testo_pagamento_bonifico}
                     </div>
                 </div>
