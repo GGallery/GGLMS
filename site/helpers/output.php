@@ -1996,7 +1996,7 @@ HTML;
                         <td><h5>€ <b><span id="amount_span">{$_tariffa}</span></b></h5></td>
                     </tr>
                     <tr>
-                        <td colspan="5" style="text-center">
+                        <td colspan="5" class="text-center">
                             <span id="paypal-button-container"></span>
                         </td>
                     </tr>
