@@ -216,8 +216,9 @@ class gglmsModelContenuto extends JModelLegacy
 
         try {
             $path = PATH_CONTENUTI . '/' . $this->id;
-            $filepath = JPATH_BASE . "/" . $path . "/";
-
+            // fix per evitare casi del tipo /dir/sub/../sub/..
+            //$filepath = JPATH_BASE . "/" . $path . "/";
+            $filepath = JPATH_BASE . "/" . str_replace('..', '', $path) . "/";
 
             //if (!file_exists($filepath . "vtt_slide.vtt")) {
             $values = array();
