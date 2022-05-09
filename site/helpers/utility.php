@@ -1595,6 +1595,27 @@ class utilityHelper
 
     }
 
+    // imposta dominio
+    public static function imposta_domino()
+    {
+        $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+        $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+
+        $_arr_host = explode(".", $hostname);
+        // indirizzi tipo https://dominio.it
+        if (count($_arr_host) < 3) {
+            $hostname = $_arr_host[0] . "." . $_arr_host[1];
+        }
+        // altri tipo www.dominio.it oppure terzo.dominio.it
+        else {
+            //$hostname = $_arr_host[1] . "." . $_arr_host[2];
+            $hostname = $_arr_host[0] != 'www' ? $_arr_host[0] . '.' : '';
+            $hostname .= $_arr_host[1] . "." . $_arr_host[2];
+        }
+
+        return $hostname;
+    }
+
     // per sviluppo filtro DOMAIN - di default i siti che in produzione iniziano per web. in sviluppo saranno test. - utility per controller.php
     public static function filtra_dominio_per_test($_domain) {
 
