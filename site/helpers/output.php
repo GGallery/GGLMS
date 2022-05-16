@@ -1527,23 +1527,45 @@ HTML;
 
             $_email_to  = UtilityHelper::get_params_from_object($_params, 'email_default');
             $_href = utilityHelper::set_index_redirect_url();
+
+            // testo pagamento bonifico con sostituzione della stringa manuale..pessima soluzione ma senza alternative
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'COORDINATE PER BONIFICO BANCARIO', $_testo_pagamento_bonifico);
+
             $_html = <<<HTML
                 <div class="jumbotron">
-                    <h4>Grazie!</h4>
-                    <p>Per confermare l'iscrizione all'evento  <b>{$_event_title}</b> invia una copia della ricevuta a <b>{$_email_to}</b>
-                        con le seguenti indicazioni: <br />
-                        <b>Nome</b> e <b>Cognome</b> - <b>Titolo del corso acquistato</b> - <b>Codice fiscale</b> - <b>Recapito telefonico</b>
-                        <br />
-                        Tra 20 secondi sarai reindirizzato alla pagina <a href="{$_href}">HOME</a>
-                        </p>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Grazie!</h4>
+                            <p>Per confermare l'iscrizione all'evento  <b>{$_event_title}</b> invia una copia della ricevuta a <b>{$_email_to}</b>
+                                con le seguenti indicazioni: <br />
+                                <b>Nome</b> e <b>Cognome</b> - <b>Titolo del corso acquistato</b> - <b>Codice fiscale</b> - <b>Recapito telefonico</b>
+                                <br />
+                                Clicca <a href="{$_href}">QUI</a> per ritornare in HOME page
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="offset-md-4 offset-sm-4">
+                            <table class="table">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        {$_testo_pagamento_bonifico}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
+                <!--
                 <script>
                     setTimeout(function () {
                         window.location.href = "{$_href}";
                     }, 20000);
 
                 </script>
+                -->
 HTML;
             $_ret['success'] = $_html;
             return $_ret;
@@ -1877,7 +1899,7 @@ HTML;
         if ($_testo_pagamento_bonifico != "")
             $_html = <<<HTML
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 text-center">
                         {$_testo_pagamento_bonifico}
                     </div>
                 </div>
@@ -1974,7 +1996,7 @@ HTML;
                         <td><h5>€ <b><span id="amount_span">{$_tariffa}</span></b></h5></td>
                     </tr>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="5" class="text-center">
                             <span id="paypal-button-container"></span>
                         </td>
                     </tr>

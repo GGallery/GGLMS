@@ -255,7 +255,7 @@ class gglmsControllerUsers extends JControllerLegacy
                 if ($sheets_num > 1)
                     throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
 
-                $sheet_data = null;
+                $sheet_data = array();
                 foreach ($reader->getSheetIterator() as $sheet) {
                     if ($sheet->getIndex() === 0) {
                         $sheet_data = $sheet->getRowIterator();
@@ -500,7 +500,7 @@ HTML;
                 if ($sheets_num > 1)
                     throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
 
-                $sheet_data = null;
+                $sheet_data = array();
                 foreach ($reader->getSheetIterator() as $sheet) {
                     if ($sheet->getIndex() === 0) {
                         $sheet_data = $sheet->getRowIterator();
@@ -887,7 +887,7 @@ HTML;
             if ($sheets_num > 1)
                 throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", 1);
 
-            $sheet_data = null;
+            $sheet_data = array();
             foreach ($reader->getSheetIterator() as $sheet) {
                 if ($sheet->getIndex() === 0) {
                     $sheet_data = $sheet->getRowIterator();
