@@ -764,7 +764,7 @@ DROP TABLE IF EXISTS `#__gg_zoom_log`;
 CREATE TABLE `#__gg_zoom_log` (
   `id_utente` int(255) NOT NULL,
   `codice_fiscale` varchar (255) NOT NULL,
-  `id_contenuto` int(10) NULL DEFAULT NULL,
+  `id_contenuto` int(10) NOT NULL,
   `data_accesso` datetime NULL,
   `durata` int(255) NOT NULL,
   PRIMARY KEY (`id_utente`,`codice_fiscale`,`id_contenuto`)
