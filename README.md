@@ -12,7 +12,9 @@
 # 4.1.7
 
 * D: aggiunta della colonna id_evento alla tabella gg_contenuti
-* D: aggiunta della colonna tipo_zoom alla tabella gg_contenuti
+* D: aggiunta della colonna tipo_evento alla tabella gg_contenuti
+* D: aggiunta della colonna data_evento alla tabella gg_contenuti
+* D: aggiunta della colonna id_utente_zoom alla tabella gg_contenuti
 
 # 4.1.6
 
