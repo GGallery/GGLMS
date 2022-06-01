@@ -137,6 +137,14 @@ class gglmsControllerAllineaReport extends JControllerAdmin
               //echo $query;
               $result=$db->execute();
 
+              $log_arr = array(
+                  'result_query' => $result,
+                  'id_anagrafica' => $row['id_anagrafica'],
+                  'id_corso' => $row['id']
+              );
+
+              utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
           }
 
           echo count($result);
