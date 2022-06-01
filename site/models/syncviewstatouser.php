@@ -273,6 +273,14 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                 $this->_db->setQuery($query);
                 $this->_db->execute();
 
+                $log_arr = array(
+                    'completato' => $completed,
+                    'id_anagrafica' => $record->id_anagrafica,
+                    'id_corso' => $record->id_corso
+                );
+
+                utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
                 if($completed == 1)
                     DEBUGG::log('anagrafica '.$record->id_anagrafica.' ha completato corso '.$record->id_corso, '',0,1,0);
 
