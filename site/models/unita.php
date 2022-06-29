@@ -30,6 +30,7 @@ class gglmsModelUnita extends JModelLegacy
     protected $_db;
     private $unitas = array();
     public $contenuti = array();
+    public $id;
 
 
     public function __construct($config = array())

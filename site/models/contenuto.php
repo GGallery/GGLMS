@@ -243,7 +243,7 @@ class gglmsModelContenuto extends JModelLegacy
                 if ($i == 0)
                     $values[$i]['b'] = "00:00:00";
 
-                if ($i != count($values))
+                if ($i < count($values) - 1)
                     $values[$i]['c'] = $values[$i + 1]['b'] . "\n";
 
                 if ($i == count($values) - 1)
@@ -258,6 +258,7 @@ class gglmsModelContenuto extends JModelLegacy
             var_dump($e);
         }
 
+        var_dump($file);
         $var = fopen($file, "w");
         fwrite($var, $vtt);
         fclose($var);

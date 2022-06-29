@@ -34,9 +34,9 @@ class gglmsController extends JControllerLegacy
 
         // controllo della variabile DOMINIO definita in /home/includes/defines.php
         // che potrebbe non essere impostata perchè non presente nel file sopra
-        if (!defined(DOMINIO)
-            || DOMINIO == ""
-            || DOMINIO == 'DOMINIO') {
+        if (!defined('DOMINIO')
+            || 'DOMINIO' == ""
+            || 'DOMINIO' == 'DOMINIO') {
 
             /*
             //$hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);

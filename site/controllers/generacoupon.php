@@ -33,7 +33,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         $this->_params = $this->_japp->getParams();
 
         $this->_user = JFactory::getUser();
-        $this->_db = &JFactory::getDbo();
+        $this->_db = JFactory::getDbo();
 
 
         $this->generaCoupon = new gglmsModelGeneraCoupon();

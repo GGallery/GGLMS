@@ -2317,8 +2317,9 @@ HTML;
 
         $ug_list = self::get_params_from_object($_ret, $param);
 
-        if ($is_array) {
-            return implode(",", $ug_list);
+        if ($is_array && !empty($ug_list)) {
+                return implode(",", $ug_list);
+
         }
 
         if ($ug_list != "") {
@@ -2335,7 +2336,7 @@ HTML;
         if (!is_array($_ret))
             return "";
 
-        $_json_decode = json_decode($_ret['success'], true);
+        $_json_decode = json_decode(isset($_ret['success']), true);
 
         if (!isset($_json_decode[$param])
             || $_json_decode[$param] == "")
