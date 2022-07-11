@@ -81,6 +81,10 @@
     </div>
 
     <div class="row-fluid">
+        <?php echo $this->form->renderField('visualizza_durata_rinnovo_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
         <?php echo $this->form->renderField('genera_coupon_tipi_coupon'); ?>
     </div>
 

@@ -114,6 +114,7 @@ class gglmsControllerCoupon extends JControllerLegacy
         $japp = JFactory::getApplication();
 
         $coupon = JRequest::getVar('coupon');
+        $durata_rinnovo = JRequest::getVar('durata');
         $model = $this->getModel('coupon');
 
         $dettagli_coupon = $model->check_Coupon($coupon, true);
@@ -161,9 +162,13 @@ class gglmsControllerCoupon extends JControllerLegacy
 
 
                     // tutti i controlli superati, rinnova coupon
-                    if ($model->rinnova_coupon($coupon)) {
+                    if ($model->rinnova_coupon($coupon, $durata_rinnovo)) {
                         $results['valido'] = 1;
-                        $results['report'] = "<p class='alert-success alert'>" .  JText::_('COM_GGLMS_COUPON_RENEW_COUPON_SUCCESS') . "</p>";
+                        if($durata_rinnovo != 0 && is_numeric($durata_rinnovo) && isset($durata_rinnovo)){
+                            $results['report'] = "<p class='alert-success alert'>Il coupon è stato rinnovato con successo. Scadrà  nuovamente tra " . $durata_rinnovo ." giorni a partire da oggi.</p>";
+                        }else {
+                            $results['report'] = "<p class='alert-success alert'>" . JText::_('COM_GGLMS_COUPON_RENEW_COUPON_SUCCESS') . "</p>";
+                        }
                     }
 
                 }

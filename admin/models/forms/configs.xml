@@ -1041,6 +1041,19 @@
         </field>
 
         <field
+                name="visualizza_durata_rinnovo_coupon"
+                type="radio"
+                class="btn-group"
+                label="Visualizza il campo della durata del rinnovo coupon nel form rinnova coupon"
+                labelclass="control-label"
+                description="OFF per nascondere, ON per visualizzare"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
                 name="genera_coupon_tipi_coupon"
                 type="textarea"
                 default="Lavoratore|_LAV;Dirigente|_DIR;Preposto|_PREP;RLS|_RLS;ASPP|_ASPP;RSPP|_RSPP;Datore di Lavoro che ricopre l'incarico di RSPP|_DDL;Coordinatore per la Sicurezza|_COORD;

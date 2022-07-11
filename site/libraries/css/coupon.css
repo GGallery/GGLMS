@@ -25,6 +25,22 @@
 
 }
 
+#box_durata_rinnovo
+{
+    border-style: solid;
+    border-color: gray;
+    height: 50px !important;
+    width: 500px;
+    font-size:28px;
+    font-family:  serif;
+    padding: 5px;
+    background-color: #9BAEC8;
+
+    -moz-border-radius:5px 5px 5px 5px;
+
+
+}
+
 #box_coupon
 {
     width: 100%;

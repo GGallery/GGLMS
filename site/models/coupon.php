@@ -330,7 +330,7 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
-    public function rinnova_coupon($coupon)
+    public function rinnova_coupon($coupon, $durata_rinnovo = 0)
     {
 
         try {
@@ -339,11 +339,24 @@ class gglmsModelcoupon extends JModelLegacy
             // calcolo i gg di differenza tra data_utilizzo e oggi
             // nuova_durata = durata + gg + 60
 
-            $query = $this->_db->getQuery(true)
-                ->select('DATEDIFF(CURDATE(),c.data_utilizzo) AS diff_days, durata as current_durata')
-                ->from('#__gg_coupon AS c')
-                ->where("c.coupon = '" . $coupon . "'");
-            $this->_db->setQuery($query);
+            //nel caso la durata_rinnovo valorizzata sarà la nuova  durata del rinnovo coupon che diversa da 60 giorni, inserita dal form del rinnovo coupon
+            //e sostituirà la durata che esiste già sul db
+
+            if($durata_rinnovo != 0 && is_numeric($durata_rinnovo) && isset($durata_rinnovo)){
+
+                $query = $this->_db->getQuery(true)
+                    ->select("DATEDIFF(CURDATE(),c.data_utilizzo) AS diff_days,'". $durata_rinnovo . "'as current_durata")
+                    ->from('#__gg_coupon AS c')
+                    ->where("c.coupon = '" . $coupon . "'");
+                $this->_db->setQuery($query);
+
+            }else {
+                $query = $this->_db->getQuery(true)
+                    ->select('DATEDIFF(CURDATE(),c.data_utilizzo) AS diff_days, durata as current_durata')
+                    ->from('#__gg_coupon AS c')
+                    ->where("c.coupon = '" . $coupon . "'");
+                $this->_db->setQuery($query);
+            }
 
             if (null === ($res = $this->_db->loadAssoc())) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

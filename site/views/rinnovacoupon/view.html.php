@@ -20,10 +20,14 @@ jimport('joomla.application.component.helper');
 class gglmsViewrinnovacoupon extends JViewLegacy {
 
     protected $params;
+    public $visualizza_durata_rinnovo_coupon = 0;
 
     function display($tpl = null)
     {
 
+        // leggo parametro visualizza_durata_rinnovo_coupon
+        // se 1 visualizzo il campo se 0 lo nascondo
+        $this->visualizza_durata_rinnovo_coupon = utilityHelper::get_display_from_configuration($this->visualizza_durata_rinnovo_coupon, 'visualizza_durata_rinnovo_coupon');
 
         $this->coupon = new gglmsModelcoupon();
 
