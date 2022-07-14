@@ -217,8 +217,9 @@ class gglmsModelContenuto extends JModelLegacy
         try {
             $path = PATH_CONTENUTI . '/' . $this->id;
             // fix per evitare casi del tipo /dir/sub/../sub/..
-            //$filepath = JPATH_BASE . "/" . $path . "/";
-            $filepath = JPATH_BASE . "/" . str_replace('..', '', $path) . "/";
+            $filepath = JPATH_BASE . "/" . $path . "/";
+            //fix per evitare warning con php 8
+           // $filepath = JPATH_BASE . "/" . str_replace('..', '', $path) . "/";
 
             //if (!file_exists($filepath . "vtt_slide.vtt")) {
             $values = array();
@@ -258,8 +259,8 @@ class gglmsModelContenuto extends JModelLegacy
             var_dump($e);
         }
 
-        var_dump($file);
         $var = fopen($file, "w");
+
         fwrite($var, $vtt);
         fclose($var);
         //}

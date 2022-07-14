@@ -257,7 +257,7 @@ class outputHelper {
     }
 
     public static function getDettaglioVisione($durata = 0,
-                                               $tempo_visualizzato,
+                                               $tempo_visualizzato = 0,
                                                $con_orari = false,
                                                $tempo_assenza = null) {
 
