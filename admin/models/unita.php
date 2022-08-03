@@ -495,7 +495,7 @@ class gglmsModelunita extends JModelAdmin
                 $query = $db->getQuery(true);
                 $query->select('*');
                 $query->from('#__gg_unit');
-                $query->where('unitapadre=' . $item->id);
+                $query->where("unitapadre= '" . $item->id ."'");
                 $query->order('ordinamento asc');
                 $db->setQuery($query);
 
