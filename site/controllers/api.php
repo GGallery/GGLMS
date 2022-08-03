@@ -339,12 +339,14 @@ class gglmsControllerApi extends JControllerLegacy
 
             $columns = array();
             $rows = array();
+            $attestato = '';
             switch ($tipo_report) {
 
                 case 0: //PER CORSO
 
 
                     $att_id_string = $this->getAttestati($id_corso);
+
 
                     if(strpos($att_id_string,'|')){
 
@@ -354,6 +356,7 @@ class gglmsControllerApi extends JControllerLegacy
                     }else{
                         $attestato_hidden = $att_id_string;
                     }
+
 
                     $query = $this->_db->getQuery(true);
                     $query->select('vista.id_anagrafica as id_anagrafica,"'. $attestato .'" as Attestato,"' . $attestato_hidden . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
@@ -1164,9 +1167,9 @@ HTML;
 
 
                 if (isset($item[$column])) {
-                    $row{$column} = $item[$column];
+                    $row[$column] = $item[$column];
                 } else {
-                    $row{$column} = $nullvalue;
+                    $row[$column] = $nullvalue;
                 }
             }
             //non serve json
@@ -1176,9 +1179,9 @@ HTML;
 
             foreach ($fields as $field) {
                 if (isset($userFields->$field)) {
-                    $row{$field} = $userFields->$field;
+                    $row[$field] = $userFields->$field;
                 } else {
-                    $row{$field} = $nullvalue;
+                    $row[$field] = $nullvalue;
                 }
             }
 
@@ -1199,10 +1202,10 @@ HTML;
                 if ($newitem[$key] == $item[$key]) {
 
                     if ($newcolumname != null) {
-                        $item{$newitem[$newcolumname]} = $newitem[$columnvalue];
+                        $item[$newitem[$newcolumname]] = $newitem[$columnvalue];
                         array_push($innerjoinedarray, $item);
                     } else {
-                        $item{$columnvalue} = $newitem[$columnvalue];
+                        $item[$columnvalue] = $newitem[$columnvalue];
                         array_push($innerjoinedarray, $item);
 
                     }

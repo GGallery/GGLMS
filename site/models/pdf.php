@@ -51,6 +51,7 @@ class gglmsModelPdf extends JModelLegacy
         try {
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
             $orientation = $orientamento;
+            ob_start();
             $pdf = new certificatePDF($orientation);
             $datetest = $contenuto_verifica->getStato($user->id)->data;
             if ($datetest === null || $datetest == '0000-00-00')
@@ -146,9 +147,9 @@ class gglmsModelPdf extends JModelLegacy
 
             } else {
                 //altrimenti lo scarico
-                ob_end_clean();
                 // così facendo rinomina due volte .pdf
                 //$pdf->Output($nomefile . '.pdf', 'D');
+                ob_end_clean();
                 $pdf->Output($nomefile, 'D');
                 return 1;
             }
@@ -202,6 +203,8 @@ class gglmsModelPdf extends JModelLegacy
 
 
             $pdf->fetch_pdf_template($template);
+
+            ob_end_clean();
 
             $pdf->Output($nomefile, 'D');
 

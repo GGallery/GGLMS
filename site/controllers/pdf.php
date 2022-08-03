@@ -36,12 +36,12 @@ class gglmsControllerPdf extends JControllerLegacy
         $this->_user = JFactory::getUser();
 
 
-        define('SMARTY_DIR', JPATH_COMPONENT . '/libraries/smarty/smarty/');
-        define('SMARTY_COMPILE_DIR', JPATH_COMPONENT . '/models/cache/compile/');
-        define('SMARTY_CACHE_DIR', JPATH_COMPONENT . '/models/cache/');
-        define('SMARTY_TEMPLATE_DIR', JPATH_COMPONENT . '/models/templates/');
-        define('SMARTY_CONFIG_DIR', JPATH_COMPONENT . '/models/');
-        define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT . '/libraries/smarty/extras/');
+        if (!defined('SMARTY_DIR')) define('SMARTY_DIR', JPATH_COMPONENT . '/libraries/smarty/smarty/');
+        if (!defined('SMARTY_COMPILE_DIR')) define('SMARTY_COMPILE_DIR', JPATH_COMPONENT . '/models/cache/compile/');
+        if (!defined('SMARTY_CACHE_DIR')) define('SMARTY_CACHE_DIR', JPATH_COMPONENT . '/models/cache/');
+        if (!defined('SMARTY_TEMPLATE_DIR')) define('SMARTY_TEMPLATE_DIR', JPATH_COMPONENT . '/models/templates/');
+        if (!defined('SMARTY_CONFIG_DIR')) define('SMARTY_CONFIG_DIR', JPATH_COMPONENT . '/models/');
+        if (!defined('SMARTY_PLUGINS_DIRS')) define('SMARTY_PLUGINS_DIRS', JPATH_COMPONENT . '/libraries/smarty/extras/');
 
     }
 
