@@ -27,6 +27,7 @@ class gglmsControllerPdf extends JControllerLegacy
     private $_japp;
     public $_params;
     public $_folder_location = JPATH_COMPONENT . '/models/tmp/';
+    private $dominio;
 
     public function __construct($config = array())
     {
@@ -57,6 +58,8 @@ class gglmsControllerPdf extends JControllerLegacy
         try {
 
 
+            $_SESSION[$this->dominio] = utilityHelper::imposta_domino();
+            //var_dump($_SESSION[$this->dominio]);
             $generate_pdf = isset($generate_pdf) ? $generate_pdf : true;
 //            var_dump($user_id);
             $db = JFactory::getDbo();
@@ -116,7 +119,7 @@ class gglmsControllerPdf extends JControllerLegacy
             $query = $db->getQuery(true)
                 ->select('d.dg')
                 ->from('#__usergroups_details d')
-                ->where('d.dominio = "' . DOMINIO . '"');
+                ->where('d.dominio = "' . $_SESSION[$this->dominio] . '"');
             $db->setQuery($query);
             $dg = $db->loadResult();
 
