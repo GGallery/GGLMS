@@ -29,11 +29,22 @@ class gglmsViewContenuto extends JViewLegacy
     protected $jumper;
     protected $att_scaricabile;
     protected $id_unita;
+    public $attiva_blocco_video_focus = 1;
 
 
     function display($tpl = null)
     {
-        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js');
+
+        $app = JFactory::getApplication();
+        $template = $app->getTemplate();
+
+
+        if($template == 'tz_meetup'){
+
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/fix_tz_meetup.css');
+        }
+
+        JFactory::getDocument()->addScript(JURI::root(true) . '/components/com_gglms/libraries/js/userlog.js?v=20211102'.time());
         $this->contenuto = $this->get('Contenuto');
 
         $this->contenuto->setStato(); //  D A R I A B I L I T A R E -----------------------------------------------------------------------------------------------------------------------------
@@ -46,6 +57,10 @@ class gglmsViewContenuto extends JViewLegacy
         $arr_url = parse_url(JURI::base());
         $this->slide_pdf = null;
         $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
+
+        // leggo parametro attiva_blocco_video_focus
+        // se 1 blocco il video se 0 non lo blocco
+        $this->attiva_blocco_video_focus = utilityHelper::get_display_from_configuration($this->attiva_blocco_video_focus, 'attiva_blocco_video_focus');
 
         switch ($this->contenuto->tipologia_contenuto) {
             case 'videoslide':

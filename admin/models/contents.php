@@ -54,9 +54,9 @@ class gglmsModelContents extends JModelList {
             $query->where('(' . implode($regex . ' OR ', $this->searchInFields) . $regex . ')');
         }
 
-        $jorm=JFactory::getApplication()->getUserStateFromRequest('jform','jform');
-        $id_categoria=$jorm['categoria'];
-        if($id_categoria!=null) {
+        $jorm = JFactory::getApplication()->getUserStateFromRequest('jform','jform');
+        $id_categoria = isset($jorm['categoria']) ? $jorm['categoria'] : null;
+        if($id_categoria != null) {
 
             switch ($id_categoria) {
                 case "1":

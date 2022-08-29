@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
         </p>
     </div>
 
-    <?php // informazioni relative al bonificoco ulteriori indicazioni
+    <?php // informazioni relative al bonifico o ulteriori indicazioni
         echo $this->payment_extra_form; ?>
 
     <div class="alert alert-danger" role="alert" id="paymentError" style="display: none;">

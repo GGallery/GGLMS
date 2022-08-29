@@ -1,0 +1,20 @@
+
+/*modifiche css per il template TZ_MEETUP*/
+
+#boxvideo {
+
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    width: 50%;
+    margin: auto !important;
+}
+
+#boxslide {
+
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    width: 50%;
+    padding-left: 5px;
+}

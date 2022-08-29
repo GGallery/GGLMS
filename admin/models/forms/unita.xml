@@ -332,6 +332,74 @@
                 default="99.90"
         />
 
+        <!-- abilita sconto particolare -->
+        <field
+                name="sconti_particolari"
+                type="radio"
+                label="Sconti personalizzati"
+                description="Se abilitato gli sconti verranno gestiti secondo i dettami della tabella #__gg_vendita_sconti_particolari"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+        <!-- sconto webinar -->
+        <field
+                name="riduzione_webinar"
+                type="radio"
+                label="Sconto webinar"
+                description="Se abilitato effettua uno sconto se l'utente acquista l'evento in modalità webinar"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo[AND]sconti_particolari:1"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+         <!-- prezzo webinar fisso -->
+        <field
+                name="prezzo_webinar_fisso"
+                type="radio"
+                label="Prezzo webinar fisso"
+                description="Se abilitato legge il prezzo fisso impostato negli sconti particolari"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo[AND]sconti_particolari:1"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+        <field
+                name="sc_webinar_perc"
+                type="text"
+                label="Sconto webinar %"
+                description="Lo sconto applicato al Prezzo corso se acquistato in webinar. Se ci sono altri sconti riduce le quote della parcentuale indicata"
+                size="20"
+                class="inputbox"
+                showon="sconti_particolari:1[AND]riduzione_webinar:1[AND]prezzo_webinar_fisso:0"
+                default="0"
+                key_field="value"
+        />
+
+        <!-- disabilita acquisto in presenza -->
+         <field
+                name="disabilita_aquisto_presenza"
+                type="radio"
+                label="Disabilita acquisto corsi in presenza"
+                description="Se abilitato nasconde dall'acquisto gli eventi in presenza"
+                class="btn-group"
+                showon="is_corso:1[AND]riduzione_webinar:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
         <!-- sconto per data -->
 
         <field name="sc_da_data"
@@ -340,7 +408,7 @@
                label="Seleziona da quando verrà applicato lo sconto"
                description="Lo Sconto verrà applicato fino alla data impostata ed avrà la precedenza sulla scontistica per gruppo. Per non applicare nessuna data lasciare vuoto"
                class="input-small"
-               showon="on_sale:1"
+               showon="on_sale:1[AND]sconti_particolari:0"
                filter="user_utc"
                showtime="false"
                todaybutton="true"
@@ -354,7 +422,7 @@
                label="Seleziona fino a quando verrà applicato lo sconto"
                description="Lo Sconto verrà applicato fino alla data impostata ed avrà la precedenza sulla scontistica per gruppo. Per non applicare nessuna data lasciare vuoto"
                class="input-small"
-               showon="on_sale:1"
+               showon="on_sale:1[AND]sconti_particolari:0"
                filter="user_utc"
                showtime="false"
                todaybutton="true"
@@ -369,7 +437,7 @@
                 description="Lo sconto applicato al Prezzo corso in base alla data (es 10.00). Per non applicare nessuno sconto impostare a 0"
                 size="20"
                 class="inputbox"
-                showon="on_sale:1"
+                showon="on_sale:1[AND]sconti_particolari:0"
                 default="0"
                 key_field="value"
         />
@@ -380,7 +448,7 @@
                 label="Seleziona Gruppo/i"
                 description="Seleziona i gruppo/i per i quali sarà applicato lo sconto. Per non applicare sconti a gruppo/i lasciare vuoto"
                 class="inputbox"
-                showon="on_sale:1"
+                showon="on_sale:1[AND]sconti_particolari:0"
                 default=""
                 multiple="true"
                 size="20"
@@ -395,7 +463,7 @@
                 description="Lo sconto applicato al Prezzo corso per gruppo/i (es. 10.00). Per non applicare nessuno sconto impostare a 0"
                 size="20"
                 class="inputbox"
-                showon="on_sale:1"
+                showon="on_sale:1[AND]sconti_particolari:0"
                 default="0"
         />
 
@@ -406,7 +474,7 @@
                 label="Seleziona Gruppo/i"
                 description="Seleziona i gruppo/i per i quali sarà applicato lo sconto che avrà sempre validità con una priorità minore rispetto alla scontistica per data. Per non applicare sconti a gruppo/i lasciare vuoto"
                 class="inputbox"
-                showon="on_sale:1"
+                showon="on_sale:1[AND]sconti_particolari:0"
                 default=""
                 multiple="true"
                 size="20"
@@ -421,7 +489,7 @@
                 description="Lo sconto applicato al Prezzo corso per gruppo/i (es. 10.00). Per non applicare nessuno sconto impostare a 0"
                 size="20"
                 class="inputbox"
-                showon="on_sale:1"
+                showon="on_sale:1[AND]sconti_particolari:0"
                 default="0"
         />
 
@@ -433,7 +501,7 @@
                 default=""
                 label="Sconto per campo Custom di CB"
                 description="Selezionare un campo dalla lista per attivare lo sconto su di un particolare valore del campo CB"
-                showon="on_sale:1[AND]accesso:gruppo"
+                showon="on_sale:1[AND]sconti_particolari:0[AND]accesso:gruppo"
                 required=""
                 query="SELECT name as value, name as text
                         FROM #__comprofiler_fields
@@ -447,7 +515,7 @@
                 class="inputbox"
                 default=""
                 label="Valore del campo Custom di CB che accede allo sconto"
-                showon="on_sale:1[AND]accesso:gruppo[AND]sc_custom_cb!:"
+                showon="on_sale:1[AND]sconti_particolari:0[AND]accesso:gruppo[AND]sc_custom_cb!:"
                 query="SELECT fieldtitle AS value, fieldtitle AS sc_semaforo_custom_cb
                        FROM #__comprofiler_field_values
                        ORDER BY fieldid, ordering"
@@ -460,7 +528,7 @@
                 description="Lo sconto applicato al Prezzo corso se si verifica la condizione di Valore campo Custom (es. 10.00). Per non applicare nessuno sconto impostare a 0"
                 size="20"
                 class="inputbox"
-                showon="on_sale:1[AND]accesso:gruppo[AND]sc_custom_cb!:"
+                showon="on_sale:1[AND]sconti_particolari:0[AND]accesso:gruppo[AND]sc_custom_cb!:"
                 default="0"
         />
 

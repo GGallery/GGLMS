@@ -2,798 +2,477 @@
 defined('_JEXEC') or die;
 ?>
 
-<div>
-    <div id="barrafiltri" class="span2">
+<style>
+    table.table-bordered thead th {
+        background-color: white !important;
+        text-align: center;
+    }
 
-        <form id="theform" class="form-inline" action="index.php">
+    .table th, .table td {
+        text-align: center !important;
+        line-height: 14px !important;
+    }
 
+    .detail-icon {
+        color: #337ab7 !important;
+    }
 
-            <!--            <h3>Corso</h3>-->
-            <div class="form-group">
-                <label for="corso_id"><?php echo JText::_('COM_GGLMS_GLOBAL_CORSO') ?>:</label><br>
-                <?php //echo outputHelper::output_select('corso_id', $this->corsi, 'id_contenuto_completamento', 'titolo', null, 'refresh'); ?>
-                <select id="corso_id" name="corso_id" class="refresh">
-                    <?php
-                    foreach ($this->corsi as $corso) {
+    .dropdown-toggle {
+        background-color: #337ab7 !important;
+        border: 1px solid #337ab7 !important;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <div id="toolbar" class="container-fluid" style="border:1px solid blue;border-radius: 4px;">
+        <h4 class="text-left ml-2 mt-0" style="color: #325482"><?php echo  JText::_('COM_GGLMS_GLOBAL_FILTRI') ?></h4>
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <label for="corso_id"><?php echo  JText::_('COM_GGLMS_GLOBAL_CORSO') ?>:</label>
+                <select id="corso_id" name="corso_id" class="form-control">
+                    <?php foreach ($this->corsi as $corso) {
 
                         echo '<option value="' . $corso->id . '|' . $corso->id_contenuto_completamento . '">' . $corso->titolo . "</option>";
                     }
-                    ?>
+                       ?>
                 </select>
-
             </div>
-
-            <!--            <h4>Tipo Report</h4>-->
-            <div class="form-group">
-                <label for="tipo_report"><?php echo JText::_('COM_GGLMS_REPORT_TIPO') ?></label><br>
-                <select id="tipo_report" name="tipo_report" class="refresh">
+            <div class="form-group col-sm-3">
+                <label for="tipo_report"><?php echo  JText::_('COM_GGLMS_REPORT_TIPO') ?>:</label>
+                <select class="form-control" id="tipo_report" name="tipo_report">
                     <option selected value="0"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_CORSO') ?></option>
                     <option value="1"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_UNITA') ?></option>
                     <option value="2"><?php echo JText::_('COM_GGLMS_REPORT_TIPO_CONTENUTO') ?></option>
                 </select>
-
             </div>
 
-
-            <hr>
-            <h5 style="text-align: center"><?php echo JText::_('COM_GGLMS_GLOBAL_FILTRI') ?></h5>
-
-            <div class="form-group">
-                <label for="usergroups"><?php echo JText::_('COM_GGLMS_GLOBAL_COMPANY') ?>:</label><br>
-                <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2, 'refresh'); ?>
+            <div class="form-group col-sm-3">
+                <label for="usergroups"><?php echo JText::_('COM_GGLMS_GLOBAL_COMPANY') ?>:</label>
+                <?php echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', 2,'form-control'); ?>
             </div>
 
-            <div class="form-group" id="filterstatodiv">
-                <label for="filterstato"> <?php echo JText::_('COM_GGLMS_GLOBAL_STATO') ?> </label></br>
-                <select id="filterstato" name="filterstato" class="refresh">
+            <div id="filterstatodiv" class="form-group col-sm-3">
+                <label for="filterstato"> <?php echo JText::_('COM_GGLMS_GLOBAL_STATO') ?> </label>
+                <select id="filterstato" name="filterstato" class="form-control">
                     <option value="0"><?php echo JText::_('COM_GGLMS_GLOBAL_STATO_ANY') ?></option>
                     <option value="1"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI') ?></option>
                     <option value="2"><?php echo JText::_('COM_GGLMS_REPORT_NON_COMPLETATI') ?></option>
-                    <!--                    <option value="3">In scadenza</option>-->
+
                 </select>
             </div>
+        </div>
+        <div class="row">
 
-            <div class="form-group" id="calendar_startdate_div">
-                <label for="startdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?>:</label><br>
+            <div id="calendar_startdate_div" class="form-group col-sm-3">
+                <label for="startdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM') ?>:</label>
                 <?php echo JHTML::calendar('', 'startdate', 'startdate', '%Y-%m-%d'); ?>
             </div>
 
-            <div class="form-group" id="calendar_finishdate_div">
-                <label for="finishdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_TO') ?>:</label><br>
+            <div id="calendar_finishdate_div" class="form-group col-sm-3">
+                <label for="finishdate"><?php echo JText::_('COM_GGLMS_REPORT_COMPLETATI_TO') ?>:</label>
                 <?php echo JHTML::_('calendar', '', 'finishdate', 'finishdate', '%Y-%m-%d'); ?>
-
-
             </div>
 
-
-            <div class="form-group" id="searchPhrase_div">
-                <label for="searchPhrase"><?php echo JText::_('COM_GGLMS_GLOBAL_SEARCH') ?>:</label><br>
-                <input type="text" id="searchPhrase">
+            <div class="form-group col-sm-2" style="padding-right: initial">
+                <label for="export_csv"><br></label>
+                <button type="button" id="export_csv" class="form-group btn mt-4" style="background-color: #325482;border: none"><?php echo  JText::_('COM_GGLMS_GLOBAL_EXPORT_CSV') ?></button>
             </div>
 
-
-            <input type="hidden" id="option" name="option" value="com_gglms">
-            <input type="hidden" id="task" name="task" value="api.get_csv">
-
-            <div class="form-group">
-                <button type="button" id="update" class="width100 btn"
-                        onclick="reload()"><?php echo JText::_('COM_GGLMS_REPORT_AGGIORNA') ?></button>
-                <button type="button" id="get_csv" class="btn width100"
-                        onclick="loadCsv()"><?php echo JText::_('COM_GGLMS_GLOBAL_EXPORT_CSV') ?></button>
+            <div class="form-group col-sm-1" style="padding-left: initial">
+                <label for="btn_cerca"><br></label>
+                <button type="button" id="btn_cerca" class="form-group btn mt-4" style="background-color: #325482;border: none"><?php echo  JText::_('COM_GGLMS_REPORT_AGGIORNA') ?></button>
             </div>
-            <!--
-            <div class="form-group">
-                <button type="button" id="get_csv" class="btn btn-warning btn-lg width100" onclick="sendAllMail()">INVIA MAIL IN SCADENZA</button>
-            </div>
-
-            <div>
-                <button type="button" class="btn btn-info btn-lg width100" onclick="dataSyncUsers()">SINCRONIZZA TABELLA REPORT</button>
-            </div>
-    -->
-            <!--        <div class="form-group">-->
-            <!--        -->
-            <!--        </div>-->
-        </form>
-
-        <hr>
-
-        <div id="upd_at">
-            <?php echo JText::_('COM_GGLMS_REPORT_UPDATED_AT') ?>
         </div>
-        <script>
-            <?php
-            echo ' convertUTCDateToLocalDate(' . json_encode($this->state->get('params')->get('data_sync')) . ');';
-            ?>
-
-            // convert utc to local
-            function convertUTCDateToLocalDate(d) {
-
-                var date = new Date(d + 'Z');
-
-                var localdate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-                document.getElementById("upd_at").innerHTML += '<span>' + ":" + localdate + '</span>';
-
-
-            }
-
-        </script>
-
-    </div>
-    <div id="contenitoreprincipale" class="span8">
 
         <div class="row">
-            <div class="grid-container">
-
-                <table id="grid-basic" class="table table-condensed table-hover table-striped ">
-
-                </table>
-
-                <div class="col-sm-6">
-                    <ul class="pagination">
-                        <li class="first" aria-disabled="true">
-                            <a data-page="first" class="button">«</a></li>
-                        <li class="prev" aria-disabled="true">
-                            <a data-page="prev" class="button">&lt;</a></li>
-                        <li class="page-1" aria-disabled="false" aria-selected="false">
-                            <a data-page="1" class="button">1</a></li>
-                        <li class="page-2" aria-disabled="false" aria-selected="false">
-                            <a data-page="2" class="button">2</a></li>
-                        <li class="page-3" aria-disabled="false" aria-selected="false">
-                            <a data-page="3" class="button">3</a></li>
-                        <li class="page-4" aria-disabled="false" aria-selected="false">
-                            <a data-page="4" class="button">4</a></li>
-                        <li class="page-5" aria-disabled="false" aria-selected="false">
-                            <a data-page="5" class="button">5</a></li>
-                        <li class="next" aria-disabled="false">
-                            <a data-page="next" class="button">&gt;</a></li>
-                        <li class="last" aria-disabled="false">
-                            <a data-page="last" class="button">»</a></li>
-                        <li class="last" aria-disabled="false">
-                            <span id="totalcount"></span></li>
-                    </ul>
-
-                </div>
-
+            <div class="text-right" id="upd_at">
+                <?php echo JText::_('COM_GGLMS_REPORT_UPDATED_AT') ?>
             </div>
+            <script>
+                <?php
+                echo ' convertUTCDateToLocalDate(' . json_encode($this->state->get('params')->get('data_sync')) . ');';
+                ?>
+                // convert utc to local
+                function convertUTCDateToLocalDate(d) {
+
+                    var date = new Date(d + 'Z');
+
+                    var localdate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                    document.getElementById("upd_at").innerHTML += '<span>' + ":" + localdate + '</span>';
 
 
+                }
+
+            </script>
         </div>
-
     </div>
 
-</div>
+    <table
+            id="tbl_report"
+            data-toggle="table"
+            data-toolbar="#toolbar"
+            data-ajax="ajaxRequest"
+            data-side-pagination="server"
+            data-pagination="true"
+            data-page-size="5"
+            data-show-export="true"
+            data-detail-view="true"
+            data-force-hide="true"
+            data-detail-formatter="detailFormatter"
+            data-page-list="[5, 10, 20, 50, 100, All]"
+    >
+        <thead>
+        <tr>
+            <th data-field="cognome" data-sortable="true"><?php echo JText::_('COM_GGLMS_REPORT_COGNOME'); ?></th>
+            <th data-field="nome" data-sortable="true"><?php echo JText::_('COM_GGLMS_REPORT_NOME'); ?></th>
+            <th data-class="showColumn" data-field="stato" ><?php echo JText::_('COM_GGLMS_REPORT_STATO'); ?></th>
+            <th data-class="showColumn" data-field="data_inizio" ><?php echo JText::_('COM_GGLMS_REPORT_DATA_INIZIO'); ?></th>
+            <th data-class="showColumn" data-field="data_fine" ><?php echo JText::_('COM_GGLMS_REPORT_DATA_FINE'); ?></th>
+            <th data-class="showColumn" data-field="Introduzione" ><?php echo JText::_('COM_GGLSM_REPORT_INTRODUZIONE'); ?></th>
+            <th data-class="showColumn" data-field="Soggetti aziendali: diritti e doveri" ><?php echo JText::_('COM_GGLMS_REPORT_SOGGETTI_AZIENDALI'); ?></th>
+            <th data-class="showColumn" data-field="Test intermedio n. 1" ><?php echo JText::_('COM_GGLMS_REPORT_TEST_INTERMEDIO'); ?></th>
+            <th data-class="showColumn" data-field="Valutazione dei rischi e sorveglianza sanitaria" >Valutazione Dei Rischi E Sorveglianza Sanitaria</th>
+            <th data-class="showColumn" data-field="I concetti di rischio,pericolo e danno" >I Concetti Di Rischio,Pericolo E Danno</th>
+            <th data-class="showColumn" data-field="Test intermedio n. 2" >Test Intermedio N. 2"</th>
+            <th data-class="showColumn" data-field="DVR, misure di prevenzione e protezione" >DVR, Misure Di Prevenzione E Protezione</th>
+            <th data-class="showColumn" data-field="Obblighi dei lavoratori e DPI" >Obblighi Dei Lavoratori E DPI</th>
+            <th data-class="showColumn" data-field="Formazione, informazione e addestramento" >Formazione, Informazione E Addestramento</th>
+            <th data-class="showColumn" data-field="La gestione della prevenzione nei luoghi di lavoro" >La Gestione Della Prevenzione Nei Luoghi Di Lavoro</th>
+            <th data-class="showColumn" data-field="Test intermedio n. 3" >Test Intermedio N. 3</th>
+            <th data-class="showColumn" data-field="Una visita ispettiva" >Una Visita Ispettiva"</th>
+            <th data-class="showColumn" data-field="Organi di vigilanza" >Organi Di Vigilanza</th>
+            <th data-class="showColumn" data-field="Il sopralluogo e la gestione delle emergenze" >Il Sopralluogo E La Gestione Delle Emergenze</th>
+            <th data-class="showColumn" data-field="Il regime sanzionatorio" >Il Regime Sanzionatorio</th>
+            <th data-class="showColumn" data-field="Conclusioni" >Conclusioni</th>
+            <th data-class="showColumn" data-field="Test intermedio n. 4" >Test Intermedio N. 4"</th>
+            <th data-class="showColumn" data-field="Approfondimento: i fondamenti giuridici" >Approfondimento: I Fondamenti Giuridici</th>
+            <th data-class="showColumn" data-field="Test intermedio n. 5" >Test Intermedio N. 5</th>
+            <th data-class="showColumn" data-field="Slide scaricabili" >Slide Scaricabili</th>
+            <th data-class="showColumn" data-field="TEST FINALE - Formazione generale" >TEST FINALE - Formazione Generale</th>
+            <th data-class="showColumn" data-field="Questionario di valutazione della qualità" >Questionario Di Valutazione Della Qualità</th>
+            <th data-field="cb_codicefiscale" ><?php echo JText::_('COM_GGLMS_REPORT_CODICE_FISCALE'); ?></th>
+            <th data-field="cb_azienda" ><?php echo JText::_('COM_GGLSM_REPORT_AZIENDA'); ?></th>
+            <th data-field="attestati_hidden" >Attestato 1</th>
+            <th data-field="Attestato" >Attestato 2</th>
+        </tr>
+        </thead>
+    </table>
 
-<!-- Modal -->
-<div id="details" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+<!--    tabella dettaglio utante-->
+   <table id="detailTable">
+    </table>
 
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title"><?php echo JText::_('COM_GGLMS_REPORT_USERDETAIL') ?></h4>
 
-            </div>
-            <div class="modal-body">
-                <table id="details_table" class="table table-condensed table-hover table-striped ">
-                    <thead>
-                    <tr>
-                        <th><?php echo JText::_('COM_GGLMS_GLOBAL_FIELD') ?></th>
-                        <th><?php echo JText::_('COM_GGLMS_GLOBAL_VALUE') ?></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <!--                <button type="button" class="tn btn-success btn-lg" onclick="loadLibretto()"-->
-                <!--                        style="font-size:12px;padding:4px;position:ABSOLUTE;left:4%;">Libretto Formativo-->
-                <!--                </button>-->
-
-                <button type="button" class="btn btn-default"
-                        data-dismiss="modal"><?php echo JText::_('COM_GGLMS_GLOBAL_CLOSE') ?></button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- Modal Dettagli Corso-->
-<div id="detailsCorso" class="modal fade " role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Dettagli del corso</h4>
-            </div>
-            <div class="modal-body">
-                <table id="details_table_corso" class="table table-condensed table-hover table-striped ">
-                    <thead>
-                    <tr>
-                        <th>Titolo unità</th>
-                        <th>Titolo contenuto</th>
-                        <th>stato</th>
-                        <th>data</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- Modal Dettagli invio mail -->
-<div id="detailsInvioMail" class="modal fade " role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Dettagli di invio della mail di avviso</h4>
-            </div>
-            <div class="modal-body">
-                <table id="details_table_invio_mail" class="table table-condensed table-hover table-striped ">
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div id="div_send_mail_textarea" class="modal-body">Confermi di inviare questa email?<br>
-                oggetto:<input id="oggettomail" type="text" value="promemoria scadenza corso">
-                <textarea cols="50" rows="5" id="testomail" style="width: 560px;"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button id="sendmailbutton" type="button" class="btn btn-success btn-lg" onclick="sendMail()">Invia
-                </button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-<div id="cover-spin"></div>
 
 <script type="text/javascript">
 
 
-    //CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI CONFIGURAZIONI
-    var testo_base_mail = '<?php echo $this->state->get('params')->get('alert_mail_text'); ?>';
-    var loadreportoffset = 0;
-    var loadreportlimit = 15;
-
-    var actualminpage = 1;
-    var columnfilter = ['id_anagrafica', 'scadenza', 'fields'];//CAMPI DA NON MOSTRARE IN TABELLA
-    var columnmappingname = [{name: 'data_inizio', alias: 'data inizio'},
-        {name: 'data_fine', alias: 'data fine'}];
-    var buttonscolumn = ['fields', 'attestato'];//CAMPO CHE SI TRASFORMA IN PULSANTE
-    var buttonscolumnname = ['DETTAGLI', 'ATTESTATI'];//CAMPO CHE DA IL NOME AL PULSANTE
-    var buttonkeyidfield = ['id_anagrafica', 'attestati'];//CHIAVE DI ASSOCIAZIONE AL PULSANTE
+    jQuery('#calendar_startdate_div').hide();
+    jQuery('#calendar_finishdate_div').hide();
+    var pTable = jQuery('#tbl_report');
 
 
-    var user_detail_columns = ['id', 'cb_cognome',
-        'cb_codicefiscale',
-        'cb_datadinascita',
-        'cb_luogodinascita',
-        'cb_provinciadinascita',
-        'cb_indirizzodiresidenza',
-        'cb_provdiresidenza',
-        'cb_cap',
-        'cb_telefono',
-        'cb_nome',
-        'username',
-        'email',
-        'registerDate',
-        'lastvisitDate'];
+    function ajaxRequest(params) {
 
-    var maxNofpages;
-    var viewReportColumns;
-    var fields = [];
+        // preparo i params
+
+        var pCorso = jQuery('#corso_id').val();
+        params.data.corso_id = parseInt(pCorso);
+
+        params.data.startdate = jQuery('#startdate').val();
+
+        params.data.finishdate =jQuery('#finishdate').val();
+
+        var pStato = jQuery('#filterstato').val();
+        params.data.filterstato = parseInt(pStato);
+
+        params.data.usergroups = jQuery('#usergroups').val().trim();
 
 
-    jQuery(document).ready(function ($) {
+        var pTipo = jQuery('#tipo_report').val().trim();
+        params.data.tipo_report = parseInt(pTipo);
 
-        window.console.log('document ready');
-        // default is by corso
-        jQuery('#filterstatodiv').show();
-        jQuery('#calendar_startdate_div').hide();
-        jQuery('#calendar_finishdate_div').hide();
-        loadData(null);
+        if(pTipo == 2){
+            //per Contenuto nacondo le altre colonne
 
-//        TORTA
-//         var ctx = document.getElementById("myChart").getContext('2d');
-//         var notcompleted = 0;
-//         var completed = 0;
-        // var myChart = new Chart(ctx, {
-        //     type: 'pie',
-        //     data: {
-        //         labels: ["Utenti che hanno completato", "Utenti che non hanno completato"],
-        //         datasets: [{
-        //             label: '% corsi completati',
-        //             data: [completed, notcompleted],
-        //             backgroundColor: [
-        //                 'rgba(0, 123, 132, 0.2)',
-        //                 'rgba(128, 162, 25, 0.2)'
-        //             ],
-        //             borderColor: [
-        //                 'rgba(0,123,132,1)',
-        //                 'rgba(128, 162, 25, 1)'
-        //
-        //             ],
-        //             borderWidth: 5
-        //         }]
-        //     },
-        //
-        // });
+            pTable.bootstrapTable('hideColumn', 'stato');
+            pTable.bootstrapTable('hideColumn', 'data_inizio');
+            pTable.bootstrapTable('hideColumn', 'data_fine');
+            pTable.bootstrapTable('showColumn', 'Introduzione');
+            pTable.bootstrapTable('showColumn', 'Soggetti aziendali: diritti e doveri');
+            pTable.bootstrapTable('showColumn', 'Test intermedio n. 1');
+            pTable.bootstrapTable('showColumn', 'Valutazione dei rischi e sorveglianza sanitaria');
+            pTable.bootstrapTable('showColumn', 'I concetti di rischio,pericolo e danno');
+            pTable.bootstrapTable('showColumn', 'Test intermedio n. 2');
+            pTable.bootstrapTable('showColumn', 'DVR, misure di prevenzione e protezione');
+            pTable.bootstrapTable('showColumn', 'Obblighi dei lavoratori e DPI');
+            pTable.bootstrapTable('showColumn', 'Formazione, informazione e addestramento');
+            pTable.bootstrapTable('showColumn', 'La gestione della prevenzione nei luoghi di lavoro');
+            pTable.bootstrapTable('showColumn', 'Test intermedio n. 3');
+            pTable.bootstrapTable('showColumn', 'Una visita ispettiva');
+            pTable.bootstrapTable('showColumn', 'Organi di vigilanza');
+            pTable.bootstrapTable('showColumn', 'Il sopralluogo e la gestione delle emergenze');
+            pTable.bootstrapTable('showColumn', 'Il regime sanzionatorio');
+            pTable.bootstrapTable('showColumn', 'Conclusioni');
+            pTable.bootstrapTable('showColumn', 'Test intermedio n. 4');
+            pTable.bootstrapTable('showColumn', 'Approfondimento: i fondamenti giuridici');
+            pTable.bootstrapTable('showColumn', 'Test intermedio n. 5');
+            pTable.bootstrapTable('showColumn', 'Slide scaricabili');
+            pTable.bootstrapTable('showColumn', 'TEST FINALE - Formazione generale');
+            pTable.bootstrapTable('showColumn', 'Questionario di valutazione della qualità');
 
+        } else if(pTipo == 1){
+          //per Unità nacondo le altre colonne
 
-        //  TABELLA
-        $(".refresh").change(function () {
-
-            notcompleted = 0;
-            completed = 0;
-            loadData(null);
-            //$("#grid-basic").bootgrid("reload");
-        });
-
-        $("#tipo_report").change(function () {
-
-            if ($("#tipo_report option:selected").val() == 0) {
-
-
-                $("#filterstatodiv").show();
-
-                if ($("#filterstatodiv option:selected").val() == 1) {
-                    $("#calendar_startdate_div").show();
-                    $("#calendar_finishdate_div").show();
-                }
-
-            } else {
-                $("#filterstatodiv").hide();
-                $("#calendar_startdate_div").hide();
-                $("#calendar_finishdate_div").hide();
-            }
-
-        });
-
-        $("#filterstato").change(function () {
+            pTable.bootstrapTable('hideColumn', 'stato');
+            pTable.bootstrapTable('hideColumn', 'data_inizio');
+            pTable.bootstrapTable('hideColumn', 'data_fine');
+            pTable.bootstrapTable('hideColumn', 'Introduzione');
+            pTable.bootstrapTable('hideColumn', 'Soggetti aziendali: diritti e doveri');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 1');
+            pTable.bootstrapTable('hideColumn', 'Valutazione dei rischi e sorveglianza sanitaria');
+            pTable.bootstrapTable('hideColumn', 'I concetti di rischio,pericolo e danno');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 2');
+            pTable.bootstrapTable('hideColumn', 'DVR, misure di prevenzione e protezione');
+            pTable.bootstrapTable('hideColumn', 'Obblighi dei lavoratori e DPI');
+            pTable.bootstrapTable('hideColumn', 'Formazione, informazione e addestramento');
+            pTable.bootstrapTable('hideColumn', 'La gestione della prevenzione nei luoghi di lavoro');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 3');
+            pTable.bootstrapTable('hideColumn', 'Una visita ispettiva');
+            pTable.bootstrapTable('hideColumn', 'Organi di vigilanza');
+            pTable.bootstrapTable('hideColumn', 'Il sopralluogo e la gestione delle emergenze');
+            pTable.bootstrapTable('hideColumn', 'Il regime sanzionatorio');
+            pTable.bootstrapTable('hideColumn', 'Conclusioni');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 4');
+            pTable.bootstrapTable('hideColumn', 'Approfondimento: i fondamenti giuridici');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 5');
+            pTable.bootstrapTable('hideColumn', 'Slide scaricabili');
+            pTable.bootstrapTable('hideColumn', 'TEST FINALE - Formazione generale');
+            pTable.bootstrapTable('hideColumn', 'Questionario di valutazione della qualità');
 
 
-            if ($("#filterstato option:selected").val() == 1) {
-                // solo completati
-                $("#calendar_startdate_div").show();
-                $("#calendar_finishdate_div").show();
-            } else {
-                $("#calendar_startdate_div").hide();
-                $("#calendar_finishdate_div").hide();
-            }
-        });
+        } else if(pTipo == 0){
+       //per Corso nascondo le altre colonne
 
-        $("#startdate").bind('change', function () {
+            pTable.bootstrapTable('showColumn', 'stato');
+            pTable.bootstrapTable('showColumn', 'data_inizio');
+            pTable.bootstrapTable('showColumn', 'data_fine');
+            pTable.bootstrapTable('hideColumn', 'Introduzione');
+            pTable.bootstrapTable('hideColumn', 'Soggetti aziendali: diritti e doveri');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 1');
+            pTable.bootstrapTable('hideColumn', 'Valutazione dei rischi e sorveglianza sanitaria');
+            pTable.bootstrapTable('hideColumn', 'I concetti di rischio,pericolo e danno');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 2');
+            pTable.bootstrapTable('hideColumn', 'DVR, misure di prevenzione e protezione');
+            pTable.bootstrapTable('hideColumn', 'Obblighi dei lavoratori e DPI');
+            pTable.bootstrapTable('hideColumn', 'Formazione, informazione e addestramento');
+            pTable.bootstrapTable('hideColumn', 'La gestione della prevenzione nei luoghi di lavoro');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 3');
+            pTable.bootstrapTable('hideColumn', 'Una visita ispettiva');
+            pTable.bootstrapTable('hideColumn', 'Organi di vigilanza');
+            pTable.bootstrapTable('hideColumn', 'Il sopralluogo e la gestione delle emergenze');
+            pTable.bootstrapTable('hideColumn', 'Il regime sanzionatorio');
+            pTable.bootstrapTable('hideColumn', 'Conclusioni');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 4');
+            pTable.bootstrapTable('hideColumn', 'Approfondimento: i fondamenti giuridici');
+            pTable.bootstrapTable('hideColumn', 'Test intermedio n. 5');
+            pTable.bootstrapTable('hideColumn', 'Slide scaricabili');
+            pTable.bootstrapTable('hideColumn', 'TEST FINALE - Formazione generale');
+            pTable.bootstrapTable('hideColumn', 'Questionario di valutazione della qualità');
 
-            notcompleted = 0;
-            completed = 0;
-            loadData(null);
-            //$("#grid-basic").bootgrid("reload");
-        });
-
-        $("#finishdate").change(function () {
-
-            notcompleted = 0;
-            completed = 0;
-            loadData(null);
-            //$("#grid-basic").bootgrid("reload");
-        });
-
-
-    });
-
-    jQuery('.button').click(function () {
-
-        switch (jQuery(this).attr('data-page')) {
-
-            case 'first':
-                jQuery("a[data-page='1']").html('1');
-                jQuery("a[data-page='2']").html('2');
-                jQuery("a[data-page='3']").html('3');
-                jQuery("a[data-page='4']").html('4');
-                jQuery("a[data-page='5']").html('5');
-                actualminpage = 1;
-                break;
-
-            case 'prev':
-                if (actualminpage > 1) {
-                    jQuery("a[data-page='1']").html(parseInt(jQuery("a[data-page='1']").html()) - 1);
-                    jQuery("a[data-page='2']").html(parseInt(jQuery("a[data-page='2']").html()) - 1);
-                    jQuery("a[data-page='3']").html(parseInt(jQuery("a[data-page='3']").html()) - 1);
-                    jQuery("a[data-page='4']").html(parseInt(jQuery("a[data-page='4']").html()) - 1);
-                    jQuery("a[data-page='5']").html(parseInt(jQuery("a[data-page='5']").html()) - 1);
-                    actualminpage--;
-                }
-                break;
-
-            case 'next':
-
-
-                jQuery("a[data-page='1']").html(parseInt(jQuery("a[data-page='1']").html()) + 1);
-                jQuery("a[data-page='2']").html(parseInt(jQuery("a[data-page='2']").html()) + 1);
-                jQuery("a[data-page='3']").html(parseInt(jQuery("a[data-page='3']").html()) + 1);
-                jQuery("a[data-page='4']").html(parseInt(jQuery("a[data-page='4']").html()) + 1);
-                jQuery("a[data-page='5']").html(parseInt(jQuery("a[data-page='5']").html()) + 1);
-                actualminpage++;
-                break;
-
-            case 'last':
-
-                jQuery("a[data-page='1']").html(maxNofpages - 4);
-                jQuery("a[data-page='2']").html(maxNofpages - 3);
-                jQuery("a[data-page='3']").html(maxNofpages - 2);
-                jQuery("a[data-page='4']").html(maxNofpages - 1);
-                jQuery("a[data-page='5']").html(maxNofpages);
-                actualminpage = maxNofpages - 4;
-                break;
-
-            default:
-                loadreportoffset = (parseInt(jQuery(this).html()) * loadreportlimit) - loadreportlimit;
-                loadData("pagination");
-        }
-    });
-
-
-    function loadData(sender) {
-
-
-        var url = "index.php?option=com_gglms&task=api.get_report&corso_id=" + jQuery("#corso_id").val();
-        url = url + "&startdate=" + jQuery("#startdate").val();
-        url = url + "&finishdate=" + jQuery("#finishdate").val();
-        url = url + "&filterstato=" + jQuery("#filterstato").val();
-        url = url + "&usergroups=" + jQuery("#usergroups").val();
-        url = url + "&tipo_report=" + jQuery("#tipo_report").val();
-        url = url + "&searchPhrase=" + jQuery("#searchPhrase").val();
-
-        if (sender != 'pagination') {
-            jQuery("a[data-page='1']").html('1');
-            jQuery("a[data-page='2']").html('2');
-            jQuery("a[data-page='3']").html('3');
-            jQuery("a[data-page='4']").html('4');
-            jQuery("a[data-page='5']").html('5');
-            actualminpage = 1;
-            // url = url + "&limit=0";
-            url = url + "&limit=" + loadreportlimit;
-        } else {
-            // url = url + "&limit=" + loadreportoffset;
-            url = url + "&limit=" + loadreportlimit;
         }
 
-        // url = url + "&offset=" + loadreportlimit;
-        url = url + "&offset=" + loadreportoffset;
-        // jQuery("#aggiornamentoReport").modal('show');
-        jQuery('#cover-spin').show(0);
+        jQuery.ajax({
+            type: "GET",
+            url: "index.php?option=com_gglms&task=api.get_report",
+            // You are expected to receive the generated JSON (json_encode($data))
+            data: params.data,
+            dataType: "json",
+            success: function (data) {
+
+                // controllo errore
+                if (typeof data != "object") {
+                    params.error(data);
+                    return;
+                }
+                else if (typeof data.error != "undefined") {
+                    params.error(data.error);
+                    return;
+                }
+                else {
+
+                    params.success({
+
+                        // By default, Bootstrap table wants a "rows" property with the data
+                        "rows": data.rows,
+                        // You must provide the total item ; here let's say it is for array length
+                        "total": data.rowCount
+                    })
 
 
-        jQuery.when(jQuery.get(url))
-            .done(function (data) {
-
-            })
-            .fail(function (data) {
-
-            })
-            .then(function (data) {
-                jQuery('#cover-spin').hide(0);
-
-                data = JSON.parse(data);
-
-                console.log('data', data);
-
-                jQuery('#grid-basic').empty();
-                jQuery('#totalcount').empty();
-                var totCount = Joomla.JText._('COM_GGLMS_GLOBAL_RECORD');
-                jQuery('#totalcount').html(totCount + ':' + data['rowCount']);
-                viewReportColumns = [];
-                fields = data;
-                maxNofpages = parseInt((data['rowCount'] / loadreportlimit) + 1);
-                jQuery("#aggiornamentoReport").modal('hide');
-                data['columns'].forEach(addColumn);
-                if (buttonscolumn.length > 0) {
-
-                    jQuery.each(buttonscolumn, function (i, item) {
-
-                        var text = Joomla.JText._("COM_GGLMS_REPORT_" + buttonscolumnname[i].toString().toUpperCase()) || buttonscolumnname[i];
-                        // console.log('rincomincia da quiiiii', text);
-
-                        jQuery('#grid-basic').append('<th>' + text.toUpperCase() + '</th>');
-                        viewReportColumns.push(buttonscolumnname[i]);
-                    });
 
                 }
-                for (i = 0; i < data['rows'].length; i++) {
-
-                    var row = data['rows'][i];
-                    //fields[row['id_anagrafica']]=JSON.parse(row['fields']);
-
-                    jQuery('#grid-basic').append('<tr class=\'' + defineRowBootClass(row) + '\'>');
-
-                    for (ii = 0; ii < viewReportColumns.length; ii++) {
-
-                        addCell(jQuery('#grid-basic tr:last'), row, row[data['columns'][data['columns'].indexOf(viewReportColumns[ii])]], i, ii, jQuery("#tipo_report").val(), viewReportColumns)
-                    }
-
-                }
-
-            });
-
-    }
-
-    function defineRowBootClass(row) {
-
-        if (row['scadenza'] == 1) {
-
-            return 'warning';
-        }
-        if (row['stato'] == 1) {
-
-            return 'success';
-        }
-
-    }
-
-    function addCell(table, row, rowCellData, rowindex, columIndex, viewType, dataColumns) {
-
-        stiletd = 'border-left: 1px solid #ddd;';
-        stiletdcenter = " text-align:center;";
-        //SET OF RULES
-
-        if (rowCellData == '1') {
-
-            rowCellData = "<span title='completato' class='glyphicon glyphicon-ok' style='color:green; font-size: 20px;'></span>";
-            stiletd = stiletd + stiletdcenter;
-        }
-
-        if (rowCellData == '0') {
-
-            rowCellData = "<span title='iniziato' class='glyphicon glyphicon-log-in' style='font-size: 20px;'></span>";
-            stiletd = stiletd + stiletdcenter;
-        }
-
-        if (rowCellData == '0000-00-00') {
-
-            rowCellData = ""
-        }
-
-
-        if (jQuery.inArray(dataColumns[columIndex], buttonscolumnname) > -1) {
-
-
-            rowCellData = addButtonsCell(row, jQuery.inArray(dataColumns[columIndex], buttonscolumnname));
-        }
-
-
-        switch (viewType) {
-
-            case '0':
-                break;
-            case '1':
-            case '2':
-
-
-                break;
-        }
-
-        table.append("<td  style='" + stiletd + "'>" + rowCellData + "</td>");
-    }
-
-    function addColumn(item, index) {
-
-
-        if (columnfilter.indexOf(item) == -1) {
-
-            switch (jQuery("#tipo_report").val()) {
-
-                case '2':
-
-                    //classtouse="class=rotated";
-                    break;
-                default:
-                    classtouse = "";
-                    break;
-            }
-            columnname = item.toString();
-            // console.log(columnname, 'aaaaaaaaaaaaa');
-            if (!columnname.includes('_hidden')) {
-
-                columnname = Joomla.JText._("COM_GGLMS_REPORT_" + item.toString().toUpperCase()) || columnname;
+            },
+            error: function (er) {
+                params.error(er);
             }
 
-
-            // sostituito da localizzazione
-            // for (var i = 0; i < columnmappingname.length; i++) {
-            //
-            //     // console.log(columnmappingname, 'aaaaaaaaaaa');
-            //
-            //     if (columnmappingname[i]['name'] == item) {
-            //         columnname = columnmappingname[i]['alias'];
-            //     }
-            // }
-
-            //if(columnmappingname.filter(c=>c.name==item).length>0){
-            //     columnname= columnmappingname.filter(c=>c.name==item)[0]['alias'];
-
-            //}else {
-
-            //}
-
-
-            //NASCONDO LE COLONNE CHE HANNO _HIDDEN NEL NOME
-            if (!columnname.includes('_hidden') && !columnname.includes('no_column')) {
-                jQuery('#grid-basic').append('<th ' + classtouse + '>' + columnname.toUpperCase() + '</th>');
-                viewReportColumns.push(item);
-            }
-
-        }
-    }
-
-    function addButtonsCell(row, _index) {
-
-        rowCellData = '';
-
-
-        var btnColumnName = buttonscolumnname[_index];
-        if (btnColumnName == "DETTAGLI") {
-            rowCellData = rowCellData + "<button id='columnbutton'";
-            rowCellData = rowCellData + " type='button' class=\"btn btn-xs btn-default command-edit\" data-row=\"";
-            //rowCellData = rowCellData+rowindex;
-            rowCellData = rowCellData + "\" onclick=playbutton(" + row[buttonkeyidfield[_index]] + ",'" + buttonscolumn[_index] + "') ><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\" title='" + buttonscolumn[_index].toString() + "'></span></button>";
-        }
-
-        // non mostro genera attestao se la visualizzazione non è per corso
-        if (btnColumnName == "ATTESTATI" && jQuery("#tipo_report option:selected").val() == 0) {
-            // console.log('row', row);
-            var disabled = row.stato == 1 ? false : true;
-
-            // console.log('fields',JSON.parse(row['fields']));
-
-            var user_id = JSON.parse(row['fields']).user_id;
-
-            // creo un bottone per ogni attestato
-            var att_array = row.attestati_hidden.split('|');
-
-            // se ci sono attestati
-            if (att_array.length > 0 && att_array[0] != "") {
-
-                jQuery.each(att_array, function (i, content_info) {
-
-
-                    var content_id = content_info.split('#')[0];
-                    var content_title = content_info.split('#')[1];
-                    var url = "index.php?option=com_gglms&task=reportutente.generateAttestato&content_id=" + content_id + "&user_id=" + user_id;
-                    if (!disabled) {
-                        rowCellData = rowCellData + "<a target='_blank' type='button' title='" + content_title + "' class='btn btn-xs btn-default command-edit' href='" + url + "' >";
-                    } else {
-                        rowCellData = rowCellData + "<a target='_blank' disabled type='button' style='display: none' href='" + url + "' >";
-                    }
-                    rowCellData = rowCellData + "<span class='glyphicon glyphicon-save-file'></span></a>"
-
-                });
-            }
-
-
-        }
-
-
-        //jQuery(rowCellData).append("<span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span>");
-        // }<
-        return rowCellData;
-    }
-
-
-    function playbutton(searchkey, field) {
-        var id;
-        for (var i = 0; i < fields['rows'].length; i++) {
-
-
-            if (fields['rows'][i][buttonkeyidfield[0]] == searchkey) {
-
-                jQuery('#details_table tbody').empty();
-                jQuery.each(JSON.parse(fields['rows'][i][field]), function (key, value) {
-
-
-                    if (jQuery.inArray(key, user_detail_columns) > -1) {
-                        var eachrow = "<tr>" + "<td>" + key + "</td>" + "<td>" + value + "</td>" + "</tr>";
-
-                        if (key == "id") {
-                            id = value;
-                        }
-                        jQuery('#details_table tbody').append(eachrow);
-                    }
-
-                });
-
-                jQuery("#details").append('<input id=modal_id_utente type=hidden value=' + id + '>');
-                jQuery("#details").modal('show');
-            }
-        }
-
-    }
-
-
-    function reload() {
-
-        loadData(null);
-        //jQuery("#grid-basic").bootgrid("reload");
-    }
-
-    function loadCsv() {
-        var url = "index.php?option=com_gglms&task=api.get_csv&corso_id=" + jQuery("#corso_id").val();
-        url = url + "&startdate=" + jQuery("#startdate").val();
-        url = url + "&finishdate=" + jQuery("#finishdate").val();
-        url = url + "&filterstato=" + jQuery("#filterstato").val();
-        url = url + "&usergroups=" + jQuery("#usergroups").val();
-        url = url + "&tipo_report=" + jQuery("#tipo_report").val();
-        url = url + "&searchPhrase=" + jQuery("#searchPhrase").val();
-
-        location.href = url;
-
-    }
-
-
-    function sendMail() {
-
-        oggettomail = jQuery('#oggettomail').val();
-        testomail = jQuery('#testomail').val();
-        //to=jQuery('#to').html(); ATTENZIONE QUESTA RIGA IN PRODUZIONE ANDRA' SCOMMENTATA
-        to = "a.petruzzella71@gmail.com";
-        jQuery.when(jQuery.get("index.php?to=" + to + "&oggettomail=" + oggettomail + "&testomail=" + testomail + "&option=com_gglms&task=api.sendMail"))
-
-            .done(function (data) {
-
-                result = JSON.parse(data);
-
-                if (result == true) {
-                    jQuery('#sendmailbutton').hide();
-                    jQuery('#div_send_mail_textarea').hide();
-                    jQuery('#details_table_invio_mail tbody').append('<tr><td>email inviata con successo, puoi chiudere questa finestra</td><tr>');
-                }
-            }).fail(function (data) {
 
         });
 
     }
 
-    function sendAllMail() {
+    function detailFormatter(index, row, element) {
 
+        var arr = [];
+        arr.push(row.fields);
 
-        nome_corso = jQuery('#corso_id option:selected').text();
-        oggettomail = jQuery('#oggettomail').val();
-        testomail = testo_base_mail + nome_corso;
-        var id_corso = jQuery('#corso_id')[0]['value'];
-        var usergroups = jQuery('#usergroups')[0]['value'];
-        jQuery.when(jQuery.get("index.php?corso_id=" + id_corso + "&usergroups=" + usergroups + "&oggettomail=" + oggettomail + "&testomail=" + testomail + "&option=com_gglms&task=api.sendAllMail"))
-
-            .done(function (data) {
-
-            }).fail(function (data) {
+       //le colone di tabella dettaglio utente
+        $('#detailTable').bootstrapTable({
+            data: arr,
+            columns: [{
+                field: 'id',
+                title: 'ID'
+            }, {
+                field: 'cb_cognome',
+                title: '<?php echo JText::_('COM_GGLMS_REPORT_COGNOME'); ?>'
+            }, {
+                field: 'cb_codicefiscale',
+                title: '<?php echo JText::_('COM_GGLSM_REPORT_CODICE_FISCALE'); ?>'
+            }, {
+                field: 'cb_datadinascita',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR7'); ?>'
+            }, {
+                field: 'cb_luogodinascita',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8'); ?>'
+            }, {
+                field: 'cb_provinciadinascita',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9'); ?>'
+            }, {
+                field: 'cb_indirizzodiresidenza',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR10'); ?>'
+            }, {
+                field: 'cb_provdiresidenza',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR13'); ?>'
+            }, {
+                field: 'cb_cap',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR12'); ?>'
+            }, {
+                field: 'cb_telefono',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR14'); ?>'
+            }, {
+                field: 'cb_nome',
+                title: '<?php echo JText::_('COM_GGLMS_REPORT_NOME'); ?>'
+            }, {
+                field: 'username',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR2'); ?>'
+            }, {
+                field: 'email',
+                title: '<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR20'); ?>'
+            }, {
+                field: 'registerDate',
+                title: '<?php echo JText::_('COM_GGLMS_GLOBAL_CREATION_DATE'); ?>'
+            }, {
+                field: 'lastvisitDate',
+                title: '<?php echo JText::_('COM_GGLMS_REPORT_LAST_VISIT'); ?>'
+            }]
 
         });
 
+        $(element).html($('#detailTable').clone(true).attr('id', "tbl_" + row.id_anagrafica).show());
+
+        $("#detailTable").hide();
+        $("#detailTable").bootstrapTable('destroy');
     }
 
-    function loadLibretto() {
+    //button aggiorna dati
+    jQuery('#btn_cerca').on('click',function () {
+        pTable.bootstrapTable('refresh');
+    })
 
-        var user_id = jQuery('#modal_id_utente').val();
-
-
-        location.href = window.location + '../../libretto.html?user_id=' + user_id
-
-
-    }
+    //esporto i dati in csv
+    jQuery('#export_csv').on('click', function() {
 
 
-</script>
+        pTable.tableExport({
+            type: 'csv',
+            escape: false,
+            ignoreColumn:[0],
+            fileName: 'Report_generico',
+            exportDataType: 'all',
+            refreshOptions: {
+                exportDataType: 'all'
+            }
+        });
+    })
+
+    //select Stato
+    $("#filterstato").change(function () {
+
+
+             if ($("#filterstato option:selected").val() == 1) {
+                 // solo completati
+                 $("#calendar_startdate_div").show();
+                 $("#calendar_finishdate_div").show();
+             } else {
+                 $("#calendar_startdate_div").hide();
+                 $("#calendar_finishdate_div").hide();
+             }
+        pTable.bootstrapTable('refresh');
+    })
+
+      //select start date
+     $("#startdate").bind('change', function () {
+
+         notcompleted = 0;
+         completed = 0;
+         pTable.bootstrapTable('refresh');
+     })
+
+    //select finish date
+     $("#finishdate").change(function () {
+
+         notcompleted = 0;
+         completed = 0;
+         pTable.bootstrapTable('refresh');
+     })
+
+    //select tipo report
+    $("#tipo_report").change(function () {
+
+             if ($("#tipo_report option:selected").val() == 0) {
+
+                  //solo per corso
+                 $("#filterstatodiv").show();
+
+                 if ($("#filterstatodiv option:selected").val() == 1) {
+                     $("#calendar_startdate_div").show();
+                     $("#calendar_finishdate_div").show();
+                 }
+
+             } else {
+                 $("#filterstatodiv").hide();
+                 $("#calendar_startdate_div").hide();
+                 $("#calendar_finishdate_div").hide();
+             }
+
+        pTable.bootstrapTable('refresh');
+         })
+
+    //select Corso
+    $("#corso_id").change(function () {
+
+        pTable.bootstrapTable('refresh');
+    })
+
+    //select Azienda
+    $("#usergroups").change(function () {
+
+        pTable.bootstrapTable('refresh');
+    })
+
+
+
+   </script>
+</div>

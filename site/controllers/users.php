@@ -1568,4 +1568,161 @@ HTML;*/
         echo json_encode($_ret);
         $app->close();
     }
+
+    public function esegui_reset_password() {
+
+        $app = JFactory::getApplication();
+        $_ret = [];
+
+        try {
+
+            $id_utente = $_REQUEST['id_utente'];
+            $gruppo_azienda = $_REQUEST['gruppo_azienda'];
+
+            if (!isset($id_utente)
+                || $id_utente == "")
+                throw new Exception("Identificativo utente non valorizzato", E_USER_ERROR);
+
+            if (!isset($gruppo_azienda)
+                || $gruppo_azienda == "")
+                throw new Exception("Gruppo azienda non valorizzato", E_USER_ERROR);
+
+            // verifico se l'utente esiste
+            $user_model = new gglmsModelUsers();
+            $_current_user = $user_model->get_user($id_utente);
+            if (!isset($_current_user->id)
+                || $_current_user->id == "")
+                throw new Exception("Nessun utente corrispondente a quello ricercato", E_USER_ERROR);
+
+            // verifico il tutor aziendale
+            $tutor_az = $user_model->get_tutor_aziendale_details($gruppo_azienda);
+            if (!isset($tutor_az->id)
+                || $tutor_az->id == "")
+                throw new Exception("Nessun tutor aziendale trovato", E_USER_ERROR);
+
+            // eseguo reset password su utente
+            $update_password = $user_model->update_users_password($_current_user->id, $_current_user->username);
+            if (is_null($update_password))
+                throw new Exception("Aggiornamento password fallito", E_USER_ERROR);
+
+            // invio email a tutor che certifica il buon esito dell'operazione
+            $email_body = <<<HTML
+                <p>La richiesta di reset password per l'utente <u>{$_current_user->username}</u> è andata a buon fine</p>
+                <p>La nuova password è stata impostata a <b>{$_current_user->username}</b></p>
+HTML;
+            $email_send = utilityHelper::send_email("Richiesta reset password per utente " . $_current_user->username, $email_body, array($tutor_az->email));
+
+            $_ret['success'] = 'tuttook';
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
+    public function get_utenti_per_societa() {
+
+        $_html = "";
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+        $boot_table = isset($_REQUEST['boot_table']) ? true : false;
+
+        try {
+
+            $aziende_ids = [];
+            $user_model = new gglmsModelUsers();
+            $ref_aziende = utilityHelper::getSocietaByUser();
+
+            // nessun riferimento aziendale
+            if (!is_array($ref_aziende)
+                || count($ref_aziende) == 0) throw new Exception("Nessun azienda definita", E_USER_ERROR);
+
+            foreach ($ref_aziende as $key_azienda => $azienda) {
+                $aziende_ids[] = $azienda->id;
+            }
+
+            $users = $user_model->get_utenti_per_azienda($aziende_ids);
+            if (is_null($users))
+                throw new Exception("Nessun utente trovato", E_USER_ERROR);
+
+            $_total_rows = $users['total_rows'];
+            $Juser = JFactory::getUser();
+
+            if($boot_table) {
+
+                $app = JFactory::getApplication();
+                $_total_rows = $_soci['total_rows'];
+
+                foreach ($users['rows'] as $_key_user => $user) {
+
+                    foreach ($user as $key => $value) {
+
+                        $_ret[$_key_user][$key] = $value;
+
+                    }
+                    $action_btn = $Juser->id == $user['id_utente'] ? '' : "resetPassword('" . $user['id_utente']. "', '" . $user['gruppo_utente'] . "')";
+                    $color_btn = $Juser->id == $user['id_utente'] ? '#ccc' : 'red';
+                    $_ret[$_key_user]['azioni'] = <<<HTML
+                    <span style="cursor: pointer; color:{$color_btn};" onclick="{$action_btn}"><i class="fas fa-times-circle fa-2x"></i></span>
+HTML;
+
+                }
+
+            }
+            else {
+
+                // normalizzo array
+                foreach ($users['rows'] as $_key_user => $user) {
+
+                // in tabella non deve essere inserito l'utente corrente (caso tutor...)
+                if ($Juser->id == $user['id_utente']) {
+                    continue;
+                }
+
+                $_html .= <<<HTML
+                <tr>
+                    <td>{$user['username']}</td>
+                    <td>
+                        <a href="javascript:" class="btn btn-info btn-sm" style="min-height: 50px;" onclick="resetPassword('{$user['id_utente']}', '{$user['gruppo_utente']}')">RESET PASSWORD</a>
+                    </td>
+                </tr>
+HTML;
+
+                }
+
+                return $_html;
+
+            }
+
+
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+
+            if ($boot_table) {
+                $_ret['error'] = $e->getMessage();
+                echo json_encode($_ret);
+                $app->close();
+            }
+
+            return null;
+        }
+
+        if ($boot_table) {
+
+            $_rows['rows'] = $_ret;
+            $_rows['total_rows'] = $_total_rows;
+
+            echo json_encode($_rows);
+            $app->close();
+        }
+
+    }
 }

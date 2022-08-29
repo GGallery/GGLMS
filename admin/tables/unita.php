@@ -71,6 +71,9 @@ class gglmsTableunita extends JTable
         if (($array['id']) == 1 && ($array['unitapadre']) != 0)
             $array['unitapadre'] = 0;
 
+        if (($array['is_corso']) == 0 || ($array['is_corso']) != 1)
+            $array['id_contenuto_completamento'] = null;
+
         return parent::bind($array, $ignore);
     }
 

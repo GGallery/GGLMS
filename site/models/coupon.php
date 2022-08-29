@@ -110,22 +110,32 @@ class gglmsModelcoupon extends JModelLegacy
     {
 
         try {
+
+            if(!isset($this->_userid) || ($this->_userid < 0) || !is_numeric($this->_userid) || ($this->_userid == 0))
+                throw new Exception('id utente minore o uguale a zero',1);
+
+
             $query = '
                 UPDATE
                     #__gg_coupon 
-                SET id_utente = ' . $this->_userid . ', 
+                SET id_utente = ' . $this->_db->quote($this->_userid) . ', 
                 data_utilizzo = NOW()
                 WHERE 
-                    substring_index(coupon,"@",1)    =   "' . $coupon . '" 
-                ';
+                    substring_index(coupon,"@",1)    = ' . $this->_db->quote($coupon) ;
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            return true;
+
         } catch (Exception $e) {
+
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'assegnaCoupon');
             DEBUGG::error($e);
+            return null;
         }
-        return true;
+
     }
 
 
@@ -378,6 +388,174 @@ class gglmsModelcoupon extends JModelLegacy
         catch (Exception $e) {
             DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
             return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
+    //gli passo id_iscrizione del coupon e mi restituisce il coupon
+    public function get_coupon($id_iscrizione)
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select("c.coupon")
+                ->from('#__gg_coupon c')
+                ->where('id_iscrizione = ' . $this->_db->quote($id_iscrizione));
+
+            $this->_db->setQuery($query);
+
+            if (null === ($result = $this->_db->loadResult())) {
+                throw new Exception("coupon non esiste", 1);
+               }
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
+
+
+    //Aggiorno la tabella coupon inserendo l'id dell'utente che gli passo con coupon
+    public function assegnaCoupon_user($user_id, $coupon)
+    {
+
+        try {
+            $query = '
+                UPDATE
+                    #__gg_coupon 
+                SET id_utente = ' . $this->_db->quote($user_id) . ', 
+                data_utilizzo = NOW()
+                WHERE 
+                    substring_index(coupon,"@",1)    =   ' . $this->_db->quote($coupon) . ' 
+                ';
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query()))
+                throw new Exception("coupon non aggiornato con id utente", 1);
+
+            return true;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return false;
+        }
+
+    }
+
+    //inserimento dell'utente su usergroup_map
+    public function setUsergroup_user($id_gruppo, $user_id)
+    {
+
+        try {
+
+                $query = "INSERT IGNORE INTO #__user_usergroup_map VALUE($user_id, $id_gruppo)";
+                $this->_db->setQuery($query);
+                $this->_db->execute();
+
+                if (false === ($results = $this->_db->query()))
+                    throw new Exception("Errore nella procedura setUsergroupUserMap", 1);
+
+                return true;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return false;
+        }
+
+    }
+
+    //coupon scaduto meno di un anno
+    public function is_expired_less_than_year($coupon)
+    {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $db->setQuery("SELECT  config_value FROM #__gg_configs WHERE config_key= 'durata_massima'");
+            $durata_massima = $db->loadResult();
+
+            // rifaccio la query per far fare il calcolo a sql
+            $query = $this->_db->getQuery(true)
+                ->select('DATE_ADD(c.data_utilizzo,INTERVAL '. $this->_db->quote($durata_massima) .' MONTH) as data_scadenza_calc , c.data_utilizzo')
+                ->from('#__gg_coupon AS c')
+                ->where("c.coupon = '" . $coupon . "'");
+
+            $this->_db->setQuery($query);
+
+            if (null === ($results = $this->_db->loadAssoc())) {
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            $data_scadenza_calc = new DateTime($results['data_scadenza_calc']);
+            $today = new DateTime(date("Y-m-d"));
+
+            // se $data_scadenza_calc è minore di oggi il coupon è expired
+            return $data_scadenza_calc > $today ? true : false;
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'is_expired');
+        }
+
+    }
+
+    public function check_already_exist($coupon)
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('c.coupon')
+                ->from('#__gg_coupon as c')
+                ->where('c.id_societa=' . (int)$coupon['id_societa'])
+                ->where('c.id_utente=' . $this->_userid)
+                ->where('c.id_gruppi=' . (int)$coupon['id_gruppi']);
+
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            return $result;
+
+
+        } catch (Exception $e) {
+
+            throw new BadMethodCallException('Errore nella procedura check_already_exist', E_USER_ERROR);
+        }
+
+    }
+
+    //libeo un coupon da id_utente e id_societa e id_gruppi
+    public function liberaCoupon($coupon)
+    {
+
+        try {
+
+            if(!isset($this->_userid) || ($this->_userid < 0) || !is_numeric($this->_userid) || ($this->_userid == 0))
+                throw new Exception('id utente minore o uguale a zero',1);
+
+
+            $query = '
+                UPDATE
+                    #__gg_coupon 
+                SET id_utente = NULL ,
+                id_societa = 0, 
+                id_gruppi = 0
+                WHERE 
+                    coupon = ' . $this->_db->quote($coupon) .'
+                    ';
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->query()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            return true;
+
+        } catch (Exception $e) {
+
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'liberaCoupon');
+            DEBUGG::error($e);
+            return false;
         }
 
     }

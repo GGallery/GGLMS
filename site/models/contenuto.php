@@ -113,7 +113,9 @@ class gglmsModelContenuto extends JModelLegacy
     {
         try {
 
-            $xml_path = PATH_CONTENUTI . '/' . $this->id . '/' . $this->id . '.xml';
+            $xml_path = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $this->id . '/' . $this->id . '.xml';
+
+
             if (!file_exists($xml_path)) {
                 JFactory::getApplication()->enqueueMessage('Impossibile trovare l\'xml per il contenuto "' . $this->titolo . '" al path ' . $this->_path . '', 'error');
                 return array();
@@ -214,8 +216,9 @@ class gglmsModelContenuto extends JModelLegacy
 
         try {
             $path = PATH_CONTENUTI . '/' . $this->id;
-            $filepath = JPATH_BASE . "/" . $path . "/";
-
+            // fix per evitare casi del tipo /dir/sub/../sub/..
+            //$filepath = JPATH_BASE . "/" . $path . "/";
+            $filepath = JPATH_BASE . "/" . str_replace('..', '', $path) . "/";
 
             //if (!file_exists($filepath . "vtt_slide.vtt")) {
             $values = array();
@@ -705,18 +708,22 @@ class gglmsModelContenuto extends JModelLegacy
                             JOIN #__quiz_r_student_choice ON #__quiz_r_student_question.c_id = #__quiz_r_student_choice.c_sq_id
                             JOIN #__quiz_t_question ON #__quiz_r_student_question.c_question_id = #__quiz_t_question.c_id
                             JOIN #__quiz_t_qtypes ON #__quiz_t_question.c_type = #__quiz_t_qtypes.c_id
-                            JOIN #__quiz_t_choice  ON #__quiz_r_student_choice.c_choice_id = #__quiz_t_choice.c_id
+                            JOIN #__quiz_t_choice  ON #__quiz_r_student_choice.c_choice_id = #__quiz_t_choice.c_id AND #__quiz_r_student_question.c_question_id = #__quiz_t_choice.c_question_id
                         WHERE #__quiz_r_student_quiz.c_quiz_id = " . $this->_db->quote($quiz_id) . "
                         AND #__quiz_r_student_quiz.c_student_id = " . $this->_db->quote($user_id);
 
             $this->_db->setQuery($query);
             $results = $this->_db->loadAssocList();
 
+            if(empty($results))
+                throw new Exception("quiz mancante all'utente : " . $user_id,1);
+
             return $results;
 
         }
         catch (Exception $e) {
-            return $e->getMessage();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'get_dettagli_quiz_per_utente');
+            return null;
         }
 
     }
@@ -820,6 +827,64 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
+    public function get_quiz_response_survey( $id_quiz) {
+
+        try {
+
+                $query = $this->_db->getQuery(true)
+                    ->select(' qrsq.c_id as Id_user_quiz, cu.username as Username, cu.email as Email, qtq.c_question as Domanda, qrss.c_answer as Risposta')
+                    ->from('#__quiz_r_student_quiz qrsq ')
+                    ->join('inner', '#__quiz_r_student_question qrsqt ON qrsq.c_id = qrsqt.c_stu_quiz_id')
+                    ->join('inner', '#__quiz_r_student_survey qrss ON qrsqt.c_id = qrss.c_sq_id')
+                    ->join('inner', '#__users cu ON qrsq.c_student_id = cu.id')
+                    ->join('inner','#__quiz_t_question qtq  ON qrsqt.c_question_id = qtq.c_id')
+                    ->where('qrsq.c_id IN (
+                               SELECT cqrsq.c_id
+                               FROM cis19_quiz_r_student_quiz cqrsq
+                               WHERE cqrsq.c_quiz_id =' . $this->_db->quote($id_quiz) . ')')
+                    ->order('qrsq.c_id');
+
+                $this->_db->setQuery($query);
+                $results = $this->_db->loadAssocList();
+
+
+            return $results;
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
+    public function get_quiz_response_choice($id_quiz) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select(' qrsq.c_id as Id_user_quiz, cu.username as Username, cu.email as Email, qtq.c_question as Domanda, qtc.c_choice as Risposta')
+                ->from('#__quiz_r_student_quiz qrsq ')
+                ->join('inner', '#__quiz_r_student_question qrsqt ON qrsq.c_id = qrsqt.c_stu_quiz_id')
+                ->join('inner', '#__quiz_r_student_choice qrsc ON qrsqt.c_id = qrsc.c_sq_id')
+                ->join('inner', '#__users cu ON qrsq.c_student_id = cu.id')
+                ->join('inner','#__quiz_t_question qtq  ON qrsqt.c_question_id = qtq.c_id')
+                ->join('inner','#__quiz_t_choice qtc ON qrsc.c_choice_id = qtc.c_id AND qrsqt.c_question_id = qtc.c_question_id')
+                ->where('qrsq.c_id IN (
+                               SELECT cqrsq.c_id
+                               FROM cis19_quiz_r_student_quiz cqrsq
+                               WHERE cqrsq.c_quiz_id =' . $this->_db->quote($id_quiz) . ')')
+                ->order('qrsq.c_id');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+
+            return $results;
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
 
 
 }

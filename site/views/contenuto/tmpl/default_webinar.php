@@ -5,16 +5,20 @@ defined('_JEXEC') or die('Restricted access');
 if ($this->contenuto->_params->get('abilita_breadcrumbs', 1))
     echo $this->loadTemplate('breadcrumb');
 
+// dicitura link per consentire all'utente di visualizzare il contenuto in una nuova scheda del browser
+$visualizza_link_semplice = "";
+if ($this->contenuto->_params->get('visualizza_link_semplice', 0))
+    $visualizza_link_semplice = outputHelper::visualizza_link_semplice_contenuto($this->contenuto->path);
+
 //BOOTSTRAP SCORM FILE
 $pathscorm = $this->contenuto->path;
-
 
 //$pathscorm = 'C:/WAMP64/www/www.carigelearning.it/mediagg/contenuti/'.$this->contenuto->id.'/';
 
 
 ?>
 <!--<script type="text/javascript">-->
-<!--    --><?php //if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo 'UserLog('.$this->id_utente.','.$this->contenuto->id.', null);' ?>
+<!--    --><?php //if(JFactory::getApplication()->getParams()->get('log_utente')==1) echo ' '.$this->id_utente.','.$this->contenuto->id.', null);' ?>
 <!--</script>-->
 
 <p style="text-align:center; margin: 100px;">
@@ -22,6 +26,8 @@ $pathscorm = $this->contenuto->path;
         <img src="components/com_gglms/libraries/images/avviatest.jpg">
     </button>
 </p>
+
+<?php echo $visualizza_link_semplice; ?>
 
 <script type="text/javascript">
     jQuery('#start').click(function () {

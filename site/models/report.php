@@ -360,7 +360,10 @@ class gglmsModelReport extends JModelLegacy
     public function insertUserLog($id_utente, $id_contenuto, $supporto = null, $ip_address, $uniqid)
     {
 
+        $insertquery = "";
+
         try {
+
             $insertquery = 'INSERT INTO #__gg_log (id_utente, id_contenuto,data_accesso, supporto, ip_address, uniqid, permanenza) VALUES(';
             $insertquery = $insertquery . $id_utente . ',';
             $insertquery = $insertquery . $id_contenuto . ',';
@@ -369,14 +372,21 @@ class gglmsModelReport extends JModelLegacy
             $insertquery = $insertquery . $ip_address . '\',';
             $insertquery = $insertquery . $uniqid . ',';
             $insertquery = $insertquery . '0)';
-            //echo $insertquery; die;
+
+            utilityHelper::make_debug_log(__FUNCTION__, $insertquery, __FUNCTION__);
+
             $this->_db->setQuery($insertquery);
-            $this->_db->execute();
+            //$this->_db->execute();
+
+            // gestione dell'errore di query
+            if (!$this->_db->execute())
+                throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
 
             return true;
 
         } catch (Exception $ex) {
-            DEBUGG::log('QUERY: ' . $insertquery . ' ERR: ' . $ex->getMessage(),__FUNCTION__,0,1);
+            //DEBUGG::log('QUERY: ' . $insertquery . ' ERR: ' . $ex->getMessage(),__FUNCTION__,0,1);
+            utilityHelper::make_debug_log(__FUNCTION__, $insertquery . ' ERR: ' . $ex->getMessage(), __FUNCTION__);
             return false;
         }
 
@@ -385,17 +395,28 @@ class gglmsModelReport extends JModelLegacy
     public function updateUserLog($uniquid)
     {
 
+        $updatequery = "";
+
         try {
 
-            $updatequery = 'UPDATE #__gg_log set permanenza=TIME_TO_SEC(TIMEDIFF(NOW(),data_accesso)) where uniqid=' . $uniquid;
+            $updatequery = 'UPDATE #__gg_log
+                                    set permanenza=TIME_TO_SEC(TIMEDIFF(NOW(),data_accesso))
+                                    where uniqid=' . $uniquid;
+
+            utilityHelper::make_debug_log(__FUNCTION__, $updatequery, __FUNCTION__);
 
             $this->_db->setQuery($updatequery);
-            $this->_db->execute();
+            //$this->_db->execute();
+
+            // gestione dell'errore di query
+            if (!$this->_db->execute())
+                throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
 
             return true;
 
         } catch (Exception $ex) {
-            DEBUGG::log('QUERY: ' . $updatequery . ' ERR: ' . $ex->getMessage(),__FUNCTION__,0,1);
+            //DEBUGG::log('QUERY: ' . $updatequery . ' ERR: ' . $ex->getMessage(),__FUNCTION__,0,1);
+            utilityHelper::make_debug_log(__FUNCTION__, $updatequery . ' ERR: ' . $ex->getMessage(), __FUNCTION__);
             return false;
         }
 

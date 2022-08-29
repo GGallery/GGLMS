@@ -2018,6 +2018,55 @@ HTML;
 
     }
 
+    // invia email a tutor per generazione dei coupon - utility per api.load_corsi_from_xml
+    public static function invia_email_tutor_template($nome_piattaforma,
+                                                      $alias_piattaforma,
+                                                      $dominio,
+                                                      $username_tutor,
+                                                      $pwd_tutor,
+                                                      $template_tutor,
+                                                      $sender,
+                                                      $mail_debug,
+                                                      $to,
+                                                      $recipients,
+                                                      $is_debug = false) {
+
+        try {
+
+            $mailer = JFactory::getMailer();
+            $mailer->setSender($sender);
+            $mailer->addRecipient($to);
+            $mailer->addCc($recipients["cc"]);
+
+            $mailer->setSubject('Registrazione  ' . $alias_piattaforma);
+
+            $smarty = new EasySmarty();
+            $smarty->assign('piattaforma_name', $nome_piattaforma);
+            $smarty->assign('piattaforma_alias', $alias_piattaforma);
+            $smarty->assign('piattaforma_link', 'https://' . $dominio);
+            $smarty->assign('user_name', $username_tutor);
+            $smarty->assign('user_password', $pwd_tutor);
+
+            $mailer->setBody($smarty->fetch_template($template_tutor, null, true, false, 0));
+            $mailer->isHTML(true);
+
+            // invio email ko
+            $email_status = 1;
+            if (!$mailer->Send())
+                $email_status = 0;
+
+            self::make_debug_log(__FUNCTION__, "Invio email: " . $email_status . " -> " . print_r($recipients, true), __FUNCTION__ . "_info");
+
+            return true;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // invia email relativa alla registrazione di un nuovo utente per l'acquisto di un evento - utility per view.acquistaevento
     public static function send_acquisto_evento_email_new_user($email_default,
                                                                 $_event_title,
@@ -2279,39 +2328,10 @@ HTML;
     }
 
     // rimuovo l'utente da un gruppo specifico passando gli id gruppo in un array - utility per self.set_usergroup_categorie()
-    public static function remove_user_from_usergroup($user_id, $ug_list_arr, $db_option = array()) {
+    public static function remove_user_from_usergroup($user_id, $ug_list_arr) {
 
-        try {
-
-            $db = JFactory::getDbo();
-
-            // gestione db esterno
-            if (count($db_option) > 0)
-                $db = JDatabaseDriver::getInstance($db_option);
-
-            //$ug_list_arr = !is_array($ug_list_arr) ? (array) $ug_list_arr : $ug_list_arr;
-            $ug_list = !is_array($ug_list_arr) ? $ug_list_arr : implode(",", $ug_list_arr);
-
-            /*
-            foreach ($ug_list_arr as $key => $d_group_id) {
-                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
-            }
-            */
-
-            $query = "DELETE FROM #__user_usergroup_map
-                            WHERE user_id = " . $db->quote($user_id) . "
-                            AND group_id IN (" . $ug_list . ")";
-
-            $db->setQuery($query);
-            if (false === $db->execute()) {
-                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
-            }
-
-            return 1;
-        }
-        catch (Exception $e) {
-            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return null;
+        foreach ($ug_list_arr as $key => $d_group_id) {
+            JUserHelper::removeUserFromGroup($user_id, $d_group_id);
         }
 
     }

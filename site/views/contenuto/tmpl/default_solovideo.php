@@ -14,10 +14,9 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 <script type="text/javascript">
 
-
     jQuery(document).ready(function ($) {
 
-        <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);' ?>
+        <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);'?>
 
         var hasPlayed = false;
         var player;
@@ -26,7 +25,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         var old_tempo;
         var bookmark =<?php echo $stato->bookmark; ?>;
 
-        var id_elemento = <?php echo $this->contenuto->id; ?>;
+
         var stato = <?php echo $this->contenuto->getStato()->completato; ?>;
         var features = null;
 
@@ -53,6 +52,16 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         <?php
         }
         ?>
+
+        //stoppo il video quando cambia focus
+        <?php if ($this->attiva_blocco_video_focus == 1) { ?>
+
+        jQuery(window).on('blur',function() {
+            console.log('blur');
+            player.pause();
+
+        });
+        <?php } ?>
 
         // declare object for video
         player = new MediaElementPlayer('video', {
@@ -112,37 +121,30 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 
         player.play();
-        jQuery('.jumper.enabled').click(function () {
+        jQuery('.jumper.enabled').on('click',function () {
             var rel = jQuery(this).attr('rel');
             player.setCurrentTime(rel);
             sliding(time);
         });
 
-        jQuery('.jumper.disabled').click(function () {
+        jQuery('.jumper.disabled').on('click',function () {
             alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
         });
 
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
-            /*
-            jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
-                time: tview,
-                id_elemento: id_elemento
-            });
-            */
+            var id_utente = '<?php echo $this->id_utente;?>';
+            var id_elemento = '<?php echo $this->contenuto->id; ?>';
 
-            var data = null;
-            if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
-                console.log("firefox");
-                data = {async: false};
-            }
-            else {
-                console.log("non-firefox");
-                data = {async: true};
-            }
+            updateBookmark(tview, id_elemento, id_utente);
+            <?php
+            // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
+            echo <<<HTML
+            getUpdateSessionStorage("{$this->id_utente}", "{$this->contenuto->id}");
+HTML;
+?>
 
-            updateBookmark(data);
             return null;
         });
 
@@ -151,22 +153,6 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             console.log('prevent download solo_video');
             return false;
         });
-
-        function updateBookmark(data) {
-
-            jQuery.ajax({
-                url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
-                data: {
-                    time: tview,
-                    id_elemento: id_elemento
-                },
-                async: data.async,
-                success: function () {
-                    console.log("updateBookmark success");
-                }
-            });
-
-        }
 
         function sliding(tempo) {
             if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
@@ -194,14 +180,44 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             }
         }
 
+
         function finish(tempo) {
             stato = 1;
+
+            /*
             jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
                 secondi: tempo,
                 stato: 1,
                 id_elemento: id_elemento
             });
+            */
+
+            var data_sync = null;
+            var pAsync = get_async_call();
+            data_sync = {async: pAsync};
+            var id_utente = '<?php echo $this->id_utente;?>';
+            var id_elemento = '<?php echo $this->contenuto->id; ?>';
+
+            // passando uniquid forzo l'esecuzione di updateUserLog
+            var globalUniq = (typeof gUniqid != 'undefined' ?  gUniqid : "");
+
+            jQuery.ajax({
+                url: "index.php?option=com_gglms&task=contenuto.updateTrack",
+                data: {
+                    "secondi": tempo,
+                    "stato": 1,
+                    "id_elemento": id_elemento,
+                    "id_utente" : id_utente,
+                    "uniquid" : globalUniq
+                },
+                async: data_sync.async,
+                success: function () {
+                    console.log("finish success");
+                }
+            });
+
         }
+
 
 
 //INIZIO COMPARSA JUMPER
@@ -249,46 +265,8 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             ?>
         </video>
 
-        <!--        <div id= "panel_jumper" class="sidepanel  ">-->
-        <!--            --><?php
-        //            $i = 0;
-        //            foreach ($this->jumper as $var) {
-        //                $_titolo = $var['titolo'];
-        //                $_tstart = $var['tstart'];
-        //
-        //                //Genero il minutaggio del Jumper
-        //                $h = floor($_tstart / 3600);
-        //                $m = floor(($_tstart % 3600) / 60);
-        //                $s = ($_tstart % 3600) % 60;
-        //                $_durata = sprintf('%02d:%02d:%02d', $h, $m, $s);
-        //
-        //                //DIV ID del jumper che serve poi impostare il colore di background
-        //                $_jumper_div_id = $i;
-        //
-        //                //Anteprima Jumper
-        //                $_id_contenuto = JRequest::getInt('id', 0);
-        //
-        //                $_img_contenuto = $this->contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
-        //                $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";
-        ////            $class = ($this->elemento['track']['cmi.core.lesson_status'] == 'completed') ? 'enabled' : 'disabled';
-        //                $class = ($this->contenuto->getStato()->completato)  ? 'enabled' : 'disabled';
-        //
-        //                $jumper = '<div class="jumper ' . $class . '" id="' . $_jumper_div_id . '" rel="' . $_tstart . '">';
-        //                // $jumper.='<div class="anteprima_jumper" style="' . $_background . '"></div>';
-        //                $jumper.=$_durata . "<br>" . $_titolo;
-        //                $jumper.='</div>';
-        //                echo $jumper;
-        //                $i++;
-        //            }
-        //            ?>
-        <!--        </div>-->
-
-
     </div>
 
-    <!--    <div id="boxslide" class="g-block size-50 span6">-->
-    <!--        <div class="mejs-slides-player-slides img-thumbnail"></div>-->
-    <!--    </div>-->
 </div>
 
 

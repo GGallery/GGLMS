@@ -57,7 +57,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
     }
 
     // entry point
-    public function insert_coupon($data, $from_api=false, $from_xml=false)
+    public function insert_coupon($data, $from_api=false, $from_xml=false, $disable_mail=false)
     {
 
         try {
@@ -74,7 +74,9 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             // check durata coupon, se il campo è nel form vince l'input dell'utente
             $durata_coupon = $data["durata"] ? $data["durata"] : $this->_config->getConfigValue('durata_standard_coupon');
-            if ($durata_coupon == null) {
+
+
+            if ($durata_coupon == null || !is_numeric($durata_coupon) || $durata_coupon < 0) {
                 throw new RuntimeException("durata coupon non specificata", E_USER_ERROR);
             }
 
@@ -96,7 +98,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $company_user = null;
             $new_societa = false;
 
+            // utente non esistente, devo crearlo insieme a gruppo e forum
             if (empty($user_id)) {
+
+                // controllo se l'email è già esistente (caso tutor con email multiple che produce un errore subdolo)
+                if (utilityHelper::check_user_by_column('email', $data['email'])) {
+                    throw new RuntimeException("email tutor esistente: ". $data['email'], E_USER_ERROR);
+                }
 
                 // prima di procedere controllo se lo usergroups è già esistente visto che viene inizializzato come la ragione sociale e joomla non accetta gruppi con lo stesso nome
                 $check_usergroups = $this->_check_usergroups((string)$data['ragione_sociale'], $from_api);
@@ -107,7 +115,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     throw new RuntimeException("duplicate user_groups", E_USER_ERROR);
 
                 $new_societa = true;
-                $company_user = $this->create_new_company_user($data, $from_api);
+                $company_user = $this->create_new_company_user($data, $from_api, $from_xml);
                 // controllo eventuali errori
                 if (is_null($company_user))
                     throw new RuntimeException("company user creation failed", E_USER_ERROR);
@@ -129,6 +137,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $id_iscrizione = $this->_generate_id_iscrizione($data['id_piattaforma']);
             $info_societa = $this->_get_info_gruppo_societa($data['username'], $data["id_piattaforma"], $from_api);
+
             // controllo eventuali errori
             if (is_null($info_societa)
                 || !is_array($info_societa))
@@ -210,55 +219,55 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             // leggo da configurazione se mandare le mail con i coupon generati
             // non invio email singola se sto generando i coupon da xml perchè ne invierò una cumulativa
-            $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
-            if ($send_mail == 1
-                && !$from_xml) {
+            if(!$disable_mail) {
+                $send_mail = $this->_config->getConfigValue('mail_coupon_acitve');
+                if ($send_mail == 1
+                    && !$from_xml) {
 
+                    // send new credentials
+                    if ($new_societa) {
 
-                // send new credentials
-                if ($new_societa) {
+                        if ($this->send_new_company_user_mail($company_user,
+                                $nome_societa,
+                                $id_gruppo_societa,
+                                $data["id_piattaforma"],
+                                $data['email_coupon'],
+                                $from_api) === false) {
+                            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                        }
 
-                    if ($this->send_new_company_user_mail($company_user,
+                    }
+
+                    if ($this->send_coupon_mail($coupons,
+                            $data["id_piattaforma"],
                             $nome_societa,
                             $id_gruppo_societa,
-                            $data["id_piattaforma"],
                             $data['email_coupon'],
                             $from_api) === false) {
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
+
                 }
 
-                if ($this->send_coupon_mail($coupons,
-                        $data["id_piattaforma"],
-                        $nome_societa,
-                        $id_gruppo_societa,
-                        $data['email_coupon'],
-                        $from_api) === false) {
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-                }
+                // leggo da configurazione se creare o meno forum
+                $genera_forum = $this->_config->getConfigValue('genera_forum');
+                if ($genera_forum == 1) {
 
+                    $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $from_api);
 
-            }
+                    if (empty($forum_corso)) {
 
-
-            // leggo da configurazione se creare o meno forum
-            $genera_forum = $this->_config->getConfigValue('genera_forum');
-            if ($genera_forum == 1) {
-
-                $forum_corso = $this->_check_corso_forum($id_gruppo_societa, $data['gruppo_corsi'], $from_api);
-
-                if (empty($forum_corso)) {
-
-                    if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa,
-                            $data['gruppo_corsi'],
-                            $nome_societa,
-                            null,
-                            $from_api))) {
-                        throw new RuntimeException('Error: cannot create forum corso', E_USER_ERROR);
+                        if (false === ($forum_corso = $this->_create_corso_forum($id_gruppo_societa,
+                                $data['gruppo_corsi'],
+                                $nome_societa,
+                                null,
+                                $from_api))) {
+                            throw new RuntimeException('Error: cannot create forum corso', E_USER_ERROR);
+                        }
                     }
-                }
 
+                }
             }
 
             // se sto generando il coupon da xml ritorno il codice che devo associare all'utente
@@ -305,14 +314,14 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // filtro i gruppi a cui appartiene l'utente piva per quelli figli di piattaforma $id_piattaforma
-            $query = $this->_db->getQuery(true)
+            $query_gruppo = $this->_db->getQuery(true)
                 ->select('ug.id as id , ug.title as name')
                 ->from('#__usergroups as ug')
                 ->where('parent_id="' . $id_piattaforma . '"')
                 ->where('ug.id IN ' . ' (' . implode(',', $gruppi_appartenenza_utente) . ')');
 
 
-            $this->_db->setQuery($query);
+            $this->_db->setQuery($query_gruppo);
             $id_gruppo_societa = $this->_db->loadAssoc();
 
             return $id_gruppo_societa;
@@ -327,7 +336,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    public function create_new_company_user($data, $from_api=false)
+    public function create_new_company_user($data, $from_api = false, $from_xml = false)
     {
         try {
 
@@ -335,6 +344,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $password = $this->_generate_pwd(8);
             $salt = JUserHelper::genRandomPassword(32);
             $crypt = JUserHelper::getCryptedPassword($password, $salt) . ':' . $salt;
+
+            // se arrivo dall'importazione xml imposto la password del tutor uguale alla PIVA aziendale
+            if ($from_xml) {
+                $password = $data['username'];
+                $crypt = JUserHelper::hashPassword($password);
+            }
 
             // creo nuovo user
             $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $this->_db->escape($data['ragione_sociale']), $this->_db->escape($data['username']), $crypt, $data['email']);
@@ -348,10 +363,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             // creo nuovo gruppo figlio di piattaforma e lo associo all'utente che ho appena creato
-            if (false === ($company_group_id = $this->_create_company_group($user_id,
-                    $data['ragione_sociale'],
-                    $data["id_piattaforma"],
-                    $from_api)))
+            if (false === ($company_group_id = $this->_create_company_group($user_id, $data['ragione_sociale'], $data["id_piattaforma"], $from_api, $from_xml)))
                 throw new Exception('Errore nella creazione del gruppo', E_USER_ERROR);
 
 
@@ -405,7 +417,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
         //return false;
     }
 
-    private function _check_username($username, $from_api=false)
+    public function _check_username($username, $from_api=false)
     {
         try {
             $query = 'SELECT id FROM #__users WHERE username=\'' . $this->_db->escape($username) . '\' LIMIT 1';
@@ -464,7 +476,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
      * @param boolean $from_api
      * @return int Ritorna l'ID del gruppo appena creato o FALSE in caso di errore.
      */
-    private function _create_company_group($company_id, $company_name, $piattaforma_group_id, $from_api=false)
+    private function _create_company_group($company_id, $company_name, $piattaforma_group_id, $from_api = false, $from_xml = false)
     {
 
         try {
@@ -531,7 +543,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
         //$var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . substr($nome_societa, 0, 3);
         $var_1 = 'X-' . str_replace(' ', '_', $prefisso_coupon) . $_prefisso_az;
-        $var_2 = str_replace('.', 'p', str_replace('0', 'k', uniqid('', true))); // no zeros , no dots
+        $var_2 = str_replace('.', 'p', str_replace('0', 'k',md5( uniqid('', true)))); // no zeros , no dots
+
 
         return str_replace(' ', '_', $var_1 . $var_2);
 
@@ -638,7 +651,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
                 utilityHelper::logMail('coupons_mail_send_error',
                     $sender,
-                    implode(",", $to),
+                    $to,
                     0,
                     implode(", ", $recipients['cc']),
                     $this->_info_corso["idgruppo"]);
@@ -648,7 +661,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // rimosso il riferimento a $recipients["to"]->email
             utilityHelper::logMail('coupons_mail',
                 $sender,
-                implode(",", $to),
+                $to,
                 1,
                 implode(", ", $recipients['cc']),
                 $this->_info_corso["idgruppo"]);
@@ -826,7 +839,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 $this->_db = JDatabaseDriver::getInstance($db_option);
 
             $query = $this->_db->getQuery(true)
-                ->select('ug.id as id , ug.title as name, ud.dominio as dominio, ud.alias as alias, ud.mail_from_default as mail_from_default')
+                ->select('ug.id as id,
+                ug.title as name,
+                ud.dominio as dominio,
+                ud.alias as alias,
+                ud.mail_from_default as mail_from_default')
                 ->from('#__usergroups as ug')
                 ->join('inner', '#__usergroups_details AS ud ON ug.id = ud.group_id')
                 ->where('ud.is_default = 1');
@@ -935,11 +952,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             if (!$mailer->Send()) {
                 //            throw new RuntimeException('Error sending mail', E_USER_ERROR);
-                utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 0);
+                utilityHelper::logMail('new_tutor_mail', $sender, $to, 0, implode(", ", $recipients['cc']));
 
             }
 
-            utilityHelper::logMail('new_tutor_mail', $sender, $recipients, 1);
+            utilityHelper::logMail('new_tutor_mail', $sender, $to, 1, implode(", ", $recipients['cc']));
             return true;
         }
         catch (Exception $e) {
@@ -1015,7 +1032,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // controllo integrità tutor_id
             $tutor_id = $mu->get_tutor_aziendale($company_group_id, $from_api);
             if (is_null($tutor_id))
-                throw new RuntimeException("nessun tutor_id trovato", E_USER_ERROR);
+                throw new RuntimeException("nessun tutor_id trovato
+                    company_group_id: " . $company_group_id, E_USER_ERROR);
 
             // controllo impostazione moderatore
             $_set_moderator = $mu->set_user_forum_moderator($tutor_id, $company_forum_id, $from_api);

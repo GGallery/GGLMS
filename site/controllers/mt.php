@@ -17,9 +17,11 @@ require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/controllers/api.php';
 
 class gglmsControllerMt extends JControllerLegacy {
 
+    private $_user;
     private $_japp;
     public $_params;
     public $_db;
@@ -37,6 +39,11 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_user = JFactory::getUser();
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
+
+        $this->_filterparam->id_utente = JRequest::getVar('id_utente');
+        $this->_filterparam->id_corso = JRequest::getVar('id_corso');
+        $this->_filterparam->anno_ref = JRequest::getVar('anno_ref');
+        $this->_filterparam->secret = JRequest::getVar('secret');
 
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;

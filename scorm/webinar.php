@@ -22,7 +22,7 @@ $log_status = $_GET['log_status'];
     <meta http-equiv="Expires" content="0"/>
 
     <script type="application/javascript" src="js/jquery-3.2.1.min.js"></script>
-    <script type="application/javascript" src="js/userlog.js"></script>
+    <script type="application/javascript" src="js/userlog.js?<?php echo date('Ymd');?>"></script>
     <script type="application/javascript">
 
 
@@ -42,7 +42,18 @@ $log_status = $_GET['log_status'];
             }
         }
 
-        window.onbeforeunload = unloadHandler;
+        // window.onbeforeunload = unloadHandler;
+        window.onbeforeunload = function(event) {
+
+
+            <?php
+            // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
+            echo 'getUpdateSessionStorage(' . $id_utente . ',' . $id_elemento . ', null)';
+            ?>
+
+            unloadHandler();
+
+        };
         window.onunload = unloadHandler;
 
     </script>

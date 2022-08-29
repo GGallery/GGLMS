@@ -138,6 +138,7 @@ INSERT INTO `#__gg_configs` VALUES ('68', 'xml_ip_dest', '21');
 INSERT INTO `#__gg_configs` VALUES ('69', 'xml_read_dir_dest', 'R2k');
 INSERT INTO `#__gg_configs` VALUES ('70', 'xml_write_dir_dest', 'GGallery');
 INSERT INTO `#__gg_configs` VALUES ('71', 'login_error_redirect', 'index.php%3Foption%3Dcom_users%26view%3Dlogin');
+INSERT INTO `#__gg_configs` VALUES ('72', 'attiva_blocco_video_focus', '0');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------
@@ -165,6 +166,8 @@ CREATE TABLE `#__gg_contenuti` (
   `attestato_path` varchar(255) DEFAULT NULL,
   `orientamento` varchar(1) DEFAULT NULL,
   `path_pdf` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
+  `id_evento` varchar(25) NULL COMMENT 'aggiunta per le chiamate api zoom',
+  `tipo_zoom` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'aggiunta per distinguere webinar da meeting',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

@@ -57,14 +57,23 @@ class gglmsControllerCoupon extends JControllerLegacy
 
                 } else {
 
+                    $coupon_vecchio = $model->check_already_exist($dettagli_coupon);
 
-                    if ($model->check_already_enrolled($dettagli_coupon)) {
-                        // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente
+                    if (($model->check_already_enrolled($dettagli_coupon)) && ($model->is_expired_less_than_year($coupon_vecchio))) {
+                        // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente e se il vacchio coupon scaduto meno di un anno
 
                         $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_DUPLICATED') . "</p>";
                         $results['valido'] = 0;
                     } else {
-                        $model->assegnaCoupon($coupon);
+
+
+                        if ((!empty($coupon_vecchio)) && (isset($coupon_vecchio)))
+                            $model->liberaCoupon($coupon_vecchio);
+
+                        $assegnaCoupon = $model->assegnaCoupon($coupon);
+
+                        if(!isset($assegnaCoupon))
+                            throw new Exception("l'asegnazione del coupon mancante ",1);
 
                         if ($dettagli_coupon['id_gruppi'])
                             $model->setUsergroupUserGroup($dettagli_coupon['id_gruppi']);

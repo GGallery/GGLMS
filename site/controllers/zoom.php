@@ -222,6 +222,7 @@ class gglmsControllerZoom extends JControllerLegacy
             $type = 'webinars';
 
         $_ret = array();
+        $result = array();
         try {
 
             $response = $client->request('GET', '/v2/report/' . $type . '/' . $event_id . '/participants?page_size=' . $page_size, [
@@ -231,8 +232,29 @@ class gglmsControllerZoom extends JControllerLegacy
             ]);
 
             $data = json_encode(json_decode($response->getBody()),true);
-            $_ret['success'] = $data;
+            $result['participants'] = json_decode($data)->participants;
+            $resp = json_decode($data);
 
+            //rifaccio la chiamata nel caso c fossero piu di 300 participants
+            while(!empty($resp->next_page_token)){
+
+                $next_token = $resp->next_page_token;
+
+                $response = $client->request('GET', '/v2/report/' . $type . '/' . $event_id . '/participants?page_size=' . $page_size . '&next_page_token=' . $next_token, [
+                    "headers" => [
+                        "Authorization" => "Bearer $this->access_token"
+                    ]
+                ]);
+
+                $data = json_encode(json_decode($response->getBody()),true);
+
+                $resp = json_decode($data);
+
+                $result['participants'] = array_merge($result['participants'],$resp->participants);
+
+            }
+
+            $_ret['success'] = json_encode($result);
         }
         catch (Exception $e) {
             $_ret['error'] = $e->getMessage();

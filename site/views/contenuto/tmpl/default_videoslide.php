@@ -25,18 +25,20 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             return false;
         });
 
-        jQuery('#file-download').click(function() {
+        jQuery('#file-download').on('click',function() {
             var pHref = jQuery(this).attr("data-href");
             //window.location = pHref;
             window.open(pHref, '_blank');
         });
 
+
         var hasPlayed = false;
         var player;
         var old_tempo;
+        var tview = 0;
         var bookmark =<?php echo $stato->bookmark; ?>;
 
-        var id_elemento = <?php echo $this->contenuto->id; ?>;
+
         var stato = <?php echo $stato->completato; ?>;
         var features = null;
 
@@ -64,6 +66,16 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         }
         ?>
 
+        //stoppo il video quando cambia focus
+        <?php if ($this->attiva_blocco_video_focus == 1) { ?>
+
+        jQuery(window).on('blur',function() {
+            console.log('blur');
+            player.pause();
+
+        });
+        <?php } ?>
+
         // declare object for video
         player = new MediaElementPlayer('video', {
             features: features,
@@ -87,10 +99,36 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                 if (!stato) {
                     mediaElement.addEventListener('ended', function (e) {
                         stato = 1;
+                        /*
                         jQuery.get("index.php?option=com_gglms&task=contenuto.updateTrack", {
                             secondi: mediaElement.duration.toFixed(0),
                             stato: 1,
                             id_elemento: id_elemento
+                        });
+                        */
+
+                        var data_sync = null;
+                        var pAsync = get_async_call();
+                        data_sync = {async: pAsync};
+                        var id_utente = '<?php echo $this->id_utente;?>';
+                        var id_elemento = '<?php echo $this->contenuto->id; ?>';
+
+                        // passando uniquid forzo l'esecuzione di updateUserLog
+                        var globalUniq = (typeof gUniqid != 'undefined' ?  gUniqid : "");
+
+                        jQuery.ajax({
+                            url: "index.php?option=com_gglms&task=contenuto.updateTrack",
+                            data: {
+                                "secondi": mediaElement.duration.toFixed(0),
+                                "stato": 1,
+                                "id_elemento": id_elemento,
+                                "id_utente" : id_utente,
+                                "uniquid" : globalUniq
+                            },
+                            async: data_sync.async,
+                            success: function () {
+                                console.log("ended success");
+                            }
                         });
                     }, false);
 
@@ -119,56 +157,33 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         });
 
         player.play();
-        jQuery('.jumper.enabled').click(function () {
+        jQuery('.jumper.enabled').on('click',function () {
             var rel = jQuery(this).attr('rel');
             player.setCurrentTime(rel);
             //sliding(time);
             sliding(rel);
         });
 
-        jQuery('.jumper.disabled').click(function () {
+        jQuery('.jumper.disabled').on('click',function () {
             alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
         });
+
 
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
             console.log("bookmark->" + tview);
-            /*
-            jQuery.get("index.php?option=com_gglms&task=contenuto.updateBookmark", {
-                time: tview,
-                id_elemento: id_elemento
-            });
-            */
+            var id_utente = '<?php echo $this->id_utente;?>';
+            var id_elemento = '<?php echo $this->contenuto->id; ?>';
 
-            var data = null;
-            if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
-                console.log("firefox");
-                data = {async: false};
-            }
-            else {
-                console.log("non-firefox");
-                data = {async: true};
-            }
-
-            updateBookmark(data);
+            updateBookmark(tview, id_elemento, id_utente);
+            <?php
+            // aggiornamento della temporizzazione dei contenuti - solo un update in onunload con scrittura della sessione
+            echo <<<HTML
+            getUpdateSessionStorage("{$this->id_utente}", "{$this->contenuto->id}");
+HTML;
+?>
             return null;
         });
-
-        function updateBookmark(data) {
-
-            jQuery.ajax({
-                url: "index.php?option=com_gglms&task=contenuto.updateBookmark",
-                data: {
-                    time: tview,
-                    id_elemento: id_elemento
-                },
-                async: data.async,
-                success: function () {
-                    console.log("updateBookmark success");
-                }
-            });
-
-        }
 
         function sliding(tempo) {
             if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
@@ -232,17 +247,18 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                preload="auto" class="img-thumbnail">
             <source type="video/mp4"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.mp4'; ?>"/>
-            <?php /*
-            <source type="video/webm"
-                    src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.webm'; ?>"/>
-            <source type="video/ogg"
-                    src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/' . $this->contenuto->id . '.ogv'; ?>"/>
-            */?>
+
             <track
                     kind="slides"
                     src="<?php echo PATH_CONTENUTI . '/' . $this->contenuto->id . '/'; ?>vtt_slide.vtt"
                     label="slides"
                     srclang="" />
+
+            <?php
+                // se presenti nella directory del contenuto vengono caricati i file dei sottotitoli che devono essere nel formato srt
+                // e con questi nominativi subtitle_english_en.srt, subtitle_french_fr.srt, subtitle_german_de.srt, ecc
+                echo OutputHelper::check_subtitles_solovideo($_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $this->contenuto->id, PATH_CONTENUTI . '/' . $this->contenuto->id);
+            ?>
 
         </video>
 

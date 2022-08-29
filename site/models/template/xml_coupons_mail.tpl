@@ -6,24 +6,26 @@
 <body>
 <h1>Generazione coupon {$company_name} </h1>
 
-<p>Spett.le {$recipient_name},</p>
+<p>Gentile azienda,</p>
+
 <p>
-    la procedura di generazione coupon &egrave; andata buon fine. Ecco {if ($coupons_count)>1}i{else}il{/if} {$coupons_count} coupon da Lei richiesti.
+    la procedura di attivazione delle iscrizioni &egrave; andata buon fine. </p>
 </p>
 
-{$company_tutor}
+{$creazione_tutor}
+
 {$company_users}
 
-<h3>{$course_name}</h3>
-
-<div style="font-family: monospace;">
-   {$coupons}
-</div>
-
+<p>Pu&ograve; comunicare agli utenti che l'accesso &egrave; stato attivato, inoltrando a ciascuno le seguenti istruzioni operative:</p>
 <p>
-<p>Per accedere al corso registrati, o se hai già effettuato una registrazione, accedi con le credenziali scelte su <a href="{$piattaforma_link}">{$piattaforma_name} </a> </p>
-<b>Per una migliore fruizione del corso consigliamo fortemente di usare browser quali Firefox (versione 4 o superiore), Google Chrome (versione 6 o superiore)</b>
-<p>
+    <ol>
+       <li>Visitare {$piattaforma_link} e inserire username e password nella sezione "Accedi-Registrati". <br />
+        Se &egrave; il primo accesso, sia username che password corrispondono al codice fiscale; suggeriamo di cambiare la propria password <b>(Menu Accedi/Registrati > Modifica Dati)</b>. <br />
+        Se avevi gi&agrave; effettuato un accesso utilizza le tue credenziali.
+       </li>
+       <li>Andare alla sezione "I miei corsi" e accedere al proprio corso</li>
+    </ol>
+</p>
 
 <p>
     Cordiali saluti<br />

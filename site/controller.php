@@ -43,6 +43,7 @@ class gglmsController extends JControllerLegacy
             || DOMINIO == ""
             || DOMINIO == 'DOMINIO') {
 
+            /*
             //$hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
             $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
             $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
@@ -54,10 +55,12 @@ class gglmsController extends JControllerLegacy
             }
             // altri tipo www.dominio.it oppure terzo.dominio.it
             else {
-                $hostname = $_arr_host[1] . "." . $_arr_host[2];
+                //$hostname = $_arr_host[1] . "." . $_arr_host[2];
             }
+            */
 
-            define('DOMINIO', $hostname);
+            //define('DOMINIO', $hostname);
+            define('DOMINIO', utilityHelper::imposta_domino());
 
         }
 
