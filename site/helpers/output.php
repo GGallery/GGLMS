@@ -1584,10 +1584,10 @@ HTML;
                                                             $sconto_data,
                                                             $sconto_custom,
                                                             $in_groups,
+                                                            $_params,
                                                             $sconto_particolare = 0,
                                                             $acquisto_webinar = 0,
-                                                            $perc_webinar = 0,
-                                                            $_params) {
+                                                            $perc_webinar = 0) {
 
         try {
 

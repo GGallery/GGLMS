@@ -82,7 +82,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     public function getData()
     {
-        $params = JRequest::get($_POST);
+        $params = JRequest::get('$_POST');
 
         $page = $params["page"];
         $take = $params["take"];

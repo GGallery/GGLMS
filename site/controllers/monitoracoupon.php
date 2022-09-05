@@ -46,7 +46,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     {
 
         //$filter_params = JRequest::get($_POST);
-        $filter_params = JRequest::get($_GET);
+        $filter_params = JRequest::get('$_GET');
         $data = $this->get_filterd_coupon_list($filter_params);
 
         echo json_encode($data);

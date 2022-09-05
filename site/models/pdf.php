@@ -20,6 +20,7 @@ class gglmsModelPdf extends JModelLegacy
     //    private $_user;
     private $_quiz_id;
     private $_item_id;
+    private $dominio;
 
     public function __construct($config = array())
     {
@@ -65,10 +66,11 @@ class gglmsModelPdf extends JModelLegacy
             $info['path'] = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/';
             $info['content_path'] = $info['path'] . $info['path_id'];
             $info['quiz_id'] = $id_quiz_ref;
+            $_SESSION[$this->dominio] = utilityHelper::imposta_domino();
 
             // non va troppo bene
-            if (DOMINIO == ""
-                || DOMINIO == 'DOMINIO') {
+            if ($_SESSION[$this->dominio] == ""
+                || $_SESSION[$this->dominio] == 'DOMINIO') {
 
                 /*
                 //$hostname = parse_url("http://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
@@ -91,8 +93,8 @@ class gglmsModelPdf extends JModelLegacy
 
             }
 
-            $info['logo'] = DOMINIO;
-            $info['firma'] = DOMINIO;
+            $info['logo'] = $_SESSION[$this->dominio];
+            $info['firma'] = $_SESSION[$this->dominio];
             $info['dg'] = $dg;
             $info['ateco'] = $ateco;
             $info['tracklog'] = $tracklog;
@@ -165,10 +167,12 @@ class gglmsModelPdf extends JModelLegacy
     private function customTemplate()
     {
         try {
+            $_SESSION[$this->dominio] = utilityHelper::imposta_domino();
+
             $query = $this->_db->getQuery(true)
                 ->select('alias, attestati_custom')
                 ->from('#__usergroups_details as a')
-                ->where('a.dominio = "' . DOMINIO . '"');
+                ->where('a.dominio = "' . $_SESSION[$this->dominio] . '"');
 //                ->where('a.dominio = "formazione.assiterminal.it"'); // force example domain
 
             $this->_db->setQuery($query);
