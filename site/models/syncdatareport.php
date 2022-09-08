@@ -130,11 +130,11 @@ class gglmsModelSyncdatareport extends JModelLegacy
                     $data->stato = $stato->completato;
                     $data->visualizzazioni =  $stato->visualizzazioni;
 
-//                  $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
-                    $data->permanenza_tot = $stato->permanenza;
+//                    $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
+                    $data->permanenza_tot = isset($stato->permanenza) ? $stato->permanenza : 0;
                     $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
 
-//                    var_dump($data->permanenza_tot);
+//                    var_dump($data);
 
                     /*
                      * magari bastasse..se mi ritorna 0 va in errore cosa capitata dal 19/01/2020 e che ha bloccato i report oltre che generato una marea di problemi a catena
