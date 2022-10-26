@@ -311,6 +311,12 @@ class gglmsModelgeneracoupon extends JModelLegacy
                 ->where('parent_id="' . $id_piattaforma . '"')
                 ->where('ug.id IN ' . ' (' . implode(',', $gruppi_appartenenza_utente) . ')');
 
+            // esclusione di alcuni gruppi dalla generazione del coupon
+            // per la procedura automicatica di generazione in fase di iscrizione a corso
+            $coupon_groups_esclusi = $this->_config->getConfigValue('coupon_groups_esclusi');
+            if (!is_null($coupon_groups_esclusi)
+                && $coupon_groups_esclusi != "")
+                $query = $query->where('ug.id NOT IN (' . $coupon_groups_esclusi . ')');
 
             $this->_db->setQuery($query);
             $id_gruppo_societa = $this->_db->loadAssoc();

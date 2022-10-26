@@ -52,7 +52,8 @@ class gglmsModelconfigs extends JModelAdmin {
                     || $key=='alert_lista_corsi'
                     || $key=='campi_csv'
                     || $key=='campicustom_report'
-                    || $key=='summary_report_nascondi_colonne')
+                    || $key=='summary_report_nascondi_colonne'
+                    || $key=='coupon_groups_esclusi')
                     $data->$key = explode(",", $value);
 
 
@@ -67,7 +68,7 @@ class gglmsModelconfigs extends JModelAdmin {
     }
 
     /*
-     * Verifico la durata del contenuto 
+     * Verifico la durata del contenuto
      */
 
     public function getTable($name = '', $prefix = 'gglmsTable', $options = array()) {

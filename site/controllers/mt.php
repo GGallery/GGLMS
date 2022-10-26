@@ -68,18 +68,33 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        $model_user = new gglmsModelUsers();
+        $_config = new gglmsModelConfig();
+        $coupon_groups_esclusi = $_config->getConfigValue('coupon_groups_esclusi');
 
-        $check = $model_user->check_activation_user_farmarcie(2018, 'LNTCRN79P55B774F');
-        var_dump($check);
+        // filtro i gruppi a cui appartiene l'utente piva per quelli figli di piattaforma $id_piattaforma
+        $query = $this->_db->getQuery(true)
+        ->select('ug.id as id , ug.title as name')
+        ->from('#__usergroups as ug')
+        ->where('parent_id="16"')
+        ->where('ug.id IN ' . ' (268,
+                                326,
+                                425,
+                                427,
+                                428,
+                                429,
+                                434,
+                                581,
+                                769,
+                                867,
+                                911,
+                                934)');
 
-        /*
-        $delete = $model_user->delete_activation_user_farmarcie(1276, 'GRRPLA64P21H823O');
-        var_dump($delete);
+        $coupon_groups_esclusi = $this->_config->getConfigValue('coupon_groups_esclusi');
+        if (!is_null($coupon_groups_esclusi)
+            && $coupon_groups_esclusi != "")
+            $query = $query->where('ug.id NOT IN (' . $coupon_groups_esclusi . ')');
 
-        $insert = $model_user->insert_activation_user_farmarcie(1276, 'GRRPLA64P21H823O');
-        var_dump($insert);
-        */
+        echo $query;
 
         $this->_japp->close();
 

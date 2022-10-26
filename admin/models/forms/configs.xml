@@ -1038,6 +1038,17 @@
         >
         </field>
 
+        <field
+                name="coupon_groups_esclusi"
+                type="listagruppi"
+                label="Seleziona Gruppo/i"
+                description="Seleziona i gruppo/i esclusi dalla generazione dei coupon"
+                class="inputbox"
+                default=""
+                multiple="true"
+                size="20"
+        />
+
         <field name="summary_report_nascondi_colonne"
                type="listacolssummaryreport"
                label="Scegli le colonne che saranno nascoste nel Summary Report"
