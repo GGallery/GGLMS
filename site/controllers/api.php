@@ -2197,6 +2197,97 @@ HTML;
         //$this->_japp->close();
     }
 
+    public function fix_coupon_societa()
+    {
+        try {
+
+            $this->_db->setQuery('SET sql_mode=\'\'');
+            $this->_db->execute();
+
+            $queryUsers = $this->_db->getQuery(true)
+                ->select('id_utente, id_societa ')
+                ->from('#__gg_coupon')
+                ->group('id_utente')
+                ->order('id_utente, id_societa');
+
+            $this->_db->setQuery($queryUsers);
+            $usersList = $this->_db->loadAssocList();
+
+            if (!is_array($usersList)
+                || !count($usersList))
+                throw new Exception("Nessun utente trovato nella tabella coupon", E_USER_ERROR);
+
+            $usersNumber = count($usersList);
+
+            foreach ($usersList as $keyUser => $singleUser) {
+
+                echo "USER MANCANTI: " . $usersNumber . "\n";
+
+                $userId = $singleUser['id_utente'];
+                $societaId = $singleUser['id_societa'];
+                $companyUg = null;
+
+                // informazioni piattaforma
+                $model_user = new gglmsModelUsers();
+                $_tmp_id_piattaforma = $model_user->get_user_piattaforme($userId, true);
+                // controllo eventuali errori
+                if (is_null($_tmp_id_piattaforma))
+                    throw new RuntimeException("generazione coupon - no user piattaforme found", E_USER_ERROR);
+
+                // prendo i gruppi a cui appartiene
+                $gruppi_appartenenza_utente = JAccess::getGroupsByUser($userId, true);
+
+                // filtro i gruppi a cui appartiene l'utente piva per quelli figli di piattaforma $id_piattaforma
+                $query = $this->_db->getQuery(true)
+                    ->select('ug.id as id , ug.title as name')
+                    ->from('#__usergroups as ug')
+                    ->where('parent_id="' . $_tmp_id_piattaforma[0]->value . '"')
+                    ->where('ug.id IN ' . ' (' . implode(',', $gruppi_appartenenza_utente) . ')');
+
+                // esclusione di alcuni gruppi dalla generazione del coupon
+                // per la procedura automicatica di generazione in fase di iscrizione a corso
+                $coupon_groups_esclusi = $this->_config->getConfigValue('coupon_groups_esclusi');
+                if (!is_null($coupon_groups_esclusi)
+                    && $coupon_groups_esclusi != "")
+                    $query = $query->where('ug.id NOT IN (' . $coupon_groups_esclusi . ')');
+
+                $this->_db->setQuery($query);
+                $id_gruppo_societa = $this->_db->loadAssoc();
+
+                if (!isset($id_gruppo_societa['id']) || $id_gruppo_societa['id'] == "") continue;
+
+                $companyUg = $id_gruppo_societa['id'];
+
+                // scatta l'aggiornamento
+                if ($societaId != $companyUg) {
+                    echo "DISALLINEATO USER " . $userId . " - COUPON: " . $societaId . " UG OK: " . $companyUg . "\n";
+
+                    $update_ug = "UPDATE #__gg_coupon
+                                    SET id_societa = " . $this->_db->quote($companyUg) . "
+                                    WHERE id_utente = " . $this->_db->quote($userId);
+
+                    $this->_db->setQuery($update_ug);
+                    if (!$this->_db->execute())
+                        throw new Exception("Fallita query di update: " . $update_ug, E_USER_ERROR);
+                    else
+                        echo "AGGIORNATO USER " . $userId . " - UG OK: " . $companyUg . "\n";
+
+                }
+                else
+                    echo "USER " . $userId . " - TUTTO OK, CONTINUO...\n";
+
+                $usersNumber--;
+
+            }
+
+            return true;
+
+        }
+        catch(Exception $e) {
+            return __FUNCTION__ . " - FIX NON COMPLETATO: " . $e->getMessage();
+        }
+    }
+
     // per sistemare il riordino delle anagrafiche dei corsi e relativa visualizzazione dei riferimenti a coupon nella tabella report
     public function fix_coupon_adesioni($old_gruppo, $arr_servizi)
     {
