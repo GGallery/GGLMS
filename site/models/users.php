@@ -1502,6 +1502,58 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_anagrafica_centri($_offset=0, $_limit=10, $_sort=null, $_order=null) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+
+            $count_query = $this->_db->getQuery(true)
+                ->select('COUNT(*)')
+                ->from('#__gg_anagrafica_centri');
+
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
+
+
+            $query = $db->getQuery(true)
+                ->select(' id,
+                             centro,
+                             indirizzo,
+                             telefono_responsabile,
+                             telefono_servizio,
+                             fax,
+                             email,
+                             responsabile,
+                             ruolo')
+                ->from('#__gg_anagrafica_centri');
+
+            // ordinamento per colonna - di default per id centro
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('id ASC');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
+
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return (is_array($_ret['rows']) && count($_ret['rows'])) ?  $_ret : null;
+
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
 
 }
 

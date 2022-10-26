@@ -3019,6 +3019,92 @@ HTML;
         $this->_japp->close();
     }
 
+    // importazione anagrafica centri Sinpe da API
+    // oppure in locale se si tratta di LP (esempio) from_local è il nome file che attesta se fare riferimento a questo file che si trova nella cartella JPATH_ROOT/tmp/
+    public function importa_anagrafica_centri( $is_debug = false,
+                                               $from_local = '') {
+
+        try {
+
+
+            $local_file = JPATH_ROOT . '/tmp/';
+            $filename = "anagrafica_centri.csv";
+
+            $get_centri = utilityHelper::get_csv_remote($local_file, $filename, false, $is_debug, $from_local);
+
+            if (!is_array($get_centri)
+                || is_null($get_centri))
+                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+
+            $this->_db->transactionStart();
+
+            // grande loop di inserimento degli centri
+
+            foreach ($get_centri as $row_key => $row_arr) {
+                $centro = trim($row_arr[0]);
+
+                $indirizzo = trim($row_arr[1]);
+
+                $telefono_responsabile = trim($row_arr[2]);
+
+                $telefono_servizio = trim($row_arr[3]);
+
+                $fax = trim($row_arr[4]);
+
+                $email = trim($row_arr[5]);
+
+                $responsabile = trim($row_arr[6]);
+
+                $ruolo = trim($row_arr[7]);
+
+
+                $query = "INSERT INTO #__gg_anagrafica_centri 
+                             (
+                              centro,
+                              indirizzo,
+                              telefono_responsabile,
+                              telefono_servizio,
+                              fax,
+                              email,
+                              responsabile,
+                              ruolo)
+                      VALUES (
+                          ". $this->_db->quote($centro) .",
+                          ". $this->_db->quote($indirizzo) .",
+                          ". $this->_db->quote($telefono_responsabile) .",
+                          ". $this->_db->quote($telefono_servizio) .",
+                          ". $this->_db->quote($fax) .",
+                          ". $this->_db->quote($email) .",
+                          ". $this->_db->quote($responsabile) .",
+                          ". $this->_db->quote($ruolo)."
+                           )";
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->execute();
+
+                if (!$result)
+                    throw new Exception("Inserimento anagrafica centri non andato a buon fine: " . $result, 1);
+
+
+            }
+
+
+            $this->_db->transactionCommit();
+
+            return 1;
+
+
+        }
+        catch (Exception $e) {
+
+          $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            return 0;
+        }
+
+        $this->_japp->close();
+    }
+
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);

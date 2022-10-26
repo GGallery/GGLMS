@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 // operazioni di lettura/scrittura sul XLS,CSV,ecc
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Common\Entity\Row;
 
 class utilityHelper
@@ -3665,6 +3666,62 @@ HTML;
            return null;
        }
 
+
+    }
+
+    public static function get_csv_remote(
+                                          $local_file,
+                                          $filename = '',
+                                          $start_from_zero = false,
+                                          $is_debug = false,
+                                          $_err_label = '',
+                                          $row_separator = ";") {
+
+        try {
+
+            $rows_arr = array();
+
+
+            $target_csv = $local_file . $filename;
+
+            $file_contents = file_get_contents($target_csv);
+            $exploded_contents = explode("\n", $file_contents);
+
+            $counter = 0;
+            foreach ($exploded_contents as $key => $row) {
+
+                if ($row == "")
+                    continue;
+
+                if (!$start_from_zero
+                    && $counter == 0) {
+                    $counter++;
+                    continue;
+                }
+
+                // potrebbe essere necessario ripulire la stringa da dei double quote in eccesso
+                $rows_arr[] = explode($row_separator, str_replace('"', '', $row));
+
+                $counter++;
+
+                if ($is_debug
+                    && $counter == 5)
+                    break;
+
+            }
+
+
+            if (count($rows_arr) == 0)
+                throw new Exception("Nessuna riga elaborata nel file csv", E_USER_ERROR);
+
+
+            return $rows_arr;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
 
     }
 

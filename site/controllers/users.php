@@ -1615,4 +1615,53 @@ HTML;
         }
 
     }
+
+    public function get_anagrafica_centri() {
+
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+
+           $_user = new gglmsModelUsers();
+
+
+            $_centri = $_user->get_anagrafica_centri($_offset, $_limit, $_sort, $_order);
+
+            if (isset($_centri['rows'])) {
+
+                $_total_rows = $_centri['total_rows'];
+
+                foreach ($_centri['rows'] as $_key_centri => $_centri) {
+
+                    foreach ($_centri as $key => $value) {
+
+                        $_ret[$_key_centri][$key] = $value;
+                    }
+
+
+                }
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+
+        echo json_encode($_rows);
+        $app->close();
+    }
 }

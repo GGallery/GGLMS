@@ -4,6 +4,10 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
+# 4.1.9
+
+* D: aggiunta tabella gg_anagrafica_centri per i centri di sinpe
+
 # 4.1.8
 
 * D: aggiunta della colonna prezzo_webinar alla tabella gg_vendita_sconti_particolari

@@ -171,6 +171,9 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->_html = $user_controller->get_utenti_per_societa();
 
             }
+            else if ($layout == 'gestione_anagrafica_centri_sinpe') {
+                // nothing to do at this moment..
+            }
 
         }
         catch (Exception $e){

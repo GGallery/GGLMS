@@ -174,6 +174,11 @@ class gglmsControllerSummaryReport extends JControllerLegacy
     {
         foreach ($filter["filters"] as $f) {
 
+            if (strpos($f["value"], "'") !== FALSE) {
+
+                $f["value"] = str_replace("'", "\'",  $f["value"]);
+
+            }
 
             switch ($f["operator"]) {
                 case "eq":
