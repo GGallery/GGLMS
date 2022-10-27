@@ -3057,6 +3057,10 @@ HTML;
 
                 $ruolo = trim($row_arr[7]);
 
+                $latitudine = trim($row_arr[8]);
+
+                $longitudine = trim($row_arr[9]);
+
 
                 $query = "INSERT INTO #__gg_anagrafica_centri 
                              (
@@ -3067,7 +3071,9 @@ HTML;
                               fax,
                               email,
                               responsabile,
-                              ruolo)
+                              ruolo,
+                              latitudine,
+                              longitudine)
                       VALUES (
                           ". $this->_db->quote($centro) .",
                           ". $this->_db->quote($indirizzo) .",
@@ -3076,7 +3082,9 @@ HTML;
                           ". $this->_db->quote($fax) .",
                           ". $this->_db->quote($email) .",
                           ". $this->_db->quote($responsabile) .",
-                          ". $this->_db->quote($ruolo)."
+                          ". $this->_db->quote($ruolo).",
+                          ". $this->_db->quote($latitudine).",
+                          ". $this->_db->quote($longitudine)."
                            )";
 
                 $this->_db->setQuery($query);

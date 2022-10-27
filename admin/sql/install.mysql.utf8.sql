@@ -781,6 +781,8 @@ CREATE TABLE `#__gg_anagrafica_centri` (
   `email` VARCHAR(100) DEFAULT NULL,
   `responsabile` VARCHAR(100) DEFAULT NULL,
   `ruolo` VARCHAR(100) DEFAULT NULL,
+  `latitudine` varchar(100) DEFAULT NULL,
+  `longitudine` varchar(100) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
