@@ -78,11 +78,11 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             // chi o cosa mi sta chiamando
             if (!isset($this->action)
                 || $this->action == "")
-                throw new Exception("Nessuna azione richiesta", 1);
+                throw new Exception("Nessuna azione richiesta", E_USER_ERROR);
 
             if (!isset($pp)
                 || $pp == "")
-                throw new Exception("Nessun parametro definito", 1);
+                throw new Exception("Nessun parametro definito", E_USER_ERROR);
 
             $dt = new DateTime();
             // semaforo per la visualizzazione degli errori al lancio di eccezioni
@@ -97,33 +97,33 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
             // controllo se ci sono tutti gli elementi
             if (count($decode_arr) < 6)
-                throw new Exception("La richiesta effettuta non può essere evasa in quanto incompleta", 1);
+                throw new Exception("La richiesta effettuta non può essere evasa in quanto incompleta", E_USER_ERROR);
 
             if (!isset($decode_arr[0])
                 || $decode_arr[0] == "")
-                throw new Exception("Prezzo non disponibile", 1);
+                throw new Exception("Prezzo non disponibile", E_USER_ERROR);
 
             if (!isset($decode_arr[1])
                 || $decode_arr[1] == ""
                 || filter_var($decode_arr[1], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Nessun identificativo evento", 1);
+                throw new Exception("Nessun identificativo evento", E_USER_ERROR);
 
             if (!isset($decode_arr[2])
                 || $decode_arr[2] == ""
                 || filter_var($decode_arr[2], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Nessun utente specificato", 1);
+                throw new Exception("Nessun utente specificato", E_USER_ERROR);
 
             if (!isset($decode_arr[3])
                 || $decode_arr[3] == "")
-                throw new Exception("Nessuno sconto indicato", 1);
+                throw new Exception("Nessuno sconto indicato", E_USER_ERROR);
 
             if (!isset($decode_arr[4]))
-                throw new Exception("Nessuno sconto custom indicato", 1);
+                throw new Exception("Nessuno sconto custom indicato", E_USER_ERROR);
 
             if (!isset($decode_arr[5])
                 || $decode_arr[5] == ""
                 || filter_var($decode_arr[5], FILTER_VALIDATE_INT) === false)
-                throw new Exception("Missing in groups", 1);
+                throw new Exception("Missing in groups", E_USER_ERROR);
 
             $this->unit_prezzo = $decode_arr[0];
             $this->unit_id = $decode_arr[1];
@@ -171,7 +171,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                                 $_params);
 
                     if (!is_array($_payment_form))
-                        throw new Exception($_payment_form);
+                        throw new Exception($_payment_form, E_USER_ERROR);
 
                     $this->payment_form = $_payment_form['success'];
                     $this->in_error = 0;
@@ -180,12 +180,12 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                     $_current_user = JFactory::getUser();
                     if ($this->user_id != $_current_user->id)
-                        throw new Exception("L'utente corrente è diverso da quello che ha richiesto la transazione", 1);
+                        throw new Exception("L'utente corrente è diverso da quello che ha richiesto la transazione", E_USER_ERROR);
 
                     $this->client_id = $_config->getConfigValue('paypal_client_id');
                     if (is_null($this->client_id)
                         || $this->client_id == "")
-                        throw new Exception("Client ID di PayPal non valorizzato!", 1);
+                        throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
 
                     // devo controlla se l'utente ha già richiesto l'evento
                     // mi servono informazioni sull'unita
@@ -194,7 +194,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
                     $_already_request = utilityHelper::get_acquisto_evento_richiesto($this->user_id, $unit_gruppo);
                     if ($_already_request)
-                        throw new Exception("Evento acquistato oppure in attesa del bonifico", 1);
+                        throw new Exception("Evento acquistato oppure in attesa del bonifico", E_USER_ERROR);
 
                     $_payment_form = outputHelper::get_payment_form_acquisto_evento($this->unit_prezzo,
                                                                                     $this->unit_id,
@@ -208,7 +208,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                     $_params);
 
                     if (!is_array($_payment_form))
-                        throw new Exception($_payment_form);
+                        throw new Exception($_payment_form, E_USER_ERROR);
 
                     $this->payment_form = $_payment_form['success'];
                     $this->in_error = 0;
@@ -236,7 +236,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                 $unit_gruppo);
 
                 if (!is_array($_insert_servizi_extra))
-                    throw new Exception($_insert_servizi_extra, 1);
+                    throw new Exception($_insert_servizi_extra, E_USER_ERROR);
 
                 $_payment_form = outputHelper::get_payment_form_acquisto_evento_bonifico($this->user_id,
                                                                                         $_unit->titolo,
@@ -244,7 +244,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                         $_params);
 
                 if (!is_array($_payment_form))
-                    throw new Exception($_payment_form, 1);
+                    throw new Exception($_payment_form, E_USER_ERROR);
 
                 $this->payment_form = $_payment_form['success'];
                 $this->in_error = 0;
@@ -486,7 +486,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 if (!is_array($_check_user)
                     || !isset($_check_user['success']))
-                    throw new Exception($_check_user, 1);
+                    throw new Exception($_check_user, E_USER_ERROR);
 
                 $this->user_id = $_check_user['success'];
 
@@ -503,12 +503,12 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 // controllo se l'utente è già nel gruppo corso
                 $_already_request = utilityHelper::check_user_into_ug($this->user_id, (array) $unit_gruppo);
                 if ($_already_request)
-                    throw new Exception("Sei già registrato all'evento selezionato", 1);
+                    throw new Exception("Sei già registrato all'evento selezionato", E_USER_ERROR);
 
                 $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
 
                 if (!is_array($_insert_ug))
-                    throw new Exception($_insert_ug, 1);
+                    throw new Exception($_insert_ug, E_USER_ERROR);
 
                 $this->_ret['success'] = "tuttook";
                 echo json_encode($this->_ret);
@@ -523,11 +523,11 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_unit = new gglmsModelUnita();
                 $_check_evento = $_unit->find_corso_pubblicato($this->unit_id);
                 if (!is_array($_check_evento))
-                    throw new Exception($_check_evento, 1);
+                    throw new Exception($_check_evento, E_USER_ERROR);
 
                 $_payment_form = OutputHelper::get_user_login_form_sponsor_evento($this->unit_id);
                 if (!is_array($_payment_form))
-                    throw new Exception($_payment_form);
+                    throw new Exception($_payment_form, E_USER_ERROR);
 
                 $this->payment_form = $_payment_form['success'];
                 $this->in_error = 0;
@@ -541,7 +541,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_payment_form = OutputHelper::get_user_registration_form_sponsor_evento($_params,
                                                                                         $this->unit_id);
                 if (!is_array($_payment_form))
-                    throw new Exception($_payment_form);
+                    throw new Exception($_payment_form, E_USER_ERROR);
 
                 $this->payment_form = $_payment_form['success'];
                 $this->in_error = 0;
@@ -652,13 +652,13 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 // controllo validità email
                 if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) {
-                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], 1);
+                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], E_USER_ERROR);
                 }
 
                 // verifico l'esistenza delle colonne minimali per l'inserimento utente
                 $_test_users_fields = UtilityHelper::check_new_user_array($_new_user);
                 if ($_test_users_fields != "") {
-                    throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, 1);
+                    throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, E_USER_ERROR);
                 }
 
                 // controllo esistenza utente su username
