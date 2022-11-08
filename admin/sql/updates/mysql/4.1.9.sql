@@ -12,6 +12,7 @@ CREATE TABLE `#__gg_anagrafica_centri` (
   `latitudine` varchar(100) DEFAULT NULL,
   `longitudine` varchar(100) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `citta` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
