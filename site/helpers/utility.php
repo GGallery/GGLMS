@@ -1831,14 +1831,14 @@ HTML;
 
         $_check = self::set_usergroup_generic($user_id, $ug_destinazione, $_user);
         if (!is_array($_check))
-            throw new Exception($_check, 1);
+            throw new Exception($_check, E_USER_ERROR);
 
         if ($send_email)
             self::send_acquisto_evento_email($_email_to,
                                             $_unit->titolo,
                                             $_dettagli_utente,
                                             $unit_prezzo,
-                                null,
+                                            null,
                                             $action,
                                             $_email_from);
 
