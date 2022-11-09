@@ -16,7 +16,6 @@ defined('_JEXEC') or die('Restricted access');
         data-toggle="table"
         data-toolbar="#toolbar"
         data-ajax="ajaxRequest"
-        data-search="true"
         data-side-pagination="server"
         data-pagination="true"
         data-show-export="true"
