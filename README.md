@@ -4,6 +4,9 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
+# 4.2.0
+* D: aggiunta della colonna url_streaming_azure alla tabella gg_contenuti
+
 # 4.1.9
 
 * D: aggiunta tabella gg_anagrafica_centri per i centri di sinpe

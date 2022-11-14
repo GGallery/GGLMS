@@ -21,12 +21,14 @@ class gglmsController extends JControllerLegacy
     private $_user;
     private $_japp;
     public $_params;
+    public $currentUrl;
 
     public function __construct($config = array())
     {
         parent::__construct($config);
 
         $this->_japp = JFactory::getApplication();
+        $this->currentUrl = JUri::getInstance();
 
 
         define('PATH_PRINCIPALE', '../mediagg/');
@@ -62,10 +64,14 @@ class gglmsController extends JControllerLegacy
 
         JHtml::_('jquery.framework');
 
-
         //JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.js');
         //JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/mediaelement/3.2.4/mediaelement-and-player.min.js');
-        JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.min.js');
+
+        if (utilityHelper::checkUrlParamExisting($this->currentUrl->toString(), "streamazure") === false)
+            JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/mediaelement-and-player.min.js');
+        else
+            JHtml::_('script', 'https://amp.azure.net/libs/amp/latest/azuremediaplayer.min.js');
+
         JHtml::script(Juri::base() . 'components/com_gglms/libraries/js/bootstrap.min.js');
 
 
@@ -76,9 +82,15 @@ class gglmsController extends JControllerLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupondispenser.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
+
         //JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
         //JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/mediaelement/3.2.4/mediaelementplayer.min.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.min.css');
+
+        if (utilityHelper::checkUrlParamExisting($this->currentUrl->toString(), "streamazure") === false)
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.min.css');
+        else
+            JHtml::_('stylesheet', 'https://amp.azure.net/libs/amp/latest/skins/amp-default/azuremediaplayer.min.css');
+
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/helpdesk.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/report.css');
 
@@ -91,7 +103,6 @@ class gglmsController extends JControllerLegacy
 
         $this->_params = $this->_japp->getParams();
         $this->_user = JFactory::getUser();
-
 
         //todo modifica francesca per rendere accedibile help desk anche da non loggati, ho copiato da catalogo ma non sono sicura sia giusto farlo così....
         if ($this->_user->guest

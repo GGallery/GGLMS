@@ -3007,6 +3007,13 @@ HTML;
 
     }
 
+    // verifico esistenza parametro in url
+    public static function checkUrlParamExisting($url, $param) {
+
+        return strpos($url, $param);
+
+    }
+
     // costruizione del token per l'url encodato - utilità per output.php
     public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!') {
 
