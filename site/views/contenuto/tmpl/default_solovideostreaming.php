@@ -18,11 +18,11 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
         <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);'?>
 
-        let player;
+        //let player;
         let duration = 0;
         let tview = 0;
         let old_tempo;
-        let bookmark =<?php echo $stato->bookmark; ?>;
+        let bookmark = <?php echo $stato->bookmark; ?>;
 
 
         let stato = <?php echo $this->contenuto->getStato()->completato; ?>;
@@ -48,19 +48,39 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         <?php } ?>
 
         // declare object for video
-        player = amp('video', { /* Options */
+        const player = amp('video', { /* Options */
             "nativeControlsForTouch": false,
             autoplay: true,
             controls: true,
             // width: "640",
             // height: "400",
-            seeking: pSeeking,
+            // seeking: false,
         }, function() {
+
+            player.src([{
+                src: "<?php echo $this->azureStreamUrl; ?>",
+                type: "application/vnd.ms-sstr+xml"
+            }]);
+
+            //if (bookmark > 0) player.currentTime(5);
+
+            this.play();
 
             console.log('Good to go!');
 
             if (stato) document.querySelector('.vjs-progress-control').classList.remove('hidden');
             else document.querySelector('.vjs-progress-control').classList.add('hidden');
+
+            this.addEventListener('play', function (e) {
+
+                if (bookmark > 0) {
+                    console.log("setcurrentetime " + bookmark);
+                    player.currentTime(bookmark);
+                }
+
+                duration = player.duration();
+
+            });
 
             this.addEventListener('timeupdate', function (e) {
                 tview = player.currentTime().toFixed(0);
@@ -71,9 +91,9 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             });
 
             this.addEventListener('loadedmetadata', function (e) {
-                console.log("setcurrentetime" + bookmark);
-                player.currentTime(bookmark);
-                duration = player.duration();
+                //console.log("setcurrentetime " + bookmark);
+                //player.currentTime(bookmark);
+                //duration = player.duration();
             });
 
             if (!stato) {
@@ -85,7 +105,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
         });
 
-        player.play();
+        //player.play();
 
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
@@ -160,10 +180,13 @@ HTML;
     <div id="boxvideo" class="span6 center-block" style="min-height: 500px; text-align: center;">
 
         <video id="video"
-            class="azuremediaplayer amp-default-skin">
+            class="azuremediaplayer amp-default-skin amp-big-play-centered" tabindex="0">
+            <?php /*
             <source type="application/vnd.ms-sstr+xml"
                 src="<?php echo $this->azureStreamUrl; ?>"
             />
+            */?>
+            <p class="amp-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
         </video>
 
     </div>

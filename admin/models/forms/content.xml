@@ -135,7 +135,7 @@
 
 		<field
 				name="url_streaming_azure"
-				type="textarea"
+				type="url"
 				label="Url streaming Azure"
 				description="L'indirizzo per la riproduzione del video in streaming"
 				class="inputbox"

@@ -76,12 +76,17 @@ class gglmsController extends JControllerLegacy
 
 
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
+
+        if (utilityHelper::checkUrlParamExisting($this->currentUrl->toString(), "streamazure") === false)
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/unita.css');
+
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/contenuto.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupon.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/coupondispenser.css');
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/catalogo.css');
-        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
+
+        if (utilityHelper::checkUrlParamExisting($this->currentUrl->toString(), "streamazure") === false)
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/adeguamento_old_gantry.css');
 
         //JHtml::_('stylesheet', 'components/com_gglms/libraries/css/mediaelementplayer.css');
         //JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/mediaelement/3.2.4/mediaelementplayer.min.css');
