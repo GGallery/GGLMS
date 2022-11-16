@@ -42,7 +42,7 @@
     {
         width: unset !important;
         box-sizing: border-box !important;
-        font-size:20px !important;
+        font-size:24px !important;
     }
 }
 /* ----------- iPhone 6, 6S, 7 and 8 ----------- */
@@ -56,7 +56,7 @@
     {
         width: unset !important;
         box-sizing: border-box !important;
-        font-size:20px !important;
+        font-size:24px !important;
     }
 }
 /* ----------- iPhone 6+, 7+ and 8+ ----------- */
@@ -71,7 +71,7 @@
     {
         width: unset !important;
         box-sizing: border-box !important;
-        font-size:20px !important;
+        font-size:24px !important;
     }
 }
 /* ----------- iPad 1, 2, Mini and Air ----------- */
@@ -100,7 +100,7 @@
     {
         width: unset !important;
         box-sizing: border-box !important;
-        font-size:20px !important;
+        font-size:24px !important;
     }
 }
 /* ----------- Google Nexus 6 ----------- */
@@ -115,7 +115,7 @@
     {
         width: unset !important;
         box-sizing: border-box !important;
-        font-size:20px !important;
+        font-size:24px !important;
     }
 }
 
