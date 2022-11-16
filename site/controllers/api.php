@@ -3117,6 +3117,76 @@ HTML;
         $this->_japp->close();
     }
 
+
+    public function fix_gruppo_socio() {
+
+        try {
+
+
+
+            //not in (select user_id from #__user_usergroup_map WHERE group_id = 28)
+
+            $this->_db->transactionStart();
+
+            $query = $this->_db->getQuery(true)
+                ->select('um.user_id, q.anno, um.group_id ')
+                ->from('#__user_usergroup_map as um ')
+                ->join('inner', '#__gg_quote_iscrizioni as q on um.user_id = q.user_id')
+                ->where('um.user_id not in (select user_id from #__user_usergroup_map WHERE group_id = 28)')
+                ->where('q.anno <= 2019')
+                ->where('um.group_id in (20,23,21)');
+
+            $this->_db->setQuery($query);
+            $results_soci = $this->_db->loadAssocList();
+
+
+            if (count($results_soci) == 0)
+                throw new Exception("Nessun socio trovato!", E_USER_ERROR,1);
+
+            $updated = 0;
+            $new_ug = 21;
+            foreach ($results_soci as $key_socio => $socio) {
+
+
+                   //cancello user da moroso o online
+                   $query_del = "DELETE
+                                FROM #__user_usergroup_map
+                                WHERE user_id = " . $this->_db->quote($socio['user_id']) . "
+                                AND group_id = " . $this->_db->quote($socio['group_id']);
+
+                   $this->_db->setQuery($query_del);
+                   if (!$this->_db->execute())
+                       throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+
+
+                   // aggiungo user in moroso
+                   $query_ins = "INSERT IGNORE INTO #__user_usergroup_map (user_id, group_id)
+                                VALUES (" . $this->_db->quote($socio['user_id']) . ", " . $this->_db->quote($new_ug) . ")";
+
+                   $this->_db->setQuery($query_ins);
+                   if (!$this->_db->execute())
+                       throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+
+
+                $updated++;
+
+
+            }
+
+            $this->_db->transactionCommit();
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+
+        }
+
+        echo "UPDATED: " . $updated;
+
+    }
+
+
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);

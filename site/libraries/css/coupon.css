@@ -32,6 +32,61 @@
 }
 
 
+/* ----------- iPhone 5, 5S, 5C and 5SE ----------- */
+@media only screen and (min-width: 320px) and (max-width: 568px) {
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+        height: unset !important;
+    }
+}
+/* ----------- iPhone 6, 6S, 7 and 8 ----------- */
+@media only screen and (min-device-width: 375px)  and (max-device-width: 667px){
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+        height: unset !important;
+    }
+}
+/* ----------- iPhone 6+, 7+ and 8+ ----------- */
+@media only screen and (min-device-width: 414px) and (max-device-width: 736px) {
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+        height: unset !important;
+
+    }
+}
+/* ----------- iPad 1, 2, Mini and Air ----------- */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+        height: unset !important;
+    }
+}
+/* ----------- Samsung S8 ----------- */
+@media screen and (device-width: 360px) and (device-height: 740px) {
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+       height: unset !important;
+
+    }
+}
+/* ----------- Google Nexus 6 ----------- */
+@media screen and (device-width: 412px) and (device-height: 732px) {
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+        height: unset !important;
+
+    }
+}
+
+/*---------Galaxy fold ---------*/
+@media screen and (device-width: 280px) and (device-height: 653px) {
+    #box_coupon_container, #box_coupon{
+        width: 100%;
+        height: unset !important;
+
+    }
+}
+
 #box_coupon_container{
     height: 400px;
     width: 100%;
