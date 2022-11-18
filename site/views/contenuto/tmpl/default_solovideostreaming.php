@@ -73,10 +73,10 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
             this.addEventListener('play', function (e) {
 
-                if (bookmark > 0) {
-                    console.log("setcurrentetime " + bookmark);
-                    player.currentTime(bookmark);
-                }
+                // if (bookmark > 0 && player.currentTime() < bookmark) {
+                //      console.log("setcurrentetime " + bookmark);
+                //      player.currentTime(bookmark);
+                // }
 
                 duration = player.duration();
 
@@ -94,6 +94,13 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
                 //console.log("setcurrentetime " + bookmark);
                 //player.currentTime(bookmark);
                 //duration = player.duration();
+            });
+
+            this.addEventListener('loadeddata', function (e) {
+                //console.log("setcurrentetime " + bookmark);
+                //player.currentTime(bookmark);
+                //duration = player.duration();
+                jQuery('#buffer').trigger('click');
             });
 
             if (!stato) {
@@ -130,6 +137,12 @@ HTML;
             return false;
         });
 
+        jQuery('#buffer').on('click', function (e) {
+            e.preventDefault();
+            if (bookmark > 0) {
+                player.currentTime(bookmark);
+            }
+        });
 
         function finish(tempo) {
             stato = 1;
@@ -193,14 +206,10 @@ HTML;
 
 </div>
 
-
-<div class="g-grid">
-    <div class="g-block size-50">
-
-        <!--        <div id="jumper" class="pulsante"><img  width="30px" src="components/com_gglms/libraries/images/tab_navigazione.png"/></div>-->
-    </div>
-
-
+<div class="row hidden">
+    <p>
+        <button id="buffer">Buffering overload</button>
+    </p>
 </div>
 
 <?php if (!empty($files)): ?>
