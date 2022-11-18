@@ -38,12 +38,25 @@
         width: 100%;
         height: unset !important;
     }
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:24px !important;
+    }
 }
 /* ----------- iPhone 6, 6S, 7 and 8 ----------- */
 @media only screen and (min-device-width: 375px)  and (max-device-width: 667px){
     #box_coupon_container, #box_coupon{
         width: 100%;
         height: unset !important;
+    }
+
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:24px !important;
     }
 }
 /* ----------- iPhone 6+, 7+ and 8+ ----------- */
@@ -53,12 +66,26 @@
         height: unset !important;
 
     }
+
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:24px !important;
+    }
 }
 /* ----------- iPad 1, 2, Mini and Air ----------- */
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
     #box_coupon_container, #box_coupon{
         width: 100%;
         height: unset !important;
+    }
+
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:28px !important;
     }
 }
 /* ----------- Samsung S8 ----------- */
@@ -68,6 +95,13 @@
        height: unset !important;
 
     }
+
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:24px !important;
+    }
 }
 /* ----------- Google Nexus 6 ----------- */
 @media screen and (device-width: 412px) and (device-height: 732px) {
@@ -75,6 +109,13 @@
         width: 100%;
         height: unset !important;
 
+    }
+
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:24px !important;
     }
 }
 
@@ -84,6 +125,13 @@
         width: 100%;
         height: unset !important;
 
+    }
+
+    #box_coupon_field
+    {
+        width: unset !important;
+        box-sizing: border-box !important;
+        font-size:16px !important;
     }
 }
 
