@@ -43,7 +43,6 @@ class gglmsViewContenuto extends JViewLegacy
 
 
         if($template == 'tz_meetup'){
-
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/fix_tz_meetup.css');
         }
 
@@ -87,6 +86,7 @@ class gglmsViewContenuto extends JViewLegacy
                 $this->jumper = array();
 
                 if ($this->isAzureStream) {
+                    JHtml::_('stylesheet', 'components/com_gglms/libraries/css/amp.css');
                     $this->contenuto->tipologia_contenuto = 'solovideostreaming';
                     $this->azureStreamUrl = $this->contenuto->url_streaming_azure;
                 }

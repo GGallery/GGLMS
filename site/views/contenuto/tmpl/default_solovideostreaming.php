@@ -52,8 +52,8 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
             "nativeControlsForTouch": false,
             autoplay: true,
             controls: true,
-            // width: "640",
-            // height: "400",
+            width: "640",
+            height: "400",
             // seeking: false,
         }, function() {
 
@@ -193,7 +193,7 @@ HTML;
     <div id="boxvideo" class="span6 center-block" style="min-height: 500px; text-align: center;">
 
         <video id="video"
-            class="azuremediaplayer amp-default-skin amp-big-play-centered" tabindex="0">
+            class="azuremediaplayer amp-default-skin amp-stream-skin amp-big-play-centered" tabindex="0">
             <?php /*
             <source type="application/vnd.ms-sstr+xml"
                 src="<?php echo $this->azureStreamUrl; ?>"
