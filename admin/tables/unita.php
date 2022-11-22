@@ -46,6 +46,9 @@ class gglmsTableunita extends JTable
             gglmsHelper::SetBoxId($array);
         }
 
+        if (isset($array['order_unita'])) {
+            gglmsHelper::SetOrderCorso($array);
+        }
 
         if (isset($array['id_piattaforme_abilitate'])) {
             gglmsHelper::SetMappaAccessoPiattaforme($array);

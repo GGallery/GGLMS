@@ -254,6 +254,16 @@
         </field>
 
         <field
+                name="order_unita"
+                type="text"
+                class="inputbox"
+                label="Ordine del corso"
+                labelclass="control-label"
+                default="0"
+                description="inserire l'ordine del corso dentro il box di appartenenza"
+        />
+
+        <field
                 name="url_redirect_on_access_deny"
                 type="text"
                 class=""

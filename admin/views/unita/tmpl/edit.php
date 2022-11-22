@@ -112,6 +112,12 @@ JHtml::_('formbehavior.chosen', 'select');
                         echo $this->form->renderField('id_box'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('order_unita'); ?>
+                </div>
+
 
                 <div class="row-fluid">
                     <?php

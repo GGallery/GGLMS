@@ -74,6 +74,7 @@ class gglmsModelunita extends JModelAdmin
         if ($item = parent::getItem($pk)) {
 
             $item->id_gruppi_abilitati = gglmsHelper::GetMappaAccessoGruppi($item);
+            $item->order_unita = gglmsHelper::GetOrderCorso($item);
             $item->id_box = gglmsHelper::GetBoxId($item);
             $item->id_piattaforme_abilitate = gglmsHelper::GetMappaAccessoPiattaforme($item);
             $item->sc_a_gruppi = gglmsHelper::GetScontoGruppi($item, 'sc_a_gruppi');

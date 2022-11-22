@@ -509,6 +509,134 @@ class gglmsHelper
         return $res;
     }
 
+    public static function GetOrderCorso($item)
+    {
+        $db = JFactory::getDBO();
+
+        $res = array();
+        if (!$item->id)
+            return $res;
+
+        try {
+            $query = $db->getQuery(true);
+            $query->select('`order`');
+            $query->from('#__gg_box_unit_map');
+            $query->where('id_unita=' . $item->id);
+
+            $db->setQuery($query);
+            $res = $db->loadResult();
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore GetOrderCorso");
+        }
+        return $res;
+    }
+
+    public static function SetOrderCorso($item)
+    {
+
+        try {
+            $db = JFactory::getDBO();
+
+            $unitid = $item['id'];
+            $id_box = $item['id_box'];
+            $order_corso = $item['order_unita'];
+
+
+            $columns = array('box', 'id_unita', 'order');
+            $query = $db->getQuery(true);
+            $query->select($db->quoteName($columns));
+            $query->from('#__gg_box_unit_map');
+            $query->where('id_unita=' . $unitid );
+            $query->and('order=' .$order_corso);
+            $db->setQuery($query);
+            $current = $db->loadAssoc();
+
+
+            $query = $db->getQuery(true);
+            $query->select('max(`order`)');
+            $query->from('#__gg_box_unit_map');
+            $query->where('box=' . $id_box );
+            $db->setQuery($query);
+            $max_order = $db->loadResult();
+
+
+            if ($order_corso < $max_order && isset($current['order'])) {
+
+
+                $query_update = $db->getQuery(true);
+                $query_update->update('#__gg_box_unit_map , (SELECT @n := ' . $order_corso. ') m');
+                $query_update->set('`order` = @n:=@n+1');
+                $query_update->where('`order` >=' . $order_corso);
+                $query_update->where('box=' . $id_box);
+                $db->setQuery($query_update);
+
+                $db->execute();
+
+
+                $query_update_order = $db->getQuery(true);
+                $query_update_order->update('#__gg_box_unit_map');
+                $query_update_order->set('`order` =' . $order_corso);
+                $query_update_order->where('id_unita =' . $unitid);
+                $query_update_order->where('box=' . $id_box);
+                $db->setQuery($query_update_order);
+
+                $res = $db->execute();
+
+            }elseif ($order_corso == $max_order && isset($current['order'])) {
+
+
+                $query_update = $db->getQuery(true);
+                $query_update->update('#__gg_box_unit_map , (SELECT @n := ' . $max_order. ') m');
+                $query_update->set('`order` = @n:=@n-1');
+                $query_update->where('`order` >' . $current['order']);
+                $query_update->where('box=' . $id_box);
+                $db->setQuery($query_update);
+
+                $db->execute();
+
+
+                $query_update_order = $db->getQuery(true);
+                $query_update_order->update('#__gg_box_unit_map');
+                $query_update_order->set('`order` =' . $order_corso);
+                $query_update_order->where('id_unita =' . $unitid);
+                $query_update_order->where('box=' . $id_box);
+                $db->setQuery($query_update_order);
+
+                $res = $db->execute();
+
+            } else{
+
+                if(isset($current['order'])){
+
+                    $query_del = "DELETE FROM #__gg_box_unit_map WHERE id_unita = " . $unitid  . " AND box = " . $id_box;
+                    $db->setQuery((string)$query_del);
+                     $db->execute();
+                }
+
+                $query_insert = $db->getQuery(true);
+                $values = array($id_box, $unitid, $order_corso);
+                $query_insert->insert($db->quoteName('#__gg_box_unit_map'))
+                    ->columns($db->quoteName($columns))
+                    ->values(implode(',', $values));
+                $db->setQuery($query_insert);
+                $res= $db->execute();
+
+            }
+
+
+        } catch (Exception $e) {
+            echo "<pre>";
+            print_r($e);
+            echo "</pre>";
+            die("SetOrderCorso");
+        }
+
+        return $res;
+
+    }
+
     public static function GetScontoGruppi($item, $col = 'sc_a_gruppi') {
 
         $db = JFactory::getDBO();
