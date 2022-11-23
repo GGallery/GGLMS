@@ -3732,5 +3732,16 @@ HTML;
 
     }
 
+    public static function getSecondsFromHMS($time) {
+        $timeArr = array_reverse(explode(":", $time));
+        $seconds = 0;
+        foreach ($timeArr as $key => $value) {
+            if ($key > 2)
+                break;
+            $seconds += pow(60, $key) * $value;
+        }
+        return $seconds;
+    }
+
     /* Generiche */
 }
