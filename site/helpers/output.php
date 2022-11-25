@@ -2413,14 +2413,14 @@ HTML;
 
             $row_count++;
             $_html .= <<<HTML
-                <div class="col-md-{$bootstrap_col_w}">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading" style="background: #00313C"><b>{$_descrizione}</b></div>
-                        <div class="panel-body">
-                            <img src="{$_img_src}" class="img-responsive" alt="{$_descrizione}">
+                <div class="py-3 d-flex col-md-{$bootstrap_col_w}">
+                    <div class="card d-flex">
+                        <div class="card-header " style="background: #00313C;color: white"><b>{$_descrizione}</b></div>
+                        <div class=" card-body my-0 px-0 py-0">
+                            <img src="{$_img_src}" class="card-img-top img-fluid " alt="{$_descrizione}">
                         </div>
-                        <div class="panel-footer">
-                            <p class="text-left">
+                        <div class="card-footer">
+                            <p class="text-left my-0">
                                 <a href="$_box_url">{$_show}</a>
                             </p>
                         </div>

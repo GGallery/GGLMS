@@ -43,7 +43,7 @@ HTML;
             <thead>
             <tr>
                 <th data-field="evento" data-sortable="true">Evento</th>
-                <th data-field="area" data-sortable="true">Area</th>
+<!--                <th data-field="area" data-sortable="true">Area</th>-->
                 <th data-field="data" data-sortable="true">Data</th>
                 <th data-field="orario" data-sortable="true">Orario</th>
                 <th data-field="destinatari" data-sortable="true">Destinatari</th>
