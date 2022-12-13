@@ -734,6 +734,32 @@ class utilityHelper
 
     }
 
+    // id per un campo community builder da name - utility per self.get_cb_field_col()
+    public static function get_cb_fieldId_by_name($field_name) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('fieldid')
+                ->from('#__comprofiler_fields')
+                ->where("name = '" . trim($field_name) . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($result = $db->loadResult())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
     // informazioni per un campo community builder da id - utility per self.get_cb_field_name()
     public static function get_cb_field($field_id) {
 
@@ -3025,6 +3051,22 @@ HTML;
 
     // costruizione del link encodato per i vari passaggi di acquisto evento
     public static function build_encoded_link($token, $view='acquistaevento', $action='buy') {
+
+        return 'index.php?option=com_gglms&view=' . $view . '&action=' . $action . '&pp=' . $token;
+
+    }
+
+    // costruizione del token per l'url encodato - utilità per output.php
+    public static function build_token_url_asand($user_id, $in_groups, $secret_key = 'GGallery00!') {
+
+        $b_url =$user_id . '|==|' . $in_groups;
+        $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
+
+        return $token;
+    }
+
+    // costruizione del link encodato per i vari passaggi di acquisto evento
+    public static function build_encoded_link_asand($token, $view='registrazioneasand', $action='buy') {
 
         return 'index.php?option=com_gglms&view=' . $view . '&action=' . $action . '&pp=' . $token;
 

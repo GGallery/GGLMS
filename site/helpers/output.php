@@ -2160,4 +2160,402 @@ HTML;
 
     }
 
+    public static function get_user_registration_form_asand( $user_id,
+                                                                      $in_groups) {
+
+        try {
+
+            $_ret = array();
+
+            $_title_advise = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR6');
+            $_cb_nome  = 'cb_nome';
+            $_cb_cognome = 'cb_cognome';
+            $_cb_cf = 'cb_codicefiscale';
+            $_cb_data_nascita = 'cb_datadinascita';
+            $_cb_telefono = 'cb_telefono';
+            $_cb_anno_laurea ='cb_laureanno';
+            $_cb_laureain ='cb_laureain';
+            $_cb_citta = 'cb_citta';
+            $_cb_provincia = 'cb_provdiresidenza';
+            $_cb_indirizzo = 'cb_indirizzodiresidenza';
+            $_cb_cap = 'cb_cap';
+            $_cb_ragionesociale = 'cb_ragionesociale';
+            $_cb_piva = 'cb_piva';
+            $_cb_università = 'cb_universita';
+            $_cb_anno_di_frequenza = 'cb_anno_frequenza';
+            $_cb_matricola ='cb_matricola';
+            $_cb_dipendente = 'cb_dipendente';
+            $_cb_area_pratica = 'cb_area_pratica';
+            $_cb_numero_albo = 'cb_numero_albo';
+            $_cb_provincia_albo = 'cb_provincia_albo';
+            $_cb_azienda_dipendente_sede = 'cb_azienda_dipendente_sede';
+            $_cb_indirizzo_azienda = 'cb_indirizzo_azienda';
+            $_cb_citta_azienda = 'cb_citta_azienda';
+            $_cb_indirizzo_studio = 'cb_indirizzo_studio';
+            $_cb_citta_studio = 'cb_citta_studio';
+            // lista options da community builder
+            $_cb_dipendente_options = UtilityHelper::get_cb_field_select_by_name('cb_dipendente');
+            $_cb_dipendente_id = UtilityHelper::get_cb_fieldId_by_name('cb_dipendente');
+            $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select_by_name('cb_titolo_studio');
+            $_cb_anno_di_frequenza_options = UtilityHelper::get_cb_field_select_by_name('cb_anno_frequenza');
+            $_cb_anno_di_frequenza_id = UtilityHelper::get_cb_fieldId_by_name('cb_anno_frequenza');
+            $_cb_titolo_studio_id = UtilityHelper::get_cb_fieldId_by_name('cb_titolo_studio');
+            $_cb_provincia_options = UtilityHelper::get_cb_field_select_by_name('cb_provdiresidenza');
+            $_cb_provincia_id = UtilityHelper::get_cb_fieldId_by_name('cb_provdiresidenza');
+            $_cb_provincia_albo_options = UtilityHelper::get_cb_field_select_by_name('cb_provincia_albo');
+            $_cb_provincia_albo_id = UtilityHelper::get_cb_fieldId_by_name('cb_provincia_albo');
+
+            $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
+            $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
+            $_label_cognome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR9');
+            $_label_password = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR10');
+            $_label_r_password = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR11');
+            $_label_cf = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR12');
+            $_label_email = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR13');
+            $_label_indirizzo = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR14');
+            $_label_citta = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR15');
+            $_label_pv = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR16');
+            $_label_cap = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR17');
+            $_label_dt_nascita = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR18');
+            $_label_tel = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR19');
+            $_label_piva = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR25');
+            $_label_quota_associativa = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR29');
+            $_label_quota_associativa_standard = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR27');
+            $_label_quota_costo_standard= JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR28');
+            $_label_quota_associativa_studente = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR30');
+            $_label_quota_costo_studente = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR31');
+            $_label_università = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR32');
+            $_label_anno_di_frequenza= JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR33');
+            $_label_matricola = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR34');
+            $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
+            $_label_dipendente = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR36');
+            $_label_area_pratica = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR37');
+            $_label_numero_albo = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR38');
+            $_label_provincia_albo = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR39');
+            $_label_azienda_dipendente_sede = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR40');
+            $_label_indirizzo_azienda = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR41');
+            $_label_citta_azienda = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR42');
+            $_label_indirizzo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR43');
+            $_label_citta_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR44');
+
+            $token = UtilityHelper::build_token_url_asand($user_id, $in_groups);
+            $_ref_registrazione = UtilityHelper::build_encoded_link_asand($token, 'registrazioneasand', 'user_registration_request');
+
+            $_html = <<<HTML
+
+            <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
+
+            <div class="row">
+                <div class="col-12">
+                    <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                </div>
+            </div>
+            <hr />
+            <div class="container-form">
+                <form>
+                
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="check_quota_associativa">{$_label_quota_associativa}</label>
+                        </div>
+                      <div class="col-75"style=" display: block">
+                        <input class="form-control" type="checkbox" id="check_quota_associativa" style="display: inline" />
+                        <span style="display: inline">{$_label_quota_associativa_standard}{$_label_quota_costo_standard}</span>
+                      </div>
+                      <div class="col-75"style=" display: block">
+                        <input class="form-control" type="checkbox" id="check_quota_associativa" style="display: inline" />
+                        <span style="display: inline">{$_label_quota_associativa_studente}{$_label_quota_costo_studente}</span>
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="nome_utente">{$_label_nome}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cognome_utente">{$_label_cognome}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="ripeti_password_utente">{$_label_r_password}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cf_utente">{$_label_cf}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="email_utente">{$_label_email}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="indirizzo_utente">{$_label_indirizzo}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="citta_utente">{$_label_citta}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="pv_utente">{$_label_pv}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
+                                <option value="">-</option>
+                                {$_cb_provincia_options}
+                            </select>
+                      </div>
+                    </div>
+
+                     <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="cap_utente">{$_label_cap}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="cap_utente" style="width: 120px;" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="telefono_utente">{$_label_tel}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-75">
+                        <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="{$_label_tel}" />
+                      </div>
+                    </div>
+
+                    <div class="rowcustom">
+                      <div class="col-25">
+                        <label for="titolo_studio">{$_label_titolo_studio}<span style="color: red">*</span></label>
+                      </div>
+                      <div class="col-25">
+                        <select class="form-control" id="titolo_studio" data-campo="cb_titolo_studio" data-id-ref="{$_cb_titolo_studio_id}">
+                                <option value="">-</option>
+                                {$_cb_titolo_studio_options}
+                            </select>
+                      </div>
+                    </div>
+                    
+                    <div id="campi_studente" style="display: none;">
+
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="università">{$_label_università}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_studente" type="text" id="università" style="width: 220px;" data-campo="{$_cb_università}" />
+                          </div>
+                        </div>
+
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="anno_di_frequenza">{$_label_anno_di_frequenza}</label>
+                          </div>
+                          <div class="col-75">
+                          <select class="form-control campi_studente" id="anno_di_frequenza"  style="width: 220px;" data-campo="{$_cb_anno_di_frequenza}" data-id-ref="{$_cb_anno_di_frequenza_id}">
+                                <option value="">-</option>
+                                {$_cb_anno_di_frequenza_options}
+                            </select>
+                           
+                          </div>
+                        </div>
+
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="matricola">{$_label_matricola}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_studente" type="text" id="matricola" style="width: 220px;" data-campo="{$_cb_matricola}" />
+                          </div>
+                        </div>
+
+                    </div>
+                    
+                    <div id="campi_professione" style="display: none;">
+
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="posizione_lavorativa">{$_label_dipendente}</label>
+                          </div>
+                           <div class="col-75">
+                          <select class="form-control campi_professione" id="posizione_lavorativa"  style="width: 220px;" data-campo="{$_cb_dipendente}" data-id-ref="{$_cb_dipendente_id}">
+                                <option value="">-</option>
+                                {$_cb_dipendente_options}
+                            </select>
+                           
+                          </div>
+                        </div>
+                        
+                        <div id="campi_dipendente" style="display: none;">
+
+                            <div class="rowcustom">
+                              <div class="col-25">
+                                <label for="azienda">{$_label_azienda_dipendente_sede}</label>
+                              </div>
+                               <div class="col-75">
+                                <input class="form-control campi_dipendente" type="text" id="azienda" style="width: 220px;" data-campo="{$_cb_azienda_dipendente_sede}" />
+                              </div>
+                            </div>
+                            
+                            <div class="rowcustom">
+                              <div class="col-25">
+                                <label for="indirizzo_azienda">{$_label_indirizzo_azienda}</label>
+                              </div>
+                               <div class="col-75">
+                                <input class="form-control campi_dipendente" type="text" id="indirizzo_azienda" style="width: 220px;" data-campo="{$_cb_indirizzo_azienda}" />
+                              </div>
+                            </div>
+                            
+                            <div class="rowcustom">
+                              <div class="col-25">
+                                <label for="citta_azienda">{$_label_citta_azienda}</label>
+                              </div>
+                               <div class="col-75">
+                                <input class="form-control campi_dipendente" type="text" id="citta__azienda" style="width: 220px;" data-campo="{$_cb_citta_azienda}" />
+                              </div>
+                            </div>
+                       </div>
+                       
+                        <div id="campi_libero" style="display: none;">
+
+                            <div class="rowcustom">
+                              <div class="col-25">
+                                <label for="indirizzo_studio">{$_label_indirizzo_studio}</label>
+                              </div>
+                               <div class="col-75">
+                                <input class="form-control campi_libero" type="text" id="indirizzo_studio" style="width: 220px;" data-campo="{$_cb_indirizzo_studio}" />
+                              </div>
+                            </div>
+                            
+                            <div class="rowcustom">
+                              <div class="col-25">
+                                <label for="citta_studio">{$_label_citta_studio}</label>
+                              </div>
+                               <div class="col-75">
+                                <input class="form-control campi_libero" type="text" id="citta_studio" style="width: 220px;" data-campo="{$_cb_citta_studio}" />
+                              </div>
+                            </div>
+                            
+                            <div class="rowcustom">
+                              <div class="col-25">
+                                <label for="piva">{$_label_piva}</label>
+                              </div>
+                               <div class="col-75">
+                                <input class="form-control campi_libero" type="text" id="piva" style="width: 220px;" data-campo="{$_cb_piva}" />
+                              </div>
+                            </div>
+                        </div>    
+                        
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="area_pratica">{$_label_area_pratica}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_professione" type="text" id="area_pratica" style="width: 220px;" data-campo="{$_cb_area_pratica}" />
+                          </div>
+                        </div>
+                        
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="numero_albo">{$_label_numero_albo}</label>
+                          </div>
+                          <div class="col-75">
+                            <input class="form-control campi_professione" type="text" id="numero_albo" style="width: 220px;" data-campo="{$_cb_numero_albo}" />
+                          </div>
+                        </div>
+                        
+                        <div class="rowcustom">
+                          <div class="col-25">
+                            <label for="pv_albo">{$_label_provincia_albo}</label>
+                          </div>
+                        
+                            <div class="col-25">
+                            <select class="form-control campi_dipendente" id="pv_albo" data-campo="{$_cb_provincia_albo}" data-id-ref="{$_cb_provincia_albo_id}">
+                                    <option value="">-</option>
+                                    {$_cb_provincia_albo_options}
+                                </select>
+                              </div>
+                        </div>
+
+
+                    </div>
+
+             
+
+                     <div class="rowcustom">
+                        <div class="col-xs-12 text-center">
+                            <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                        </div>
+                     </div>
+                     <input type="hidden" id="token" value="{$token}" />
+                </form>
+            </div>
+HTML;
+            $_ret['success'] = $_html;
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            return $e->getMessage();
+        }
+    }
+
+
 }

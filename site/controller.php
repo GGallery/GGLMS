@@ -118,6 +118,7 @@ class gglmsController extends JControllerLegacy
             && strpos(JUri::getInstance()->toString(), 'rinnovoquote') === false
             && strpos(JUri::getInstance()->toString(), 'paypal') === false
             && strpos(JUri::getInstance()->toString(), 'acquistaevento') === false
+            && strpos(JUri::getInstance()->toString(), 'registrazioneasand') === false
             && strpos(JUri::getInstance()->toString(), 'sponsor') === false
             && strpos(JUri::getInstance()->toString(), 'gestione-anagrafica-centri') === false
         ) {
