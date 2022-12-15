@@ -99,8 +99,12 @@ class gglmsModelStatoContenuto extends JModelLegacy
 
                 // controllo se la data di primo accesso è maggiore della data fine, in questo caso assumo data_primo_accesso
                 // come il timestamp di completed meno i secondi necessari al completamento
-                if (utilityHelper::check_dt_major($this->data_primo_accesso, $this->data_extra))
+                //e aggiorno data_extra nel caso il contenuto stato visualizzato per la seconda volta
+                if (utilityHelper::check_dt_major($this->data_primo_accesso, $this->data_extra)) {
                     $this->data_primo_accesso = utilityHelper::remove_seconds_from_dt($this->data_extra, $this->permanenza);
+                    $this->data_extra = $data['cmi.core.last_visit_date']->TimeStampExtra;
+                }
+
 
             } else {
                 $this->completato = 0;
