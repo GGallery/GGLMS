@@ -74,8 +74,9 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        echo $this->encrypt_decrypt('encrypt', 'GGallery00!!!__', 'GGallery00__', 'GGallery00__');
-        $this->_db->close();
+        $check = utilityHelper::getJoomlaMainUrl(['home']);
+        echo utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/index.php";
+        $this->_japp->close();
 
     }
 

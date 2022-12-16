@@ -2271,6 +2271,120 @@ HTML;
 
     }
 
+    // stampa ricevuta per pagamento quota asand
+    public function printReceiptAsnd() {
+
+        try {
+            if (!isset($_REQUEST['recepit_id']))
+                throw new Exception("Identificativo quota non valorizzato", E_USER_ERROR);
+
+            $decryptedQuotaRef = utilityHelper::decrypt_random_token($_REQUEST['recepit_id']);
+            if (!is_numeric($decryptedQuotaRef))
+                throw new Exception("Identificativo quota non numerico", E_USER_ERROR);
+
+            $query = "SELECT usr.id as user_id, usr.email,
+                            cb.cb_codicefiscale, cb.cb_nome, cb.cb_cognome, DATE_FORMAT(cb.cb_datadinascita, '%d/%m/%Y') AS cb_datadinascita, cb_luogodinascita, cb_provinciadinascita,
+                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento
+                        FROM #__users usr
+                        JOIN #__comprofiler cb ON usr.id = cb.user_id
+                        JOIN #__gg_quote_iscrizioni quote ON usr.id = quote.user_id
+                        WHERE quote.id = " . $this->_db->quote($decryptedQuotaRef);
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+            if (is_null($result))
+                throw new Exception("Nessuna ricevuta trovata", E_USER_ERROR);
+
+            $check = utilityHelper::getJoomlaMainUrl(['home']);
+            $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/tmp/";
+            $logoAsand = $siteRefUrl . "logo_asand.png";
+            $firma_1 = $siteRefUrl . "firma1.jpg";
+            $firma_2 = $siteRefUrl . "firma2.jpg";
+            $formattedCf = strtoupper($result['cb_codicefiscale']);
+            $formattedQuota = number_format($result['totale'], 2, ',', '');
+            echo <<<HTML
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    * { font-family: Calibri; font-size: 20px; }
+                    table {
+                        /* width: auto; */
+                    }
+                    table, th, td  {
+                        border: 0px !important;
+                        border-collapse: collapse;
+                        /* padding: 2px 3px;
+                        text-align: center; */
+                    }
+                    @media print
+                    {
+                        .no-print, .no-print *
+                        {
+                            display: none !important;
+                        }
+                    }
+
+                </style>
+            </head>
+            <body>
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <img src="{$logoAsand}" alt="logo" title="logo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;">Palermo, {$result['data_pagamento']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Si certifica che {$result['cb_cognome']} {$result['cb_nome']} nato/a a {$result['cb_luogodinascita']} ({$result['cb_provinciadinascita']}) il {$result['cb_datadinascita']},
+                    con codice fiscale {$formattedCf}, ha versato ad ASAND la quota associativa relativa all'anno {$result['anno']}, pari a &euro; {$formattedQuota}.<br />
+                    Il socio {$result['cb_cognome']} {$result['cb_nome']} &egrave; iscritto all'Associazione tecnico Scientifica Alimentazione, Nutrizione e Dietetica ASAND per l'anno {$result['anno']}.
+                </p>
+                <p>NI: {$result['anno']}-{$result['user_id']}</p>
+                <br />
+                <br />
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center;">
+                                Il segretario
+                            </td>
+                            <td style="text-align: center;">
+                                Il tesoriere
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;">
+                                <img style="width: 40%" src="{$firma_1}" alt="firma1" title="firma1" />
+                            </td>
+                            <td style="text-align: center;">
+                                <img style="width: 40%" src="{$firma_2}" alt="firma2" title="firma2" />
+                            </td>
+                        </tr>
+                        <tr class="no-print">
+                            <td colspan="2" style="text-align: center">
+                                <button onclick="window.print();">STAMPA</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+HTML;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
     // abilito i coupon in appoggio alla tabella di controllo
     public function attivazione_coupons_utenti($id_piattaforma) {
 
@@ -3064,7 +3178,7 @@ HTML;
                 $citta = trim($row_arr[10]);
 
 
-                $query = "INSERT INTO #__gg_anagrafica_centri 
+                $query = "INSERT INTO #__gg_anagrafica_centri
                              (
                               centro,
                               indirizzo,

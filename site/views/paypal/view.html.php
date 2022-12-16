@@ -26,6 +26,7 @@ class gglmsViewPaypal extends JViewLegacy {
     protected $call_result;
     protected $call_error;
     protected $result_view;
+    protected $last_quota;
 
     function display($tpl = null)
     {
@@ -44,7 +45,7 @@ class gglmsViewPaypal extends JViewLegacy {
             // chi o cosa mi sta chiamando
             if (!isset($pp)
                 || $pp == "")
-                throw new Exception("Nessuna azione richiesta", 1);
+                throw new Exception("Nessuna azione richiesta", E_USER_ERROR);
 
             // config model
             $_config = new gglmsModelConfig();
@@ -68,7 +69,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale_sinpe, $totale_espen), true);
 
                 if (!isset($new_order['success']))
-                    throw new Exception($new_order['error'], 1);
+                    throw new Exception($new_order['error'], E_USER_ERROR);
 
                 // inserisco le quote per l'utente selezionato
                 $_user_details = $_user_quote->get_user_details_cb($user_id);
@@ -101,12 +102,12 @@ class gglmsViewPaypal extends JViewLegacy {
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale, $totale_espen), true);
 
                 if (!isset($new_order['success']))
-                    throw new Exception($new_order['error'], 1);
+                    throw new Exception($new_order['error'], E_USER_ERROR);
 
                 // inserisco le quote per l'utente selezionato
                 $_user_details = $_user_quote->get_user_details_cb($user_id);
                 if (!is_array($_user_details))
-                    throw new Exception($_user_details, 1);
+                    throw new Exception($_user_details, E_USER_ERROR);
 
                 $_insert_servizi_extra = $_user_quote->insert_user_servizi_extra($user_id,
                                                                                 $new_order['anno_quota'],
@@ -121,6 +122,81 @@ class gglmsViewPaypal extends JViewLegacy {
                     $this->call_result = $_insert_servizi_extra;
                 else
                     $this->call_result = "tuttook";
+
+            }
+            else if ($pp == 'registrazioneasand') {
+
+                $token = JRequest::getVar('token');
+
+                $decryptedToken = utilityHelper::decrypt_random_token($token);
+                $parsedToken = explode("|==|", $decryptedToken);
+
+                $userId = $parsedToken[0];
+                $requestedQuota = $parsedToken[1];
+                $totaleQuota = $parsedToken[2];
+                $ppCommissione = $parsedToken[3];
+
+                $checkUser = $_user_quote->get_user_joomla($userId);
+                if (is_null($checkUser)
+                    || !isset($checkUser->id)) {
+                    throw new Exception("Nessun utente trovato", E_USER_ERROR);
+                }
+
+                $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
+                $new_order = json_decode($paypal->quota_asand_anno_store_payment($order_id, $userId, $totaleQuota), true);
+
+                if (!isset($new_order['success']))
+                    throw new Exception($new_order['error'], E_USER_ERROR);
+
+                $dettagliUtente = $_user_quote->get_user_full_details_cb($userId);
+                $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+
+                // l'integrazione dei campi extra al momento è soltanto per community builder
+                $_config = new gglmsModelConfig();
+                $dettagliUtente['nome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_nome')];
+                $dettagliUtente['cognome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_cognome')];
+                $dettagliUtente['codice_fiscale'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_controllo_cf')];
+                $dettagliUtente['email'] = $checkUser->email;
+                $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
+                //$dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
+
+                $_insert_evento = $_user_quote->insert_user_servizi_extra($userId,
+                                                                            $new_order['anno_quota'],
+                                                                            $new_order['data_creazione'],
+                                                                            $new_order['order_details'],
+                                                                            $totaleQuota+$ppCommissione,
+                                                                            $dettagliUtente,
+                                                                            $pp,
+                                                                            false);
+
+                if (!is_array($_insert_evento))
+                    throw new Exception($_insert_evento, E_USER_ERROR);
+
+                $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
+                if (is_null($userGroupId))
+                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                $insert_ug = $_user_quote->insert_user_into_usergroup($userId, $userGroupId);
+                if (is_null($insert_ug))
+                    throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
+
+                // aggiorno ultimo anno pagato
+                $_ultimo_anno = $_user_quote->update_ultimo_anno_pagato($userId, $new_order['anno_quota']);
+                if (!is_array($_ultimo_anno))
+                    throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+                // sblocco l'utente
+                $db = JFactory::getDbo();
+                $updateUser = "UPDATE #__users
+                                SET block = 0
+                                WHERE id = " . $db->quote($userId);
+                $db->setQuery($updateUser);
+
+                if (!$db->execute())
+                    throw new Exception("Errore durante l'aggiornamento dell'utente -> " . $updateUser, E_USER_ERROR);
+
+                $this->call_result = "tuttook";
+                $this->last_quota = $_insert_evento['last_quota'];
 
             }
             else if ($pp == 'acquistaevento') {
@@ -138,17 +214,17 @@ class gglmsViewPaypal extends JViewLegacy {
 
                 if (!isset($decode_arr[0])
                     || $decode_arr[0] == "")
-                    throw new Exception("Prezzo non disponibile", 1);
+                    throw new Exception("Prezzo non disponibile", E_USER_ERROR);
 
                 if (!isset($decode_arr[1])
                     || $decode_arr[1] == ""
                     || filter_var($decode_arr[1], FILTER_VALIDATE_INT) === false)
-                    throw new Exception("Nessun identificativo evento", 1);
+                    throw new Exception("Nessun identificativo evento", E_USER_ERROR);
 
                 if (!isset($decode_arr[2])
                     || $decode_arr[2] == ""
                     || filter_var($decode_arr[2], FILTER_VALIDATE_INT) === false)
-                    throw new Exception("Nessun utente specificato", 1);
+                    throw new Exception("Nessun utente specificato", E_USER_ERROR);
 
                 /*
                 if (!isset($decode_arr[3])
@@ -172,7 +248,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 $new_order = json_decode($paypal->acquisto_evento_store_payment($order_id, $user_id, $unit_prezzo), true);
 
                 if (!isset($new_order['success']))
-                    throw new Exception($new_order['error'], 1);
+                    throw new Exception($new_order['error'], E_USER_ERROR);
 
                 $unit_model = new gglmsModelUnita();
                 $unit_gruppo = $unit_model->get_id_gruppo_unit($unit_id);
@@ -197,9 +273,9 @@ class gglmsViewPaypal extends JViewLegacy {
 
             // nessuna delle opzioni richieste elaborata
             if ($this->call_result == "")
-                throw new Exception("Non è stata eseguita nessuna operazione valida", 1);
+                throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
 
-            $this->result_view = OutputHelper::get_result_view($pp, $this->call_result);
+            $this->result_view = outputHelper::get_result_view($pp, $this->call_result, null, $this->last_quota);
 
             parent::display($tpl);
 

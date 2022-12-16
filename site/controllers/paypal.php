@@ -96,6 +96,73 @@ class gglmsControllerPaypal extends JControllerLegacy {
 
     }
 
+    // pagamento quota annuale asand
+    public function quota_asand_anno_store_payment($ordine_id, $user_id, $totale_quota) {
+
+        $_ret = array();
+
+        try {
+
+            // controllo parametri fondamentali
+            if (!isset($ordine_id)
+                || $ordine_id == "")
+                throw new Exception("identificativo ordine mancante", E_USER_ERROR);
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("identificativo utente mancante", E_USER_ERROR);
+
+            if (!isset($totale_quota)
+                || $totale_quota == "")
+                throw new Exception("totale transazione mancante", E_USER_ERROR);
+
+            $order_info_obj = $this->get_order($ordine_id,
+                                            $this->client_id,
+                                            $this->client_secret,
+                                            $this->is_production);
+
+            $order_info_arr = json_decode($order_info_obj, true);
+
+            // dettaglio transazione non disponibile
+            if (isset($order_info_arr['error']))
+                throw new Exception($order_info_arr['error'], E_USER_ERROR);
+
+            $dt = new DateTime();
+            // ricavo tutte le informazioni da memorizzare per l'utente corrente
+            $_success_order = $order_info_arr['success'];
+
+            $_order_details = "";
+            $_order_details .= (isset($_success_order['id'])) ? 'ID: ' . $_success_order['id'] . "\n" : "";
+            $_order_details .= (isset($_success_order['status'])) ? 'STATUS: ' . $_success_order['status'] . "\n" : "";
+            $_order_details .= (isset($_success_order['purchase_units'][0]['description'])) ? 'DESCRIZIONE: ' . $_success_order['purchase_units'][0]['description'] . "\n" : "";
+            //$_order_total = (isset($_success_order['purchase_units'][0]['amount']['value'])) ? $_success_order['purchase_units'][0]['amount']['value'] : 0;
+            $_order_details .= (isset($_success_order['payer']['name']['given_name'])) ? 'PAYER NOME: ' . $_success_order['payer']['name']['given_name'] . "\n" : "";
+            $_order_details .= (isset($_success_order['payer']['name']['surname'])) ? 'PAYER COGNOME: ' . $_success_order['payer']['name']['surname'] . "\n" : "";
+            $_order_details .= (isset($_success_order['payer']['email_address'])) ? 'PAYER EMAIL: ' . $_success_order['payer']['email_address'] . "\n" : "";
+
+            $_data_creazione = $dt->format('Y-m-d H:i:s');
+            $_order_creation = (isset($_success_order['create_time']) && $_success_order['create_time'] != "") ? $_success_order['create_time'] : "";
+            if ($_order_creation != "") {
+                $dt_ = new DateTime($_order_creation);
+                $_data_creazione = $dt_->format('Y-m-d H:i:s');
+            }
+
+            $_ret['success'] = "tuttook";
+            $_ret['user_id'] = $user_id;
+            $_ret['anno_quota'] = $dt->format('Y');
+            $_ret['data_creazione'] = $_data_creazione;
+            $_ret['order_details'] = $_order_details;
+            $_ret['totale'] = $totale_quota;
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+            DEBUGG::log(json_encode($e->getMessage()), 'ERRORE DA ' . __FUNCTION__, 0, 1, 0);
+        }
+
+        return json_encode($_ret, JSON_PRETTY_PRINT);
+    }
+
     // pagamento quote sinpe / espen da form
     // adattato anche per acquisizione servizi extra da area riservata (Es. ESPEN in un secondo tempo)
     public function quote_sinpe_store_payment($ordine_id, $user_id, $totale_sinpe, $totale_espen=0) {
@@ -107,15 +174,15 @@ class gglmsControllerPaypal extends JControllerLegacy {
             // controllo parametri fondamentali
             if (!isset($ordine_id)
                 || $ordine_id == "")
-                throw new Exception("identificativo ordine mancante", 1);
+                throw new Exception("identificativo ordine mancante", E_USER_ERROR);
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("identificativo utente mancante", 1);
+                throw new Exception("identificativo utente mancante", E_USER_ERROR);
 
             if (!isset($totale_sinpe)
                 || $totale_sinpe == "")
-                throw new Exception("totale transazione mancante", 1);
+                throw new Exception("totale transazione mancante", E_USER_ERROR);
 
             $order_info_obj = $this->get_order($ordine_id,
                 $this->client_id,
@@ -126,7 +193,7 @@ class gglmsControllerPaypal extends JControllerLegacy {
 
             // dettaglio transazione non disponibile
             if (isset($order_info_arr['error']))
-                throw new Exception($order_info_arr['error'], 1);
+                throw new Exception($order_info_arr['error'], E_USER_ERROR);
 
             $dt = new DateTime();
             // ricavo tutte le informazioni da memorizzare per l'utente corrente

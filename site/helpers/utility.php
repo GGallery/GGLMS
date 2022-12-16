@@ -914,6 +914,36 @@ class utilityHelper
 
     }
 
+    // controllo esistenza utente per colonna e valore restituendo l'intera riga
+    public static function check_user_by_column_row($target_col, $target_val) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__users')
+                ->where($target_col . " = " . $db->quote($target_val));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return (isset($results) && !is_null($results))
+                ? $results
+                : null;
+
+        }
+        catch (Exception $e) {
+            //DEBUGG::error($e, __FUNCTION__);
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return null;
+        }
+
+    }
+
     // controllo esistenza utente per colonna e valore - utility per view.acquistaevento
     public static function check_user_by_column($target_col, $target_val) {
 
@@ -1622,11 +1652,21 @@ class utilityHelper
 
     }
 
+    public static function getHostname($withHttp = false)
+    {
+        $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+
+        if ($withHttp) return $_https . "://".$_SERVER["HTTP_HOST"];
+
+        return parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+    }
+
     // imposta dominio
     public static function imposta_domino()
     {
-        $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
-        $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+        // $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+        // $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+        $hostname = self::getHostname();
 
         $_arr_host = explode(".", $hostname);
         // indirizzi tipo https://dominio.it
@@ -1958,7 +1998,8 @@ HTML;
                                                       $totale = 0,
                                                       $_data_creazione = null,
                                                       $template="bb_buy_request",
-                                                      $mail_from = null) {
+                                                      $mail_from = null,
+                                                      $quotaAnnualeAsand = false) {
 
         $_nominativo = "";
         $_cf = "";
@@ -1983,24 +2024,40 @@ HTML;
             $dt = new DateTime();
 
         $oggetto = "Acquisto evento " . $_event_title;
+
+        if ($quotaAnnualeAsand)
+            $oggetto = "Acquisto quota annuale " . $dt->format('Y') . " portale ASAND";
+
         $_label_pagato = "pagato";
         $_label_extra = "";
 
-        if ($template == 'bb_buy_request') {
+        if ($template == 'bb_buy_request'
+            || $template == 'bb_buy_quota_asand') {
+
             $oggetto .= " - Richiesta pagamento con bonifico";
-            $_label_pagato .= "da pagare";
-            $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />
-                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale
-                                e contatto telefonico allegando la ricevta del bonifico";
+            $_label_pagato = "da pagare";
+            $_label_evento = '<p>Evento di riferimento: ' . $_event_title .'</p>';
+
+            if ($template != 'bb_buy_quota_asand')
+                $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />";
+
+            $_label_extra .= "Per concludere la transazione inviare un'E-Mail con nome, cognome, codice fiscale
+                            e contatto telefonico allegando la ricevuta del bonifico";
+
+            if ($template == 'bb_buy_quota_asand') {
+                $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'COORDINATE PER BONIFICO BANCARIO', $_user_details['testo_pagamento_bonifico']);
+                $_label_extra .= '<p>' . $_testo_pagamento_bonifico . '</p>';
+            }
+
         }
-        else if ($template == 'acquistaevento')
+        else if ($template == 'acquistaevento' || $template == 'registrazioneasand')
             $oggetto .= " - Conferma pagamento con PayPal";
 
         $body = <<<HTML
                 <br /><br />
                 <p>Nominativo: <b>{$_nominativo}</b></p>
                 <p>Codice fiscale: {$_cf}</p>
-                <p>Evento di riferimento: {$_event_title}</p>
+                {$_label_evento}
                 <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
                 <p>Totale {$_label_pagato}: &euro; <b>{$totale}</b></p>
                 {$_label_extra}
@@ -3033,6 +3090,25 @@ HTML;
 
     }
 
+    public static function getSiteMainUrl($arrPathTest, $withProtocol = true) {
+
+        $check = self::getJoomlaMainUrl($arrPathTest);
+        return self::getHostname($withProtocol) . (!is_null($check) ? '/' . $check : "");
+
+    }
+
+    // verifico l'installazione joomla
+    public static function getJoomlaMainUrl($arrPathTest) {
+
+        foreach ($arrPathTest as $key => $singleCheck) {
+            $pBase = $_SERVER['DOCUMENT_ROOT'] .  '/' . $singleCheck;
+            if (is_dir($pBase)) return $singleCheck;
+        }
+
+        return null;
+
+    }
+
     // verifico esistenza parametro in url
     public static function checkUrlParamExisting($url, $param) {
 
@@ -3049,26 +3125,24 @@ HTML;
         return $token;
     }
 
-    // costruizione del link encodato per i vari passaggi di acquisto evento
-    public static function build_encoded_link($token, $view='acquistaevento', $action='buy') {
+    public static function build_randon_token($stringTokenize = null, $secret_key = 'GGallery00!') {
 
-        return 'index.php?option=com_gglms&view=' . $view . '&action=' . $action . '&pp=' . $token;
+        return self::encrypt_decrypt('encrypt', (!is_null($stringTokenize) ? $stringTokenize : time()), $secret_key, $secret_key);
 
     }
 
-    // costruizione del token per l'url encodato - utilità per output.php
-    public static function build_token_url_asand($user_id, $in_groups, $secret_key = 'GGallery00!') {
+    public static function decrypt_random_token($stringDetokenize, $secret_key = 'GGallery00!') {
 
-        $b_url =$user_id . '|==|' . $in_groups;
-        $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
+        return self::encrypt_decrypt('decrypt', $stringDetokenize, $secret_key, $secret_key);
 
-        return $token;
     }
 
     // costruizione del link encodato per i vari passaggi di acquisto evento
-    public static function build_encoded_link_asand($token, $view='registrazioneasand', $action='buy') {
+    public static function build_encoded_link($token='', $view='acquistaevento', $action='buy') {
 
-        return 'index.php?option=com_gglms&view=' . $view . '&action=' . $action . '&pp=' . $token;
+        return 'index.php?option=com_gglms&view=' . $view
+            . '&action=' . $action
+            . ($token != '' ? '&pp=' . $token : '');
 
     }
 
@@ -3201,6 +3275,15 @@ HTML;
         }
 
         return $_ret;
+    }
+
+    /* Number */
+    public static function percentageFromNumber($percentToGet, $myNumber) {
+
+        $percentInDecimal = $percentToGet / 100;
+
+        return $percentInDecimal * $myNumber;
+
     }
 
     /* Date */
@@ -3645,19 +3728,19 @@ HTML;
 
            //controllo se user appartiene ad una società
            if (!isset($user_soc) || !is_numeric($user_soc[0]->id))
-               throw new Exception("questo user non appartiene a nessuna società", 1);
+               throw new Exception("questo user non appartiene a nessuna società", E_USER_ERROR);
 
            $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
 
            //controllo tutor aziandale
            if (!isset($tutor_id) || !is_numeric($tutor_id))
-               throw new Exception(" il tutor aziendale non esiste", 1);
+               throw new Exception(" il tutor aziendale non esiste", E_USER_ERROR);
 
            //mi restituisca username del tutor aziendale perche mi serve nell'inserimento del coupon
            $username_tutor = $model_user->get_user($tutor_id);
 
            if (!isset($username_tutor))
-               throw new Exception("il username del tutor aziendale non esiste", 1);
+               throw new Exception("il username del tutor aziendale non esiste", E_USER_ERROR);
 
            $data = array();
 

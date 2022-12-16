@@ -35,11 +35,17 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
     protected $dp_lang;
     protected $_ret;
     protected $rf_registrazione;
+    protected $quota_standard;
+    protected $quota_studente;
+    protected $request_obj;
+    protected $percentuale_pp;
+    protected $fisso_pp;
+    protected $incremento_pp;
+    protected $requested_quota;
 
     function display($tpl = null)
     {
         try {
-
 
             $bootstrap_dp = "";
             $this->dp_lang = "EN";
@@ -52,12 +58,14 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $this->dp_lang = strtolower($lang_locale_arr[4]);
             }
 
-            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            //JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('stylesheet', "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css");
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
             JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css');
 
-            JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
+            //JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
+            JHtml::_('script', "https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js");
             JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js');
 
             if ($bootstrap_dp != "")
@@ -67,40 +75,332 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 
 
-
             // campi encoded dalla chiamata
-            $this->action = JRequest::getVar('action');
-            $pp = JRequest::getVar('pp');
-            $token = UtilityHelper::build_token_url_asand(0, 0, 0, 0, 0, 0);
-            $this->rf_registrazione = UtilityHelper::build_encoded_link_asand($token, 'registrazioneasand', 'user_form');
+            $this->action = JRequest::getVar('action', null);
+            $this->request_obj = JRequest::getVar('request_obj', null);
 
-            // chi o cosa mi sta chiamando
-            if (!isset($this->action)
-                || $this->action == "")
-                throw new Exception("Nessuna azione richiesta", E_USER_ERROR);
+            $pp = JRequest::getVar('pp', null);
+            $token = utilityHelper::build_randon_token();
+            $this->rf_registrazione = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'user_registration_request');
 
-            if (!isset($pp)
-                || $pp == "")
-                throw new Exception("Nessun parametro definito", E_USER_ERROR);
+            $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
 
-            $this->show_view = true;
+            $this->hide_pp = true;
+            $this->show_view = false;
 
-            $this->hide_pp = false;
+            if (is_null($this->action)) {
 
-            // se l'utente non è loggato quindi o fa login oppure si deve registrare come un utente minimale soltanto per visionare il corso
-            if ($this->action == 'buy') {
+                $this->quota_standard = utilityHelper::get_ug_from_object($_params, "quota_standard");
+                $this->quota_studente = utilityHelper::get_ug_from_object($_params, "quota_studente");
 
-                $this->hide_pp = true;
-                $_payment_form = outputHelper::get_user_registration_form_asand($this->user_id,
-                    $this->in_groups);
+                // se l'utente non è loggato quindi o fa login oppure si deve registrare come un utente minimale soltanto per visionare il corso
+                $_payment_form = outputHelper::get_user_registration_form_asand($this->rf_registrazione, $this->quota_standard, $this->quota_studente);
 
-                if (!is_array($_payment_form))
-                    throw new Exception($_payment_form, 1);
+                if (!is_array($_payment_form)) throw new Exception($_payment_form, E_USER_ERROR);
 
-                $this->payment_form = $_payment_form['success'];
                 $this->in_error = 0;
 
             }
+            else if ($this->action == 'user_registration_request') {
+
+                if (is_null($pp)
+                    || !isset($pp)
+                    || $pp == "")
+                    throw new Exception("Nessun parametro definito", E_USER_ERROR);
+
+                if (is_null($this->request_obj)
+                    || !is_array($this->request_obj)
+                    || count($this->request_obj) == 0) {
+                    throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", E_USER_ERROR);
+                }
+
+                $_new_user = array();
+                $_new_user_cp = array();
+
+                $nome_utente = $cognome_utente = $cf_utente = $username = $email_utente = $password_utente = $quota_associativa = "";
+
+                foreach ($this->request_obj as $sub_key => $sub_arr) {
+
+                    if (isset($this->request_obj[$sub_key]['cb'])
+                        && $this->request_obj[$sub_key]['cb'] == 'cb_nome') {
+                        $nome_utente = preg_replace("/[^a-zA-Z]/", "", $this->request_obj[$sub_key]['value']);
+                    }
+                    else if (isset($this->request_obj[$sub_key]['cb'])
+                        && $this->request_obj[$sub_key]['cb'] == 'cb_cognome') {
+                        $cognome_utente = preg_replace("/[^a-zA-Z]/", "", $this->request_obj[$sub_key]['value']);
+                    }
+                    else if (isset($this->request_obj[$sub_key]['cb'])
+                            && $this->request_obj[$sub_key]['cb'] == 'cb_codicefiscale') {
+                        $cf_utente = strtoupper($this->request_obj[$sub_key]['value']);
+                    }
+                    else if (isset($this->request_obj[$sub_key]['campo'])
+                        && $this->request_obj[$sub_key]['campo'] == 'username') {
+                        $username = $this->request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($this->request_obj[$sub_key]['campo'])
+                        && $this->request_obj[$sub_key]['campo'] == 'email_utente') {
+                        $email_utente = $this->request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($this->request_obj[$sub_key]['campo'])
+                        && $this->request_obj[$sub_key]['campo'] == 'password_utente') {
+                        $password_utente = $this->request_obj[$sub_key]['value'];
+                    }
+                    else if (isset($this->request_obj[$sub_key]['campo'])
+                        && $this->request_obj[$sub_key]['campo'] == 'data_nascita_utente') {
+                        // format date artigianale
+                        $_tmp_date = date("Y-m-d", strtotime(str_replace('/', '-', trim($this->request_obj[$sub_key]['value']))));
+                        $this->request_obj[$sub_key]['value'] = $_tmp_date;
+                    }
+                    else if (isset($this->request_obj[$sub_key]['campo'])
+                        && $this->request_obj[$sub_key]['campo'] == 'quota_associativa') {
+                        $quota_associativa = $this->request_obj[$sub_key]['value'];
+                    }
+
+                    // campi cb
+
+                    if (isset($this->request_obj[$sub_key]['cb'])
+                        && $this->request_obj[$sub_key]['cb'] != ''
+                        && isset($this->request_obj[$sub_key]['value'])) {
+
+                        $cb_value = $this->request_obj[$sub_key]['value'];
+
+                        // campi select
+                        if (isset($this->request_obj[$sub_key]['is_id'])
+                            && $this->request_obj[$sub_key]['is_id'] != '') {
+                            $row_arr = utilityHelper::get_cb_fieldtitle_values($this->request_obj[$sub_key]['is_id'], $cb_value);
+                            if (isset($row_arr['fieldtitle']))
+                                $cb_value = $row_arr['fieldtitle'];
+                        }
+
+                        $_new_user_cp[$this->request_obj[$sub_key]['cb']] = addslashes($cb_value);
+
+                    }
+
+                }
+
+                // name e username prima lettera nome + cognome
+                $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
+                //$_new_user['username'] = $_new_user['name'];
+                $_new_user['username'] = trim($username);
+                $_new_user['email'] = trim($email_utente);
+                $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
+                $_new_user['block'] = 1;
+                $_new_user['requireReset'] = 1;
+
+                // controllo il codice fiscale
+                $_cf_check = utilityHelper::conformita_cf($cf_utente);
+                if (!isset($_cf_check['valido'])
+                    || $_cf_check['valido'] != 1) {
+
+                    $_err = "Problemi con il Codice fiscale";
+                    if (isset($_cf_check['msg'])
+                        && $_cf_check['msg'] != "")
+                        $_err .= " " . $_cf_check['msg'];
+
+                    throw new Exception($_err, E_USER_ERROR);
+                }
+
+                // controllo validità email
+                if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], E_USER_ERROR);
+                }
+
+                // verifico l'esistenza delle colonne minimali per l'inserimento utente
+                $_test_users_fields = utilityHelper::check_new_user_array($_new_user);
+                if ($_test_users_fields != "") {
+                    throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, E_USER_ERROR);
+                }
+
+                // controllo esistenza utente su username
+                if (utilityHelper::check_user_by_username($_new_user['username'])) {
+                    //throw new Exception("USERNAME ESISTENTE: ". $_new_user['username'], 1);
+                    // aggiungo dei numeri randomici
+                    $_new_user['username'] = $_new_user['username'] . rand(1, 999);
+                }
+
+                // controllo esistenza email utente
+                //if (utilityHelper::check_user_by_column('email', $_new_user['email'])) {
+                if ($emailCheck = utilityHelper::check_user_by_column_row('email', $_new_user['email'])) {
+
+                    // controllo se l'utente è ancora bloccato
+                    if ($emailCheck['block'] == 1) {
+                        // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
+                        // gli permetto di completarlo
+                        $userModel = new gglmsModelUsers();
+                        $checkToken = $userModel->get_registration_request($emailCheck['id']);
+                        $siteMainUrl = utilityHelper::getSiteMainUrl(['home']);
+
+                        if (!is_null($checkToken)) {
+                            throw new Exception('L\'utente con USERNAME ' . $emailCheck['username'] . ' ed EMAIL ' . $emailCheck['email'] . ' &egrave; gi&agrave; registrato ma non &egrave; stato completato il pagamento della quota annuale. Puoi terminare il procedimento cliccando <a href=\''. $siteMainUrl . '/index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=' . $checkToken . '\'>QUI</a>', E_USER_ERROR);
+                        }
+                    }
+                    else
+                        throw new Exception("L'utente con EMAIL ". $_new_user['email'] . " &egrave; gi&agrave; attivo", E_USER_ERROR);
+
+                    throw new Exception("EMAIL ESISTENTE: ". $_new_user['email'], E_USER_ERROR);
+                }
+
+                // inserimento utente
+                $_user_insert_query = utilityHelper::get_insert_query("users", $_new_user);
+                $_user_insert_query_result = utilityHelper::insert_new_with_query($_user_insert_query);
+
+                if (!is_array($_user_insert_query_result)) {
+                    throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+                }
+
+                $_new_user_id = $_user_insert_query_result['success'];
+                // riferimento id per CP
+                $_new_user_cp['id'] = $_new_user_id;
+                $_new_user_cp['user_id'] = $_new_user_id;
+
+                // inserimento utente in CP
+                $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
+                if (!is_array($_cp_insert_query_result))
+                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+
+                $this->_ret['success'] = "tuttook";
+                $this->_ret['token'] = utilityHelper::build_randon_token($_new_user_id . "|==|" . $quota_associativa);
+
+                echo json_encode($this->_ret);
+                die();
+
+            }
+            else if ($this->action == 'user_registration_payment') {
+
+                if (is_null($pp)
+                    || !isset($pp)
+                    || $pp == "")
+                    throw new Exception("Nessun parametro definito", E_USER_ERROR);
+
+                $decryptedToken = utilityHelper::decrypt_random_token($pp);
+                $parsedToken = explode("|==|", $decryptedToken);
+
+                if (!is_array($parsedToken))
+                    throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+
+                $_config = new gglmsModelConfig();
+                $this->client_id = $_config->getConfigValue('paypal_client_id');
+                if (is_null($this->client_id)
+                    || $this->client_id == "")
+                    throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
+
+                $userId = $parsedToken[0];
+                $requestedQuota = $parsedToken[1];
+
+                if (!is_numeric($userId))
+                    throw new Exception("Id utente non numerico!", E_USER_ERROR);
+
+                $userModel = new gglmsModelUsers();
+                // controllo utente
+                $checkUser = $userModel->get_user_joomla($userId);
+                if (is_null($checkUser)
+                    || !isset($checkUser->id))
+                    throw new Exception("Nessun utente trovato", E_USER_ERROR);
+
+                $dt = new DateTime();
+                $this->requested_quota = utilityHelper::get_ug_from_object($_params, $requestedQuota);
+                $this->percentuale_pp = utilityHelper::get_ug_from_object($_params, 'percentuale_pp');
+                $this->fisso_pp = utilityHelper::get_ug_from_object($_params, 'fisso_pp');
+                // incremento PayPal
+                $ppAmount = utilityHelper::percentageFromNumber($this->percentuale_pp, $this->requested_quota);
+                $this->incremento_pp = $ppAmount+$this->fisso_pp;
+
+                // user id, quota richiesta, quota richiesta in euro, incremento spese paypal
+                $newToken = utilityHelper::build_randon_token($userId . "|==|" . $parsedToken[1] . "|==|" . $this->requested_quota . "|==|" . $this->incremento_pp);
+
+                // inserimento della richiesta di pagamento a database
+                $newReq['user_id'] = $userId;
+                $newReq['token'] = $newToken;
+                //$newReq['date'] = $dt->format('Y-m-d H:i:s');
+
+                $reqPagamentoQuery = utilityHelper::get_insert_query("gg_registration_request", $newReq);
+                $reqPagamentoInsertResult = utilityHelper::insert_new_with_query($reqPagamentoQuery);
+
+                if (!is_array($reqPagamentoInsertResult))
+                    throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
+
+                $_payment_form = outputHelper::get_payment_form_quota_asand($userId, $this->requested_quota, $this->incremento_pp, $parsedToken[1], $_params, $newToken);
+
+                if (!is_array($_payment_form)) throw new Exception($_payment_form, E_USER_ERROR);
+
+                $this->hide_pp = false;
+                $this->in_error = 0;
+
+            }
+            else if ($this->action == 'bb_buy_request') {
+
+                if (is_null($pp)
+                    || !isset($pp)
+                    || $pp == "")
+                    throw new Exception("Nessun parametro definito", E_USER_ERROR);
+
+                $decryptedToken = utilityHelper::decrypt_random_token($pp);
+                $parsedToken = explode("|==|", $decryptedToken);
+
+                if (!is_array($parsedToken)) {
+                    throw new Exception("I parametri non sono conformi, impossbile continuare", E_USER_ERROR);
+                }
+
+                $userId = $parsedToken[0];
+                $requestedQuota = $parsedToken[1];
+                $totaleQuota = $parsedToken[2];
+                $dt = new DateTime();
+
+                $userModel = new gglmsModelUsers();
+                // controllo utente
+                $checkUser = $userModel->get_user_joomla($userId);
+                if (is_null($checkUser)
+                    || !isset($checkUser->id)) {
+                    $this->show_view = true;
+                    throw new Exception("Nessun utente trovato", E_USER_ERROR);
+                }
+
+                // controllo il pagamento per l'utente e l'anno corrente
+                $checkPagamento = $userModel->get_quota_user_anno($userId);
+                if (!is_null($checkPagamento)) {
+                    $this->show_view = true;
+                    throw new Exception("Il pagamento della quota è già stato effettuato oppure è in attesa di conferma", E_USER_ERROR);
+                }
+
+                $dettagliUtente = $userModel->get_user_full_details_cb($userId);
+
+                // l'integrazione dei campi extra al momento è soltanto per community builder
+                $_config = new gglmsModelConfig();
+                $dettagliUtente['nome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_nome')];
+                $dettagliUtente['cognome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_cognome')];
+                $dettagliUtente['codice_fiscale'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_controllo_cf')];
+                $dettagliUtente['email'] = $checkUser->email;
+                $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
+                $dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
+
+                $_insert_servizi_extra = $userModel->insert_user_servizi_extra($userId,
+                                                                                $dt->format('Y'),
+                                                                                $dt->format('Y-m-d H:i:s'),
+                                                                                "",
+                                                                                $totaleQuota,
+                                                                                $dettagliUtente,
+                                                                                'bb_buy_quota_asand',
+                                                                                false);
+                if (!is_array($_insert_servizi_extra)) {
+                    $this->show_view = true;
+                    throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+                }
+
+                $_payment_form = outputHelper::get_payment_form_acquisto_evento_bonifico($userId, "", $totaleQuota, $_params, true);
+
+                if (!is_array($_payment_form)) {
+                    $this->show_view = true;
+                    throw new Exception($_payment_form, E_USER_ERROR);
+                }
+
+                $this->hide_pp = true;
+                $this->in_error = 0;
+
+            }
+
+            $this->payment_form = $_payment_form['success'];
+
 
         } catch (Exception $e){
 
@@ -112,8 +412,12 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 echo json_encode($this->_ret);
                 die();
             }
+            else {
+                echo $e->getMessage();
+                die();
+            }
 
-            $this->in_error = 1;
+            //$this->in_error = 1;
         }
 
         parent::display($tpl);

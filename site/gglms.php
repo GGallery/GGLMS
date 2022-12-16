@@ -4,21 +4,21 @@
  * @package		webtv
  * @author 		antonio
  * @author mail	tony@bslt.it
- * @link		
+ * @link
  * @copyright	Copyright (C) 2011 antonio - All rights reserved.
  * @license		GNU/GPL
  */
 
 // asino chi legge
- 
+
 // no direct access
 defined('_JEXEC') or die('Restricted access');
- 
+
 // Require the base controller
 require_once (JPATH_COMPONENT.'/controller.php');
 
 // Require specific controller if requested
-if($controller = JRequest::getCmd('controller')) 
+if($controller = JRequest::getCmd('controller'))
 {
 	$path = JPATH_COMPONENT.'/controllers/'.$controller.'.php';
 	if ( file_exists( $path ) ) {
@@ -34,7 +34,7 @@ if($controller = JRequest::getCmd('controller'))
 //$classname	= 'gglmsController' . ucfirst($controller);
 //$controller = new $classname();
 
- 
+
 // Perform the Request task
 $controller->execute(JFactory::getApplication()->input->get('task')); //RS $controller->execute(JRequest::getCmd('task'));
 
@@ -146,7 +146,21 @@ JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR19');
 JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR20');
 JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR21');
 JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR22');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR25');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR29');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR32');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR33');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR34');
 JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR36');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR37');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR38');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR39');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR40');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR41');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR42');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR43');
+JText::script('COM_PAYPAL_ACQUISTA_EVENTO_STR44');
 
 JText::script('COM_GGLMS_ISCRIZIONE_EVENTO_STR2');
 JText::script('COM_GGLMS_ISCRIZIONE_EVENTO_STR3');
@@ -168,4 +182,6 @@ JText::script('COM_GGLMS_ISCRIZIONE_EVENTO_STR18');
 JText::script('COM_GGLMS_ISCRIZIONE_EVENTO_STR19');
 JText::script('COM_GGLMS_ISCRIZIONE_EVENTO_STR20');
 JText::script('COM_GGLMS_ISCRIZIONE_EVENTO_STR21');
+
+JText::script('COM_REGISTRAZIONE_ASAND_STR6');
 

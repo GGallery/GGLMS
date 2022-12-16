@@ -4,6 +4,9 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
+# 4.2.1
+* D: aggiunta della colonna stato alla tabella gg_quote_iscrizioni
+
 # 4.2.0
 * D: aggiunta della colonna url_streaming_azure alla tabella gg_contenuti
 

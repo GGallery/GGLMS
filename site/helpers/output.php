@@ -624,42 +624,75 @@ HTML;
     }
 
     // costruisco la vista da presentare dopo aver effettuato l'operazione di pagamento
-    public static function get_result_view($target, $call_result, $redirect=null) {
+    public static function get_result_view($target, $call_result, $redirect=null, $last_quota=null) {
 
         $_html = "";
         $_result_class = "success";
         $_result_icon = "fa-check";
         $_result_msg = "L'operazione è andata a buon fine, puoi effettura il login alla tua area riservata";
         $_result_extra = "";
+        $_result_receipt = "";
         //$_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
         $_href = utilityHelper::set_index_redirect_url($redirect);
 
         if ($target == "sinpe"
             || $target == "servizi_extra"
-            || $target == "acquistaevento") {
+            || $target == "acquistaevento"
+            || $target == "registrazioneasand") {
 
-            $_result_extra = <<<HTML
-            <p class="text-center">
-                Sarai reindirizzato in 5 secondi, altrimenti clicca <a href="index.php">QUI</a>
-            </p>
-            <script>
-                 setTimeout(function(){
-                    window.location.href = "{$_href}";
-                 }, 5000);
-            </script>
+            if ($target != "registrazioneasand") {
+              $_result_extra = <<<HTML
+              <p class="text-center">
+                  Sarai reindirizzato in 5 secondi, altrimenti clicca <a href="index.php">QUI</a>
+              </p>
+              <script>
+                  setTimeout(function(){
+                      window.location.href = "{$_href}";
+                  }, 5000);
+              </script>
 HTML;
-
+            }
 
             if ($call_result != "tuttook") {
                 $_result_class = "danger";
                 $_result_icon = "fa-times";
                 $_result_msg = " L'operazione non è andata a buon fine, di seguito il dettaglio dell'errore:";
                 $_result_extra = <<<HTML
-                        <p class="text-center">
-                            <pre>{$call_result}</pre>
-                        </p>
+                      <p class="text-center">
+                        <pre>{$call_result}</pre>
+                      </p>
 HTML;
+            }
 
+            // per asand visualizzo il link della ricevuta
+            if ($call_result == "tuttook"
+                && $target == "registrazioneasand"
+                && !is_null($last_quota)) {
+              $check = utilityHelper::getJoomlaMainUrl(['home']);
+              $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/index.php";
+              $encodedReceiptId = utilityHelper::build_randon_token($last_quota);
+              $_result_receipt = <<<HTML
+              <p class="mb-5 mt-5 text-center">
+                  <button style="min-height: 50px; font-size: 1.2em;" class="btn btn-lg btn-primary" onclick="openRecepitPopup()">Visualizza ricevuta</button>
+              </p>
+              <script>
+
+              function openRecepitPopup() {
+
+                const siteRefUrl = '{$siteRefUrl}';
+                let id = (new Date()).getTime();
+                let myWindow = window.open(siteRefUrl + '&printerFriendly=true', id, "toolbar=1,scrollbars=1,location=0,statusbar=0,menubar=1,resizable=1,width=800,height=600,left = 240,top = 212");
+                const postData = {
+                  recepit_id : '{$encodedReceiptId}'
+                }
+                $.post("index.php?option=com_gglms&task=api.printReceiptAsnd", postData).done(function(htmlContent) {
+                  myWindow.document.write(htmlContent);
+                  myWindow.focus();
+                });
+              }
+
+              </script>
+HTML;
             }
 
             $_html = <<<HTML
@@ -677,6 +710,7 @@ HTML;
                                 </p>
 
                                 {$_result_extra}
+                                {$_result_receipt}
 
                             </div>
                         </div>
@@ -1519,7 +1553,7 @@ HTML;
     }
 
     // semplice messaggio che informa l'utente che la sua richiesta di pagamento sarà elaborata post ricezione bonifico
-    public static function get_payment_form_acquisto_evento_bonifico($user_id, $_event_title, $totale, $_params) {
+    public static function get_payment_form_acquisto_evento_bonifico($user_id, $_event_title, $totale, $_params, $quotaAsand = false) {
 
         try {
 
@@ -1531,41 +1565,38 @@ HTML;
             // testo pagamento bonifico con sostituzione della stringa manuale..pessima soluzione ma senza alternative
             $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'COORDINATE PER BONIFICO BANCARIO', $_testo_pagamento_bonifico);
+            $_event_reference = !$quotaAsand
+              ? " all'evento  <b>" . $_event_title . "</b> "
+              : " ";
+            $_event_title_reference = !$quotaAsand
+              ? "- <b>Titolo del corso acquistato</b>"
+              : " per un totale di &euro; " . number_format($totale, 2, ',', '') . " ";
 
             $_html = <<<HTML
                 <div class="jumbotron">
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Grazie!</h4>
-                            <p>Per confermare l'iscrizione all'evento  <b>{$_event_title}</b> invia una copia della ricevuta a <b>{$_email_to}</b>
+                            <p>Per confermare l'iscrizione{$_event_reference}una copia del bonifico effettuato a <b>{$_email_to}</b>
                                 con le seguenti indicazioni: <br />
-                                <b>Nome</b> e <b>Cognome</b> - <b>Titolo del corso acquistato</b> - <b>Codice fiscale</b> - <b>Recapito telefonico</b>
+                                <b>Nome</b> e <b>Cognome</b>{$_event_title_reference}- <b>Codice fiscale</b> - <b>Recapito telefonico</b>
                                 <br />
                                 Clicca <a href="{$_href}">QUI</a> per ritornare in HOME page
                             </p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="offset-md-4 offset-sm-4">
+                        <div class="offset-md-3 offset-sm-3">
                             <table class="table">
                                 <tr>
                                     <td style="text-align: center;">
-                                        {$_testo_pagamento_bonifico}
+                                      {$_testo_pagamento_bonifico}
                                     </td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
-
-                <!--
-                <script>
-                    setTimeout(function () {
-                        window.location.href = "{$_href}";
-                    }, 20000);
-
-                </script>
-                -->
 HTML;
             $_ret['success'] = $_html;
             return $_ret;
@@ -1575,6 +1606,111 @@ HTML;
             DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
             return $e->getMessage();
         }
+    }
+
+    // form di pagamento per acquisto quota annuale asand
+    public static function get_payment_form_quota_asand($user_id, $prezzo_quota, $incremento_pp, $descrizione_quota, $_params, $token) {
+
+      try {
+
+        $_ret = array();
+        $_html = "";
+
+        // controllo se il prezzo è valido
+        if ($prezzo_quota == "" || $prezzo_quota == 0)
+          throw new Exception("Il prezzo indicato per la transazione non è valido", E_USER_ERROR);
+
+        $dt = new DateTime();
+        $parsedDescrizioneQuota = ucfirst(strtolower(str_replace("_", " ", $descrizione_quota)));
+        $_descr_checkbox_evento = "Acquisto " . $parsedDescrizioneQuota . " per anno " . $dt->format('Y');
+        $_descr_checkbox_evento_commissioni = "Commissioni spese PayPal";
+
+        $_descr_attr_evento = "pagamento-" . $descrizione_quota . "-anno-" . $dt->format('Y');
+        $_descr_attr_evento_commissioni = "commissioni-" . $descrizione_quota . "-anno-" . $dt->format('Y');
+        $_descrizione_hidden = $_descr_attr_evento . "|" . $_descr_attr_evento_commissioni;
+
+        $_testo_pagamento_paypal = JText::_('COM_REGISTRAZIONE_ASAND_STR7');
+        $_testo_pagamento_bonifico_btn = JText::_('COM_REGISTRAZIONE_ASAND_STR8');
+        $_testo_pagamento_bonifico = utilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+        $_row_pagamento_bonfico = "";
+
+        $endpoint = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'bb_buy_request');
+        $prezzoQuotaParsed = number_format($prezzo_quota, 2, '.', '');
+        $totalePayPal = $prezzo_quota+$incremento_pp;
+        if ($_testo_pagamento_bonifico != "")
+
+                $_row_pagamento_bonfico = <<<HTML
+                    <div class="row mt-5">
+                      <div class="col-md-12 text-center">
+                        {$_testo_pagamento_bonifico}
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 text-center">
+                      <button class="btn btn-lg btn-primary btn-bonifico" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
+                      </div>
+                    </div>
+HTML;
+
+        $_html .= <<<HTML
+        <div class="row mt-5">
+          <div class="col text-center">
+            <h4><span style="color: black; font-weight: bold">{$_testo_pagamento_paypal}</span></h4>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-3 offset-md-3 " id="cella_evento">
+            {$_descr_checkbox_evento}
+          </div>
+          <div class="col-md-3 text-right">
+            <h5>€ <b>{$prezzoQuotaParsed}</b></h5>
+          </div>
+          <div class="col-md-3 hidden">
+            <input type="checkbox" value="{$prezzo_quota}" id="evento_da_pagare" data-descr="{$_descr_attr_evento}" checked />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 offset-md-3" id="cella_evento_commissioni">
+            {$_descr_checkbox_evento_commissioni}
+          </div>
+          <div class="col-md-3 text-right">
+            <h5>€ <b>{$incremento_pp}</b></h5>
+          </div>
+          <div class="col-md-3 hidden">
+            <input type="checkbox" value="{$incremento_pp}" id="evento_da_pagare_commissione" data-descr="{$$_descr_checkbox_evento_commissioni}" checked />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 offset-md-3">
+            <h5><b>TOTALE</b></h5>
+          </div>
+          <div class="col-md-3 text-right">
+            <h5>€ <b><span id="amount_span">{$totalePayPal}</span></b></h5>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-12 text-center">
+            <span id="paypal-button-container"></span>
+          </div>
+        </div>
+
+        {$_row_pagamento_bonfico}
+
+        <input style="display: none;" type="number" id="amount" name="amount" value="{$totalePayPal}" />
+        <input type="hidden" id="token" value="{$token}" />
+        <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
+HTML;
+
+        $_ret['success'] = $_html;
+        return $_ret;
+
+      }
+      catch (Exception $e) {
+        $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+        DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+        return $e->getMessage();
+      }
+
     }
 
     // form di pagamento per acquisto di un evento a calendario
@@ -2160,8 +2296,7 @@ HTML;
 
     }
 
-    public static function get_user_registration_form_asand( $user_id,
-                                                                      $in_groups) {
+    public static function get_user_registration_form_asand($_ref_registrazione, $quotaStandard = 0, $quotaStudente = 0) {
 
         try {
 
@@ -2171,17 +2306,16 @@ HTML;
             $_cb_nome  = 'cb_nome';
             $_cb_cognome = 'cb_cognome';
             $_cb_cf = 'cb_codicefiscale';
+            $_cb_luogodinascita = 'cb_luogodinascita';
+            $_cb_provinciadinascita = 'cb_provinciadinascita';
             $_cb_data_nascita = 'cb_datadinascita';
             $_cb_telefono = 'cb_telefono';
-            $_cb_anno_laurea ='cb_laureanno';
-            $_cb_laureain ='cb_laureain';
             $_cb_citta = 'cb_citta';
             $_cb_provincia = 'cb_provdiresidenza';
             $_cb_indirizzo = 'cb_indirizzodiresidenza';
             $_cb_cap = 'cb_cap';
-            $_cb_ragionesociale = 'cb_ragionesociale';
             $_cb_piva = 'cb_piva';
-            $_cb_università = 'cb_universita';
+            $_cb_universita = 'cb_universita';
             $_cb_anno_di_frequenza = 'cb_anno_frequenza';
             $_cb_matricola ='cb_matricola';
             $_cb_dipendente = 'cb_dipendente';
@@ -2204,10 +2338,13 @@ HTML;
             $_cb_provincia_id = UtilityHelper::get_cb_fieldId_by_name('cb_provdiresidenza');
             $_cb_provincia_albo_options = UtilityHelper::get_cb_field_select_by_name('cb_provincia_albo');
             $_cb_provincia_albo_id = UtilityHelper::get_cb_fieldId_by_name('cb_provincia_albo');
+            $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select_by_name('cb_provinciadinascita');
+            $_cb_provincia_nascita_id = UtilityHelper::get_cb_fieldId_by_name('cb_provinciadinascita');
 
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
             $_label_cognome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR9');
+            $_label_username = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR2');
             $_label_password = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR10');
             $_label_r_password = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR11');
             $_label_cf = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR12');
@@ -2215,16 +2352,17 @@ HTML;
             $_label_indirizzo = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR14');
             $_label_citta = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR15');
             $_label_pv = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR16');
-            $_label_cap = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR17');
+            $_label_cap = JText::_('COM_REGISTRAZIONE_ASAND_STR6');
+            $_label_citta_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8');
+            $_label_pv_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9');
             $_label_dt_nascita = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR18');
             $_label_tel = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR19');
             $_label_piva = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR25');
             $_label_quota_associativa = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR29');
-            $_label_quota_associativa_standard = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR27');
-            $_label_quota_costo_standard= JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR28');
-            $_label_quota_associativa_studente = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR30');
-            $_label_quota_costo_studente = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR31');
-            $_label_università = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR32');
+            $_label_quota_associativa_standard = JText::_('COM_REGISTRAZIONE_ASAND_STR3');
+            $_label_quota_associativa_studente = JText::_('COM_REGISTRAZIONE_ASAND_STR4');
+            $_label_annualita = JText::_('COM_REGISTRAZIONE_ASAND_STR5');
+            $_label_universita = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR32');
             $_label_anno_di_frequenza= JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR33');
             $_label_matricola = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR34');
             $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
@@ -2238,12 +2376,16 @@ HTML;
             $_label_indirizzo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR43');
             $_label_citta_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR44');
 
-            $token = UtilityHelper::build_token_url_asand($user_id, $in_groups);
-            $_ref_registrazione = UtilityHelper::build_encoded_link_asand($token, 'registrazioneasand', 'user_registration_request');
+            $_quota_standard = $quotaStandard > 0
+              ? "&euro; " . number_format($quotaStandard, 2, ',', '')
+              : "";
+            $_quota_studente = $quotaStudente > 0
+              ? "&euro; " . number_format($quotaStudente, 2, ',', '')
+              : "";
 
             $_html = <<<HTML
 
-            <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
+            <!--<link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />-->
 
             <div class="row">
                 <div class="col-12">
@@ -2252,298 +2394,311 @@ HTML;
             </div>
             <hr />
             <div class="container-form">
-                <form>
-                
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="check_quota_associativa">{$_label_quota_associativa}</label>
+
+              <form method="POST">
+
+                <div class="form-group row">
+                  <label for="check_quota_associativa" class="col-sm-2 col-form-label">{$_label_quota_associativa}</label>
+                  <div class="col-sm-10">
+                      <div class="form-check">
+                        <input class="form-check-input mt-0" type="radio" name="check_quota_associativa" id="check_quota_associativa1" value="quota_standard" />
+                        <label class="form-check-label ml-5" for="check_quota_associativa1">{$_label_quota_associativa_standard} {$_label_annualita} {$_quota_standard}</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input mt-0" type="radio" name="check_quota_associativa" id="check_quota_associativa2" value="quota_studente" />
+                        <label class="form-check-label ml-5" for="check_quota_associativa2">{$_label_quota_associativa_studente} {$_label_annualita} {$_quota_studente}</label>
+                      </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="nome_utente" class="col-sm-2 col-form-label">{$_label_nome}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="nome_utente" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="cognome_utente" class="col-sm-2 col-form-label">{$_label_cognome}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="cognome_utente" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="email_utente" class="col-sm-2 col-form-label">{$_label_email}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="email" id="email_utente" placeholder="{$_label_email}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="username" class="col-sm-2 col-form-label">{$_label_username}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="username" data-campo="{$_cb_nome} placeholder="{$_label_username}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="password_utente" class="col-sm-2 col-form-label">{$_label_password}<span style="color: red">*</span></label>
+                    <div class="col-sm-10">
+                      <div class="input-group w-25">
+                        <input class="form-control" type="password" id="password_utente" value="" />
+                        <div class="input-group-addon w-auto" id="show_hide_password">
+                          <i class="fa fa-eye-slash" aria-hidden="true" id="show_hide_password_icon"></i>
                         </div>
-                      <div class="col-75"style=" display: block">
-                        <input class="form-control" type="checkbox" id="check_quota_associativa" style="display: inline" />
-                        <span style="display: inline">{$_label_quota_associativa_standard}{$_label_quota_costo_standard}</span>
-                      </div>
-                      <div class="col-75"style=" display: block">
-                        <input class="form-control" type="checkbox" id="check_quota_associativa" style="display: inline" />
-                        <span style="display: inline">{$_label_quota_associativa_studente}{$_label_quota_costo_studente}</span>
                       </div>
                     </div>
+                </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="nome_utente">{$_label_nome}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="nome_utente" style="width: 320px;" data-campo="{$_cb_nome}" placeholder="{$_label_nome}" />
-                      </div>
+                <div class="form-group row">
+                  <label for="ripeti_password_utente" class="col-sm-2 col-form-label">{$_label_r_password}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="password" id="ripeti_password_utente" value="" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="cf_utente" class="col-sm-2 col-form-label">{$_label_cf}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25 text-uppercase" type="text" id="cf_utente" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="citta_nascita_utente" class="col-sm-2 col-form-label">{$_label_citta_nascita}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="citta_nascita_utente" data-campo="{$_cb_luogodinascita}" placeholder="{$_label_citta_nascita}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="pv_nascita" class="col-sm-2 col-form-label">{$_label_pv_nascita}<span class="text-danger">*</span></label>
+                  <div class="col-sm-10">
+                    <select class="form-control w-25" id="pv_nascita" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provincia_nascita_id}">
+                        <option value="">-</option>
+                        {$_cb_provincia_nascita_options}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="data_nascita_utente" class="col-sm-2 col-form-label">{$_label_dt_nascita}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25 datepicker" type="text" id="data_nascita_utente"  data-campo="{$_cb_data_nascita}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="indirizzo_utente" class="col-sm-2 col-form-label">{$_label_indirizzo}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="indirizzo_utente" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="citta_utente" class="col-sm-2 col-form-label">{$_label_citta}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="citta_utente" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="pv_utente" class="col-sm-2 col-form-label">{$_label_pv}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <select class="form-control w-25" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
+                      <option value="">-</option>
+                      {$_cb_provincia_options}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="cap_utente" class="col-sm-2 col-form-label">{$_label_cap}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="cap_utente" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="telefono_utente" class="col-sm-2 col-form-label">{$_label_tel}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="telefono_utente" data-campo="{$_cb_telefono}"  placeholder="{$_label_tel}" />
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="telefono_utente" class="col-sm-2 col-form-label">Autodichiarazione titolo di studio</label>
+                  <div class="col-sm-10">
+                      Consapevole delle sanzioni penali applicabili in caso di dichiarazioni mendaci e non veritiere che sono previste dagli articoli 75 e 76 del D.P.R 28/12/2000 n. 445 e per gli effetti dell’art. 47 del citato D.P.R. 445/2000, sotto la personale responsabilità, <b>DICHIARO</b> ai sensi dell'art. 46 D.P.R. n. 445/2000 di essere in possesso del titolo di studio sotto indicato
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="titolo_studio" class="col-sm-2 col-form-label">{$_label_titolo_studio}<span class="text-danger">*</span></label>
+                  <div class="col-sm-10">
+                    <select class="form-control w-25" id="titolo_studio" data-campo="cb_titolo_studio" data-id-ref="{$_cb_titolo_studio_id}">
+                        <option value="">-</option>
+                        {$_cb_titolo_studio_options}
+                    </select>
+                  </div>
+                </div>
+
+                <div id="campi_studente" style="display: none;">
+
+                  <div class="form-group row">
+                    <label for="universita" class="col-sm-2 col-form-label">{$_label_universita}<span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                      <input class="form-control w-25 campi_studente" type="text" id="universita" data-campo="{$_cb_universita}" />
                     </div>
+                  </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="cognome_utente">{$_label_cognome}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="cognome_utente" style="width: 320px;" data-campo="{$_cb_cognome}" placeholder="{$_label_cognome}" />
-                      </div>
+                  <div class="form-group row">
+                    <label for="anno_di_frequenza" class="col-sm-2 col-form-label">{$_label_anno_di_frequenza}<span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                      <select class="form-control w-25 campi_studente" id="anno_di_frequenza" data-campo="{$_cb_anno_di_frequenza}" data-id-ref="{$_cb_anno_di_frequenza_id}">
+                          <option value="">-</option>
+                          {$_cb_anno_di_frequenza_options}
+                      </select>
                     </div>
+                  </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="password" id="password_utente" style="width: 220px;" value="" />
-                      </div>
+                  <div class="form-group row">
+                    <label for="matricola" class="col-sm-2 col-form-label">{$_label_matricola}<span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                      <input class="form-control w-25 campi_studente" type="text" id="matricola" data-campo="{$_cb_matricola}" />
                     </div>
+                  </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="ripeti_password_utente">{$_label_r_password}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="password" id="ripeti_password_utente" style="width: 220px;" value="" />
-                      </div>
+                  <!--
+                    <div class="form-group row">
+                    <label for="area_pratica_studente" class="col-sm-2 col-form-label">{$_label_area_pratica}<span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                      <input class="form-control w-25 campi_studente" type="text" id="area_pratica_studente" data-campo="{$_cb_area_pratica}" />
                     </div>
+                  </div>
+                  -->
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="cf_utente">{$_label_cf}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="cf_utente" style="width: 320px;" maxlength="16" data-campo="{$_cb_cf}" placeholder="{$_label_cf}" />
-                      </div>
+                </div>
+
+                <div id="campi_professione" style="display: none;">
+
+                  <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Autodichiarazione posizione lavorativa</label>
+                    <div class="col-sm-10">
+                      <b>Dichiaro</b>, altresì, di ricoprire la seguente posizione lavorativa:
                     </div>
+                  </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="email_utente">{$_label_email}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
-                      </div>
+                  <div class="form-group row">
+                    <label for="posizione_lavorativa" class="col-sm-2 col-form-label">{$_label_dipendente}<span class="text-danger">*</span></label>
+                    <div class="col-sm-10">
+                      <select class="form-control w-25 campi_professione" id="posizione_lavorativa" data-campo="{$_cb_dipendente}" data-id-ref="{$_cb_dipendente_id}">
+                        <option value="">-</option>
+                        {$_cb_dipendente_options}
+                      </select>
                     </div>
+                  </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="indirizzo_utente">{$_label_indirizzo}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="indirizzo_utente" style="width: 420px;" data-campo="{$_cb_indirizzo}" placeholder="{$_label_indirizzo}" />
-                      </div>
-                    </div>
+                  <div id="campi_dipendente" style="display: none;">
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="citta_utente">{$_label_citta}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="citta_utente" style="width: 220px;" data-campo="{$_cb_citta}" placeholder="{$_label_citta}" />
-                      </div>
-                    </div>
+                    <div id="dipendente" style="display: none;">
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="pv_utente">{$_label_pv}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-25">
-                        <select class="form-control" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
-                                <option value="">-</option>
-                                {$_cb_provincia_options}
-                            </select>
-                      </div>
-                    </div>
-
-                     <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="cap_utente">{$_label_cap}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="cap_utente" style="width: 120px;" data-campo="{$_cb_cap}" placeholder="{$_label_cap}" />
-                      </div>
-                    </div>
-
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control datepicker" type="text" id="data_nascita_utente" style="width: 220px;"  data-campo="{$_cb_data_nascita}" />
-                      </div>
-                    </div>
-
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="telefono_utente">{$_label_tel}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="telefono_utente" style="width: 220px;" data-campo="{$_cb_telefono}"  placeholder="{$_label_tel}" />
-                      </div>
-                    </div>
-
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="titolo_studio">{$_label_titolo_studio}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-25">
-                        <select class="form-control" id="titolo_studio" data-campo="cb_titolo_studio" data-id-ref="{$_cb_titolo_studio_id}">
-                                <option value="">-</option>
-                                {$_cb_titolo_studio_options}
-                            </select>
-                      </div>
-                    </div>
-                    
-                    <div id="campi_studente" style="display: none;">
-
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="università">{$_label_università}</label>
-                          </div>
-                          <div class="col-75">
-                            <input class="form-control campi_studente" type="text" id="università" style="width: 220px;" data-campo="{$_cb_università}" />
-                          </div>
+                      <div class="form-group row">
+                        <label for="azienda" class="col-sm-2 col-form-label">{$_label_azienda_dipendente_sede}<span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                          <input class="form-control w-25 campi_dipendente" type="text" id="azienda" data-campo="{$_cb_azienda_dipendente_sede}" />
                         </div>
+                      </div>
 
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="anno_di_frequenza">{$_label_anno_di_frequenza}</label>
-                          </div>
-                          <div class="col-75">
-                          <select class="form-control campi_studente" id="anno_di_frequenza"  style="width: 220px;" data-campo="{$_cb_anno_di_frequenza}" data-id-ref="{$_cb_anno_di_frequenza_id}">
-                                <option value="">-</option>
-                                {$_cb_anno_di_frequenza_options}
-                            </select>
-                           
-                          </div>
+                      <div class="form-group row">
+                        <label for="indirizzo_azienda" class="col-sm-2 col-form-label">{$_label_indirizzo_azienda}<span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                          <input class="form-control w-25 campi_dipendente" type="text" id="indirizzo_azienda" data-campo="{$_cb_indirizzo_azienda}" />
                         </div>
+                      </div>
 
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="matricola">{$_label_matricola}</label>
-                          </div>
-                          <div class="col-75">
-                            <input class="form-control campi_studente" type="text" id="matricola" style="width: 220px;" data-campo="{$_cb_matricola}" />
-                          </div>
+                      <div class="form-group row">
+                        <label for="citta_azienda" class="col-sm-2 col-form-label">{$_label_citta_azienda}<span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                          <input class="form-control w-25 campi_dipendente" type="text" id="citta_azienda" data-campo="{$_cb_citta_azienda}" />
                         </div>
-
-                    </div>
-                    
-                    <div id="campi_professione" style="display: none;">
-
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="posizione_lavorativa">{$_label_dipendente}</label>
-                          </div>
-                           <div class="col-75">
-                          <select class="form-control campi_professione" id="posizione_lavorativa"  style="width: 220px;" data-campo="{$_cb_dipendente}" data-id-ref="{$_cb_dipendente_id}">
-                                <option value="">-</option>
-                                {$_cb_dipendente_options}
-                            </select>
-                           
-                          </div>
-                        </div>
-                        
-                        <div id="campi_dipendente" style="display: none;">
-
-                            <div class="rowcustom">
-                              <div class="col-25">
-                                <label for="azienda">{$_label_azienda_dipendente_sede}</label>
-                              </div>
-                               <div class="col-75">
-                                <input class="form-control campi_dipendente" type="text" id="azienda" style="width: 220px;" data-campo="{$_cb_azienda_dipendente_sede}" />
-                              </div>
-                            </div>
-                            
-                            <div class="rowcustom">
-                              <div class="col-25">
-                                <label for="indirizzo_azienda">{$_label_indirizzo_azienda}</label>
-                              </div>
-                               <div class="col-75">
-                                <input class="form-control campi_dipendente" type="text" id="indirizzo_azienda" style="width: 220px;" data-campo="{$_cb_indirizzo_azienda}" />
-                              </div>
-                            </div>
-                            
-                            <div class="rowcustom">
-                              <div class="col-25">
-                                <label for="citta_azienda">{$_label_citta_azienda}</label>
-                              </div>
-                               <div class="col-75">
-                                <input class="form-control campi_dipendente" type="text" id="citta__azienda" style="width: 220px;" data-campo="{$_cb_citta_azienda}" />
-                              </div>
-                            </div>
-                       </div>
-                       
-                        <div id="campi_libero" style="display: none;">
-
-                            <div class="rowcustom">
-                              <div class="col-25">
-                                <label for="indirizzo_studio">{$_label_indirizzo_studio}</label>
-                              </div>
-                               <div class="col-75">
-                                <input class="form-control campi_libero" type="text" id="indirizzo_studio" style="width: 220px;" data-campo="{$_cb_indirizzo_studio}" />
-                              </div>
-                            </div>
-                            
-                            <div class="rowcustom">
-                              <div class="col-25">
-                                <label for="citta_studio">{$_label_citta_studio}</label>
-                              </div>
-                               <div class="col-75">
-                                <input class="form-control campi_libero" type="text" id="citta_studio" style="width: 220px;" data-campo="{$_cb_citta_studio}" />
-                              </div>
-                            </div>
-                            
-                            <div class="rowcustom">
-                              <div class="col-25">
-                                <label for="piva">{$_label_piva}</label>
-                              </div>
-                               <div class="col-75">
-                                <input class="form-control campi_libero" type="text" id="piva" style="width: 220px;" data-campo="{$_cb_piva}" />
-                              </div>
-                            </div>
-                        </div>    
-                        
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="area_pratica">{$_label_area_pratica}</label>
-                          </div>
-                          <div class="col-75">
-                            <input class="form-control campi_professione" type="text" id="area_pratica" style="width: 220px;" data-campo="{$_cb_area_pratica}" />
-                          </div>
-                        </div>
-                        
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="numero_albo">{$_label_numero_albo}</label>
-                          </div>
-                          <div class="col-75">
-                            <input class="form-control campi_professione" type="text" id="numero_albo" style="width: 220px;" data-campo="{$_cb_numero_albo}" />
-                          </div>
-                        </div>
-                        
-                        <div class="rowcustom">
-                          <div class="col-25">
-                            <label for="pv_albo">{$_label_provincia_albo}</label>
-                          </div>
-                        
-                            <div class="col-25">
-                            <select class="form-control campi_dipendente" id="pv_albo" data-campo="{$_cb_provincia_albo}" data-id-ref="{$_cb_provincia_albo_id}">
-                                    <option value="">-</option>
-                                    {$_cb_provincia_albo_options}
-                                </select>
-                              </div>
-                        </div>
-
+                      </div>
 
                     </div>
 
-             
+                    <div id="campi_libero" style="display: none;">
 
-                     <div class="rowcustom">
-                        <div class="col-xs-12 text-center">
-                            <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                      <div class="form-group row">
+                        <label for="indirizzo_studio" class="col-sm-2 col-form-label">{$_label_indirizzo_studio}<span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                          <input class="form-control w-25 campi_libero" type="text" id="indirizzo_studio" data-campo="{$_cb_indirizzo_studio}" />
                         </div>
-                     </div>
-                     <input type="hidden" id="token" value="{$token}" />
-                </form>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="citta_studio" class="col-sm-2 col-form-label">{$_label_citta_studio}<span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                          <input class="form-control w-25 campi_libero" type="text" id="citta_studio" data-campo="{$_cb_citta_studio}" />
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label for="piva" class="col-sm-2 col-form-label">{$_label_piva}<span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                          <input class="form-control w-25 campi_libero" type="text" id="piva" data-campo="{$_cb_piva}" />
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div class="form-group row" id="area_pratica_professione_row">
+                      <label for="area_pratica_professione" class="col-sm-2 col-form-label">{$_label_area_pratica}<span class="text-danger">*</span></label>
+                      <div class="col-sm-10">
+                        <input class="form-control w-25 campi_professione" type="text" id="area_pratica_professione" data-campo="{$_cb_area_pratica}" />
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="numero_albo" class="col-sm-2 col-form-label">{$_label_numero_albo}<span class="text-danger">*</span></label>
+                      <div class="col-sm-10">
+                        <input class="form-control w-25 campi_professione" type="text" id="numero_albo" data-campo="{$_cb_numero_albo}" />
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="pv_albo" class="col-sm-2 col-form-label">{$_label_provincia_albo}<span class="text-danger">*</span></label>
+                      <div class="col-sm-10">
+                        <select class="form-control w-25 campi_professione" id="pv_albo" data-campo="{$_cb_provincia_albo}" data-id-ref="{$_cb_provincia_albo_id}">
+                          <option value="">-</option>
+                          {$_cb_provincia_albo_options}
+                        </select>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="#">privacy</a> e do il consenso al trattamento dei miei dati</b></div>
+                  <div class="col-sm-10">
+                    <div class="form-check">
+                      <input class="form-check-input mt-0" type="checkbox" id="privacy_check">
+                      <label class="form-check-label ml-5" for="privacy_check">
+                        Accetta termini e condizioni
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-6 offset-sm-3 text-center">
+                    <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                  </div>
+                </div>
+              </form>
+
             </div>
 HTML;
             $_ret['success'] = $_html;
@@ -2551,8 +2706,7 @@ HTML;
 
         }
         catch (Exception $e) {
-            $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
-            DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+            DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__ . '_error', 0, 1, 0 );
             return $e->getMessage();
         }
     }

@@ -60,7 +60,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    private function get_user_joomla($id)
+    public function get_user_joomla($id)
     {
 
         try {
@@ -825,6 +825,7 @@ class gglmsModelUsers extends JModelLegacy
         try {
 
             $_ret = array();
+            $insertQuotaLast = 0;
             $this->_db->transactionStart();
 
             $_extra_col = "";
@@ -832,6 +833,10 @@ class gglmsModelUsers extends JModelLegacy
             if (!is_null($unit_gruppo)) {
                 $_extra_col = ', gruppo_corso';
                 $_extra_insert = ", " . $this->_db->quote($unit_gruppo);
+            }
+            else if ($_template == 'registrazioneasand') {
+                $_extra_col = ', stato';
+                $_extra_insert = ", " . $this->_db->quote(1);
             }
 
             // inserisco le righe riferite agli anni
@@ -855,6 +860,13 @@ class gglmsModelUsers extends JModelLegacy
                 $_tipo_quota = 'evento_nc';
                 $_tipo_pagamento = 'bonifico';
             }
+            else if ($_template == 'bb_buy_quota_asand') {
+                $_tipo_quota = 'annuale';
+                $_tipo_pagamento = 'bonifico';
+            }
+            else if ($_template == 'registrazioneasand') {
+                $_tipo_quota = 'annuale';
+            }
 
             $query .= "(
                         " . $this->_db->quote($user_id) . ",
@@ -870,6 +882,8 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->setQuery($query);
             $this->_db->execute();
 
+            $insertQuotaLast = $this->_db->insertid();
+
             // invio email
             if ($_template == 'servizi_extra') {
 
@@ -878,23 +892,23 @@ class gglmsModelUsers extends JModelLegacy
 
                 if ($send_email)
                     utilityHelper::send_sinpe_email_pp($email_default,
-                        $_data_creazione,
-                        $_order_details,
-                        $_anno_quota,
-                        $_user_details,
-                        0,
-                        $totale,
-                        $_template);
+                                                        $_data_creazione,
+                                                        $_order_details,
+                                                        $_anno_quota,
+                                                        $_user_details,
+                                                        0,
+                                                        $totale,
+                                                        $_template);
 
             }
             else if ($_template == 'acquistaevento'
                         || $_template == 'bb_buy_request') {
 
                 // precarico i params del modulo
-                $_params = UtilityHelper::get_params_from_module();
+                $_params = utilityHelper::get_params_from_module();
                 $ug_group = ($_template == 'bb_buy_request') ? 'ug_conferma_acquisto' : '';
 
-                UtilityHelper::processa_acquisto_evento($unit_id,
+                utilityHelper::processa_acquisto_evento($unit_id,
                                                         $user_id,
                                                         $totale,
                                                         $_template,
@@ -903,12 +917,22 @@ class gglmsModelUsers extends JModelLegacy
                                                         $unit_gruppo);
 
             }
+            else if ($_template == 'bb_buy_quota_asand' || $_template == 'registrazioneasand') {
+
+                utilityHelper::send_acquisto_evento_email($_user_details['email'],
+                                                            '',
+                                                            $_user_details,
+                                                            $totale,
+                                                            $_data_creazione,
+                                                            $_template,
+                                                            null,
+                                                            true);
+            }
 
             $this->_db->transactionCommit();
 
-
-
             $_ret['success'] = "tuttook";
+            $_ret['last_quota'] = $insertQuotaLast;
 
             return $_ret;
         }
@@ -1402,6 +1426,52 @@ class gglmsModelUsers extends JModelLegacy
         }
         catch (Exception $e) {
             return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+    }
+
+    public function get_registration_request($user_id) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('token')
+                ->from('#__gg_registration_request')
+                ->where('user_id = ' . $this->_db->quote($user_id))
+                ->order('date DESC')
+                ->setLimit('1');
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadResult();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+    public function get_quota_user_anno($user_id, $anno = null) {
+
+        try {
+
+            $anno = is_null($anno)
+                ? date('Y')
+                : $anno;
+
+            $query = $this->_db->getQuery(true)
+                ->select('id')
+                ->from('#__gg_quote_iscrizioni')
+                ->where('user_id = ' . $user_id)
+                ->where('anno = ' . $anno);
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadResult();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
         }
     }
 

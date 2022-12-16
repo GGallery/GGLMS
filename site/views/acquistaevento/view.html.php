@@ -277,7 +277,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 if (!isset($request_obj)
                     || !is_array($request_obj)
                     || count($request_obj) == 0) {
-                    throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", 1);
+                    throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", E_USER_ERROR);
                 }
 
 
