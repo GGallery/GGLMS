@@ -180,7 +180,6 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
 
                 // name e username prima lettera nome + cognome
                 $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
-                //$_new_user['username'] = $_new_user['name'];
                 $_new_user['username'] = trim($username);
                 $_new_user['email'] = trim($email_utente);
                 $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
@@ -213,7 +212,6 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
 
                 // controllo esistenza utente su username
                 if (utilityHelper::check_user_by_username($_new_user['username'])) {
-                    //throw new Exception("USERNAME ESISTENTE: ". $_new_user['username'], 1);
                     // aggiungo dei numeri randomici
                     $_new_user['username'] = $_new_user['username'] . rand(1, 999);
                 }
@@ -231,7 +229,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                         $siteMainUrl = utilityHelper::getSiteMainUrl(['home']);
 
                         if (!is_null($checkToken)) {
-                            throw new Exception('L\'utente con USERNAME ' . $emailCheck['username'] . ' ed EMAIL ' . $emailCheck['email'] . ' &egrave; gi&agrave; registrato ma non &egrave; stato completato il pagamento della quota annuale. Puoi terminare il procedimento cliccando <a href=\''. $siteMainUrl . '/index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=' . $checkToken . '\'>QUI</a>', E_USER_ERROR);
+                            throw new Exception('L\'utente con EMAIL ' . $emailCheck['email'] . ' &egrave; gi&agrave; registrato ma non &egrave; stato completato il pagamento della quota annuale. Puoi terminare il procedimento cliccando <a href=\''. $siteMainUrl . '/index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=' . $checkToken . '\'>QUI</a>', E_USER_ERROR);
                         }
                     }
                     else
@@ -314,11 +312,16 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $newReq['token'] = $newToken;
                 //$newReq['date'] = $dt->format('Y-m-d H:i:s');
 
-                $reqPagamentoQuery = utilityHelper::get_insert_query("gg_registration_request", $newReq);
-                $reqPagamentoInsertResult = utilityHelper::insert_new_with_query($reqPagamentoQuery);
+                // se il token non esiste memorizzo la richiesta
+                $checkToken = $userModel->get_registration_request($userId, $newToken);
 
-                if (!is_array($reqPagamentoInsertResult))
-                    throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
+                if (is_null($checkToken)) {
+                    $reqPagamentoQuery = utilityHelper::get_insert_query("gg_registration_request", $newReq);
+                    $reqPagamentoInsertResult = utilityHelper::insert_new_with_query($reqPagamentoQuery);
+
+                    if (!is_array($reqPagamentoInsertResult))
+                        throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
+                }
 
                 $_payment_form = outputHelper::get_payment_form_quota_asand($userId, $this->requested_quota, $this->incremento_pp, $parsedToken[1], $_params, $newToken);
 
@@ -374,6 +377,10 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
                 $dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
 
+                $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
+                if (is_null($userGroupId))
+                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
                 $_insert_servizi_extra = $userModel->insert_user_servizi_extra($userId,
                                                                                 $dt->format('Y'),
                                                                                 $dt->format('Y-m-d H:i:s'),
@@ -381,7 +388,9 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                                                                                 $totaleQuota,
                                                                                 $dettagliUtente,
                                                                                 'bb_buy_quota_asand',
-                                                                                false);
+                                                                                true,
+                                                                                null,
+                                                                                $userGroupId);
                 if (!is_array($_insert_servizi_extra)) {
                     $this->show_view = true;
                     throw new Exception($_insert_servizi_extra, E_USER_ERROR);

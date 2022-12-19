@@ -39,6 +39,8 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $dp_lang;
     protected $id_evento_sponsor;
     protected $corsi;
+    protected $quota_standard;
+    protected $quota_studente;
 
     function display($tpl = null)
     {
@@ -173,6 +175,20 @@ class gglmsViewdettagliutente extends JViewLegacy
             }
             else if ($layout == 'gestione_anagrafica_centri_sinpe') {
                 // nothing to do at this moment..
+            }
+            else if ($layout == 'gestione_quote_asand') {
+
+                $userGroupIdStandard = utilityHelper::check_usergroups_by_name("quota_standard");
+                $userGroupIdStudente = utilityHelper::check_usergroups_by_name("quota_studente");
+
+                if (is_null($userGroupIdStandard))
+                    throw new Exception("Non è stato trovato nessun usergroup valido per la quota standard", E_USER_ERROR);
+
+                if (is_null($userGroupIdStudente))
+                    throw new Exception("Non è stato trovato nessun usergroup valido per la quota studente", E_USER_ERROR);
+
+                $this->quota_standard = $userGroupIdStandard;
+                $this->quota_studente = $userGroupIdStudente;
             }
 
         }

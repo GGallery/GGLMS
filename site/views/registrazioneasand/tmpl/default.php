@@ -364,19 +364,19 @@ defined('_JEXEC') or die;
                     // oggetto che crea coppie di valori fra i dati inputati e community builder
                     var pNomeUtenteID = jQuery('#nome_utente').attr("id");
                     var pNomeUtenteCB = jQuery('#nome_utente').attr("data-campo");
-                    pPropArr.push({campo: pNomeUtenteID, cb: pNomeUtenteCB, value: pNomeUtente});
+                    pPropArr.push({campo: pNomeUtenteID, cb: pNomeUtenteCB, value: pNomeUtente.toUpperCase()});
 
                     var pCognomeUtenteID = jQuery('#cognome_utente').attr("id");
                     var pCognomeUtenteCB = jQuery('#cognome_utente').attr("data-campo");
-                    pPropArr.push({campo: pCognomeUtenteID, cb: pCognomeUtenteCB, value: pCognomeUtente});
+                    pPropArr.push({campo: pCognomeUtenteID, cb: pCognomeUtenteCB, value: pCognomeUtente.toUpperCase()});
 
                     var pCfUtenteID = jQuery('#cf_utente').attr("id");
                     var pCfUtenteCB = jQuery('#cf_utente').attr("data-campo");
-                    pPropArr.push({campo: pCfUtenteID, cb: pCfUtenteCB, value: pCfUtente});
+                    pPropArr.push({campo: pCfUtenteID, cb: pCfUtenteCB, value: pCfUtente.toUpperCase()});
 
                     var pCittaNascitaID = jQuery('#citta_nascita_utente').attr("id");
                     var pCittaNascitaCB = jQuery('#citta_nascita_utente').attr("data-campo");
-                    pPropArr.push({campo: pCittaNascitaID, cb: pCittaNascitaCB, value: pCittaNascita});
+                    pPropArr.push({campo: pCittaNascitaID, cb: pCittaNascitaCB, value: pCittaNascita.toUpperCase()});
 
                     var pPvNascitaUtenteID = jQuery('#pv_nascita').attr("id");
                     var pPvNascitaUtenteCB = jQuery('#pv_nascita').attr("data-campo");
@@ -389,7 +389,7 @@ defined('_JEXEC') or die;
 
                     var pCittaResidenzaID = jQuery('#citta_utente').attr("id");
                     var pCittaResidenzaCB = jQuery('#citta_utente').attr("data-campo");
-                    pPropArr.push({campo: pCittaResidenzaID, cb: pCittaResidenzaCB, value: pCittaResidenza});
+                    pPropArr.push({campo: pCittaResidenzaID, cb: pCittaResidenzaCB, value: pCittaResidenza.toUpperCase()});
 
                     var pPvUtenteID = jQuery('#pv_utente').attr("id");
                     var pPvUtenteCB = jQuery('#pv_utente').attr("data-campo");
@@ -455,23 +455,23 @@ defined('_JEXEC') or die;
 
                     var pIndirizzoAziendaID = jQuery('#indirizzo_azienda').attr("id");
                     var pIndirizzoAziendaCB = jQuery('#indirizzo_azienda').attr("data-campo");
-                    pPropArr.push({campo: pIndirizzoAziendaID, cb: pIndirizzoAziendaCB, value: pIndirizzoAzienda});
+                    pPropArr.push({campo: pIndirizzoAziendaID, cb: pIndirizzoAziendaCB, value: pIndirizzoAzienda.toUpperCase()});
 
                     var pCittaAziendaID = jQuery('#citta_azienda').attr("id");
                     var pCittaAziendaCB = jQuery('#citta_azienda').attr("data-campo");
-                    pPropArr.push({campo: pCittaAziendaID, cb: pCittaAziendaCB, value: pCittaAzienda});
+                    pPropArr.push({campo: pCittaAziendaID, cb: pCittaAziendaCB, value: pCittaAzienda.toUpperCase()});
 
                     var pIndirizzoStudioID = jQuery('#indirizzo_studio').attr("id");
                     var pIndirizzoStudioCB = jQuery('#indirizzo_studio').attr("data-campo");
-                    pPropArr.push({campo: pIndirizzoStudioID, cb: pIndirizzoStudioCB, value: pIndirizzoStudio});
+                    pPropArr.push({campo: pIndirizzoStudioID, cb: pIndirizzoStudioCB, value: pIndirizzoStudio.toUpperCase()});
 
                     var pCittaStudioID = jQuery('#citta_studio').attr("id");
                     var pCittaStudioCB = jQuery('#citta_studio').attr("data-campo");
-                    pPropArr.push({campo: pCittaStudioID, cb: pCittaStudioCB, value: pCittaStudio});
+                    pPropArr.push({campo: pCittaStudioID, cb: pCittaStudioCB, value: pCittaStudio.toUpperCase()});
 
                     var pIvaID = jQuery('#piva').attr("id");
                     var pIvaCB = jQuery('#piva').attr("data-campo");
-                    pPropArr.push({campo: pIvaID, cb: pIvaCB, value: pIva});
+                    pPropArr.push({campo: pIvaID, cb: pIvaCB, value: pIva.toUpperCase()});
 
                     var pAreaPraticaID = "";
                     var pAreaPraticaCB = "";

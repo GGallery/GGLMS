@@ -1016,6 +1016,93 @@ HTML;
         $app->close();
     }
 
+    public function conferma_pagamento_bonifico_asand() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $id_quota = $params['id_quota'];
+
+            if (!isset($id_quota)
+                || $id_quota == ""
+                || !is_numeric($id_quota))
+                throw new Exception("Missing quota id", E_USER_ERROR);
+
+            // controllo se la quota esiste
+            $userModel = new gglmsModelUsers();
+            $checkQuota = $userModel->get_quota_per_id($id_quota);
+
+            if (is_null($checkQuota))
+                throw new Exception("Nessun riferimento alla quota trovato", E_USER_ERROR);
+
+            $userId = $checkQuota['user_id'];
+            $annoQuota = $checkQuota['anno'];
+            $userGroupId = $checkQuota['gruppo_corso'];
+
+            $checkUser = $userModel->get_user_joomla($userId);
+            if (is_null($checkUser)
+                || !isset($checkUser->id)) {
+                $this->show_view = true;
+                throw new Exception("Nessun utente trovato", E_USER_ERROR);
+            }
+
+            // sblocco l'utente
+            $updateUser = $userModel->update_user_column($userId, "block", 0);
+
+            if (is_null($updateUser))
+                throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
+
+            // inserisco l'utente nel gruppo quota di riferimento
+            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
+            if (is_null($insert_ug))
+                throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
+
+            // aggiorno ultimo anno pagato
+            $_ultimo_anno = $userModel->update_ultimo_anno_pagato($userId, $annoQuota);
+            if (!is_array($_ultimo_anno))
+                throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+            // aggiorno lo stato del pagamento
+            $updateQuota = $userModel->update_user_column($id_quota, "stato", 1, "gg_quote_iscrizioni");
+            if (is_null($updateQuota))
+                throw new Exception("Errore durante l'aggiornamento della quota", E_USER_ERROR);
+
+            $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+            $dettagliUtente = $userModel->get_user_full_details_cb($userId);
+
+            // l'integrazione dei campi extra al momento è soltanto per community builder
+            $_config = new gglmsModelConfig();
+            $dettagliUtente['nome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_nome')];
+            $dettagliUtente['cognome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_cognome')];
+            $dettagliUtente['codice_fiscale'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_controllo_cf')];
+            $dettagliUtente['email'] = $checkUser->email;
+            $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
+
+            $sendEmail = utilityHelper::send_acquisto_evento_email($checkUser->email,
+                                                                    "",
+                                                                    $dettagliUtente,
+                                                                    $checkQuota['totale'],
+                                                                    $checkQuota['data_pagamento'],
+                                                                    "bb_buy_confirm_asand",
+                                                                    null,
+                                                                    true,
+                                                                    $id_quota);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch(Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
     public function inserisci_pagamento_extra() {
 
         $app = JFactory::getApplication();
@@ -1030,16 +1117,16 @@ HTML;
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Missing user id", E_USER_ERROR);
 
             if (!isset($totale)
                 || $totale == ""
                 || $totale == 0)
-                throw new Exception("Missing totale", 1);
+                throw new Exception("Missing totale", E_USER_ERROR);
 
             if (!isset($tipo_quota)
                 || $tipo_quota == "")
-                throw new Exception("Missing service type", 1);
+                throw new Exception("Missing service type", E_USER_ERROR);
 
             $dt = new DateTime();
             $_anno_quota = $dt->format('Y');
@@ -1056,7 +1143,7 @@ HTML;
                                                                 true);
 
             if (!is_array($_bonifico))
-                throw new Exception($_bonifico, 1);
+                throw new Exception($_bonifico, E_USER_ERROR);
 
             $_ret['success'] = "tuttook";
 
@@ -1376,6 +1463,83 @@ HTML;*/
         echo json_encode($_rows);
         $app->close();
 
+    }
+
+    public function get_quote_asand() {
+
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+            $_tipo_quota = (isset($_call_params['tipo_quota']) && $_call_params['tipo_quota'] != "") ? $_call_params['tipo_quota'] : null;
+            $_stato_pagamento = (isset($_call_params['stato_pagamento']) && $_call_params['stato_pagamento'] != "") ? $_call_params['stato_pagamento'] : null;
+
+            $_user = new gglmsModelUsers();
+            $_label_paga = JText::_('COM_REGISTRAZIONE_ASAND_STR13');
+            $_azione_btn = "";
+
+            $_soci = $_user->get_quote_asand($_tipo_quota, $_stato_pagamento, $_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($_soci['rows'])) {
+
+                $_total_rows = $_soci['total_rows'];
+
+                foreach ($_soci['rows'] as $_key_socio => $_socio) {
+
+                    foreach ($_socio as $key => $value) {
+
+                        if ($key == "stato_pagamento" && $value == 0) {
+
+                            $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['id_quota'] . ')">' . $_label_paga . '</a>';
+                            $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
+
+                        }
+                        else if ($key == "stato_pagamento2") {
+                            $value = $value == 1
+                                ? "Pagato"
+                                : "Non pagato";
+                        }
+                        else if ($key == "data_pagamento") {
+                            $dt = new DateTimeImmutable($value);
+                            $value = $dt->format('d-m-Y H:i:s');
+                        }
+                        else if ($key == "codice_fiscale") {
+                            $value = strtoupper($value);
+                        }
+                        else if ($key == "tipo_pagamento") {
+                            $value = strtoupper($value);
+                        }
+
+                        $_ret[$_key_socio][$key] = $value;
+
+                    }
+
+
+                    unset($_ret[$_key_socio]['stato_pagamento']);
+
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
     }
 
     public function get_soci_iscritti() {
