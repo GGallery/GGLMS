@@ -542,7 +542,8 @@ INSERT INTO `#__gg_unit` VALUES (
                                 0,
                                 0,
                                 null,
-								0);
+								0,
+								1);
 
 -- ----------------------------
 -- Table structure for `#__gg_unit_map`
@@ -1476,7 +1477,8 @@ ALTER TABLE `#__quiz_r_student_quiz`
     ADD COLUMN `timestamp`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `params`;
 
 -- tabella per impostare scontistiche articolate sulla vendita eventi
-CREATE TABLE IF NOT EXISTS `#__gg_vendita_sconti_particolari` (
+DROP TABLE IF EXISTS `#__gg_quote_iscrizioni`;
+CREATE TABLE `#__gg_quote_iscrizioni` (
     `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_unita`  bigint(20) UNSIGNED NOT NULL,
     `rif_campo_nome` VARCHAR(200) DEFAULT NULL COMMENT 'Nome della colonna del campo custom di integrazione es CB',
