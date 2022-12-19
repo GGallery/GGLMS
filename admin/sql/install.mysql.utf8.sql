@@ -167,6 +167,7 @@ CREATE TABLE `#__gg_contenuti` (
   `path_pdf` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   `id_evento` varchar(25) NULL COMMENT 'aggiunta per le chiamate api zoom',
   `tipo_zoom` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'aggiunta per distinguere webinar da meeting',
+  `url_streaming_azure` TEXT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -495,6 +496,7 @@ CREATE TABLE `#__gg_unit` (
   `riduzione_webinar` tinyint(1) UNSIGNED DEFAULT '0',
   `sc_webinar_perc` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto percentuale per acquisto in modalita webinar',
   `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
+  `prezzo_webinar_fisso` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -767,6 +769,25 @@ CREATE TABLE IF NOT EXISTS `#__gg_check_coupon_xml` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for `#__gg_quote_iscrizioni`
+-- ----------------------------
+
+DROP TABLE IF EXISTS `#__gg_quote_iscrizioni`;
+CREATE TABLE IF NOT EXISTS `#__gg_quote_iscrizioni`
+(
+	`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
+	`user_id` INT(11) UNSIGNED NOT NULL ,
+	`anno` INT(4) NOT NULL ,
+	`tipo_quota` VARCHAR(20) NOT NULL ,
+	`tipo_pagamento` VARCHAR(50) NULL,
+	`data_pagamento` DATETIME NULL,
+	`totale` DECIMAL(6,2) NULL,
+	`dettagli_transazione` TEXT NULL,
+	`stato` TINYINT(1) DEFAULT 0,
+	PRIMARY KEY (`id`), INDEX (`user_id`)
+) ENGINE = InnoDB;
+
+-- ----------------------------
 -- Table structure for `#__gg_anagrafica_centri`
 -- ----------------------------
 
@@ -785,6 +806,18 @@ CREATE TABLE `#__gg_anagrafica_centri` (
   `longitudine` varchar(100) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `citta` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_registration_request`
+-- ----------------------------
+
+CREATE TABLE `#__gg_registration_request` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `token` TEXT NOT NULL,
+  `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1454,6 +1487,7 @@ CREATE TABLE IF NOT EXISTS `#__gg_vendita_sconti_particolari` (
     `a_data` date DEFAULT NULL,
     `sc_data_valore` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto attivo da data a data',
     `priorita` int(11) DEFAULT '0' COMMENT 'La priorita del peso degli sconti',
+	`prezzo_webinar` decimal(6,2) NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
