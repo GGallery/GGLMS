@@ -1087,7 +1087,7 @@ HTML;
                                                                     $checkQuota['totale'],
                                                                     $checkQuota['data_pagamento'],
                                                                     "bb_buy_confirm_asand",
-                                                                    null,
+                                                                    $dettagliUtente['mail_from'],
                                                                     true,
                                                                     $id_quota);
 

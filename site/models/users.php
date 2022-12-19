@@ -927,7 +927,7 @@ class gglmsModelUsers extends JModelLegacy
                                                             $totale,
                                                             $_data_creazione,
                                                             $_template,
-                                                            null,
+                                                            $_user_details['mail_from'],
                                                             true);
             }
 
