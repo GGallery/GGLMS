@@ -813,6 +813,7 @@ CREATE TABLE `#__gg_anagrafica_centri` (
 -- Table structure for `#__gg_registration_request`
 -- ----------------------------
 
+DROP TABLE IF EXISTS `#__gg_registration_request`;
 CREATE TABLE `#__gg_registration_request` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `user_id` INT(11) NOT NULL,
