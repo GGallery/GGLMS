@@ -1320,6 +1320,7 @@ class gglmsModelUsers extends JModelLegacy
                                 cp.cb_nome AS nome,
                                 cp.cb_cognome  AS cognome,
                                 UPPER(cp.cb_codicefiscale) AS codice_fiscale,
+                                COALESCE(cp.cb_datadinascita, '') AS data_nascita,
                                 u.email,
                                 COALESCE(cp.cb_indirizzodiresidenza, '') AS indirizzo,
                                 COALESCE(cp.cb_citta, '') AS citta,
