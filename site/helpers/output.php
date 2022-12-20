@@ -673,7 +673,7 @@ HTML;
               $encodedReceiptId = utilityHelper::build_randon_token($last_quota);
               $_result_receipt = <<<HTML
               <p class="mb-5 mt-5 text-center">
-                  <button style="min-height: 50px; font-size: 1.2em;" class="btn btn-lg btn-primary" onclick="openRecepitPopup()">Visualizza ricevuta</button>
+                  <button style="border-radius: 10px;min-height: 50px; background-color: rgba(98, 161, 156, 0.82);color: #FFFFFF;" class="btn btn-lg" onclick="openRecepitPopup()">Visualizza ricevuta</button>
               </p>
               <script>
 
