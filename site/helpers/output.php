@@ -668,7 +668,7 @@ HTML;
             if ($call_result == "tuttook"
                 && $target == "registrazioneasand"
                 && !is_null($last_quota)) {
-              $check = utilityHelper::getJoomlaMainUrl(['home']);
+              $check = utilityHelper::getJoomlaMainUrl(['asand', 'home']);
               $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/index.php";
               $encodedReceiptId = utilityHelper::build_randon_token($last_quota);
               $_result_receipt = <<<HTML
