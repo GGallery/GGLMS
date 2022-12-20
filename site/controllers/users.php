@@ -1510,7 +1510,7 @@ HTML;*/
                         else if ($key == "stato_pagamento2") {
                             $value = $value == 1
                                 ? $_label_pagato
-                                : $_label_nonpagato
+                                : $_label_nonpagato;
                         }
                         else if ($key == "data_pagamento") {
                             $dt = new DateTimeImmutable($value);
