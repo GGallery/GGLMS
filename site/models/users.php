@@ -1199,20 +1199,18 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // lista quote asand
-    public function get_quote_asand($ug_list = null, $statoPagamento = null, $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
+    public function get_quote_asand($ug_list = null,
+                                    $tipoPagamento = null,
+                                    $statoPagamento = null,
+                                    $_offset=0,
+                                    $_limit=10,
+                                    $_search=null,
+                                    $_sort=null,
+                                    $_order=null) {
 
         try {
 
             $_ret = array();
-            $sub_q = null;
-
-            /* if (!is_null($ug_list)
-                ) {
-                $sub_q = $this->_db->getQuery(true)
-                    ->select('user_id')
-                    ->from('#__user_usergroup_map')
-                    ->where('group_id IN (' . $ug_list . ')');
-            } */
 
             $query = $this->_db->getQuery(true)
                     ->select("u.id AS user_id, u.username, u.email,
@@ -1243,6 +1241,11 @@ class gglmsModelUsers extends JModelLegacy
             if (!is_null($ug_list)) {
                 $query = $query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
                 $count_query = $count_query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
+            }
+
+            if (!is_null($tipoPagamento)) {
+                $query = $query->where('tipo_pagamento = ' . $this->_db->quote($tipoPagamento));
+                $count_query = $count_query->where('tipo_pagamento = ' . $this->_db->quote($tipoPagamento));
             }
 
             if (!is_null($statoPagamento)) {

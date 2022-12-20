@@ -23,6 +23,14 @@ defined('_JEXEC') or die('Restricted access');
                 </select>
             </div>
             <div class="form-group ml-2">
+                <span>Tipo pagamento</span>
+                <select id="tipo_pagamento" class="form-control">
+                    <option value="">-</option>
+                    <option value="bonifico"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR18');?></option>
+                    <option value="paypal"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR19');?></option>
+                </select>
+            </div>
+            <div class="form-group ml-2">
                 <span>Stato pagamento</span>
                 <select id="stato_pagamento" class="form-control">
                     <option value="">-</option>
@@ -115,6 +123,10 @@ defined('_JEXEC') or die('Restricted access');
             var pTipo = jQuery('#tipo_quota').val();
             if (pTipo != "")
                 params.data.tipo_quota = parseInt(pTipo);
+
+            var pTipoPagamento = jQuery('#tipo_pagamento').val();
+            if (pTipoPagamento != "")
+                params.data.tipo_pagamento = pTipoPagamento;
 
             var pStatoPagamento = jQuery('#stato_pagamento').val();
             if (pStatoPagamento != "")

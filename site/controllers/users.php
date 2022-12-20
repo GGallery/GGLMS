@@ -1481,13 +1481,17 @@ HTML;*/
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
             $_tipo_quota = (isset($_call_params['tipo_quota']) && $_call_params['tipo_quota'] != "") ? $_call_params['tipo_quota'] : null;
+            $_tipo_pagamento = (isset($_call_params['tipo_pagamento']) && $_call_params['tipo_pagamento'] != "") ? $_call_params['tipo_pagamento'] : null;
             $_stato_pagamento = (isset($_call_params['stato_pagamento']) && $_call_params['stato_pagamento'] != "") ? $_call_params['stato_pagamento'] : null;
 
             $_user = new gglmsModelUsers();
             $_label_paga = JText::_('COM_REGISTRAZIONE_ASAND_STR13');
+            $_label_pagato = JText::_('COM_REGISTRAZIONE_ASAND_STR16');
+            $_label_nonpagato = JText::_('COM_REGISTRAZIONE_ASAND_STR17');
+
             $_azione_btn = "";
 
-            $_soci = $_user->get_quote_asand($_tipo_quota, $_stato_pagamento, $_offset, $_limit, $_search, $_sort, $_order);
+            $_soci = $_user->get_quote_asand($_tipo_quota, $_tipo_pagamento, $_stato_pagamento, $_offset, $_limit, $_search, $_sort, $_order);
 
             if (isset($_soci['rows'])) {
 
@@ -1505,8 +1509,8 @@ HTML;*/
                         }
                         else if ($key == "stato_pagamento2") {
                             $value = $value == 1
-                                ? "Pagato"
-                                : "Non pagato";
+                                ? $_label_pagato
+                                : $_label_nonpagato
                         }
                         else if ($key == "data_pagamento") {
                             $dt = new DateTimeImmutable($value);
