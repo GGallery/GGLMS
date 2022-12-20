@@ -321,16 +321,21 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $newReq['token'] = $newToken;
                 //$newReq['date'] = $dt->format('Y-m-d H:i:s');
 
+                // verifico se esiste già un richiesta di pagamento con questo token
+                $checkToken = $userModel->get_quota_per_user_token($userId, $newToken, $dt->format('Y'));
+                if (!is_null($checkToken))
+                    throw new Exception("Esiste già una richiesta di pagamento, impossibile continuare", E_USER_ERROR);
+
                 // se il token non esiste memorizzo la richiesta
-                $checkToken = $userModel->get_registration_request($userId, $newToken);
+                //$checkToken = $userModel->get_registration_request($userId, $newToken);
 
-                if (is_null($checkToken)) {
-                    $reqPagamentoQuery = utilityHelper::get_insert_query("gg_registration_request", $newReq);
-                    $reqPagamentoInsertResult = utilityHelper::insert_new_with_query($reqPagamentoQuery);
+                //if (is_null($checkToken)) {
+                $reqPagamentoQuery = utilityHelper::get_insert_query("gg_registration_request", $newReq);
+                $reqPagamentoInsertResult = utilityHelper::insert_new_with_query($reqPagamentoQuery);
 
-                    if (!is_array($reqPagamentoInsertResult))
-                        throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
-                }
+                if (!is_array($reqPagamentoInsertResult))
+                    throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
+                //}
 
                 $_payment_form = outputHelper::get_payment_form_quota_asand($userId, $this->requested_quota, $this->incremento_pp, $parsedToken[1], $_params, $newToken);
 

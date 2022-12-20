@@ -1565,6 +1565,30 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_quota_per_user_token($userId, $token, $anno) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('subscr.*')
+                ->from('#__gg_quote_iscrizioni subscr')
+                ->join('inner', '#__gg_registration_request ref_token ON subscr.user_id = ref_token.user_id')
+                ->where('ref_token.token = ' . $this->_db->quote($token))
+                ->where('subscr.user_id = ' . $this->_db->quote($userId))
+                ->where('subscr.anno = ' . $this->_db->quote($anno))
+                ->order('subscr.id DESC');
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssoc();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+    }
+
+    // quota ricercata per colonna e valore della colonna
     public function get_quota_per_id($idQuota, $targetCol = 'id', $anno = null) {
 
         try {

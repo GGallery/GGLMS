@@ -78,12 +78,11 @@ class gglmsControllerMt extends JControllerLegacy {
 
             $userModel = new gglmsModelUsers();
             $dt = new DateTime();
+            $userId = 5494;
+            $token = 'c3RFcmdjeU1GRVQrMEdJaEZnbVZhQ3k0dTQzazNsaEcrelFreH';
             $annoRef = $dt->format('Y');
-            $emailCheck['email'] = 'luca.gallo@gallerygroup.it';
-            $emailCheck['id'] = 5494;
-            $checkQuota = $userModel->get_quota_per_id($emailCheck['id'], 'user_id', $annoRef);
-            if (isset($checkQuota['tipo_pagamento']))
-                throw New Exception('L\'utente con EMAIL ' . $emailCheck['email'] . ' ha un pagamento con bonifico in sospeso per l\'anno ' . $annoRef);
+            $checkToken = $userModel->get_quota_per_user_token($userId, $token, $dt->format('Y'));
+            print_r($checkToken);
         }
         catch(Exception $e) {
             echo $e->getMessage();
