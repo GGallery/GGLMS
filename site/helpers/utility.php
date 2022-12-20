@@ -1999,7 +1999,8 @@ HTML;
                                                       $_data_creazione = null,
                                                       $template="bb_buy_request",
                                                       $mail_from = null,
-                                                      $quotaAnnualeAsand = false) {
+                                                      $quotaAnnualeAsand = false,
+                                                      $lastQuotaRef = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2040,6 +2041,8 @@ HTML;
 
             if ($template != 'bb_buy_quota_asand')
                 $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />";
+            else
+                $_label_evento = "";
 
             $_label_extra .= "Per concludere la transazione inviare un'E-Mail con nome, cognome, codice fiscale
                             e contatto telefonico allegando la ricevuta del bonifico";
@@ -2052,6 +2055,16 @@ HTML;
         }
         else if ($template == 'acquistaevento' || $template == 'registrazioneasand')
             $oggetto .= " - Conferma pagamento con PayPal";
+        else if ($template == 'bb_buy_confirm_asand') {
+            $oggetto .= " - Conferma pagamento con bonifico";
+            $check = self::getJoomlaMainUrl(['asand', 'home']);
+            $siteRefUrl = self::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/";
+            $encodedReceiptId = self::build_randon_token($lastQuotaRef);
+            $linkReceipt = $siteRefUrl . "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId;
+            $_label_extra .= <<<HTML
+            <p>Per visualizzare la fattura stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
+HTML;
+        }
 
         $body = <<<HTML
                 <br /><br />
@@ -2066,6 +2079,10 @@ HTML;
         $_destinatario = array();
         if ($email_default != "")
             $_destinatario[] = $email_default;
+
+        // per asand il messaggio deve essere ricevuto anche dal mittente
+        if ($quotaAnnualeAsand && is_null($mail_from))
+            $_destinatario[] = $mail_from;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true, $mail_from);
 

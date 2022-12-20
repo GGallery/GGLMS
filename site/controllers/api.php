@@ -2295,7 +2295,7 @@ HTML;
             if (is_null($result))
                 throw new Exception("Nessuna ricevuta trovata", E_USER_ERROR);
 
-            $check = utilityHelper::getJoomlaMainUrl(['home']);
+            $check = utilityHelper::getJoomlaMainUrl(['asand', 'home']);
             $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/tmp/";
             $logoAsand = $siteRefUrl . "logo_asand.png";
             $firma_1 = $siteRefUrl . "firma1.jpg";

@@ -160,6 +160,10 @@ class gglmsViewPaypal extends JViewLegacy {
                 $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
                 //$dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
 
+                $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
+                if (is_null($userGroupId))
+                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
                 $_insert_evento = $_user_quote->insert_user_servizi_extra($userId,
                                                                             $new_order['anno_quota'],
                                                                             $new_order['data_creazione'],
@@ -167,14 +171,13 @@ class gglmsViewPaypal extends JViewLegacy {
                                                                             $totaleQuota+$ppCommissione,
                                                                             $dettagliUtente,
                                                                             $pp,
-                                                                            false);
+                                                                            true,
+                                                                            null,
+                                                                            $userGroupId
+                                                                        );
 
                 if (!is_array($_insert_evento))
                     throw new Exception($_insert_evento, E_USER_ERROR);
-
-                $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
-                if (is_null($userGroupId))
-                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
                 $insert_ug = $_user_quote->insert_user_into_usergroup($userId, $userGroupId);
                 if (is_null($insert_ug))
@@ -186,14 +189,10 @@ class gglmsViewPaypal extends JViewLegacy {
                     throw new Exception($_ultimo_anno, E_USER_ERROR);
 
                 // sblocco l'utente
-                $db = JFactory::getDbo();
-                $updateUser = "UPDATE #__users
-                                SET block = 0
-                                WHERE id = " . $db->quote($userId);
-                $db->setQuery($updateUser);
+                $updateUser = $_user_quote->update_user_column($userId, "block", 0);
 
-                if (!$db->execute())
-                    throw new Exception("Errore durante l'aggiornamento dell'utente -> " . $updateUser, E_USER_ERROR);
+                if (is_null($updateUser))
+                    throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
 
                 $this->call_result = "tuttook";
                 $this->last_quota = $_insert_evento['last_quota'];

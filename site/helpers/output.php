@@ -668,7 +668,7 @@ HTML;
             if ($call_result == "tuttook"
                 && $target == "registrazioneasand"
                 && !is_null($last_quota)) {
-              $check = utilityHelper::getJoomlaMainUrl(['home']);
+              $check = utilityHelper::getJoomlaMainUrl(['asand', 'home']);
               $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/index.php";
               $encodedReceiptId = utilityHelper::build_randon_token($last_quota);
               $_result_receipt = <<<HTML
@@ -2387,7 +2387,7 @@ HTML;
 
             <!--<link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />-->
 
-            <div class="row">
+            <div class="row mt-4">
                 <div class="col-12">
                     <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
                 </div>
@@ -2402,11 +2402,11 @@ HTML;
                   <div class="col-sm-10">
                       <div class="form-check">
                         <input class="form-check-input mt-0" type="radio" name="check_quota_associativa" id="check_quota_associativa1" value="quota_standard" />
-                        <label class="form-check-label ml-5" for="check_quota_associativa1">{$_label_quota_associativa_standard} {$_label_annualita} {$_quota_standard}</label>
+                        <label class="form-check-label mt-1" for="check_quota_associativa1">{$_label_quota_associativa_standard} {$_label_annualita} {$_quota_standard}</label>
                       </div>
                       <div class="form-check">
                         <input class="form-check-input mt-0" type="radio" name="check_quota_associativa" id="check_quota_associativa2" value="quota_studente" />
-                        <label class="form-check-label ml-5" for="check_quota_associativa2">{$_label_quota_associativa_studente} {$_label_annualita} {$_quota_studente}</label>
+                        <label class="form-check-label mt-1" for="check_quota_associativa2">{$_label_quota_associativa_studente} {$_label_annualita} {$_quota_studente}</label>
                       </div>
                   </div>
                 </div>
@@ -2681,11 +2681,11 @@ HTML;
                 </div>
 
                 <div class="form-group row">
-                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="#">privacy</a> e do il consenso al trattamento dei miei dati</b></div>
+                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="https://demoweb.gallerygroup.it/asand/privacy-policy" target="_blank">privacy</a> e do il consenso al trattamento dei miei dati</b></div>
                   <div class="col-sm-10">
                     <div class="form-check">
                       <input class="form-check-input mt-0" type="checkbox" id="privacy_check">
-                      <label class="form-check-label ml-5" for="privacy_check">
+                      <label class="form-check-label mt-1" for="privacy_check">
                         Accetta termini e condizioni
                       </label>
                     </div>
@@ -2694,7 +2694,7 @@ HTML;
 
                 <div class="form-group row">
                   <div class="col-sm-6 offset-sm-3 text-center">
-                    <button class="btn btn-large btn-primary btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
+                    <button class="btn btn-large btn-registrazione" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
                   </div>
                 </div>
               </form>

@@ -830,13 +830,15 @@ class gglmsModelUsers extends JModelLegacy
 
             $_extra_col = "";
             $_extra_insert = "";
+
             if (!is_null($unit_gruppo)) {
                 $_extra_col = ', gruppo_corso';
                 $_extra_insert = ", " . $this->_db->quote($unit_gruppo);
             }
-            else if ($_template == 'registrazioneasand') {
-                $_extra_col = ', stato';
-                $_extra_insert = ", " . $this->_db->quote(1);
+
+            if ($_template == 'registrazioneasand') {
+                $_extra_col .= ', stato';
+                $_extra_insert .= ", " . $this->_db->quote(1);
             }
 
             // inserisco le righe riferite agli anni
@@ -925,7 +927,7 @@ class gglmsModelUsers extends JModelLegacy
                                                             $totale,
                                                             $_data_creazione,
                                                             $_template,
-                                                            null,
+                                                            $_user_details['mail_from'],
                                                             true);
             }
 
@@ -1196,6 +1198,110 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // lista quote asand
+    public function get_quote_asand($ug_list = null, $statoPagamento = null, $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
+
+        try {
+
+            $_ret = array();
+            $sub_q = null;
+
+            /* if (!is_null($ug_list)
+                ) {
+                $sub_q = $this->_db->getQuery(true)
+                    ->select('user_id')
+                    ->from('#__user_usergroup_map')
+                    ->where('group_id IN (' . $ug_list . ')');
+            } */
+
+            $query = $this->_db->getQuery(true)
+                    ->select("u.id AS user_id, u.username, u.email,
+                                cp.cb_nome AS nome, cp.cb_cognome AS cognome,
+                                cp.cb_codicefiscale AS codice_fiscale, cp.cb_telefono AS telefono,
+                                quota.id AS id_quota, quota.anno AS anno_pagamento_quota, quota.data_pagamento, quota.totale AS totale_quota, quota.tipo_pagamento, quota.stato AS stato_pagamento, quota.stato AS stato_pagamento2
+                            ");
+
+            $count_query = $this->_db->getQuery(true)
+                    ->select('COUNT(*)');
+
+            $query = $query
+                ->from('#__users u')
+                ->join('inner', '#__comprofiler cp ON u.id = cp.user_id')
+                ->join('inner', '#__gg_quote_iscrizioni quota ON quota.user_id = u.id');
+                //->join('left', '#__user_usergroup_map gp ON u.id = gp.user_id');
+                //->join('left', '#__usergroups ug ON gp.group_id = ug.id');
+
+
+            $count_query = $count_query
+                ->from('#__users u')
+                ->join('inner', '#__comprofiler cp ON u.id = cp.user_id')
+                ->join('inner', '#__gg_quote_iscrizioni quota ON quota.user_id = u.id');
+                //->join('left', '#__user_usergroup_map gp ON u.id = gp.user_id');
+                //->join('left', '#__usergroups ug ON gp.group_id = ug.id');
+
+
+            if (!is_null($ug_list)) {
+                $query = $query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
+                $count_query = $count_query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
+            }
+
+            if (!is_null($statoPagamento)) {
+                $query = $query->where('stato = ' . $this->_db->quote($statoPagamento));
+                $count_query = $count_query->where('stato = ' . $this->_db->quote($statoPagamento));
+            }
+
+            // ricerca
+            if (!is_null($_search)) {
+
+                $query = $query->where('(cp.cb_nome LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_cognome LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR quota.anno LIKE \'%' . $_search . '%\'
+                                    OR quota.data_pagamento LIKE \'%' . $_search . '%\'
+                                    OR quota.totale LIKE \'%' . $_search . '%\')
+                                    ');
+
+                $count_query = $count_query->where('(cp.cb_nome LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_cognome LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR quota.anno LIKE \'%' . $_search . '%\'
+                                    OR quota.data_pagamento LIKE \'%' . $_search . '%\'
+                                    OR quota.totale LIKE \'%' . $_search . '%\')
+                                    ');
+
+            }
+
+            // ordinamento per colonna - di default per id utente
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('u.id DESC');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     // lista dei soci in un determinato gruppo
     public function get_soci_iscritti($ug_list=null, $_offset=0, $_limit=10, $_search=null, $_sort=null, $_order=null) {
 
@@ -1430,16 +1536,20 @@ class gglmsModelUsers extends JModelLegacy
         }
     }
 
-    public function get_registration_request($user_id) {
+    public function get_registration_request($user_id, $token = null) {
 
         try {
 
             $query = $this->_db->getQuery(true)
                 ->select('token')
                 ->from('#__gg_registration_request')
-                ->where('user_id = ' . $this->_db->quote($user_id))
-                ->order('date DESC')
-                ->setLimit('1');
+                ->where('user_id = ' . $this->_db->quote($user_id));
+
+            if (!is_null($token))
+                $query = $query->where('token = ' . $this->_db->quote($token));
+
+            $query = $query->order('date DESC')
+                        ->setLimit('1');
 
             $this->_db->setQuery($query);
             return $this->_db->loadResult();
@@ -1450,6 +1560,25 @@ class gglmsModelUsers extends JModelLegacy
             return null;
         }
 
+    }
+
+    public function get_quota_per_id($idQuota) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_quote_iscrizioni')
+                ->where('id = ' . $idQuota);
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssoc();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
     }
 
     public function get_quota_user_anno($user_id, $anno = null) {
@@ -1546,6 +1675,29 @@ class gglmsModelUsers extends JModelLegacy
             return null;
         }
 
+    }
+
+    public function update_user_column($userId, $refColumn, $valueColumn, $refDb = "users") {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                    ->update("#__" . $refDb)
+                    ->set($refColumn . " = " . $this->_db->quote($valueColumn))
+                    ->where("id = " . $this->_db->quote($userId));
+
+            $this->_db->setQuery((string) $query);
+
+            if (!$this->_db->execute())
+                throw new Exception("update query ko -> " . $query, E_USER_ERROR);
+
+            return 1;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
     }
 
     // aggiorna la password di un utente con tutti i crismi del caso
