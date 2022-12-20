@@ -142,6 +142,14 @@ class gglmsViewPaypal extends JViewLegacy {
                     throw new Exception("Nessun utente trovato", E_USER_ERROR);
                 }
 
+                $dt = new DateTime();
+                $checkToken = $_user_quote->get_quota_per_user_token($userId, $token, $dt->format('Y'));
+
+                if (!is_null($checkToken)
+                    && isset($checkToken['stato'])
+                    && $checkToken['stato'] == 1)
+                    throw new Exception("Il pagamento è già stato concluso, impossibile continuare", E_USER_ERROR);
+
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quota_asand_anno_store_payment($order_id, $userId, $totaleQuota), true);
 
