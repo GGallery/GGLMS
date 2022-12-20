@@ -1586,7 +1586,7 @@ HTML;
                         </div>
                     </div>
                     <div class="row">
-                        <div class="offset-md-3 offset-sm-3">
+                        <div class="col-md-12">
                             <table class="table">
                                 <tr>
                                     <td style="text-align: center;">
