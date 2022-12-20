@@ -1577,7 +1577,7 @@ HTML;
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Grazie!</h4>
-                            <p>Per confermare l'iscrizione{$_event_reference}una copia del bonifico effettuato a <b>{$_email_to}</b>
+                            <p>Per confermare l'iscrizione{$_event_reference}invia una copia del bonifico effettuato a <b>{$_email_to}</b>
                                 con le seguenti indicazioni: <br />
                                 <b>Nome</b> e <b>Cognome</b>{$_event_title_reference}- <b>Codice fiscale</b> - <b>Recapito telefonico</b>
                                 <br />

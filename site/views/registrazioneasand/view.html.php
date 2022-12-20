@@ -114,6 +114,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                     throw new Exception("Nessun oggetto valido per elaborare i dati di registrazione", E_USER_ERROR);
                 }
 
+                $dt = new DateTime();
                 $_new_user = array();
                 $_new_user_cp = array();
 
@@ -184,7 +185,8 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $_new_user['email'] = trim($email_utente);
                 $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
                 $_new_user['block'] = 1;
-                $_new_user['requireReset'] = 1;
+                $_new_user['registerDate'] = $dt->format('Y-m-d H:i:s');
+                //$_new_user['requireReset'] = 1;
 
                 // controllo il codice fiscale
                 $_cf_check = utilityHelper::conformita_cf($cf_utente);
@@ -224,7 +226,6 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                     if ($emailCheck['block'] == 1) {
                         // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
                         // gli permetto di completarlo
-                        $dt = new DateTime();
                         $annoRef = $dt->format('Y');
                         $userModel = new gglmsModelUsers();
 
