@@ -17,6 +17,8 @@ defined('_JEXEC') or die;
         min-height: 50px;
         border-radius: 10px;
         font-size: 1.2em;
+        background-color: rgba(98, 161, 156, 0.82);
+        color: #FFFFFF
     }
 
 </style>
