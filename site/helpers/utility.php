@@ -2081,7 +2081,7 @@ HTML;
             $_destinatario[] = $email_default;
 
         // per asand il messaggio deve essere ricevuto anche dal mittente
-        if ($quotaAnnualeAsand && is_null($mail_from))
+        if ($quotaAnnualeAsand && !is_null($mail_from))
             $_destinatario[] = $mail_from;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true, $mail_from);
