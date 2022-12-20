@@ -2062,7 +2062,7 @@ HTML;
             $encodedReceiptId = self::build_randon_token($lastQuotaRef);
             $linkReceipt = $siteRefUrl . "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId;
             $_label_extra .= <<<HTML
-            <p>Per visualizzare la fattura stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
+            <p>Per visualizzare la ricevuta stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
 HTML;
         }
 

@@ -219,6 +219,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 }
 
                 // controllo esistenza email utente
+                $userModel = new gglmsModelUsers();
                 //if (utilityHelper::check_user_by_column('email', $_new_user['email'])) {
                 if ($emailCheck = utilityHelper::check_user_by_column_row('email', $_new_user['email'])) {
 
@@ -227,7 +228,6 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                         // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
                         // gli permetto di completarlo
                         $annoRef = $dt->format('Y');
-                        $userModel = new gglmsModelUsers();
 
                         // prima controllo se ha un pagamento di tipo bonifico in sospeso
                         $checkQuota = $userModel->get_quota_per_id($emailCheck['id'], 'user_id', $annoRef);
@@ -265,6 +265,14 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
                 if (!is_array($_cp_insert_query_result))
                     throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+
+                $userGroupId = utilityHelper::check_usergroups_by_name("Registered");
+                if (is_null($userGroupId))
+                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                $insert_ug = $userModel->insert_user_into_usergroup($_new_user_id, $userGroupId);
+                    if (is_null($insert_ug))
+                        throw new Exception("Inserimento utente in gruppo corso fallito: " . $_new_user_id . ", " . $userGroupId, E_USER_ERROR);
 
                 $this->_ret['success'] = "tuttook";
                 $this->_ret['token'] = utilityHelper::build_randon_token($_new_user_id . "|==|" . $quota_associativa);
@@ -319,10 +327,11 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 // inserimento della richiesta di pagamento a database
                 $newReq['user_id'] = $userId;
                 $newReq['token'] = $newToken;
+                $annoCorrente = $dt->format('Y');
                 //$newReq['date'] = $dt->format('Y-m-d H:i:s');
 
                 // verifico se esiste già un richiesta di pagamento con questo token
-                $checkToken = $userModel->get_quota_per_user_token($userId, $newToken, $dt->format('Y'));
+                $checkToken = $userModel->get_quota_per_user_token($userId, $newToken, $annoCorrente);
                 if (!is_null($checkToken))
                     throw new Exception("Esiste già una richiesta di pagamento, impossibile continuare", E_USER_ERROR);
 

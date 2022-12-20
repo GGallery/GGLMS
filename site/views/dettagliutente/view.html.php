@@ -190,6 +190,42 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->quota_standard = $userGroupIdStandard;
                 $this->quota_studente = $userGroupIdStudente;
             }
+            else if ($layout == 'rinnovo_quota_asand') {
+
+                if ($_current_user->guest)
+                    throw new Exception("Questa pagina non è accessibile", E_USER_ERROR);
+
+                $userDetails = $_user->get_user_full_details_cb($_current_user->id);
+                if (is_null($userDetails))
+                    throw new Exception("Nessun riferimento comprofiler trovato per l'utente corrente!", E_USER_ERROR);
+
+                $dt = new DateTime();
+                $titoloStudio = $userDetails['cb_titolo_studio'];
+                $ultimoAnnoQuota = $userDetails['cb_ultimoannoinregola'];
+                $annoCorrente = $dt->format('Y');
+                $quotaAssociativa = "quota_standard";
+
+                if ($annoCorrente == $ultimoAnnoQuota)
+                    throw new Exception("Risulti essere in regola con la quota di iscrizione per l'anno " . $annoCorrente, E_USER_ERROR);
+
+                if ($titoloStudio == ""
+                    || is_null($titoloStudio))
+                    throw new Exception ("Nessun riferimento al titolo di studio, si prega di completare il campo nel proofilo utente", E_USER_ERROR);
+
+                if (strpos($titoloStudio, "Studente") !== false) {
+                    $quotaAssociativa = "quota_studente";
+                }
+
+                $paymentToken = utilityHelper::build_randon_token($_current_user->id . "|==|" . $quotaAssociativa);
+
+                // index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=" + pToken
+                $this->_html = <<<HTML
+                <script>
+                    window.location.href = "index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp={$paymentToken}";
+                </script>
+HTML;
+
+            }
 
         }
         catch (Exception $e){

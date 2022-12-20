@@ -16,6 +16,7 @@
 				<option value="resend_info_corso">SKILLAB - Resetta ed invia password agli utenti per azienda e piattaforma</option>
 				<option value="gestione_anagrafica_centri_sinpe">SINPE - Gestione anagrafica centri</option>
 				<option value="gestione_quote_asand">ASAND - Gestione rinnovo quote</option>
+				<option value="rinnovo_quota_asand">ASAND - Form rinnovo quote</option>
 			</field>
 
 		</fieldset>
