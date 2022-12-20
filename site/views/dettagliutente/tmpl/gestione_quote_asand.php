@@ -17,6 +17,7 @@ defined('_JEXEC') or die('Restricted access');
             <div class="form-group">
                 <span>Tipo quota</span>
                 <select id="tipo_quota" class="form-control">
+                    <option value="">-</option>
                     <option value="<?php echo $this->quota_standard; ?>"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR3');?></option>
                     <option value="<?php echo $this->quota_studente; ?>"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR4');?></option>
                 </select>
@@ -112,7 +113,8 @@ defined('_JEXEC') or die('Restricted access');
             console.log(params.data);
             // aggiunto tipologia socio
             var pTipo = jQuery('#tipo_quota').val();
-            params.data.tipo_quota = parseInt(pTipo);
+            if (pTipo != "")
+                params.data.tipo_quota = parseInt(pTipo);
 
             var pStatoPagamento = jQuery('#stato_pagamento').val();
             if (pStatoPagamento != "")

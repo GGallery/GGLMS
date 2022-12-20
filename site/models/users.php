@@ -1562,14 +1562,19 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_quota_per_id($idQuota) {
+    public function get_quota_per_id($idQuota, $targetCol = 'id', $anno = null) {
 
         try {
 
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__gg_quote_iscrizioni')
-                ->where('id = ' . $idQuota);
+                ->where($targetCol . ' = ' . $idQuota);
+
+            if (!is_null($anno))
+                $query = $query->where('anno = ' . $this->_db->quote($anno));
+
+            $query = $query->order('id DESC');
 
             $this->_db->setQuery($query);
             return $this->_db->loadAssoc();
@@ -1593,7 +1598,8 @@ class gglmsModelUsers extends JModelLegacy
                 ->select('id')
                 ->from('#__gg_quote_iscrizioni')
                 ->where('user_id = ' . $user_id)
-                ->where('anno = ' . $anno);
+                ->where('anno = ' . $anno)
+                ->order('id DESC');
 
             $this->_db->setQuery($query);
             return $this->_db->loadResult();

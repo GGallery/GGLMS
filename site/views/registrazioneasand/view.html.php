@@ -224,12 +224,20 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                     if ($emailCheck['block'] == 1) {
                         // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
                         // gli permetto di completarlo
+                        $dt = new DateTime();
+                        $annoRef = $dt->format('Y');
                         $userModel = new gglmsModelUsers();
+
+                        // prima controllo se ha un pagamento di tipo bonifico in sospeso
+                        $checkQuota = $userModel->get_quota_per_id($emailCheck['id'], 'user_id', $annoRef);
+                        if (isset($checkQuota['tipo_pagamento']))
+                            throw New Exception('L\'utente con EMAIL ' . $emailCheck['email'] . ' ha un pagamento con bonifico in sospeso per l\'anno ' . $annoRef);
+
                         $checkToken = $userModel->get_registration_request($emailCheck['id']);
-                        $siteMainUrl = utilityHelper::getSiteMainUrl(['home']);
+                        $siteMainUrl = utilityHelper::getSiteMainUrl(['asand', 'home']);
 
                         if (!is_null($checkToken)) {
-                            throw new Exception('L\'utente con EMAIL ' . $emailCheck['email'] . ' &egrave; gi&agrave; registrato ma non &egrave; stato completato il pagamento della quota annuale. Puoi terminare il procedimento cliccando <a href=\''. $siteMainUrl . '/index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=' . $checkToken . '\'>QUI</a>', E_USER_ERROR);
+                            throw new Exception('L\'utente con EMAIL ' . $emailCheck['email'] . ' &egrave; gi&agrave; registrato ma non &egrave; stato completato il pagamento della quota annuale ' . $annoRef . '. Puoi terminare il procedimento cliccando <a href=\''. $siteMainUrl . '/index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=' . $checkToken . '\'>QUI</a>', E_USER_ERROR);
                         }
                     }
                     else

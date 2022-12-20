@@ -15,6 +15,7 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/api.php';
 
@@ -73,9 +74,20 @@ class gglmsControllerMt extends JControllerLegacy {
     }
 
     public function test_() {
+        try {
 
-        $check = utilityHelper::getJoomlaMainUrl(['home']);
-        echo utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/index.php";
+            $userModel = new gglmsModelUsers();
+            $dt = new DateTime();
+            $annoRef = $dt->format('Y');
+            $emailCheck['email'] = 'luca.gallo@gallerygroup.it';
+            $emailCheck['id'] = 5494;
+            $checkQuota = $userModel->get_quota_per_id($emailCheck['id'], 'user_id', $annoRef);
+            if (isset($checkQuota['tipo_pagamento']))
+                throw New Exception('L\'utente con EMAIL ' . $emailCheck['email'] . ' ha un pagamento con bonifico in sospeso per l\'anno ' . $annoRef);
+        }
+        catch(Exception $e) {
+            echo $e->getMessage();
+        }
         $this->_japp->close();
 
     }
