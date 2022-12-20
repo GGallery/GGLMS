@@ -770,6 +770,27 @@ CREATE TABLE IF NOT EXISTS `#__gg_check_coupon_xml` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for `#__gg_vendita_sconti_particolari`
+-- ----------------------------
+
+-- tabella per impostare scontistiche articolate sulla vendita eventi
+DROP TABLE IF EXISTS `#__gg_vendita_sconti_particolari`;
+CREATE TABLE `#__gg_vendita_sconti_particolari` (
+    `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_unita`  bigint(20) UNSIGNED NOT NULL,
+    `rif_campo_nome` VARCHAR(200) DEFAULT NULL COMMENT 'Nome della colonna del campo custom di integrazione es CB',
+    `rif_campo_valore`  TEXT DEFAULT NULL COMMENT 'Riferimento ai valori da controllare di rif_campo_nome - valori separati da virgola, es. Medico, Farmacista...',
+    `socio` tinyint(1) UNSIGNED DEFAULT '0' COMMENT '1 = Si tratta di un socio',
+    `sc_valore` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto attivo di default se non impostato da data a data',
+    `da_data` date DEFAULT NULL,
+    `a_data` date DEFAULT NULL,
+    `sc_data_valore` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto attivo da data a data',
+    `priorita` int(11) DEFAULT '0' COMMENT 'La priorita del peso degli sconti',
+	`prezzo_webinar` decimal(6,2) NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
 -- Table structure for `#__gg_quote_iscrizioni`
 -- ----------------------------
 
@@ -784,6 +805,7 @@ CREATE TABLE IF NOT EXISTS `#__gg_quote_iscrizioni`
 	`data_pagamento` DATETIME NULL,
 	`totale` DECIMAL(6,2) NULL,
 	`dettagli_transazione` TEXT NULL,
+  `gruppo_corso` INT(11) UNSIGNED DEFAULT 0,
 	`stato` TINYINT(1) DEFAULT 0,
 	PRIMARY KEY (`id`), INDEX (`user_id`)
 ) ENGINE = InnoDB;
@@ -1475,23 +1497,6 @@ INSERT INTO `#__comprofiler_field_values` (`fieldid`, `fieldtitle`, `fieldlabel`
 -- colonna per il calcolo dei report
 ALTER TABLE `#__quiz_r_student_quiz`
     ADD COLUMN `timestamp`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `params`;
-
--- tabella per impostare scontistiche articolate sulla vendita eventi
-DROP TABLE IF EXISTS `#__gg_quote_iscrizioni`;
-CREATE TABLE `#__gg_quote_iscrizioni` (
-    `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `id_unita`  bigint(20) UNSIGNED NOT NULL,
-    `rif_campo_nome` VARCHAR(200) DEFAULT NULL COMMENT 'Nome della colonna del campo custom di integrazione es CB',
-    `rif_campo_valore`  TEXT DEFAULT NULL COMMENT 'Riferimento ai valori da controllare di rif_campo_nome - valori separati da virgola, es. Medico, Farmacista...',
-    `socio` tinyint(1) UNSIGNED DEFAULT '0' COMMENT '1 = Si tratta di un socio',
-    `sc_valore` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto attivo di default se non impostato da data a data',
-    `da_data` date DEFAULT NULL,
-    `a_data` date DEFAULT NULL,
-    `sc_data_valore` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto attivo da data a data',
-    `priorita` int(11) DEFAULT '0' COMMENT 'La priorita del peso degli sconti',
-	`prezzo_webinar` decimal(6,2) NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- -------------------------------------------------
 -- vista per summary report

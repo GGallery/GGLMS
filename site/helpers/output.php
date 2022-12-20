@@ -1647,7 +1647,7 @@ HTML;
                     </div>
                     <div class="row">
                       <div class="col-md-12 text-center">
-                      <button class="btn btn-lg btn-primary btn-bonifico" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
+                      <button class="btn btn-lg btn-bonifico" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
                       </div>
                     </div>
 HTML;
@@ -2681,7 +2681,7 @@ HTML;
                 </div>
 
                 <div class="form-group row">
-                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="https://demoweb.gallerygroup.it/asand/privacy-policy" target="_blank">privacy</a> e do il consenso al trattamento dei miei dati</b></div>
+                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="/privacy-policy" target="_blank">privacy</a> e do il consenso al trattamento dei miei dati</b></div>
                   <div class="col-sm-10">
                     <div class="form-check">
                       <input class="form-check-input mt-0" type="checkbox" id="privacy_check">
