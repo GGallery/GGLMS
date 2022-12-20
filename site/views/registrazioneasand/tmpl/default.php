@@ -21,6 +21,10 @@ defined('_JEXEC') or die;
         color: #FFFFFF
     }
 
+    .form-check-input {
+        appearance: auto !important;
+    }
+
 </style>
 
 <?php
