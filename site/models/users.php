@@ -922,8 +922,8 @@ class gglmsModelUsers extends JModelLegacy
             else if ($_template == 'bb_buy_quota_asand' || $_template == 'registrazioneasand') {
 
                 $lastQuotaRef = $_template == 'registrazioneasand'
-                    ? $insertQuotaLast
-                    : null;
+                                    ? $insertQuotaLast
+                                    : null;
 
                 utilityHelper::send_acquisto_evento_email($_user_details['email'],
                                                             '',

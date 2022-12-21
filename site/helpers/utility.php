@@ -1991,6 +1991,18 @@ HTML;
 
     }
 
+    public static function setRicevutoLinkRef($lastQuotaRef) {
+
+        $check = self::getJoomlaMainUrl(['asand', 'home']);
+        $siteRefUrl = self::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/";
+        $encodedReceiptId = self::build_randon_token($lastQuotaRef);
+        $linkReceipt = $siteRefUrl . "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId;
+        return <<<HTML
+            <p>Per visualizzare la ricevuta stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
+HTML;
+
+    }
+
     // invia email relativa alle richieste relative all'acquisto di un evento - utility per self.processa_acquisto_evento()
     public static function send_acquisto_evento_email($email_default,
                                                       $_event_title,
@@ -2053,10 +2065,16 @@ HTML;
             }
 
         }
-        else if ($template == 'acquistaevento' || $template == 'registrazioneasand')
+        else if ($template == 'acquistaevento' || $template == 'registrazioneasand') {
             $oggetto .= " - Conferma pagamento con PayPal";
+
+            if ($template == 'registrazioneasand')
+                $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+
+        }
         else if ($template == 'bb_buy_confirm_asand') {
             $oggetto .= " - Conferma pagamento con bonifico";
+            /*
             $check = self::getJoomlaMainUrl(['asand', 'home']);
             $siteRefUrl = self::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/";
             $encodedReceiptId = self::build_randon_token($lastQuotaRef);
@@ -2064,7 +2082,8 @@ HTML;
             $_label_extra .= <<<HTML
             <p>Per visualizzare la ricevuta stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
 HTML;
-        }
+        } */
+            $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
 
         $body = <<<HTML
                 <br /><br />
