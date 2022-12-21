@@ -75,6 +75,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
         $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
+        $this->_filterparam->id_user = JRequest::getVar('user_id');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -3298,6 +3299,102 @@ HTML;
 
         echo "UPDATED: " . $updated;
 
+    }
+
+    public function get_fatture()
+    {
+        try {
+
+
+            $id_user =  $this->_filterparam->id_user;
+
+
+            $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
+            $limit = (isset($this->_filterparam->limit) && $this->_filterparam->limit != "") ? $this->_filterparam->limit : 5;
+            $_sort = (isset($this->_filterparam->sort) && $this->_filterparam->sort != "") ? $this->_filterparam->sort : null;
+            $_order = (isset($this->_filterparam->order) && $this->_filterparam->order != "") ? $this->_filterparam->order : null;
+
+
+            if(!isset($id_user)
+                || !is_numeric($id_user))
+                throw new Exception("id_user non valorizzato " . $this->_filterparam->id_user, 1);
+
+
+
+            $db = JFactory::getDbo();
+            $query_count = $db->getQuery(true)
+                ->select('count(*)')
+                ->from('#__gg_quote_iscrizioni')
+               ->where('user_id = ' . $id_user);
+
+            $db->setQuery($query_count);
+            $count = $db->loadObject();
+
+            $query = $db->getQuery(true)
+                ->select('id, CONCAT( anno, "-", user_id ) AS numero_fattura, tipo_pagamento,DATE_FORMAT(data_pagamento, "%d-%m-%Y") as data_pagamento, totale, stato')
+                ->from('#__gg_quote_iscrizioni')
+                 ->where('user_id = ' . $id_user);
+
+            // ordinamento per colonna - di default per id utente
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('id', 'asc');
+
+
+
+            $db->setQuery($query,$offset,$limit);
+
+            $fatture = $db->loadObjectList();
+
+
+            if (isset($fatture)) {
+                foreach ($fatture as $_key_row => $_row) {
+
+                    //rows da colorare
+                    if($_row->stato == 1){
+                        $color_cell = 'color:green';
+                        $_row->stato = <<<HTML
+                            <span style="{$color_cell}" >Pagato</span>
+HTML;
+                        $encodedReceiptId = utilityHelper::build_randon_token($_row->id);
+
+                        $url = "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId ;
+                        $_row->fattura = <<<HTML
+                                   <a class="far fa-file-pdf fa-2x"
+                                      target="popup" 
+                                      onclick="window.open('{$url}','popup','width=600,height=600'); return false;" style="cursor: pointer;color: red">
+                                       
+                                    </a>
+HTML;
+
+
+                    }else if($_row.'stato' == 0) {
+                        $color_cell = 'color:red';
+                        $_row->stato = <<<HTML
+                            <span style="{$color_cell}" >Non pagato</span>
+HTML;
+                        $_row->fattura = '';
+                    }
+
+
+
+                }
+            }
+
+            $result['rowCount'] = $count;
+            $result['rows'] = $fatture;
+
+
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+
+        echo json_encode($result);
+        $this->_japp->close();
     }
 
 
