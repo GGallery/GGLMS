@@ -2074,16 +2074,8 @@ HTML;
         }
         else if ($template == 'bb_buy_confirm_asand') {
             $oggetto .= " - Conferma pagamento con bonifico";
-            /*
-            $check = self::getJoomlaMainUrl(['asand', 'home']);
-            $siteRefUrl = self::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/";
-            $encodedReceiptId = self::build_randon_token($lastQuotaRef);
-            $linkReceipt = $siteRefUrl . "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId;
-            $_label_extra .= <<<HTML
-            <p>Per visualizzare la ricevuta stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
-HTML;
-        } */
             $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+        }
 
         $body = <<<HTML
                 <br /><br />
