@@ -362,10 +362,10 @@ defined('_JEXEC') or die;
                         return;
                     }
 
-                    if (!pTitoloStudioText.includes("Studente") && document.getElementById("check_quota_associativa2").checked) {
-                        customAlertifyAlertSimple('La quota associativa selezionata non è confacente con il titolo di studio e la professione');
-                        return;
-                    }
+                    // if (!pTitoloStudioText.includes("Studente") && document.getElementById("check_quota_associativa2").checked) {
+                    //     customAlertifyAlertSimple('La quota associativa selezionata non è confacente con il titolo di studio e la professione');
+                    //     return;
+                    // }
 
                     // oggetto che crea coppie di valori fra i dati inputati e community builder
                     var pNomeUtenteID = jQuery('#nome_utente').attr("id");

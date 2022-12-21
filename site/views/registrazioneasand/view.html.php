@@ -179,6 +179,14 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
 
                 }
 
+                // controllo eventuali disparità fra titolo di studio e quota associativa
+                if (
+                    ($quota_associativa == "quota_studente" && strpos(strtolower($_new_user_cp['cb_titolo_studio']), "studente") === false)
+                    ||
+                    ($quota_associativa == "quota_standard" && strpos(strtolower($_new_user_cp['cb_titolo_studio']), "laurea") === false)
+                    )
+                    throw new Exception("La Quota associativa scelta non è conforme al Titolo di studio", E_USER_ERROR);
+
                 // name e username prima lettera nome + cognome
                 $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
                 $_new_user['username'] = trim($username);
