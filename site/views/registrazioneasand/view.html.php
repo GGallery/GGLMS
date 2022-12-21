@@ -365,7 +365,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $parsedToken = explode("|==|", $decryptedToken);
 
                 if (!is_array($parsedToken)) {
-                    throw new Exception("I parametri non sono conformi, impossbile continuare", E_USER_ERROR);
+                    throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
                 }
 
                 $userId = $parsedToken[0];
