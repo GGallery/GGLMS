@@ -725,10 +725,10 @@ HTML;
     }
 
     // messaggio di errore in ingresso al form di pagamento
-    public static function get_payment_form_error($msg, $redirect=null) {
+    public static function get_payment_form_error($msg, $redirect=null, $forceIndexRedirect = false) {
 
         //$_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
-        $_href = utilityHelper::set_index_redirect_url($redirect);
+        $_href = utilityHelper::set_index_redirect_url($redirect, $forceIndexRedirect);
 
         $_html = <<<HTML
             <script>

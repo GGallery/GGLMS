@@ -3034,9 +3034,13 @@ HTML;
     }
 
     // setta il redirect in base alle impostazioni di gglms
-    public static function set_index_redirect_url($redirect=null) {
+    public static function set_index_redirect_url($redirect=null, $forceIndexRedirect=false) {
 
-        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        $indexRef = "index.php";
+        if ($forceIndexRedirect)
+            $indexRef = "/" . $indexRef;
+
+        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : $indexRef;
 
         // controllo se è impostato il valore di rendirizzamento a index
         $_config = new gglmsModelConfig();
