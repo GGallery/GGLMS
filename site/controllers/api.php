@@ -2285,7 +2285,7 @@ HTML;
 
             $query = "SELECT usr.id as user_id, usr.email,
                             cb.cb_codicefiscale, cb.cb_nome, cb.cb_cognome, DATE_FORMAT(cb.cb_datadinascita, '%d/%m/%Y') AS cb_datadinascita, cb_luogodinascita, cb_provinciadinascita,
-                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento
+                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento, quote.gruppo_corso
                         FROM #__users usr
                         JOIN #__comprofiler cb ON usr.id = cb.user_id
                         JOIN #__gg_quote_iscrizioni quote ON usr.id = quote.user_id
@@ -2303,6 +2303,30 @@ HTML;
             $firma_2 = $siteRefUrl . "firma2.jpg";
             $formattedCf = strtoupper($result['cb_codicefiscale']);
             $formattedQuota = number_format($result['totale'], 2, ',', '');
+            $speseCommissioni = 0;
+            $formattedCommissioni = 0;
+            $strCommissioni = '';
+
+            // se paypal devo aggiungere la dicitura delle spese di commissione
+            if ($result['tipo_pagamento'] == 'paypal') {
+                $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+
+                $userGroupStandardId = utilityHelper::check_usergroups_by_name("quota_standard");
+                $userGroupStudenteId = utilityHelper::check_usergroups_by_name("quota_studente");
+
+                if ($result['gruppo_corso'] == $userGroupStandardId) {
+                    $quotaStandard = utilityHelper::get_ug_from_object($_params, "quota_standard");
+                    $speseCommissioni = $result['totale']-$quotaStandard;
+                }
+                else if ($result['gruppo_corso'] == $userGroupStudenteId) {
+                    $quotaStudente = utilityHelper::get_ug_from_object($_params, "quota_studente");
+                    $speseCommissioni = $result['totale']-$quotaStudente;
+                }
+
+                $formattedCommissioni = number_format($speseCommissioni, 2, ',', '');
+                $strCommissioni = ' (di cui &euro; ' . $formattedCommissioni . ' per le spese di commissione)';
+            }
+
             echo <<<HTML
             <!DOCTYPE html>
             <html>
@@ -2342,7 +2366,7 @@ HTML;
                     </tbody>
                 </table>
                 <p>Si certifica che {$result['cb_cognome']} {$result['cb_nome']} nato/a a {$result['cb_luogodinascita']} ({$result['cb_provinciadinascita']}) il {$result['cb_datadinascita']},
-                    con codice fiscale {$formattedCf}, ha versato ad ASAND la quota associativa relativa all'anno {$result['anno']}, pari a &euro; {$formattedQuota}.<br />
+                    con codice fiscale {$formattedCf}, ha versato ad ASAND la quota associativa relativa all'anno {$result['anno']}, pari a &euro; {$formattedQuota}{$strCommissioni}.<br />
                     Il socio {$result['cb_cognome']} {$result['cb_nome']} &egrave; iscritto all'Associazione tecnico Scientifica Alimentazione, Nutrizione e Dietetica ASAND per l'anno {$result['anno']}.
                 </p>
                 <p>NI: {$result['anno']}-{$result['user_id']}</p>
@@ -3364,9 +3388,9 @@ HTML;
                         $url = "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId ;
                         $_row->fattura = <<<HTML
                                    <a class="far fa-file-pdf fa-2x"
-                                      target="popup" 
+                                      target="popup"
                                       onclick="window.open('{$url}','popup','width=600,height=600'); return false;" style="cursor: pointer;color: red">
-                                       
+
                                     </a>
 HTML;
 

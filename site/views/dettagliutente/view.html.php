@@ -143,7 +143,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->id_evento_sponsor = JRequest::getVar('ev');
                 if (!isset($this->id_evento_sponsor)
                     || $this->id_evento_sponsor == "")
-                    throw new Exception("Nessun evento valido specificato", 1);
+                    throw new Exception("Nessun evento valido specificato", E_USER_ERROR);
 
                 // controllo esistenza evento
                 $_unit = new gglmsModelUnita();
