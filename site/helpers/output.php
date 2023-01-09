@@ -624,7 +624,7 @@ HTML;
     }
 
     // costruisco la vista da presentare dopo aver effettuato l'operazione di pagamento
-    public static function get_result_view($target, $call_result, $redirect=null, $last_quota=null) {
+    public static function get_result_view($target, $call_result, $redirect=null, $last_quota=null, $retArray=false) {
 
         $_html = "";
         $_result_class = "success";
@@ -638,9 +638,10 @@ HTML;
         if ($target == "sinpe"
             || $target == "servizi_extra"
             || $target == "acquistaevento"
-            || $target == "registrazioneasand") {
+            || $target == "registrazioneasand"
+            || $target == "voucher_buy_request") {
 
-            if ($target != "registrazioneasand") {
+            if ($target != "registrazioneasand" && $target != "voucher_buy_request") {
               $_result_extra = <<<HTML
               <p class="text-center">
                   Sarai reindirizzato in 5 secondi, altrimenti clicca <a href="index.php">QUI</a>
@@ -666,7 +667,7 @@ HTML;
 
             // per asand visualizzo il link della ricevuta
             if ($call_result == "tuttook"
-                && $target == "registrazioneasand"
+                && ($target == "registrazioneasand" || $target == "voucher_buy_request")
                 && !is_null($last_quota)) {
               $check = utilityHelper::getJoomlaMainUrl(['asand', 'home']);
               $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/index.php";
@@ -718,6 +719,12 @@ HTML;
 
 HTML;
 
+        }
+
+        if ($retArray) {
+          $_ret = [];
+          $_ret['success'] = $_html;
+          return $_ret;
         }
 
         return $_html;
@@ -1635,6 +1642,7 @@ HTML;
         $_row_pagamento_bonfico = "";
 
         $endpoint = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'bb_buy_request');
+        $endpointVoucher = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'voucher_buy_request');
         $prezzoQuotaParsed = number_format($prezzo_quota, 2, '.', '');
         $totalePayPal = $prezzo_quota+$incremento_pp;
         if ($_testo_pagamento_bonifico != "")
@@ -1647,9 +1655,31 @@ HTML;
                     </div>
                     <div class="row">
                       <div class="col-md-12 text-center">
-                      <button class="btn btn-lg btn-bonifico" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
+                        <button class="btn btn-lg btn-bonifico" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
                       </div>
                     </div>
+HTML;
+
+        $_row_pagamento_voucher = <<<HTML
+        <div class="row mt-5">
+          <div class="col-md-12 text-center">
+            <p class="font-weight-bold h4 text-dark">Rinnova quota con Voucher</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="offset-md-4 col-md-4">
+            <input type="text" class="form-control h6" id="v_code" name="v_code" placeholder="Inserisci il codice del voucher" />
+          </div>
+        </div>
+        <div class="row hidden" id="row_vcheck">
+          <div class="col-md-4 offset-md-4 text-center" id="msg_vcheck"></div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mt-5 offset-md-4 text-center">
+            <button class="btn btn-lg btn-bonifico" id="btn-voucher" data-ref="">Controlla voucher</button>
+            <button class="btn btn-lg btn-bonifico hidden" id="btn-voucher-apply" data-ref="">Applica voucher</button>
+          </div>
+        </div>
 HTML;
 
         $_html .= <<<HTML
@@ -1694,10 +1724,13 @@ HTML;
           </div>
         </div>
 
+        {$_row_pagamento_voucher}
+
         {$_row_pagamento_bonfico}
 
         <input style="display: none;" type="number" id="amount" name="amount" value="{$totalePayPal}" />
         <input type="hidden" id="token" value="{$token}" />
+        <input type="hidden" id="v_url" value="{$endpointVoucher}" />
         <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
 HTML;
 

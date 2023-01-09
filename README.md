@@ -4,6 +4,9 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
+# 4.2.2
+* D: aggiunta della tabella gg_quote_voucher
+
 # 4.2.1
 * D: aggiunta della colonna stato alla tabella gg_quote_iscrizioni
 
