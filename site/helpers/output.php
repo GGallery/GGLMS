@@ -629,7 +629,7 @@ HTML;
         $_html = "";
         $_result_class = "success";
         $_result_icon = "fa-check";
-        $_result_msg = "L'operazione è andata a buon fine, puoi effettura il login alla tua area riservata";
+        $_result_msg = "L'operazione è andata a buon fine, puoi effettuare il login alla tua area riservata";
         $_result_extra = "";
         $_result_receipt = "";
         //$_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
@@ -1663,12 +1663,12 @@ HTML;
         $_row_pagamento_voucher = <<<HTML
         <div class="row mt-5">
           <div class="col-md-12 text-center">
-            <p class="font-weight-bold h4 text-dark">Rinnova quota con Voucher</p>
+            <p class="font-weight-bold h4 text-dark">Sei in possesso di un voucher?</p>
           </div>
         </div>
         <div class="row">
           <div class="offset-md-4 col-md-4">
-            <input type="text" class="form-control h6" id="v_code" name="v_code" placeholder="Inserisci il codice del voucher" />
+            <input type="text" class="form-control h6" id="v_code" name="v_code" placeholder="Inserisci qui il codice" />
           </div>
         </div>
         <div class="row hidden" id="row_vcheck">
@@ -1676,13 +1676,16 @@ HTML;
         </div>
         <div class="row">
           <div class="col-md-4 mt-5 offset-md-4 text-center">
-            <button class="btn btn-lg btn-bonifico" id="btn-voucher" data-ref="">Controlla voucher</button>
-            <button class="btn btn-lg btn-bonifico hidden" id="btn-voucher-apply" data-ref="">Applica voucher</button>
+            <button class="btn btn-lg btn-bonifico" id="btn-voucher" data-ref="">Verifica</button>
+            <button class="btn btn-lg btn-bonifico hidden" id="btn-voucher-apply" data-ref="">Applica</button>
           </div>
         </div>
 HTML;
 
         $_html .= <<<HTML
+
+        {$_row_pagamento_voucher}
+
         <div class="row mt-5">
           <div class="col text-center">
             <h4><span style="color: black; font-weight: bold">{$_testo_pagamento_paypal}</span></h4>
@@ -1723,8 +1726,6 @@ HTML;
             <span id="paypal-button-container"></span>
           </div>
         </div>
-
-        {$_row_pagamento_voucher}
 
         {$_row_pagamento_bonfico}
 

@@ -2080,7 +2080,7 @@ HTML;
             $oggetto .= " - Conferma pagamento con voucher";
             $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
             $formattedTotale =  number_format($totale, 2, ',', '');
-            $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per impiego di voucher)";
+            $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per utilizzo voucher)";
         }
 
         $body = <<<HTML

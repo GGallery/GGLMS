@@ -2397,7 +2397,7 @@ HTML;
                     $formattedQuota = $result['totale']-$refQuotaOrig;
                     $formattedQuota = number_format($formattedQuota, 2, ',', '');
                     $formattedQuotaOrig = number_format($refQuotaOrig, 2, ',', '');
-                    $strCommissioni = ' (applicato sconto di &euro; ' . $formattedQuotaOrig . ' per impiego di voucher)';
+                    $strCommissioni = ' (applicato sconto di &euro; ' . $formattedQuotaOrig . ' per utilizzo voucher)';
                 }
             }
 
