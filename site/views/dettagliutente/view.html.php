@@ -41,6 +41,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $corsi;
     protected $quota_standard;
     protected $quota_studente;
+    protected $forceIndexRedirect;
 
     function display($tpl = null)
     {
@@ -52,6 +53,7 @@ class gglmsViewdettagliutente extends JViewLegacy
             $lang = JFactory::getLanguage();
             $this->current_lang = $lang->getTag();
             $lang_locale_arr = $lang->getLocale();
+            $this->forceIndexRedirect = false;
 
             if (isset($lang_locale_arr[4])
                 && $lang_locale_arr[4] != ""
@@ -141,7 +143,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->id_evento_sponsor = JRequest::getVar('ev');
                 if (!isset($this->id_evento_sponsor)
                     || $this->id_evento_sponsor == "")
-                    throw new Exception("Nessun evento valido specificato", 1);
+                    throw new Exception("Nessun evento valido specificato", E_USER_ERROR);
 
                 // controllo esistenza evento
                 $_unit = new gglmsModelUnita();
@@ -192,12 +194,16 @@ class gglmsViewdettagliutente extends JViewLegacy
             }
             else if ($layout == 'rinnovo_quota_asand') {
 
-                if ($_current_user->guest)
+                if ($_current_user->guest) {
+                    $this->forceIndexRedirect = true;
                     throw new Exception("Questa pagina non è accessibile", E_USER_ERROR);
+                }
 
                 $userDetails = $_user->get_user_full_details_cb($_current_user->id);
-                if (is_null($userDetails))
+                if (is_null($userDetails)) {
+                    $this->forceIndexRedirect = true;
                     throw new Exception("Nessun riferimento comprofiler trovato per l'utente corrente!", E_USER_ERROR);
+                }
 
                 $dt = new DateTime();
                 $titoloStudio = $userDetails['cb_titolo_studio'];
@@ -205,12 +211,16 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $annoCorrente = $dt->format('Y');
                 $quotaAssociativa = "quota_standard";
 
-                if ($annoCorrente == $ultimoAnnoQuota)
+                if ($annoCorrente == $ultimoAnnoQuota) {
+                    $this->forceIndexRedirect = true;
                     throw new Exception("Risulti essere in regola con la quota di iscrizione per l'anno " . $annoCorrente, E_USER_ERROR);
+                }
 
                 if ($titoloStudio == ""
-                    || is_null($titoloStudio))
+                    || is_null($titoloStudio)) {
+                    $this->forceIndexRedirect = true;
                     throw new Exception ("Nessun riferimento al titolo di studio, si prega di completare il campo nel proofilo utente", E_USER_ERROR);
+                }
 
                 if (strpos($titoloStudio, "Studente") !== false) {
                     $quotaAssociativa = "quota_studente";
@@ -229,7 +239,7 @@ HTML;
 
         }
         catch (Exception $e){
-            $this->_html = outputHelper::get_payment_form_error($e->getMessage());
+            $this->_html = outputHelper::get_payment_form_error($e->getMessage(), null, $this->forceIndexRedirect);
             $this->in_error = true;
         }
 

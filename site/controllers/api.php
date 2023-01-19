@@ -76,6 +76,7 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
         $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
         $this->_filterparam->id_user = JRequest::getVar('user_id');
+        $this->_filterparam->cToken = JRequest::getVar('cToken');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -123,7 +124,7 @@ class gglmsControllerApi extends JControllerLegacy
                      $this->_db->setQuery($update_coupon);
 
                      if (!$this->_db->execute())
-                         throw new Exception("update coupon query ko -> " . $update_coupon, 1);
+                        throw new Exception("update coupon query ko -> " . $update_coupon, 1);
 
                      //cancello da user_usergroup corso per utente
                      $delete_usergroup = "DELETE FROM #__user_usergroup_map"
@@ -2272,6 +2273,67 @@ HTML;
 
     }
 
+    public function checkVoucherValidation() {
+
+        $retArr = [];
+
+        try {
+
+            $requestedVoucher = $this->_filterparam->searchPhrase;
+            $requestedToken = $this->_filterparam->cToken;
+
+            if (!isset($requestedVoucher)
+                || $requestedVoucher == ""
+                )
+                throw new Exception("Codice voucher non valorizzato", E_USER_ERROR);
+
+            $decryptedToken = utilityHelper::decrypt_random_token($requestedToken);
+            $parsedToken = explode("|==|", $decryptedToken);
+
+            if (!isset($parsedToken[0]) || $parsedToken[0] == "" || !is_numeric($parsedToken[0]))
+                throw new Exception("Nessun token di riferimento", E_USER_ERROR);
+
+            $userId = $parsedToken[0];
+            $dt = new DateTime();
+            $annoCorrente = $dt->format('Y');
+
+            // controllo se il codice del voucher esiste e non è già stato speso
+            $checkVoucher = "SELECT *
+                            FROM #__gg_quote_voucher
+                            WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND user_id IS NULL";
+            $this->_db->setQuery($checkVoucher);
+            $resultVoucher = $this->_db->loadResult();
+
+            if (!$resultVoucher)
+                throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
+
+            // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
+            $checkUserForYear = "SELECT *
+                                    FROM #__gg_quote_voucher
+                                    WHERE user_id = " . $this->_db->quote($userId) . "
+                                    AND date LIKE " . $this->_db->quote("%" . $annoCorrente . "%");
+
+            $this->_db->setQuery($checkUserForYear);
+            $resultUserForYear = $this->_db->loadResult();
+
+            if (!is_null($resultUserForYear))
+                throw new Exception("Esistono voucher per l'utente corrente nell'anno " . $annoCorrente, E_USER_ERROR);
+
+
+            $retArr['success'] = "Codice voucher utilizzabile";
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $retArr['error'] = "Codice voucher non utilizzabile: " . $e->getMessage();
+        }
+
+        echo json_encode($retArr);
+        $this->_japp->close();
+
+    }
+
     // stampa ricevuta per pagamento quota asand
     public function printReceiptAsnd() {
 
@@ -2285,7 +2347,7 @@ HTML;
 
             $query = "SELECT usr.id as user_id, usr.email,
                             cb.cb_codicefiscale, cb.cb_nome, cb.cb_cognome, DATE_FORMAT(cb.cb_datadinascita, '%d/%m/%Y') AS cb_datadinascita, cb_luogodinascita, cb_provinciadinascita,
-                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento
+                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento, quote.gruppo_corso
                         FROM #__users usr
                         JOIN #__comprofiler cb ON usr.id = cb.user_id
                         JOIN #__gg_quote_iscrizioni quote ON usr.id = quote.user_id
@@ -2303,6 +2365,42 @@ HTML;
             $firma_2 = $siteRefUrl . "firma2.jpg";
             $formattedCf = strtoupper($result['cb_codicefiscale']);
             $formattedQuota = number_format($result['totale'], 2, ',', '');
+            $speseCommissioni = 0;
+            $formattedCommissioni = 0;
+            $quotaStandard = 0;
+            $quotaStudente = 0;
+            $refQuotaOrig = 0;
+            $strCommissioni = '';
+
+            // se paypal devo aggiungere la dicitura delle spese di commissione
+            if ($result['tipo_pagamento'] == 'paypal' || $result['tipo_pagamento'] == 'voucher') {
+                $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+
+                $userGroupStandardId = utilityHelper::check_usergroups_by_name("quota_standard");
+                $userGroupStudenteId = utilityHelper::check_usergroups_by_name("quota_studente");
+
+                if ($result['gruppo_corso'] == $userGroupStandardId) {
+                    $quotaStandard = utilityHelper::get_ug_from_object($_params, "quota_standard");
+                    $refQuotaOrig = $quotaStandard;
+                    $speseCommissioni = $result['totale']-$quotaStandard;
+                }
+                else if ($result['gruppo_corso'] == $userGroupStudenteId) {
+                    $quotaStudente = utilityHelper::get_ug_from_object($_params, "quota_studente");
+                    $refQuotaOrig = $quotaStudente;
+                    $speseCommissioni = $result['totale']-$quotaStudente;
+                }
+
+                $formattedCommissioni = number_format($speseCommissioni, 2, ',', '');
+                if ($result['tipo_pagamento'] == 'paypal')
+                    $strCommissioni = ' (di cui &euro; ' . $formattedCommissioni . ' per le spese di commissione)';
+                else {
+                    $formattedQuota = $result['totale']-$refQuotaOrig;
+                    $formattedQuota = number_format($formattedQuota, 2, ',', '');
+                    $formattedQuotaOrig = number_format($refQuotaOrig, 2, ',', '');
+                    $strCommissioni = ' (applicato sconto di &euro; ' . $formattedQuotaOrig . ' per utilizzo voucher)';
+                }
+            }
+
             echo <<<HTML
             <!DOCTYPE html>
             <html>
@@ -2342,7 +2440,7 @@ HTML;
                     </tbody>
                 </table>
                 <p>Si certifica che {$result['cb_cognome']} {$result['cb_nome']} nato/a a {$result['cb_luogodinascita']} ({$result['cb_provinciadinascita']}) il {$result['cb_datadinascita']},
-                    con codice fiscale {$formattedCf}, ha versato ad ASAND la quota associativa relativa all'anno {$result['anno']}, pari a &euro; {$formattedQuota}.<br />
+                    con codice fiscale {$formattedCf}, ha versato ad ASAND la quota associativa relativa all'anno {$result['anno']}, pari a &euro; {$formattedQuota}{$strCommissioni}.<br />
                     Il socio {$result['cb_cognome']} {$result['cb_nome']} &egrave; iscritto all'Associazione tecnico Scientifica Alimentazione, Nutrizione e Dietetica ASAND per l'anno {$result['anno']}.
                 </p>
                 <p>NI: {$result['anno']}-{$result['user_id']}</p>
@@ -3364,9 +3462,9 @@ HTML;
                         $url = "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId ;
                         $_row->fattura = <<<HTML
                                    <a class="far fa-file-pdf fa-2x"
-                                      target="popup" 
+                                      target="popup"
                                       onclick="window.open('{$url}','popup','width=600,height=600'); return false;" style="cursor: pointer;color: red">
-                                       
+
                                     </a>
 HTML;
 

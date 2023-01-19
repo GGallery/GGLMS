@@ -2009,7 +2009,7 @@ HTML;
                                                       $_user_details,
                                                       $totale = 0,
                                                       $_data_creazione = null,
-                                                      $template="bb_buy_request",
+                                                      $template = "bb_buy_request",
                                                       $mail_from = null,
                                                       $quotaAnnualeAsand = false,
                                                       $lastQuotaRef = null) {
@@ -2075,6 +2075,12 @@ HTML;
         else if ($template == 'bb_buy_confirm_asand') {
             $oggetto .= " - Conferma pagamento con bonifico";
             $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+        }
+        else if ($template == 'voucher_buy_quota_asand') {
+            $oggetto .= " - Conferma pagamento con voucher";
+            $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+            $formattedTotale =  number_format($totale, 2, ',', '');
+            $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per utilizzo voucher)";
         }
 
         $body = <<<HTML
@@ -3034,9 +3040,13 @@ HTML;
     }
 
     // setta il redirect in base alle impostazioni di gglms
-    public static function set_index_redirect_url($redirect=null) {
+    public static function set_index_redirect_url($redirect=null, $forceIndexRedirect=false) {
 
-        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        $indexRef = "index.php";
+        if ($forceIndexRedirect)
+            $indexRef = "/" . $indexRef;
+
+        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : $indexRef;
 
         // controllo se è impostato il valore di rendirizzamento a index
         $_config = new gglmsModelConfig();

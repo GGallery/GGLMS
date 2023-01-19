@@ -34,22 +34,26 @@ defined('_JEXEC') or die;
 
     <script type="text/javascript">
 
-        document.getElementById("show_hide_password").addEventListener("click", function (e) {
+        if (document.getElementById("show_hide_password") != null) {
 
-            if (document.getElementById("password_utente").type == 'password') {
-                document.getElementById("show_hide_password_icon").classList.remove('fa-eye-slash');
-                document.getElementById("show_hide_password_icon").classList.add('fa-eye');
-                document.getElementById("password_utente").type = 'text';
-                document.getElementById("ripeti_password_utente").type = 'text';
-            }
-            else {
-                document.getElementById("show_hide_password_icon").classList.add('fa-eye-slash');
-                document.getElementById("show_hide_password_icon").classList.remove('fa-eye');
-                document.getElementById("password_utente").type = 'password';
-                document.getElementById("ripeti_password_utente").type = 'password';
-            }
+            document.getElementById("show_hide_password").addEventListener("click", function (e) {
 
-        });
+                if (document.getElementById("password_utente").type == 'password') {
+                    document.getElementById("show_hide_password_icon").classList.remove('fa-eye-slash');
+                    document.getElementById("show_hide_password_icon").classList.add('fa-eye');
+                    document.getElementById("password_utente").type = 'text';
+                    document.getElementById("ripeti_password_utente").type = 'text';
+                }
+                else {
+                    document.getElementById("show_hide_password_icon").classList.add('fa-eye-slash');
+                    document.getElementById("show_hide_password_icon").classList.remove('fa-eye');
+                    document.getElementById("password_utente").type = 'password';
+                    document.getElementById("ripeti_password_utente").type = 'password';
+                }
+
+            });
+
+        }
 
         function customAlertifyAlert(pCampoNome, pRefCampo) {
             alertify.alert()
@@ -593,6 +597,60 @@ defined('_JEXEC') or die;
         jQuery(function() {
             if (jQuery('#paypal-button-container').length)
                 initPayPalButton();
+        });
+
+        // check voucher
+        jQuery('#btn-voucher').on('click', function (e) {
+            e.preventDefault();
+
+
+            const rowCheck =  document.getElementById("row_vcheck");
+            const pVoucher = document.getElementById("v_code").value;
+            const pToken = document.getElementById("token").value;
+            const pVochTokern = document.getElementById("v_url").value;
+            let msgCheck = document.getElementById("msg_vcheck");
+            let btnVchr = document.getElementById("btn-voucher");
+            let btnVchrApply = document.getElementById("btn-voucher-apply");
+
+            rowCheck.classList.add("hidden");
+            btnVchr.classList.remove("hidden");
+            btnVchrApply.classList.add("hidden");
+            btnVchrApply.setAttribute("data-ref", "");
+
+            if (pVoucher == "" || pVoucher == undefined) return;
+
+            fetch(`index.php?option=com_gglms&task=api.checkVoucherValidation&searchPhrase=${pVoucher}&cToken=${pToken}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+
+                msgCheck.innerHTML = '';
+                rowCheck.classList.remove("hidden");
+
+                if (data.error != undefined) {
+                    msgCheck.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                    return;
+                }
+
+                btnVchr.classList.add("hidden");
+                btnVchrApply.classList.remove("hidden");
+                btnVchrApply.setAttribute("data-ref", pVochTokern);
+                msgCheck.innerHTML = `<p class="text-success">${data.success}</p>`;
+
+            })
+            .catch(function(error) {
+                alert(`Si è verificato un errore: ${error}`);
+                console.log('error =>', error);
+            });
+
+        });
+
+        // pagamento con voucher dopo controllo validità
+        jQuery('#btn-voucher-apply').on('click', function (e) {
+            let pHref = jQuery(this).attr("data-ref");
+            const pVoucher = document.getElementById("v_code").value;
+            window.location.href = `${pHref}&vv=${pVoucher}`;
         });
 
         // pagamento con bonifico conferma

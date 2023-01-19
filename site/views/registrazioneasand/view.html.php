@@ -80,6 +80,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
             $this->request_obj = JRequest::getVar('request_obj', null);
 
             $pp = JRequest::getVar('pp', null);
+            $voucherCode = JRequest::getVar('vv', null);
             $token = utilityHelper::build_randon_token();
             $this->rf_registrazione = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'user_registration_request');
 
@@ -87,6 +88,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
 
             $this->hide_pp = true;
             $this->show_view = false;
+            $_payment_form = null;
 
             if (is_null($this->action)) {
 
@@ -359,6 +361,106 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 if (!is_array($_payment_form)) throw new Exception($_payment_form, E_USER_ERROR);
 
                 $this->hide_pp = false;
+                $this->in_error = 0;
+
+            }
+            else if ($this->action == 'voucher_buy_request') {
+
+                if (is_null($pp)
+                    || !isset($pp)
+                    || $pp == "")
+                    throw new Exception("Nessun parametro definito", E_USER_ERROR);
+
+                if (is_null($voucherCode)
+                    || !isset($voucherCode)
+                    || $voucherCode == "")
+                    throw new Exception("Nessun voucher definito", E_USER_ERROR);
+
+                $decryptedToken = utilityHelper::decrypt_random_token($pp);
+                $parsedToken = explode("|==|", $decryptedToken);
+
+                if (!is_array($parsedToken)) {
+                    throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+                }
+
+                $userId = $parsedToken[0];
+                $requestedQuota = $parsedToken[1];
+                $totaleQuota = $parsedToken[2];
+                $dt = new DateTime();
+
+                $userModel = new gglmsModelUsers();
+                // controllo utente
+                $checkUser = $userModel->get_user_joomla($userId);
+                if (is_null($checkUser)
+                    || !isset($checkUser->id)) {
+                    $this->show_view = true;
+                    throw new Exception("Nessun utente trovato", E_USER_ERROR);
+                }
+
+                // controllo il pagamento per l'utente e l'anno corrente
+                $checkPagamento = $userModel->get_quota_user_anno($userId);
+                if (!is_null($checkPagamento)) {
+                    $this->show_view = true;
+                    throw new Exception("Il pagamento della quota è già stato effettuato oppure è in attesa di conferma", E_USER_ERROR);
+                }
+
+                $annoCorrente = $dt->format('Y');
+                $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
+                $dettagliUtente = $userModel->get_user_full_details_cb($userId);
+
+                // l'integrazione dei campi extra al momento è soltanto per community builder
+                $_config = new gglmsModelConfig();
+                $dettagliUtente['nome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_nome')];
+                $dettagliUtente['cognome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_cognome')];
+                $dettagliUtente['codice_fiscale'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_controllo_cf')];
+                $dettagliUtente['email'] = $checkUser->email;
+                $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
+                $dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
+
+                $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
+                if (is_null($userGroupId))
+                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                $_insert_servizi_extra = $userModel->insert_user_servizi_extra($userId,
+                                            $annoCorrente,
+                                            $dateTimeCorrente,
+                                            "",
+                                            $totaleQuota,
+                                            $dettagliUtente,
+                                            'voucher_buy_quota_asand',
+                                            true,
+                                            null,
+                                            $userGroupId);
+
+                if (!is_array($_insert_servizi_extra)) {
+                    $this->show_view = true;
+                    throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+                }
+
+                $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
+                if (is_null($insert_ug))
+                    throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
+
+
+                // aggiorno ultimo anno pagato
+                $_ultimo_anno = $userModel->update_ultimo_anno_pagato($userId, $annoCorrente);
+                if (!is_array($_ultimo_anno))
+                    throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+                // sblocco l'utente
+                $updateUser = $userModel->update_user_column($userId, "block", 0);
+
+                if (is_null($updateUser))
+                    throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
+
+                // aggiorno il voucher
+                $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $userId, $dateTimeCorrente);
+                if (!is_array($updateVoucher))
+                    throw new Exception($updateVoucher, E_USER_ERROR);
+
+                $_payment_form = outputHelper::get_result_view($this->action, "tuttook", null, $_insert_servizi_extra['last_quota'], true);
+
+                $this->hide_pp = true;
                 $this->in_error = 0;
 
             }

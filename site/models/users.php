@@ -762,6 +762,35 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null) {
+
+        try {
+
+            $dateTimeRef = is_null($dateTimeRef)
+                ? date('Y-m-d H:i:s')
+                : $dateTimeRef;
+
+            $query = $this->_db->getQuery(true)
+                        ->update("#__gg_quote_voucher")
+                        ->set("user_id = " . $this->_db->quote($userId))
+                        ->set("date = " . $this->_db->quote($dateTimeRef))
+                        ->where("code = " . $this->_db->quote($codiceVoucher));
+
+            $this->_db->setQuery($query);
+
+            if (!$this->_db->execute()) throw new Exception("update voucher query ko -> " . $query, E_USER_ERROR);
+
+            $_ret['success'] = 'tuttook';
+
+            return $_ret;
+
+        }
+        catch(Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     public function update_tipo_quota_iscrizione($id_pagamento, $tipo_quota) {
 
         try {
@@ -772,7 +801,8 @@ class gglmsModelUsers extends JModelLegacy
             $query->where("id = " . $this->_db->quote($id_pagamento));
 
             $this->_db->setQuery($query);
-            $this->_db->execute();
+
+            if (!$this->_db->execute()) throw new Exception("update tipo quota query ko -> " . $query, E_USER_ERROR);
 
             $_ret['success'] = 'tuttook';
 
@@ -797,7 +827,8 @@ class gglmsModelUsers extends JModelLegacy
             $query->where("user_id = " . $user_id);
 
             $this->_db->setQuery($query);
-            $this->_db->execute();
+
+            if (!$this->_db->execute()) throw new Exception("update ultimo anno pagato query ko -> " . $query, E_USER_ERROR);
 
             $_ret['success'] = 'tuttook';
 
@@ -836,7 +867,7 @@ class gglmsModelUsers extends JModelLegacy
                 $_extra_insert = ", " . $this->_db->quote($unit_gruppo);
             }
 
-            if ($_template == 'registrazioneasand') {
+            if ($_template == 'registrazioneasand' || $_template == 'voucher_buy_quota_asand') {
                 $_extra_col .= ', stato';
                 $_extra_insert .= ", " . $this->_db->quote(1);
             }
@@ -868,6 +899,10 @@ class gglmsModelUsers extends JModelLegacy
             }
             else if ($_template == 'registrazioneasand') {
                 $_tipo_quota = 'annuale';
+            }
+            else if ($_template == 'voucher_buy_quota_asand') {
+                $_tipo_quota = 'annuale';
+                $_tipo_pagamento = 'voucher';
             }
 
             $query .= "(
@@ -919,9 +954,11 @@ class gglmsModelUsers extends JModelLegacy
                                                         $unit_gruppo);
 
             }
-            else if ($_template == 'bb_buy_quota_asand' || $_template == 'registrazioneasand') {
+            else if ($_template == 'bb_buy_quota_asand'
+                || $_template == 'registrazioneasand'
+                || $_template == 'voucher_buy_quota_asand') {
 
-                $lastQuotaRef = $_template == 'registrazioneasand'
+                $lastQuotaRef = ($_template == 'registrazioneasand' || $_template == 'voucher_buy_quota_asand')
                                     ? $insertQuotaLast
                                     : null;
 
