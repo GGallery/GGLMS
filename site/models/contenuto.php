@@ -170,7 +170,7 @@ class gglmsModelContenuto extends JModelLegacy
 
 
                 $url = "index.php?option=com_gglms&view=contenuto&alias=" . $this->alias;
-                if (isset($this->url_streaming_azure))
+                if (isset($this->url_streaming_azure) && !empty($this->url_streaming_azure))
                     $url .= "/?streamazure=" . base64_encode($this->url_streaming_azure);
 
                 $url = "href='" . JRoute::_($url) . "'";
