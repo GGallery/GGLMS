@@ -2707,7 +2707,8 @@ HTML;
                 $reader->open($target_file); //open the file
 
                 // controllo quanti sheet ci sono nel file (> 1 vado in errore)
-                $sheets_num = count($reader->getSheetIterator());
+                $sheets_num = count(array($reader->getSheetIterator()));
+
                 if ($sheets_num > 1)
                     throw new Exception("Sheet multipli non supportati. Il foglio " . $file_ext . " deve contenere soltanto un foglio attivo", E_USER_ERROR);
 
@@ -3587,7 +3588,8 @@ HTML;
     public static function check_dt_major($start_date, $end_date) {
 
         $ts_start = new DateTime($start_date);
-        $ts_end = new DateTime($end_date);
+
+        $ts_end = DateTime::createFromFormat('Y-m-d', $end_date);
 
         return $ts_start > $ts_end;
 

@@ -820,6 +820,256 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
+    public function get_unit_box($id_box)
+    {
+
+
+        $query = $this->_db->getQuery(true)
+            ->select('id_unita')
+            ->from('#__gg_box_unit_map')
+            ->where('box =' . $id_box);
+
+
+        $this->_db->setQuery($query);
+        $id_unita = $this->_db->loadAssocList();
+
+
+        return $id_unita;
+
+
+
+    }
+
+    public function get_usergroup_box($id_box)
+    {
+
+
+        $query = $this->_db->getQuery(true)
+            ->select('ugm.idgruppo')
+            ->from('#__gg_box_unit_map as map')
+            ->join('inner', '#__gg_usergroup_map as ugm on map.id_unita = ugm.idunita')
+            ->where('map.box =' . $id_box);
+
+
+        $this->_db->setQuery($query);
+        $id_unita = $this->_db->loadAssocList();
+
+
+        return $id_unita;
+
+
+
+    }
+
+    public function getOreBox($idBox){
+
+        try {
+
+            $totOrePerGruppo = 0;
+            $totOreConverted = 0;
+
+            if (!isset($idBox)
+                || !$idBox)
+                throw new Exception("Nessuna id box specificato", E_USER_ERROR);
+
+            $unitaArr = $this->get_unit_box($idBox);
+
+            foreach ($unitaArr as $key_unita => $single_unita) {
+
+
+                $oreCorso = $this->getOreCorso($single_unita['id_unita']);
+
+
+                if ($oreCorso == 0) {
+
+                    $corsiChildren = $this->getCourseReference($single_unita['id_unita']);
+
+                    if (is_array($corsiChildren) && count($corsiChildren) > 0) {
+
+                        foreach ($corsiChildren as $keyChildren => $singleChild) {
+                            $oreCorso += $this->getOreCorso($single_unita['id_unita']);
+                        }
+
+                    }
+                }
+
+                $totOrePerGruppo += $oreCorso;
+                $totOreConverted = ($totOrePerGruppo / 3600);
+                $totOreConverted = round($totOreConverted, 0, PHP_ROUND_HALF_UP);
+
+            }
+
+            return $totOreConverted ;
+
+        }catch (Exception $e){
+                return $e->getMessage();
+        }
+    }
+
+    public function getOreCorso($idCorso) {
+
+        try {
+
+            if (is_null($idCorso)
+                || $idCorso == "")
+                throw new Exception("Nessun id corso definito", E_USER_ERROR);
+
+            $db = JFactory::getDbo();
+            $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
+                                    FROM #__gg_contenuti cgc
+                                    JOIN #__gg_unit_map cgum ON cgc.id = cgum.idcontenuto
+                                    WHERE cgum.idunita = " . $idCorso . "
+                                    AND cgc.pubblicato = 1
+                                    AND cgc.durata > 0";
+
+
+            $db->setQuery($queryContenuti);
+
+            $contenutiCorso = $db->loadAssocList();
+
+            if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+
+            $oreCorso = 0;
+            foreach ($contenutiCorso as $contentKey => $singleContent) {
+
+                $oreCorso += $singleContent['durata_plain'];
+            }
+
+            return $oreCorso;
+
+        }
+        catch(Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
+
+    }
+
+    public function getCourseReference($idPadre) {
+
+        $db = JFactory::getDbo();
+
+        $query = "SELECT id, unitapadre
+                    FROM #__gg_unit
+                    WHERE unitapadre = " . $idPadre ;
+
+        $db->setQuery($query);
+
+        return $db->loadAssocList();
+
+    }
+
+
+    public function getFarmacie() {
+
+        $db = JFactory::getDbo();
+
+        $query = "SELECT ms.id_gruppo, ms.ragione_sociale as nome_farmacia, dip.user_id
+                    FROM #__gg_master_farmacie as ms
+                    join #__gg_farmacie_dipendenti as dip on ms.id_gruppo = dip.id_gruppo
+                    GROUP BY dip.user_id, ms.id_gruppo, ms.ragione_sociale 
+                    ORDER BY ms.id_gruppo ASC ";
+
+        $db->setQuery($query);
+
+        return $db->loadAssocList();
+
+    }
+
+    public function getCorsiPerUtente($idUtente, $ids_unita, $mese, $anno) {
+
+        try {
+
+            if (is_null($idUtente)
+                || $idUtente == "")
+                throw new Exception("Nessun id utente definito", E_USER_ERROR);
+
+
+            if (!isset($ids_unita)
+                || !is_array($ids_unita ))
+                throw new Exception("Nessun id unita definito", E_USER_ERROR);
+
+            if (is_null($mese)
+                || $mese == "")
+                throw new Exception("Nessun mese definito", E_USER_ERROR);
+
+            if (is_null($anno)
+                || $anno == "")
+                throw new Exception("Nessun anno utente definito", E_USER_ERROR);
+
+
+            $ids = implode(",", array_map('reset', $ids_unita));
+
+            $db = JFactory::getDbo();
+
+            // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
+            $query = "SELECT u.id AS id_unita, u.titolo as titolo_unita, ggc.titolo as titolo_contenuto, ggr.stato, (ggc.durata/60) AS durata, (ggc.durata/3600) AS durata_ore
+                        FROM #__gg_unit u
+                        JOIN #__gg_report ggr ON u.id = ggr.id_corso
+                        JOIN #__gg_contenuti ggc ON ggr.id_contenuto = ggc.id
+                        AND ggr.id_utente = '" . $idUtente . "'
+                        AND ggr.id_unita in (" . $ids . ")
+                        AND ggc.durata > 0
+                         AND YEAR(ggr.`timestamp`) = '" . $anno ."'
+                         AND MONTH(ggr.`timestamp`) = '" . $mese . "'";
+
+
+
+
+            $db->setQuery($query);
+
+            return $db->loadAssocList();
+
+        }
+        catch(Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
+
+    }
+
+    public function getUserUsergroup($user_id, $id_gruppo){
+
+        try {
+
+            if (is_null($user_id)
+                || $user_id == "")
+                throw new Exception("Nessun id utente definito", E_USER_ERROR);
+
+            if (!isset($id_gruppo)
+                || !is_array($id_gruppo ))
+                throw new Exception("Nessun id unita definito", E_USER_ERROR);
+
+
+            $ids = implode(",", array_map('reset', $id_gruppo));
+
+//            if (is_null($idArea)
+//                || $idArea == "")
+//                throw new Exception("Nessun id area definito", E_USER_ERROR);
+
+            $db = JFactory::getDbo();
+
+            // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
+            $query = "SELECT group_id 
+                        FROM #__user_usergroup_map
+                        where user_id = " . $user_id . "
+                        AND group_id in (" . $ids . ")";
+
+
+            $db->setQuery($query);
+            $result = $db->loadAssocList();
+
+
+           return $result;
+
+        }
+        catch(Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
+
+
+    }
 
 
 }

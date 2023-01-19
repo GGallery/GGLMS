@@ -1716,6 +1716,24 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_username($user_id){
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select("concat (cb_nome, ' ', cb_cognome) AS nome_utente")
+                ->from("#__comprofiler")
+                ->where("user_id = " . $user_id);
+
+
+            $this->_db->setQuery($query);
+            $username = $this->_db->loadObject();
+
+            return $username;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'error get username', 1);
+        }
+    }
+
 
 
 }

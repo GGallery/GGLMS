@@ -376,6 +376,70 @@ class gglmsModelCatalogo extends JModelLegacy
 
     }
 
+    public function get_box_corsi($dominio) {
+
+        try
+        {
+            $_ret = array();
+
+            $query = $this->_db->getQuery(true)
+                ->select('DISTINCT u.id,
+                        u.titolo as evento,
+                        ugm.idgruppo as gruppo_corso,
+                        b.box,
+                        b1.description as titolo_box');
+
+            $count_query = $this->_db->getQuery(true)
+                ->select('COUNT(DISTINCT(u.id))');
+
+
+
+            $query = $query->from('#__gg_unit as u')
+                ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
+                ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
+                ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
+                ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
+                ->join('inner', '#__gg_usergroup_map as ugm on ugm.idunita = u.id')
+                ->where('det.dominio = "' . $dominio . '" ');
+
+            $count_query = $count_query->from('#__gg_unit as u')
+                ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
+                ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
+                ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
+                ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
+                ->where('det.dominio="' . $dominio . '" ');
+
+
+
+                $query = $query->order('b.box');
+
+
+
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
 
 }
 

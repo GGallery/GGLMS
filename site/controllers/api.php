@@ -80,6 +80,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
         $this->_filterparam->dominio = JRequest::getVar('dominio');
         $this->_filterparam->gruppo_id_piattaforma = JRequest::getVar('gruppo_id_piattaforma');
+        $this->_filterparam->mese =  JRequest::getVar('mese') ;
+        $this->_filterparam->anno =  JRequest::getVar('anno'); ;
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
@@ -4220,6 +4222,288 @@ HTML;
         $this->_japp->close();
 
     }
+
+    public function get_report_per_box() {
+
+        $_ret = array();
+
+        try {
+
+            $model_catalogo = new gglmsModelCatalogo();
+            $model_contenuto = new gglmsModelContenuto();
+            $model_users = new gglmsModelUsers();
+            $_tmp = array();
+            $colonne = [];
+            $filename = "";
+            setlocale(LC_TIME, "");
+
+            $genera_model = new gglmsModelGeneraCoupon();
+
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+
+            $dominio = $piattaforma_default['dominio'];
+
+            if (!isset($this->_filterparam->mese)
+                || $this->_filterparam->mese == "")
+                throw new Exception("Impossibile continuare, data non specificata", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->anno)
+                || $this->_filterparam->anno == "")
+                throw new Exception("Impossibile continuare, data non specificata", E_USER_ERROR);
+
+            $mese = $this->_filterparam->mese;
+            $anno = $this->_filterparam->anno;
+
+
+
+
+            $boxArr = $model_catalogo->get_box_corsi($dominio) ;
+            $box = $boxArr['rows'];
+
+
+
+            $totOrePerGruppo = 0;
+            $i = 0;
+            $vecchio_box = array();
+            $ids_unita = [];
+            $ids_group  = [];
+            $totOreFormazione = 0;
+
+            foreach ($box as $key_box => $single_box) {
+
+
+                if(($single_box['box'] != $vecchio_box['box']) || ($key_box == 0)) {
+
+                    $totOre = $model_contenuto->getOreBox($single_box['box']);
+
+                    $ids_unita = $model_contenuto->get_unit_box($single_box['box']);
+
+                    $ids_group = $model_contenuto->get_usergroup_box($single_box['box']);
+
+                    $row[$i] ['Nome'] = $single_box['titolo_box'];
+                    $row[$i] ['Corso'] = '';
+                    $row[$i] ['Ore erogati da Hippocrates'] = $totOre . ' ore';
+                    $row[$i] ['Permanenza utente'] = '';
+                    $row[$i] ['% completamento contenuto'] = '';
+
+                }
+
+
+
+                $farmacieArr = $model_contenuto->getFarmacie();
+                $vecchio_farmacia = array();
+                $totOreUnita = 0;
+                $oreUnita = 0;
+                $totContenuti = 0;
+                $mediaOreCorso = 0;
+
+
+
+
+
+                foreach($farmacieArr as $key_farmacia => $single_farmacia){
+
+
+
+                    $group_unita = $model_contenuto->getUserUsergroup($single_farmacia['user_id'], $ids_group);
+
+                    if (count($group_unita) == 0 || is_null($group_unita) || !is_array($group_unita) )
+                        continue;
+
+                    $controlloUtente = $model_contenuto->getCorsiPerUtente($single_farmacia['user_id'], $ids_unita, $mese, $anno);
+
+
+                    if(count($controlloUtente) === 0 && ($key_farmacia > 0) ) {
+                        continue;
+                    }
+
+                    if(($single_farmacia['id_gruppo'] != $vecchio_farmacia['id_gruppo']) || ($key_farmacia == 0) ){
+
+
+                        $i++;
+                        $row[$i] ['Nome'] = $single_farmacia['nome_farmacia'];
+                        $row[$i] ['Corso'] = '';
+                        $row[$i] ['Ore erogati da Hippocrates'] = '';
+                        $row[$i] ['Permanenza utente'] = '';
+                        $row[$i] ['% completamento contenuto'] = '';
+
+
+                    }
+
+
+
+                        $corso_vecchio = 0;
+
+
+                        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_farmacia['user_id'], $ids_unita, $mese, $anno);
+
+                        // calcolo soltanto se ci sono riferimenti
+                        if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
+
+                            $i++;
+
+
+                            $username = $model_users->get_username($single_farmacia['user_id']);
+
+
+                            if ($totContenuti > 0) {
+
+                                $totContenuti = round($totContenuti, 2, PHP_ROUND_HALF_UP);
+                                $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita)*100 : 0;
+                                $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
+
+                                $row[$i] ['Nome'] = '';
+                                $row[$i] ['Corso'] = '% completamento corso';
+                                $row[$i] ['Ore erogati da Hippocrates'] = '';
+                                $row[$i] ['Permanenza utente'] = '';
+                                $row[$i] ['% completamento contenuto'] = $mediaOreCorso . '%';
+
+                                $i++;
+                                $oreUnita = 0;
+                                $totOreUnita = 0;
+                                $totContenuti = 0;
+                            }
+
+                            $oreUnita = $model_contenuto->getOreCorso($contenutiPerUtenteCorso[0]['id_unita']);
+                            $totOreUnita = ($oreUnita / 3600);
+                            $totOreUnita = round($totOreUnita, 2, PHP_ROUND_HALF_UP);
+
+
+                            $row[$i] ['Nome'] = $username->nome_utente;
+                            $row[$i] ['Corso'] = strtoupper($contenutiPerUtenteCorso[0]['titolo_unita']);
+                            $row[$i] ['Ore erogati da Hippocrates'] =$totOreUnita ;
+                            $row[$i] ['Permanenza utente'] = '';
+                            $row[$i] ['% completamento contenuto'] = '';
+
+                            $corso_vecchio = $contenutiPerUtenteCorso[0]['id_unita'];
+
+
+
+                            foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
+
+
+                                $i++;
+
+                                if($corso_vecchio != $singleContent['id_unita']){
+
+
+                                    if ($totContenuti > 0) {
+
+                                           $totContenuti = round($totContenuti, 2, PHP_ROUND_HALF_UP);
+                                            $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita)*100 : 0;
+                                            $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
+
+                                            $row[$i] ['Nome'] = '';
+                                            $row[$i] ['Corso'] = '% completamento corso';
+                                            $row[$i] ['Ore erogati da Hippocrates'] = '';
+                                            $row[$i] ['Permanenza utente'] = '';
+                                            $row[$i] ['% completamento contenuto'] = $mediaOreCorso . '%';
+
+                                        $i++;
+                                        $oreUnita = 0;
+                                        $totOreUnita = 0;
+                                        $totContenuti = 0;
+                                    }
+
+                                    $oreUnita = $model_contenuto->getOreCorso($singleContent['id_unita']);
+                                    $totOreUnita = ($oreUnita / 3600);
+                                    $totOreUnita = round($totOreUnita, 2, PHP_ROUND_HALF_UP);
+
+                                    $row[$i] ['Nome'] = '';
+                                    $row[$i] ['Corso'] = strtoupper($singleContent['titolo_unita']);
+                                    $row[$i] ['Ore erogati da Hippocrates'] =$totOreUnita ;
+                                    $row[$i] ['Permanenza utente'] = '';
+                                    $row[$i] ['% completamento contenuto'] = '';
+
+                                    $corso_vecchio = $singleContent['id_unita'];
+                                    $totContenuti = 0;
+
+                                    $i++;
+
+                                }
+
+                                    $row[$i] ['Nome'] = '';
+                                    $row[$i] ['Corso'] = $singleContent['titolo_contenuto'];
+                                    $row[$i] ['Ore erogati da Hippocrates'] = round($singleContent['durata'], 2, PHP_ROUND_HALF_UP) . ' min';
+                                    $row[$i] ['Permanenza utente'] = $singleContent['stato'] == 1? round($singleContent['durata'], 2, PHP_ROUND_HALF_UP) . ' min' : 0;
+                                    $row[$i] ['% completamento contenuto'] = '';
+
+
+                                if($singleContent['stato'] == 1)
+                                    $totContenuti += $singleContent['durata_ore'];
+
+                            }
+
+
+                        }
+
+                        if ($totContenuti > 0) {
+
+                            $i++;
+
+                            $totContenuti = round($totContenuti, 2, PHP_ROUND_HALF_UP);
+                            $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita)*100 : 0;
+                            $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
+
+                            $row[$i] ['Nome'] = '';
+                            $row[$i] ['Corso'] = '% completamento corso';
+                            $row[$i] ['Ore erogati da Hippocrates'] = '';
+                            $row[$i] ['Permanenza utente'] = '';
+                            $row[$i] ['% completamento contenuto'] = $mediaOreCorso . '%';
+
+
+                            $oreUnita = 0;
+                            $totOreUnita = 0;
+                            $totContenuti = 0;
+                        }
+
+
+
+                    $vecchio_farmacia = $single_farmacia;
+
+
+                }
+
+                $totOreFormazione += $totOre ;
+
+                $vecchio_box = $single_box;
+               $i++;
+            }
+
+            setlocale(LC_TIME, "it_IT");
+            $nome_mese = strftime('%B', mktime(0, 0, 0, $mese));
+
+            $row_push[0]['Nome'] = $totOreFormazione . ' ore di formazione-mensile del mese ' . $nome_mese . ' ' . $anno;
+            $row_push[0] ['Corso'] = '';
+            $row_push[0] ['Ore erogati da Hippocrates'] = '' ;
+            $row_push[0] ['Permanenza utente'] = '';
+            $row_push[0] ['% completamento contenuto'] = '';
+
+
+            array_splice( $row, 0, 0, $row_push );
+
+
+            $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
+            $_export_csv = utilityHelper::esporta_csv_spout($row, $_csv_cols, 'corso_orario'. '.csv');
+
+            $this->_japp->close();
+
+
+
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+
+    }
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
