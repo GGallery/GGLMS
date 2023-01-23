@@ -400,18 +400,17 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
                 ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
                 ->join('inner', '#__gg_usergroup_map as ugm on ugm.idunita = u.id')
-                ->where('det.dominio = "' . $dominio . '" ');
+                ->where('det.dominio = "' . $dominio . '" ')
+                ->order('b.box')
+                ->setlimit('2');
 
             $count_query = $count_query->from('#__gg_unit as u')
                 ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
                 ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
                 ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
                 ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
-                ->where('det.dominio="' . $dominio . '" ');
-
-
-
-                $query = $query->order('b.box');
+                ->where('det.dominio="' . $dominio . '" ')
+                 ->setlimit('2');
 
 
 

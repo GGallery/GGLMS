@@ -960,14 +960,33 @@ class gglmsModelContenuto extends JModelLegacy
     }
 
 
+    public function get_farmacie_dipendenti($codice) {
+
+        if (is_null($codice)
+            || $codice == "")
+            throw new Exception("Nessun codice farmacia definito", E_USER_ERROR);
+
+        $db = JFactory::getDbo();
+
+        $query = "SELECT ms.id_gruppo, dip.user_id, ms.hh_store_code
+                    FROM #__gg_master_farmacie as ms
+                    join #__gg_farmacie_dipendenti as dip on ms.hh_store_code = dip.codice_esterno_cdc_3
+                    where ms.hh_store_code = " . $codice ."
+                    GROUP BY dip.user_id, ms.hh_store_code
+                    ORDER BY ms.id_gruppo ASC ";
+
+        $db->setQuery($query);
+
+        return $db->loadAssocList();
+
+    }
+
     public function getFarmacie() {
 
         $db = JFactory::getDbo();
 
-        $query = "SELECT ms.id_gruppo, ms.ragione_sociale as nome_farmacia, dip.user_id
+        $query = "SELECT ms.id_gruppo, ms.ragione_sociale as nome_farmacia, hh_store_code as codice
                     FROM #__gg_master_farmacie as ms
-                    join #__gg_farmacie_dipendenti as dip on ms.id_gruppo = dip.id_gruppo
-                    GROUP BY dip.user_id, ms.id_gruppo, ms.ragione_sociale 
                     ORDER BY ms.id_gruppo ASC ";
 
         $db->setQuery($query);
@@ -1043,13 +1062,20 @@ class gglmsModelContenuto extends JModelLegacy
 
             $ids = implode(",", array_map('reset', $id_gruppo));
 
+
 //            if (is_null($idArea)
 //                || $idArea == "")
 //                throw new Exception("Nessun id area definito", E_USER_ERROR);
 
+            $log_arr = array(
+                'user_id' => $user_id,
+                'ids_group' => $ids
+
+            );
+
             $db = JFactory::getDbo();
 
-            // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
+
             $query = "SELECT group_id 
                         FROM #__user_usergroup_map
                         where user_id = " . $user_id . "
@@ -1060,11 +1086,13 @@ class gglmsModelContenuto extends JModelLegacy
             $result = $db->loadAssocList();
 
 
+
+
            return $result;
 
         }
         catch(Exception $ex) {
-            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE 2023'. print_r($query,true) . print_r($log_arr,true), 0, 1, 0);
             return null;
         }
 
