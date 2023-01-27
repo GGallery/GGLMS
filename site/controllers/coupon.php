@@ -39,6 +39,9 @@ class gglmsControllerCoupon extends JControllerLegacy
         $coupon = JRequest::getVar('coupon');
         $model = $this->getModel('coupon');
         $dettagli_coupon = $model->check_Coupon($coupon);
+        $accesso_tutor_aziendale = 0;
+        $_config = new gglmsModelConfig();
+        $accesso_tutor_aziendale = $_config->getConfigValue('accesso_corsi_tutoraz');
 
 
         if (empty($dettagli_coupon)) {
@@ -50,7 +53,9 @@ class gglmsControllerCoupon extends JControllerLegacy
                 $results['valido'] = 0;
             } else {
 
-                if ($model->is_logged_user_tutor()) {
+
+                if (($model->is_logged_user_tutor()) && (int)$accesso_tutor_aziendale === 0) {
+
 
                     $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_TUTOR') . "</p>";
                     $results['valido'] = 0;

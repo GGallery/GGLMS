@@ -959,6 +959,19 @@
         />
 
         <field
+                name="accesso_corsi_tutoraz"
+                type="radio"
+                class="btn-group"
+                label="Attiva accesso ai corsi tutor aziendale"
+                labelclass="control-label"
+                description="OFF per bloccare, ON per sbloccare"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
                 name="genera_coupon_label_partita_iva_missing"
                 type="listafieldxlang"
                 class=""
