@@ -39,6 +39,8 @@ class gglmsViewGenera extends JViewLegacy
     public $genera_coupon_visualizza_stampa_tracciato = 1;
     public $genera_coupon_visualizza_tipo_coupon = 0;
     public $genera_coupon_tipi_coupon;
+    public $abilita_gruppi_custom = 0;
+    public $lista_corsi_custom;
 
 
     function display($tpl = null)
@@ -112,6 +114,14 @@ class gglmsViewGenera extends JViewLegacy
         $is_super_admin = $user_model->is_user_superadmin($user->id);
         if ($is_super_admin == 1) {
             $this->show_trial = 1;
+        }
+
+        $this->abilita_gruppi_custom = $_config->getConfigValue('abilita_gruppo_custom');
+
+
+        if((int)$this->abilita_gruppi_custom === 1){
+
+            $this->lista_corsi_custom = $couponCtrl->get_corsi_custom($this->lista_corsi, $user->id);
         }
 
         // Display the view

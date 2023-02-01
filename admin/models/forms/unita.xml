@@ -270,6 +270,19 @@
         >
         </field>
 
+
+        <field
+                name="id_gruppi_custom"
+                type="listagruppicustom"
+                class="inputbox"
+                label="Gruppo custom"
+                description="Seleziona un gruppo custom"
+                showon="is_corso:1"
+                multiple="multiple"
+                id="id_gruppi_custom"
+                default="1"
+        />
+
         <!-- Vendita INZIO -->
 
         <field

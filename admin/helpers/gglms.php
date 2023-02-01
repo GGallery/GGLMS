@@ -662,4 +662,76 @@ class gglmsHelper
         return $columns;
     }
 
+    public static function GetAbilitaGruppoCustom($col) {
+
+        $db = JFactory::getDBO();
+
+        try {
+            $query = $db->getQuery(true);
+            $query->select('config_value');
+            $query->from('#__gg_configs');
+            $query->where("config_key='" . $col . "'");
+
+            $db->setQuery($query);
+            $res = $db->loadResult();
+
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore GetAbilitaGruppoCustom");
+        }
+        return $res;
+
+    }
+
+    public static function GetIdGruppiCustom($item) {
+
+        $db = JFactory::getDBO();
+
+        $res = array();
+        if (!$item->id)
+            return $res;
+
+        try {
+            $query = $db->getQuery(true);
+            $query->select('id_gruppi_custom');
+            $query->from('#__gg_unit');
+            $query->where('id=' . $item->id);
+
+            $db->setQuery((string)$query);
+            //$res = $db->loadColumn();
+            $res = $db->loadResult();
+            $res = explode(",", $res);
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore GetIdGruppiCustom");
+        }
+        return $res;
+
+    }
+
+    public static function SetIdGruppiCustom($item, $request) {
+
+        try {
+
+            $db = JFactory::getDBO();
+
+            $unitid = $item['id'];
+            $list_gruppi = implode(",", $request);
+
+            $query = "UPDATE #__gg_unit 
+                      SET id_gruppi_custom = '" . $list_gruppi . "'
+                      WHERE id = '" . $unitid . "'";
+
+            $db->setQuery((string)$query);
+            $db->execute();
+
+        } catch (Exception $e) {
+            print_r($e);
+            die("Errore SetIdGruppiCustom");
+        }
+
+    }
+
 }

@@ -17,6 +17,15 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
     jQuery(document).ready(function ($) {
 
+        <?php if ($this->disabilita_mouse == 1) { ?>
+
+        document.addEventListener("contextmenu", function (e) {
+            alert('Funzione disabilitata');
+            e.preventDefault();
+        }, true);
+
+        <?php } ?>
+
         <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);' ?>
 
 

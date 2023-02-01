@@ -52,6 +52,11 @@ class gglmsTableunita extends JTable
 
         }
 
+        if (isset($array['id_gruppi_custom'])  && isset($_REQUEST['jform']['id_gruppi_custom'])) {
+            gglmsHelper::SetIdGruppiCustom($array, $_REQUEST['jform']['id_gruppi_custom']);
+
+        }
+
         if (isset($array['sc_a_gruppi'])
             && isset($_REQUEST['jform']['sc_a_gruppi'])) {
             gglmsHelper::SetScontoGruppi($array, $_REQUEST['jform']['sc_a_gruppi'], 'sc_a_gruppi');

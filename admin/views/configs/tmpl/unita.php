@@ -23,6 +23,10 @@
         <?php echo $this->form->renderField('titolo_unita_visibile'); ?>
     </div>
 
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('abilita_gruppo_custom'); ?>
+    </div>
+
 
     <div class="row-fluid">
         <?php echo $this->form->renderField('nomenclatura_moduli'); ?>

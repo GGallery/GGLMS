@@ -24,6 +24,12 @@
 
 </div>
 
+<div class="row-fluid">
+    <div>
+        <?php echo $this->form->renderField('disabilita_mouse'); ?>
+    </div>
+
+</div>
 
 <div class="row-fluid">
     <div>

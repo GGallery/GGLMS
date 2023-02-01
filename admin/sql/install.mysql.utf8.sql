@@ -139,6 +139,8 @@ INSERT INTO `#__gg_configs` VALUES ('70', 'xml_write_dir_dest', 'GGallery');
 INSERT INTO `#__gg_configs` VALUES ('71', 'visualizza_link_semplice', '0');
 INSERT INTO `#__gg_configs` VALUES ('72', 'attiva_blocco_video_focus', '0');
 INSERT INTO `#__gg_configs` VALUES ('73', 'accesso_corsi_tutoraz', '0');
+INSERT INTO `#__gg_configs` VALUES ('74', 'disabilita_mouse', '0');
+INSERT INTO `#__gg_configs` VALUES ('75', 'abilita_gruppo_custom', '0');
 -- ----------------------------
 -- Table structure for `#__gg_contenuti`
 -- ----------------------------
@@ -498,6 +500,7 @@ CREATE TABLE `#__gg_unit` (
   `sc_webinar_perc` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto percentuale per acquisto in modalita webinar',
   `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
   `prezzo_webinar_fisso` tinyint(1) NOT NULL DEFAULT 0,
+  `id_gruppi_custom` varchar(255) NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;

@@ -30,6 +30,7 @@ class gglmsViewContenuto extends JViewLegacy
     protected $att_scaricabile;
     protected $id_unita;
     public $attiva_blocco_video_focus = 0;
+    public $disabilita_mouse = 0;
     protected $currentUrl;
     public $isAzureStream = false;
     public $azureStreamUrl;
@@ -40,6 +41,8 @@ class gglmsViewContenuto extends JViewLegacy
 
         $app = JFactory::getApplication();
         $template = $app->getTemplate();
+        $_config = new gglmsModelConfig();
+        $this->disabilita_mouse = $_config->getConfigValue('disabilita_mouse');
 
 
         if($template == 'tz_meetup'){

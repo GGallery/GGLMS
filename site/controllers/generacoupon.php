@@ -377,5 +377,57 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     }
 
 
+    public function get_corsi_custom($lista_corsi, $user_id){
+
+
+
+        try{
+
+            $model_user = new gglmsModelUsers();
+            $tutor_az = $model_user->is_tutor_aziendale($user_id);
+
+            $user = new gglmsModelUsers();
+            $res = array();
+
+            if($tutor_az) {
+
+                $usergroups = $user->get_user_societa($user_id, true);
+
+               foreach ($lista_corsi as $key_corso => $corso) {
+
+                   $query = $this->_db->getQuery(true)
+                       ->select('distinct u.id as id_unita, ug.idgruppo as value, u.titolo as text, u.id_gruppi_custom')
+                       ->from('#__gg_unit as u')
+                       ->join('inner', '#__gg_usergroup_map as ug on u.id = ug.idunita')
+                       ->where("ug.idgruppo = '" . $corso->value . "'");
+
+                   $this->_db->setQuery($query);
+                   $result = $this->_db->loadAssoc();
+
+                   $ids_custom = explode(",", $result['id_gruppi_custom']);
+
+
+                   if(in_array($usergroups[0]->id, $ids_custom)){
+
+                       $i = 0;
+                       $res[$i]->value = $result['value'];
+                       $res[$i]->text = $result['text'];
+                       $i++;
+                   }
+               }
+
+               return $res;
+            }
+
+
+            return $res;
+
+       } catch (Exception $e) {
+            DEBUGG::error($e, 'getListaCorsiCustom');
+        }
+
+    }
+
+
 
 }

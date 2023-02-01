@@ -4,6 +4,9 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
+# 4.2.3
+* D: aggiunta della colonna id_gruppi_custom alla tabella gg_unit
+
 # 4.2.2
 * D: aggiunta della tabella gg_quote_voucher
 
