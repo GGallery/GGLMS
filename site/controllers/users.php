@@ -1832,4 +1832,131 @@ HTML;
         echo json_encode($_rows);
         $app->close();
     }
+
+    public function get_accesso_utenti() {
+
+        $app = JFactory::getApplication();
+        $_config = new gglmsModelConfig();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $_user = new gglmsModelUsers();
+
+            $_label_disabilita = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR46');
+            $_label_abilita = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR47');
+
+
+            $_current_user = JFactory::getUser();
+            $_user_id =  $_current_user->id;
+
+
+            $tutor_az = $_user->is_tutor_aziendale($_user_id);
+            $tutor_piattaforma = $_user->is_tutor_piattaforma($_user_id);
+
+            if($tutor_az || $tutor_piattaforma) {
+
+                if($tutor_az){
+                    $id_azienda = $_user->get_user_societa($_user_id, true);
+                    $ret_users  = $_user->get_utenti_dettagli_per_azienda($id_azienda[0]->id, $_offset, $_limit, $_search, $_sort, $_order);
+
+                }elseif ($tutor_piattaforma){
+
+                    $id_piattaforma = $_config->getConfigValue('id_gruppo_piattaforme');
+                    $ret_users  = $_user->get_dettagli_user_piattaforma($id_piattaforma, $_offset, $_limit, $_search, $_sort, $_order);
+
+                }
+
+
+                if (isset($ret_users['rows']) && !is_null($ret_users)) {
+
+                    $_total_rows = $ret_users['total_rows'];
+
+                    foreach ($ret_users['rows'] as $_key_user => $user) {
+
+                        foreach ($user as $key => $value) {
+
+
+                            if ($key == "stato_user") {
+
+                            $_azione_btn = "";
+                            if ($value === '0')
+                                $_azione_btn = '<a href="javascript:" class="btn btn-danger btn-sm " style="min-height: 50px;" onclick="DisabilitaAccessoUtente(' . $user['user_id'] . ', ' . $user['stato_user'] . ')">' . $_label_disabilita . '</a>';
+                            else if ($value === '1')
+                                $_azione_btn = '<a href="javascript:" class="btn btn-success btn-sm " style="min-height: 50px;" onclick="AbilitaAccessoUtente(' . $user['user_id'] . ', ' . $user['stato_user'] . ')">' . $_label_abilita . '</a>';
+//
+
+                            $_ret[$_key_user]['tipo_azione'] = trim($_azione_btn);
+                            }
+
+                            $_ret[$_key_user][$key] = $value;
+                        }
+
+
+                    }
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+    }
+
+    public function disabilita_accesso_utente() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $user_id = $params["user_id"];
+            $stato_user = $params["stato_user"];
+
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", E_USER_ERROR);
+
+            if (!isset($stato_user)
+                || $stato_user == "")
+                throw new Exception("Missing stato user", E_USER_ERROR);
+
+
+            $_user = new gglmsModelUsers();
+            $_result = $_user->update_accesso_utente($user_id, $stato_user);
+
+            if (!is_array($_result))
+                throw new Exception("Update query failed", 1);
+
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
 }

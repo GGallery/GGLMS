@@ -1853,6 +1853,186 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_utenti_dettagli_per_azienda($id_azienda, $_offset, $_limit, $_search, $_sort, $_order) {
+
+        try {
+
+            $_ret = [];
+
+
+            $query = $this->_db->getQuery(true)
+                ->select('u.id AS user_id, u.username, c.cb_nome as nome, c.cb_cognome as cognome, u.email, u.block as stato_user')
+                ->from('#__users as u')
+                ->join('inner', '#__user_usergroup_map as ugm ON u.id = ugm.user_id')
+                ->join('inner', '#__comprofiler as c on ugm.user_id = c.user_id')
+                ->where('ugm.group_id =' . $id_azienda );
+
+
+            $query_count = $this->_db->getQuery(true)
+                ->select('COUNT(u.id) AS total_rows')
+                ->from('#__users AS u')
+                ->join('inner', '#__user_usergroup_map ugm ON u.id = ugm.user_id')
+                ->join('inner', '#__comprofiler as c on u.id = c.user_id')
+                ->where('ugm.group_id =' . $id_azienda );
+
+            // ordinamento per colonna - di default per id utente
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('u.id DESC');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $results = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($query_count);
+            $result_count = $this->_db->loadResult();
+
+
+            $_ret['rows'] = $results;
+            $_ret['total_rows'] = $result_count;
+
+            return (is_array($_ret['rows']) && count($_ret['rows'])) ?  $_ret : null;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+
+    public function update_accesso_utente($user_id, $stato_user) {
+
+        try {
+
+            $_ret = array();
+
+            if((int)$stato_user === 0) {
+
+                $query = $this->_db->getQuery(true)
+                    ->update('#__users')
+                    ->set('block = 1')
+                    ->where('id = ' . $user_id);
+                $this->_db->setQuery($query);
+               $result =  $this->_db->execute();
+
+
+            }else if((int)$stato_user === 1){
+
+                $query = $this->_db->getQuery(true)
+                    ->update('#__users')
+                    ->set('block = 0')
+                    ->where('id = ' . $user_id);
+                $this->_db->setQuery($query);
+                $result =  $this->_db->execute();
+            }
+
+
+            if (!$result) throw new Exception("update accesso utente ko -> " . $query, E_USER_ERROR);
+
+            $_ret['success'] = 'tuttook';
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+    public function get_dettagli_user_piattaforma($id_piattaforma, $_offset, $_limit, $_search, $_sort, $_order) {
+
+        try {
+
+            $ids_aziende = array();
+            $_ret = array();
+
+            // tutte le azienda per piattaforma
+            $query_az = $this->_db->getQuery(true)
+                ->select('id AS id_azienda, title AS nome_azienda')
+                ->from('#__usergroups')
+                ->where('parent_id = ' . $this->_db->quote($id_piattaforma));
+            $this->_db->setQuery($query_az);
+            $ug_piattaforma = $this->_db->loadAssocList();
+
+
+            // tutte le azienda per piattaforma
+            $query_az = $this->_db->getQuery(true)
+                ->select('id AS id_azienda')
+                ->from('#__usergroups')
+                ->where('parent_id = ' . $this->_db->quote($ug_piattaforma[0]['id_azienda']));
+            $this->_db->setQuery($query_az);
+            $ug_azienda = $this->_db->loadAssocList();
+
+
+
+            if (count($ug_azienda) == 0)
+                throw new Exception("Nessun gruppo aziende trovato per id_piattaforma: " . $id_piattaforma, E_USER_ERROR);
+
+            foreach ($ug_azienda as $azienda_key => $azienda) {
+
+                if (in_array($azienda['id_azienda'], $ids_aziende))
+                    continue;
+
+                $ids_aziende[] = $azienda['id_azienda'];
+
+            }
+
+
+            $query_count = $this->_db->getQuery(true)
+                ->select('u.id AS user_id, u.username, c.cb_nome as nome, c.cb_cognome as cognome, u.email, u.block as stato_user')
+                ->from('#__users as u')
+                ->join('inner', '#__user_usergroup_map as ugm ON u.id = ugm.user_id')
+                ->join('inner', '#__comprofiler as c on ugm.user_id = c.user_id')
+                ->where('ugm.group_id IN (' . implode(",", $ids_aziende) . ')')
+                ->where('ugm.user_id > 0');
+            $this->_db->setQuery($query_count);
+
+            // tutti gli utenti per azienda
+            $query_us =  $this->_db->getQuery(true)
+                ->select('u.id AS user_id, u.username, c.cb_nome as nome, c.cb_cognome as cognome, u.email, u.block as stato_user')
+                ->from('#__users as u')
+                ->join('inner', '#__user_usergroup_map as ugm ON u.id = ugm.user_id')
+                ->join('inner', '#__comprofiler as c on ugm.user_id = c.user_id')
+                ->where('ugm.group_id IN (' . implode(",", $ids_aziende) . ')')
+                ->where('ugm.user_id > 0');
+            $this->_db->setQuery($query_us);
+
+
+
+            // ordinamento per colonna - di default per id utente
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query_us->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query_us->order('u.id DESC');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $results = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($query_count);
+            $result_count = $this->_db->loadResult();
+
+
+            $_ret['rows'] = $results;
+            $_ret['total_rows'] = $result_count;
+
+            return (is_array($_ret['rows']) && count($_ret['rows'])) ?  $_ret : null;
+        }
+        catch (Exception $e) {
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
+
 
 }
 

@@ -17,6 +17,7 @@
 				<option value="gestione_anagrafica_centri_sinpe">SINPE - Gestione anagrafica centri</option>
 				<option value="gestione_quote_asand">ASAND - Gestione rinnovo quote</option>
 				<option value="rinnovo_quota_asand">ASAND - Form rinnovo quote</option>
+				<option value="gestione_accesso_utenti_aic">AIC - Gestione accesso utenti</option>
 			</field>
 
 		</fieldset>

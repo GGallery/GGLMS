@@ -235,6 +235,8 @@ class gglmsViewdettagliutente extends JViewLegacy
                 </script>
 HTML;
 
+            }else if ($layout == 'gestione_accesso_utenti_aic') {
+                // nothing to do at this moment..
             }
 
         }

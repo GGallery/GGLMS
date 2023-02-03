@@ -386,12 +386,11 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             $model_user = new gglmsModelUsers();
             $tutor_az = $model_user->is_tutor_aziendale($user_id);
 
-            $user = new gglmsModelUsers();
             $res = array();
 
             if($tutor_az) {
 
-                $usergroups = $user->get_user_societa($user_id, true);
+                $usergroups = $model_user->get_user_societa($user_id, true);
 
                foreach ($lista_corsi as $key_corso => $corso) {
 
