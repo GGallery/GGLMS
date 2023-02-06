@@ -80,8 +80,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
         $this->_filterparam->dominio = JRequest::getVar('dominio');
         $this->_filterparam->gruppo_id_piattaforma = JRequest::getVar('gruppo_id_piattaforma');
-        $this->_filterparam->mese =  JRequest::getVar('mese') ;
-        $this->_filterparam->anno =  JRequest::getVar('anno'); ;
+        $this->_filterparam->dal =  JRequest::getVar('dal') ;
+        $this->_filterparam->al =  JRequest::getVar('al'); ;
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
@@ -4495,6 +4495,260 @@ HTML;
                 $vecchio_box = $single_box;
                $i++;
             }
+
+            setlocale(LC_TIME, "it_IT");
+            $nome_mese = strftime('%B', mktime(0, 0, 0, $mese));
+
+            $row_push[0]['Nome'] = $totOreFormazione . ' ore di formazione-mensile del mese ' . $nome_mese . ' ' . $anno;
+            $row_push[0] ['Corso'] = '';
+            $row_push[0] ['Ore erogati da Hippocrates'] = '' ;
+            $row_push[0] ['Permanenza utente'] = '';
+            $row_push[0] ['% completamento contenuto'] = '';
+
+
+            array_splice( $row, 0, 0, $row_push );
+
+
+            $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
+            $check_xml = utilityHelper::esporta_csv_spout($row, $_csv_cols, JPATH_ROOT . '/tmp/report_orario_2022.csv');
+//            $file_name = basename('corso_1.csv');
+//            file_put_contents( $file_name, file_get_contents('corso_1.csv'));
+
+//            $this->_japp->close();
+
+//            file_put_contents("corso_orario.csv", fopen(JPATH_ROOT . '/tmp/corso_orario.csv', 'r'));
+
+
+            // carico file su ftp remoto
+//            $upload = UtilityHelper::put_xml_remote( 'corso_orario' . '.csv', true, __FUNCTION__);
+//            if (!$upload)
+//                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
+//
+//            return 1;
+
+
+//            if (!$check_xml)
+//                throw new Exception("Errore di scrittura del file xml - id_piattaforma: " . $id_piattaforma
+//                    . " - data ", E_USER_ERROR);
+//
+//            // carico file su ftp remoto
+//            $upload = UtilityHelper::put_xml_remote('GGCorsiCompletati' . $_dt_ref_ext . '.xml', true, __FUNCTION__);
+//            if (!$upload)
+//                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
+//
+//            return 1;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return 0;
+        }
+
+
+    }
+
+
+    public function get_report_per_farmacie() {
+
+        $_ret = array();
+
+        try {
+
+            $model_catalogo = new gglmsModelCatalogo();
+            $model_contenuto = new gglmsModelContenuto();
+            $model_users = new gglmsModelUsers();
+            $_tmp = array();
+            $colonne = [];
+            $filename = "";
+            setlocale(LC_TIME, "");
+
+            $genera_model = new gglmsModelGeneraCoupon();
+
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+
+            $dominio = $piattaforma_default['dominio'];
+
+//            if (!isset($this->_filterparam->dal)
+//                || $this->_filterparam->dal == "")
+//                throw new Exception("Impossibile continuare, data non specificata", E_USER_ERROR);
+//
+//            if (!isset($this->_filterparam->al)
+//                || $this->_filterparam->al == "")
+//                throw new Exception("Impossibile continuare, data non specificata", E_USER_ERROR);
+
+
+            $data_dal = $this->_filterparam->dal ;
+            $data_al = $this->_filterparam->al ;
+
+
+
+//            $boxArr = $model_catalogo->get_box_corsi($dominio) ;
+
+//            $boxArr = $model_catalogo->get_box_categorie_corso(null,null,true);
+
+//            var_dump($boxArr);die();
+
+//            $box = $boxArr['rows'];
+
+            $totOrePerGruppo = 0;
+            $i = 0;
+            $vecchio_box = array();
+            $ids_unita = [];
+            $ids_group  = [];
+            $totOreFormazione = 0;
+            $row = array();
+
+//            foreach ($boxArr as $key_box => $single_box) {
+//
+////                var_dump($row);
+////
+////                if($key_box === 2){
+////                    die();
+////                }
+//
+//
+//
+//                if(($single_box['id'] != $vecchio_box['id']) || ($key_box == 0)) {
+//
+//                    $totOre = $model_contenuto->getOreBox($single_box['id']);
+//
+//                    $ids_unita = $model_contenuto->get_unit_box($single_box['id']);
+//
+//                    $ids_group = $model_contenuto->get_usergroup_box($single_box['id']);
+//
+//                    if (count($ids_group) == 0 || is_null($ids_group) || !is_array($ids_group))
+//                        continue;
+//
+//                    $row[$i] ['Nome'] = $single_box['description'];
+//                    $row[$i] ['Corso'] = '';
+//                    $row[$i] ['Ore erogati da Hippocrates'] = $totOre . ' ore';
+//                    $row[$i] ['Permanenza utente'] = '';
+//                    $row[$i] ['% completamento contenuto'] = '';
+//
+//
+//
+//                }
+
+
+                $farmacieArr = $model_contenuto->getFarmacie();
+
+//                var_dump($farmacieArr);die();
+
+
+                $vecchio_farmacia = array();
+                $totOreUnita = 0;
+                $oreUnita = 0;
+                $totContenuti = 0;
+                $mediaOreCorso = 0;
+
+
+
+                foreach($farmacieArr as $key_farmacia => $single_farmacia){
+
+
+                    $userArr = $model_contenuto->get_farmacie_dipendenti($single_farmacia['codice']);
+
+
+                    foreach ($userArr as $key_user => $single_user) {
+
+                        $group_unita = $model_contenuto->getUserUsergroup($single_user['user_id'], $ids_group);
+
+                        if (count($group_unita) == 0 || is_null($group_unita) || !is_array($group_unita))
+                            continue;
+
+                        $controlloUtente = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $ids_unita, $mese, $anno);
+
+
+
+                        if (count($controlloUtente) === 0 ) {
+                            continue;
+                        }
+
+                        $username = $model_users->get_username($single_user['user_id']);
+
+
+                         $row[$i] ['Farmacia'] = $single_farmacia['nome_farmacia'];
+                         $row[$i] ['Cognome'] = $username->cognome;
+                         $row[$i] ['Nome'] = $username->nome;
+                         $row[$i] ['Titolo corso'] = '';
+                         $row[$i] ['Durata prevista (minuti)'] = '';
+                         $row[$i] ['Durata visualizzazione (minuti)'] = '';
+                         $row[$i] ['% Di frequenza'] = '';
+                         $row[$i] ['Mansione'] = '';
+
+
+
+                        $corso_vecchio = 0;
+
+
+                        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $ids_unita, $mese, $anno);
+
+                        // calcolo soltanto se ci sono riferimenti
+                        if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
+
+                            $i++;
+
+
+                            $username = $model_users->get_username($single_user['user_id']);
+
+
+                            if ($totContenuti > 0) {
+
+                                $totContenuti = round($totContenuti, 2, PHP_ROUND_HALF_UP);
+                                $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
+                                $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
+
+                                $row[$i] ['Nome'] = '';
+                                $row[$i] ['Corso'] = '% completamento corso';
+                                $row[$i] ['Ore erogati da Hippocrates'] = '';
+                                $row[$i] ['Permanenza utente'] = '';
+                                $row[$i] ['% completamento contenuto'] = $mediaOreCorso . '%';
+
+                                $i++;
+                                $oreUnita = 0;
+                                $totOreUnita = 0;
+                                $totContenuti = 0;
+                            }
+
+                            $oreUnita = $model_contenuto->getOreCorso($contenutiPerUtenteCorso[0]['id_unita']);
+                            $totOreUnita = ($oreUnita / 3600);
+                            $totOreUnita = round($totOreUnita, 2, PHP_ROUND_HALF_UP);
+
+
+
+
+                            $row[$i] ['Nome'] = $username->nome_utente;
+                            $row[$i] ['Corso'] = strtoupper($contenutiPerUtenteCorso[0]['titolo_unita']);
+                            $row[$i] ['Ore erogati da Hippocrates'] = $totOreUnita;
+                            $row[$i] ['Permanenza utente'] = '';
+                            $row[$i] ['% completamento contenuto'] = '';
+
+
+
+
+
+
+
+                        }
+
+
+
+
+                        $vecchio_farmacia = $single_farmacia;
+                    }
+
+
+                }
+
+//                $totOreFormazione += $totOre ;
+//
+//                $vecchio_box = $single_box;
+//                $i++;
+//            }
 
             setlocale(LC_TIME, "it_IT");
             $nome_mese = strftime('%B', mktime(0, 0, 0, $mese));
