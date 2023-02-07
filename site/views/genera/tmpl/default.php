@@ -84,11 +84,17 @@ echo "<h1>" . JText::_('COM_GGLMS_GENERA_COUPON_TITLE') ."</h1>";
         <div class="col-sm-9">
             <select required disabled required placeholder="<?php echo  JText::_('COM_GGLMS_GLOBAL_CORSO') ?>" type="text" class="form-control cpn_opt"
                     id="gruppo_corsi" name="gruppo_corsi">
-                <?php if(count($this->lista_corsi_custom) >0 && is_array($this->lista_corsi_custom)){  ?>
+                <?php if(count($this->lista_corsi_custom) >0 && (int)$this->abilita_gruppi_custom === 1){ ?>
                 <?php foreach ($this->lista_corsi_custom as $c) { ?>
                     <option value="<?php echo $c->value; ?>">
                         <?php echo $c->text ?>
                     </option>
+                <?php } ?>
+                <?php }elseif(count($this->lista_corsi_not_custom) >0 && (int)$this->abilita_gruppi_custom === 1){ ?>
+                <?php foreach ($this->lista_corsi_not_custom as $c) { ?>
+                <option value="<?php echo $c->value; ?>">
+                    <?php echo $c->text ?>
+                </option>
                 <?php } ?>
                 <?php }else{ ?>
                 <?php foreach ($this->lista_corsi as $c) { ?>

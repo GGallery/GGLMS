@@ -41,6 +41,7 @@ class gglmsViewGenera extends JViewLegacy
     public $genera_coupon_tipi_coupon;
     public $abilita_gruppi_custom = 0;
     public $lista_corsi_custom;
+    public $lista_corsi_not_custom;
 
 
     function display($tpl = null)
@@ -119,9 +120,16 @@ class gglmsViewGenera extends JViewLegacy
         $this->abilita_gruppi_custom = $_config->getConfigValue('abilita_gruppo_custom');
 
 
-        if((int)$this->abilita_gruppi_custom === 1){
+
+        if((int)$this->abilita_gruppi_custom === 1 && $user_model->is_tutor_aziendale($user->id)){
 
             $this->lista_corsi_custom = $couponCtrl->get_corsi_custom($this->lista_corsi, $user->id);
+
+            if((count($this->lista_corsi_custom) === 0) || !is_array($this->lista_corsi_custom)){
+
+                $this->lista_corsi_not_custom = $couponCtrl->get_corsi_not_custom($this->lista_corsi);
+
+            }
         }
 
         // Display the view
