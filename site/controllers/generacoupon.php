@@ -333,8 +333,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             // applico il filtro per il tutor aziendale, per il momento limitato soltanto allo scarica report
             $tutor_az = $model_user->is_tutor_aziendale($user_id);
-            if ($tutor_az
-                && !$ret_json) {
+            if ($tutor_az) {
                 $lista_aziende = $model_user->get_user_societa($user_id, true);
 
                 // applico filtro soltanto se ci sono società associate al tutor aziendale
@@ -385,12 +384,15 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             $model_user = new gglmsModelUsers();
             $tutor_az = $model_user->is_tutor_aziendale($user_id);
+            $tutor_group = false;
 
             $res = array();
 
             if($tutor_az) {
 
                 $usergroups = $model_user->get_user_societa($user_id, true);
+                $i = 0;
+                $result = array();
 
                foreach ($lista_corsi as $key_corso => $corso) {
 
@@ -406,20 +408,28 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
                    $ids_custom = explode(",", $result['id_gruppi_custom']);
 
 
-                   if(in_array($usergroups[0]->id, $ids_custom)){
+                   if (in_array($usergroups[0]->id, $ids_custom)) {
 
-                       $i = 0;
+
                        $res[$i]->value = $result['value'];
                        $res[$i]->text = $result['text'];
                        $i++;
+                       $result = array();
+                       $tutor_group = true;
+                   }
+
+                   if (isset($result) && count($result) > 0) {
+
+                       $res[$i]->value = $result['value'];
+                       $res[$i]->text = $result['text'];
+                       $i++;
+                       $result = array();
                    }
                }
 
-               return $res;
             }
 
-
-            return $res;
+          return $tutor_group ? $res  : null;
 
        } catch (Exception $e) {
             DEBUGG::error($e, 'getListaCorsiCustom');

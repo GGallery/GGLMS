@@ -125,7 +125,7 @@ class gglmsViewGenera extends JViewLegacy
 
             $this->lista_corsi_custom = $couponCtrl->get_corsi_custom($this->lista_corsi, $user->id);
 
-            if((count($this->lista_corsi_custom) === 0) || !is_array($this->lista_corsi_custom)){
+            if(is_null($this->lista_corsi_custom)){
 
                 $this->lista_corsi_not_custom = $couponCtrl->get_corsi_not_custom($this->lista_corsi);
 
