@@ -1720,7 +1720,7 @@ class gglmsModelUsers extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select("concat (cb_nome, ' ', cb_cognome) AS nome_utente")
+                ->select("cb_nome as nome, cb_cognome as cognome, cb_descrizionequalifica as mansione")
                 ->from("#__comprofiler")
                 ->where("user_id = " . $user_id);
 

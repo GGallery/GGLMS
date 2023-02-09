@@ -4585,15 +4585,6 @@ HTML;
             $data_al = $this->_filterparam->al ;
 
 
-
-//            $boxArr = $model_catalogo->get_box_corsi($dominio) ;
-
-//            $boxArr = $model_catalogo->get_box_categorie_corso(null,null,true);
-
-//            var_dump($boxArr);die();
-
-//            $box = $boxArr['rows'];
-
             $totOrePerGruppo = 0;
             $i = 0;
             $vecchio_box = array();
@@ -4601,37 +4592,6 @@ HTML;
             $ids_group  = [];
             $totOreFormazione = 0;
             $row = array();
-
-//            foreach ($boxArr as $key_box => $single_box) {
-//
-////                var_dump($row);
-////
-////                if($key_box === 2){
-////                    die();
-////                }
-//
-//
-//
-//                if(($single_box['id'] != $vecchio_box['id']) || ($key_box == 0)) {
-//
-//                    $totOre = $model_contenuto->getOreBox($single_box['id']);
-//
-//                    $ids_unita = $model_contenuto->get_unit_box($single_box['id']);
-//
-//                    $ids_group = $model_contenuto->get_usergroup_box($single_box['id']);
-//
-//                    if (count($ids_group) == 0 || is_null($ids_group) || !is_array($ids_group))
-//                        continue;
-//
-//                    $row[$i] ['Nome'] = $single_box['description'];
-//                    $row[$i] ['Corso'] = '';
-//                    $row[$i] ['Ore erogati da Hippocrates'] = $totOre . ' ore';
-//                    $row[$i] ['Permanenza utente'] = '';
-//                    $row[$i] ['% completamento contenuto'] = '';
-//
-//
-//
-//                }
 
 
                 $farmacieArr = $model_contenuto->getFarmacie();
@@ -4655,142 +4615,77 @@ HTML;
 
                     foreach ($userArr as $key_user => $single_user) {
 
-                        $group_unita = $model_contenuto->getUserUsergroup($single_user['user_id'], $ids_group);
+                        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $data_dal, $data_al);
 
-                        if (count($group_unita) == 0 || is_null($group_unita) || !is_array($group_unita))
-                            continue;
-
-                        $controlloUtente = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $ids_unita, $mese, $anno);
-
-
-
-                        if (count($controlloUtente) === 0 ) {
+                        if (count($contenutiPerUtenteCorso) === 0 ) {
                             continue;
                         }
 
-                        $username = $model_users->get_username($single_user['user_id']);
-
-
-                         $row[$i] ['Farmacia'] = $single_farmacia['nome_farmacia'];
-                         $row[$i] ['Cognome'] = $username->cognome;
-                         $row[$i] ['Nome'] = $username->nome;
-                         $row[$i] ['Titolo corso'] = '';
-                         $row[$i] ['Durata prevista (minuti)'] = '';
-                         $row[$i] ['Durata visualizzazione (minuti)'] = '';
-                         $row[$i] ['% Di frequenza'] = '';
-                         $row[$i] ['Mansione'] = '';
-
-
-
-                        $corso_vecchio = 0;
-
-
-                        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $ids_unita, $mese, $anno);
 
                         // calcolo soltanto se ci sono riferimenti
                         if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
 
-                            $i++;
-
 
                             $username = $model_users->get_username($single_user['user_id']);
 
-
-                            if ($totContenuti > 0) {
-
-                                $totContenuti = round($totContenuti, 2, PHP_ROUND_HALF_UP);
-                                $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
-                                $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
-
-                                $row[$i] ['Nome'] = '';
-                                $row[$i] ['Corso'] = '% completamento corso';
-                                $row[$i] ['Ore erogati da Hippocrates'] = '';
-                                $row[$i] ['Permanenza utente'] = '';
-                                $row[$i] ['% completamento contenuto'] = $mediaOreCorso . '%';
-
-                                $i++;
-                                $oreUnita = 0;
-                                $totOreUnita = 0;
-                                $totContenuti = 0;
-                            }
-
-                            $oreUnita = $model_contenuto->getOreCorso($contenutiPerUtenteCorso[0]['id_unita']);
-                            $totOreUnita = ($oreUnita / 3600);
-                            $totOreUnita = round($totOreUnita, 2, PHP_ROUND_HALF_UP);
+                          foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
 
 
+                                  $totOreUnita = 0;
+                                  $totContenuti = 0;
+                                  $mediaOreCorso = 0;
+
+                                 $totContenuti = $model_contenuto->getCorsoPerUtente($single_user['user_id'], $singleContent['id_unita']);
+
+                                 if (is_null($totContenuti) || !isset($totContenuti)) {
+
+                                     continue;
+                                 }
+
+                                 $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita']);
 
 
-                            $row[$i] ['Nome'] = $username->nome_utente;
-                            $row[$i] ['Corso'] = strtoupper($contenutiPerUtenteCorso[0]['titolo_unita']);
-                            $row[$i] ['Ore erogati da Hippocrates'] = $totOreUnita;
-                            $row[$i] ['Permanenza utente'] = '';
-                            $row[$i] ['% completamento contenuto'] = '';
+                                 if ($totContenuti > 0 ) {
 
+                                     $totContenuti = $totContenuti / 60;
+                                     $totOreUnita = $totOreUnita / 60;
+                                     $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
+                                     $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
 
+                                 }
 
+                                 $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
+                                 $row[$i] ['COGNOME'] = $username->cognome;
+                                 $row[$i] ['NOME'] = $username->nome;
+                                 $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
+                                 $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
+                                 $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
+                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso;
+                                 $row[$i] ['MANSIONE'] = $username->mansione;
 
+                                 $i++;
 
+                          }
 
 
                         }
 
 
-
-
-                        $vecchio_farmacia = $single_farmacia;
                     }
+
 
 
                 }
 
-//                $totOreFormazione += $totOre ;
-//
-//                $vecchio_box = $single_box;
-//                $i++;
-//            }
-
-            setlocale(LC_TIME, "it_IT");
-            $nome_mese = strftime('%B', mktime(0, 0, 0, $mese));
-
-            $row_push[0]['Nome'] = $totOreFormazione . ' ore di formazione-mensile del mese ' . $nome_mese . ' ' . $anno;
-            $row_push[0] ['Corso'] = '';
-            $row_push[0] ['Ore erogati da Hippocrates'] = '' ;
-            $row_push[0] ['Permanenza utente'] = '';
-            $row_push[0] ['% completamento contenuto'] = '';
 
 
-            array_splice( $row, 0, 0, $row_push );
+            $oreCorsi = $model_contenuto->getOreCorsiPerPeriodo($data_dal, $data_al);
 
+            $prima_riga = $oreCorsi . ' ore erogate nel periodo dal ' . $data_dal . ' al ' . $data_al;
 
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
-            $check_xml = utilityHelper::esporta_csv_spout($row, $_csv_cols, JPATH_ROOT . '/tmp/report_orario_2022.csv');
-//            $file_name = basename('corso_1.csv');
-//            file_put_contents( $file_name, file_get_contents('corso_1.csv'));
+            $check_xml = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, JPATH_ROOT . '/tmp/report_dal_'. $data_dal.'_al_'. $data_al .'.csv' , $prima_riga);
 
-//            $this->_japp->close();
-
-//            file_put_contents("corso_orario.csv", fopen(JPATH_ROOT . '/tmp/corso_orario.csv', 'r'));
-
-
-            // carico file su ftp remoto
-//            $upload = UtilityHelper::put_xml_remote( 'corso_orario' . '.csv', true, __FUNCTION__);
-//            if (!$upload)
-//                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
-//
-//            return 1;
-
-
-//            if (!$check_xml)
-//                throw new Exception("Errore di scrittura del file xml - id_piattaforma: " . $id_piattaforma
-//                    . " - data ", E_USER_ERROR);
-//
-//            // carico file su ftp remoto
-//            $upload = UtilityHelper::put_xml_remote('GGCorsiCompletati' . $_dt_ref_ext . '.xml', true, __FUNCTION__);
-//            if (!$upload)
-//                throw new Exception("Report non caricato su server remoto", E_USER_ERROR);
-//
-//            return 1;
 
         }
         catch(Exception $e) {
