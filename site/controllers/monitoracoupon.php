@@ -67,6 +67,9 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
 
+            $this->_db->setQuery('SET SQL_BIG_SELECTS=1');
+            $this->_db->execute();
+
             // count totale senza limit per ottenere il numero di righe totali
             $total_count_query = $this->_db->getQuery(true)
                 ->select('count(*)')
@@ -80,7 +83,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             if ($count > 0) {
 
                 $query = $this->_db->getQuery(true)
-                    ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome), cm.id) as user , u.titolo as corso, case when DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() then 1 else 0 END as scaduto")
+                    ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome), cm.id) as user , u.titolo as corso, case when DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() then 1 else 0 END as scaduto, v.stato")
                     ->from('#__gg_coupon AS c');
 
 
@@ -108,7 +111,18 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             if (isset($results)) {
                 foreach ($results as $_key_coupon => $_coupon) {
 
-                    $color_cell = ($_coupon['scaduto'] == 1) ? 'color:red;' : '';
+//                    $color_cell = ($_coupon['scaduto'] == 1 ) ? 'color:red;' : '';
+                    if($_coupon['scaduto'] == 1 && $_coupon['stato'] == 1){
+
+                        $color_cell = 'color:green;';
+                    }elseif($_coupon['scaduto'] == 1 && $_coupon['stato'] == 0){
+
+                        $color_cell = 'color:red;';
+                    }else{
+
+                        $color_cell = '';
+                    }
+
                     foreach ($_coupon as $key => $value) {
 
 
@@ -143,6 +157,8 @@ HTML;
         // info corso
         $query = $query->join('inner', '#__gg_usergroup_map AS gm ON c.id_gruppi = gm.idgruppo');
         $query = $query->join('inner', '#__gg_unit AS u ON u.id = gm.idunita');
+        $query = $query->join('inner', '#__gg_report_users AS ru ON ru.id_user = c.id_utente');
+        $query = $query->join('inner', '#__gg_view_stato_user_corso AS v ON v.id_corso = gm.idunita and v.id_anagrafica = ru.id');
 
         if ($id_gruppo_corso != -1) {
             $query = $query->where('c.id_gruppi = ' . $id_gruppo_corso);
