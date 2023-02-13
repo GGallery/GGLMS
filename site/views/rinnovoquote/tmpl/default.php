@@ -74,6 +74,13 @@ defined('_JEXEC') or die;
             return event.value.length > 0;
         }
 
+        // pagamento con bonifico conferma
+        jQuery('#btn-bonifico').on('click', function (e) {
+            var pHref = jQuery(this).attr("data-ref");
+            window.location.href = pHref+ '&totale_sinpe=' + jQuery('#amount').val()
+                + '&totale_espen=' + jQuery('#amount_espen').val();
+        });
+
         paypal.Buttons({
             style: {
                 color: 'gold',

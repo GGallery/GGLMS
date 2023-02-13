@@ -31,6 +31,9 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
     protected $payment_extra_form;
     protected $in_error;
     protected $client_id;
+    protected $action;
+    protected $call_result;
+    protected $last_quota;
 
     function display($tpl = null)
     {
@@ -67,9 +70,11 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
 
             $_current_user = JFactory::getUser();
             $this->user_id = $_current_user->id;
+            $this->call_result = "";
 
             // pp client_id
             $_config = new gglmsModelConfig();
+            $_user_quote = new gglmsModelUsers();
             $this->client_id = $_config->getConfigValue('paypal_client_id');
             if (is_null($this->client_id)
                 || $this->client_id == "")
@@ -78,6 +83,13 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             // dettagli utente
             $_user = new gglmsModelUsers();
             $_user_details = $_user->get_user_details_cb($this->user_id);
+
+
+            $this->action = JRequest::getVar('action');
+            $pp = JRequest::getVar('pp');
+
+            // chi o cosa mi sta chiamando
+
 
             if (!is_array($_user_details))
                 throw new Exception($_user_details, 1);
@@ -120,6 +132,41 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 $_extra_pay = utilityHelper::get_params_from_plugin();
                 $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
             //}
+
+            if ($this->action == 'bb_buy_request') { // l'utente vuole pagare con bonifico
+
+                // mi servono informazioni sull'unita
+
+                $totale_sinpe = JRequest::getVar('totale_sinpe');
+                $totale_espen = JRequest::getVar('totale_espen');
+
+                $_user_details = $_user_quote->get_user_details_cb($this->user_id);
+                if (!is_array($_user_details))
+                    throw new Exception($_user_details, E_USER_ERROR);
+
+                $_insert_quote = $_user_quote->insert_user_quote_anno(
+                    $this->user_id,
+                    $dt->format('Y'),
+                    $dt->format('Y-m-d H:i:s'),
+                    "",
+                    $totale_sinpe,
+                    $totale_espen,
+                    $_user_details,
+                    false);
+
+                if (!is_array($_insert_quote))
+                    $this->call_result = $_insert_quote;
+                else
+                    $this->call_result = "tuttook";
+
+                // nessuna delle opzioni richieste elaborata
+                if ($this->call_result == "")
+                    throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
+
+                $this->result_view = outputHelper::get_result_view($pp, $this->call_result, null, $this->last_quota);
+            }
+
+
 
         } catch (Exception $e){
             $this->payment_form = outputHelper::get_payment_form_error($e->getMessage());

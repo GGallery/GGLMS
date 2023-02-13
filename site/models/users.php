@@ -1092,11 +1092,26 @@ class gglmsModelUsers extends JModelLegacy
                                            $totale_sinpe,
                                            $totale_espen=0,
                                            $_user_details = array(),
-                                           $send_email = true) {
+                                           $send_email = true,
+                                           $tipo_quota = 'paypal') {
 
         try {
 
             $_ret = array();
+
+            $log_arr = array(
+                'user_id' => $user_id,
+                'anno_quota' => $_anno_quota,
+                'data_creazione' =>$_data_creazione,
+                'order_details' => $_order_details,
+                'totale_sinpe' => $totale_sinpe,
+                'totale_espen' => $totale_espen,
+                'user_details' => $_user_details
+
+            );
+
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
             $this->_db->transactionStart();
 
             // inserisco le righe riferite agli anni
@@ -1109,7 +1124,8 @@ class gglmsModelUsers extends JModelLegacy
                                                                 dettagli_transazione)
                             VALUES ";
 
-            $query .= "(
+            if($totale_sinpe && $tipo_quota == 'paypal') {
+                $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
                                'quota',
@@ -1119,7 +1135,7 @@ class gglmsModelUsers extends JModelLegacy
                                '" . addslashes($_order_details) . "'
                             )";
 
-            if ($totale_espen)
+            }elseif ($totale_espen && $tipo_quota == 'paypal') {
                 $query .= ", (
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
@@ -1129,11 +1145,24 @@ class gglmsModelUsers extends JModelLegacy
                                '" . $totale_espen . "',
                                NULL
                             )";
+            }elseif ($totale_espen && $tipo_quota = 'bonifico'){
+                $query .= ", (
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'espen',
+                               'bonifico',
+                               '" . $_data_creazione . "',
+                               '" . $totale_espen . "',
+                               NULL
+                            )";
+            }
 
             $query .= ";";
 
             $this->_db->setQuery($query);
             $this->_db->execute();
+            $this->_db->transactionCommit();
+            die();
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);

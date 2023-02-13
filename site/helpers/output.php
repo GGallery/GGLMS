@@ -2065,15 +2065,48 @@ HTML;
         // elaboro l'html o il testo del metodo di pagamento alternativo
         $_html = "";
         $_testo_pagamento_bonifico = utilityHelper::get_params_from_object($_ret, 'testo_pagamento_bonifico');
+        $_testo_pagamento_bonifico_bt = JText::_('COM_REGISTRAZIONE_ASAND_STR8');
+        $token = utilityHelper::build_randon_token('');
+        $endpoint = UtilityHelper::build_encoded_link($token, 'rinnovoquote', 'bb_buy_request');
 
         if ($_testo_pagamento_bonifico != "")
             $_html = <<<HTML
-                <div class="row">
-                    <div class="col-12 text-center">
-                        {$_testo_pagamento_bonifico}
+                
+
+                    <div class="row">
+                      <div class="col-md-12 text-center">
+                        <button  class="btn btn-lg btn-bonifico" id="btn-bonifico" onclick="openForm()" data-ref="{$endpoint}" style="background-color: #17a2b8;font-weight: 900;height: 40px !important;
+                               width: 500px;font-size: 15px !important;">{$_testo_pagamento_bonifico_bt}</button>
+                      </div>
                     </div>
-                </div>
+               
+                    
+                    <!-- popup Disabilitato-->
+                   
+                    <div class="form-popup" id="myForm" style="display: none">
+                       <div class="row mt-5">
+                          <div class="col-md-12 text-center">
+                             {$_testo_pagamento_bonifico}
+                           </div>
+                       </div> 
+                    </div>
+                    
+                     
+                    
+                    <script>
+                        function openForm() {
+                          document.getElementById("myForm").style.display = "block";
+                        }
+                        
+                    </script>
+                    
 HTML;
+
+//        <div class="row">
+//                    <div class="col-12 text-center">
+//                        {$_testo_pagamento_bonifico}
+//                    </div>
+//                </div>
 
         return $_html;
 
