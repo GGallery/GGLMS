@@ -906,7 +906,7 @@ class gglmsModelContenuto extends JModelLegacy
         }
     }
 
-    public function getOreCorso($idCorso) {
+    public function getOreCorso($idCorso, $titolo_corso) {
 
         try {
 
@@ -914,8 +914,51 @@ class gglmsModelContenuto extends JModelLegacy
                 || $idCorso == "")
                 throw new Exception("Nessun id corso definito", E_USER_ERROR);
 
-            $db = JFactory::getDbo();
-            $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
+            $oreCorso = 0;
+            $array_unit = array();
+
+            $reportObj = new gglmsModelReport();
+            $unitas = $reportObj->getSottoUnitaArrayList($idCorso);
+
+
+            if(is_array($unitas) && count($unitas) >0) {
+
+                $array_unit['id'] = $idCorso;
+                $array_unit['titolo'] = $titolo_corso;
+
+                array_push($unitas, $array_unit);
+
+                foreach ($unitas as $unita) {
+
+
+                    $db = JFactory::getDbo();
+                    $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
+                                    FROM #__gg_contenuti cgc
+                                    JOIN #__gg_unit_map cgum ON cgc.id = cgum.idcontenuto
+                                    WHERE cgum.idunita = " . $unita['id'] . "
+                                    AND cgc.pubblicato = 1
+                                    AND cgc.durata > 0";
+
+                    $db->setQuery($queryContenuti);
+
+                    $contenutiCorso = $db->loadAssocList();
+
+
+                    if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+
+
+                    foreach ($contenutiCorso as $contentKey => $singleContent) {
+
+                        $oreCorso += $singleContent['durata_plain'];
+                    }
+
+                }
+
+            }else {
+
+                $db = JFactory::getDbo();
+
+                $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
                                     FROM #__gg_contenuti cgc
                                     JOIN #__gg_unit_map cgum ON cgc.id = cgum.idcontenuto
                                     WHERE cgum.idunita = " . $idCorso . "
@@ -923,17 +966,21 @@ class gglmsModelContenuto extends JModelLegacy
                                     AND cgc.durata > 0";
 
 
-            $db->setQuery($queryContenuti);
+                $db->setQuery($queryContenuti);
 
-            $contenutiCorso = $db->loadAssocList();
+                $contenutiCorso = $db->loadAssocList();
 
-            if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+                if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
 
-            $oreCorso = 0;
-            foreach ($contenutiCorso as $contentKey => $singleContent) {
+                $oreCorso = 0;
+                foreach ($contenutiCorso as $contentKey => $singleContent) {
 
-                $oreCorso += $singleContent['durata_plain'];
+                    $oreCorso += $singleContent['durata_plain'];
+                }
+
             }
+
+
 
             return $oreCorso;
 
@@ -1092,7 +1139,7 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
-    public function getCorsoPerUtente($idUtente, $id_unita) {
+    public function getCorsoPerUtente($idUtente, $id_unita, $data_dal, $data_al) {
 
         try {
 
@@ -1105,6 +1152,14 @@ class gglmsModelContenuto extends JModelLegacy
                 || $id_unita == "")
                 throw new Exception("Nessun id unita definito", E_USER_ERROR);
 
+            if (is_null($data_dal)
+                || $data_dal == "")
+                throw new Exception("Nessun data inizio definita", E_USER_ERROR);
+
+            if (is_null($data_al)
+                || $data_al == "")
+                throw new Exception("Nessun data fine definita", E_USER_ERROR);
+
 
 
             $db = JFactory::getDbo();
@@ -1116,6 +1171,7 @@ class gglmsModelContenuto extends JModelLegacy
                         JOIN #__gg_contenuti ggc ON ggr.id_contenuto = ggc.id
                         AND ggr.id_utente = '" . $idUtente . "'
                         AND ggr.stato = 1
+                        AND ggr.data BETWEEN ". $this->_db->quote($data_dal) ." AND ". $this->_db->quote($data_al) ."
                         AND ggr.id_corso = ". $this->_db->quote($id_unita) ;
 
 
@@ -1162,8 +1218,10 @@ class gglmsModelContenuto extends JModelLegacy
 
             $query = "SELECT u.id, u.data_inizio, u.data_fine
                         from #__gg_unit as u
-                        WHERE u.data_inizio >= ". $this->_db->quote($data_dal) ."
-                        AND u.data_fine <= ". $this->_db->quote($data_al) ;
+                        WHERE u.data_inizio BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)."
+                        AND u.data_fine BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)." 
+                        OR ISNULL(u.data_inizio)
+                        OR ISNULL(u.data_fine) ";
 
 
             $db->setQuery($query);
@@ -1184,10 +1242,12 @@ class gglmsModelContenuto extends JModelLegacy
                 $db->setQuery($query_somma);
 
                 $durata = $db->loadAssoc();
+                $durata['somma_durata'] = is_null($durata['somma_durata']) ? 0 : $durata['somma_durata'];
                 $oreCorsi += $durata['somma_durata'];
             }
 
-            $oreCorsi = $oreCorsi/60 ;
+            $oreCorsi = $oreCorsi/3600 ;
+            $oreCorsi = round($oreCorsi, 0, PHP_ROUND_HALF_UP);
 
             return $oreCorsi;
 

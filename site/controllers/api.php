@@ -4635,22 +4635,23 @@ HTML;
                                   $totContenuti = 0;
                                   $mediaOreCorso = 0;
 
-                                 $totContenuti = $model_contenuto->getCorsoPerUtente($single_user['user_id'], $singleContent['id_unita']);
+                                $totContenuti = $model_contenuto->getCorsoPerUtente($single_user['user_id'], $singleContent['id_unita'], $data_dal, $data_al);
 
                                  if (is_null($totContenuti) || !isset($totContenuti)) {
 
                                      continue;
                                  }
 
-                                 $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita']);
-
 
                                  if ($totContenuti > 0 ) {
+                                     $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita'], $singleContent['titolo_unita']);
 
                                      $totContenuti = $totContenuti / 60;
+                                     $totContenuti = round($totContenuti, 0, PHP_ROUND_HALF_UP);
                                      $totOreUnita = $totOreUnita / 60;
+                                     $totOreUnita = round($totOreUnita, 0, PHP_ROUND_HALF_UP);
                                      $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
-                                     $mediaOreCorso = round($mediaOreCorso, 2, PHP_ROUND_HALF_UP);
+                                     $mediaOreCorso = round($mediaOreCorso, 0, PHP_ROUND_HALF_UP);
 
                                  }
 
@@ -4660,7 +4661,7 @@ HTML;
                                  $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
                                  $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
                                  $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
-                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso;
+                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
                                  $row[$i] ['MANSIONE'] = $username->mansione;
 
                                  $i++;
@@ -4681,7 +4682,7 @@ HTML;
 
             $oreCorsi = $model_contenuto->getOreCorsiPerPeriodo($data_dal, $data_al);
 
-            $prima_riga = $oreCorsi . ' ore erogate nel periodo dal ' . $data_dal . ' al ' . $data_al;
+            $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
             $check_xml = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, JPATH_ROOT . '/tmp/report_dal_'. $data_dal.'_al_'. $data_al .'.csv' , $prima_riga);
