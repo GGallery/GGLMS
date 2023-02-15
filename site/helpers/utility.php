@@ -4050,8 +4050,8 @@ HTML;
     public static function esporta_csv_spout_report($arr_values, $arr_cols, $dest_filename, $prima_riga) {
 
         $writer = WriterEntityFactory::createCSVWriter();
-//        $writer->openToBrowser($dest_filename);
-        $writer->openToFile($dest_filename);
+        $writer->openToBrowser($dest_filename);
+//        $writer->openToFile($dest_filename);
         $writer->setFieldDelimiter(';');
 
         // celle header

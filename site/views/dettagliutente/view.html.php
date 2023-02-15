@@ -297,6 +297,9 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $helpdesk_info = $model_helpdesk->getPiattaformaHelpDeskInfo();
                 $this->group_id_piattaforma = $helpdesk_info->group_id;
 
+            } else if ($layout == "report_utenti_farmacie") {
+
+
             }
         }
         catch (Exception $e){

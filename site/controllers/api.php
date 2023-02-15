@@ -80,8 +80,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
         $this->_filterparam->dominio = JRequest::getVar('dominio');
         $this->_filterparam->gruppo_id_piattaforma = JRequest::getVar('gruppo_id_piattaforma');
-        $this->_filterparam->dal =  JRequest::getVar('dal') ;
-        $this->_filterparam->al =  JRequest::getVar('al'); ;
+        $this->_filterparam->dal =  JRequest::getVar('dal');
+        $this->_filterparam->al =  JRequest::getVar('al');
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
@@ -4554,15 +4554,9 @@ HTML;
 
         try {
 
-            $model_catalogo = new gglmsModelCatalogo();
+            $genera_model = new gglmsModelGeneraCoupon();
             $model_contenuto = new gglmsModelContenuto();
             $model_users = new gglmsModelUsers();
-            $_tmp = array();
-            $colonne = [];
-            $filename = "";
-            setlocale(LC_TIME, "");
-
-            $genera_model = new gglmsModelGeneraCoupon();
 
             $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
             if (is_null($piattaforma_default)
@@ -4572,38 +4566,30 @@ HTML;
 
             $dominio = $piattaforma_default['dominio'];
 
-//            if (!isset($this->_filterparam->dal)
-//                || $this->_filterparam->dal == "")
-//                throw new Exception("Impossibile continuare, data non specificata", E_USER_ERROR);
-//
-//            if (!isset($this->_filterparam->al)
-//                || $this->_filterparam->al == "")
-//                throw new Exception("Impossibile continuare, data non specificata", E_USER_ERROR);
+            if (!isset($this->_filterparam->dal)
+                || $this->_filterparam->dal == "")
+                throw new Exception("Impossibile continuare, data inizio non specificata", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->al)
+                || $this->_filterparam->al == "")
+                throw new Exception("Impossibile continuare, data fine non specificata", E_USER_ERROR);
 
 
             $data_dal = $this->_filterparam->dal ;
             $data_al = $this->_filterparam->al ;
 
-
-            $totOrePerGruppo = 0;
             $i = 0;
-            $vecchio_box = array();
-            $ids_unita = [];
-            $ids_group  = [];
-            $totOreFormazione = 0;
             $row = array();
 
 
-                $farmacieArr = $model_contenuto->getFarmacie();
-
-//                var_dump($farmacieArr);die();
+            $farmacieArr = $model_contenuto->getFarmacie();
 
 
-                $vecchio_farmacia = array();
-                $totOreUnita = 0;
-                $oreUnita = 0;
-                $totContenuti = 0;
-                $mediaOreCorso = 0;
+            $vecchio_farmacia = array();
+            $totOreUnita = 0;
+            $oreUnita = 0;
+            $totContenuti = 0;
+            $mediaOreCorso = 0;
 
 
 
@@ -4685,15 +4671,22 @@ HTML;
             $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
-            $check_xml = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, JPATH_ROOT . '/tmp/report_dal_'. $data_dal.'_al_'. $data_al .'.csv' , $prima_riga);
+            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, 'Report'. time() . '.csv', $prima_riga);
 
-
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
         }
-        catch(Exception $e) {
+        catch (Exception $e) {
+
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return 0;
+            $_ret['error'] = $e->getMessage();
         }
 
+        $this->_japp->close();
 
     }
 
