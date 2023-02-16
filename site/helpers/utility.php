@@ -1425,8 +1425,7 @@ class utilityHelper
     public static function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
 
         $writer = WriterEntityFactory::createCSVWriter();
-//        $writer->openToBrowser($dest_filename);
-        $writer->openToFile($dest_filename);
+        $writer->openToBrowser($dest_filename);
         $writer->setFieldDelimiter(';');
 
         // celle header
@@ -1452,16 +1451,6 @@ class utilityHelper
 
         $writer->addRows($multi_rows);
         $writer->close();
-        return true;
-
-//        $file_name = basename('corso_1.csv');
-//        file_put_contents( $file_name, file_get_contents('corso_1.csv'));
-
-//        header('Content-type: application/csv');
-//        header('Content-Disposition: attachment;filename=corso_orario.csv');
-//        header("Expires: 0");
-//        exit();
-//
     }
 
     // funzione clonata dal componente joomlaquiz per la cancellazione dei quiz di un utente - utility per api.del_user_quiz()
