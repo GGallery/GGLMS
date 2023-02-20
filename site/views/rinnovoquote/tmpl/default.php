@@ -34,6 +34,15 @@ defined('_JEXEC') or die;
     <?php
         // informazioni relative al bonificoco ulteriori indicazioni
         echo $this->payment_extra_form;
+        if($this->call_result == 'tuttook') {
+            echo <<<HTML
+            <script type="text/javascript">
+
+              document.getElementById("myForm").style.display = "block";
+
+            </script>
+HTML;
+        }
         ?>
 
     <div class="alert alert-danger" role="alert" id="paymentError" style="display: none;">

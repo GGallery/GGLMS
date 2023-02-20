@@ -1099,18 +1099,6 @@ class gglmsModelUsers extends JModelLegacy
 
             $_ret = array();
 
-            $log_arr = array(
-                'user_id' => $user_id,
-                'anno_quota' => $_anno_quota,
-                'data_creazione' =>$_data_creazione,
-                'order_details' => $_order_details,
-                'totale_sinpe' => $totale_sinpe,
-                'totale_espen' => $totale_espen,
-                'user_details' => $_user_details
-
-            );
-
-            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
             $this->_db->transactionStart();
 
@@ -1161,8 +1149,7 @@ class gglmsModelUsers extends JModelLegacy
 
             $this->_db->setQuery($query);
             $this->_db->execute();
-            $this->_db->transactionCommit();
-            die();
+
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
@@ -2057,6 +2044,115 @@ class gglmsModelUsers extends JModelLegacy
 
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
+        }
+
+    }
+
+    public function insert_user_quote_stato_bonifico($user_id,
+                                                    $_anno_quota,
+                                                    $_data_pagamento = null,
+                                                    $totale_sinpe,
+                                                     $totale_espen = 0) {
+
+        try {
+
+            $_ret = array();
+            $dt = new DateTime();
+            $_data_creazione = (is_null($_data_pagamento)) ? $dt->format('Y-m-d H:i:s') : $_data_pagamento;
+
+
+//            $log_arr = array(
+//                'user_id' => $user_id,
+//                'anno_quota' => $_anno_quota,
+//                'data_creazione' =>$_data_creazione,
+//                'totale_sinpe' => $totale_sinpe,
+//                'totale_espen' => $totale_espen
+//
+//            );
+//
+//            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+            $this->_db->transactionStart();
+
+            $query = "INSERT INTO #__gg_quote_iscrizioni (
+                                                          user_id,
+                                                          anno,
+                                                          tipo_quota,
+                                                          tipo_pagamento,
+                                                          data_pagamento,
+                                                          totale,
+                                                          dettagli_transazione,
+                                                          gruppo_corso,
+                                                          stato
+                                                          )
+                            VALUES ";
+
+            if($totale_sinpe > 0 && $totale_espen === 0) {
+                $query .= "(
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'quota',
+                               'bonifico',
+                               '" . $_data_creazione . "',
+                               '" . $totale_sinpe . "',
+                               NULL,
+                               0,
+                               0
+                            )";
+
+            }elseif ($totale_espen > 0 && $totale_sinpe === 0) {
+                $query .= "(
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'espen',
+                               'bonifico',
+                               '" . $_data_creazione . "',
+                               '" . $totale_espen . "',
+                               NULL,
+                               0,
+                               0
+                            )";
+            }elseif ($totale_espen > 0 && $totale_sinpe > 0) {
+                $query .= "(
+                               '" . $user_id . "',
+                               '" . $_anno_quota . "',
+                               'espen + quota',
+                               'bonifico',
+                               '" . $_data_creazione . "',
+                               '" . $totale_sinpe . "',
+                               NULL,
+                               0,
+                               0
+                            )";
+            }
+
+
+            $this->_db->setQuery($query);
+            $this->_db->execute();
+
+
+            $this->_db->transactionCommit();
+
+            $log_arr = array(
+                'user_id' => $user_id,
+                'anno_quota' => $_anno_quota,
+                'data_creazione' =>$_data_creazione,
+                'totale_sinpe' => $totale_sinpe,
+                'totale_espen' => $totale_espen
+
+            );
+
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+
+            $_ret['success'] = "tuttook";
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
 
     }

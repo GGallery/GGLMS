@@ -144,15 +144,12 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 if (!is_array($_user_details))
                     throw new Exception($_user_details, E_USER_ERROR);
 
-                $_insert_quote = $_user_quote->insert_user_quote_anno(
+                $_insert_quote = $_user_quote->insert_user_quote_stato_bonifico(
                     $this->user_id,
                     $dt->format('Y'),
                     $dt->format('Y-m-d H:i:s'),
-                    "",
                     $totale_sinpe,
-                    $totale_espen,
-                    $_user_details,
-                    false);
+                    $totale_espen);
 
                 if (!is_array($_insert_quote))
                     $this->call_result = $_insert_quote;
@@ -163,7 +160,16 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 if ($this->call_result == "")
                     throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
 
-                $this->result_view = outputHelper::get_result_view($pp, $this->call_result, null, $this->last_quota);
+
+                if($this->call_result == 'tuttook') {
+                    $_html = <<<HTML
+            <script type="text/javascript">
+                
+                history.back();
+            </script>
+HTML;
+
+                }
             }
 
 
