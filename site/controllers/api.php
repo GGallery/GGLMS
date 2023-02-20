@@ -4649,6 +4649,7 @@ HTML;
                                  $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
                                  $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
                                  $row[$i] ['MANSIONE'] = $username->mansione;
+                                 $row[$i] ['ID SEDE'] = $single_farmacia['codice'];
 
                                  $i++;
 
