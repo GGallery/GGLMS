@@ -40,6 +40,12 @@ class gglmsModelUsers extends JModelLegacy
                              $campo_cognome = null)
     {
         $_integrazione_ref = (!is_null($integrazione)) ? $integrazione : $this->_params->get('integrazione');
+        $_config = new gglmsModelConfig();
+
+
+        if(!isset($_integrazione_ref))
+            $_integrazione_ref = $_config->getConfigValue('integrazione');
+
 
         //switch ($this->_params->get('integrazione')) {
         switch ($_integrazione_ref) {
@@ -88,6 +94,14 @@ class gglmsModelUsers extends JModelLegacy
 
         $colonna_nome = (!is_null($campo_nome)) ? $campo_nome : $this->_app->getParams()->get('campo_community_builder_nome');
         $colonna_cognome = (!is_null($campo_cognome)) ? $campo_cognome : $this->_app->getParams()->get('campo_community_builder_cognome');
+
+        $_config = new gglmsModelConfig();
+
+        if(!isset($colonna_cognome) || !isset($colonna_nome)){
+
+            $colonna_cognome = $_config->getConfigValue('campo_community_builder_cognome');
+            $colonna_nome = $_config->getConfigValue('campo_community_builder_nome');
+        }
 
         try {
 
