@@ -1020,9 +1020,13 @@ class gglmsModelUsers extends JModelLegacy
             $_pagamento = (is_null($_modalita_pagamento)) ? 'bonifico' : $_modalita_pagamento;
             $_quota = is_null($_tipo_quota) ? 'quota' : $_tipo_quota;
 
-            $this->_db->transactionStart();
+            $verify_user = $this->verify_user_quote($user_id, $_anno_quota);
 
-            $query = "INSERT INTO #__gg_quote_iscrizioni (
+            if(is_array($verify_user) && count($verify_user) == 0) {
+
+                $this->_db->transactionStart();
+
+                $query = "INSERT INTO #__gg_quote_iscrizioni (
                                                           user_id,
                                                           anno,
                                                           tipo_quota,
@@ -1033,7 +1037,7 @@ class gglmsModelUsers extends JModelLegacy
                                                           )
                             VALUES ";
 
-            $query .= "(
+                $query .= "(
                                " . $this->_db->quote($user_id) . ",
                                " . $this->_db->quote($_anno_quota) . ",
                                " . $this->_db->quote($_quota) . ",
@@ -1043,8 +1047,20 @@ class gglmsModelUsers extends JModelLegacy
                                " . $this->_db->quote($_dettagli_transazione) . "
                             )";
 
-            $this->_db->setQuery($query);
-            $this->_db->execute();
+                $this->_db->setQuery($query);
+                $this->_db->execute();
+
+            }else{
+
+                $query = "UPDATE #__gg_quote_iscrizioni 
+                      SET stato = 1
+                      WHERE user_id = '" . $user_id . "'
+                      AND anno = '" . $_anno_quota ."'";
+
+                $this->_db->setQuery($query);
+                $this->_db->execute();
+
+            }
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
@@ -1073,6 +1089,15 @@ class gglmsModelUsers extends JModelLegacy
             $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
             if (!is_array($_ins_categoria))
                 throw new Exception($_ins_categoria, 1);
+
+            $log_arr = array(
+                'user_id' => $user_id,
+                'anno_quota' => $_anno_quota,
+                'data_creazione' =>$_data_creazione
+
+            );
+
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
             $this->_db->transactionCommit();
 
@@ -2075,17 +2100,6 @@ class gglmsModelUsers extends JModelLegacy
             $_data_creazione = (is_null($_data_pagamento)) ? $dt->format('Y-m-d H:i:s') : $_data_pagamento;
 
 
-//            $log_arr = array(
-//                'user_id' => $user_id,
-//                'anno_quota' => $_anno_quota,
-//                'data_creazione' =>$_data_creazione,
-//                'totale_sinpe' => $totale_sinpe,
-//                'totale_espen' => $totale_espen
-//
-//            );
-//
-//            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
-
             $this->_db->transactionStart();
 
             $query = "INSERT INTO #__gg_quote_iscrizioni (
@@ -2147,17 +2161,6 @@ class gglmsModelUsers extends JModelLegacy
 
             $this->_db->transactionCommit();
 
-            $log_arr = array(
-                'user_id' => $user_id,
-                'anno_quota' => $_anno_quota,
-                'data_creazione' =>$_data_creazione,
-                'totale_sinpe' => $totale_sinpe,
-                'totale_espen' => $totale_espen
-
-            );
-
-            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
-
 
             $_ret['success'] = "tuttook";
 
@@ -2171,6 +2174,38 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+
+
+    public function verify_user_quote($user_id, $anno) {
+
+        try {
+
+            $_ret = array();
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('tipo_quota, anno')
+                ->from('#__gg_quote_iscrizioni')
+                ->where("user_id = '" . $user_id . "'")
+                ->and("anno = '" . $anno . "'");
+
+
+            $db->setQuery($query);
+            $result = $db->loadAssocList();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) {
+                return $_ret;
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
 
 
 }

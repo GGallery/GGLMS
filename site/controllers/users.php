@@ -1191,6 +1191,14 @@ HTML;
                                                                 null,
                                                                 true);
 
+            $log_arr = array(
+                'user_id' => $user_id,
+                'bonifico' => $_bonifico
+
+            );
+
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
             if (!is_array($_bonifico))
                 throw new Exception($_bonifico, 1);
 
