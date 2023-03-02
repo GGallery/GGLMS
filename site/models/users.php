@@ -1033,7 +1033,8 @@ class gglmsModelUsers extends JModelLegacy
                                                           tipo_pagamento,
                                                           data_pagamento,
                                                           totale,
-                                                          dettagli_transazione
+                                                          dettagli_transazione,
+                                                          stato
                                                           )
                             VALUES ";
 
@@ -1044,13 +1045,16 @@ class gglmsModelUsers extends JModelLegacy
                                " . $this->_db->quote($_pagamento) . ",
                                " . $this->_db->quote($_data_creazione) . ",
                                " . $this->_db->quote($_totale) . ",
-                               " . $this->_db->quote($_dettagli_transazione) . "
+                               " . $this->_db->quote($_dettagli_transazione) . ",
+                               1
                             )";
 
                 $this->_db->setQuery($query);
                 $this->_db->execute();
 
-            }else{
+            }elseif($verify_user['stato'] == 0){
+
+                $this->_db->transactionStart();
 
                 $query = "UPDATE #__gg_quote_iscrizioni 
                       SET stato = 1
@@ -1090,14 +1094,6 @@ class gglmsModelUsers extends JModelLegacy
             if (!is_array($_ins_categoria))
                 throw new Exception($_ins_categoria, 1);
 
-            $log_arr = array(
-                'user_id' => $user_id,
-                'anno_quota' => $_anno_quota,
-                'data_creazione' =>$_data_creazione
-
-            );
-
-            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
             $this->_db->transactionCommit();
 
@@ -2115,7 +2111,8 @@ class gglmsModelUsers extends JModelLegacy
                                                           )
                             VALUES ";
 
-            if($totale_sinpe > 0 && $totale_espen === 0) {
+            if($totale_sinpe > 0 && $totale_espen == 0) {
+
                 $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
@@ -2128,7 +2125,7 @@ class gglmsModelUsers extends JModelLegacy
                                0
                             )";
 
-            }elseif ($totale_espen > 0 && $totale_sinpe === 0) {
+            }elseif ($totale_espen > 0 && $totale_sinpe == 0) {
                 $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
@@ -2182,16 +2179,15 @@ class gglmsModelUsers extends JModelLegacy
 
             $_ret = array();
 
-            $db = JFactory::getDbo();
-            $query = $db->getQuery(true)
-                ->select('tipo_quota, anno')
+            $query = $this->_db->getQuery(true)
+                ->select('anno ,tipo_quota ,stato')
                 ->from('#__gg_quote_iscrizioni')
-                ->where("user_id = '" . $user_id . "'")
-                ->and("anno = '" . $anno . "'");
+                ->where('user_id = ' . $user_id)
+                ->where('anno = ' . $anno);
 
 
-            $db->setQuery($query);
-            $result = $db->loadAssocList();
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssocList();
 
             // se nessun risultato restituisco un array vuoto
             if (!$result) {
