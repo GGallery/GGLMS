@@ -43,10 +43,10 @@ class JFormFieldlistagruppicustom extends JFormFieldList {
             $query = $db->getQuery(true);
 
 
-            $query->select('id as value, title as text');
-            $query->from('#__usergroups as e');
-            $query->where('id in (121,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143)');
-            $query->order('id');
+            $query = $db->getQuery(true);
+            $query->select('id as value, titolo as text');
+            $query->from('#__gg_unit');
+            $query->where('is_corso = 1');
 
             // Get the options.
             $db->setQuery($query);
@@ -54,8 +54,7 @@ class JFormFieldlistagruppicustom extends JFormFieldList {
             $options = $db->loadObjectList();
 
 
-        }catch (Exception $e )
-        {
+        }catch (Exception $e ){
             return $options;
         }
 
