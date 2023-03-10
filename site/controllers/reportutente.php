@@ -113,6 +113,22 @@ class gglmsControllerReportUtente extends JControllerLegacy
             $user_id = $postData->get('user_id', null, 'int');
             $id_corso = $postData->get('id_corso', null, 'int');
 
+            if(is_null($content_id)){
+
+                $query = $this->_db->getQuery(true)
+                    ->select('cont.id')
+                    ->from('#__gg_unit un')
+                    ->join('inner', '#__gg_unit_map map ON un.id = map.idunita')
+                    ->join('inner', '#__gg_contenuti cont ON map.idcontenuto = cont.id')
+                    ->where('un.id = ' . $this->_db->quote($id_corso))
+                    ->where('cont.tipologia = 5');
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->loadAssoc();
+
+                $content_id = (int)$result['id'];
+            }
+
             $pdf_ctrl = new gglmsControllerPdf();
             $pdf_ctrl->generateAttestato($user_id, $content_id, true, $id_corso);
 

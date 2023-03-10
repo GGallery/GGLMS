@@ -376,7 +376,7 @@ _summaryreport = (function ($, my) {
                         hidden: false,
                         width: 100,
                         filterable: false,
-                        template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=attestatibulk.dwnl_attestati_by_corso&id_corso=#=id_corso#&user_id=#=id_user#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
+                        template: "<a href='#  window.location.hostname # /home/index.php?option=com_gglms&task=reportutente.generateAttestato&user_id=#=id_user#&id_corso=#=id_corso#' class='k-button k-grid-button k-grid-attestato'><span class='glyphicon glyphicon-download'></span></a>",
                         attributes: {
                             style: "text-align: center"
                         },
