@@ -3155,9 +3155,18 @@ HTML;
     }
 
     // costruizione del token per l'url encodato - utilità per output.php
-    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!') {
+    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!', $is_asand = false) {
 
-        $b_url = $unit_prezzo . '|==|' . $unit_id . '|==|' . $user_id . '|==|' . $sconto_data . '|==|' . $sconto_custom . '|==|' . $in_groups;
+        $b_url = $unit_prezzo
+            . '|==|' . $unit_id
+            . '|==|' . $user_id
+            . '|==|' . $sconto_data
+            . '|==|' . $sconto_custom
+            . '|==|' . $in_groups
+            . '|==|0'
+            . '|==|0'
+            . '|==|0'
+            . '|==|' . $is_asand;
         $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
 
         return $token;
@@ -3215,7 +3224,8 @@ HTML;
     }
 
     // per i campi di tipo select ottengo la lista di option da name del cb field - utilità per output.php
-    public static function get_cb_field_select_by_name($_field_name) {
+    // excludeStrings se multipli valori deve essere passato come val1|val2|val3 ...
+    public static function get_cb_field_select_by_name($_field_name, $excludeStrings = null) {
 
         $_options = "";
 
@@ -3229,6 +3239,10 @@ HTML;
             return "";
 
         foreach ($_cb_arr as $sub_key => $sub_values) {
+
+            if (!is_null($excludeStrings)) {
+                if(preg_match("/\b(" . $excludeStrings . ")\b/", $sub_values['fieldtitle'])) continue;
+            }
 
             $_options .= <<<HTML
                 <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>

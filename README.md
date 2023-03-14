@@ -4,6 +4,10 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
+# 4.2.4
+* D: aggiunta della colonna rif_eta alla tabella gg_vendita_sconti_particolari
+* D: aggiunta della colonna sc_eta alla tabella gg_vendita_sconti_particolari
+
 # 4.2.3
 * D: aggiunta della colonna id_gruppi_custom alla tabella gg_unit
 

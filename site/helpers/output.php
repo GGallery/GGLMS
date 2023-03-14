@@ -1122,7 +1122,8 @@ HTML;
                                                                       $sconto_data,
                                                                       $sconto_custom,
                                                                       $in_groups,
-                                                                      $_params) {
+                                                                      $_params,
+                                                                      $is_asand = false) {
 
         try {
 
@@ -1152,6 +1153,24 @@ HTML;
             $_cb_provincia_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_provincia');
             $_cb_provincia_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia');
 
+            $_cb_luogodinascita = $_cb_provinciadinascita = $_cb_provincia_nascita_options = $_cb_provincia_nascita_id
+            = $_cb_titolo_studio_options = $_cb_titolo_studio_id = null;
+            $_label_citta_nascita = $_label_pv_nascita = "";
+
+            // esclusivi asand
+            if ($is_asand) {
+              $_cb_luogodinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_luogodinascita', 'name');
+              $_cb_provinciadinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
+              $_cb_titolo_studio = UtilityHelper::get_cb_field_name($_params, 'campo_cb_titolo_studio', 'name');
+              $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_provinciadinascita');
+              $_cb_provincia_nascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
+              $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_titolo_studio');
+              $_cb_titolo_studio_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_titolo_studio');
+              $_label_citta_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8');
+              $_label_pv_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9');
+              $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
+            }
+
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
             $_label_cognome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR9');
@@ -1173,8 +1192,72 @@ HTML;
             $_label_piva = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR25');
             $_label_cod_dest =JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR26');
 
-            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+
+            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $is_asand);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_request');
+
+            $_html_laurea = "";
+            if (!$is_asand)
+              $_html_laurea = <<<HTML
+              <div class="rowcustom">
+                <div class="col-25">
+                  <label for="laureain_utente">{$_label_laurea_in}<span style="color: red">*</span></label>
+                </div>
+                <div class="col-25">
+                  <select class="form-control" id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
+                          <option value="">-</option>
+                          {$_cb_laureain_options}
+                      </select>
+                </div>
+              </div>
+
+              <div class="rowcustom">
+                <div class="col-25">
+                  <label for="anno_laurea_utente">{$_label_anno_laurea}<span style="color: red">*</span></label>
+                </div>
+                <div class="col-75">
+                  <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  placeholder="Anno di laurea" />
+                </div>
+              </div>
+HTML;
+
+            $_html_nascita_extra = "";
+            if ($is_asand)
+              $_html_nascita_extra = <<<HTML
+              <div class="rowcustom">
+                <div class="col-25">
+                  <label for="citta_nascita_utente">{$_label_citta_nascita}<span style="color: red">*</span></label>
+                </div>
+                <div class="col-75">
+                  <input class="form-control" type="text" id="citta_nascita_utente" style="width: 220px;" data-campo="{$_cb_luogodinascita}" placeholder="{$_label_citta_nascita}" />
+                </div>
+              </div>
+
+              <div class="rowcustom">
+                <div class="col-25">
+                  <label for="pv_nascita_utente">{$_label_pv_nascita}<span style="color: red">*</span></label>
+                </div>
+                <div class="col-25">
+                  <select class="form-control" id="pv_nascita_utente" data-campo="{$_cb_provinciadinascita}" data-id-ref="{$_cb_provincia_nascita_id}">
+                          <option value="">-</option>
+                          {$_cb_provincia_nascita_options}
+                      </select>
+                </div>
+              </div>
+HTML;
+            $_html_titolo_studio = <<<HTML
+            <div class="rowcustom">
+              <div class="col-25">
+                <label for="titolo_studio">{$_label_titolo_studio}<span style="color: red">*</span></label>
+              </div>
+              <div class="col-25">
+                <select class="form-control" id="titolo_studio" data-campo="{$_cb_titolo_studio}" data-id-ref="{$_cb_titolo_studio_id}">
+                    <option value="">-</option>
+                    {$_cb_titolo_studio_options}
+                </select>
+              </div>
+            </div>
+HTML;
 
             $_html = <<<HTML
 
@@ -1282,6 +1365,8 @@ HTML;
                       </div>
                     </div>
 
+                    {$_html_nascita_extra}
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="data_nascita_utente">{$_label_dt_nascita}<span style="color: red">*</span></label>
@@ -1300,6 +1385,8 @@ HTML;
                       </div>
                     </div>
 
+                    {$_html_titolo_studio}
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="professione_utente">{$_label_professione}<span style="color: red">*</span></label>
@@ -1312,26 +1399,7 @@ HTML;
                       </div>
                     </div>
 
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="laureain_utente">{$_label_laurea_in}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-25">
-                        <select class="form-control" id="laureain_utente" data-campo="{$_cb_laureain}" data-id-ref="{$_cb_laureain_id}">
-                                <option value="">-</option>
-                                {$_cb_laureain_options}
-                            </select>
-                      </div>
-                    </div>
-
-                    <div class="rowcustom">
-                      <div class="col-25">
-                        <label for="anno_laurea_utente">{$_label_anno_laurea}<span style="color: red">*</span></label>
-                      </div>
-                      <div class="col-75">
-                        <input class="form-control" type="text" id="anno_laurea_utente" style="width: 220px;" data-campo="{$_cb_anno_laurea}"  placeholder="Anno di laurea" />
-                      </div>
-                    </div>
+                    {$_html_laurea}
 
                     <div class="rowcustom">
                       <div class="col-25">
@@ -1515,7 +1583,8 @@ HTML;
                                                                           $sconto_data,
                                                                           $sconto_custom,
                                                                           $in_groups,
-                                                                          $_params) {
+                                                                          $_params,
+                                                                          $is_asand = false) {
         try {
 
             $_ret = array();
@@ -1525,7 +1594,7 @@ HTML;
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_ref_accedi = "index.php?option=com_comprofiler&view=login";
 
-            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $is_asand);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'new_user_request');
 
             $_html = <<<HTML
@@ -2071,7 +2140,7 @@ HTML;
 
         if ($_testo_pagamento_bonifico != "")
             $_html = <<<HTML
-                
+
 
                     <div class="row">
                       <div class="col-md-12 text-center">
@@ -2079,27 +2148,27 @@ HTML;
                                width: 500px;font-size: 15px !important;">{$_testo_pagamento_bonifico_bt}</button>
                       </div>
                     </div>
-               
-                    
+
+
                     <!-- popup Disabilitato-->
-                   
+
                     <div class="form-popup" id="myForm" style="display: none">
                        <div class="row mt-5">
                           <div class="col-md-12 text-center">
                              {$_testo_pagamento_bonifico}
                            </div>
-                       </div> 
+                       </div>
                     </div>
-                    
-                     
-                    
+
+
+
                     <script>
                         function openForm() {
                           document.getElementById("myForm").style.display = "block";
                         }
-                        
+
                     </script>
-                    
+
 HTML;
 
 //        <div class="row">
@@ -2397,7 +2466,7 @@ HTML;
             // lista options da community builder
             $_cb_dipendente_options = UtilityHelper::get_cb_field_select_by_name('cb_dipendente');
             $_cb_dipendente_id = UtilityHelper::get_cb_fieldId_by_name('cb_dipendente');
-            $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select_by_name('cb_titolo_studio');
+            $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select_by_name('cb_titolo_studio', 'medicina');
             $_cb_anno_di_frequenza_options = UtilityHelper::get_cb_field_select_by_name('cb_anno_frequenza');
             $_cb_anno_di_frequenza_id = UtilityHelper::get_cb_fieldId_by_name('cb_anno_frequenza');
             $_cb_titolo_studio_id = UtilityHelper::get_cb_fieldId_by_name('cb_titolo_studio');

@@ -38,6 +38,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
     protected $show_view;
     protected $dp_lang;
     protected $_ret;
+    protected $is_asand = false;
 
     function display($tpl = null)
     {
@@ -150,6 +151,11 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 && $decode_arr[8] != "")
                 $this->perc_webinar = $decode_arr[8];
 
+            // integrazione ASAND
+            if (isset($decode_arr[9])
+                && $decode_arr[9] != "")
+                $this->is_asand = true;
+
             $_config = new gglmsModelConfig();
 
             // provengo dal modulo cliccando sul pulsante Acquista
@@ -168,7 +174,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                                 $this->sconto_data,
                                                                                                 $this->sconto_custom,
                                                                                                 $this->in_groups,
-                                                                                                $_params);
+                                                                                                $_params,
+                                                                                                $this->is_asand);
 
                     if (!is_array($_payment_form))
                         throw new Exception($_payment_form, E_USER_ERROR);
@@ -259,10 +266,11 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                             $this->sconto_data,
                                                                                             $this->sconto_custom,
                                                                                             $this->in_groups,
-                                                                                            $_params);
+                                                                                            $_params,
+                                                                                            $this->is_asand);
 
                 if (!is_array($_payment_form))
-                    throw new Exception($_payment_form, 1);
+                    throw new Exception($_payment_form, E_USER_ERROR);
 
                 $this->payment_form = $_payment_form['success'];
                 $this->in_error = 0;
@@ -345,6 +353,10 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
                 $_new_user['username'] = $_new_user['name'];
                 $_new_user['email'] = trim($email_utente);
+
+                // se asand imposto lo username identico all'email
+                if ($this->is_asand) $_new_user['username'] = $_new_user['email'];
+
                 $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
 
                 // controllo il codice fiscale
@@ -362,13 +374,13 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 // controllo validità email
                 if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) {
-                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], 1);
+                    throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], E_USER_ERROR);
                 }
 
                 // verifico l'esistenza delle colonne minimali per l'inserimento utente
                 $_test_users_fields = UtilityHelper::check_new_user_array($_new_user);
                 if ($_test_users_fields != "") {
-                    throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, 1);
+                    throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, E_USER_ERROR);
                 }
 
                 // controllo esistenza utente su username
@@ -380,7 +392,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 // controllo esistenza email utente
                 if (UtilityHelper::check_user_by_column('email', $_new_user['email'])) {
-                    throw new Exception("EMAIL ESISTENTE: ". $_new_user['email'], 1);
+                    throw new Exception("EMAIL ESISTENTE: ". $_new_user['email'], E_USER_ERROR);
                 }
 
                 // inserimento utente
@@ -388,7 +400,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_user_insert_query_result = UtilityHelper::insert_new_with_query($_user_insert_query);
 
                 if (!is_array($_user_insert_query_result)) {
-                    throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, 1);
+                    throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
                 }
 
                 $_new_user_id = $_user_insert_query_result['success'];
@@ -406,7 +418,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
                 $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query);
                 if (!is_array($_cp_insert_query_result))
-                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", 1);
+                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
 
                 // invio email registrazione
                 $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');

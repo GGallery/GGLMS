@@ -292,6 +292,8 @@ defined('_JEXEC') or die;
                         return;
                     }
 
+                    <?php if (!$this->is_asand) : ?>
+
                     var pLaureaIn = jQuery('#laureain_utente').val();
                     if (pLaureaIn == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR21'), '#laureain_utente');
@@ -303,6 +305,28 @@ defined('_JEXEC') or die;
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR22'), '#anno_laurea_utente');
                         return;
                     }
+
+                    <?php else: ?>
+
+                    var pCittaNascita = jQuery('#citta_nascita_utente').val();
+                    if (pCittaNascita == "") {
+                        customAlertifyAlert(Joomla.JText._('COM_GGLMS_ISCRIZIONE_EVENTO_STR8'), '#citta_nascita_utente');
+                        return;
+                    }
+
+                    var pPvNascita = jQuery('#pv_nascita_utente').val();
+                    if (pPvNascita == "") {
+                        customAlertifyAlert(Joomla.JText._('COM_GGLMS_ISCRIZIONE_EVENTO_STR9'), '#pv_nascita_utente');
+                        return;
+                    }
+
+                    var pTitoloStudio = jQuery('#titolo_studio').val();
+                    if (pTitoloStudio == "") {
+                        customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR35'), '#titolo_studio');
+                        return;
+                    }
+
+                    <?php endif; ?>
 
                     var pPassword = jQuery('#password_utente').val();
                     if (pPassword == "") {
@@ -376,6 +400,8 @@ defined('_JEXEC') or die;
                         is_id: pProfessioneUtenteIDRef
                     });
 
+                    <?php if (!$this->is_asand) : ?>
+
                     var pLaureaInID = jQuery('#laureain_utente').attr("id");
                     var pLaureaInCB = jQuery('#laureain_utente').attr("data-campo");
                     var pLaureaInIDRef = jQuery('#laureain_utente').attr("data-id-ref");
@@ -384,6 +410,24 @@ defined('_JEXEC') or die;
                     var pAnnoLaureaID = jQuery('#anno_laurea_utente').attr("id");
                     var pAnnoLaureaCB = jQuery('#anno_laurea_utente').attr("data-campo");
                     pPropArr.push({campo: pAnnoLaureaID, cb: pAnnoLaureaCB, value: pAnnoLaurea});
+
+                    <?php else: ?>
+
+                    var pCittaNascitaID = jQuery('#citta_nascita_utente').attr("id");
+                    var pCittaNascitaCB = jQuery('#citta_nascita_utente').attr("data-campo");
+                    pPropArr.push({campo: pCittaNascitaID, cb: pCittaNascitaCB, value: pCittaNascita});
+
+                    var pTitoloStudioID = jQuery('#titolo_studio').attr("id");
+                    var pTitoloStudioCB = jQuery('#titolo_studio').attr("data-campo");
+                    var pTitoloStudioIDRef = jQuery('#titolo_studio').attr("data-id-ref");
+                    pPropArr.push({campo: pTitoloStudioID, cb: pTitoloStudioCB, value: pTitoloStudio, is_id: pTitoloStudioIDRef});
+
+                    var pPvNascitaID = jQuery('#pv_nascita_utente').attr("id");
+                    var pPvNascitaCB = jQuery('#pv_nascita_utente').attr("data-campo");
+                    var pPvNascitaIDRef = jQuery('#pv_nascita_utente').attr("data-id-ref");
+                    pPropArr.push({campo: pPvNascitaID, cb: pPvNascitaCB, value: pPvNascita, is_id: pPvNascitaIDRef});
+
+                    <?php endif; ?>
 
                     var pPasswordID = jQuery('#password_utente').attr("id");
                     pPropArr.push({campo: pPasswordID, cb: null, value: pPassword});
@@ -398,11 +442,7 @@ defined('_JEXEC') or die;
 
                     var pCodiceDestinatarioID = jQuery('#codice_destinatario').attr("id");
                     var pCodiceDestinatarioCB = jQuery('#codice_destinatario').attr("data-campo");
-                    pPropArr.push({
-                        campo: pCodiceDestinatarioID,
-                        cb: pCodiceDestinatarioCB,
-                        value: pCodiceDestinatario
-                    });
+                    pPropArr.push({campo: pCodiceDestinatarioID, cb: pCodiceDestinatarioCB, value: pCodiceDestinatario});
 
                     jQuery.ajax({
                         type: "GET",
