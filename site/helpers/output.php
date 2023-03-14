@@ -1614,6 +1614,9 @@ HTML;
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $is_asand);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'new_user_request');
 
+            $buttonColClass = "col-xs-6";
+            if ($is_asand) $buttonColClass = "col-6";
+
             $_html = <<<HTML
             <div class="row">
                 <div class="col-12">
@@ -1624,10 +1627,10 @@ HTML;
             <br />
             <br />
             <div class="row">
-                <div class="col-xs-6 text-center">
+                <div class="{$buttonColClass} text-center">
                     <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_accedi}">{$_label_accedi}</button>
                 </div>
-                <div class="col-xs-6 text-center">
+                <div class="{$buttonColClass} text-center">
                     <button class="btn btn-large btn-primary btn-request" data-ref="{$_ref_registrazione}">{$_label_registrazione}</button>
                 </div>
             </div>
