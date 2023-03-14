@@ -18,6 +18,7 @@ defined('_JEXEC') or die('Restricted access');
                 <span>Tipo quota</span>
                 <select id="tipo_quota" class="form-control">
                     <option value="">-</option>
+                    <option value="evento_nc"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR27');?></option>
                     <option value="<?php echo $this->quota_standard; ?>"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR3');?></option>
                     <option value="<?php echo $this->quota_studente; ?>"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR4');?></option>
                 </select>
@@ -62,6 +63,7 @@ defined('_JEXEC') or die('Restricted access');
             <th data-field="email" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR4'); ?></th>
             <th data-field="codice_fiscale" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR7'); ?></th>
             <th data-field="telefono" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR23'); ?></th>
+            <th data-field="titolo_gruppo_corso" data-sortable="true"><?php echo JText::_('COM_GGLMS_REPORT_TITOLO_EVENTO'); ?></th>
             <th data-field="tipo_pagamento" data-sortable="true"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR12'); ?></th>
             <th data-field="stato_pagamento2" data-sortable="true"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR14'); ?></th>
             <th data-field="data_pagamento" data-sortable="true"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR9'); ?></th>
@@ -121,8 +123,10 @@ defined('_JEXEC') or die('Restricted access');
             console.log(params.data);
             // aggiunto tipologia socio
             var pTipo = jQuery('#tipo_quota').val();
-            if (pTipo != "")
-                params.data.tipo_quota = parseInt(pTipo);
+            if (pTipo != "") {
+                //params.data.tipo_quota = parseInt(pTipo);
+                params.data.tipo_quota = pTipo;
+            }
 
             var pTipoPagamento = jQuery('#tipo_pagamento').val();
             if (pTipoPagamento != "")
@@ -164,7 +168,61 @@ defined('_JEXEC') or die('Restricted access');
             });
         }
 
-        // da moroso ad online
+        function confermaAcquistaEvento(idPagamento, userId, gruppoCorso, isAsand) {
+
+            alertify.confirm()
+            .setting({
+                'title': 'Attenzione!',
+                'label': 'OK',
+                'message': "<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR32'); ?>"
+            })
+            .set('onok', function(closeEvent){ eseguiAcquistaEvento(idPagamento, userId, gruppoCorso, isAsand) } )
+            .show();
+
+        }
+
+        // utente che ha acquista un evento ed ha pagato con bonifico
+        function eseguiAcquistaEvento(idPagamento, userId, gruppoCorso, isAsand) {
+
+            jQuery.get( "index.php?option=com_gglms&task=users.conferma_acquisto_evento",
+                { id_pagamento: idPagamento, user_id: userId, gruppo_corso: gruppoCorso, is_asand: isAsand} )
+                .done(function(results) {
+
+                    // risposta non conforme
+                    if (typeof results != "string"
+                        || results == "") {
+                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR14'); ?>");
+                        return;
+                    }
+                    else {
+
+                        // errore
+                        var objRes = JSON.parse(results);
+                        if (typeof objRes.error != "undefined") {
+                            customAlertifyAlertSimple(objRes.error);
+                            return;
+                        }
+                        // successo
+                        else if (typeof objRes.success != "undefined") {
+                            customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR34'); ?>");
+                            //window.location.reload();
+                            pTable.bootstrapTable('refresh');
+                        }
+                        // errore non gestito
+                        else {
+                            customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR16'); ?>");
+                        }
+
+
+                    }
+
+                }).fail(function() {
+                alert("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR13'); ?>");
+            });
+
+        }
+
+        // imposta pagato il sospeso con bb
         function impostaPagato(quotaId) {
 
             alertify.confirm()

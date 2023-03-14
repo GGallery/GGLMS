@@ -1224,6 +1224,8 @@ HTML;
             $id_pagamento = $params["id_pagamento"];
             $user_id = $params["user_id"];
             $gruppo_corso = $params["gruppo_corso"];
+            $is_asand = false;
+            if (isset($params['is_asand'])) $is_asand = true;
 
             // parametri dal plugin di gestione acquisto corsi
             $_params_module = UtilityHelper::get_params_from_module();
@@ -1231,32 +1233,38 @@ HTML;
 
             if (!isset($id_pagamento)
                 || $id_pagamento == "")
-                throw new Exception("Missing payment id", 1);
+                throw new Exception("Missing payment id", E_USER_ERROR);
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Missing user id", E_USER_ERROR);
 
             if (!isset($gruppo_corso)
                 || $gruppo_corso == "")
-                throw new Exception("Missing user group", 1);
+                throw new Exception("Missing user group", E_USER_ERROR);
 
             // l'utente va inserito nel gruppo corso
             $_check_add = UtilityHelper::set_usergroup_generic($user_id, $gruppo_corso);
             if (!is_array($_check_add))
-                throw new Exception($_check_add, 1);
+                throw new Exception($_check_add, E_USER_ERROR);
 
             // l'utente va rimosso dal gruppo dell'acquisto sospeso
             $_check_remove = UtilityHelper::remote_usergroup_generic($user_id, $ug_conferma_acquisto);
             if (!is_array($_check_remove))
-                throw new Exception($_check_remove, 1);
+                throw new Exception($_check_remove, E_USER_ERROR);
 
             // aggiorno la quota di iscrizione impostando la tipologia
             // aggiorno ultimo anno pagato
             $_user = new gglmsModelUsers();
-            $_check_conferma = $_user->update_tipo_quota_iscrizione($id_pagamento, "evento");
-            if (!is_array($_check_conferma))
-                throw new Exception($_check_conferma, 1);
+
+            if (!$is_asand) {
+                $_check_conferma = $_user->update_tipo_quota_iscrizione($id_pagamento, "evento");
+                if (!is_array($_check_conferma)) throw new Exception($_check_conferma, E_USER_ERROR);
+            }
+            else {
+                $updateQuota = $_user->update_user_column($id_pagamento, "stato", 1, "gg_quote_iscrizioni");
+                if (is_null($updateQuota)) throw new Exception("Errore durante l'aggiornamento della quota", E_USER_ERROR);
+            }
 
             $_ret['success'] = "tuttook";
 
@@ -1496,6 +1504,7 @@ HTML;*/
             $_label_paga = JText::_('COM_REGISTRAZIONE_ASAND_STR13');
             $_label_pagato = JText::_('COM_REGISTRAZIONE_ASAND_STR16');
             $_label_nonpagato = JText::_('COM_REGISTRAZIONE_ASAND_STR17');
+            $_label_conferma_acquisto = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR31');
 
             $_azione_btn = "";
 
@@ -1511,7 +1520,16 @@ HTML;*/
 
                         if ($key == "stato_pagamento" && $value == 0) {
 
-                            $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['id_quota'] . ')">' . $_label_paga . '</a>';
+                            $_azione_btn = <<<HTML
+                                <a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagato({$_socio['id_quota']})">{$_label_paga}</a>
+HTML;
+
+                            // iscrizione ad evento con bonifico bancario
+                            if ($_socio['tipo_quota'] == "evento_nc")
+                                $_azione_btn = <<<HTML
+                                 <a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="confermaAcquistaEvento({$_socio['id_quota']}, {$_socio['user_id']}, {$_socio['gruppo_corso']}, 1)">{$_label_conferma_acquisto} {$_socio['titolo_gruppo_corso']}</a>
+HTML;
+
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
 
                         }
@@ -1529,6 +1547,14 @@ HTML;*/
                         }
                         else if ($key == "tipo_pagamento") {
                             $value = strtoupper($value);
+                        }
+                        else if ($key == "titolo_gruppo_corso") {
+                            if ($_socio['tipo_quota'] != "evento_nc")
+                                $value = "Rinnovo quota";
+                        }
+                        else if ($key == "anno_pagamento_quota") {
+                            if ($_socio['tipo_quota'] == "evento_nc")
+                                $value = "-";
                         }
 
                         $_ret[$_key_socio][$key] = $value;

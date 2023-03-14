@@ -1056,7 +1056,7 @@ class gglmsModelUsers extends JModelLegacy
 
                 $this->_db->transactionStart();
 
-                $query = "UPDATE #__gg_quote_iscrizioni 
+                $query = "UPDATE #__gg_quote_iscrizioni
                       SET stato = 1
                       WHERE user_id = '" . $user_id . "'
                       AND anno = '" . $_anno_quota ."'";
@@ -1310,7 +1310,10 @@ class gglmsModelUsers extends JModelLegacy
                     ->select("u.id AS user_id, u.username, u.email,
                                 cp.cb_nome AS nome, cp.cb_cognome AS cognome,
                                 cp.cb_codicefiscale AS codice_fiscale, cp.cb_telefono AS telefono,
-                                quota.id AS id_quota, quota.anno AS anno_pagamento_quota, quota.data_pagamento, quota.totale AS totale_quota, quota.tipo_pagamento, quota.stato AS stato_pagamento, quota.stato AS stato_pagamento2
+                                quota.id AS id_quota, quota.anno AS anno_pagamento_quota, quota.data_pagamento,
+                                quota.totale AS totale_quota, quota.tipo_pagamento, quota.stato AS stato_pagamento,
+                                quota.stato AS stato_pagamento2, quota.tipo_quota, quota.gruppo_corso,
+                                ug.title AS titolo_gruppo_corso
                             ");
 
             $count_query = $this->_db->getQuery(true)
@@ -1319,22 +1322,30 @@ class gglmsModelUsers extends JModelLegacy
             $query = $query
                 ->from('#__users u')
                 ->join('inner', '#__comprofiler cp ON u.id = cp.user_id')
-                ->join('inner', '#__gg_quote_iscrizioni quota ON quota.user_id = u.id');
+                ->join('inner', '#__gg_quote_iscrizioni quota ON quota.user_id = u.id')
                 //->join('left', '#__user_usergroup_map gp ON u.id = gp.user_id');
-                //->join('left', '#__usergroups ug ON gp.group_id = ug.id');
+                ->join('left', '#__usergroups ug ON quota.gruppo_corso = ug.id');
 
 
             $count_query = $count_query
                 ->from('#__users u')
                 ->join('inner', '#__comprofiler cp ON u.id = cp.user_id')
-                ->join('inner', '#__gg_quote_iscrizioni quota ON quota.user_id = u.id');
+                ->join('inner', '#__gg_quote_iscrizioni quota ON quota.user_id = u.id')
                 //->join('left', '#__user_usergroup_map gp ON u.id = gp.user_id');
-                //->join('left', '#__usergroups ug ON gp.group_id = ug.id');
+                ->join('left', '#__usergroups ug ON quota.gruppo_corso = ug.id');
 
 
             if (!is_null($ug_list)) {
-                $query = $query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
-                $count_query = $count_query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
+
+                if ($ug_list != "evento_nc") {
+                    $query = $query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
+                    $count_query = $count_query->where('gruppo_corso = ' . $this->_db->quote($ug_list));
+                }
+                else {
+                    $query = $query->where('tipo_quota = ' . $this->_db->quote($ug_list));
+                    $count_query = $count_query->where('tipo_quota = ' . $this->_db->quote($ug_list));
+                }
+
             }
 
             if (!is_null($tipoPagamento)) {
@@ -1355,7 +1366,8 @@ class gglmsModelUsers extends JModelLegacy
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
                                     OR quota.anno LIKE \'%' . $_search . '%\'
                                     OR quota.data_pagamento LIKE \'%' . $_search . '%\'
-                                    OR quota.totale LIKE \'%' . $_search . '%\')
+                                    OR quota.totale LIKE \'%' . $_search . '%\'
+                                    OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
 
                 $count_query = $count_query->where('(cp.cb_nome LIKE \'%' . $_search . '%\'
@@ -1363,7 +1375,8 @@ class gglmsModelUsers extends JModelLegacy
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
                                     OR quota.anno LIKE \'%' . $_search . '%\'
                                     OR quota.data_pagamento LIKE \'%' . $_search . '%\'
-                                    OR quota.totale LIKE \'%' . $_search . '%\')
+                                    OR quota.totale LIKE \'%' . $_search . '%\'
+                                    OR ug.title LIKE \'%' . $_search . '%\')
                                     ');
 
             }
