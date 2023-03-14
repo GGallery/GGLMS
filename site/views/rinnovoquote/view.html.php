@@ -78,7 +78,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             $this->client_id = $_config->getConfigValue('paypal_client_id');
             if (is_null($this->client_id)
                 || $this->client_id == "")
-                throw new Exception("Client ID di PayPal non valorizzato!", 1);
+                throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
 
             // dettagli utente
             $_user = new gglmsModelUsers();
@@ -91,8 +91,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             // chi o cosa mi sta chiamando
 
 
-            if (!is_array($_user_details))
-                throw new Exception($_user_details, 1);
+            if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
 
             $dt = new DateTime();
 
@@ -101,7 +100,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
 
             if (!isset($_user_details['ultimo_anno_pagato'])
                     || $_user_details['ultimo_anno_pagato'] == "")
-                    throw new Exception("Ultimo anno di pagamento non definito", 1);
+                    throw new Exception("Ultimo anno di pagamento non definito", E_USER_ERROR);
 
                 $_anno_corrente = $dt->format('Y');
                 // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
@@ -164,7 +163,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 if($this->call_result == 'tuttook') {
                     $_html = <<<HTML
             <script type="text/javascript">
-                
+
                 history.back();
             </script>
 HTML;

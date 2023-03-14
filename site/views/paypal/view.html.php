@@ -9,6 +9,9 @@
  * @copyright	Copyright (C) 2011 antonio - All rights reserved.
  * @license		GNU/GPL
  */
+
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
@@ -27,6 +30,7 @@ class gglmsViewPaypal extends JViewLegacy {
     protected $call_error;
     protected $result_view;
     protected $last_quota;
+    protected $is_asand = false;
 
     function display($tpl = null)
     {
@@ -160,7 +164,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
 
                 // l'integrazione dei campi extra al momento è soltanto per community builder
-                $_config = new gglmsModelConfig();
+                // $_config = new gglmsModelConfig();
                 $dettagliUtente['nome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_nome')];
                 $dettagliUtente['cognome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_cognome')];
                 $dettagliUtente['codice_fiscale'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_controllo_cf')];
@@ -209,6 +213,19 @@ class gglmsViewPaypal extends JViewLegacy {
             else if ($pp == 'acquistaevento') {
 
                 $token = JRequest::getVar('token');
+                $acquista_evento_asand = JRequest::getVar('evvasnd', null);
+
+                // se arrivo dal pagamento di un evento asand cambio il puntamento dell'sdk paypal
+                if (!is_null($acquista_evento_asand)
+                    && (int) $acquista_evento_asand == 100) {
+                    // precarico i params del modulo
+                    $_params = utilityHelper::get_params_from_module();
+
+                    $this->client_id = utilityHelper::getPayPalSecret($_params, 'paypal_client_id', $_config);
+                    $this->client_secret = utilityHelper::getPayPalSecret($_params, 'paypal_client_secret', $_config);
+                    $this->is_asand = true;
+
+                }
 
                 // decodifica dell'attributo token
                 $decode_pp = UtilityHelper::encrypt_decrypt('decrypt', $token, 'GGallery00!', 'GGallery00!');
@@ -216,8 +233,7 @@ class gglmsViewPaypal extends JViewLegacy {
 
                 // controllo i valori del token
                 // controllo se ci sono tutti gli elementi
-                if (count($decode_arr) < 5)
-                    throw new Exception("La richiesta effettuta non può essere evasa in quanto incompleta", 1);
+                if (count($decode_arr) < 5) throw new Exception("La richiesta effettuta non può essere evasa in quanto incompleta", E_USER_ERROR);
 
                 if (!isset($decode_arr[0])
                     || $decode_arr[0] == "")
@@ -269,7 +285,8 @@ class gglmsViewPaypal extends JViewLegacy {
                                                                             $pp,
                                                                             true,
                                                                             $unit_id,
-                                                                            $unit_gruppo);
+                                                                            $unit_gruppo,
+                                                                            $this->is_asand);
 
                 if (!is_array($_insert_evento))
                     $this->call_result = $_insert_evento;

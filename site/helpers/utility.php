@@ -1772,6 +1772,19 @@ HTML;
 
     }
 
+    // paypal paramentri da configurazione globale oppure da modulo acquista evento
+    public static function getPayPalSecret($_params, $configKey, $_config = null) {
+
+        $keyCheck = self::get_ug_from_object($_params, $configKey);
+
+        if (!is_null($keyCheck) && $keyCheck != "") return $keyCheck;
+
+        if (is_null($_config)) $_config = new gglmsModelConfig();
+
+        return $_config->getConfigValue($configKey);
+
+    }
+
     // funzione per gestire la visualizzazione di campi che sono controllati dalla configurazione del componente - utility per view.genera
     public static function get_display_from_configuration($_default_value, $_db_label) {
 

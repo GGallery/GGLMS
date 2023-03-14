@@ -10,6 +10,8 @@
  * @license		GNU/GPL
  */
 
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+
 // commentato per consentire l'accesso anche agli utenti non loggati
 //defined('_JEXEC') or die('Restricted access');
 
@@ -190,6 +192,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                         throw new Exception("L'utente corrente è diverso da quello che ha richiesto la transazione", E_USER_ERROR);
 
                     $this->client_id = $_config->getConfigValue('paypal_client_id');
+                    if ($this->is_asand) $this->client_id = utilityHelper::getPayPalSecret($_params, 'paypal_client_id', $_config);
+
                     if (is_null($this->client_id)
                         || $this->client_id == "")
                         throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
@@ -353,10 +357,6 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
                 $_new_user['username'] = $_new_user['name'];
                 $_new_user['email'] = trim($email_utente);
-
-                // se asand imposto lo username identico all'email
-                if ($this->is_asand) $_new_user['username'] = $_new_user['email'];
-
                 $_new_user['password'] = $_user_value = JUserHelper::hashPassword($password_utente);
 
                 // controllo il codice fiscale
@@ -369,7 +369,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                         && $_cf_check['msg'] != "")
                         $_err .= " " . $_cf_check['msg'];
 
-                    throw new Exception($_err, 1);
+                    throw new Exception($_err, E_USER_ERROR);
                 }
 
                 // controllo validità email

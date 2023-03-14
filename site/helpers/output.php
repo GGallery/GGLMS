@@ -1157,20 +1157,6 @@ HTML;
             = $_cb_titolo_studio_options = $_cb_titolo_studio_id = null;
             $_label_citta_nascita = $_label_pv_nascita = "";
 
-            // esclusivi asand
-            if ($is_asand) {
-              $_cb_luogodinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_luogodinascita', 'name');
-              $_cb_provinciadinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
-              $_cb_titolo_studio = UtilityHelper::get_cb_field_name($_params, 'campo_cb_titolo_studio', 'name');
-              $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_provinciadinascita');
-              $_cb_provincia_nascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
-              $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_titolo_studio');
-              $_cb_titolo_studio_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_titolo_studio');
-              $_label_citta_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8');
-              $_label_pv_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9');
-              $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
-            }
-
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
             $_label_cognome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR9');
@@ -1191,6 +1177,22 @@ HTML;
             $_label_ragione_sociale = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR24');
             $_label_piva = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR25');
             $_label_cod_dest =JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR26');
+            $_label_username = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR2');
+
+            // esclusivi asand
+            if ($is_asand) {
+              $_cb_luogodinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_luogodinascita', 'name');
+              $_cb_provinciadinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
+              $_cb_titolo_studio = UtilityHelper::get_cb_field_name($_params, 'campo_cb_titolo_studio', 'name');
+              $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_provinciadinascita');
+              $_cb_provincia_nascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
+              $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_titolo_studio');
+              $_cb_titolo_studio_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_titolo_studio');
+              $_label_citta_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8');
+              $_label_pv_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9');
+              $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
+              $_label_professione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR36');
+            }
 
 
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $is_asand);
@@ -1221,8 +1223,9 @@ HTML;
               </div>
 HTML;
 
-            $_html_nascita_extra = "";
-            if ($is_asand)
+            $_html_nascita_extra = $_html_titolo_studio = $_html_username = "";
+
+            if ($is_asand) {
               $_html_nascita_extra = <<<HTML
               <div class="rowcustom">
                 <div class="col-25">
@@ -1258,6 +1261,18 @@ HTML;
               </div>
             </div>
 HTML;
+
+            $_html_username = <<<HTML
+            <div class="rowcustom">
+              <div class="col-25">
+                <label for="username">{$_label_username}<span style="color: red">*</span></label>
+              </div>
+              <div class="col-25">
+                <input class="form-control" style="width: 320px;" type="text" id="username" placeholder="{$_label_username}" />
+              </div>
+            </div>
+HTML;
+            }
 
             $_html = <<<HTML
 
@@ -1325,6 +1340,8 @@ HTML;
                         <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
                       </div>
                     </div>
+
+                    {$_html_username}
 
                     <div class="rowcustom">
                       <div class="col-25">
@@ -1635,7 +1652,7 @@ HTML;
 
             $_ret = array();
 
-            $_email_to  = UtilityHelper::get_params_from_object($_params, 'email_default');
+            $_email_to  = utilityHelper::get_params_from_object($_params, 'email_from');
             $_href = utilityHelper::set_index_redirect_url();
 
             // testo pagamento bonifico con sostituzione della stringa manuale..pessima soluzione ma senza alternative
@@ -2571,7 +2588,7 @@ HTML;
                 <div class="form-group row">
                   <label for="username" class="col-sm-2 col-form-label">{$_label_username}<span style="color: red">*</span></label>
                   <div class="col-sm-10">
-                    <input class="form-control w-25" type="text" id="username" data-campo="{$_cb_nome} placeholder="{$_label_username}" />
+                    <input class="form-control w-25" type="text" id="username" placeholder="{$_label_username}" />
                   </div>
                 </div>
 

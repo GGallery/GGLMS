@@ -865,7 +865,8 @@ class gglmsModelUsers extends JModelLegacy
                                               $_template = 'servizi_extra',
                                               $send_email = true,
                                               $unit_id = null,
-                                              $unit_gruppo = null) {
+                                              $unit_gruppo = null,
+                                              $is_asand = false) {
 
         try {
 
@@ -881,7 +882,9 @@ class gglmsModelUsers extends JModelLegacy
                 $_extra_insert = ", " . $this->_db->quote($unit_gruppo);
             }
 
-            if ($_template == 'registrazioneasand' || $_template == 'voucher_buy_quota_asand') {
+            if ($_template == 'registrazioneasand'
+                || $_template == 'voucher_buy_quota_asand'
+                || $is_asand) {
                 $_extra_col .= ', stato';
                 $_extra_insert .= ", " . $this->_db->quote(1);
             }
@@ -901,8 +904,12 @@ class gglmsModelUsers extends JModelLegacy
             $_tipo_quota = 'espen';
             $_tipo_pagamento = 'paypal';
 
-            if ($_template == 'acquistaevento')
+            if ($_template == 'acquistaevento') {
+
                 $_tipo_quota = 'evento';
+                if ($is_asand) $_tipo_quota = 'evento_nc';
+
+            }
             else if ($_template == 'bb_buy_request') {
                 $_tipo_quota = 'evento_nc';
                 $_tipo_pagamento = 'bonifico';

@@ -130,6 +130,7 @@ defined('_JEXEC') or die;
                             + '&pp=acquistaevento'
                             + '&order_id=' + details.id
                             + '&token=' + jQuery('#token').val()
+                            + '&evvasnd=<?php echo $this->is_asand ? 100 : 99;?>'
 
                     });
                 },
@@ -308,6 +309,12 @@ defined('_JEXEC') or die;
 
                     <?php else: ?>
 
+                    var pUsername = jQuery('#username').val();
+                    if (pUsername.trim() == "") {
+                        customAlertifyAlert(Joomla.JText._('COM_GGLMS_ISCRIZIONE_EVENTO_STR2'), '#username');
+                        return;
+                    }
+
                     var pCittaNascita = jQuery('#citta_nascita_utente').val();
                     if (pCittaNascita == "") {
                         customAlertifyAlert(Joomla.JText._('COM_GGLMS_ISCRIZIONE_EVENTO_STR8'), '#citta_nascita_utente');
@@ -412,6 +419,9 @@ defined('_JEXEC') or die;
                     pPropArr.push({campo: pAnnoLaureaID, cb: pAnnoLaureaCB, value: pAnnoLaurea});
 
                     <?php else: ?>
+
+                    var pUsernameID = jQuery('#username').attr("id");
+                    pPropArr.push({campo: pUsernameID, cb: null, value: pUsername});
 
                     var pCittaNascitaID = jQuery('#citta_nascita_utente').attr("id");
                     var pCittaNascitaCB = jQuery('#citta_nascita_utente').attr("data-campo");
