@@ -1197,6 +1197,8 @@ HTML;
 
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $is_asand);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_request');
+            $colCheckBoxFattura = "form-control";
+            if ($is_asand) $colCheckBoxFattura = "";
 
             $_html_laurea = "";
             if (!$is_asand)
@@ -1421,7 +1423,7 @@ HTML;
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="richiesta_fattura">{$_label_richiesta_fattura}</label>
-                        <input class="form-control" type="checkbox" id="check_richiesta_fattura" />
+                        <input class="{$colCheckBoxFattura}" type="checkbox" id="check_richiesta_fattura" />
                       </div>
                     </div>
 
