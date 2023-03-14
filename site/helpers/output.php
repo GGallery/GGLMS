@@ -1280,7 +1280,7 @@ HTML;
 
             <link href="components/com_gglms/libraries/css/custom-form.css" rel="stylesheet" />
 
-            <div class="row">
+            <div class="row mt-4">
                 <div class="col-12">
                     <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
                 </div>
@@ -1620,7 +1620,7 @@ HTML;
             if ($is_asand) $buttonColClass = "col-6";
 
             $_html = <<<HTML
-            <div class="row">
+            <div class="row mt-4">
                 <div class="col-12">
                     <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
                 </div>
