@@ -1307,6 +1307,8 @@ HTML;
                       </div>
                     </div>
 
+                    {$_html_username}
+
                     <div class="rowcustom">
                       <div class="col-25">
                         <label for="password_utente">{$_label_password}<span style="color: red">*</span></label>
@@ -1342,8 +1344,6 @@ HTML;
                         <input class="form-control" type="email" id="email_utente" style="width: 220px;" placeholder="{$_label_email}" />
                       </div>
                     </div>
-
-                    {$_html_username}
 
                     <div class="rowcustom">
                       <div class="col-25">
