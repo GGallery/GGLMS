@@ -1154,8 +1154,8 @@ HTML;
             $_cb_provincia_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia');
 
             $_cb_luogodinascita = $_cb_provinciadinascita = $_cb_provincia_nascita_options = $_cb_provincia_nascita_id
-            = $_cb_titolo_studio_options = $_cb_titolo_studio_id = null;
-            $_label_citta_nascita = $_label_pv_nascita = "";
+            = $_cb_titolo_studio_options = $_cb_titolo_studio_id = $_cb_informazioniextra_options = $_cb_informazioniextra_id = null;
+            $_label_citta_nascita = $_label_pv_nascita = $_label_informazioni_extra = "";
 
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
@@ -1184,14 +1184,18 @@ HTML;
               $_cb_luogodinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_luogodinascita', 'name');
               $_cb_provinciadinascita = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provinciadinascita', 'name');
               $_cb_titolo_studio = UtilityHelper::get_cb_field_name($_params, 'campo_cb_titolo_studio', 'name');
+              $_cb_informazioniextra = UtilityHelper::get_cb_field_name($_params, 'campo_cb_informazioniextra', 'name');
               $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_provinciadinascita');
               $_cb_provincia_nascita_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provinciadinascita');
               $_cb_titolo_studio_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_titolo_studio');
               $_cb_titolo_studio_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_titolo_studio');
+              $_cb_informazioniextra_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_informazioniextra');
+              $_cb_informazioniextra_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_informazioniextra');
               $_label_citta_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR8');
               $_label_pv_nascita = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR9');
               $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
               $_label_professione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR36');
+              $_label_informazioni_extra = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR45');
             }
 
 
@@ -1225,7 +1229,7 @@ HTML;
               </div>
 HTML;
 
-            $_html_nascita_extra = $_html_titolo_studio = $_html_username = "";
+            $_html_nascita_extra = $_html_titolo_studio = $_html_username = $_html_informazioni_extra = "";
 
             if ($is_asand) {
               $_html_nascita_extra = <<<HTML
@@ -1271,6 +1275,20 @@ HTML;
               </div>
               <div class="col-25">
                 <input class="form-control" style="width: 320px;" type="text" id="username" placeholder="{$_label_username}" />
+              </div>
+            </div>
+HTML;
+
+            $_html_informazioni_extra = <<<HTML
+            <div class="rowcustom hidden" id="rowGiornoStd">
+              <div class="col-25">
+                <label for="informazioniextra">{$_label_informazioni_extra}<span style="color: red">*</span></label>
+              </div>
+              <div class="col-25">
+                <select class="form-control" id="informazioniextra" data-campo="{$_cb_informazioniextra}" data-id-ref="{$_cb_informazioniextra_id}">
+                    <option value="">-</option>
+                    {$_cb_informazioniextra_options}
+                </select>
               </div>
             </div>
 HTML;
@@ -1419,6 +1437,8 @@ HTML;
                     </div>
 
                     {$_html_laurea}
+
+                    {$_html_informazioni_extra}
 
                     <div class="rowcustom">
                       <div class="col-25">

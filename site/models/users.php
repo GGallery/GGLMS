@@ -1316,7 +1316,8 @@ class gglmsModelUsers extends JModelLegacy
             $query = $this->_db->getQuery(true)
                     ->select("u.id AS user_id, u.username, u.email,
                                 cp.cb_nome AS nome, cp.cb_cognome AS cognome,
-                                cp.cb_codicefiscale AS codice_fiscale, cp.cb_telefono AS telefono,
+                                cp.cb_codicefiscale AS codice_fiscale,
+                                cp.cb_telefono AS telefono, cp.cb_informazioniextra AS informazioni_extra,
                                 quota.id AS id_quota, quota.anno AS anno_pagamento_quota, quota.data_pagamento,
                                 quota.totale AS totale_quota, quota.tipo_pagamento, quota.stato AS stato_pagamento,
                                 quota.stato AS stato_pagamento2, quota.tipo_quota, quota.gruppo_corso,
@@ -1371,6 +1372,7 @@ class gglmsModelUsers extends JModelLegacy
                 $query = $query->where('(cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_informazioniextra LIKE \'%' . $_search . '%\'
                                     OR quota.anno LIKE \'%' . $_search . '%\'
                                     OR quota.data_pagamento LIKE \'%' . $_search . '%\'
                                     OR quota.totale LIKE \'%' . $_search . '%\'
@@ -1380,6 +1382,7 @@ class gglmsModelUsers extends JModelLegacy
                 $count_query = $count_query->where('(cp.cb_nome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_cognome LIKE \'%' . $_search . '%\'
                                     OR cp.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                    OR cp.cb_informazioniextra LIKE \'%' . $_search . '%\'
                                     OR quota.anno LIKE \'%' . $_search . '%\'
                                     OR quota.data_pagamento LIKE \'%' . $_search . '%\'
                                     OR quota.totale LIKE \'%' . $_search . '%\'

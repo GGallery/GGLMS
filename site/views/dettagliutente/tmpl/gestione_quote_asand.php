@@ -69,6 +69,7 @@ defined('_JEXEC') or die('Restricted access');
             <th data-field="data_pagamento" data-sortable="true"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR9'); ?></th>
             <th data-field="anno_pagamento_quota" data-sortable="true"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR10'); ?></th>
             <th data-field="totale_quota" data-sortable="true"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR11'); ?></th>
+            <th data-field="informazioni_extra" data-sortable="false"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR28'); ?></th>
             <th data-field="tipo_azione" data-sortable="false"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR10'); ?></th>
         </tr>
         </thead>

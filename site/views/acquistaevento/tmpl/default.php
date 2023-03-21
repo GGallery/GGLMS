@@ -207,8 +207,20 @@ defined('_JEXEC') or die;
                     jQuery("input.campi_fattura:text").val("");
                 }
 
-
             });
+
+            <?php if ($this->is_asand) : ?>
+
+                jQuery('#titolo_studio').on('change', function (e) {
+
+                    document.getElementById("rowGiornoStd").classList.add("hidden");
+
+                    if (e.target.options[e.target.selectedIndex].text.toLowerCase() == 'studente')
+                        document.getElementById("rowGiornoStd").classList.remove("hidden");
+
+                });
+
+            <?php endif; ?>
 
             // form di registrazione
             if (jQuery('.btn-registrazione').length > 0) {
@@ -333,6 +345,12 @@ defined('_JEXEC') or die;
                         return;
                     }
 
+                    var pInformazioniExtra = jQuery('#informazioniextra').val();
+                    if (pInformazioniExtra == "" && jQuery( "#titolo_studio option:selected" ).text().toLowerCase() == 'studente') {
+                        customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR45'), '#informazioniextra');
+                        return;
+                    }
+
                     <?php endif; ?>
 
                     var pPassword = jQuery('#password_utente').val();
@@ -431,6 +449,11 @@ defined('_JEXEC') or die;
                     var pTitoloStudioCB = jQuery('#titolo_studio').attr("data-campo");
                     var pTitoloStudioIDRef = jQuery('#titolo_studio').attr("data-id-ref");
                     pPropArr.push({campo: pTitoloStudioID, cb: pTitoloStudioCB, value: pTitoloStudio, is_id: pTitoloStudioIDRef});
+
+                    var pInformazioniExtraID = jQuery('#informazioniextra').attr("id");
+                    var pInformazioniExtraCB = jQuery('#informazioniextra').attr("data-campo");
+                    var pInformazioniExtraRef = jQuery('#informazioniextra').attr("data-id-ref");
+                    pPropArr.push({campo: pInformazioniExtraID, cb: pInformazioniExtraCB, value: pInformazioniExtra, is_id: pInformazioniExtraRef});
 
                     var pPvNascitaID = jQuery('#pv_nascita_utente').attr("id");
                     var pPvNascitaCB = jQuery('#pv_nascita_utente').attr("data-campo");
