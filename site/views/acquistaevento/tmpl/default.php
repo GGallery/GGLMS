@@ -217,6 +217,8 @@ defined('_JEXEC') or die;
 
                     if (e.target.options[e.target.selectedIndex].text.toLowerCase() == 'studente')
                         document.getElementById("rowGiornoStd").classList.remove("hidden");
+                    else
+                        document.getElementById('informazioniextra').value = '';
 
                 });
 
