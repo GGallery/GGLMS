@@ -211,6 +211,7 @@ defined('_JEXEC') or die;
 
             <?php if ($this->is_asand) : ?>
 
+                /*
                 jQuery('#titolo_studio').on('change', function (e) {
 
                     document.getElementById("rowGiornoStd").classList.add("hidden");
@@ -221,6 +222,42 @@ defined('_JEXEC') or die;
                         document.getElementById('informazioniextra').value = '';
 
                 });
+                */
+
+                if (jQuery('#btn-informazioniextra_pay').length) {
+                    jQuery('#btn-informazioniextra_pay').on('click', function (e) {
+                        e.preventDefault();
+
+                        var pRefDt = jQuery('#informazioniextra_pay').val();
+                        var pRefId = event.target.getAttribute("data-ref-id");
+
+                        jQuery.ajax({
+                            type: "POST",
+                            url: "index.php?option=com_gglms&task=api.storeReqEventDt",
+                            // You are expected to receive the generated JSON (json_encode($data))
+                            data: {"ref_id": pRefId, "dts": pRefDt},
+                            dataType: "json",
+                            success: function (data) {
+
+                                // controllo errore
+                                if (typeof data != "object") {
+                                    customAlertifyAlertSimple(data);
+                                    return;
+                                } else if (typeof data.error != "undefined") {
+                                    customAlertifyAlertSimple(data.error);
+                                    return;
+                                } else {
+                                    customAlertifyAlertSimple(data.success);
+                                }
+                            },
+                            error: function (er) {
+                                customAlertifyAlertSimple(er);
+                            }
+                        });
+
+                    });
+                }
+
 
             <?php endif; ?>
 
@@ -347,11 +384,13 @@ defined('_JEXEC') or die;
                         return;
                     }
 
+                    /*
                     var pInformazioniExtra = jQuery('#informazioniextra').val();
                     if (pInformazioniExtra == "" && jQuery( "#titolo_studio option:selected" ).text().toLowerCase() == 'studente') {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR45'), '#informazioniextra');
                         return;
                     }
+                    */
 
                     <?php endif; ?>
 
@@ -452,10 +491,12 @@ defined('_JEXEC') or die;
                     var pTitoloStudioIDRef = jQuery('#titolo_studio').attr("data-id-ref");
                     pPropArr.push({campo: pTitoloStudioID, cb: pTitoloStudioCB, value: pTitoloStudio, is_id: pTitoloStudioIDRef});
 
+                    /*
                     var pInformazioniExtraID = jQuery('#informazioniextra').attr("id");
                     var pInformazioniExtraCB = jQuery('#informazioniextra').attr("data-campo");
                     var pInformazioniExtraRef = jQuery('#informazioniextra').attr("data-id-ref");
                     pPropArr.push({campo: pInformazioniExtraID, cb: pInformazioniExtraCB, value: pInformazioniExtra, is_id: pInformazioniExtraRef});
+                    */
 
                     var pPvNascitaID = jQuery('#pv_nascita_utente').attr("id");
                     var pPvNascitaCB = jQuery('#pv_nascita_utente').attr("data-campo");

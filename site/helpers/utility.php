@@ -3267,7 +3267,7 @@ HTML;
     }
 
     // per i campi di tipo select ottengo la lista di option - utilità per output.php
-    public static function get_cb_field_select($_params, $_label) {
+    public static function get_cb_field_select($_params, $_label, $displayValue = false) {
 
         $_options = "";
 
@@ -3280,8 +3280,11 @@ HTML;
 
         foreach ($_cb_arr as $sub_key => $sub_values) {
 
+            $optionValue = $sub_values['fieldvalueid'];
+            if ($displayValue) $optionValue = $sub_values['fieldtitle'];
+
             $_options .= <<<HTML
-                <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>
+                <option value="{$optionValue}">{$sub_values['fieldtitle']}</option>
 HTML;
         }
 

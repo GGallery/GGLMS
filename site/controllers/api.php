@@ -14,6 +14,7 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 
 /**
@@ -2332,6 +2333,47 @@ HTML;
         echo json_encode($retArr);
         $this->_japp->close();
 
+    }
+
+    // richiesta di interessa da parte di un utente per un data specifica dell'evento
+    public function storeReqEventDt() {
+
+        $retArr = [];
+
+        try {
+
+            if (!isset($_REQUEST['ref_id'])
+                || !isset($_REQUEST['dts'])
+                || $_REQUEST['ref_id'] == ""
+                || $_REQUEST['dts'] == ""
+                )
+            throw new Exception("Paramentri mancanti, impossibile continuare", E_USER_ERROR);
+
+            // controllo esistenza utente
+            $checkUser = "SELECT *
+                            FROM #__users
+                            WHERE id = " . $this->_db->quote($_REQUEST['ref_id']);
+
+            $this->_db->setQuery($checkUser);
+            $resultUser = $this->_db->loadResult();
+
+            if (is_null($resultUser)) throw new Exception("Nessun utente trovato, impossibile continuare", E_USER_ERROR);
+
+            $user_model = new gglmsModelUsers();
+
+            $updateInfoExtra = $user_model->update_user_column($_REQUEST['ref_id'], "cb_informazioniextra", $_REQUEST['dts'], "comprofiler");
+            if (is_null($updateInfoExtra)) throw new Exception("Si è verifica un errore durante la richiesta, impossibile continuare", E_USER_ERROR);
+
+            $retArr['success'] = "Richiesta inoltrata correttamente";
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $retArr['error'] = $e->getMessage();
+        }
+
+        echo json_encode($retArr);
+        $this->_japp->close();
     }
 
     // stampa ricevuta per pagamento quota asand

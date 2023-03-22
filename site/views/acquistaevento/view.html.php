@@ -216,7 +216,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                     $this->sconto_particolare,
                                                                                     $this->acquisto_webinar,
                                                                                     $this->perc_webinar,
-                                                                                    $_params);
+                                                                                    $_params,
+                                                                                    $this->is_asand);
 
                     if (!is_array($_payment_form))
                         throw new Exception($_payment_form, E_USER_ERROR);

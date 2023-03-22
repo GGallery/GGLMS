@@ -1279,7 +1279,7 @@ HTML;
             </div>
 HTML;
 
-            $_html_informazioni_extra = <<<HTML
+            /* $_html_informazioni_extra = <<<HTML
             <div class="rowcustom hidden" id="rowGiornoStd">
               <div class="col-25">
                 <label for="informazioniextra">{$_label_informazioni_extra}<span style="color: red">*</span></label>
@@ -1291,7 +1291,7 @@ HTML;
                 </select>
               </div>
             </div>
-HTML;
+HTML; */
             }
 
             $_html = <<<HTML
@@ -1437,8 +1437,6 @@ HTML;
                     </div>
 
                     {$_html_laurea}
-
-                    {$_html_informazioni_extra}
 
                     <div class="rowcustom">
                       <div class="col-25">
@@ -1868,7 +1866,8 @@ HTML;
                                                             $sconto_particolare = 0,
                                                             $acquisto_webinar = 0,
                                                             $perc_webinar = 0,
-                                                            $_params) {
+                                                            $_params,
+                                                            $is_asand = false) {
 
         try {
 
@@ -1926,6 +1925,50 @@ HTML;
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
             $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
 
+            // verifico se sono richieste informazioni extra
+            $infoExtraRequest = false;
+            $infoExtraCheck = utilityHelper::get_params_from_object($_params, 'campo_cb_informazioniextra');
+            if (!is_null($infoExtraCheck)
+                && $infoExtraCheck != ""
+                && $is_asand) {
+                $ug_studente = utilityHelper::check_usergroups_by_name("quota_studente");
+                $in_ug_studente = utilityHelper::check_user_into_ug($user_id, (array) $ug_studente);
+
+                if ($in_ug_studente) $infoExtraRequest = true;
+            }
+
+            $informazioniExtraHtml = "";
+
+            if ($infoExtraRequest) {
+              $_cb_informazioniextra_options = UtilityHelper::get_cb_field_select($_params, 'campo_cb_informazioniextra', true);
+              $_label_informazioni_extra = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR45');
+              $_label_request_day = JText::_('COM_REGISTRAZIONE_ASAND_STR29');
+
+              $informazioniExtraHtml = <<<HTML
+              <tr>
+                <td colspan="10">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td>
+                    <label for="informazioniextra_pay">{$_label_informazioni_extra}<span style="color: red">*</span></label>
+                  </td>
+                  <td>&nbsp;</td>
+                  <td>
+                    <select class="form-control w-50" id="informazioniextra_pay" name="informazioniextra_pay">
+                      {$_cb_informazioniextra_options}
+                    </select>
+                  </td>
+                  <td>
+                    <button class="btn btn-primary" id="btn-informazioniextra_pay" data-ref-id="{$user_id}">{$_label_request_day}</button>
+                  </td>
+                  <td colspan="5">&nbsp;</td>
+              </tr>
+              <tr>
+                <td colspan="10">&nbsp;</td>
+              </tr>
+HTML;
+            }
+
             if ($_testo_pagamento_bonifico != "")
 
                 $_row_pagamento_bonfico = <<<HTML
@@ -1944,6 +1987,7 @@ HTML;
 
             $_html = <<<HTML
                     <table style="width: 100%;">
+                    {$informazioniExtraHtml}
 HTML;
 
             $_html .= <<<HTML
