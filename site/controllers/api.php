@@ -4649,7 +4649,11 @@ HTML;
                                  $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
                                  $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
                                  $row[$i] ['MANSIONE'] = $username->mansione;
-                                 $row[$i] ['ID SEDE'] = $single_farmacia['codice'];
+                                 $hh_store_code = trim($single_farmacia['codice']);
+                                  if (strlen($hh_store_code) < 6) {
+                                      $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+                                  }
+                                 $row[$i] ['ID SEDE'] = '"'. $hh_store_code .'"';
 
                                  $i++;
 
