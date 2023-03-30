@@ -1171,6 +1171,7 @@ class gglmsModelContenuto extends JModelLegacy
                         JOIN #__gg_contenuti ggc ON ggr.id_contenuto = ggc.id
                         AND ggr.id_utente = '" . $idUtente . "'
                         AND ggr.stato = 1
+                        AND ggc.pubblicato = 1
                         AND ggr.data BETWEEN ". $this->_db->quote($data_dal) ." AND ". $this->_db->quote($data_al) ."
                         AND ggr.id_corso = ". $this->_db->quote($id_unita) ;
 
