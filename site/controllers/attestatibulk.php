@@ -353,6 +353,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
             $zip->close();
+            ob_clean();
 
             //header("Content-length:" . filesize($zipname)); // questo rende il file corrotto who knows why....
             header("Content-type: application/zip");
