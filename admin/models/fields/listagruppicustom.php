@@ -39,19 +39,27 @@ class JFormFieldlistagruppicustom extends JFormFieldList {
 
         try {
 
+//            $query->select('id as value, title as text');
+//            $query->from('#__usergroups as e');
+//            $query->where('id in (101,121,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143)');
+//            $query->order('id');
+
             $db = JFactory::getDbo();
+            $subQuery_strict = $db->getQuery(true);
+
+
+            $subQuery_strict->select('group_id');
+            $subQuery_strict->from('#__usergroups_details');
+            $subQuery_strict->where("dominio= '" . gglmsHelper::imposta_domino() . "'");
+
+
             $query = $db->getQuery(true);
-
-
             $query->select('id as value, title as text');
-            $query->from('#__usergroups as e');
-            $query->where('id in (121,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143)');
-            $query->order('id');
+            $query->from('#__usergroups');
+            $query->where('parent_id IN (' . $subQuery_strict->__toString() . ')');
 
-            // Get the options.
             $db->setQuery($query);
-
-            $options = $db->loadObjectList();
+            $res = $db->loadObjectList();
 
 
         }catch (Exception $e )
@@ -60,7 +68,7 @@ class JFormFieldlistagruppicustom extends JFormFieldList {
         }
 
         // Merge any additional options in the XML definition.
-        $options = array_merge(parent::getOptions(), $options);
+        $options = array_merge(parent::getOptions(), $res);
 
         return $options;
     }

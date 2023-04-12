@@ -218,7 +218,9 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                         // controllo se il file è già esistente..metodo che mi torna utile per il loop di creazione file
                         // così da eliminare il rand()
                         $nome_file = UtilityHelper::rename_file_recursive($this->_folder_location, $nome_file);
-                        $path_file = $this->_folder_location . $nome_file;
+//                        $path_file = $this->_folder_location . $nome_file;
+                        $path_file = JPATH_ROOT . '/tmp/' . $nome_file ;
+
 
                         //DEBUGG::log(json_encode($path_file), "nome pdf", 0, 1);
 
@@ -332,7 +334,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
         try {
 
             $zip_name = $this->get_prefisso_corso($this->id_corso) . '_' . time() . '.zip';
-            $zip_location = $this->_folder_location . $zip_name;
+//            $zip_location = $this->_folder_location . $zip_name;
+            $zip_location = JPATH_ROOT . '/tmp/' . $zip_name ;
             $error = '';
 
 
@@ -350,6 +353,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
 
             $zip->close();
+            ob_clean();
 
             //header("Content-length:" . filesize($zipname)); // questo rende il file corrotto who knows why....
             header("Content-type: application/zip");
