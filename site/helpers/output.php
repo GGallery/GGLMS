@@ -2525,6 +2525,7 @@ HTML;
             $_ret = array();
 
             $_title_advise = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR6');
+            $_subtitle_advide = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR46');
             $_cb_nome  = 'cb_nome';
             $_cb_cognome = 'cb_cognome';
             $_cb_cf = 'cb_codicefiscale';
@@ -2611,7 +2612,12 @@ HTML;
 
             <div class="row mt-4">
                 <div class="col-12">
-                    <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                  <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12">
+                  <span style="color: black; font-weight: bold">{$_subtitle_advide}</span>
                 </div>
             </div>
             <hr />
