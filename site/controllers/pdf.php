@@ -58,7 +58,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
 
             $generate_pdf = isset($generate_pdf) ? $generate_pdf : true;
-//            var_dump($user_id);
+
             $db = JFactory::getDbo();
             $postData = $this->_japp->input->get;
             $id_elemento = $id_content != null ? $id_content : $postData->get('content', 0, 'int');
