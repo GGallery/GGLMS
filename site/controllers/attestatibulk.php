@@ -172,12 +172,11 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                 throw new Exception("Non ci sono dati validi per effettuare lo scaricamento degli attestati", E_USER_ERROR);
 
             if (count($attestati_corso) > 1
-                || count($user_id_list) > 1
                 || $from_bulk) {
                 // ho più di un attestato per il corso, oppure più utenti per lo stesso corso --> salvo in tmp, zippo e download
 
-                //            var_dump($attestati_corso);
-                //            die();
+//                           var_dump($attestati_corso);
+//                            die();
                 foreach ($attestati_corso as $att_id) {
 
                     $data_att = $pdf_ctrl->getDataForAttestato_multi($user_id_list, $att_id, $id_corso);
@@ -199,13 +198,13 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                             $data->dati_corso);
 
                         // il rand non serve più dopo aver adottato il controllo dell'esistenza file multipla
-                        //$nome_file = 'attestato_' . $att_id . '_' .$data->user->cognome . rand() . '.pdf';
-                        $nome_file = 'attestato_' . $att_id . '_' . $data->user->cognome;
+//                        $nome_file = 'attestato_' . $att_id . '_' .$data->user->cognome . rand() . '.pdf';
+                        $nome_file = 'attestato_' . $att_id . '_' . $data->user->cognome . '.pdf';
 
                         // se in modalità salva nome modifico il nome di default del file usando il codice coupon ed eliminando il numero randomico
-                        if (isset($data->dati_corso[0]->codice_corso)) {
-                            $nome_file = 'attestato_' . $data->dati_corso[0]->codice_corso . '_' . $data->user->cognome;
-                        }
+//                        if (isset($data->dati_corso[0]->codice_corso)) {
+//                            $nome_file = 'attestato_' . $data->dati_corso[0]->codice_corso . '_' . $data->user->cognome;
+//                        }
 
                         $nome_file = strtoupper($nome_file) . '.pdf';
 

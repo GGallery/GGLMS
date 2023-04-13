@@ -110,6 +110,7 @@ class gglmsControllerReportUtente extends JControllerLegacy
             $content_id = $postData->get('content_id', null, 'int');
             $user_id = $postData->get('user_id', null, 'int');
             $id_corso = $postData->get('id_corso', null, 'int');
+            $unita_padre = false;
 
             if(is_null($content_id)){
 
@@ -146,6 +147,8 @@ class gglmsControllerReportUtente extends JControllerLegacy
                     $this->_db->setQuery($query);
                     $result = $this->_db->loadAssoc();
 
+                    $unita_padre = true;
+
                 }else{
                     throw new Exception("Corso on esiste!", 1);
                 }
@@ -154,7 +157,7 @@ class gglmsControllerReportUtente extends JControllerLegacy
             }
 
             $pdf_ctrl = new gglmsControllerPdf();
-            $pdf_ctrl->generateAttestato($user_id, $content_id, true, $id_corso);
+            $pdf_ctrl->generateAttestato($user_id, $content_id, true, $id_corso, $unita_padre);
 
 
         } catch (Exception $e) {
