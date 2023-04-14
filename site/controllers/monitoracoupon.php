@@ -98,8 +98,8 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
                     $query = $query->order('cm.id DESC');
 
                 $this->_db->setQuery($query,$_offset,$_limit);
-                $results = $this->_db->loadAssocList();
 
+                $results = $this->_db->loadAssocList();
             } else {
                 // se nessun risultato restituisco un array vuoto
                 $results = array();
@@ -127,7 +127,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
 
 
                         $_ret[$_key_coupon][$key] = <<<HTML
-                            <span style="{$color_cell}" >{$value}</span>
+                            <span style="{$color_cell}"  >{$value}</span>
 HTML;
 
                     }
