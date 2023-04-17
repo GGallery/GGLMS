@@ -66,6 +66,9 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+            $stato = $_call_params['stato'];
+
+
 
             $this->_db->setQuery('SET SQL_BIG_SELECTS=1');
             $this->_db->execute();
@@ -82,19 +85,25 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
             //controllo se ho dati
             if ($count > 0) {
 
-                $query = $this->_db->getQuery(true)
-                    ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome), cm.id) as user , u.titolo as corso, case when DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() then 1 else 0 END as scaduto, v.stato")
-                    ->from('#__gg_coupon AS c');
+                if($stato === '0') {
+                    $query = $this->_db->getQuery(true)
+                        ->select("c.*, u.titolo as corso, case when DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() then 1 else 0 END as scaduto")
+                        ->from('#__gg_coupon AS c');
+                }else{
+                    $query = $this->_db->getQuery(true)
+                        ->select("c.*, coalesce(CONCAT(cm.cb_nome, ' ', cm.cb_cognome),cm.id) as user , u.titolo as corso, case when DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) < NOW() then 1 else 0 END as scaduto,  v.stato")
+                        ->from('#__gg_coupon AS c');
+                }
 
 
                 $query = $this->_filter_query($query, $_call_params);
+
 
                 // ordinamento per colonna - di default per id utente
                 if (!is_null($_sort)
                     && !is_null($_order)) {
                     $query = $query->order($_sort . ' ' . $_order);
-                }
-                else
+                } elseif($stato != '0')
                     $query = $query->order('cm.id DESC');
 
                 $this->_db->setQuery($query,$_offset,$_limit);
@@ -140,6 +149,7 @@ HTML;
             $_ret['error'] = $e->getMessage();
         }
 
+//        var_dump($_ret);die();
         $_rows['rows'] = $_ret;
         return $_rows;
     }
@@ -157,8 +167,11 @@ HTML;
         // info corso
         $query = $query->join('inner', '#__gg_usergroup_map AS gm ON c.id_gruppi = gm.idgruppo');
         $query = $query->join('inner', '#__gg_unit AS u ON u.id = gm.idunita');
-        $query = $query->join('inner', '#__gg_report_users AS ru ON ru.id_user = c.id_utente');
-        $query = $query->join('inner', '#__gg_view_stato_user_corso AS v ON v.id_corso = gm.idunita and v.id_anagrafica = ru.id');
+
+        if($stato != '0') {
+            $query = $query->join('inner', '#__gg_report_users AS ru ON ru.id_user = c.id_utente');
+            $query = $query->join('inner', '#__gg_view_stato_user_corso AS v ON v.id_corso = gm.idunita and v.id_anagrafica = ru.id');
+        }
 
         if ($id_gruppo_corso != -1) {
             $query = $query->where('c.id_gruppi = ' . $id_gruppo_corso);
@@ -190,7 +203,7 @@ HTML;
 
             case 0:
                 // non assegnati ad utente
-                $query = $query->join('left', '#__comprofiler as cm on cm.id = c.id_utente');
+//                $query = $query->join('left', '#__comprofiler as cm on cm.id = c.id_utente');
                 $query = $query->where('c.id_utente is null');
 
                 break;
