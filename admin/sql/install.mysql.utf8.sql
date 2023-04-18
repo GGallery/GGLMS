@@ -500,7 +500,7 @@ CREATE TABLE `#__gg_unit` (
   `sc_webinar_perc` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto percentuale per acquisto in modalita webinar',
   `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
   `prezzo_webinar_fisso` tinyint(1) NOT NULL DEFAULT 0,
-  `id_gruppi_custom` varchar(255) NULL,
+  `id_gruppi_custom` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
