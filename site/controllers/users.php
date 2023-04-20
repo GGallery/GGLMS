@@ -1552,10 +1552,15 @@ HTML;
                             if ($_socio['tipo_quota'] != "evento_nc")
                                 $value = "Rinnovo quota";
                         }
+                        else if ($key == "informazioni_extra") {
+                            if ($_socio['tipo_quota'] != "evento_nc")
+                                $value= "-";
+                        }
                         else if ($key == "anno_pagamento_quota") {
                             if ($_socio['tipo_quota'] == "evento_nc")
                                 $value = "-";
                         }
+
 
                         $_ret[$_key_socio][$key] = $value;
 
