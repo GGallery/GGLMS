@@ -2943,6 +2943,7 @@ HTML;
                 $cb_nome = utilityHelper::normalizza_stringa($row_arr[8]);
                 // colonna 9 - codice fiscale - si
                 $cb_codicefiscale = trim($row_arr[9]);
+                $cb_codicefiscale = preg_replace('/\s+/', '', $cb_codicefiscale);
                 // colonna 10 - data di nascita - si
                 $cb_data_nascita = utilityHelper::convert_dt_in_mysql(trim($row_arr[10]));
                 // colonna 11 - codice comune di nascita - si
