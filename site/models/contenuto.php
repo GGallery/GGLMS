@@ -906,7 +906,7 @@ class gglmsModelContenuto extends JModelLegacy
         }
     }
 
-    public function getOreCorso($idCorso) {
+    public function getOreCorso($idCorso, $titolo_corso) {
 
         try {
 
@@ -914,8 +914,51 @@ class gglmsModelContenuto extends JModelLegacy
                 || $idCorso == "")
                 throw new Exception("Nessun id corso definito", E_USER_ERROR);
 
-            $db = JFactory::getDbo();
-            $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
+            $oreCorso = 0;
+            $array_unit = array();
+
+            $reportObj = new gglmsModelReport();
+            $unitas = $reportObj->getSottoUnitaArrayList($idCorso);
+
+
+            if(is_array($unitas) && count($unitas) >0) {
+
+                $array_unit['id'] = $idCorso;
+                $array_unit['titolo'] = $titolo_corso;
+
+                array_push($unitas, $array_unit);
+
+                foreach ($unitas as $unita) {
+
+
+                    $db = JFactory::getDbo();
+                    $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
+                                    FROM #__gg_contenuti cgc
+                                    JOIN #__gg_unit_map cgum ON cgc.id = cgum.idcontenuto
+                                    WHERE cgum.idunita = " . $unita['id'] . "
+                                    AND cgc.pubblicato = 1
+                                    AND cgc.durata > 0";
+
+                    $db->setQuery($queryContenuti);
+
+                    $contenutiCorso = $db->loadAssocList();
+
+
+                    if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+
+
+                    foreach ($contenutiCorso as $contentKey => $singleContent) {
+
+                        $oreCorso += $singleContent['durata_plain'];
+                    }
+
+                }
+
+            }else {
+
+                $db = JFactory::getDbo();
+
+                $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
                                     FROM #__gg_contenuti cgc
                                     JOIN #__gg_unit_map cgum ON cgc.id = cgum.idcontenuto
                                     WHERE cgum.idunita = " . $idCorso . "
@@ -923,17 +966,21 @@ class gglmsModelContenuto extends JModelLegacy
                                     AND cgc.durata > 0";
 
 
-            $db->setQuery($queryContenuti);
+                $db->setQuery($queryContenuti);
 
-            $contenutiCorso = $db->loadAssocList();
+                $contenutiCorso = $db->loadAssocList();
 
-            if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+                if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
 
-            $oreCorso = 0;
-            foreach ($contenutiCorso as $contentKey => $singleContent) {
+                $oreCorso = 0;
+                foreach ($contenutiCorso as $contentKey => $singleContent) {
 
-                $oreCorso += $singleContent['durata_plain'];
+                    $oreCorso += $singleContent['durata_plain'];
+                }
+
             }
+
+
 
             return $oreCorso;
 
@@ -995,7 +1042,7 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
-    public function getCorsiPerUtente($idUtente, $ids_unita, $mese, $anno) {
+    public function getCorsiPerUtente($idUtente, $data_dal, $data_al) {
 
         try {
 
@@ -1004,33 +1051,26 @@ class gglmsModelContenuto extends JModelLegacy
                 throw new Exception("Nessun id utente definito", E_USER_ERROR);
 
 
-            if (!isset($ids_unita)
-                || !is_array($ids_unita ))
-                throw new Exception("Nessun id unita definito", E_USER_ERROR);
+            if (is_null($data_dal)
+                || $data_dal == "")
+                throw new Exception("Nessun data inizio definito", E_USER_ERROR);
 
-            if (is_null($mese)
-                || $mese == "")
-                throw new Exception("Nessun mese definito", E_USER_ERROR);
-
-            if (is_null($anno)
-                || $anno == "")
-                throw new Exception("Nessun anno utente definito", E_USER_ERROR);
+            if (is_null($data_al)
+                || $data_al == "")
+                throw new Exception("Nessun data fine definito", E_USER_ERROR);
 
 
-            $ids = implode(",", array_map('reset', $ids_unita));
 
             $db = JFactory::getDbo();
 
             // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
-            $query = "SELECT u.id AS id_unita, u.titolo as titolo_unita, ggc.titolo as titolo_contenuto, ggr.stato, (ggc.durata/60) AS durata, (ggc.durata/3600) AS durata_ore
-                        FROM #__gg_unit u
-                        JOIN #__gg_report ggr ON u.id = ggr.id_corso
-                        JOIN #__gg_contenuti ggc ON ggr.id_contenuto = ggc.id
+            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita
+                        FROM #__gg_view_stato_user_corso v
+                        JOIN #__gg_unit u ON v.id_corso = u.id
+                        JOIN #__gg_report ggr ON v.id_corso = ggr.id_corso and v.id_anagrafica = ggr.id_anagrafica
                         AND ggr.id_utente = '" . $idUtente . "'
-                        AND ggr.id_unita in (" . $ids . ")
-                        AND ggc.durata > 0
-                         AND YEAR(ggr.`timestamp`) = '" . $anno ."'
-                         AND MONTH(ggr.`timestamp`) = '" . $mese . "'";
+                        AND v.data_inizio BETWEEN " . $this->_db->quote($data_dal) ." AND " . $this->_db->quote($data_al) ."
+                        GROUP BY v.id_corso" ;
 
 
 
@@ -1098,6 +1138,128 @@ class gglmsModelContenuto extends JModelLegacy
 
 
     }
+
+    public function getCorsoPerUtente($idUtente, $id_unita, $data_dal, $data_al) {
+
+        try {
+
+            if (is_null($idUtente)
+                || $idUtente == "")
+                throw new Exception("Nessun id utente definito", E_USER_ERROR);
+
+
+            if (is_null($id_unita)
+                || $id_unita == "")
+                throw new Exception("Nessun id unita definito", E_USER_ERROR);
+
+            if (is_null($data_dal)
+                || $data_dal == "")
+                throw new Exception("Nessun data inizio definita", E_USER_ERROR);
+
+            if (is_null($data_al)
+                || $data_al == "")
+                throw new Exception("Nessun data fine definita", E_USER_ERROR);
+
+
+
+            $db = JFactory::getDbo();
+
+            // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
+            $query = "SELECT u.id AS id_unita, u.titolo as titolo_unita, ggc.titolo as titolo_contenuto, ggr.stato, ggc.durata AS durata_ore
+                        FROM #__gg_unit u
+                        JOIN #__gg_report ggr ON u.id = ggr.id_corso
+                        JOIN #__gg_contenuti ggc ON ggr.id_contenuto = ggc.id
+                        AND ggr.id_utente = '" . $idUtente . "'
+                        AND ggr.stato = 1
+                        AND ggc.pubblicato = 1
+                        AND ggr.data BETWEEN ". $this->_db->quote($data_dal) ." AND ". $this->_db->quote($data_al) ."
+                        AND ggr.id_corso = ". $this->_db->quote($id_unita) ;
+
+
+
+
+            $db->setQuery($query);
+
+            $contenutiCorso = $db->loadAssocList();
+
+            if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+
+            $oreCorso = 0;
+            foreach ($contenutiCorso as $contentKey => $singleContent) {
+
+                $oreCorso += $singleContent['durata_ore'];
+            }
+
+//            $oreCorso = round($oreCorso, 2, PHP_ROUND_HALF_UP);
+
+            return $oreCorso;
+        }
+        catch(Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
+
+    }
+
+    public function getOreCorsiPerPeriodo($data_dal, $data_al) {
+
+        try {
+
+
+            if (is_null($data_dal)
+                || $data_dal == "")
+                throw new Exception("Nessun data inizio definito", E_USER_ERROR);
+
+            if (is_null($data_al)
+                || $data_al == "")
+                throw new Exception("Nessun data fine definito", E_USER_ERROR);
+
+
+            $db = JFactory::getDbo();
+
+            $query = "SELECT u.id, u.data_inizio, u.data_fine
+                        from #__gg_unit as u
+                        WHERE u.data_inizio BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)."
+                        AND u.data_fine BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)." 
+                        OR ISNULL(u.data_inizio)
+                        OR ISNULL(u.data_fine) ";
+
+
+            $db->setQuery($query);
+
+            $ids_unita = $db->loadAssocList();
+
+
+            if (!is_array($ids_unita) || !count($ids_unita)) return 0;
+
+            $oreCorsi = 0;
+            foreach ($ids_unita as $unitKey => $singleUnit) {
+
+                $query_somma = "SELECT SUM(c.durata) as somma_durata
+                                FROM jos_gg_unit_map um
+                                JOIN jos_gg_contenuti c on um.idcontenuto = c.id
+                                WHERE um.idunita = " . $this->_db->quote($singleUnit['id']) ;
+
+                $db->setQuery($query_somma);
+
+                $durata = $db->loadAssoc();
+                $durata['somma_durata'] = is_null($durata['somma_durata']) ? 0 : $durata['somma_durata'];
+                $oreCorsi += $durata['somma_durata'];
+            }
+
+            $oreCorsi = $oreCorsi/3600 ;
+            $oreCorsi = round($oreCorsi, 0, PHP_ROUND_HALF_UP);
+
+            return $oreCorsi;
+
+        }
+        catch(Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
+
+    }
+
 
 
 }

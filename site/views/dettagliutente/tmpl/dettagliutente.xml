@@ -16,6 +16,7 @@
 				<option value="prenotazione_corsi_box">HIPPOCRATES - Visualizza box categorie corsi</option>
 				<option value="report_adesione_corsi">HIPPOCRATES - Visualizza tabella corsi e scaricamento report adesione</option>
 				<option value="report_svolgimento_corsi">HIPPOCRATES - Visualizza tabella corsi e scaricamento report completamento</option>
+				<option value="report_utenti_farmacie">HIPPOCRATES -  scaricamento report completamento</option>
 			</field>
 
 		</fieldset>

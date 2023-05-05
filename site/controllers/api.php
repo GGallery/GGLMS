@@ -80,8 +80,8 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->ref_token = JRequest::getVar('ref_token');
         $this->_filterparam->dominio = JRequest::getVar('dominio');
         $this->_filterparam->gruppo_id_piattaforma = JRequest::getVar('gruppo_id_piattaforma');
-        $this->_filterparam->mese =  JRequest::getVar('mese') ;
-        $this->_filterparam->anno =  JRequest::getVar('anno'); ;
+        $this->_filterparam->dal =  JRequest::getVar('dal');
+        $this->_filterparam->al =  JRequest::getVar('al');
 
         $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
         $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
@@ -4544,6 +4544,154 @@ HTML;
             return 0;
         }
 
+
+    }
+
+
+    public function get_report_per_farmacie() {
+
+        $_ret = array();
+
+        try {
+
+            $genera_model = new gglmsModelGeneraCoupon();
+            $model_contenuto = new gglmsModelContenuto();
+            $model_users = new gglmsModelUsers();
+
+            $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
+            if (is_null($piattaforma_default)
+                || !is_array($piattaforma_default))
+                throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
+
+
+            $dominio = $piattaforma_default['dominio'];
+
+            if (!isset($this->_filterparam->dal)
+                || $this->_filterparam->dal == "")
+                throw new Exception("Impossibile continuare, data inizio non specificata", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->al)
+                || $this->_filterparam->al == "")
+                throw new Exception("Impossibile continuare, data fine non specificata", E_USER_ERROR);
+
+
+            $data_dal = $this->_filterparam->dal ;
+            $data_al = $this->_filterparam->al ;
+
+            $i = 0;
+            $row = array();
+
+
+            $farmacieArr = $model_contenuto->getFarmacie();
+
+
+            $vecchio_farmacia = array();
+            $totOreUnita = 0;
+            $oreUnita = 0;
+            $totContenuti = 0;
+            $mediaOreCorso = 0;
+
+
+
+                foreach($farmacieArr as $key_farmacia => $single_farmacia){
+
+
+                    $userArr = $model_contenuto->get_farmacie_dipendenti($single_farmacia['codice']);
+
+
+                    foreach ($userArr as $key_user => $single_user) {
+
+                        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $data_dal, $data_al);
+
+                        if (count($contenutiPerUtenteCorso) === 0 ) {
+                            continue;
+                        }
+
+
+                        // calcolo soltanto se ci sono riferimenti
+                        if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
+
+
+                            $username = $model_users->get_username($single_user['user_id']);
+
+                          foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
+
+
+                                  $totOreUnita = 0;
+                                  $totContenuti = 0;
+                                  $mediaOreCorso = 0;
+
+                                $totContenuti = $model_contenuto->getCorsoPerUtente($single_user['user_id'], $singleContent['id_unita'], $data_dal, $data_al);
+
+                                 if (is_null($totContenuti) || !isset($totContenuti)) {
+
+                                     continue;
+                                 }
+
+
+                                 if ($totContenuti > 0 ) {
+                                     $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita'], $singleContent['titolo_unita']);
+
+                                     $totContenuti = $totContenuti / 60;
+                                     $totContenuti = round($totContenuti, 0, PHP_ROUND_HALF_UP);
+                                     $totOreUnita = $totOreUnita / 60;
+                                     $totOreUnita = round($totOreUnita, 0, PHP_ROUND_HALF_UP);
+                                     $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
+                                     $mediaOreCorso = round($mediaOreCorso, 0, PHP_ROUND_HALF_UP);
+
+                                 }
+
+                                 $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
+                                 $row[$i] ['COGNOME'] = $username->cognome;
+                                 $row[$i] ['NOME'] = $username->nome;
+                                 $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
+                                 $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
+                                 $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
+                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
+                                 $row[$i] ['MANSIONE'] = $username->mansione;
+                                 $hh_store_code = trim($single_farmacia['codice']);
+                                  if (strlen($hh_store_code) < 6) {
+                                      $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+                                  }
+                                 $row[$i] ['ID SEDE'] = '"'. $hh_store_code .'"';
+
+                                 $i++;
+
+                          }
+
+
+                        }
+
+
+                    }
+
+
+
+                }
+
+
+
+            $oreCorsi = $model_contenuto->getOreCorsiPerPeriodo($data_dal, $data_al);
+
+            $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
+
+            $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
+            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, 'Report'. time() . '.csv', $prima_riga);
+
+            // chiusura della finestra dopo generazione del report
+            $_html = <<<HTML
+            <script type="text/javascript">
+                window.close();
+            </script>
+HTML;
+        }
+        catch (Exception $e) {
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $this->_japp->close();
 
     }
 

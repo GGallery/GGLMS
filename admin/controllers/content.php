@@ -290,6 +290,36 @@ class gglmsControllerContent extends JControllerForm {
 
     }
 
+    public function delete()
+    {
+
+            $app = JFactory::getApplication();
+
+            $contentModel = $this->getModel('content');
+
+            $jinput = $app->input;
+            $id = $jinput->get('cid')[0];
+
+            $query = $this->_db->getQuery(true)
+                ->select('idunita')
+                ->from('#__gg_unit_map as m')
+                ->where('idcontenuto = ' . $id);
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadResult();
+
+            if(isset($data) || !is_null($data)) {
+                $app->redirect(JRoute::_('index.php?option=com_gglms&view=contents', false), $app->enqueueMessage('impossibile cancellare un contenuto di un corso esistente', 'Warning'));
+                return null;
+            }
+
+
+        $result = $contentModel->deleteContenuto($app->input->get('cid')[0]);
+        $app->redirect(JRoute::_('index.php?option=com_gglms&view=contents', false), $app->enqueueMessage($result,'Success'));
+
+
+    }
+
 }
 
 

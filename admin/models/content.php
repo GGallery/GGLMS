@@ -88,6 +88,25 @@ class gglmsModelContent extends JModelAdmin {
     }
 
 
+    public function deleteContenuto($pk)
+    {
+
+        try {
+            $db = JFactory::getDBO();
+
+            $query = "delete from #__gg_contenuti  where id =" . $pk;
+            $db->setQuery($query);
+            $db->execute();
+
+            return "operazione conclusa";
+
+        } catch (Exception $e) {
+
+            DEBUGG::log($e->getMessage(), 'delete contenuto', 0, 1, 0);
+            return "operazione fallita: " . $e->getMessage();
+        }
+    }
+
 
 
 

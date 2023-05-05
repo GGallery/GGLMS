@@ -52,7 +52,7 @@ class gglmsViewContents extends JViewLegacy {
 
     protected function addToolBar() {
         JToolBarHelper::title(JText::_('COM_GGLMS_MANAGER_CONTENTS'), 'GGLMS');
-        JToolBarHelper::deleteList(JText::_('COM_GGLMS__FILES_SICUROELIMINARE'), 'contents.delete');
+        JToolBarHelper::deleteList(JText::_('COM_GGLMS__FILES_SICUROELIMINARE'), 'content.delete');
         JToolBarHelper::editList('content.edit');
         JToolBarHelper::addNew('content.clonaContenuto','duplica contenuto');
         JToolBarHelper::addNew('content.add');

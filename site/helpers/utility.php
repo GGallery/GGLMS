@@ -1425,8 +1425,7 @@ class utilityHelper
     public static function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
 
         $writer = WriterEntityFactory::createCSVWriter();
-//        $writer->openToBrowser($dest_filename);
-        $writer->openToFile($dest_filename);
+        $writer->openToBrowser($dest_filename);
         $writer->setFieldDelimiter(';');
 
         // celle header
@@ -1452,16 +1451,6 @@ class utilityHelper
 
         $writer->addRows($multi_rows);
         $writer->close();
-        return true;
-
-//        $file_name = basename('corso_1.csv');
-//        file_put_contents( $file_name, file_get_contents('corso_1.csv'));
-
-//        header('Content-type: application/csv');
-//        header('Content-Disposition: attachment;filename=corso_orario.csv');
-//        header("Expires: 0");
-//        exit();
-//
     }
 
     // funzione clonata dal componente joomlaquiz per la cancellazione dei quiz di un utente - utility per api.del_user_quiz()
@@ -4046,6 +4035,46 @@ HTML;
         return pathinfo($path, PATHINFO_EXTENSION);
 
     }
+
+    public static function esporta_csv_spout_report($arr_values, $arr_cols, $dest_filename, $prima_riga) {
+
+        $writer = WriterEntityFactory::createCSVWriter();
+        $writer->openToBrowser($dest_filename);
+//        $writer->openToFile($dest_filename);
+        $writer->setFieldDelimiter(';');
+
+        // celle header
+        $riga = array();
+        $h_cells = array();
+        foreach ($arr_cols as $colonna) {
+            $h_cells[] = WriterEntityFactory::createCell($colonna);
+        }
+
+        $riga[] = WriterEntityFactory::createCell($prima_riga);
+
+        $riga_titolo = WriterEntityFactory::createRow($h_cells);
+        $prima_riga = WriterEntityFactory::createRow($riga);
+        $writer->addRow($prima_riga);
+        $writer->addRow($riga_titolo);
+
+        // celle risultati
+        $multi_rows = array();
+        foreach ($arr_values as $k_valore => $valore) {
+
+            if (!isset($valore)
+                || count($valore) == 0)
+                continue;
+
+            $valore_array = (array) $valore;
+            $multi_rows[] = WriterEntityFactory::createRowFromArray($valore_array);
+        }
+
+        $writer->addRows($multi_rows);
+        $writer->close();
+        return true;
+
+    }
+
 
     /* Generiche */
 }
