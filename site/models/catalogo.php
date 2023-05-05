@@ -190,7 +190,9 @@ class gglmsModelCatalogo extends JModelLegacy
             $count_query = $this->_db->getQuery(true)
                 ->select('COUNT(DISTINCT(u.id))');
 
-            $dt_ref = ($before_today) ? "<=" : ">=";
+            // per i report non serve limitare le date
+            // per il calendario corsi vanno visualizzati soltanto quelli con data >= ad oggi
+            // $dt_ref = ($before_today) ? "<=" : ">=";
 
             $query = $query->from('#__gg_unit as u')
                 ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
@@ -200,18 +202,23 @@ class gglmsModelCatalogo extends JModelLegacy
                 ->join('inner', '#__gg_usergroup_map as ugm on ugm.idunita = u.id')
                 ->where('det.dominio = "' . $dominio . '" ')
                 ->where('u.pubblicato = 1')
-                ->where('u.modalita IN (' . $modalita . ')')
-                ->where('u.data_inizio ' . $dt_ref . ' ' . $this->_db->quote(date('Y-m-d')));
+                ->where('u.modalita IN (' . $modalita . ')');
+
+            // fix report
+			if (!$before_today) $query = $query->where('u.data_inizio >= ' . $this->_db->quote(date('Y-m-d')));
 
             $count_query = $count_query->from('#__gg_unit as u')
                 ->join('inner', '#__gg_piattaforma_corso_map as piattamap on piattamap.id_unita=u.id')
                 ->join('inner', '#__usergroups_details as det on det.group_id=piattamap.id_gruppo_piattaforma')
                 ->join('inner', '#__gg_box_unit_map as b on b.id_unita=u.id')
                 ->join('inner', '#__gg_box_details as b1 on b1.id=b.box')
-                ->where('det.dominio="' . $dominio . '" ')
+                ->join('inner', '#__gg_usergroup_map as ugm on ugm.idunita = u.id')
+                ->where('det.dominio = "' . $dominio . '" ')
                 ->where('u.pubblicato = 1')
-                ->where('u.modalita IN (' . $modalita . ')')
-                ->where('u.data_inizio ' . $dt_ref . ' ' . $this->_db->quote(date('Y-m-d')));
+                ->where('u.modalita IN (' . $modalita . ')');
+
+            // fix report
+			if (!$before_today) $count_query = $count_query->where('u.data_inizio >= ' . $this->_db->quote(date('Y-m-d')));
 
             // ricerca
             if (!is_null($_search)) {
