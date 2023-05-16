@@ -313,7 +313,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
     public function getAttestati($id_corso)
     {
 
-        $corso_obj = $this->_db->loadObject('gglmsModelUnita');
+        $corso_obj = new gglmsModelUnita();
         $corso_obj->setAsCorso($id_corso);
 
         $all_attestati = $corso_obj->getAllAttestatiByCorso();
