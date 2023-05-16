@@ -510,7 +510,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    private function _generate_coupon($prefisso_coupon, $nome_societa)
+    public function _generate_coupon($prefisso_coupon, $nome_societa)
     {
         // controllo lunghezza del nome della società
         $_check_len = strlen($nome_societa);
@@ -541,7 +541,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
     }
 
-    private function _generate_id_iscrizione($id_piattaforma)
+    public function _generate_id_iscrizione($id_piattaforma)
     {
         $created_by=  $this->_userid === null ? '0' :  $this->_userid;
         return $id_piattaforma . '_' . uniqid(time()) . '_' . $created_by  ;

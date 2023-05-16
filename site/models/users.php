@@ -329,7 +329,6 @@ class gglmsModelUsers extends JModelLegacy
 
             } else {
 
-
                 $subQuery = $this->_db->getQuery(true)
                     ->select('id')
                     ->from('#__usergroups')
@@ -2203,6 +2202,38 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+
+
+    public function get_societa_new_user($nome_societa)
+    {
+
+        $res = array();
+
+        try {
+
+            $id_gruppo_piattaforme = $this->_config->getConfigValue('id_gruppo_piattaforme');
+
+            $subQuery = $this->_db->getQuery(true)
+                    ->select('id')
+                    ->from('#__usergroups')
+                    ->where('parent_id= ' . $id_gruppo_piattaforme);
+
+
+            $query_P = $this->_db->getQuery(true)
+                ->select('id')
+                ->from('#__usergroups')
+                ->where($this->_db->quoteName('parent_id') . ' IN (' . $subQuery->__toString() . ')')
+                ->where('title = "' . $nome_societa . '"');
+            $this->_db->setQuery($query_P);
+            $res = $this->_db->loadObject();
+
+            return $res;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_societa_new_user');
+        }
+
+
+    }
 
 }
 

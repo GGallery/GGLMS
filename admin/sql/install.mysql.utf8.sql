@@ -399,7 +399,7 @@ CREATE TABLE `#__gg_report_users` (
   `cognome` varchar(50) DEFAULT NULL,
   `fields` longtext,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`,`id_user`),
   UNIQUE KEY `unico` (`id_event_booking`,`id_user`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
