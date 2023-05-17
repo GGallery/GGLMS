@@ -585,6 +585,10 @@ HTML;
                                         $email_index++;
                                     }
                                 }
+                            } else if ($db_col == "corso"){
+
+                                $titolo_corso = $_user_value;
+                                continue;
                             }
 
                             $_new_user[$db_col] = $_user_value;
@@ -642,6 +646,9 @@ HTML;
                                 }
                                 $_new_user_groups[] = $_group_id;
                             }
+
+                            $group_corso = utilityHelper::check_usergroups_by_name($titolo_corso);
+                            $_new_user_groups[] = $group_corso;
 
                         }
 
@@ -781,12 +788,12 @@ HTML;
                             $data['stampatracciato'] = 0;
                             $data['trial'] = 0;
                             $data['id_societa'] = $id_societa->id;
-                            $data['id_gruppi'] = $_new_user_groups[2];
+                            $data['id_gruppi'] = $group_corso;
                             $data['ref_skill'] = 'NULL';
                             $data['id_iscrizione'] = $_model_coupon->_generate_id_iscrizione($id_piattaforma);
                             $data['data_abilitazione'] = date('Y-m-d H:i:s', time());
 
-                            $info_corso = $_model_coupon->get_info_corso((int)$_new_user_groups[2]);
+                            $info_corso = $_model_coupon->get_info_corso($group_corso);
                             $prefisso_coupon = $info_corso["prefisso_coupon"];
 
                             $nome_societa = (string)$_groups_map[1];
