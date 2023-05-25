@@ -4629,14 +4629,14 @@ HTML;
                                      continue;
                                  }
 
+                                $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita'], $singleContent['titolo_unita']);
+                                $totOreUnita = $totOreUnita / 60;
+                                $totOreUnita = round($totOreUnita, 0, PHP_ROUND_HALF_UP);
 
                                  if ($totContenuti > 0 ) {
-                                     $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita'], $singleContent['titolo_unita']);
 
                                      $totContenuti = $totContenuti / 60;
                                      $totContenuti = round($totContenuti, 0, PHP_ROUND_HALF_UP);
-                                     $totOreUnita = $totOreUnita / 60;
-                                     $totOreUnita = round($totOreUnita, 0, PHP_ROUND_HALF_UP);
                                      $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
                                      $mediaOreCorso = round($mediaOreCorso, 0, PHP_ROUND_HALF_UP);
 
