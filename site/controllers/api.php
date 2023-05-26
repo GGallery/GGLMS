@@ -4696,6 +4696,96 @@ HTML;
 
     }
 
+    public function completa_corso_per_utente() {
+
+        try {
+
+            if (!isset($this->_filterparam->corso_id)
+                || $this->_filterparam->corso_id == "")
+                throw new Exception("Nessun corso definito", 1);
+
+            $id_corso = $this->_filterparam->corso_id;
+
+            $select_users = $this->_db->getQuery(true)
+                ->select('id_utente')
+                ->from('#__gg_report')
+                ->where('id_corso = ' . $this->_db->quote($id_corso))
+                ->where('stato = 0');
+
+            $this->_db->setQuery($select_users);
+            $results_users = $this->_db->loadAssocList();
+
+
+             $select_map = $this->_db->getQuery(true)
+                    ->select('um.idcontenuto')
+                    ->from('#__gg_unit_map um')
+                    ->where('idunita = ' . $this->_db->quote($id_corso));
+
+            $this->_db->setQuery($select_map);
+            $results_map = $this->_db->loadAssocList();
+
+            $dt = new DateTime();
+            $_date = $dt->format('Y-m-d');
+            $ts = $dt->format('Y-m-d H:i:s');
+
+
+            $this->_db->transactionStart();
+
+
+            // se ci sono contenuti init devo convertirli in completed
+
+            foreach ($results_users as $key_user => $user) {
+
+                foreach ($results_map as $key_init => $init) {
+
+                    $update_init_1 = "UPDATE #__gg_scormvars
+                                      SET varValue = 'completed'
+                                        WHERE scoid = " . $this->_db->quote($init['idcontenuto']) . "
+                                        AND userid = " . $this->_db->quote($user['id_utente']) . "
+                                        AND varValue = 'init'
+                                    ";
+
+                    $insert_scorm_1 = "INSERT INTO #__gg_scormvars
+                                  (scoid, userid, varName, varValue, timestamp)
+                                  VALUES (
+                                    " . $this->_db->quote($init['idcontenuto']) . ",
+                                    " . $this->_db->quote($user['id_utente']) . ",
+                                    'cmi.core.total_time',
+                                    3000,
+                                    " . $this->_db->quote($ts) . "
+                                    )
+                                    ON DUPLICATE KEY UPDATE
+                                     varValue = 3000 ";
+
+
+                    $this->_db->setQuery($update_init_1);
+                    if (!$this->_db->execute())
+                        throw new Exception("Update init query 1 ko -> " . $update_init_1, 1);
+
+                    $this->_db->setQuery($insert_scorm_1);
+                    if (!$this->_db->execute())
+                        throw new Exception("Insert init query 2 ko -> " . $insert_scorm_1, 1);
+
+
+                }
+
+
+            }
+                $this->_db->transactionCommit();
+
+
+            echo "Operazione terminata: " . date('d/m/Y H:i:s');
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            echo __FUNCTION__ . " error: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
