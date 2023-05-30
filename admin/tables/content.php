@@ -51,6 +51,12 @@ class gglmsTableContent extends JTable {
             $array['prerequisiti'] = implode(',',$array['prerequisiti']);
         }
 
+        if (isset($array['durata']) && isset($_REQUEST['jform']['durata'])) {
+
+            DEBUGG::log('id_contenuto : '. $array['durata'] .',durata : '. $_REQUEST['jform']['durata'], 'Modifica durata contenuto', 0, 1, 0);
+
+        }
+
         return parent::bind($array, $ignore);
     }
 
