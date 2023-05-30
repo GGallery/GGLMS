@@ -53,7 +53,7 @@ class gglmsTableContent extends JTable {
 
         if (isset($array['durata']) && isset($_REQUEST['jform']['durata'])) {
 
-            DEBUGG::log('id_contenuto : '. $array['durata'] .',durata : '. $_REQUEST['jform']['durata'], 'Modifica durata contenuto', 0, 1, 0);
+            DEBUGG::log('id_contenuto : '. $array['id'] . ' vecchia durata : '. $array['durata']. ', nuova durata : '. $_REQUEST['jform']['durata'], 'Modifica durata contenuto', 0, 1, 0);
 
         }
 
