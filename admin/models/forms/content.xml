@@ -111,7 +111,7 @@
 				class="btn-group"
 				default="0"
 		>
-			<option value="1">Basta aprilo</option>
+			<option value="1">Basta aprirlo</option>
 			<option value="0">Bisogna vedersi tutto il video</option>
 		</field>
 
