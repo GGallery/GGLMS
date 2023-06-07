@@ -519,6 +519,7 @@ class gglmsModelContenuto extends JModelLegacy
                 return;
 
             $stato_attuale = $this->getStato();
+            $durata = 0;
 
             $stato = new gglmsModelStatoContenuto();
             $tmp = new stdClass();
@@ -547,12 +548,20 @@ class gglmsModelContenuto extends JModelLegacy
             if (!$stato_attuale->completato) {
                 $tmp->varName = 'cmi.core.lesson_status';
 
-                if ($this->mod_track == 1)
+                if ($this->mod_track == 1) {
                     $tmp->varValue = 'completed';
-                else
-                    $tmp->varValue = 'init';
+                    $durata = $this->getDurataContenuto($this->id);
 
+                }else {
+                    $tmp->varValue = 'init';
+                }
                 $stato->setStato($tmp);
+
+                if($durata > 0) {
+                    $tmp->varName = 'cmi.core.total_time';
+                    $tmp->varValue = $durata;
+                    $stato->setStato($tmp);
+                }
             }
         } catch (Exception $e) {
             DEBUGG::log($e->getMessage(), 'error in setStato', 0, 1, 0);
@@ -887,6 +896,23 @@ class gglmsModelContenuto extends JModelLegacy
             return $e->getMessage();
         }
 
+    }
+
+    public function getDurataContenuto($id){
+
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('durata')
+                ->from('#__gg_contenuti')
+                ->where('id = ' . $id);
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadResult();
+
+            return $data;
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getDurataContenuto' , 0,1,0);
+        }
     }
 
 
