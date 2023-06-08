@@ -1041,6 +1041,32 @@ class gglmsModelUnita extends JModelLegacy
         }
     }
 
+    public function get_titolo_corso_from_gruppo($id_gruppo_corso)
+    {
+
+
+        try {
+            $query = $this->_db->getQuery(true);
+            $query->select('u.titolo as titolo_corso')
+                ->from('#__gg_usergroup_map AS m ')
+                ->join('inner', '#__gg_unit AS u ON u.id = m.idunita')
+                ->where('m.idgruppo=' . $id_gruppo_corso);
+
+            $this->_db->setQuery($query);
+
+            $corso_obj = $this->_db->loadResult();
+
+
+            return $corso_obj;
+
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_corso_from_gruppo');
+        }
+
+
+    }
+
 
 }
 

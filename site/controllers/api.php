@@ -2389,7 +2389,7 @@ HTML;
 
             $query = "SELECT usr.id as user_id, usr.email,
                             cb.cb_codicefiscale, cb.cb_nome, cb.cb_cognome, DATE_FORMAT(cb.cb_datadinascita, '%d/%m/%Y') AS cb_datadinascita, cb_luogodinascita, cb_provinciadinascita,
-                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento, quote.gruppo_corso
+                            quote.anno, quote.totale, quote.tipo_quota, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento, quote.gruppo_corso
                         FROM #__users usr
                         JOIN #__comprofiler cb ON usr.id = cb.user_id
                         JOIN #__gg_quote_iscrizioni quote ON usr.id = quote.user_id
@@ -2443,7 +2443,75 @@ HTML;
                 }
             }
 
-            echo <<<HTML
+            if ($result['tipo_quota'] == 'evento_nc') {
+
+                $model_unita = new gglmsModelUnita();
+                $titolo_corso = $model_unita->get_titolo_corso_from_gruppo($result['gruppo_corso']);
+
+                $logoAsand_ggallery = $siteRefUrl . "logo_asand_ggallery.png";
+
+                echo <<<HTML
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    * { font-family: Calibri; font-size: 20px; }
+                    table {
+                        /* width: auto; */
+                    }
+                    table, th, td  {
+                        border: 0px !important;
+                        border-collapse: collapse;
+                        /* padding: 2px 3px;
+                        text-align: center; */
+                    }
+                    @media print
+                    {
+                        .no-print, .no-print *
+                        {
+                            display: none !important;
+                        }
+                    }
+
+                </style>
+            </head>
+            <body>
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <img src="{$logoAsand_ggallery}" alt="logo" title="logo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;">Genova, {$result['data_pagamento']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Si certifica che {$result['cb_cognome']} {$result['cb_nome']} nato/a a {$result['cb_luogodinascita']} ({$result['cb_provinciadinascita']}) il {$result['cb_datadinascita']},
+                    con codice fiscale {$formattedCf}, ha versato la quota di iscrizione al {$titolo_corso}, pari a &euro; {$formattedQuota}.<br />
+                </p>
+                <p style="text-align: right;">GGallery srl</p>
+                 <p style="text-align: right;">Segreteria Organizzativa ASAND</p>
+                <br />
+                <br />
+                <table style="width: 100%">
+                    <tbody>
+                      
+                        <tr class="no-print">
+                            <td colspan="2" style="text-align: center">
+                                <button onclick="window.print();">STAMPA</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+HTML;
+
+            }else {
+
+                echo <<<HTML
             <!DOCTYPE html>
             <html>
             <head>
@@ -2516,6 +2584,7 @@ HTML;
             </body>
             </html>
 HTML;
+            }
 
         }
         catch(Exception $e) {
@@ -3471,7 +3540,7 @@ HTML;
             $count = $db->loadObject();
 
             $query = $db->getQuery(true)
-                ->select('id, CONCAT( anno, "-", user_id ) AS numero_fattura, tipo_pagamento,DATE_FORMAT(data_pagamento, "%d-%m-%Y") as data_pagamento, totale, stato')
+                ->select('id, CONCAT( anno, "-", user_id ) AS numero_fattura, tipo_quota, tipo_pagamento, DATE_FORMAT(data_pagamento, "%d-%m-%Y") as data_pagamento, totale, gruppo_corso, stato')
                 ->from('#__gg_quote_iscrizioni')
                  ->where('user_id = ' . $id_user);
 
@@ -3493,8 +3562,11 @@ HTML;
             if (isset($fatture)) {
                 foreach ($fatture as $_key_row => $_row) {
 
-                    //rows da colorare
-                    if($_row->stato == 1){
+                    if($_row->tipo_quota == 'evento_nc' && $_row->stato == 1){
+
+                        $model_unita = new gglmsModelUnita();
+                        $_row->tipo_quota = $model_unita->get_titolo_corso_from_gruppo($_row->gruppo_corso);
+
                         $color_cell = 'color:green';
                         $_row->stato = <<<HTML
                             <span style="{$color_cell}" >Pagato</span>
@@ -3510,8 +3582,40 @@ HTML;
                                     </a>
 HTML;
 
+                    }else if($_row->tipo_quota == 'annuale' && $_row->stato == 1){
 
-                    }else if($_row.'stato' == 0) {
+                        $_row->tipo_quota = "Rinnovo quota" ;
+
+                        $color_cell = 'color:green';
+                        $_row->stato = <<<HTML
+                            <span style="{$color_cell}" >Pagato</span>
+HTML;
+                        $encodedReceiptId = utilityHelper::build_randon_token($_row->id);
+
+                        $url = "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId ;
+                        $_row->fattura = <<<HTML
+                                   <a class="far fa-file-pdf fa-2x"
+                                      target="popup"
+                                      onclick="window.open('{$url}','popup','width=600,height=600'); return false;" style="cursor: pointer;color: red">
+
+                                    </a>
+HTML;
+
+                    }else if($_row->tipo_quota == 'annuale' && $_row->stato == 0){
+
+                        $_row->tipo_quota = "Rinnovo quota" ;
+
+                        $color_cell = 'color:red';
+                        $_row->stato = <<<HTML
+                            <span style="{$color_cell}" >Non pagato</span>
+HTML;
+                        $_row->fattura = '';
+
+                    }else if($_row->tipo_quota == 'evento_nc' &&$_row->stato == 0) {
+
+                        $model_unita = new gglmsModelUnita();
+                        $_row->tipo_quota = $model_unita->get_titolo_corso_from_gruppo($_row->gruppo_corso);
+
                         $color_cell = 'color:red';
                         $_row->stato = <<<HTML
                             <span style="{$color_cell}" >Non pagato</span>

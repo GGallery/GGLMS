@@ -32,7 +32,7 @@ defined('_JEXEC') or die;
     >
         <thead>
         <tr>
-            <th data-field="numero_fattura" data-sortable="true"><?php echo  JText::_('COM_REGISTRAZIONE_ASAND_STR20') ?></th>
+            <th data-field="tipo_quota" data-sortable="true"><?php echo  JText::_('COM_GGLMS_REPORT_TITOLO_EVENTO') ?></th>
             <th data-field="data_pagamento" data-sortable="true"><?php echo  JText::_('COM_REGISTRAZIONE_ASAND_STR21') ?></th>
             <th data-field="tipo_pagamento" data-sortable="true"><?php echo  JText::_('COM_REGISTRAZIONE_ASAND_STR22') ?></th>
             <th data-field="totale" data-sortable="true"><?php echo  JText::_('COM_REGISTRAZIONE_ASAND_STR23') ?></th>
