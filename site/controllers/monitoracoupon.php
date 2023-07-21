@@ -169,8 +169,8 @@ HTML;
         $query = $query->join('inner', '#__gg_unit AS u ON u.id = gm.idunita');
 
         if($stato != '0') {
-            $query = $query->join('inner', '#__gg_report_users AS ru ON ru.id_user = c.id_utente');
-            $query = $query->join('inner', '#__gg_view_stato_user_corso AS v ON v.id_corso = gm.idunita and v.id_anagrafica = ru.id');
+            $query = $query->join('left', '#__gg_report_users AS ru ON c.id_utente = ru.id_user');
+            $query = $query->join('left', '#__gg_view_stato_user_corso AS v ON gm.idunita = v.id_corso and  ru.id = v.id_anagrafica');
         }
 
         if ($id_gruppo_corso != -1) {
@@ -198,7 +198,7 @@ HTML;
         switch ($stato) {
             case -1:
                 // qualsiasi
-                $query = $query->join('left', '#__comprofiler as cm on cm.id = c.id_utente');
+                $query = $query->join('left', '#__comprofiler as cm on c.id_utente = cm.id ');
                 break;
 
             case 0:
