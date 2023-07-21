@@ -225,7 +225,7 @@ HTML;
         }
 
 
-       // $query = $query->order('c.data_utilizzo DESC');
+       // $query = $query->order('c.data_utilizzo DESC')  ;
         return $query;
     }
 
