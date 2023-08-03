@@ -3080,7 +3080,8 @@ HTML;
                                                   $obj_unit,
                                                   $sconto_particolare = 0,
                                                   $acquisto_webinar = 0,
-                                                  $perc_webinar = 0) {
+                                                  $perc_webinar = 0,
+                                                  $unit_prezzo = 0) {
 
         $_ret = array();
         $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
@@ -3092,14 +3093,16 @@ HTML;
         // sconto per campo custom
         if ($sconto_custom != "") {
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_custom_cb}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_custom_cb})</small></span>
 HTML;
             $_descrizione_sconto = " sconto " . $sconto_custom;
         }
         else if ($sconto_data == 1
             && $in_groups == 1) { // sconto data per gruppo
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_data_gruppi}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_data_gruppi})</small></span>
 HTML;
             $_descrizione_sconto = " sconto Soci acquisto prima del " . $dt->format('d/m/Y');
 
@@ -3107,20 +3110,23 @@ HTML;
         else if ($sconto_data == 1
             && $in_groups == 0) { // sconto per data senza gruppo
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_data}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_data})</small></span>
 HTML;
             $_descrizione_sconto = " sconto acquisto prima del " . $dt->format('d/m/Y');
         }
         else if ($sconto_data == 0
             && $in_groups == 1) { // sconto per gruppo
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_gruppi}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_gruppi})</small></span>
 HTML;
             $_descrizione_sconto = " sconto Soci";
         }
         else if ($sconto_particolare > 0) {
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$sconto_particolare}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$sconto_particolare})</small></span>
 HTML;
             $_descrizione_sconto = " sconto personalizzato ";
         }
@@ -3128,7 +3134,8 @@ HTML;
         // gestione dell'acquisto in modalità webinar
         if ($acquisto_webinar > 0) {
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} {$perc_webinar} %</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} {$perc_webinar} %)</small></span>
 HTML;
             $_descrizione_sconto = " <b>IN MODALITA' WEBINAR</b> ";
         }

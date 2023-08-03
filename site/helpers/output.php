@@ -1902,7 +1902,8 @@ HTML;
                 $_unit,
                 $sconto_particolare,
                 $acquisto_webinar,
-                $perc_webinar);
+                $perc_webinar,
+                $unit_prezzo);
 
             $_descr_checkbox_evento = "Acquisto " . $_unit->titolo;
             $_descr_checkbox_evento .= $_tipo_sconto['descrizione_sconto'] != "" ? ' ' . $_tipo_sconto['descrizione_sconto'] : '';
@@ -1974,12 +1975,12 @@ HTML;
                 $_row_pagamento_bonfico = <<<HTML
                     <tr>
                         <td colspan="5" style="text-align: center;">
-                            {$_testo_pagamento_bonifico}
+                          {$_testo_pagamento_bonifico}
                         </td>
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align: center;">
-                            <button class="btn btn-primary" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
+                          <button class="btn btn-primary" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
                         </td>
                     </tr>
 HTML;
@@ -2004,16 +2005,21 @@ HTML;
                         <td id="cella_evento">
                             {$_descr_checkbox_evento}
                         </td>
+                        <!--
                         <td>&nbsp;</td>
                         <td>
                             <h5>€ <b>{$unit_prezzo}</b></h5>
                         </td>
+                        -->
+                        <td colspan="2">&nbsp;</td>
                     </tr>
                      <tr>
                         <td colspan="2">&nbsp;</td>
                         <td><h5><b>TOTALE</b></h5></td>
                         <td>&nbsp;</td>
-                        <td><h5>€ <b><span id="amount_span" {$_style_totale}>{$unit_prezzo_db}</span> {$_tipo_sconto['label_sconto']}</b></h5></td>
+                        <td>
+                          <h5>€ <b><span id="amount_span" {$_style_totale}>{$unit_prezzo_db}</span> {$_tipo_sconto['label_sconto']}</b></h5>
+                        </td>
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align: center;">

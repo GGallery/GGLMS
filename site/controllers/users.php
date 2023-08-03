@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
+require_once JPATH_COMPONENT . '/models/generacoupon.php';
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
@@ -464,6 +465,8 @@ HTML;
                         && count($json_config['cols_schema']['profiler']) > 0)
                 $_profiler = $json_config['cols_schema']['profiler'];
 
+            $attiva_coupon = isset($json_config['cols_schema']['attiva_coupon']) ? (int)$json_config['cols_schema']['attiva_coupon'] : 0;
+
             $_groups = null;
             if (isset($json_config['cols_schema']['groups'])
                         && count($json_config['cols_schema']['groups']) > 0)
@@ -489,6 +492,7 @@ HTML;
 
             $reader->open($target_file); //open the file
             $import_report = array();
+            $user = new gglmsModelUsers();
 
             $db->transactionStart();
             $i=0;
@@ -581,6 +585,10 @@ HTML;
                                         $email_index++;
                                     }
                                 }
+                            } else if ($db_col == "corso"){
+
+                                $titolo_corso = $_user_value;
+                                continue;
                             }
 
                             $_new_user[$db_col] = $_user_value;
@@ -630,8 +638,17 @@ HTML;
 
                             foreach ($_groups_map as $g_key => $_group_name) {
                                 $_group_id = utilityHelper::check_usergroups_by_name($_group_name);
+
+                                if($g_key == 1) {
+                                    $id_societa = $user->get_societa_new_user($_group_name);
+                                    $id_piattaforma = utilityHelper::check_usergroups_by_name($_group_name);
+                                    $_group_id = $id_societa->id;
+                                }
                                 $_new_user_groups[] = $_group_id;
                             }
+
+                            $group_corso = utilityHelper::check_usergroups_by_name($titolo_corso);
+                            $_new_user_groups[] = $group_corso;
 
                         }
 
@@ -754,7 +771,49 @@ HTML;
                         UtilityHelper::write_file_to($log_file . '_inserted_cp.log', "INSERTED CP: " . $_new_user_id . ":" . $_new_user['username'],true);
                         $import_report['inserted_cp'][] = $_new_user['username'];
 
+
+                        if ($attiva_coupon) {
+
+                            $data = array();
+                            $_config = new gglmsModelConfig();
+                            $_model_coupon = new gglmsModelgeneracoupon();
+
+                            $data['attestato'] = 1;
+                            $data['id_utente'] = $_new_user_id;
+                            $data['gruppo'] = 16;
+                            $data['creation_time'] = date('Y-m-d H:i:s', time());
+                            $data['data_utilizzo'] = date('Y-m-d H:i:s', time());
+                            $data["durata"] = $_config->getConfigValue('durata_standard_coupon');
+                            $data['abilitato'] = 1;
+                            $data['stampatracciato'] = 0;
+                            $data['trial'] = 0;
+                            $data['id_societa'] = $id_societa->id;
+                            $data['id_gruppi'] = $group_corso;
+                            $data['ref_skill'] = 'NULL';
+                            $data['id_iscrizione'] = $_model_coupon->_generate_id_iscrizione($id_piattaforma);
+                            $data['data_abilitazione'] = date('Y-m-d H:i:s', time());
+
+                            $info_corso = $_model_coupon->get_info_corso($group_corso);
+                            $prefisso_coupon = $info_corso["prefisso_coupon"];
+
+                            $nome_societa = (string)$_groups_map[1];
+
+                            $data['coupon'] = $_model_coupon->_generate_coupon($prefisso_coupon, $nome_societa);
+
+                            $_coupon_insert_query = UtilityHelper::get_insert_query("gg_coupon", $data);
+                            $_coupon_insert_query_result = UtilityHelper::insert_new_with_query($_coupon_insert_query);
+                            if (!is_array($_coupon_insert_query_result))
+                                throw new Exception(print_r($data, true) . " errore durante inserimento coupon", 1);
+
+
+                            UtilityHelper::write_file_to($log_file . '_inserted_coupon.log', "INSERTED COUPON: " . $_new_user_id . " : " . $data['coupon'],true);
+                            $import_report['inserted_coupon'][] = $data['coupon'];
+
+
+                        }
+
                         $db->transactionCommit();
+
 
                         continue 2;
 
@@ -768,6 +827,7 @@ HTML;
             $row_existing = count($import_report['row_existing']);
             $inserted = count($import_report['inserted']);
             $inserted_cp = count($import_report['inserted_cp']);
+            $inserted_coupon = count($import_report['inserted_coupon']);
             $not_inserted = count($import_report['not_inserted']);
             $missing_fields = count($import_report['missing_fields']);
             $existing = count($import_report['existing']);
@@ -780,6 +840,7 @@ HTML;
                 Righe totali {$row_existing} <br />
                 Inserite users {$inserted} righe <br />
                 Inserite profiler {$inserted_cp} righe <br />
+                Inserite coupon {$inserted_coupon} righe <br />
                 Non inserite per campi non conformi (es. email non valida) {$not_inserted} righe <br />
                 Non inserite per campi necessari mancanti {$missing_fields} righe <br />
                 Non inserite perchè già esistenti {$existing} righe <br />

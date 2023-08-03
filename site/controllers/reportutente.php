@@ -106,31 +106,58 @@ class gglmsControllerReportUtente extends JControllerLegacy
 
 
            $data_superamento=$this->_filterparam->data_superamento;
-
-
             $postData = $this->_japp->input->get;
             $content_id = $postData->get('content_id', null, 'int');
             $user_id = $postData->get('user_id', null, 'int');
             $id_corso = $postData->get('id_corso', null, 'int');
+            $unita_padre = false;
 
             if(is_null($content_id)){
 
                 $query = $this->_db->getQuery(true)
-                    ->select('cont.id')
+                    ->select('un.is_corso')
                     ->from('#__gg_unit un')
-                    ->join('inner', '#__gg_unit_map map ON un.id = map.idunita')
-                    ->join('inner', '#__gg_contenuti cont ON map.idcontenuto = cont.id')
-                    ->where('un.id = ' . $this->_db->quote($id_corso))
-                    ->where('cont.tipologia = 5');
-
+                    ->where('un.unitapadre = ' . $this->_db->quote($id_corso));
                 $this->_db->setQuery($query);
-                $result = $this->_db->loadAssoc();
+                $is_corso = $this->_db->loadAssoc();
+
+                if(count($is_corso) === 0) {
+
+                    $query = $this->_db->getQuery(true)
+                        ->select('cont.id')
+                        ->from('#__gg_unit un')
+                        ->join('inner', '#__gg_unit_map map ON un.id = map.idunita')
+                        ->join('inner', '#__gg_contenuti cont ON map.idcontenuto = cont.id')
+                        ->where('un.id = ' . $this->_db->quote($id_corso))
+                        ->where('cont.tipologia = 5');
+
+                    $this->_db->setQuery($query);
+                    $result = $this->_db->loadAssoc();
+
+                }elseif (count($is_corso) > 0){
+
+                    $query = $this->_db->getQuery(true)
+                        ->select('cont.id')
+                        ->from('#__gg_unit un')
+                        ->join('inner', '#__gg_unit_map map ON un.id = map.idunita')
+                        ->join('inner', '#__gg_contenuti cont ON map.idcontenuto = cont.id')
+                        ->where('un.unitapadre = ' . $this->_db->quote($id_corso))
+                        ->where('cont.tipologia = 5');
+
+                    $this->_db->setQuery($query);
+                    $result = $this->_db->loadAssoc();
+
+                    $unita_padre = true;
+
+                }else{
+                    throw new Exception("Corso on esiste!", 1);
+                }
 
                 $content_id = (int)$result['id'];
             }
 
             $pdf_ctrl = new gglmsControllerPdf();
-            $pdf_ctrl->generateAttestato($user_id, $content_id, true, $id_corso);
+            $pdf_ctrl->generateAttestato($user_id, $content_id, true, $id_corso, $unita_padre);
 
 
         } catch (Exception $e) {
