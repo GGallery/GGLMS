@@ -64,6 +64,7 @@ class gglmsViewdettagliutente extends JViewLegacy
 
 
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/codice_votazione.css');
             JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
@@ -237,6 +238,10 @@ HTML;
 
             }else if ($layout == 'gestione_accesso_utenti_aic') {
                 // nothing to do at this moment..
+            }else if ($layout == 'verifica_codice_votazione') {
+
+                $_current_user = JFactory::getUser();
+                $this->user_id = $_current_user->id;
             }
 
         }

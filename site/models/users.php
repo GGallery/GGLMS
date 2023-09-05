@@ -1055,7 +1055,7 @@ class gglmsModelUsers extends JModelLegacy
 
                 $this->_db->transactionStart();
 
-                $query = "UPDATE #__gg_quote_iscrizioni 
+                $query = "UPDATE #__gg_quote_iscrizioni
                       SET stato = 1
                       WHERE user_id = '" . $user_id . "'
                       AND anno = '" . $_anno_quota ."'";
@@ -2232,6 +2232,31 @@ class gglmsModelUsers extends JModelLegacy
             DEBUGG::error($e, 'get_societa_new_user');
         }
 
+
+    }
+
+    public static function get_user_by_id($id) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('id, name, email')
+                ->from('#__users')
+                ->where("id = '" . $id . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadObjectList())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results[0]) ? $results[0] : null;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
 
     }
 

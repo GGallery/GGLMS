@@ -18,6 +18,7 @@
 				<option value="gestione_quote_asand">ASAND - Gestione rinnovo quote</option>
 				<option value="rinnovo_quota_asand">ASAND - Form rinnovo quote</option>
 				<option value="gestione_accesso_utenti_aic">AIC - Gestione accesso utenti</option>
+				<option value="verifica_codice_votazione">SINPE - Verifica codice votazione</option>
 			</field>
 
 		</fieldset>

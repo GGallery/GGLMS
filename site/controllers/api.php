@@ -15,6 +15,7 @@ require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/helpers/utility.php';
 
 /**
  * Controller for single contact view
@@ -3494,6 +3495,163 @@ HTML;
         echo json_encode($result);
         $this->_japp->close();
     }
+
+
+    public function genera_votazione_code() {
+
+        $db = JFactory::getDBO();
+        $exclude_query = $db->getQuery(true)
+                    ->select('user_id')
+                    ->from('#__user_usergroup_map')
+                    ->where('group_id = ' . $db->quote('68'))
+                    ->group('user_id');
+        $db->setQuery($exclude_query);
+        $result_users = $db->loadAssocList();
+
+        $_ids_codici = array();
+        $dettagli_utente = array();
+
+
+        if (count($result_users) == 0)
+            utilityHelper::make_debug_log(__FUNCTION__, "Nessun risultato users da elaborare" , __FUNCTION__);
+
+        if (!is_null($result_users)
+            && count($result_users) > 0) {
+
+            foreach ($result_users as $key_user => $user) {
+
+                $bytes = random_bytes(5);
+                $codice = bin2hex($bytes);
+
+                // Verifica e gestione dell'unicità del codice
+
+                $encode_user = UtilityHelper::encrypt_decrypt('encrypt', $user['user_id'], 'Sinpe', '2023');
+
+                $_ids_codici[] = sprintf("('%s', '%s', '%s')",
+                    $encode_user,
+                    $codice,
+                    date('Y-m-d H:i:s')
+                );
+
+                $dettagli_utente[$key_user]['user_id'] = $user['user_id'];
+                $dettagli_utente[$key_user]['codice'] = $codice ;
+            }
+
+        }
+
+        // li inserisco nel DB
+        $query_insert = 'INSERT INTO #__gg_cod_votazioni_users (id_user,
+                                                codice,
+                                                timestamp
+                                                ) VALUES ' . join(',', $_ids_codici);
+        $this->_db->setQuery($query_insert);
+
+        if (false === $this->_db->execute()) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+
+        foreach ($dettagli_utente as $utente) {
+
+            $_model_user = new gglmsModelUsers();
+            $user_model = $_model_user->get_user_by_id($utente['user_id']);
+
+            $_send_email = UtilityHelper::send_codice_vitazione_email_sinpe('', $user_model->name, $user_model->email, $utente['codice'], 'salma@ggallery.it');
+
+        }
+        $this->_ret['success'] = "tuttook";
+        echo json_encode($this->_ret);
+        die();
+
+    }
+
+
+    public function check_codice_votazione()
+    {
+
+        $japp = JFactory::getApplication();
+
+        $codice = JRequest::getVar('codice');
+        $user_id = JRequest::getVar('user_id');
+
+        $dettagli_codice = $this->check_codice_sinpe($codice);
+
+
+        if (empty($dettagli_codice) || count($dettagli_codice) < 0) {
+            $results['report'] = "<p class='alert-danger alert'>Codice sbagliato</p>";
+            $results['valido'] = 0;
+        } else {
+
+            $check_votazione = $this->check_votazioni_candidati($codice);
+
+            if (!empty($check_votazione) || count($check_votazione) > 0) {
+
+                $decode_user_cod = UtilityHelper::encrypt_decrypt('decrypt', $codice['id_user'], 'Sinpe', '2023');
+                $decode_user_vot = UtilityHelper::encrypt_decrypt('decrypt', $check_votazione['id_user'], 'Sinpe', '2023');
+
+                if ($decode_user_cod === $decode_user_vot) {
+
+                    $results['report'] = "<p class='alert-danger alert'>Ha già votato von il codice inserito</p>";
+                    $results['valido'] = 0;
+                }
+            } else {
+
+
+            }
+
+
+        }
+
+        echo json_encode($results);
+        $japp->close();
+    }
+
+    public function check_codice_sinpe($codice)
+    {
+        try {
+
+                $query = $this->_db->getQuery(true)
+                    ->select('*')
+                    ->from('#__gg_cod_votazioni_users as c')
+                    ->where('c.codice="' . ($codice) . '"');
+
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            $_codice = empty($results) ? array() : $results;
+
+        } catch (Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        return $_codice;
+    }
+
+
+    public function check_votazioni_candidati($codice)
+    {
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_votazioni_candidati as c')
+                ->where('c.codice="' . ($codice) . '"');
+
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            var_dump($results);
+
+            $_codice = empty($results) ? array() : $results;
+
+        } catch (Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        return $_codice;
+    }
+
 
 
 //	INUTILIZZATO

@@ -3913,5 +3913,30 @@ HTML;
         return $seconds;
     }
 
+    public static function send_codice_vitazione_email_sinpe($email_default,
+                                                               $_name,
+                                                               $_email_user,
+                                                               $_codice,
+                                                               $_email_from) {
+
+        $oggetto = "Codice per votazione ";
+
+        $dt = new DateTime();
+
+        $body = <<<HTML
+                <br /><br />
+                <p>Nome: <b>{$_name}</b></p>
+                <p>Codice: <b>{$_codice}</b></p>
+                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+HTML;
+
+        $_destinatario = array();
+        $_destinatario[] = $email_default;
+        $_destinatario[] = $_email_user;
+
+        return self::send_email($oggetto, $body, $_destinatario, true, false, $_email_from);
+
+    }
+
     /* Generiche */
 }
