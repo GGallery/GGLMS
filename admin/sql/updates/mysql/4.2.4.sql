@@ -1,7 +1,7 @@
 CREATE TABLE `#__gg_cod_votazioni_users` (
   `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_user` varchar(100) NOT NULL,
-  `codice` TINYINT(1) DEFAULT NULL,
+  `codice` TINYINT(1) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`,`id_user`, `codice`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
