@@ -394,7 +394,8 @@ DROP TABLE IF EXISTS `#__gg_report_users`;
 CREATE TABLE `#__gg_report_users` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `id_event_booking` int(10) DEFAULT NULL,
-  `id_user` int(10) DEFAULT NULL,
+  --`id_user` int(10) DEFAULT NULL,
+  `id_user` int(10) NOT NULL,
   `nome` varchar(50) DEFAULT NULL,
   `cognome` varchar(50) DEFAULT NULL,
   `fields` longtext,
