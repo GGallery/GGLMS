@@ -3574,28 +3574,38 @@ HTML;
         $user_id = JRequest::getVar('user_id');
 
         $dettagli_codice = $this->check_codice_sinpe($codice);
+        $results = array();
 
 
-        if (empty($dettagli_codice) || count($dettagli_codice) < 0) {
-            $results['report'] = "<p class='alert-danger alert'>Codice sbagliato</p>";
+        if(empty($dettagli_codice) || count($dettagli_codice) < 0) {
+
+            $results['report'] = "<p class='alert-danger alert'>Il codice inserito sbagliato</p>";
             $results['valido'] = 0;
-        } else {
+
+        }else{
+
+            $decode_user = UtilityHelper::encrypt_decrypt('decrypt', $dettagli_codice['id_user'], 'Sinpe', '2023');
 
             $check_votazione = $this->check_votazioni_candidati($codice);
 
-            if (!empty($check_votazione) || count($check_votazione) > 0) {
+            if ($decode_user != $user_id){
 
-                $decode_user_cod = UtilityHelper::encrypt_decrypt('decrypt', $codice['id_user'], 'Sinpe', '2023');
+                $results['report'] = "<p class='alert-danger alert'>Il codice inserito sbagliato </p>";
+                $results['valido'] = 0;
+
+            } elseif (!empty($check_votazione) || count($check_votazione) > 0) {
+
                 $decode_user_vot = UtilityHelper::encrypt_decrypt('decrypt', $check_votazione['id_user'], 'Sinpe', '2023');
 
-                if ($decode_user_cod === $decode_user_vot) {
+                if ($user_id === $decode_user_vot) {
 
-                    $results['report'] = "<p class='alert-danger alert'>Ha già votato von il codice inserito</p>";
+                    $results['report'] = "<p class='alert-danger alert'>Ha già votato con il codice inserito</p>";
                     $results['valido'] = 0;
                 }
-            } else {
+            }else {
 
-
+                $results['report'] = "<p class='alert-success alert'>Codice corretto</p>";
+                $results['valido'] = 1;
             }
 
 
@@ -3633,7 +3643,7 @@ HTML;
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('*')
+                ->select('c.id_user, c.codice')
                 ->from('#__gg_votazioni_candidati as c')
                 ->where('c.codice="' . ($codice) . '"');
 
@@ -3642,7 +3652,6 @@ HTML;
             if (false === ($results = $this->_db->loadAssoc()))
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
-            var_dump($results);
 
             $_codice = empty($results) ? array() : $results;
 
@@ -3652,6 +3661,40 @@ HTML;
         return $_codice;
     }
 
+    public function store_votazione_candidati()
+    {
+
+        try {
+
+
+                $japp = JFactory::getApplication();
+
+                $codice = JRequest::getVar('codice');
+                $id_candidato = JRequest::getVar('id_candidato');
+                $user_id = JRequest::getVar('user_id');
+
+                $db = JFactory::getDBO();
+
+                $encode_user_id = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Sinpe', '2023');
+                $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $id_candidato, 'Sinpe', '2023');
+
+                $query = "insert into #__gg_votazioni_candidati (id_user, id_candidato, codice)  VALUES ('$encode_user_id','$encode_candidato_id','$codice')";
+
+                $db->setQuery($query);
+
+                if (false === ($db->execute()))
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+                $result['valido'] = 1;
+
+
+       } catch (Exception $e) {
+                utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+
+        echo json_encode($result);
+        $japp->close();
+    }
 
 
 //	INUTILIZZATO

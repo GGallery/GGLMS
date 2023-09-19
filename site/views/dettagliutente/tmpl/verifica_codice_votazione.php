@@ -7,6 +7,7 @@ defined('_JEXEC') or die('Restricted access');
     jQuery(function () {
         jQuery.ajaxSetup({cache: false});
         jQuery("button").click(function (e) {
+
             e.preventDefault();
             jQuery("#button_conferma_codice").hide();
             jQuery("#waiting_verifica_codice").show();
@@ -14,7 +15,8 @@ defined('_JEXEC') or die('Restricted access');
             jQuery.get("index.php?option=com_gglms&task=api.check_codice_votazione", {codice: jQuery("#box_codice_field").val(),user_id: '<?php echo $this->user_id ;?>'},
                 function (data) {
                     if (data.valido) {
-                        jQuery("#box_codice").hide();
+                        console.log("OK!");
+                        window.location.href = "index.php?option=com_gglms&view=dettagliutente&layout=dettagliutente&template=votazione_candidati_sinpe"
                     } else {
                         jQuery("#button_conferma_codice_vot").show();
                         jQuery("#waiting_verifica_codice").hide();

@@ -242,6 +242,28 @@ HTML;
 
                 $_current_user = JFactory::getUser();
                 $this->user_id = $_current_user->id;
+
+            }else if ($layout == 'votazione_candidati_sinpe') {
+
+                $this->user_id = $_current_user->id;
+
+                $userGroupIdCandidati = utilityHelper::check_usergroups_by_name("candidati_2023");
+                $model_user = new gglmsModelUsers();
+                $users_id = $model_user->get_user_by_usergroup($userGroupIdCandidati);
+                $this->codice = $model_user->get_codice_votazione($this->user_id);
+
+                $this->details_users = array();
+
+                foreach ($users_id as $key => $user_id){
+
+                    $comprofiler_user= $model_user->get_user_details_cb($user_id['user_id']);
+
+                    $this->details_users[$key]['user_id'] = $user_id['user_id'];
+                    $this->details_users[$key]['nome_utente'] = $comprofiler_user['nome_utente'];
+                    $this->details_users[$key]['cognome_utente'] = $comprofiler_user['cognome_utente'];
+
+                }
+
             }
 
         }

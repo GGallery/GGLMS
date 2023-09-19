@@ -2260,5 +2260,55 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public static function get_user_by_usergroup($id) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('user_id')
+                ->from('#__user_usergroup_map')
+                ->where('group_id = ' . $db->quote($id))
+                ->group('user_id');
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssocList())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return isset($results) ? $results : null;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
+    public function get_codice_votazione($user_id)
+    {
+        try {
+
+            $id_user = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Sinpe', '2023');
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_cod_votazioni_users as c')
+                ->where('c.id_user="' . ($id_user) . '"');
+
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            $_codice = empty($results) ? array() : $results;
+
+
+        } catch (Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        return $_codice;
+    }
 }
 
