@@ -4786,6 +4786,81 @@ HTML;
 
     }
 
+    public function controllo_richiesta_report($db_host = null,
+                                                $db_user = null,
+                                                $db_password = null,
+                                                $db_database = null,
+                                                $db_prefix = null,
+                                                $db_driver = null,
+                                                $is_debug = false
+                                               )
+    {
+
+        try {
+
+            $db_option = array();
+
+            // gestisco la chiamata per andare su di un altro database
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $this->_db = JDatabaseDriver::getInstance($db_option);
+            }
+
+            $dt_ref = date('Y-m-d');
+            $data_completa = array();
+
+            $query = $this->_db->getQuery(true)
+                ->select('messaggio')
+                ->from('#__gg_error_log')
+                ->where('messaggio LIKE ' . $this->_db->quote('%richiesta report farmacie%'))
+                ->where('timestamp LIKE ' . $this->_db->quote($dt_ref . '%'));
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+            if (is_null($result)
+                || !isset($result['messaggio'])
+                || $result['messaggio'] == "") {
+                UtilityHelper::make_debug_log(__FUNCTION__, "nessuna richiesta per report farmacie " . print_r($result, true), __FUNCTION__);
+            }elseif(strpos($result, 'richiesta report farmacie') !== false){
+
+                var_dump($result);
+
+                $data_dal = explode($data_completa[1],'=>');
+                var_dump($data_dal);die();
+                $this->get_report_per_farmacie($data_dal, $data_al);
+
+
+
+            }
+
+
+
+            // mail inibite se processo da terminale
+            if (count($jumped) > 0) {
+                //UtilityHelper::send_email("Utenti non inseriti per dati mancanti " . __FUNCTION__, print_r($jumped, true), array($this->mail_debug));
+                UtilityHelper::make_debug_log(__FUNCTION__, "Utenti non inseriti per dati mancanti " . print_r($jumped, true), __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
+            }
+
+            return 1;
+
+        } catch (Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__ . (!is_null($db_host)) ? $db_host : "", $e->getMessage(), __FUNCTION__ . (!is_null($db_database) ? "_" . $db_database : "") . "_error");
+
+            return 0;
+        }
+
+        $this->_japp->close();
+
+     }
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
