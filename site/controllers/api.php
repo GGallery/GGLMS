@@ -78,6 +78,9 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
         $this->_filterparam->id_user = JRequest::getVar('user_id');
         $this->_filterparam->cToken = JRequest::getVar('cToken');
+        $this->_filterparam->codice_votazione = JRequest::getVar('codice_votazione');
+        $this->_filterparam->voto_presidente = JRequest::getVar('voto_presidente');
+        $this->_filterparam->voti_consiglieri = JRequest::getVar('voti_consiglieri');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -3499,120 +3502,140 @@ HTML;
 
     public function genera_votazione_code() {
 
-        $db = JFactory::getDBO();
-        $exclude_query = $db->getQuery(true)
-                    ->select('user_id')
-                    ->from('#__user_usergroup_map')
-                    ->where('group_id = ' . $db->quote('68'))
-                    ->group('user_id');
-        $db->setQuery($exclude_query);
-        $result_users = $db->loadAssocList();
+        try {
 
-        $_ids_codici = array();
-        $dettagli_utente = array();
+            $id_gruppo = $this->_filterparam->gruppo_id;
 
+            if (!isset($id_gruppo)
+                || !is_numeric($id_gruppo))
+                throw new Exception("id_gruppo deve essere di tipo numerico", E_USER_ERROR);
 
-        if (count($result_users) == 0)
-            utilityHelper::make_debug_log(__FUNCTION__, "Nessun risultato users da elaborare" , __FUNCTION__);
+            $db = JFactory::getDBO();
+            $exclude_query = $db->getQuery(true)
+                        ->select('user_id')
+                        ->from('#__user_usergroup_map')
+                        ->where('group_id = ' . $db->quote($id_gruppo))
+                        ->group('user_id');
+            $db->setQuery($exclude_query);
+            $result_users = $db->loadAssocList();
 
-        if (!is_null($result_users)
-            && count($result_users) > 0) {
+            $_ids_codici = array();
+            $dettagli_utente = array();
 
-            foreach ($result_users as $key_user => $user) {
+            if (count($result_users) == 0) throw new Exception("Nessun risultato users da elaborare", E_USER_ERROR);
 
-                $bytes = random_bytes(5);
-                $codice = bin2hex($bytes);
+            if (!is_null($result_users)
+                && count($result_users) > 0) {
 
-                // Verifica e gestione dell'unicità del codice
+                foreach ($result_users as $key_user => $user) {
 
-                $encode_user = UtilityHelper::encrypt_decrypt('encrypt', $user['user_id'], 'Sinpe', '2023');
+                    $bytes = random_bytes(5);
+                    $codice = bin2hex($bytes);
 
-                $_ids_codici[] = sprintf("('%s', '%s', '%s')",
-                    $encode_user,
-                    $codice,
-                    date('Y-m-d H:i:s')
-                );
+                    // Verifica e gestione dell'unicità del codice
 
-                $dettagli_utente[$key_user]['user_id'] = $user['user_id'];
-                $dettagli_utente[$key_user]['codice'] = $codice ;
+                    $encode_user = UtilityHelper::encrypt_decrypt('encrypt', $user['user_id'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+
+                    $_ids_codici[] = sprintf("('%s', '%s', '%s')",
+                        $encode_user,
+                        $codice,
+                        date('Y-m-d H:i:s')
+                    );
+
+                    $dettagli_utente[$key_user]['user_id'] = $user['user_id'];
+                    $dettagli_utente[$key_user]['codice'] = $codice ;
+                }
+
             }
 
+            $this->_db->transactionStart();
+
+            // li inserisco nel DB
+            $query_insert = 'INSERT INTO #__gg_cod_votazioni_users (id_user,
+                                                    codice,
+                                                    timestamp
+                                                    ) VALUES ' . join(',', $_ids_codici);
+            $this->_db->setQuery($query_insert);
+
+            if (false === $this->_db->execute()) throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            $this->_db->transactionCommit();
+
+            /*
+            nessuna email diretta
+            foreach ($dettagli_utente as $utente) {
+
+                $_model_user = new gglmsModelUsers();
+                $user_model = $_model_user->get_user_by_id($utente['user_id']);
+
+                $_send_email = UtilityHelper::send_codice_vitazione_email_sinpe('', $user_model->name, $user_model->email, $utente['codice'], 'salma@ggallery.it');
+
+            }
+            */
+
+            $this->_ret['success'] = "tuttook";
+        } 
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            $this->_ret['error'] = $e->getMessage();
         }
 
-        // li inserisco nel DB
-        $query_insert = 'INSERT INTO #__gg_cod_votazioni_users (id_user,
-                                                codice,
-                                                timestamp
-                                                ) VALUES ' . join(',', $_ids_codici);
-        $this->_db->setQuery($query_insert);
-
-        if (false === $this->_db->execute()) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-        }
-
-        foreach ($dettagli_utente as $utente) {
-
-            $_model_user = new gglmsModelUsers();
-            $user_model = $_model_user->get_user_by_id($utente['user_id']);
-
-            $_send_email = UtilityHelper::send_codice_vitazione_email_sinpe('', $user_model->name, $user_model->email, $utente['codice'], 'salma@ggallery.it');
-
-        }
-        $this->_ret['success'] = "tuttook";
         echo json_encode($this->_ret);
-        die();
+        $this->_japp->close();
 
     }
 
 
     public function check_codice_votazione()
     {
-
-        $japp = JFactory::getApplication();
-
-        $codice = JRequest::getVar('codice');
-        $user_id = JRequest::getVar('user_id');
-
-        $dettagli_codice = $this->check_codice_sinpe($codice);
         $results = array();
 
+        try {
 
-        if(empty($dettagli_codice) || count($dettagli_codice) < 0) {
+            $codice = $this->_filterparam->codice_votazione;
+            $user_id = $this->_filterparam->user_id;
 
-            $results['report'] = "<p class='alert-danger alert'>Il codice inserito sbagliato</p>";
-            $results['valido'] = 0;
+            $dettagli_codice = $this->check_codice_sinpe($codice);
 
-        }else{
+            if(empty($dettagli_codice) || count($dettagli_codice) < 0) {
 
-            $decode_user = UtilityHelper::encrypt_decrypt('decrypt', $dettagli_codice['id_user'], 'Sinpe', '2023');
+                throw new Exception('Il codice inserito non è stato trovato', E_USER_ERROR);
 
-            $check_votazione = $this->check_votazioni_candidati($codice);
+            } else {
 
-            if ($decode_user != $user_id){
+                $decode_user = UtilityHelper::encrypt_decrypt('decrypt', $dettagli_codice['id_user'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
 
-                $results['report'] = "<p class='alert-danger alert'>Il codice inserito sbagliato </p>";
-                $results['valido'] = 0;
+                if ($decode_user != $user_id) throw new Exception('Il codice inserito non è stato assegnato all\'utente corrente', E_USER_ERROR);
+                $check_votazione = $this->check_votazioni_candidati($codice);
 
-            } elseif (!empty($check_votazione) || count($check_votazione) > 0) {
-
-                $decode_user_vot = UtilityHelper::encrypt_decrypt('decrypt', $check_votazione['id_user'], 'Sinpe', '2023');
-
-                if ($user_id === $decode_user_vot) {
-
-                    $results['report'] = "<p class='alert-danger alert'>Ha già votato con il codice inserito</p>";
-                    $results['valido'] = 0;
+                if (is_array($check_votazione) && isset($check_votazione['error'])) {
+                    throw new Exception($check_votazione['error'], E_USER_ERROR);
                 }
-            }else {
+                else if (!empty($check_votazione) || count($check_votazione) > 0) {
 
-                $results['report'] = "<p class='alert-success alert'>Codice corretto</p>";
-                $results['valido'] = 1;
+                    $decode_user_vot = UtilityHelper::encrypt_decrypt('decrypt', $check_votazione['id_user'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+
+                    if ($user_id === $decode_user_vot) {
+                        throw new Exception('Impossibile procedere, per il codice inserito risultato dei voti', E_USER_ERROR);
+                    }
+                } else {
+
+                    $results['report'] = "<p class='alert-success alert'>Codice corretto</p>";
+                    $results['valido'] = 1;
+                }
+
+
             }
-
-
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            $results['report'] = "<p class='alert-danger alert'>" . $e->getMessage() . "</p>";
+            $results['valido'] = 0;
         }
 
         echo json_encode($results);
-        $japp->close();
+        $this->_japp->close();
     }
 
     public function check_codice_sinpe($codice)
@@ -3649,14 +3672,13 @@ HTML;
 
 
             $this->_db->setQuery($query);
-            if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
-
+            if (false === ($results = $this->_db->loadAssoc())) throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
             $_codice = empty($results) ? array() : $results;
 
         } catch (Exception $e) {
-            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return $_codice['error'] = $e->getMessage();
         }
         return $_codice;
     }
@@ -3667,33 +3689,70 @@ HTML;
         try {
 
 
-                $japp = JFactory::getApplication();
+            $codice = $this->_filterparam->codice_votazione;
+            $user_id = $this->_filterparam->user_id;
+            $vtPres = $this->_filterparam->voto_presidente;
+            $vtCons = $this->_filterparam->voti_consiglieri;
 
-                $codice = JRequest::getVar('codice');
-                $id_candidato = JRequest::getVar('id_candidato');
-                $user_id = JRequest::getVar('user_id');
+            if (is_null($codice) || $codice == "") throw new Exception("Il codice di votazione non è valorizzato. Impossibile registrare il tuo voto", E_USER_ERROR);
 
-                $db = JFactory::getDBO();
+            $dettagli_codice = $this->check_votazioni_candidati($codice);
+            if(!empty($dettagli_codice) || (is_array($dettagli_codice) && count($dettagli_codice) > 0)) throw new Exception("Il voto è già stato registrato, impossibile immetterlo nuovamente", E_USER_ERROR);
 
-                $encode_user_id = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Sinpe', '2023');
-                $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $id_candidato, 'Sinpe', '2023');
+            if (is_null($vtPres) || $vtPres == "") throw new Exception("Non hai selezionato nessun candidato per la carica di presidente. Impossibile registrare il tuo voto", E_USER_ERROR);
 
-                $query = "insert into #__gg_votazioni_candidati (id_user, id_candidato, codice)  VALUES ('$encode_user_id','$encode_candidato_id','$codice')";
+            $encode_user_id = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+            $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $vtPres, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+            $tipoVotazione = UtilityHelper::encrypt_decrypt('encrypt', 1, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
 
-                $db->setQuery($query);
+            $this->_db->transactionStart();
 
-                if (false === ($db->execute()))
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            // voto presidente
+            $query = "insert into #__gg_votazioni_candidati (id_user, id_candidato, codice, tipo_votazione)  VALUES ('$encode_user_id','$encode_candidato_id','$codice', '$tipoVotazione')";
+            $this->_db->setQuery($query);
+            if (false === ($this->_db->execute())) throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
-                $result['valido'] = 1;
+            // voti consiglieri
+            if (is_array($vtCons) && count($vtCons) > 0) {
+
+                foreach($vtCons as $singleVote) {
+
+                    $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $singleVote, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+                    $tipoVotazione = UtilityHelper::encrypt_decrypt('encrypt', 2, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+
+                    $votiConsiglieri[] = sprintf("('%s', '%s', '%s', '%s')",
+                        $encode_user_id,
+                        $encode_candidato_id,
+                        $codice,
+                        $tipoVotazione
+                    );
+
+                }
+
+                // li inserisco nel DB
+                $query_insert = 'insert into #__gg_votazioni_candidati (id_user, id_candidato, codice, tipo_votazione)  VALUES ' 
+                    . join(',', $votiConsiglieri);
+                $this->_db->setQuery($query_insert);
+
+                if (false === $this->_db->execute()) throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            }
+
+            $this->_db->transactionCommit();
+
+            $result['valido'] = 1;
 
 
        } catch (Exception $e) {
-                utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            $this->_db->transactionRollback();
+            
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            $result['valido'] = 0;
+            $result['error'] = $e->getMessage();
         }
 
         echo json_encode($result);
-        $japp->close();
+        $this->_japp->close();
     }
 
 

@@ -1,4 +1,4 @@
-CREATE TABLE `#__gg_cod_votazioni_users` (
+CREATE TABLE IF NOT EXISTS `#__gg_cod_votazioni_users` (
   `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_user` varchar(100) NOT NULL,
   `codice` varchar(100) NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE `#__gg_cod_votazioni_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `#__gg_votazioni_candidati` (
+CREATE TABLE IF NOT EXISTS `#__gg_votazioni_candidati` (
       `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
       `id_user` varchar(100) NOT NULL,
       `id_candidato` varchar(100) NOT NULL,

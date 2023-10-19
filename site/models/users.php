@@ -2286,11 +2286,38 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_candidati_voto($ruolo) {
+
+        $_candidati = array();
+
+        try {
+       
+            $query = "SELECT * 
+                FROM #__gg_votazioni_lista_candidati
+                WHERE tipo = 1 
+                OR (ruolo = " . $this->_db->quote($ruolo) . " AND tipo = 2) 
+                ORDER BY id ASC, tipo ASC";
+
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssocList())) throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            $_candidati = empty($results) ? array() : $results;
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return $_codice['error'] = $e->getMessage();
+        }
+
+        return $_candidati;
+    }
+
     public function get_codice_votazione($user_id)
     {
+        $_codice = array();
         try {
 
-            $id_user = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Sinpe', '2023');
+            $id_user = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
 
             $query = $this->_db->getQuery(true)
                 ->select('*')
@@ -2299,14 +2326,13 @@ class gglmsModelUsers extends JModelLegacy
 
 
             $this->_db->setQuery($query);
-            if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            if (false === ($results = $this->_db->loadAssoc())) throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
             $_codice = empty($results) ? array() : $results;
 
-
         } catch (Exception $e) {
-            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return $_codice['error'] = $e->getMessage();
         }
         return $_codice;
     }

@@ -42,6 +42,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $quota_standard;
     protected $quota_studente;
     protected $forceIndexRedirect;
+    protected $votingLimit;
 
     function display($tpl = null)
     {
@@ -70,7 +71,7 @@ class gglmsViewdettagliutente extends JViewLegacy
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
             JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css');
 
-            JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
+            //JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js');
 
             if ($bootstrap_dp != "")
@@ -247,21 +248,57 @@ HTML;
 
                 $this->user_id = $_current_user->id;
 
-                $userGroupIdCandidati = utilityHelper::check_usergroups_by_name("candidati_2023");
                 $model_user = new gglmsModelUsers();
-                $users_id = $model_user->get_user_by_usergroup($userGroupIdCandidati);
+                $comprofiler = $model_user->get_user($this->user_id, null, 'cb');
+
+                if (!isset($comprofiler->cb_professionedisciplina) 
+                    || is_null($comprofiler->cb_professionedisciplina)
+                    || $comprofiler->cb_professionedisciplina == ""
+                    )
+                    throw new Exception("Impossibile continuare, la professione dell'utente non è stata specificata", E_USER_ERROR);
+                
+                $userProfessione = strtolower(trim($comprofiler->cb_professionedisciplina));
+                $votingRole = "";
+                $this->votingLimit = 1;
+                // consiglieri in base alla professione dell'utente
+                if (strpos($userProfessione, 'medico') !== false) {
+                    $votingRole = "medico";
+                    $this->votingLimit = 5;
+                }
+                else if (strpos($userProfessione, 'farmacista') !== false) {
+                    $votingRole = "farmacista";
+                }
+                else if (strpos($userProfessione, 'infermiere') !== false) {
+                    $votingRole = "infermiere";
+                }
+                else if (strpos($userProfessione, 'dietista') !== false) {
+                    $votingRole = "dietista";
+                }
+
+                $listaCandidati = $model_user->get_candidati_voto($votingRole);
+
+                if (is_array($listaCandidati) && isset($listaCandidati['error'])) throw new Exception($listaCandidati['error'], E_USER_ERROR);
+                if (!is_array($listaCandidati) || (is_array($listaCandidati) && !count($listaCandidati))) throw new Exception("Non è stato trovato nessun candidato", E_USER_ERROR);
+
+
                 $this->codice = $model_user->get_codice_votazione($this->user_id);
+
+                if (is_array($this->codice) && isset($this->codice['error'])) throw new Exception($this->codice['error'], E_USER_ERROR);
 
                 $this->details_users = array();
 
-                foreach ($users_id as $key => $user_id){
+                foreach ($listaCandidati as $key => $singleUser){
 
-                    $comprofiler_user= $model_user->get_user_details_cb($user_id['user_id']);
+                    $this->details_users[$singleUser['tipo']][] = array(
+                        'id'    => $singleUser['id'],
+                        'nome'  => $singleUser['nome'],
+                        'cognome' => $singleUser['cognome'],
+                    );
 
-                    $this->details_users[$key]['user_id'] = $user_id['user_id'];
-                    $this->details_users[$key]['nome_utente'] = $comprofiler_user['nome_utente'];
-                    $this->details_users[$key]['cognome_utente'] = $comprofiler_user['cognome_utente'];
+                }
 
+                if (!isset($this->details_users[1]) || !count($this->details_users[1])) {
+                    throw new \Exception("Impossibile votare, nessun candidato disponibile", E_USER_ERROR);
                 }
 
             }

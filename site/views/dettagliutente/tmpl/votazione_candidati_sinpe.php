@@ -1,32 +1,77 @@
+<?php
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-4">
-    <?php foreach($this->details_users as $user_id){
-        ?>
+if ($this->_html != "") {
+    echo $this->_html;
+    return;
+}
+?>
 
-      <div class=" col-sm-3 py-3  mb-4 d-flex">
-        <div class="card">
-          <img src="https://mdbcdn.b-cdn.net/img/new/standard/city/041.webp" class="card-img-top"
-            alt="Hollywood Sign on The Hill" />
-          <div class="card-body">
-            <h5 class="card-title"><?php echo $user_id['nome_utente'] . ' '. $user_id['cognome_utente']; ?></h5>
-            <p class="card-text">
-    This is a longer card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-                <br>
-                <button class="btn btn-primary btn-lg"
-                        id="btn_candidato" data-valore="<?php echo $user_id['user_id']; ?>"
-                        onclick="store('<?php echo $user_id['user_id']; ?>')">Vota
-                </button>
-                <br>
-            </p>
-          </div>
+<div class="container">
+    <div class="border mt-3 pl-3 pt-2 shadow-sm rounded-1">
+    <!-- Presidente -->
+    <h4 class="border-bottom">
+        <b>PRESIDENTE</b>
+    </h4>
+        
+        <div class="d-flex flex-column mb-3">
+        <?php foreach($this->details_users[1] as $user_id){
+            ?>
+            
+                <div class="d-flex flex-row mb-3 align-items-center">
+                    <div class="p-2"><input 
+                            type="radio" 
+                            name="pres_vote" 
+                            id="pres_vote_<?php echo $user_id['id']; ?>" 
+                            value="<?php echo $user_id['id']; ?>" /></div>
+                    <div class="p-2 text-uppercase font-weight-bold"><?php echo $user_id['nome'] . ' '. $user_id['cognome']; ?></div>
+            
+                </div>
+            
+
+        <?php
+        } ?>
         </div>
-      </div>
+    </div>
 
-       <?php
-    }
-    echo "</div>";
-    ?>
+    <div class="border mt-3 pl-3 pt-2 shadow-sm rounded-1">
+        <!-- Consigliere -->
+        <h4 class="border-bottom">
+            <b>CONSIGLIERI</b> <span class="fs-6">
+        </h4>
+        *Puoi selezionare fino a <?php echo $this->votingLimit; ?> <?php echo $this->votingLimit > 1 ? 'candidati' : 'candidato' ?> </span>
+
+            <div class="d-flex flex-column mb-3">
+            <?php foreach($this->details_users[2] as $user_id){
+                ?>
+
+                <div class="d-flex flex-row mb-3 align-items-center">
+                    <div class="p-2"><input 
+                                class="consVotes"
+                                type="checkbox" 
+                                name="cons_vote" 
+                                id="cons_vote_<?php echo $user_id['id']; ?>" 
+                                value="<?php echo $user_id['id']; ?>" /></div>
+                    <div class="p-2 text-uppercase font-weight-bold"><?php echo $user_id['nome'] . ' '. $user_id['cognome']; ?></div>
+            
+                </div>
+
+            <?php
+            } ?>
+            </div>
+
+    </div>
+
+    <div class="d-flex flex-row mb-3 justify-content-center mt-3">
+        <button 
+            id="sendVoteBtn"
+            type="button" 
+            class="btn btn-primary btn-lg">INVIA VOTO</button>
+    </div>
+
+    <input type="hidden" id="uid" value="<?php echo $this->user_id; ?>" />
+    <input type="hidden" id="codv" value="<?php echo $this->codice['codice']; ?>" />
+    <input type="hidden" id="redir" value="<?php echo JURI::root(); ?>" />
+</div>
 
 <style type="text/css">
     @media (max-width: 576px) {
@@ -69,6 +114,129 @@
 
 <script type="text/javascript">
 
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.consVotes');
+        const maxChecked = <?php echo $this->votingLimit;?>; // Imposta il numero massimo di checkbox selezionabili
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', updateCount);
+        });
+
+        function updateCount() {
+            const selectedCheckboxes = document.querySelectorAll('.consVotes:checked');
+            const count = selectedCheckboxes.length;
+
+            if (count > maxChecked) {
+                // Hai superato il numero massimo di checkbox selezionabili
+                alert('Puoi selezionare al massimo ' + maxChecked + ' checkbox.');
+                this.checked = false; // Impedisci la selezione della checkbox
+            }
+            
+        }
+    });
+
+    document.getElementById("sendVoteBtn").addEventListener('click', function (e) {
+
+        e.preventDefault();
+        const userId = document.getElementById("uid").value;
+        const codVoto = document.getElementById("codv").value;
+        const uRedir = document.getElementById("redir").value;
+
+        if (userId == "" ) {
+            customAlertifyAlertSimple("Identificativo utente non disponibile, impossibile continuare");
+            return;
+        }
+
+        if (codVoto == "") {
+            customAlertifyAlertSimple("Riferimento al codice voto non disponibile, impossibile continuare");
+            return;
+        }
+
+        if (uRedir == "") {
+            customAlertifyAlertSimple("Non è presente nessun indirizzo di redirect, impossibile continuare");
+            return;
+        }
+
+        const selectedPresVote = getSelectedRadioButton("pres_vote");
+        if (selectedPresVote == null) {
+            customAlertifyAlertSimple("Per inviare il tuo voto devi almeno votare il presidente!");
+            return;
+        }
+        console.log('selectedPresVote', selectedPresVote.value);
+
+        const selectedConsVotes = getSelectedCheckboxValues("cons_vote");
+        console.log('selectedConsVotes', selectedConsVotes);
+
+        const postData = {
+            "voto_presidente": selectedPresVote.value,
+            "voti_consiglieri": selectedConsVotes,
+            "user_id": userId,
+            "codice_votazione": codVoto,
+        };
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Specifica che stai inviando dati JSON
+                // Altri header, se necessario...
+            },
+            body: JSON.stringify(postData) // Converte l'oggetto JavaScript in una stringa JSON
+        };
+
+        /*
+        fetch("index.php?option=com_gglms&task=api.store_votazione_candidati", requestOptions)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Errore nella richiesta!');
+            }
+            return response.json(); // Puoi rimuovere questa riga se non ci sono dati JSON nella risposta
+        })
+        .then(data => {
+            // Gestisci i dati di risposta
+            console.log('Risposta dal server:', data);
+            if (!data.valido) {
+                customAlertifyAlertSimple(data.error);
+                return;
+            }
+            setTimeout(function(){
+                window.location.href = uRedir;
+            }, 5000);
+
+
+        })
+        .catch(error => {
+            // Gestisci gli errori
+            customAlertifyAlertSimple('Errore durante la richiesta:', error);
+        });
+        */
+
+        jQuery.get("index.php?option=com_gglms&task=api.store_votazione_candidati", {
+            "voto_presidente": selectedPresVote.value,
+            "voti_consiglieri": selectedConsVotes,
+            "user_id": userId,
+            "codice_votazione": codVoto,
+            },
+            function (data) {
+
+                if (data.valido) {
+
+                    console.log("OK!");
+                    customAlertifyAlertSimple("Votazione stata inserita con successo");
+                    setTimeout(function(){
+                        window.location.href = "<?php echo JURI::root(); ?>";
+                    }, 5000);
+
+                    return;
+                } else {
+
+                    customAlertifyAlertSimple(data.error);
+                    return;
+                }
+
+        }, 'json');
+
+    });
+
 
     function store(id_candidato) {
 
@@ -93,7 +261,7 @@
                     return;
                 }
 
-            }, 'json');
+        }, 'json');
 
     }
 
@@ -104,6 +272,31 @@
                 'label': 'OK',
                 'message': pMsg
             }).show();
+    }
+
+    function getSelectedRadioButton(groupName) {
+        const radioButtons = document.getElementsByName(groupName);
+
+        for (var i = 0; i < radioButtons.length; i++) {
+            if (radioButtons[i].checked) {
+                return radioButtons[i];
+            }
+        }
+
+        return null; // Nessun radio button selezionato
+    }
+
+    function getSelectedCheckboxValues(groupName) {
+        const checkboxes = document.getElementsByName(groupName);
+        let selectedValues = [];
+
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                selectedValues.push(checkboxes[i].value);
+            }
+        }
+
+        return selectedValues;
     }
 
 </script>

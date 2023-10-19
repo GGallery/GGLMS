@@ -12,19 +12,25 @@ defined('_JEXEC') or die('Restricted access');
             jQuery("#button_conferma_codice").hide();
             jQuery("#waiting_verifica_codice").show();
 
-            jQuery.get("index.php?option=com_gglms&task=api.check_codice_votazione", {codice: jQuery("#box_codice_field").val(),user_id: '<?php echo $this->user_id ;?>'},
-                function (data) {
-                    if (data.valido) {
-                        console.log("OK!");
-                        window.location.href = "index.php?option=com_gglms&view=dettagliutente&layout=dettagliutente&template=votazione_candidati_sinpe"
-                    } else {
-                        jQuery("#button_conferma_codice_vot").show();
-                        jQuery("#waiting_verifica_codice").hide();
-                    }
-                    jQuery("#report").fadeIn(function () {
-                        jQuery("#report").html(data.report);
-                    });
-                }, 'json');
+            let codiceVotazione = jQuery("#box_codice_field").val();
+            if (codiceVotazione == "") return;
+
+            jQuery.get("index.php?option=com_gglms&task=api.check_codice_votazione", {
+                codice_votazione: codiceVotazione,
+                user_id: '<?php echo $this->user_id ;?>'
+            },
+            function (data) {
+                if (data.valido) {
+                    console.log("OK!");
+                    window.location.href = "index.php?option=com_gglms&view=dettagliutente&layout=dettagliutente&template=votazione_candidati_sinpe"
+                } else {
+                    jQuery("#button_conferma_codice_vot").show();
+                    jQuery("#waiting_verifica_codice").hide();
+                }
+                jQuery("#report").fadeIn(function () {
+                    jQuery("#report").html(data.report);
+                });
+            }, 'json');
 
         });
     });
