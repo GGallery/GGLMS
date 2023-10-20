@@ -43,6 +43,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $quota_studente;
     protected $forceIndexRedirect;
     protected $votingLimit;
+    protected $votingResults;
 
     function display($tpl = null)
     {
@@ -179,6 +180,12 @@ class gglmsViewdettagliutente extends JViewLegacy
             }
             else if ($layout == 'gestione_anagrafica_centri_sinpe') {
                 // nothing to do at this moment..
+            }
+            else if ($layout == 'votazione_risultati_sinpe') {
+            
+                $model_user = new gglmsModelUsers();
+                $this->votingResults = $model_user->votazione_conteggio();
+
             }
             else if ($layout == 'gestione_quote_asand') {
 

@@ -2286,6 +2286,35 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function votazione_conteggio() {
+
+        $_votazioni = array();
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('id_candidato, tipo_votazione, COUNT(*) as conteggio')
+                ->from('#__gg_votazioni_candidati')
+                ->group('id_candidato')
+                ->group('tipo_votazione');
+
+            $this->_db->setQuery($query);
+
+            if (false === ($results = $this->_db->loadAssocList())) throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            $_votazioni = empty($results) ? array() : $results;
+
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return $_votazioni['error'] = $e->getMessage();
+        }
+
+        return $_votazioni;
+
+    }
+
     public function get_candidati_voto($ruolo) {
 
         $_candidati = array();

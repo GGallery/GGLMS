@@ -3683,6 +3683,27 @@ HTML;
         return $_codice;
     }
 
+    public function get_votazioni() {
+
+        $result = array();
+
+        try {
+
+            $model_user = new gglmsModelUsers();
+            $result = $model_user->votazione_conteggio();
+
+        } catch (Exception $e) {
+            
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            $result['valido'] = 0;
+            $result['error'] = $e->getMessage();
+        }
+
+        echo json_encode($result);
+        $this->_japp->close();
+
+    }
+
     public function store_votazione_candidati()
     {
 
@@ -3743,7 +3764,7 @@ HTML;
             $result['valido'] = 1;
 
 
-       } catch (Exception $e) {
+        } catch (Exception $e) {
             $this->_db->transactionRollback();
             
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
