@@ -2118,6 +2118,38 @@ HTML;
 
     }
 
+    // risultati votazioni sinpe
+    public static function get_voti_candidato($votingResults, $titoloVotazioni = 'Presidente') {
+
+      if (is_null($votingResults)) return "";
+
+      $htmlVotazioni = "";
+      foreach($votingResults as $singleVote) {
+        $numeroVotiLabel = $singleVote['numero_voti'] > 1 ? 'voti' : 'voto';
+        $htmlVotazioni .= <<<HTML
+        <div class="d-flex flex-row mb-3 align-items-center">
+            <div class="p-2">{$singleVote['nome']}</div>
+            <div class="p-2">{$singleVote['cognome']}</div>
+            <div class="p-2 font-weight-bold">{$singleVote['numero_voti']} {$numeroVotiLabel} </div>
+        </div>
+HTML;
+      }
+
+      return <<<HTML
+      <div class="border mt-3 pl-3 pt-2 shadow-sm rounded-1">
+          <!-- Presidente -->
+          <h4 class="border-bottom">
+              <b>{$titoloVotazioni}</b>
+          </h4>   
+
+          <div class="d-flex flex-column mb-3">
+              {$htmlVotazioni}
+          </div>
+      </div>
+HTML;
+
+    }
+
     // vista dei pagamenti extra per utente
     public static function get_pagamenti_servizi_extra($user_id) {
 

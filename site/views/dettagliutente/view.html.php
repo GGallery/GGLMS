@@ -44,6 +44,7 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $forceIndexRedirect;
     protected $votingLimit;
     protected $votingResults;
+    protected $votingCandidate;
 
     function display($tpl = null)
     {
@@ -184,7 +185,40 @@ class gglmsViewdettagliutente extends JViewLegacy
             else if ($layout == 'votazione_risultati_sinpe') {
             
                 $model_user = new gglmsModelUsers();
-                $this->votingResults = $model_user->votazione_conteggio();
+                
+                $encodeVotingCandidate = $model_user->votazione_candidati();
+                if (!is_array($encodeVotingCandidate) || !count($encodeVotingCandidate)) 
+                    throw new Exception('Nessun candidato visualizzabile al momento!', E_USER_ERROR);
+
+                foreach($encodeVotingCandidate as $singleCandidate) {
+
+                    
+                    $this->votingCandidate[$singleCandidate['id']]['nome'] = $singleCandidate['nome'];
+                    $this->votingCandidate[$singleCandidate['id']]['cognome'] = $singleCandidate['cognome'];
+                    $this->votingCandidate[$singleCandidate['id']]['tipo'] = $singleCandidate['tipo'];
+                    $this->votingCandidate[$singleCandidate['id']]['ruolo'] = $singleCandidate['ruolo'];
+
+                }
+
+                $encodeVotingResults = $model_user->votazione_conteggio();
+                if (!is_array($encodeVotingResults) || !count($encodeVotingResults)) 
+                    throw new Exception('Nessun voto visualizzabile al momento!', E_USER_ERROR);
+
+                foreach($encodeVotingResults as $singleVote) {
+                    
+                    $idCandidato = UtilityHelper::encrypt_decrypt('decrypt', $singleVote['id_candidato'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+                    $tipoVotazione = UtilityHelper::encrypt_decrypt('decrypt', $singleVote['tipo_votazione'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+                    $candidateRole = $this->votingCandidate[$idCandidato]['ruolo'] == '' 
+                        ? 'presidente' 
+                        : $this->votingCandidate[$idCandidato]['ruolo'];
+                    $this->votingResults[$tipoVotazione][$candidateRole][] = array(
+                        'nome'              => $this->votingCandidate[$idCandidato]['nome'],
+                        'cognome'           => $this->votingCandidate[$idCandidato]['cognome'],
+                        'ruolo'             => $this->votingCandidate[$idCandidato]['ruolo'],
+                        'numero_voti'       => $singleVote['conteggio'],
+                    );
+
+                }
 
             }
             else if ($layout == 'gestione_quote_asand') {

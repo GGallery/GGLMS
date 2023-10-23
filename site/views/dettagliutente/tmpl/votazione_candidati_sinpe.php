@@ -8,10 +8,10 @@ if ($this->_html != "") {
 
 <div class="container">
     <div class="border mt-3 pl-3 pt-2 shadow-sm rounded-1">
-    <!-- Presidente -->
-    <h4 class="border-bottom">
-        <b>PRESIDENTE</b>
-    </h4>
+        <!-- Presidente -->
+        <h4 class="border-bottom">
+            <b>PRESIDENTE</b>
+        </h4>
         
         <div class="d-flex flex-column mb-3">
         <?php foreach($this->details_users[1] as $user_id){
