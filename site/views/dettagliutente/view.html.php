@@ -304,7 +304,7 @@ HTML;
                 // consiglieri in base alla professione dell'utente
                 if (strpos($userProfessione, 'medico') !== false) {
                     $votingRole = "medico";
-                    $this->votingLimit = 5;
+                    $this->votingLimit = 8;
                 }
                 else if (strpos($userProfessione, 'farmacista') !== false) {
                     $votingRole = "farmacista";
