@@ -158,64 +158,25 @@ if ($this->_html != "") {
         }
 
         const selectedPresVote = getSelectedRadioButton("pres_vote");
+        /*
         if (selectedPresVote == null) {
             customAlertifyAlertSimple("Per inviare il tuo voto devi almeno votare il presidente!");
             return;
         }
-        console.log('selectedPresVote', selectedPresVote.value);
-
-        const selectedConsVotes = getSelectedCheckboxValues("cons_vote");
-        console.log('selectedConsVotes', selectedConsVotes);
-
-        const postData = {
-            "voto_presidente": selectedPresVote.value,
-            "voti_consiglieri": selectedConsVotes,
-            "user_id": userId,
-            "codice_votazione": codVoto,
-        };
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json' // Specifica che stai inviando dati JSON
-                // Altri header, se necessario...
-            },
-            body: JSON.stringify(postData) // Converte l'oggetto JavaScript in una stringa JSON
-        };
-
-        /*
-        fetch("index.php?option=com_gglms&task=api.store_votazione_candidati", requestOptions)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Errore nella richiesta!');
-            }
-            return response.json(); // Puoi rimuovere questa riga se non ci sono dati JSON nella risposta
-        })
-        .then(data => {
-            // Gestisci i dati di risposta
-            console.log('Risposta dal server:', data);
-            if (!data.valido) {
-                customAlertifyAlertSimple(data.error);
-                return;
-            }
-            setTimeout(function(){
-                window.location.href = uRedir;
-            }, 5000);
-
-
-        })
-        .catch(error => {
-            // Gestisci gli errori
-            customAlertifyAlertSimple('Errore durante la richiesta:', error);
-        });
+        console.log('selectedPresVote', selectedPresVote);
         */
 
-        jQuery.get("index.php?option=com_gglms&task=api.store_votazione_candidati", {
-            "voto_presidente": selectedPresVote.value,
+        const selectedConsVotes = getSelectedCheckboxValues("cons_vote");
+        //console.log('selectedConsVotes', selectedConsVotes);
+
+        const postData = {
+            "voto_presidente": (selectedPresVote != null ? selectedPresVote.value : null),
             "voti_consiglieri": selectedConsVotes,
             "user_id": userId,
             "codice_votazione": codVoto,
-            },
+        };
+
+        jQuery.get("index.php?option=com_gglms&task=api.store_votazione_candidati", postData,
             function (data) {
 
                 if (data.valido) {

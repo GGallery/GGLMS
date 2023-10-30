@@ -2321,7 +2321,7 @@ class gglmsModelUsers extends JModelLegacy
         try {
 
             $query = $this->_db->getQuery(true)
-                ->select('id_candidato, tipo_votazione, COUNT(*) as conteggio')
+                ->select('COALESCE(id_candidato, \'bianca\') AS id_candidato, tipo_votazione, COUNT(*) as conteggio')
                 ->from('#__gg_votazioni_candidati')
                 ->group('id_candidato')
                 ->group('tipo_votazione')

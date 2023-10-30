@@ -3720,16 +3720,23 @@ HTML;
             $dettagli_codice = $this->check_votazioni_candidati($codice);
             if(!empty($dettagli_codice) || (is_array($dettagli_codice) && count($dettagli_codice) > 0)) throw new Exception("Il voto è già stato registrato, impossibile immetterlo nuovamente", E_USER_ERROR);
 
-            if (is_null($vtPres) || $vtPres == "") throw new Exception("Non hai selezionato nessun candidato per la carica di presidente. Impossibile registrare il tuo voto", E_USER_ERROR);
+            //if (is_null($vtPres) || $vtPres == "") throw new Exception("Non hai selezionato nessun candidato per la carica di presidente. Impossibile registrare il tuo voto", E_USER_ERROR);
 
             $encode_user_id = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
-            $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $vtPres, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+            //$encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $vtPres, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+            $encode_candidato_id = 'NULL';
+            if (!is_null($vtPres) && $vtPres != "") {
+                $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $vtPres, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+                $encode_candidato_id = $this->_db->quote($encode_candidato_id);
+            }
+
+
             $tipoVotazione = UtilityHelper::encrypt_decrypt('encrypt', 1, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
 
             $this->_db->transactionStart();
 
             // voto presidente
-            $query = "insert into #__gg_votazioni_candidati (id_user, id_candidato, codice, tipo_votazione)  VALUES ('$encode_user_id','$encode_candidato_id','$codice', '$tipoVotazione')";
+            $query = "insert into #__gg_votazioni_candidati (id_user, id_candidato, codice, tipo_votazione)  VALUES ('$encode_user_id', $encode_candidato_id,'$codice', '$tipoVotazione')";
             $this->_db->setQuery($query);
             if (false === ($this->_db->execute())) throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
 
