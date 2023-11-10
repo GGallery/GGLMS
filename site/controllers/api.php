@@ -3551,10 +3551,11 @@ HTML;
             $this->_db->transactionStart();
 
             // li inserisco nel DB
-            $query_insert = 'INSERT INTO #__gg_cod_votazioni_users (id_user,
+            $query_insert = 'INSERT INTO #__gg_cod_votazioni_users (
+                                                    id_user,
                                                     codice,
                                                     timestamp
-                                                    ) VALUES ' . join(',', $_ids_codici);
+                                                ) VALUES ' . join(',', $_ids_codici);
             $this->_db->setQuery($query_insert);
 
             if (false === $this->_db->execute()) throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
