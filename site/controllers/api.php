@@ -30,6 +30,7 @@ class gglmsControllerApi extends JControllerLegacy
     private $_config;
     private $_filterparam;
     public $mail_debug;
+    public $_ret;
 
 
 //https://api.joomla.org/cms-3/classes/Joomla.Utilities.ArrayHelper.html
@@ -3499,6 +3500,55 @@ HTML;
         $this->_japp->close();
     }
 
+    public function decodifica_codice_voto() {
+
+        try {
+
+            echo UtilityHelper::encrypt_decrypt('decrypt', $this->_filterparam->user_id, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU'); 
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
+    public function decodifica_codici_voto() {
+
+        try {
+
+            $exclude_query = $this->_db->getQuery(true)
+                        ->select('*')
+                        ->from('#__gg_cod_votazioni_users');
+
+            $this->_db->setQuery($exclude_query);
+            $result_users = $this->_db->loadAssocList();
+            $model_user = new gglmsModelUsers();
+
+            if (count($result_users) == 0) throw new Exception("Nessun risultato users da elaborare", E_USER_ERROR);
+
+            foreach ($result_users as $key_user => $user) {
+
+                $decode_user = UtilityHelper::encrypt_decrypt('decrypt', $user['id_user'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+
+                $tmpuser = $model_user->get_user($decode_user, 0);
+
+                echo $tmpuser->email . ';' . $decode_user . ';' . $user['codice'] . '<br />';
+
+            }
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
 
     public function genera_votazione_code() {
 
@@ -3510,14 +3560,13 @@ HTML;
                 || !is_numeric($id_gruppo))
                 throw new Exception("id_gruppo deve essere di tipo numerico", E_USER_ERROR);
 
-            $db = JFactory::getDBO();
-            $exclude_query = $db->getQuery(true)
+            $exclude_query = $this->_db->getQuery(true)
                         ->select('user_id')
                         ->from('#__user_usergroup_map')
-                        ->where('group_id = ' . $db->quote($id_gruppo))
+                        ->where('group_id = ' . $this->_db->quote($id_gruppo))
                         ->group('user_id');
-            $db->setQuery($exclude_query);
-            $result_users = $db->loadAssocList();
+            $this->_db->setQuery($exclude_query);
+            $result_users = $this->_db->loadAssocList();
 
             $_ids_codici = array();
             $dettagli_utente = array();
