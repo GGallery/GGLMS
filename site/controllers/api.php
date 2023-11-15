@@ -4556,7 +4556,7 @@ HTML;
                                             $db_password = null,
                                             $db_database = null,
                                             $db_prefix = null,
-                                            $db_driver = null,
+                                            $db_driver = null
                                         ) {
 
         $_ret = array();
