@@ -4549,24 +4549,47 @@ HTML;
     }
 
 
-    public function get_report_per_farmacie() {
+    public function get_report_per_farmacie($data_dal, 
+                                            $data_al,
+                                            $db_host = null,
+                                            $db_user = null,
+                                            $db_password = null,
+                                            $db_database = null,
+                                            $db_prefix = null,
+                                            $db_driver = null,
+                                        ) {
 
         $_ret = array();
+        $extDb = null;
 
         try {
 
-            $genera_model = new gglmsModelGeneraCoupon();
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $extDb = JDatabaseDriver::getInstance($db_option);
+            }
+
+            //$genera_model = new gglmsModelGeneraCoupon();
             $model_contenuto = new gglmsModelContenuto();
             $model_users = new gglmsModelUsers();
 
+            /*
             $piattaforma_default = $genera_model->get_info_piattaforma_default(true);
             if (is_null($piattaforma_default)
                 || !is_array($piattaforma_default))
                 throw new Exception("nessuna piattaforma di default trovata", E_USER_ERROR);
 
-
             $dominio = $piattaforma_default['dominio'];
+            */
 
+            /*
             if (!isset($this->_filterparam->dal)
                 || $this->_filterparam->dal == "")
                 throw new Exception("Impossibile continuare, data inizio non specificata", E_USER_ERROR);
@@ -4575,91 +4598,82 @@ HTML;
                 || $this->_filterparam->al == "")
                 throw new Exception("Impossibile continuare, data fine non specificata", E_USER_ERROR);
 
-
             $data_dal = $this->_filterparam->dal ;
             $data_al = $this->_filterparam->al ;
+            */
+
+            if (!isset($data_dal)
+                || $data_dal == "")
+                throw new Exception("Impossibile continuare, data inizio non specificata", E_USER_ERROR);
+
+            if (!isset($data_al)
+                || $data_al == "")
+                throw new Exception("Impossibile continuare, data fine non specificata", E_USER_ERROR);
 
             $i = 0;
             $row = array();
 
 
-            $farmacieArr = $model_contenuto->getFarmacie();
+            $farmacieArr = $model_contenuto->getFarmacie($extDb);
 
-
-            $vecchio_farmacia = array();
             $totOreUnita = 0;
-            $oreUnita = 0;
             $totContenuti = 0;
             $mediaOreCorso = 0;
 
+            foreach($farmacieArr as $key_farmacia => $single_farmacia){
+
+                $userArr = $model_contenuto->get_farmacie_dipendenti($single_farmacia['codice'], $extDb);
+
+                foreach ($userArr as $key_user => $single_user) {
+
+                    $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $data_dal, $data_al, $extDb);
+
+                    if (count($contenutiPerUtenteCorso) === 0 ) continue;
+
+                    // calcolo soltanto se ci sono riferimenti
+                    if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
 
 
-                foreach($farmacieArr as $key_farmacia => $single_farmacia){
+                        $username = $model_users->get_username($single_user['user_id'], $extDb);
 
+                        foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
 
-                    $userArr = $model_contenuto->get_farmacie_dipendenti($single_farmacia['codice']);
+                            $totOreUnita = 0;
+                            $totContenuti = 0;
+                            $mediaOreCorso = 0;
 
+                            $totContenuti = $model_contenuto->getCorsoPerUtente($single_user['user_id'], $singleContent['id_unita'], $data_dal, $data_al, $extDb);
 
-                    foreach ($userArr as $key_user => $single_user) {
+                            if (is_null($totContenuti) || !isset($totContenuti)) continue;
 
-                        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente($single_user['user_id'], $data_dal, $data_al);
+                            $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita'], $singleContent['titolo_unita'], $extDb);
+                            $totOreUnita = $totOreUnita / 60;
+                            $totOreUnita = round($totOreUnita, 0, PHP_ROUND_HALF_UP);
 
-                        if (count($contenutiPerUtenteCorso) === 0 ) {
-                            continue;
-                        }
+                            if ($totContenuti > 0 ) {
 
+                                $totContenuti = $totContenuti / 60;
+                                $totContenuti = round($totContenuti, 0, PHP_ROUND_HALF_UP);
+                                $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
+                                $mediaOreCorso = round($mediaOreCorso, 0, PHP_ROUND_HALF_UP);
 
-                        // calcolo soltanto se ci sono riferimenti
-                        if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
+                            }
 
+                            $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
+                            $row[$i] ['COGNOME'] = $username->cognome;
+                            $row[$i] ['NOME'] = $username->nome;
+                            $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
+                            $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
+                            $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
+                            $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
+                            $row[$i] ['MANSIONE'] = $username->mansione;
+                            $hh_store_code = trim($single_farmacia['codice']);
+                            if (strlen($hh_store_code) < 6) {
+                                $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+                            }
+                            $row[$i] ['ID SEDE'] = '"'. $hh_store_code .'"';
 
-                            $username = $model_users->get_username($single_user['user_id']);
-
-                          foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
-
-
-                                  $totOreUnita = 0;
-                                  $totContenuti = 0;
-                                  $mediaOreCorso = 0;
-
-                                $totContenuti = $model_contenuto->getCorsoPerUtente($single_user['user_id'], $singleContent['id_unita'], $data_dal, $data_al);
-
-                                 if (is_null($totContenuti) || !isset($totContenuti)) {
-
-                                     continue;
-                                 }
-
-                                $totOreUnita = $model_contenuto->getOreCorso($singleContent['id_unita'], $singleContent['titolo_unita']);
-                                $totOreUnita = $totOreUnita / 60;
-                                $totOreUnita = round($totOreUnita, 0, PHP_ROUND_HALF_UP);
-
-                                 if ($totContenuti > 0 ) {
-
-                                     $totContenuti = $totContenuti / 60;
-                                     $totContenuti = round($totContenuti, 0, PHP_ROUND_HALF_UP);
-                                     $mediaOreCorso = $totOreUnita > 0 ? ($totContenuti / $totOreUnita) * 100 : 0;
-                                     $mediaOreCorso = round($mediaOreCorso, 0, PHP_ROUND_HALF_UP);
-
-                                 }
-
-                                 $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
-                                 $row[$i] ['COGNOME'] = $username->cognome;
-                                 $row[$i] ['NOME'] = $username->nome;
-                                 $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
-                                 $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
-                                 $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
-                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
-                                 $row[$i] ['MANSIONE'] = $username->mansione;
-                                 $hh_store_code = trim($single_farmacia['codice']);
-                                  if (strlen($hh_store_code) < 6) {
-                                      $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
-                                  }
-                                 $row[$i] ['ID SEDE'] = '"'. $hh_store_code .'"';
-
-                                 $i++;
-
-                          }
-
+                            $i++;
 
                         }
 
@@ -4667,24 +4681,27 @@ HTML;
                     }
 
 
-
                 }
 
 
 
-            $oreCorsi = $model_contenuto->getOreCorsiPerPeriodo($data_dal, $data_al);
+            }
+
+            $oreCorsi = $model_contenuto->getOreCorsiPerPeriodo($data_dal, $data_al, $extDb);
 
             $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
             $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, 'Report'. time() . '.csv', $prima_riga);
 
+            /*
             // chiusura della finestra dopo generazione del report
             $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
+*/
         }
         catch (Exception $e) {
 

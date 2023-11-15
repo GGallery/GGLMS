@@ -1716,17 +1716,21 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_username($user_id){
+    public function get_username($user_id, $extDb = null){
         try {
 
-            $query = $this->_db->getQuery(true)
+            $dbRef = is_null($extDb)
+                ? $this->_db
+                : $extDb;
+
+            $query = $dbRef->getQuery(true)
                 ->select("cb_nome as nome, cb_cognome as cognome, cb_descrizionequalifica as mansione")
                 ->from("#__comprofiler")
                 ->where("user_id = " . $user_id);
 
 
-            $this->_db->setQuery($query);
-            $username = $this->_db->loadObject();
+            $dbRef->setQuery($query);
+            $username = $dbRef->loadObject();
 
             return $username;
         } catch (Exception $e) {

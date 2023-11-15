@@ -51,12 +51,29 @@ class reportFarmacie extends JApplicationCli {
             $dal = $this->input->get('dal', '');
             $al = $this->input->get('al', '');
 
+            $db_host = $this->input->get('db_host', 'localhost');
+            $db_port = $this->input->get('db_port', '3306');
+            $db_user = $this->input->get('db_user', null);
+            $db_password = $this->input->get('db_password', null);
+            $db_database = $this->input->get('db_database', null);
+            $db_prefix = $this->input->get('db_prefix', null);
+            $db_driver = $this->input->get('db_driver', null);
+
             require_once JPATH_COMPONENT . '/controllers/api.php';
 
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
-            $report_farmacie = $api->get_report_per_farmacie($dal, $al);
+            $host_string = (!is_null($db_host) && !is_null($db_port)) ? $db_host . ":" . $db_port : null;
+            $report_farmacie = $api->get_report_per_farmacie($dal, 
+                                                            $al,
+                                                            $host_string,
+                                                            $db_user,
+                                                            $db_password,
+                                                            $db_database,
+                                                            $db_prefix,
+                                                            $db_driver
+                                                        );
 
             $this->out('Script ended with ' . $report_farmacie . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         }

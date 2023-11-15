@@ -906,7 +906,7 @@ class gglmsModelContenuto extends JModelLegacy
         }
     }
 
-    public function getOreCorso($idCorso, $titolo_corso) {
+    public function getOreCorso($idCorso, $titolo_corso, $extDb = null) {
 
         try {
 
@@ -920,6 +920,9 @@ class gglmsModelContenuto extends JModelLegacy
             $reportObj = new gglmsModelReport();
             $unitas = $reportObj->getSottoUnitaArrayList($idCorso);
 
+            $db = is_null($extDb)
+                ? JFactory::getDbo()
+                : $extDb;
 
             if(is_array($unitas) && count($unitas) >0) {
 
@@ -930,8 +933,6 @@ class gglmsModelContenuto extends JModelLegacy
 
                 foreach ($unitas as $unita) {
 
-
-                    $db = JFactory::getDbo();
                     $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
                                     FROM #__gg_contenuti cgc
                                     JOIN #__gg_unit_map cgum ON cgc.id = cgum.idcontenuto
@@ -955,8 +956,6 @@ class gglmsModelContenuto extends JModelLegacy
                 }
 
             }else {
-
-                $db = JFactory::getDbo();
 
                 $queryContenuti = "SELECT cgc.id AS id_contenuto, (cgc.durata/3600) AS durata, cgc.durata AS durata_plain
                                     FROM #__gg_contenuti cgc
@@ -1007,13 +1006,15 @@ class gglmsModelContenuto extends JModelLegacy
     }
 
 
-    public function get_farmacie_dipendenti($codice) {
+    public function get_farmacie_dipendenti($codice, $extDb = null) {
 
         if (is_null($codice)
             || $codice == "")
             throw new Exception("Nessun codice farmacia definito", E_USER_ERROR);
 
-        $db = JFactory::getDbo();
+        $db = is_null($extDb)
+            ? JFactory::getDbo()
+            : $extDb;
 
         $query = "SELECT ms.id_gruppo, dip.user_id, ms.hh_store_code
                     FROM #__gg_master_farmacie as ms
@@ -1028,21 +1029,30 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
-    public function getFarmacie() {
+    public function getFarmacie($extDb = null) {
 
-        $db = JFactory::getDbo();
+        try {
 
-        $query = "SELECT ms.id_gruppo, ms.ragione_sociale as nome_farmacia, hh_store_code as codice
-                    FROM #__gg_master_farmacie as ms
-                    ORDER BY ms.id_gruppo ASC ";
+            $db = is_null($extDb)
+                    ? JFactory::getDbo()
+                    : $extDb;
 
-        $db->setQuery($query);
+            $query = "SELECT ms.id_gruppo, ms.ragione_sociale as nome_farmacia, hh_store_code as codice
+                        FROM #__gg_master_farmacie as ms
+                        ORDER BY ms.id_gruppo ASC ";
 
-        return $db->loadAssocList();
+            $db->setQuery($query);
+
+            return $db->loadAssocList();
+        }
+        catch(\Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
 
     }
 
-    public function getCorsiPerUtente($idUtente, $data_dal, $data_al) {
+    public function getCorsiPerUtente($idUtente, $data_dal, $data_al, $extDb = null) {
 
         try {
 
@@ -1059,9 +1069,9 @@ class gglmsModelContenuto extends JModelLegacy
                 || $data_al == "")
                 throw new Exception("Nessun data fine definito", E_USER_ERROR);
 
-
-
-            $db = JFactory::getDbo();
+            $db = is_null($extDb)
+                ? JFactory::getDbo()
+                : $extDb;
 
             // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
             $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita
@@ -1139,7 +1149,7 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
-    public function getCorsoPerUtente($idUtente, $id_unita, $data_dal, $data_al) {
+    public function getCorsoPerUtente($idUtente, $id_unita, $data_dal, $data_al, $extDb = null) {
 
         try {
 
@@ -1160,9 +1170,9 @@ class gglmsModelContenuto extends JModelLegacy
                 || $data_al == "")
                 throw new Exception("Nessun data fine definita", E_USER_ERROR);
 
-
-
-            $db = JFactory::getDbo();
+            $db = is_null($extDb)
+            ? JFactory::getDbo()
+            : $extDb;
 
             // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
             $query = "SELECT u.id AS id_unita, u.titolo as titolo_unita, ggc.titolo as titolo_contenuto, ggr.stato, ggc.durata AS durata_ore
@@ -1201,7 +1211,7 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
-    public function getOreCorsiPerPeriodo($data_dal, $data_al) {
+    public function getOreCorsiPerPeriodo($data_dal, $data_al, $extDb = null) {
 
         try {
 
@@ -1215,7 +1225,9 @@ class gglmsModelContenuto extends JModelLegacy
                 throw new Exception("Nessun data fine definito", E_USER_ERROR);
 
 
-            $db = JFactory::getDbo();
+            $db = is_null($extDb)
+                ? JFactory::getDbo()
+                : $extDb;
 
             $query = "SELECT u.id, u.data_inizio, u.data_fine
                         from #__gg_unit as u
