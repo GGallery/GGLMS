@@ -40,6 +40,7 @@ class com_gglmsInstallerScript {
                                     "fix_report_anagrafiche_2.php",
                                     "import_master_farmacie.php",
                                     "import_anagrafica_farmacie.php",
+                                    "report_farmacie.php",
                                     );
 
             foreach ($cli_script_arr as $key_script => $cli_script) {
