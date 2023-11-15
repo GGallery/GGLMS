@@ -4561,6 +4561,7 @@ HTML;
 
         $_ret = array();
         $extDb = null;
+        $local_file = JPATH_ROOT . '/tmp/';
 
         try {
 
@@ -4692,7 +4693,7 @@ HTML;
             $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
-            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, 'Report'. time() . '.csv', $prima_riga);
+            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . 'Report'. time() . '.csv', $prima_riga);
 
             /*
             // chiusura della finestra dopo generazione del report
