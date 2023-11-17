@@ -3500,6 +3500,26 @@ HTML;
         $this->_japp->close();
     }
 
+    public function crea_codice_voto() {
+
+        try {
+
+            $bytes = random_bytes(5);
+            $codice = bin2hex($bytes);
+
+            // Verifica e gestione dell'unicità del codice
+            $encode_user = UtilityHelper::encrypt_decrypt('encrypt', $this->_filterparam->user_id, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+            
+            echo $encode_user . ';' . $codice;
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            echo $e->getMessage();
+        }
+
+    }
+
     public function decodifica_codice_voto() {
 
         try {
@@ -3508,7 +3528,6 @@ HTML;
 
         }
         catch(Exception $e) {
-            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
             echo $e->getMessage();
         }
@@ -3542,7 +3561,6 @@ HTML;
 
         }
         catch(Exception $e) {
-            $this->_db->transactionRollback();
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
             echo $e->getMessage();
         }
@@ -3667,7 +3685,7 @@ HTML;
                     $decode_user_vot = UtilityHelper::encrypt_decrypt('decrypt', $check_votazione['id_user'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
 
                     if ($user_id === $decode_user_vot) {
-                        throw new Exception('Impossibile procedere, per il codice inserito risultato dei voti', E_USER_ERROR);
+                        throw new Exception('Il codice inserito è già stato utilizzato. Non è possibile effettuare una nuova votazione', E_USER_ERROR);
                     }
                 } else {
 

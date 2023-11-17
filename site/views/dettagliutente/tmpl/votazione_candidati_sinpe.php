@@ -210,7 +210,7 @@ if ($this->_html != "") {
                 if (data.valido) {
 
                     console.log("OK!");
-                    customAlertifyAlertSimple("Votazione stata inserita con successo");
+                    customAlertifyAlertSimple("Grazie, la sua votazione è stata inviata con successo");
                     setTimeout(function(){
                         window.location.href = "<?php echo JURI::root(); ?>";
                     }, 5000);
