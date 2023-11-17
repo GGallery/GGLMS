@@ -90,6 +90,7 @@ class gglmsViewdettagliutente extends JViewLegacy
             JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js');
             JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js');
             JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.2/dist/locale/bootstrap-table-' . $this->current_lang . '.min.js');
+            JHtml::_('script', Juri::base() . 'components/com_gglms/libraries/js/commons.js');
 
 
             $layout = JRequest::getWord('template', '');

@@ -146,15 +146,6 @@ HTML;
         }
     }
 
-    function customAlertifyAlertSimple(pMsg) {
-        alertify.alert()
-            .setting({
-                'title': 'Attenzione!',
-                'label':'OK',
-                'message': pMsg
-            }).show();
-    }
-
     function loadingTemplate(message) {
         return '<i class="fa fa-spinner fa-spin fa-fw fa-2x"></i>';
     }

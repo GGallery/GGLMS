@@ -360,6 +360,26 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function get_gruppo_piattaforma_default()
+    {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('group_id')
+                ->from('#__usergroups_details')
+                ->where('is_default = 1');
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssoc();
+
+        } catch (Exception $e) {
+            
+            DEBUGG::error($e, 'get_user_piattaforme');
+            return null;
+        }
+    }
+
     public function get_user_piattaforme($id, $from_api=false)
     {
         // ritorna id e nome di tutte le piattaforme associate un utente
@@ -1270,6 +1290,135 @@ class gglmsModelUsers extends JModelLegacy
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
 
+    }
+
+    // lista utenti hippocrates
+    public function get_anagrafica_farmacisti($defaultPlatformId,
+                                                $_offset=0,
+                                                $_limit=10,
+                                                $_search=null,
+                                                $_sort=null,
+                                                $_order=null) {
+        try {
+
+            $_ret = array();
+
+            $subQuery = $this->_db->getQuery(true)
+                    ->select('user_id as s_user_id, group_id as s_group_id, ju3.title as role_title')
+                    ->from('#__user_usergroup_map juum')
+                    ->join('inner', '#__usergroups ju3 ON juum.group_id = ju3.id')
+                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)');
+
+            $query = $this->_db->getQuery(true)
+                ->select('ju.id as ref_dipendente, 
+                    jc.cb_nome,
+                    jc.cb_cognome,
+                    ju.email as cb_email,
+                    ju2.title AS farmacia,
+                    sub1.role_title,
+                    jc.cb_azienda,
+                    jc.cb_filiale,
+                    jc.cb_matricola,
+                    jc.cb_codicefiscale,
+                    jc.cb_datadinascita,
+                    jc.cb_luogodinascita,
+                    jc.cb_provinciadinascita,
+                    jc.cb_indirizzodiresidenza,
+                    jc.cb_cap,
+                    jc.cb_citta,
+                    jc.cb_provdiresidenza,
+                    jc.cb_dataassunzione,
+                    jc.cb_datainiziorapporto,
+                    jc.cb_datalicenziamento,
+                    jc.cb_codiceestrenocdc2,
+                    jc.cb_codiceestrenocdc3,
+                    jc.cb_codiceestrenorep2')
+                ->from('#__users ju')
+                ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
+                ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
+                ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' );
+
+                $count_query = $this->_db->getQuery(true)
+                    ->select('COUNT(*)')
+                    ->from('#__users ju')
+                    ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
+                    ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
+                    ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                    ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' );
+
+            
+
+            if (!is_null($_search)) {
+
+                $query = $query->where('(jc.cb_nome LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_cognome LIKE \'%' . $_search . '%\'
+                                           OR ju.email LIKE \'%' . $_search . '%\'
+                                           OR ju2.title LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_matricola LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_luogodinascita LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_provinciadinascita LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_indirizzodiresidenza LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_cap LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_citta LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_provdiresidenza LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_dataassunzione LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_datainiziorapporto LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_datalicenziamento LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codiceestrenocdc2 LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codiceestrenocdc3 LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codiceestrenorep2 LIKE \'%' . $_search . '%\'
+                                           )');
+
+                $count_query = $count_query->where('(jc.cb_nome LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_cognome LIKE \'%' . $_search . '%\'
+                                           OR ju.email LIKE \'%' . $_search . '%\'
+                                           OR ju2.title LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_matricola LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_luogodinascita LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_provinciadinascita LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_indirizzodiresidenza LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_cap LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_citta LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_provdiresidenza LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_dataassunzione LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_datainiziorapporto LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_datalicenziamento LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codiceestrenocdc2 LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codiceestrenocdc3 LIKE \'%' . $_search . '%\'
+                                           OR jc.cb_codiceestrenorep2 LIKE \'%' . $_search . '%\'
+                                           )');
+
+            }
+
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('jc.cb_cognome asc');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) return $_ret;
+
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            die($e->getMessage());
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
     }
 
     // dettaglio pagamento quote per soci SINPE

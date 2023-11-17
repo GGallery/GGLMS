@@ -65,6 +65,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
+            JHtml::_('script', Juri::base() . 'components/com_gglms/libraries/js/commons.js');
 
 
 

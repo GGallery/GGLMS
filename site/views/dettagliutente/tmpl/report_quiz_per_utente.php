@@ -68,15 +68,6 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
             jQuery('#utenti').html('');
         }
 
-        function customAlertifyAlertSimple(pMsg) {
-            alertify.alert()
-                .setting({
-                    'title': 'Attenzione!',
-                    'label':'OK',
-                    'message': pMsg
-                }).show();
-        }
-
         jQuery('.to_show').hide();
 
         jQuery(function() {

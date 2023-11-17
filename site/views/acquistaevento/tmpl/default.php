@@ -157,15 +157,6 @@ defined('_JEXEC') or die;
                 }).show();
         }
 
-        function customAlertifyAlertSimple(pMsg) {
-            alertify.alert()
-                .setting({
-                    'title': 'Attenzione!',
-                    'label':'OK',
-                    'message': pMsg
-                }).show();
-        }
-
         jQuery(function() {
 
 

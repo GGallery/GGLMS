@@ -54,15 +54,6 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
             jQuery('.to_show').hide();
         }
 
-        function customAlertifyAlertSimple(pMsg) {
-            alertify.alert()
-                .setting({
-                    'title': 'Attenzione!',
-                    'label':'OK',
-                    'message': pMsg
-                }).show();
-        }
-
         jQuery('.to_show').hide();
 
         jQuery(function() {

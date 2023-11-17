@@ -87,15 +87,6 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
-        function customAlertifyAlertSimple(pMsg) {
-            alertify.alert()
-                .setting({
-                    'title': 'Attenzione!',
-                    'label':'OK',
-                    'message': pMsg
-                }).show();
-        }
-
         function ajaxRequest(params) {
 
             // data you may need

@@ -1273,6 +1273,73 @@ HTML;
 
     }
 
+    public function get_anagrafica_farmacisti() {
+
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+            
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $modelUser = new gglmsModelUsers();
+            $defaultPlatform = $modelUser->get_gruppo_piattaforma_default();
+            if (!is_array($defaultPlatform) || is_null($defaultPlatform)) throw new Exception("Nessuna piattaforma di default definita", E_USER_ERROR);
+            $users = $modelUser->get_anagrafica_farmacisti($defaultPlatform['group_id'], $_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($users['rows'])) {
+
+                $_total_rows = $users['total_rows'];
+                $gruppi_qualifica = utilityHelper::get_codici_qualifica_farmacie(array());
+                if (is_null($gruppi_qualifica)) throw new Exception("Impossibile continuare, nessun codice qualifica trovato", E_USER_ERROR);
+
+                foreach ($users['rows'] as $_key_user => $_user) {
+
+                    foreach ($_user as $key => $value) {
+
+                        if (
+                            (
+                                $key == 'cb_datadinascita' 
+                                || $key == 'cb_dataassunzione'
+                                || $key == 'cb_datainiziorapporto'
+                                || $key == 'cb_datalicenziamento'
+                            )
+                            && !is_null($value) 
+                            && $value != '0000-00-00') {
+                            
+                            $tmpDate = new DateTime($value);
+                            $value =  $tmpDate->format('d-m-Y');
+                        }
+
+                        $_ret[$_key_user][$key] = $value != '0000-00-00'
+                            ? $value
+                            : '';
+
+                    }
+
+                }
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+
+    }
+
     public function get_quote_iscrizione() {
 
         $app = JFactory::getApplication();
