@@ -298,8 +298,10 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->group_id_piattaforma = $helpdesk_info->group_id;
 
             } else if ($layout == "report_utenti_farmacie") {
-
-
+                // nothing to do at this moment..
+            }
+            else if ($layout == 'gestione_anagrafica_farmacisti') {
+                // nothing to do at this moment..
             }
         }
         catch (Exception $e){

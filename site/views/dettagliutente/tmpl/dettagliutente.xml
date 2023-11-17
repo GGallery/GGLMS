@@ -17,6 +17,7 @@
 				<option value="report_adesione_corsi">HIPPOCRATES - Visualizza tabella corsi e scaricamento report adesione</option>
 				<option value="report_svolgimento_corsi">HIPPOCRATES - Visualizza tabella corsi e scaricamento report completamento</option>
 				<option value="report_utenti_farmacie">HIPPOCRATES -  scaricamento report completamento</option>
+				<option value="gestione_anagrafica_farmacisti">HIPPOCRATES - Gestione anagrafica farmacisti</option>
 			</field>
 
 		</fieldset>
