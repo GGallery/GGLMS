@@ -1362,7 +1362,7 @@ class utilityHelper
     }
 
     // esporta in CSV basandosi sulla libreria SPOUT - utility per api.get_dettagli_quiz()
-    function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
+    public static function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
 
         $writer = WriterEntityFactory::createCSVWriter();
         $writer->openToBrowser($dest_filename);
@@ -3722,7 +3722,7 @@ HTML;
     }
 
     // da un array ricavo i nomi delle colonne che saranno poi usati in esportazione
-    function get_cols_from_array($arr_values)  {
+    public static function get_cols_from_array($arr_values)  {
 
         $_ret = array();
 
