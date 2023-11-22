@@ -2656,7 +2656,8 @@ HTML;
             // inserisco in tabella master e creo i gruppi sulla denominazione
             $this->_db->transactionStart();
             //$query_truncate = "TRUNCATE TABLE #__gg_master_farmacie";
-            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 2";
+            //$query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 2";
+            $query_truncate = "DELETE FROM #__gg_master_farmacie WHERE id > 3";
 
             $this->_db->setQuery($query_truncate);
             if (!$this->_db->execute())
@@ -2686,15 +2687,15 @@ HTML;
             $miss_check = array();
             // inietto ITALSALUTE SRL che non viene passato dalla chiamata API
             // inietto HIPPOCRATES HOLDING che non viene passato dalla chiamata API per i dipendenti interni
-            $arr_ragsoc = ['ITALSALUTE SRL', 'HIPPOCRATES HOLDING'];
+            // inietto LIBERI PROFESSIONISTI che non viene passato dalla chiamata API per i liberi professionisti
+            $arr_ragsoc = ['ITALSALUTE SRL', 'HIPPOCRATES HOLDING', 'Liberi Professionisti'];
             $counter = 1;
             $farma_id = 3;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
                 // per gestire eventuali codici a 5 cifre è necessario effettuare un controllo
                 $hh_store_code = trim($farmacia[0]);
-                if (strlen($hh_store_code) < 6)
-                    $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+                if (strlen($hh_store_code) < 6) $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
 
                 $ragione_sociale = trim($farmacia[3]);
                 $comune = trim($farmacia[4]);
