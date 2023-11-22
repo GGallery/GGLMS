@@ -1273,6 +1273,459 @@ HTML;
 
     }
 
+    public function add_new_farmacista() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+            
+            $modelUser = new gglmsModelUsers();
+
+            $qualifiche = $modelUser->get_qualifiche();
+            if (!is_array($qualifiche)) throw new Exception($qualifiche, E_USER_ERROR);
+
+            $htmlQualifiche = <<<HTML
+            <select id="role_id" class="form-control w-25">
+                <option value="">-</option>
+HTML;
+            foreach($qualifiche as $qualifica) {
+                $htmlQualifiche .= <<<HTML
+            <option value="{$qualifica['id']}">{$qualifica['id']} - {$qualifica['title']}</option>
+HTML;   
+            }
+
+            $htmlQualifiche .= <<<HTML
+                <option value="299">88888 - Liberi Professionisti</option>
+                <option value="296">99999 - Dipendenti Holding</option>
+            </select>
+HTML;
+
+            $farmacie = $modelUser->get_farmacie();
+            $htmlFarmacie = "";
+            if (is_array($farmacie) && count($farmacie) > 0) {
+
+                $htmlFarmacie = <<<HTML
+                <select id="farmacia_id" class="form-control" onchange="javascript:changeFarmacia(this.options[this.selectedIndex])">
+                    <option value="">-</option>
+HTML;
+
+                foreach($farmacie as $farmacia) {
+                    $htmlFarmacie .= <<<HTML
+                    <option value="{$farmacia['id_gruppo']}" data-hh="{$farmacia['hh_store_code']}">{$farmacia['hh_store_code']} - {$farmacia['ragione_sociale']}</option>
+HTML;
+                }
+
+                $htmlFarmacie .= <<<HTML
+            </select>
+HTML;
+
+            }
+
+            $cbProvRef = utilityHelper::get_cb_field_col('cb_provdiresidenza', 'fieldid');
+            $province = utilityHelper::get_cb_field_values_list($cbProvRef);
+
+            $htmlProvNascita = <<<HTML
+            <select id="cb_provinciadinascita" class="form-control w-25">
+HTML;
+            foreach($province as $provincia) {
+                $htmlProvNascita .= <<<HTML
+                <option value="{$provincia['fieldtitle']}">{$provincia['fieldtitle']}</option>
+HTML;
+            }
+
+            $htmlProvNascita .= <<<HTML
+            </select>
+HTML;
+
+            $htmlProvResidenza = <<<HTML
+            <select id="cb_provdiresidenza" class="form-control w-25">
+HTML;
+
+            foreach($province as $provincia) {
+                $htmlProvResidenza .= <<<HTML
+                <option value="{$provincia['fieldtitle']}">{$provincia['fieldtitle']}</option>
+HTML;
+            }
+
+            $htmlProvResidenza .= <<<HTML
+            </select>
+HTML;
+
+            $_ret['success']['qualifiche'] = $htmlQualifiche;
+            $_ret['success']['farmacie'] = $htmlFarmacie;
+            $_ret['success']['cb_provinciadinascita'] = $htmlProvNascita;
+            $_ret['success']['cb_provdiresidenza'] = $htmlProvResidenza;
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $app->close();
+
+    }
+
+    public function get_anagrafica_farmacista() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        $_call_params = JRequest::get($_GET);
+        
+        try {
+
+            if (!isset($_call_params['user_id']) || $_call_params['user_id'] == "") throw new Exception("Identificativo utente non valorizzato", E_USER_ERROR);
+
+            $modelUser = new gglmsModelUsers();
+            $defaultPlatform = $modelUser->get_gruppo_piattaforma_default();
+            if (!is_array($defaultPlatform) || is_null($defaultPlatform)) throw new Exception("Nessuna piattaforma di default definita", E_USER_ERROR);
+
+            $editingUser = $modelUser->get_anagrafica_farmacista($_call_params['user_id'], $defaultPlatform['group_id']);
+            if (!is_array($editingUser)) throw new Exception($editingUser, E_USER_ERROR);
+
+            $qualifiche = $modelUser->get_qualifiche();
+            if (!is_array($qualifiche)) throw new Exception($qualifiche, E_USER_ERROR);
+
+            $htmlQualifiche = <<<HTML
+            <select id="role_id" class="form-control w-25">
+                <option value="">-</option>
+HTML;
+            foreach($qualifiche as $qualifica) {
+                $optionSelected = $qualifica['id'] == $editingUser['role_id']
+                    ? 'selected'
+                    : '';
+
+                $htmlQualifiche .= <<<HTML
+            <option value="{$qualifica['id']}" {$optionSelected}>{$qualifica['id']} - {$qualifica['title']}</option>
+HTML;   
+            }
+
+            $htmlQualifiche .= <<<HTML
+                <option value="299">88888 - Liberi Professionisti</option>
+                <option value="296">99999 - Dipendenti Holding</option>
+            </select>
+HTML;
+
+            $farmacie = $modelUser->get_farmacie();
+            $htmlFarmacie = "";
+
+            if (is_array($farmacie) && count($farmacie) > 0) {
+
+                $htmlFarmacie = <<<HTML
+                <select id="farmacia_id" class="form-control" onchange="javascript:changeFarmacia(this.options[this.selectedIndex])">
+                    <option value="">-</option>
+HTML;
+
+                foreach($farmacie as $farmacia) {
+                    $optionSelected = $farmacia['hh_store_code'] == $editingUser['hh_store_code']
+                    ? 'selected'
+                    : '';
+
+                    $htmlFarmacie .= <<<HTML
+                    <option value="{$farmacia['id_gruppo']}" data-hh="{$farmacia['hh_store_code']}" {$optionSelected}>{$farmacia['hh_store_code']} - {$farmacia['ragione_sociale']}</option>
+HTML;
+                }
+
+                $htmlFarmacie .= <<<HTML
+            </select>
+
+HTML;
+
+                $htmlCdc = <<<HTML
+                <select id="cb_codiceestrenocdc3" class="form-control w-25">
+HTML;
+
+            }
+
+            $cbProvRef = utilityHelper::get_cb_field_col('cb_provdiresidenza', 'fieldid');
+            $province = utilityHelper::get_cb_field_values_list($cbProvRef);
+
+            $htmlProvNascita = <<<HTML
+            <select id="cb_provinciadinascita" class="form-control w-25">
+HTML;
+            foreach($province as $provincia) {
+                $optionSelected = $editingUser['cb_provinciadinascita'] == $provincia['fieldtitle']
+                    ? 'selected'
+                    : '';
+                $htmlProvNascita .= <<<HTML
+                <option value="{$provincia['fieldtitle']}" {$optionSelected}>{$provincia['fieldtitle']}</option>
+HTML;
+            }
+
+            $htmlProvNascita .= <<<HTML
+            </select>
+HTML;
+
+            $htmlProvResidenza = <<<HTML
+            <select id="cb_provdiresidenza" class="form-control w-25">
+HTML;
+
+            foreach($province as $provincia) {
+                $optionSelected = $editingUser['cb_provdiresidenza'] == $provincia['fieldtitle']
+                    ? 'selected'
+                    : '';
+                $htmlProvResidenza .= <<<HTML
+                <option value="{$provincia['fieldtitle']}" {$optionSelected}>{$provincia['fieldtitle']}</option>
+HTML;
+            }
+
+            $htmlProvResidenza .= <<<HTML
+            </select>
+HTML;
+
+            $_ret['success']['editingUser'] = $editingUser;
+            $_ret['success']['qualifiche'] = $htmlQualifiche;
+            $_ret['success']['farmacie'] = $htmlFarmacie;
+            $_ret['success']['cb_provinciadinascita'] = $htmlProvNascita;
+            $_ret['success']['cb_provdiresidenza'] = $htmlProvResidenza;
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $app->close();
+    }
+
+    public function update_anagrafica_farmacista() {
+
+        $app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        $_ret = array();
+
+        try {
+
+            $_call_params = JRequest::get($_POST);
+            
+            $editingUser = null;
+            $newUser = false;
+            $_new_user_cp = array();
+            if (isset($_call_params['editingUser']) && $_call_params['editingUser'] != "") $editingUser = $_call_params['editingUser'];
+
+            if(!isset($_call_params['farmacia_id']) || $_call_params['farmacia_id'] == "") throw new Exception("Riferimento a Farmacia non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['role_id']) || $_call_params['role_id'] == "") throw new Exception("Riferimento a Ruolo non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_codicefiscale']) || $_call_params['cb_codicefiscale'] == "") throw new Exception("Riferimento a Codice fiscale non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_codiceestrenocdc3']) || $_call_params['cb_codiceestrenocdc3'] == "") throw new Exception("Riferimento a Codice esterno CDC 3 non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_email']) || $_call_params['cb_email'] == "") throw new Exception("Riferimento a Email non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_nome']) || $_call_params['cb_nome'] == "") throw new Exception("Riferimento a Nome non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_cognome']) || $_call_params['cb_cognome'] == "") throw new Exception("Riferimento a Cognome non valorizzato", E_USER_ERROR);
+
+            $farmacia_id = $_call_params['farmacia_id'];
+            $farmacia_id_old = $_call_params['farmacia_id_old'];
+            $role_id = $_call_params['role_id'];
+            $role_id_old = $_call_params['role_id_old'];
+            $cb_azienda = $_call_params['cb_azienda'];
+            $cb_filiale = $_call_params['cb_filiale'];
+            $cb_matricola = $_call_params['cb_matricola'];
+            $cb_cognome = utilityHelper::normalizza_stringa($_call_params['cb_cognome']);
+            $cb_nome = utilityHelper::normalizza_stringa($_call_params['cb_nome']);
+            $cb_codicefiscale = trim($_call_params['cb_codicefiscale']);
+            $cb_codicefiscale = preg_replace('/\s+/', '', $cb_codicefiscale);
+            /*
+            $cb_data_nascita = (isset($_call_params['cb_datadinascita']) && $_call_params['cb_datadinascita'] != '')
+                ? utilityHelper::convert_dt_in_format(trim($_call_params['cb_datadinascita']))
+                : null;
+                */
+            $cb_data_nascita = (isset($_call_params['cb_datadinascita']) && $_call_params['cb_datadinascita'] != '')
+                ? $_call_params['cb_datadinascita']
+                : "";
+
+            $cb_comune_nascita = (isset($_call_params['cb_luogodinascita']) && $_call_params['cb_luogodinascita'] != '')
+                ? trim($_call_params['cb_luogodinascita'])
+                : "";
+
+            $cb_pv_nascita = (isset($_call_params['cb_provinciadinascita']) && $_call_params['cb_provinciadinascita'] != '')
+                ? trim($_call_params['cb_provinciadinascita'])
+                : "";
+
+            $cb_indirizzo_residenza = (isset($_call_params['cb_indirizzodiresidenza']) && $_call_params['cb_indirizzodiresidenza'] != '')
+                ? trim($_call_params['cb_indirizzodiresidenza'])
+                : "";
+
+            $cb_cap_residenza = (isset($_call_params['cb_cap']) && $_call_params['cb_cap'] != '')
+                ? trim($_call_params['cb_cap'])
+                : "";
+
+            $cb_comune_residenza = (isset($_call_params['cb_citta']) && $_call_params['cb_citta'] != '')
+                ? trim($_call_params['cb_citta'])
+                : "";
+
+            $cb_pv_residenza = (isset($_call_params['cb_provdiresidenza']) && $_call_params['cb_provdiresidenza'] != '')
+                ? trim($_call_params['cb_provdiresidenza'])
+                : "";
+
+            /*
+            $cb_data_assunzione = (isset($_call_params['cb_dataassunzione']) && $_call_params['cb_dataassunzione'] != '')
+                ? utilityHelper::convert_dt_in_format(trim($_call_params['cb_dataassunzione']))
+                : null;
+
+            $cb_data_licenziamento = (isset($_call_params['cb_datalicenziamento']) && $_call_params['cb_datalicenziamento'] != '')
+                ? utilityHelper::convert_dt_in_format(trim($_call_params['cb_datalicenziamento']))
+                : null;
+            */
+
+            $cb_data_assunzione = (isset($_call_params['cb_dataassunzione']) && $_call_params['cb_dataassunzione'] != '')
+                ? $_call_params['cb_dataassunzione']
+                : "";
+
+            $cb_data_licenziamento = (isset($_call_params['cb_datalicenziamento']) && $_call_params['cb_datalicenziamento'] != '')
+                ? $_call_params['cb_datalicenziamento']
+                : "";
+
+            $cb_email = trim($_call_params['cb_email']);
+
+            if (!filter_var($cb_email, FILTER_VALIDATE_EMAIL)) throw new Exception("Riferimento a email non valida", E_USER_ERROR);
+
+            $cb_codice_esterno_cdc_2 = (isset($_call_params['cb_codiceestrenocdc2']) && $_call_params['cb_codiceestrenocdc2'] != '')
+                ? trim($_call_params['cb_codiceestrenocdc2'])
+                : null;
+            
+            $cb_codice_esterno_cdc_3 = trim($_call_params['cb_codiceestrenocdc3']);
+            if (strlen($cb_codice_esterno_cdc_3) < 6) $cb_codice_esterno_cdc_3 = str_pad((string)$cb_codice_esterno_cdc_3, 6, '0', STR_PAD_LEFT);
+
+            $cb_esterno_rep_2 = (isset($_call_params['cb_codiceestrenorep2']) && $_call_params['cb_codiceestrenorep2'] != '')
+                ? trim($_call_params['cb_codiceestrenorep2'])
+                : null;
+
+            $cb_data_inizio_rapporto = (isset($_call_params['cb_datainiziorapporto']) && $_call_params['cb_datainiziorapporto'] != '')
+                ? $_call_params['cb_datainiziorapporto']
+                : null;
+
+            $cb_block = isset($_call_params['cb_block']) 
+                ? $_call_params['cb_block']
+                : null;
+
+            $cb_password = (isset($_call_params['cb_password']) && $_call_params['cb_password'] != "")
+                ? $_call_params['cb_password']
+                : null;
+
+            $cb_stato_dipendente = 0;
+            if (!is_null($cb_data_licenziamento) 
+                    && $cb_data_licenziamento != "" 
+                    )
+                    $checkDataLicenziamento = utilityHelper::check_dt_major_equal(date('Y-m-d'), $cb_data_licenziamento);
+                
+            if ($checkDataLicenziamento) $cb_stato_dipendente = 9;
+
+            // parametri da configurazione del modulo farmacie
+            $_params = utilityHelper::get_params_from_module('mod_farmacie');
+            $_campo_cb_azienda = utilityHelper::get_cb_field_name($_params, 'campo_cb_azienda', 'name');
+            $_campo_cb_filiale = utilityHelper::get_cb_field_name($_params, 'campo_cb_filiale', 'name');
+            $_campo_cb_matricola = utilityHelper::get_cb_field_name($_params, 'campo_cb_matricola', 'name');
+            $_campo_cb_cognome = utilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
+            $_campo_cb_nome = utilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
+            $_campo_cb_codicefiscale = utilityHelper::get_cb_field_name($_params, 'campo_cb_codicefiscale', 'name');
+            $_campo_cb_data_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_nascita', 'name');
+            $_campo_cb_codice_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_comune_nascita', 'name');
+            $_campo_cb_comune_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_nascita', 'name');
+            $_campo_cb_pv_nascita = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_nascita', 'name');
+            $_campo_cb_indirizzo_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo_residenza', 'name');
+            $_campo_cb_cap_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_cap_residenza', 'name');
+            $_campo_cb_comune_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_comune_residenza', 'name');
+            $_campo_cb_pv_residenza = utilityHelper::get_cb_field_name($_params, 'campo_cb_pv_residenza', 'name');
+            $_campo_cb_data_assunzione = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_assunzione', 'name');
+            $_campo_cb_data_inizio_rapporto = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_inizio_rapporto', 'name');
+            $_campo_cb_data_licenziamento = utilityHelper::get_cb_field_name($_params, 'campo_cb_data_licenziamento', 'name');
+            $_campo_cb_stato_dipendente = utilityHelper::get_cb_field_name($_params, 'campo_cb_stato_dipendente', 'name');
+            //$_campo_cb_descrizione_qualifica = utilityHelper::get_cb_field_name($_params, 'campo_cb_descrizione_qualifica', 'name');
+            //$_campo_cb_email = utilityHelper::get_cb_field_name($_params, 'campo_cb_email', 'name');
+            $_campo_cb_codice_esterno_cdc_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_2', 'name');
+            $_campo_cb_codice_esterno_cdc_3 = utilityHelper::get_cb_field_name($_params, 'campo_cb_codice_esterno_cdc_3', 'name');
+            $_campo_cb_esterno_rep_2 = utilityHelper::get_cb_field_name($_params, 'campo_cb_esterno_rep_2', 'name');
+
+            // cablo i campi per popolare CB
+            $_new_user_cp[$_campo_cb_azienda] = $cb_azienda;
+            $_new_user_cp[$_campo_cb_filiale] = addslashes($cb_filiale);
+            $_new_user_cp[$_campo_cb_matricola] = $cb_matricola;
+            $_new_user_cp[$_campo_cb_cognome] = addslashes($cb_cognome);
+            $_new_user_cp[$_campo_cb_nome] = addslashes($cb_nome);
+            $_new_user_cp[$_campo_cb_codicefiscale] = $cb_codicefiscale;
+            $_new_user_cp[$_campo_cb_data_nascita] = $cb_data_nascita;
+            $_new_user_cp[$_campo_cb_codice_comune_nascita] = $cb_comune_nascita;
+            $_new_user_cp[$_campo_cb_comune_nascita] = addslashes($cb_comune_nascita);
+            $_new_user_cp[$_campo_cb_pv_nascita] = addslashes($cb_pv_nascita);
+            $_new_user_cp[$_campo_cb_indirizzo_residenza] = addslashes($cb_indirizzo_residenza);
+            $_new_user_cp[$_campo_cb_cap_residenza] = $cb_cap_residenza;
+            $_new_user_cp[$_campo_cb_comune_residenza] = addslashes($cb_comune_residenza);
+            $_new_user_cp[$_campo_cb_pv_residenza] = $cb_pv_residenza;
+            $_new_user_cp[$_campo_cb_data_assunzione] = $cb_data_assunzione;
+            $_new_user_cp[$_campo_cb_data_inizio_rapporto] = $cb_data_inizio_rapporto;
+            $_new_user_cp[$_campo_cb_data_licenziamento] = $cb_data_licenziamento;
+            $_new_user_cp[$_campo_cb_stato_dipendente] = $cb_stato_dipendente;
+            //$_new_user_cp[$_campo_cb_descrizione_qualifica] = addslashes($cb_descrizione_qualifica);
+            $_new_user_cp[$_campo_cb_codice_esterno_cdc_2] = $cb_codice_esterno_cdc_2;
+            $_new_user_cp[$_campo_cb_codice_esterno_cdc_3] = $cb_codice_esterno_cdc_3;
+            $_new_user_cp[$_campo_cb_esterno_rep_2] = $cb_esterno_rep_2;
+
+            $model_user = new gglmsModelUsers();
+
+            $db->transactionStart();
+
+            // nuovo utente
+            if (is_null($editingUser)) {
+
+                $editingUser = utilityHelper::insert_new_anagrafica($cb_nome, $cb_cognome, $cb_codicefiscale, $cb_email);
+                $_new_user_cp['id'] = $editingUser;
+                $_new_user_cp['user_id'] = $editingUser;
+
+                $newUser = true;
+            }
+
+            $insertAnagrafica = utilityHelper::new_anagrafica_manage($newUser, $editingUser, $_new_user_cp, $editingUser, $farmacia_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $cb_stato_dipendente, array(), $model_user, $farmacia_id_old);
+            if (is_null($insertAnagrafica)) throw new Exception("Errore durante l'inserimento dell'anagrafica utente: " . $cb_codicefiscale, E_USER_ERROR);
+
+            // controllo se l'utente è nel gruppo mansione in caso contrario lo aggiungo
+            $check_user_ug = utilityHelper::check_user_into_ug($editingUser, (array) $role_id);
+            if (!$check_user_ug) {
+                $insert_user_ug = utilityHelper::set_usergroup_generic($editingUser, (array) $role_id);
+                if (!is_array($insert_user_ug)) throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $editingUser . " nel gruppo: " . $role_id . " errore: " . $insert_user_ug, E_USER_ERROR);
+            }
+
+            // rimuovo l'utente dal precedente gruppo mansione se necessario
+            if ($role_id != $role_id_old && !$newUser) {
+                $remove_ug_user = utilityHelper::remove_user_from_usergroup($editingUser, (array) $role_id_old);
+                if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $editingUser . " da gruppo: " . $role_id_old, E_USER_ERROR);
+            }
+
+            if (!$newUser) {
+                // uso un array di appoggio altrimenti può generare errori di chiave unica duplicata in update
+                $_update_tmp = [];
+
+                if (!is_null($cb_block) && $cb_stato_dipendente != 9) {
+                    $_update_tmp['block'] = $cb_block == 'true' ? 1 : 0;
+                }
+
+                if (!is_null($cb_password)) $_new_user['password'] = JUserHelper::hashPassword($cb_password);
+
+                if (count($_update_tmp) > 0) {
+
+                    $_cp_update_query = utilityHelper::get_update_query("users", $_update_tmp, "id = '". $editingUser . "'");
+                    $_cp_update_query_result = utilityHelper::update_with_query($_cp_update_query);
+                    if (!is_array($_cp_update_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
+
+                }
+
+            }
+
+            $db->transactionCommit();
+
+            $_ret['success'] = true;
+
+        }
+        catch (Exception $e) {
+            $db->transactionRollback();
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+    }
+
     public function get_anagrafica_farmacisti() {
 
         $app = JFactory::getApplication();
@@ -1299,6 +1752,7 @@ HTML;
                 $_total_rows = $users['total_rows'];
                 $gruppi_qualifica = utilityHelper::get_codici_qualifica_farmacie(array());
                 if (is_null($gruppi_qualifica)) throw new Exception("Impossibile continuare, nessun codice qualifica trovato", E_USER_ERROR);
+                $_label_modifica = JText::_('COM_GGLMS_FARMACIE_MODIFICA');
 
                 foreach ($users['rows'] as $_key_user => $_user) {
 
@@ -1316,6 +1770,18 @@ HTML;
                             
                             $tmpDate = new DateTime($value);
                             $value =  $tmpDate->format('d-m-Y');
+                        }
+                        else if ($key == 'user_actions') {
+                            $value = <<<HTML
+                            <a href="javascript:" 
+                                class="btn btn-info" 
+                                style="min-height: 50px; text-transform: uppercase !important;" onclick="editUser({$_user['ref_dipendente']})">{$_label_modifica}</a>
+HTML;
+                        }
+                        else if ($key == 'cb_block') {
+                            $value = $value == 1
+                                ? '<span style="color: red;">SI</span>'
+                                : '<span style="color: green;">NO</span>';
                         }
 
                         $_ret[$_key_user][$key] = $value != '0000-00-00'

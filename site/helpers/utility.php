@@ -1221,6 +1221,144 @@ class utilityHelper
         }
     }
 
+    // logica che gestisce la casistica per l'inserimento di una nuova anagrafica oppure di una esisten
+    public static function new_anagrafica_manage($new_user, 
+                                $check_user_id, 
+                                $_new_user_cp, 
+                                $_new_user_id, 
+                                $ug_farmacia, 
+                                $cb_codice_esterno_cdc_3, 
+                                $cb_data_inizio_rapporto, 
+                                $cb_data_licenziamento, 
+                                $cb_stato_dipendente, 
+                                $db_option = array(), 
+                                $model_user = null,
+                                $farmacia_id_old = null) {
+
+        try {
+
+            if (is_null($model_user)) { 
+                require_once JPATH_COMPONENT . '/models/users.php';
+                $model_user = new gglmsModelUsers();
+            }
+
+            if ($new_user) {
+                $_cp_insert_query = self::get_insert_query("comprofiler", $_new_user_cp);
+                $_cp_insert_query_result = self::insert_new_with_query($_cp_insert_query, true, $db_option);
+                if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento -> query: " . $_cp_insert_query, E_USER_ERROR);
+
+                // aggiungo il suo riferimento nella tabella farmacie_dipendenti
+                $user_farmacia = $model_user->insert_user_farmacia($_new_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
+                if (is_null($user_farmacia)) throw new Exception("Inserimento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+                // devo associare l'utente ad un gruppo farmacia
+                $insert_user_ug_farmacia = self::set_usergroup_generic($_new_user_id, (array) $ug_farmacia, $db_option);
+                if (!is_array($insert_user_ug_farmacia)) throw new Exception("Si è verificato un errore durante l'inserimento dell'utente nel gruppo farmacia " . $_new_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
+
+            }
+            else { // utente esiste devo aggiornarlo
+
+                unset($_new_user_cp['id']);
+                unset($_new_user_cp['user_id']);
+
+                $_cp_update_query = self::get_update_query("comprofiler", $_new_user_cp, "user_id = '". $check_user_id . "'");
+                $_cp_update_query_result = self::update_with_query($_cp_update_query, $db_option);
+                if (!is_array($_cp_update_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
+
+                // se licenziato l'utente va bloccato
+                if ((int) $cb_stato_dipendente == 9) {
+                    // uso un array di appoggio altrimenti può generare errori di chiave unica duplicata in update
+                    //$_new_user['block'] = 1;
+                    $_update_tmp = [];
+                    $_update_tmp['block'] = 1;
+                    $_cp_update_query = self::get_update_query("users", $_update_tmp, "id = '". $check_user_id . "'");
+                    $_cp_update_query_result = self::update_with_query($_cp_update_query, $db_option);
+                    if (!is_array($_cp_update_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante aggiornamento -> query: " . $_cp_update_query, E_USER_ERROR);
+
+                }
+
+                // verifico se l'utente ha cambiato farmacia oppure
+                // $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3, $db_option);
+                $check_user_ug = utilityHelper::check_user_into_ug($check_user_id, (array) $ug_farmacia);
+
+                //if (is_null($get_user_farmacia) || count($get_user_farmacia) == 0) {
+                if (!$check_user_ug) {
+
+                    // mi serve l'ultimo gruppo dell'utente
+                    $lastFarmUg = null;
+                    if (is_null($farmacia_id_old) && $farmacia_id_old != "") {
+                        $last_farmacia = $model_user->get_user_farmacia($check_user_id, null, $db_option);
+                        if (is_null($last_farmacia)) throw new Exception("Nessun gruppo farmacia precedente per " . $check_user_id, E_USER_ERROR);
+
+                        $lastFarmUg = $last_farmacia['id_gruppo'];
+                    }
+                    else $lastFarmUg = $farmacia_id_old;
+
+                    // rimuovo utente dal vecchio gruppo
+                    $remove_ug_user = self::remove_user_from_usergroup($check_user_id, (array) $lastFarmUg, $db_option);
+                    if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
+                    
+
+                    // ha cambiato farmacia (o non c'è nessun riferimento)
+                    $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
+                    if (is_null($user_farmacia)) throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
+
+                    // inserimento dell'utente nel gruppo farmacia nuovo
+                    $insert_user_ug_farmacia = self::set_usergroup_generic($check_user_id, (array) $ug_farmacia, $db_option);
+                    if (!is_array($insert_user_ug_farmacia)) throw new Exception("Si è verificato un errore durante l'inserimento dell'utente " . $check_user_id . " nel gruppo: " . $ug_farmacia . " errore: " . $insert_user_ug_farmacia, E_USER_ERROR);
+
+                }
+                else {
+                    // è nella medesima - aggiorno i campi perchè potrebbe essere stato licenziato
+                    $user_farmacia = $model_user->update_user_farmacia($_new_user_id, $cb_codice_esterno_cdc_3, $cb_data_licenziamento, $db_option);
+                    if (is_null($user_farmacia)) throw new Exception("Aggiornamento user_farmacia fallito per user_id: " . $_new_user_id, E_USER_ERROR);
+
+                }
+            }
+
+            return true;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+    }
+
+    // query di inserimento per nuovo anagrafica del farmacista
+    public static function insert_new_anagrafica($cb_nome, $cb_cognome, $cb_codicefiscale, $cb_email, $db_option = array()) {
+
+        try {
+
+            $_new_user = array();
+
+            $_new_user['name'] = addslashes($cb_nome) . " " . addslashes($cb_cognome);
+            $_new_user['username'] = $cb_codicefiscale;
+            $_new_user['email'] = $cb_email;
+            $password = self::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&/?-_', 8);
+            $_new_user['password'] = JUserHelper::hashPassword($password);
+
+            // imposto l'utente bloccato a priori
+            // se licenziato l'utente va bloccato
+            // if ((int) $cb_stato_dipendente == 9)
+            $_new_user['block'] = 1;
+
+            $_user_insert_query = self::get_insert_query("users", $_new_user);
+            $_user_insert_query_result = self::insert_new_with_query($_user_insert_query, true, $db_option);
+            if (!is_array($_user_insert_query_result)) throw new Exception("Inserimento utente fallito: " . $_user_insert_query_result . " -> query: " . $_user_insert_query, E_USER_ERROR);
+
+            $_new_user_id = $_user_insert_query_result['success'];
+
+            return $_new_user_id;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+
+    }
+
     // utility per api.importa_master_farmacie
     // ottengo la lista per la decodifica di ruoli in base al codice descrittivo
     public static function get_codici_qualifica_farmacie($db_option = array()) {
@@ -3437,7 +3575,7 @@ HTML;
     }
 
     // per i campi di tipo select ottengo la lista di option da name del cb field - utilità per output.php
-    public static function get_cb_field_select_by_name($_field_name) {
+    public static function get_cb_field_select_by_name($_field_name, $targetValue = 'fieldvalueid') {
 
         $_options = "";
 
@@ -3452,8 +3590,9 @@ HTML;
 
         foreach ($_cb_arr as $sub_key => $sub_values) {
 
+            $currentOption = $sub_values[$targetValue];
             $_options .= <<<HTML
-                <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>
+                <option value="{$currentOption}">{$sub_values['fieldtitle']}</option>
 HTML;
         }
 
@@ -3585,11 +3724,23 @@ HTML;
 
     }
 
+    public static function check_dt_major_equal($start_date, $end_date) {
+
+        $ts_start = new DateTime($start_date);
+        $ts_end = new DateTime($end_date);
+
+        //$ts_end = DateTime::createFromFormat('Y-m-d', $end_date);
+
+        return $ts_start >= $ts_end;
+
+    }
+
     public static function check_dt_major($start_date, $end_date) {
 
         $ts_start = new DateTime($start_date);
-
-        $ts_end = DateTime::createFromFormat('Y-m-d', $end_date);
+        $ts_end = new DateTime($end_date);
+        
+        //$ts_end = DateTime::createFromFormat('Y-m-d', $end_date);
 
         return $ts_start > $ts_end;
 

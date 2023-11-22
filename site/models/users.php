@@ -1292,30 +1292,86 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    // lista utenti hippocrates
-    public function get_anagrafica_farmacisti($defaultPlatformId,
-                                                $_offset=0,
-                                                $_limit=10,
-                                                $_search=null,
-                                                $_sort=null,
-                                                $_order=null) {
+    // lista qualifiche - usergroups
+    public function get_qualifiche() {
+
         try {
 
-            $_ret = array();
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__usergroups')
+                ->where('id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results;
+
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    // lista qualifiche - elenco codici
+    public function get_qualifiche_codes() {
+
+        $_ret = array();
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_codici_qualifica_farmacie');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            return $results; 
+
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
+    // singolo utente hippocrates
+    public function get_anagrafica_farmacista($userId, $defaultPlatformId) {
+
+        $_ret = array();
+
+        try {
 
             $subQuery = $this->_db->getQuery(true)
-                    ->select('user_id as s_user_id, group_id as s_group_id, ju3.title as role_title')
+                    ->select('user_id as s_user_id, group_id as role_id, ju3.title as role_title')
                     ->from('#__user_usergroup_map juum')
                     ->join('inner', '#__usergroups ju3 ON juum.group_id = ju3.id')
-                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)');
+                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)')
+                    ->where('user_id = ' . $this->_db->quote($userId));
+
+            /*
+            $subQuery2 = $this->_db->getQuery(true)
+                    ->select('jgfd.user_id as f_user_id, jgmf.hh_store_code')
+                    ->from('#__gg_farmacie_dipendenti jgfd ')
+                    ->join('inner', '#__gg_master_farmacie jgmf ON jgfd.codice_esterno_cdc_3 = jgmf.hh_store_code')
+                    ->where('jgfd.user_id = ' . $this->_db->quote($userId))
+                    ->group('jgfd.user_id')
+                    ->order('jgfd.id', 'DESC');
+                    */
 
             $query = $this->_db->getQuery(true)
                 ->select('ju.id as ref_dipendente, 
+                    ju.id as user_actions,
                     jc.cb_nome,
                     jc.cb_cognome,
                     ju.email as cb_email,
-                    ju2.title AS farmacia,
+                    ju.block as cb_block,
+                    jgmf.ragione_sociale AS cb_farmacia,
+                    jgmf.id_gruppo as farmacia_id,
+                    jgmf.hh_store_code as hh_store_code,
                     sub1.role_title,
+                    sub1.role_id,
                     jc.cb_azienda,
                     jc.cb_filiale,
                     jc.cb_matricola,
@@ -1337,15 +1393,93 @@ class gglmsModelUsers extends JModelLegacy
                 ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
                 ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
                 ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
-                ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' );
+                ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' )
+                ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code')
+                //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id')
+                ->where('ju.id = ' . $this->_db->quote($userId));
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->loadAssoc();
+
+                return $result;
+
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
+    // lista utenti hippocrates
+    public function get_anagrafica_farmacisti($defaultPlatformId,
+                                                $_offset=0,
+                                                $_limit=10,
+                                                $_search=null,
+                                                $_sort=null,
+                                                $_order=null) {
+        try {
+
+            $_ret = array();
+
+            $subQuery = $this->_db->getQuery(true)
+                    ->select('user_id as s_user_id, group_id as s_group_id, ju3.title as role_title')
+                    ->from('#__user_usergroup_map juum')
+                    ->join('inner', '#__usergroups ju3 ON juum.group_id = ju3.id')
+                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)');
+            /*
+            $subQuery2 = $this->_db->getQuery(true)
+                    ->select('jgfd.user_id as f_user_id, jgmf.hh_store_code')
+                    ->from('#__gg_farmacie_dipendenti jgfd ')
+                    ->join('inner', '#__gg_master_farmacie jgmf ON jgfd.codice_esterno_cdc_3 = jgmf.hh_store_code')
+                    ->group('jgfd.user_id')
+                    ->order('jgfd.id', 'DESC');
+            */
+
+            $query = $this->_db->getQuery(true)
+                ->select('ju.id as ref_dipendente, 
+                    ju.id as user_actions,
+                    jc.cb_nome,
+                    jc.cb_cognome,
+                    ju.email as cb_email,
+                    ju.block as cb_block,
+                    jgmf.ragione_sociale AS cb_farmacia,
+                    jgmf.id_gruppo as farmacia_id,
+                    jgmf.hh_store_code as cb_codiceestrenocdc3,
+                    sub1.role_title,
+                    jc.cb_azienda,
+                    jc.cb_filiale,
+                    jc.cb_matricola,
+                    jc.cb_codicefiscale,
+                    jc.cb_datadinascita,
+                    jc.cb_luogodinascita,
+                    jc.cb_provinciadinascita,
+                    jc.cb_indirizzodiresidenza,
+                    jc.cb_cap,
+                    jc.cb_citta,
+                    jc.cb_provdiresidenza,
+                    jc.cb_dataassunzione,
+                    jc.cb_datainiziorapporto,
+                    jc.cb_datalicenziamento,
+                    jc.cb_codiceestrenocdc2,
+                    jc.cb_codiceestrenocdc3 as cb_codiceestrenocdc3_cb,
+                    jc.cb_codiceestrenorep2')
+                ->from('#__users ju')
+                ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
+                ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
+                ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id')
+                ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code');
+                //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
 
                 $count_query = $this->_db->getQuery(true)
                     ->select('COUNT(*)')
                     ->from('#__users ju')
                     ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
                     ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
-                    ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
-                    ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' );
+                    //->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                    ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' )
+                    ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code');
+                    //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
 
             
 
@@ -1354,7 +1488,7 @@ class gglmsModelUsers extends JModelLegacy
                 $query = $query->where('(jc.cb_nome LIKE \'%' . $_search . '%\'
                                            OR jc.cb_cognome LIKE \'%' . $_search . '%\'
                                            OR ju.email LIKE \'%' . $_search . '%\'
-                                           OR ju2.title LIKE \'%' . $_search . '%\'
+                                           OR jgmf.ragione_sociale LIKE \'%' . $_search . '%\'
                                            OR jc.cb_matricola LIKE \'%' . $_search . '%\'
                                            OR jc.cb_codicefiscale LIKE \'%' . $_search . '%\'
                                            OR jc.cb_luogodinascita LIKE \'%' . $_search . '%\'
@@ -1367,14 +1501,14 @@ class gglmsModelUsers extends JModelLegacy
                                            OR jc.cb_datainiziorapporto LIKE \'%' . $_search . '%\'
                                            OR jc.cb_datalicenziamento LIKE \'%' . $_search . '%\'
                                            OR jc.cb_codiceestrenocdc2 LIKE \'%' . $_search . '%\'
-                                           OR jc.cb_codiceestrenocdc3 LIKE \'%' . $_search . '%\'
+                                           OR jgmf.hh_store_code LIKE \'%' . $_search . '%\'
                                            OR jc.cb_codiceestrenorep2 LIKE \'%' . $_search . '%\'
                                            )');
 
                 $count_query = $count_query->where('(jc.cb_nome LIKE \'%' . $_search . '%\'
                                            OR jc.cb_cognome LIKE \'%' . $_search . '%\'
                                            OR ju.email LIKE \'%' . $_search . '%\'
-                                           OR ju2.title LIKE \'%' . $_search . '%\'
+                                           OR jgmf.ragione_sociale LIKE \'%' . $_search . '%\'
                                            OR jc.cb_matricola LIKE \'%' . $_search . '%\'
                                            OR jc.cb_codicefiscale LIKE \'%' . $_search . '%\'
                                            OR jc.cb_luogodinascita LIKE \'%' . $_search . '%\'
@@ -1387,7 +1521,7 @@ class gglmsModelUsers extends JModelLegacy
                                            OR jc.cb_datainiziorapporto LIKE \'%' . $_search . '%\'
                                            OR jc.cb_datalicenziamento LIKE \'%' . $_search . '%\'
                                            OR jc.cb_codiceestrenocdc2 LIKE \'%' . $_search . '%\'
-                                           OR jc.cb_codiceestrenocdc3 LIKE \'%' . $_search . '%\'
+                                           OR jgmf.hh_store_code LIKE \'%' . $_search . '%\'
                                            OR jc.cb_codiceestrenorep2 LIKE \'%' . $_search . '%\'
                                            )');
 
@@ -1399,7 +1533,7 @@ class gglmsModelUsers extends JModelLegacy
             }
             else
                 $query = $query->order('jc.cb_cognome asc');
-
+        
             $this->_db->setQuery($query, $_offset, $_limit);
             $result = $this->_db->loadAssocList();
 
@@ -1416,7 +1550,6 @@ class gglmsModelUsers extends JModelLegacy
 
         }
         catch (Exception $e) {
-            die($e->getMessage());
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
     }
@@ -1571,14 +1704,15 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // seleziono farmacia per id gruppo
+
     // seleziono tutti i record dal master delle farmacie
     public function get_farmacie($hh_store_code = null, $db_option = array()) {
 
         try {
 
             // gestione db esterno
-            if (count($db_option) > 0)
-                $this->_db = JDatabaseDriver::getInstance($db_option);
+            if (count($db_option) > 0) $this->_db = JDatabaseDriver::getInstance($db_option);
 
             $query = $this->_db->getQuery(true)
                 ->select('*')
@@ -1590,10 +1724,8 @@ class gglmsModelUsers extends JModelLegacy
                 $query = $query->order('id');
 
             $this->_db->setQuery($query);
-            if (is_null($hh_store_code))
-                $results = $this->_db->loadAssocList();
-            else
-                $results = $this->_db->loadAssoc();
+            if (is_null($hh_store_code)) $results = $this->_db->loadAssocList();
+            else $results = $this->_db->loadAssoc();
 
             return $results;
 

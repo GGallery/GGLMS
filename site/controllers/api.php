@@ -3055,6 +3055,8 @@ HTML;
 
                 // utente non esistente che quindi va creato
                 if (is_null($check_user_id)) {
+
+                    /*
                     $_new_user['name'] = addslashes($cb_nome) . " " . addslashes($cb_cognome);
                     $_new_user['username'] = $cb_codicefiscale;
                     $_new_user['email'] = $cb_email;
@@ -3075,6 +3077,17 @@ HTML;
                     // riferimento id per CP
                     $_new_user_cp['id'] = $_new_user_id;
                     $_new_user_cp['user_id'] = $_new_user_id;
+
+
+                    $new_user = true;
+                    */
+
+                    $_new_user_id = utilityHelper::insert_new_anagrafica($cb_nome, $cb_cognome, $cb_codicefiscale, $cb_email, $db_option);
+                    if (is_null($_new_user_id)) throw new Exception("Inserimento utente fallito: " . $cb_codicefiscale, E_USER_ERROR);
+
+                    $_new_user_cp['id'] = $_new_user_id;
+                    $_new_user_cp['user_id'] = $_new_user_id;
+
 
                     $new_user = true;
                 }
@@ -3106,6 +3119,7 @@ HTML;
 
                 // se l'utente non esiste lo aggiungo
                 // inserimento utente in CP
+                /*
                 if ($new_user) {
                     $_cp_insert_query = UtilityHelper::get_insert_query("comprofiler", $_new_user_cp);
                     $_cp_insert_query_result = UtilityHelper::insert_new_with_query($_cp_insert_query, true, $db_option);
@@ -3148,8 +3162,7 @@ HTML;
                     // verifico se l'utente ha cambiato farmacia oppure
                     $get_user_farmacia = $model_user->get_user_farmacia($check_user_id, $cb_codice_esterno_cdc_3, $db_option);
 
-                    if (is_null($get_user_farmacia)
-                        || count($get_user_farmacia) == 0) {
+                    if (is_null($get_user_farmacia) || count($get_user_farmacia) == 0) {
 
                         // mi serve l'ultimo gruppo dell'utente
                         $last_farmacia = $model_user->get_user_farmacia($check_user_id, null, $db_option);
@@ -3180,6 +3193,10 @@ HTML;
 
                     }
                 }
+                */
+
+                $insertAnagrafica = utilityHelper::new_anagrafica_manage($new_user, $check_user_id, $_new_user_cp, $_new_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $cb_stato_dipendente, $db_option, $model_user);
+                if (is_null($insertAnagrafica)) throw new Exception("Errore durante l'inserimento dell'anagrafica utente: " . $cb_codicefiscale, E_USER_ERROR);
 
                 // controllo l'esistenza del gruppo qualifica
                 // Attenzione!!!
@@ -3219,8 +3236,7 @@ HTML;
             }
 
             // se ho inserito un nuovo gruppo faccio rebuild
-            if ($inserted_ug)
-                $rebuild = utilityHelper::rebuild_ug_index(null, $db_option);
+            if ($inserted_ug) $rebuild = utilityHelper::rebuild_ug_index(null, $db_option);
 
             $this->_db->transactionCommit();
 
