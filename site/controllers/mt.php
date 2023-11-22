@@ -76,13 +76,8 @@ class gglmsControllerMt extends JControllerLegacy {
     public function test_() {
         try {
 
-            $userModel = new gglmsModelUsers();
-            $dt = new DateTime();
-            $userId = 5494;
-            $token = 'c3RFcmdjeU1GRVQrMEdJaEZnbVZhQ3k0dTQzazNsaEcrelFreH';
-            $annoRef = $dt->format('Y');
-            $checkToken = $userModel->get_quota_per_user_token($userId, $token, $dt->format('Y'));
-            print_r($checkToken);
+            $encode_token = utilityHelper::encrypt_decrypt('encrypt', '2UspoWOfo=EnEdo1OcRe', 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+            echo $encode_token;
         }
         catch(Exception $e) {
             echo $e->getMessage();

@@ -3535,6 +3535,106 @@ HTML;
         $this->_japp->close();
     }
 
+    public function decodifica_votazioni_candidati() {
+
+        try {
+
+            if (!isset($this->_filterparam->cid) || $this->_filterparam->cid == "") throw new Exception("Il token non è valorizzato, impossbile continuare", E_USER_ERROR);
+
+            $decode_token = utilityHelper::encrypt_decrypt('decrypt', $this->_filterparam->cid, 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+
+            if ($decode_token != '2UspoWOfo=EnEdo1OcRe') throw new Exception("Il token non è valido", E_USER_ERROR);
+
+            $model_user = new gglmsModelUsers();
+            $encodeVotingCandidate = $model_user->votazione_candidati();
+
+            if (count($encodeVotingCandidate) == 0) throw new Exception("Nessun candidato in lista", E_USER_ERROR);
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_votazioni_candidati')
+                ->order('id_user')
+                ->order('tipo_votazione');
+
+            $this->_db->setQuery($query);
+            $results = $this->_db->loadAssocList();
+
+            $_retVoti = [];
+            $_retCandidati = [];
+            $_users_ids = [];
+
+            if (count($results) == 0) throw new Exception("Nessun risultato users da elaborare", E_USER_ERROR);
+
+            foreach($encodeVotingCandidate as $keyCandidato => $singleCandidato) {
+
+                $_retCandidati[$singleCandidato['id']] = $singleCandidato['nome'] . ' ' . $singleCandidato['cognome'] . ' - ' . (is_null($singleCandidato['ruolo']) ? 'presidente' : $singleCandidato['ruolo']);
+
+            }
+
+            foreach($results as $keyVote => $singleVote) {
+
+                $decode_user = utilityHelper::encrypt_decrypt('decrypt', $singleVote['id_user'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+                $decode_candidato = utilityHelper::encrypt_decrypt('decrypt', $singleVote['id_candidato'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+                $decode_tipo = utilityHelper::encrypt_decrypt('decrypt', $singleVote['tipo_votazione'], 'Don4D+Cha#h0$ubR', 'tHlF50yAqE9-nEgU');
+
+                $decode_tipo = $decode_tipo == 1
+                    ? 'presidente'
+                    : 'consigliere';
+
+                $_retVoti[$decode_user][$decode_tipo][] = $decode_candidato;
+                if (!in_array($decode_user, $_users_ids)) $_users_ids[] = $decode_user;
+            }
+
+            $queryUsers = $this->_db->getQuery(true)
+                ->select('us.name, us.email, comp.user_id, COALESCE(comp.cb_nome, "-") AS cb_nome, COALESCE(comp.cb_cognome, "-") as cb_cognome, COALESCE(comp.cb_professionedisciplina, "") as cb_professionedisciplina, COALESCE(comp.cb_provdiresidenza, "") as cb_provdiresidenza')
+                ->from('#__comprofiler comp')
+                ->join('inner', '#__users us ON comp.user_id = us.id')
+                ->where('comp.user_id IN (' . implode(",", $_users_ids ) . ')');
+            $this->_db->setQuery($queryUsers);
+            $resultUsers = $this->_db->loadAssocList();
+
+            if (count($resultUsers) == 0) throw new Exception("Nessuna anagrafica da elaborare", E_USER_ERROR);
+            
+            $_anagraficaUsers = [];
+            foreach($resultUsers as $keyUser => $singleUser) {
+
+                $_anagraficaUsers[$singleUser['user_id']] = $singleUser['name'] . ' | ' . $singleUser['email'] . ' | ' .  $singleUser['cb_nome'] . ' ' . $singleUser['cb_cognome'] . ' | ' . $singleUser['cb_professionedisciplina'] . ' | ' . $singleUser['cb_provdiresidenza'];
+
+            }
+
+            $votesLines = "";
+            foreach($_retVoti as $userIdKey => $singleRet) {
+
+                if (!isset($_anagraficaUsers[$userIdKey])) continue;
+
+                $votesLines .= $_anagraficaUsers[$userIdKey];
+                
+                if (isset($singleRet['presidente']) && count($singleRet['presidente']) > 0)
+                    $votesLines .= "<br />presidente: " . $_retCandidati[$singleRet['presidente'][0]];
+
+                if (isset($singleRet['consigliere']) && count($singleRet['consigliere']) > 0) {
+                    $votesLines .= "<br />consiglieri: ";
+                    foreach($singleRet['consigliere'] as $singleConsigliere) {
+                        $votesLines .= "<br />" . $_retCandidati[$singleConsigliere];
+                    }
+                }
+
+                $votesLines .= "<br />-------------------<br />";
+
+            }
+
+            echo $votesLines;
+
+
+        }
+        catch(Exception $e) {
+            UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
     public function decodifica_codici_voto() {
 
         try {
