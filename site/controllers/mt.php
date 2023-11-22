@@ -76,13 +76,11 @@ class gglmsControllerMt extends JControllerLegacy {
     public function test_() {
         try {
 
-            $userModel = new gglmsModelUsers();
-            $dt = new DateTime();
-            $userId = 5494;
-            $token = 'c3RFcmdjeU1GRVQrMEdJaEZnbVZhQ3k0dTQzazNsaEcrelFreH';
-            $annoRef = $dt->format('Y');
-            $checkToken = $userModel->get_quota_per_user_token($userId, $token, $dt->format('Y'));
-            print_r($checkToken);
+            $currentUrl = JUri::getInstance();
+            if (!strpos($currentUrl, 'primaelearning.it')) 
+                echo "yes";
+            else
+                echo "no";
         }
         catch(Exception $e) {
             echo $e->getMessage();

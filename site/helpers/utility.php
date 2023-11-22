@@ -1041,10 +1041,13 @@ class utilityHelper
             $lista_aziende = null;
             $_filtro_azienda = "";
 
+            // fix necessario per prima dove il corso padre è il 2 e non l'1
+            $currentUrl = JUri::getInstance();
+            
             if ($id_corso == ""
-                || $id_corso == 1
+                || ($id_corso == 1 && !strpos($currentUrl, 'primaelearning.it'))
                 || !isset($id_corso))
-                throw new Exception("Nessun corso valido selezionato", 1);
+                throw new Exception("Nessun corso valido selezionato", E_USER_ERROR);
 
             // ricavo l'id del gruppo corso dal corso
             $unit_model = new gglmsModelUnita();
