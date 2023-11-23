@@ -3546,6 +3546,10 @@ HTML;
             if ($decode_token != '2UspoWOfo=EnEdo1OcRe') throw new Exception("Il token non è valido", E_USER_ERROR);
 
             $model_user = new gglmsModelUsers();
+            $exportCsv = false;
+
+            if (isset($this->_filterparam->current) && $this->_filterparam->current == 'csv') $exportCsv = true;
+
             $encodeVotingCandidate = $model_user->votazione_candidati();
 
             if (count($encodeVotingCandidate) == 0) throw new Exception("Nessun candidato in lista", E_USER_ERROR);
@@ -3602,29 +3606,106 @@ HTML;
 
             }
 
-            $votesLines = "";
-            foreach($_retVoti as $userIdKey => $singleRet) {
+            if (!$exportCsv) {
 
-                if (!isset($_anagraficaUsers[$userIdKey])) continue;
+                $votesLines = "";
+                foreach($_retVoti as $userIdKey => $singleRet) {
 
-                $votesLines .= $_anagraficaUsers[$userIdKey];
-                
-                if (isset($singleRet['presidente']) && count($singleRet['presidente']) > 0)
-                    $votesLines .= "<br />presidente: " . $_retCandidati[$singleRet['presidente'][0]];
+                    if (!isset($_anagraficaUsers[$userIdKey])) continue;
 
-                if (isset($singleRet['consigliere']) && count($singleRet['consigliere']) > 0) {
-                    $votesLines .= "<br />consiglieri: ";
-                    foreach($singleRet['consigliere'] as $singleConsigliere) {
-                        $votesLines .= "<br />" . $_retCandidati[$singleConsigliere];
+                    $votesLines .= $_anagraficaUsers[$userIdKey];
+                    
+                    if (isset($singleRet['presidente']) && count($singleRet['presidente']) > 0)
+                        $votesLines .= "<br />presidente: " . $_retCandidati[$singleRet['presidente'][0]];
+
+                    if (isset($singleRet['consigliere']) && count($singleRet['consigliere']) > 0) {
+                        $votesLines .= "<br />consiglieri: ";
+                        foreach($singleRet['consigliere'] as $singleConsigliere) {
+                            $votesLines .= "<br />" . $_retCandidati[$singleConsigliere];
+                        }
                     }
+
+                    $votesLines .= "<br />-------------------<br />";
+
                 }
 
-                $votesLines .= "<br />-------------------<br />";
-
+                echo $votesLines;
             }
+            else {
 
-            echo $votesLines;
+                $colonneCsv = array(
+                    'username',
+                    'email',
+                    'nominativo',
+                    'professione',
+                    'provincia'
+                );
+                $votesLines = [];
+                //$votesLines[] = $colonneCsv;
 
+                foreach($_retVoti as $userIdKey => $singleRet) {
+
+                    if (!isset($_anagraficaUsers[$userIdKey])) continue;
+
+                    $explodedRow = explode("|", $_anagraficaUsers[$userIdKey]);
+                    $votesLines[] = $explodedRow;
+
+                    if (isset($singleRet['presidente']) && count($singleRet['presidente']) > 0) {
+
+                        $votesLines[] = array(
+                            'presidente',
+                            '',
+                            '',
+                            '',
+                            ''
+                        );
+
+                        $votesLines[] = array(
+                            $_retCandidati[$singleRet['presidente'][0]],
+                            '',
+                            '',
+                            '',
+                            ''
+                        );
+
+                    }
+
+                    if (isset($singleRet['consigliere']) && count($singleRet['consigliere']) > 0) {
+                        
+                        $votesLines[] = array(
+                            'consiglieri',
+                            '',
+                            '',
+                            '',
+                            ''
+                        );
+
+                        foreach($singleRet['consigliere'] as $singleConsigliere) {
+
+                            $votesLines[] = array(
+                                $_retCandidati[$singleConsigliere],
+                                '',
+                                '',
+                                '',
+                                ''
+                            );
+                        }
+                    }
+
+                    $votesLines[] = array(
+                        '----------',
+                        '',
+                        '',
+                        '',
+                        ''
+                    );
+                    
+
+                }
+
+                //$_csv_cols = utilityHelper::get_cols_from_array($colonneCsv);
+                $_export_csv = utilityHelper::esporta_csv_spout($votesLines, $colonneCsv, 'decoded_' . time() . '.csv');
+            }
 
         }
         catch(Exception $e) {
