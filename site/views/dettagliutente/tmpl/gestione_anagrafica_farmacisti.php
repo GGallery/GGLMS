@@ -137,7 +137,7 @@ defined('_JEXEC') or die('Restricted access');
                                     <label for="cb_block" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_BLOCCATO'); ?></label>
                                     <div class="col-sm-10">
                                         <input id="cb_block" type="checkbox" value="1" />
-                                        <span id="helpBlockBlocked" class="help-block"><small>Se bloccato l'utente non sarà in grado di loggare nel sistema</small></span>
+                                        <span id="helpBlockBlocked" class="help-block"><small>Se bloccato l'utente non sarà in grado di loggare nel sistema. Se impostata la data di licenziamento l'utente sarà bloccato automaticamente</small></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -258,6 +258,7 @@ defined('_JEXEC') or die('Restricted access');
                                     <label for="cb_datalicenziamento" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_DATA_LICENZIAMENTO'); ?></label>
                                     <div class="col-sm-10">
                                         <input type="date" class="form-control w-25" id="cb_datalicenziamento" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_LICENZIAMENTO'); ?>">
+                                        <span id="helpBlockBlocked" class="help-block"><small>Se impostata determina il blocco dell'utente</small></span>
                                     </div>
                                 </div>
                                 <!--

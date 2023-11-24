@@ -1472,11 +1472,11 @@ class gglmsModelUsers extends JModelLegacy
                 //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
 
                 $count_query = $this->_db->getQuery(true)
-                    ->select('COUNT(*)')
+                    ->select('COUNT(ju.id)')
                     ->from('#__users ju')
                     ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
                     ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
-                    //->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                    ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
                     ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' )
                     ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code');
                     //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
@@ -1533,7 +1533,7 @@ class gglmsModelUsers extends JModelLegacy
             }
             else
                 $query = $query->order('jc.cb_cognome asc');
-        
+
             $this->_db->setQuery($query, $_offset, $_limit);
             $result = $this->_db->loadAssocList();
 
