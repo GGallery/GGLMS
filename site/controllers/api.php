@@ -2690,7 +2690,7 @@ HTML;
             // inietto LIBERI PROFESSIONISTI che non viene passato dalla chiamata API per i liberi professionisti
             $arr_ragsoc = ['ITALSALUTE SRL', 'HIPPOCRATES HOLDING', 'Liberi Professionisti'];
             $counter = 1;
-            $farma_id = 3;
+            $farma_id = 4;
             foreach ($farmacie as $key_farmacia => $farmacia) {
 
                 // per gestire eventuali codici a 5 cifre è necessario effettuare un controllo
