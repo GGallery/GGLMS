@@ -59,6 +59,12 @@ defined('_JEXEC') or die('Restricted access');
         content:" *";
         color: red;
     }
+
+    .form-control-fixed {
+        line-height:24px !important;
+        font-size: 0.8em !important;
+        font-family: sans-serif !important;
+    }
 </style>
 
 <div class="container-fluid" style="position: relative;">
@@ -153,25 +159,25 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="form-group">
                                     <label for="cb_nome" class="col-sm-2 control-label required"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR11'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="cb_nome" placeholder="<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR11'); ?>">
+                                        <input type="text" class="form-control form-control-fixed" id="cb_nome" placeholder="<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR11'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_cognome" class="col-sm-2 control-label required"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR12'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="cb_cognome" placeholder="<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR12'); ?>">
+                                        <input type="text" class="form-control form-control-fixed" id="cb_cognome" placeholder="<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR12'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_email" class="col-sm-2 control-label required"><?php echo JText::_('COM_GGLMS_GLOBAL_EMAIL'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="email" class="form-control" id="cb_email" placeholder="<?php echo JText::_('COM_GGLMS_GLOBAL_EMAIL'); ?>">
+                                        <input type="email" class="form-control form-control-fixed" id="cb_email" placeholder="<?php echo JText::_('COM_GGLMS_GLOBAL_EMAIL'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_password" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR3'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="password" class="form-control" id="cb_password" placeholder="<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR3'); ?>">
+                                        <input type="password" class="form-control form-control-fixed" id="cb_password" placeholder="<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR3'); ?>">
                                         <span id="helpBlockPassword" class="help-block"><small>Se aggiunto la password sarà creata automaticamente. In modifica, verrà aggiornata solo se inserita</small></span>
                                     </div>
                                     
@@ -179,7 +185,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="form-group">
                                     <label for="cb_codicefiscale" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR13'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control required" id="cb_codicefiscale" placeholder="<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR13'); ?>">
+                                        <input type="text" class="form-control required form-control-fixed" id="cb_codicefiscale" placeholder="<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_QUOTE_STR13'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -195,25 +201,25 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="form-group">
                                     <label for="cb_filiale" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_FILIALE'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control w-25" id="cb_filiale" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_FILIALE'); ?>">
+                                        <input type="text" class="form-control w-25 form-control-fixed" id="cb_filiale" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_FILIALE'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_matricola" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_MATRICOLA'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control w-25" id="cb_matricola" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_MATRICOLA'); ?>">
+                                        <input type="text" class="form-control w-25 form-control-fixed" id="cb_matricola" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_MATRICOLA'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_datadinascita" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_CB_DATA_NASCITA'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="date" class="form-control w-25" id="cb_datadinascita" placeholder="<?php echo JText::_('COM_GGLMS_CB_DATA_NASCITA'); ?>">
+                                        <input type="date" class="form-control w-25 form-control-fixed" id="cb_datadinascita" placeholder="<?php echo JText::_('COM_GGLMS_CB_DATA_NASCITA'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_luogodinascita" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_COMUNE_NASCITA'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="cb_luogodinascita" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_COMUNE_NASCITA'); ?>">
+                                        <input type="text" class="form-control form-control-fixed" id="cb_luogodinascita" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_COMUNE_NASCITA'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -223,19 +229,19 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="form-group">
                                     <label for="cb_indirizzodiresidenza" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR10'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="cb_indirizzodiresidenza" placeholder="<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR10'); ?>">
+                                        <input type="text" class="form-control form-control-fixed" id="cb_indirizzodiresidenza" placeholder="<?php echo JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR10'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_cap" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_CAP_RESIDENZA'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="number" class="form-control w-25" id="cb_cap" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_CAP_RESIDENZA'); ?>">
+                                        <input type="number" class="form-control w-25 form-control-fixed" id="cb_cap" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_CAP_RESIDENZA'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_citta" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_CODICE_COMUNE_RESIDENZA'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="cb_citta" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_CODICE_COMUNE_RESIDENZA'); ?>">
+                                        <input type="text" class="form-control form-control-fixed" id="cb_citta" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_CODICE_COMUNE_RESIDENZA'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -245,19 +251,19 @@ defined('_JEXEC') or die('Restricted access');
                                 <div class="form-group">
                                     <label for="cb_dataassunzione" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_DATA_ASSUNZIONE'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="date" class="form-control w-25" id="cb_dataassunzione" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_ASSUNZIONE'); ?>">
+                                        <input type="date" class="form-control w-25 form-control-fixed" id="cb_dataassunzione" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_ASSUNZIONE'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_datainiziorapporto" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_DATA_INIZIO_RAPPORTO'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="date" class="form-control w-25" id="cb_datainiziorapporto" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_INIZIO_RAPPORTO'); ?>">
+                                        <input type="date" class="form-control w-25 form-control-fixed" id="cb_datainiziorapporto" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_INIZIO_RAPPORTO'); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cb_datalicenziamento" class="col-sm-2 control-label"><?php echo JText::_('COM_GGLMS_FARMACIE_DATA_LICENZIAMENTO'); ?></label>
                                     <div class="col-sm-10">
-                                        <input type="date" class="form-control w-25" id="cb_datalicenziamento" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_LICENZIAMENTO'); ?>">
+                                        <input type="date" class="form-control w-25 form-control-fixed" id="cb_datalicenziamento" placeholder="<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_LICENZIAMENTO'); ?>">
                                         <span id="helpBlockBlocked" class="help-block"><small>Se impostata determina il blocco dell'utente</small></span>
                                     </div>
                                 </div>

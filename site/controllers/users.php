@@ -1286,7 +1286,7 @@ HTML;
             if (!is_array($qualifiche)) throw new Exception($qualifiche, E_USER_ERROR);
 
             $htmlQualifiche = <<<HTML
-            <select id="role_id" class="form-control w-25">
+            <select id="role_id" class="form-control w-25 form-control-fixed">
                 <option value="">-</option>
 HTML;
             foreach($qualifiche as $qualifica) {
@@ -1306,7 +1306,7 @@ HTML;
             if (is_array($farmacie) && count($farmacie) > 0) {
 
                 $htmlFarmacie = <<<HTML
-                <select id="farmacia_id" class="form-control" onchange="javascript:changeFarmacia(this.options[this.selectedIndex])">
+                <select id="farmacia_id" class="form-control form-control-fixed" onchange="javascript:changeFarmacia(this.options[this.selectedIndex])">
                     <option value="">-</option>
 HTML;
 
@@ -1326,7 +1326,7 @@ HTML;
             $province = utilityHelper::get_cb_field_values_list($cbProvRef);
 
             $htmlProvNascita = <<<HTML
-            <select id="cb_provinciadinascita" class="form-control w-25">
+            <select id="cb_provinciadinascita" class="form-control w-25 form-control-fixed">
 HTML;
             foreach($province as $provincia) {
                 $htmlProvNascita .= <<<HTML
@@ -1339,7 +1339,7 @@ HTML;
 HTML;
 
             $htmlProvResidenza = <<<HTML
-            <select id="cb_provdiresidenza" class="form-control w-25">
+            <select id="cb_provdiresidenza" class="form-control w-25 form-control-fixed">
 HTML;
 
             foreach($province as $provincia) {
@@ -1390,7 +1390,7 @@ HTML;
             if (!is_array($qualifiche)) throw new Exception($qualifiche, E_USER_ERROR);
 
             $htmlQualifiche = <<<HTML
-            <select id="role_id" class="form-control w-25">
+            <select id="role_id" class="form-control w-25 form-control-fixed">
                 <option value="">-</option>
 HTML;
             foreach($qualifiche as $qualifica) {
@@ -1415,7 +1415,7 @@ HTML;
             if (is_array($farmacie) && count($farmacie) > 0) {
 
                 $htmlFarmacie = <<<HTML
-                <select id="farmacia_id" class="form-control" onchange="javascript:changeFarmacia(this.options[this.selectedIndex])">
+                <select id="farmacia_id" class="form-control form-control-fixed" onchange="javascript:changeFarmacia(this.options[this.selectedIndex])">
                     <option value="">-</option>
 HTML;
 
@@ -1435,7 +1435,7 @@ HTML;
 HTML;
 
                 $htmlCdc = <<<HTML
-                <select id="cb_codiceestrenocdc3" class="form-control w-25">
+                <select id="cb_codiceestrenocdc3" class="form-control w-25 form-control-fixed">
 HTML;
 
             }
@@ -1444,7 +1444,7 @@ HTML;
             $province = utilityHelper::get_cb_field_values_list($cbProvRef);
 
             $htmlProvNascita = <<<HTML
-            <select id="cb_provinciadinascita" class="form-control w-25">
+            <select id="cb_provinciadinascita" class="form-control w-25 form-control-fixed">
 HTML;
             foreach($province as $provincia) {
                 $optionSelected = $editingUser['cb_provinciadinascita'] == $provincia['fieldtitle']
@@ -1460,7 +1460,7 @@ HTML;
 HTML;
 
             $htmlProvResidenza = <<<HTML
-            <select id="cb_provdiresidenza" class="form-control w-25">
+            <select id="cb_provdiresidenza" class="form-control w-25 form-control-fixed">
 HTML;
 
             foreach($province as $provincia) {
