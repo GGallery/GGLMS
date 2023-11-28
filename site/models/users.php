@@ -1300,7 +1300,7 @@ class gglmsModelUsers extends JModelLegacy
             $query = $this->_db->getQuery(true)
                 ->select('*')
                 ->from('#__usergroups')
-                ->where('id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)');
+                ->where('id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299)');
 
             $this->_db->setQuery($query);
             $results = $this->_db->loadAssocList();
@@ -1347,7 +1347,7 @@ class gglmsModelUsers extends JModelLegacy
                     ->select('user_id as s_user_id, group_id as role_id, ju3.title as role_title')
                     ->from('#__user_usergroup_map juum')
                     ->join('inner', '#__usergroups ju3 ON juum.group_id = ju3.id')
-                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)')
+                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299)')
                     ->where('user_id = ' . $this->_db->quote($userId));
 
             /*
@@ -1392,7 +1392,7 @@ class gglmsModelUsers extends JModelLegacy
                 ->from('#__users ju')
                 ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
                 ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
-                ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299))')
                 ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' )
                 ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code')
                 //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id')
@@ -1425,7 +1425,7 @@ class gglmsModelUsers extends JModelLegacy
                     ->select('user_id as s_user_id, group_id as s_group_id, ju3.title as role_title')
                     ->from('#__user_usergroup_map juum')
                     ->join('inner', '#__usergroups ju3 ON juum.group_id = ju3.id')
-                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276)');
+                    ->where('group_id IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299)');
             /*
             $subQuery2 = $this->_db->getQuery(true)
                     ->select('jgfd.user_id as f_user_id, jgmf.hh_store_code')
@@ -1466,7 +1466,7 @@ class gglmsModelUsers extends JModelLegacy
                 ->from('#__users ju')
                 ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
                 ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
-                ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299))')
                 ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id')
                 ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code');
                 //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
@@ -1476,7 +1476,7 @@ class gglmsModelUsers extends JModelLegacy
                     ->from('#__users ju')
                     ->join('inner', '#__comprofiler jc ON ju.id = jc.user_id')
                     ->join('inner','#__user_usergroup_map juum ON ju.id = juum.user_id')
-                    ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276))')
+                    ->join('inner', '#__usergroups ju2  ON (juum.group_id = ju2.id AND ju2.parent_id = ' . $defaultPlatformId . ' AND ju2.id NOT IN (267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299))')
                     ->join('inner', '(' . $subQuery . ') sub1 ON ju.id = sub1.s_user_id' )
                     ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code');
                     //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
