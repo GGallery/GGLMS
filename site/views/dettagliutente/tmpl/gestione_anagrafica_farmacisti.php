@@ -70,18 +70,26 @@ defined('_JEXEC') or die('Restricted access');
 <div class="container-fluid" style="position: relative;">
 
     <div id="toolbar" class="select">
-        <button id="export" class="btn btn-sm btn-primary">Export</button>
-        <button 
-            id="addUser" 
-            class="btn btn-sm btn-primary"
-            onclick="addUser()"
-            ><?php echo JText::_('COM_GGLMS_FARMACIE_NUOVO'); ?></button>
+		<div class="form-inline" role="form">
+            <div class="form-group">
+		        <button id="export" class="btn btn-sm btn-primary">Export</button>
+				<button 
+					id="addUser" 
+					class="btn btn-sm btn-primary ml-2"
+					onclick="addUser()"
+					><?php echo JText::_('COM_GGLMS_FARMACIE_NUOVO'); ?></button>
+			</div>
+			<div class="form-group ml-2">
+                <input id="customSearch" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit; line-height:24px; font-family: sans-serif; display:block; width: 250px;" />
+            </div>
+		</div>
     </div>
 
     <table
             id="tbl_anagrafica"
             data-toggle="table"
             data-toolbar="#toolbar"
+            data-search-selector="#customSearch"
             data-ajax="ajaxRequest"
             data-search="true"
             data-side-pagination="server"
