@@ -4566,8 +4566,8 @@ HTML;
     }
 
 
-    public function get_report_per_farmacie($data_dal, 
-                                            $data_al,
+    public function get_report_per_farmacie($data_dal = null, 
+                                            $data_al = null,
                                             $db_host = null,
                                             $db_user = null,
                                             $db_password = null,
@@ -4620,13 +4620,24 @@ HTML;
             $data_al = $this->_filterparam->al ;
             */
 
+            $fromView = (isset($this->_filterparam->tipologia_svolgimento) && $this->_filterparam->tipologia_svolgimento != "")
+                ? true
+                : false;
+
+            $data_dal = (is_null($data_dal) && isset($this->_filterparam->dal) && $this->_filterparam->dal != "")
+                ? $this->_filterparam->dal
+                : $data_dal;
+            $data_al = (is_null($data_al) && isset($this->_filterparam->al) && $this->_filterparam->al != "")
+                ? $this->_filterparam->al
+                : $data_al;
+
             if (!isset($data_dal)
-                || $data_dal == "")
-                throw new Exception("Impossibile continuare, data inizio non specificata", E_USER_ERROR);
+                || $data_dal == ""
+                || is_null($data_dal)) throw new Exception("Impossibile continuare, data inizio non specificata", E_USER_ERROR);
 
             if (!isset($data_al)
-                || $data_al == "")
-                throw new Exception("Impossibile continuare, data fine non specificata", E_USER_ERROR);
+                || $data_al == ""
+                || is_null($data_al)) throw new Exception("Impossibile continuare, data fine non specificata", E_USER_ERROR);
 
             $i = 0;
             $row = array();
@@ -4710,21 +4721,22 @@ HTML;
             $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
-            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . 'Report'. time() . '.csv', $prima_riga);
+            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . 'Report'. time() . '.csv', $prima_riga, $fromView);
 
-            /*
             // chiusura della finestra dopo generazione del report
+            if ($fromView)
             $_html = <<<HTML
             <script type="text/javascript">
                 window.close();
             </script>
 HTML;
-*/
         }
         catch (Exception $e) {
 
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             $_ret['error'] = $e->getMessage();
+
+            if ($fromView) echo $e->getMessage();
         }
 
         $this->_japp->close();

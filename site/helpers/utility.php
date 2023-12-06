@@ -4187,11 +4187,13 @@ HTML;
 
     }
 
-    public static function esporta_csv_spout_report($arr_values, $arr_cols, $dest_filename, $prima_riga) {
+    public static function esporta_csv_spout_report($arr_values, $arr_cols, $dest_filename, $prima_riga, $fromView = false) {
 
         $writer = WriterEntityFactory::createCSVWriter();
-        //$writer->openToBrowser($dest_filename);
-        $writer->openToFile($dest_filename);
+
+        if ($fromView) $writer->openToBrowser($dest_filename);
+        else $writer->openToFile($dest_filename);
+        
         $writer->setFieldDelimiter(';');
 
         // celle header

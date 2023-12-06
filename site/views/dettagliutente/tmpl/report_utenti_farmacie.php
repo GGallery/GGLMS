@@ -91,7 +91,7 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
                 var pStart = jQuery('#startdate').val();
                 var pEnd = jQuery('#enddate').val();
 
-                window.open("index.php?option=com_gglms&task=api.get_report_per_farmacie&dal=" + pStart + "&al=" + pEnd, "_blank");
+                window.open("index.php?option=com_gglms&task=api.get_report_per_farmacie&dal=" + pStart + "&al=" + pEnd + "&tipologia_svolgimento=view", "_blank");
 
             });
         });
