@@ -1294,12 +1294,13 @@ HTML;
             <option value="{$qualifica['id']}">{$qualifica['id']} - {$qualifica['title']}</option>
 HTML;   
             }
-
+/*
             $htmlQualifiche .= <<<HTML
                 <option value="299">88888 - Liberi Professionisti</option>
                 <option value="296">99999 - Dipendenti Holding</option>
             </select>
 HTML;
+*/
 
             $farmacie = $modelUser->get_farmacie();
             $htmlFarmacie = "";
@@ -1402,12 +1403,13 @@ HTML;
             <option value="{$qualifica['id']}" {$optionSelected}>{$qualifica['id']} - {$qualifica['title']}</option>
 HTML;   
             }
-
+/*
             $htmlQualifiche .= <<<HTML
                 <option value="299">88888 - Liberi Professionisti</option>
                 <option value="296">99999 - Dipendenti Holding</option>
             </select>
 HTML;
+*/
 
             $farmacie = $modelUser->get_farmacie();
             $htmlFarmacie = "";
