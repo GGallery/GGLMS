@@ -43,6 +43,10 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_filterparam->id_corso = JRequest::getVar('id_corso');
         $this->_filterparam->anno_ref = JRequest::getVar('anno_ref');
         $this->_filterparam->secret = JRequest::getVar('secret');
+        $this->_filterparam->extraoff = JRequest::getVar('extraoff');
+        $this->_filterparam->del_ug = JRequest::getVar('del_ug');
+        $this->_filterparam->new_ug = JRequest::getVar('new_ug');
+        $this->_filterparam->check_ug = JRequest::getVar('check_ug');
 
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -143,12 +147,26 @@ class gglmsControllerMt extends JControllerLegacy {
     {
         try {
 
-            $arr_ids = array(9,22,23,40,44,48,54,56,62,64,65,80,81,100,101,104,119,126,139,143,153,188,198,220,225,235,236,248,250,252,262,266,269,271,275,287,301,320,322,327,361,390,395,401,436,465,473,481,491,510,517,529,538,542,587,600,632,658,665,707,731,733,746,747,767,778,780,788,820,850,872,873,878,886,906,911,927,946,951,958,998,999,1008,1017,1027,1028,1041,1045,1049,1055,1061,1088,1094,1101,1108,1110,1111,1117,1119,1135,1136,1143,1176,1202,1230,1255,1260,1361,1402,1457,1482,1583,1587,1629,1674,1711,1719,1720,1722,1741,1785,1852,1854,1920,1921,1928,1942,1964,2017,2020,2027,3051,3116,3171,3237,3243,3275,3350,3405,3434,3440,3445,3486,3490,3502,3590,3603,3607,3610,3656,3658,3665,3668,3675,3680,3685,3686,3698,3708,3739,3777,3816,3858,3977,3984,3987,4140,4194,4222,4268,4327,4360,4387,4388,4413,4420,4422,4427,4435,4438,4439,4440,4444,4446,4470,4479,4481,4482,4495,4497,4502,4510,4514,4520,4554,4566,4578,4588,4627,4628,4664,4812,4854,4856);
 
+            if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->del_ug)) throw new Exception("Riferimento gruppo in eliminazione non specificato", E_USER_ERROR);
+            if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
+
+            /*
+            $arr_ids = array(9,22,23,40,44,48,54,56,62,64,65,80,81,100,101,104,119,126,139,143,153,188,198,220,225,235,236,248,250,252,262,266,269,271,275,287,301,320,322,327,361,390,395,401,436,465,473,481,491,510,517,529,538,542,587,600,632,658,665,707,731,733,746,747,767,778,780,788,820,850,872,873,878,886,906,911,927,946,951,958,998,999,1008,1017,1027,1028,1041,1045,1049,1055,1061,1088,1094,1101,1108,1110,1111,1117,1119,1135,1136,1143,1176,1202,1230,1255,1260,1361,1402,1457,1482,1583,1587,1629,1674,1711,1719,1720,1722,1741,1785,1852,1854,1920,1921,1928,1942,1964,2017,2020,2027,3051,3116,3171,3237,3243,3275,3350,3405,3434,3440,3445,3486,3490,3502,3590,3603,3607,3610,3656,3658,3665,3668,3675,3680,3685,3686,3698,3708,3739,3777,3816,3858,3977,3984,3987,4140,4194,4222,4268,4327,4360,4387,4388,4413,4420,4422,4427,4435,4438,4439,4440,4444,4446,4470,4479,4481,4482,4495,4497,4502,4510,4514,4520,4554,4566,4578,4588,4627,4628,4664,4812,4854,4856);
             $del_ug = 23;
             $new_ug = 20;
+            */
+
+            // online
+            $del_ug = $this->_filterparam->del_ug;
+            // morosi
+            $new_ug = $this->_filterparam->new_ug;
 
             $completed = 0;
+
+            $arr_ids = $this->sinpe_get_online_anno($del_ug, $this->_filterparam->anno_ref, $this->_filterparam->extraoff ?? 0);
+            if (!is_array($arr_ids) || !count($arr_ids)) throw new Exception("Non è stato trovato nessun utente appartenente ai criteri desiderati", E_USER_ERROR);
 
             $this->_db->transactionStart();
 
@@ -162,8 +180,7 @@ class gglmsControllerMt extends JControllerLegacy {
                 $this->_db->setQuery($query_sel);
                 $result = $this->_db->loadResult();
 
-                if (!is_null($result))
-                    continue;
+                if (!is_null($result)) continue;
 
                 // rimuovo user da online
                 $query_del = "DELETE
@@ -172,8 +189,7 @@ class gglmsControllerMt extends JControllerLegacy {
                                 AND group_id = " . $this->_db->quote($del_ug);
 
                 $this->_db->setQuery($query_del);
-                if (!$this->_db->execute())
-                    throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+                if (!$this->_db->execute()) throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
 
 
                 // aggiungo user in moroso
@@ -181,8 +197,7 @@ class gglmsControllerMt extends JControllerLegacy {
                                 VALUES (" . $this->_db->quote($user_id) . ", " . $this->_db->quote($new_ug) . ")";
 
                 $this->_db->setQuery($query_ins);
-                if (!$this->_db->execute())
-                    throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+                if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
 
 
                 $completed++;
@@ -202,49 +217,60 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_japp->close();
     }
 
-    public function sinpe_get_morosi()
+    /**
+     * @check_ug: online
+     * @anno_request: ultimo anno in regola
+     * @extraoff_request: se impostato non considera i soci straordinari
+     */
+    public function sinpe_get_online_anno($check_ug = null, $anno_request = null, $extraoff_request = 0)
     {
 
         try {
 
-            if (!isset($this->_filterparam->anno_ref))
-                throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (!isset($this->_filterparam->check_ug) && is_null($check_ug)) throw new Exception("Gruppo di selezione non indicato", E_USER_ERROR);
+            if (!isset($this->_filterparam->anno_ref) && is_null($anno_request)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
 
+            $anno_ref = isset($this->_filterparam->anno_ref)
+                ? $this->_filterparam->anno_ref
+                : $anno_request;
+            $extra_ug = 0;
+
+            if (isset($this->_filterparam->extraoff)) $extra_ug = $this->_filterparam->extraoff;
+            else if ($extraoff_request) $extra_ug = $extraoff_request;
 
             $query = "SELECT user_id
                         FROM #__comprofiler
-                        WHERE cb_ultimoannoinregola = " . $this->_db->quote($this->_filterparam->anno_ref);
+                        WHERE cb_ultimoannoinregola = " . $this->_db->quote($anno_ref);
 
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
 
-            if (!count($rows))
-                throw new Exception("Nessun risultato per " . $this->_filterparam->anno_ref, 1);
+            if (!count($rows)) throw new Exception("Nessun risultato per " . $anno_ref, E_USER_ERROR);
 
-            $check_ug = [23];
-            $extra_ug = [25];
+            //$check_ug = [23];
+            //$extra_ug = [25];
 
             foreach ($rows as $key => $user) {
 
                 $query_ug = "SELECT user_id
                                 FROM #__user_usergroup_map
                                 WHERE user_id = " . $this->_db->quote($user['user_id']) . "
-                                AND group_id IN (" . implode(',', $check_ug) . ")
-                                AND group_id NOT IN (" . implode(',', $extra_ug) . ")"
-                                ;
+                                AND group_id IN (" . $check_ug . ")";
+
+                // se impostato straordinari lo esclude dalla query
+                if ($extra_ug > 0) $query_ug .= " AND group_id NOT IN (" . $extra_ug . ")";
 
                 $this->_db->setQuery($query_ug);
                 $result = $this->_db->loadResult();
 
-                if (is_null($result)
-                    || !$result)
-                    continue;
+                if (is_null($result) || !$result) continue;
 
                 $extra_arr[] = $user['user_id'];
 
             }
 
-            echo implode(",", $extra_arr);
+            //return implode(",", $extra_arr);
+            return $extra_arr;
 
         }
         catch(Exception $e) {
