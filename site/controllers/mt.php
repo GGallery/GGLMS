@@ -172,15 +172,14 @@ class gglmsControllerMt extends JControllerLegacy {
 
             foreach ($arr_ids as $key => $user_id) {
 
+                // controllo se moroso
                 $query_sel = "SELECT user_id
                                 FROM #__user_usergroup_map
                                 WHERE user_id = " . $this->_db->quote($user_id) . "
                                 AND group_id = " . $this->_db->quote($new_ug);
 
                 $this->_db->setQuery($query_sel);
-                $result = $this->_db->loadResult();
-
-                if (!is_null($result)) continue;
+                $checkExist = $this->_db->loadResult();
 
                 // rimuovo user da online
                 $query_del = "DELETE
@@ -191,6 +190,8 @@ class gglmsControllerMt extends JControllerLegacy {
                 $this->_db->setQuery($query_del);
                 if (!$this->_db->execute()) throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
 
+                // se già presente non lo aggiungo
+                if (!is_null($checkExist)) continue;
 
                 // aggiungo user in moroso
                 $query_ins = "INSERT INTO #__user_usergroup_map (user_id, group_id)
@@ -198,7 +199,6 @@ class gglmsControllerMt extends JControllerLegacy {
 
                 $this->_db->setQuery($query_ins);
                 if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
-
 
                 $completed++;
 
@@ -222,7 +222,7 @@ class gglmsControllerMt extends JControllerLegacy {
      * @anno_request: ultimo anno in regola
      * @extraoff_request: se impostato non considera i soci straordinari
      */
-    public function sinpe_get_online_anno($check_ug = null, $anno_request = null, $extraoff_request = 0)
+    public function sinpe_get_online_anno($check_ug = null, $anno_request = null, $extraoff_request = null)
     {
 
         try {
@@ -236,7 +236,7 @@ class gglmsControllerMt extends JControllerLegacy {
             $extra_ug = 0;
 
             if (isset($this->_filterparam->extraoff)) $extra_ug = $this->_filterparam->extraoff;
-            else if ($extraoff_request) $extra_ug = $extraoff_request;
+            else if (!is_null($extraoff_request)) $extra_ug = $extraoff_request;
 
             $query = "SELECT user_id
                         FROM #__comprofiler
