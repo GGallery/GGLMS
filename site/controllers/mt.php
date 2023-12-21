@@ -233,7 +233,7 @@ class gglmsControllerMt extends JControllerLegacy {
             $anno_ref = isset($this->_filterparam->anno_ref)
                 ? $this->_filterparam->anno_ref
                 : $anno_request;
-            $extra_ug = 0;
+            $extra_ug = null;
 
             if (isset($this->_filterparam->extraoff)) $extra_ug = $this->_filterparam->extraoff;
             else if (!is_null($extraoff_request)) $extra_ug = $extraoff_request;
@@ -258,7 +258,7 @@ class gglmsControllerMt extends JControllerLegacy {
                                 AND group_id IN (" . $check_ug . ")";
 
                 // se impostato straordinari lo esclude dalla query
-                if ($extra_ug > 0) $query_ug .= " AND group_id NOT IN (" . $extra_ug . ")";
+                if (!is_null($extra_ug)) $query_ug .= " AND group_id NOT IN (" . $extra_ug . ")";
 
                 $this->_db->setQuery($query_ug);
                 $result = $this->_db->loadResult();
