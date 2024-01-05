@@ -3,6 +3,9 @@
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
+# 4.2.4
+* D: aggiunta tabella gg_cod_votazioni_users
+* D: aggiunta tabella gg_votazioni_candidati
 
 # 4.2.3
 * D: aggiunta della colonna id_gruppi_custom alla tabella gg_unit
