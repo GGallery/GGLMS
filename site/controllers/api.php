@@ -2545,7 +2545,7 @@ HTML;
                             </td>
                         </tr>
                         <tr>
-                            <td style="text-align: right;">Palermo, {$result['data_pagamento']}</td>
+                            <td style="text-align: right;">Genova, {$result['data_pagamento']}</td>
                         </tr>
                     </tbody>
                 </table>
