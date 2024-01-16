@@ -1867,7 +1867,8 @@ HTML;
                                                             $acquisto_webinar = 0,
                                                             $perc_webinar = 0,
                                                             $_params,
-                                                            $is_asand = false) {
+                                                            $is_asand = false,
+                                                            $sconto_associazione = 0) {
 
         try {
 
@@ -1915,6 +1916,7 @@ HTML;
             $_descr_attr_evento .= ($in_groups == 1) ? '-sc_gruppo' : '';
             $_descr_attr_evento .= ($sconto_particolare > 0) ? '-sc_ps' : '';
             $_descr_attr_evento .= ($acquisto_webinar > 0) ? '-webinar' : '';
+            $_descr_attr_evento .= ($sconto_associazione > 0) ? '-sc_sinseb-sinut' : '';
 
             $_descrizione_hidden = $_descr_attr_evento;
 
@@ -1923,7 +1925,16 @@ HTML;
             $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_row_pagamento_bonfico = "";
 
-            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+            $token = UtilityHelper::build_token_url($unit_prezzo, 
+              $unit_id, 
+              $user_id, 
+              $sconto_data, 
+              $sconto_custom, 
+              $in_groups, 
+              'GGallery00!', 
+              $is_asand, 
+              $sconto_associazione
+            );
             $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
 
             // verifico se sono richieste informazioni extra
@@ -2023,7 +2034,9 @@ HTML;
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align: center;">
-                            <span id="paypal-button-container"></span>
+                            <div class="row">
+                              <div class="col-12 col-md-6 offset-md-3" id="paypal-button-container"></div>
+                            </div>
                         </td>
                     </tr>
                     {$_row_pagamento_bonfico}

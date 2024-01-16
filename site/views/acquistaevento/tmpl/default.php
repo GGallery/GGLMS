@@ -34,7 +34,7 @@ defined('_JEXEC') or die;
     } else if ($this->action == 'buy'
         && !$this->hide_pp) { ?>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $this->client_id; ?>&currency=EUR" data-sdk-integration-source="button-factory"></script>
-
+    
         <div class="row">
             <?php echo $this->payment_form; ?>
             <p id="descriptionError" style="display: none; color: red;">

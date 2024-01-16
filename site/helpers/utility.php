@@ -3175,7 +3175,7 @@ HTML;
     }
 
     // costruizione del token per l'url encodato - utilità per output.php
-    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!', $is_asand = false) {
+    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!', $is_asand = false, $sconto_associazione = 0) {
 
         $b_url = $unit_prezzo
             . '|==|' . $unit_id
@@ -3186,7 +3186,8 @@ HTML;
             . '|==|0'
             . '|==|0'
             . '|==|0'
-            . '|==|' . $is_asand;
+            . '|==|' . $is_asand
+            . '|==|' . $sconto_associazione;
         $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
 
         return $token;

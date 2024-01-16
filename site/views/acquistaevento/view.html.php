@@ -41,6 +41,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
     protected $dp_lang;
     protected $_ret;
     protected $is_asand = false;
+    protected $sconto_associazione;
 
     function display($tpl = null)
     {
@@ -157,6 +158,13 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             if (isset($decode_arr[9])
                 && $decode_arr[9] != "")
                 $this->is_asand = true;
+            
+            // integrazione ASAND associazione medico
+            if (isset($decode_arr[10])
+                && $decode_arr[10] != ""
+                && $decode_arr[10] != "null"
+                && !is_null($decode_arr[10]))
+                $this->sconto_associazione = $decode_arr[10];
 
             $_config = new gglmsModelConfig();
 
@@ -179,14 +187,12 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                                 $_params,
                                                                                                 $this->is_asand);
 
-                    if (!is_array($_payment_form))
-                        throw new Exception($_payment_form, E_USER_ERROR);
+                    if (!is_array($_payment_form)) throw new Exception($_payment_form, E_USER_ERROR);
 
                     $this->payment_form = $_payment_form['success'];
                     $this->in_error = 0;
 
                 } else { // lo invio al modulo di acquisto paypal / bonifico
-
                     $_current_user = JFactory::getUser();
                     if ($this->user_id != $_current_user->id)
                         throw new Exception("L'utente corrente è diverso da quello che ha richiesto la transazione", E_USER_ERROR);
@@ -217,7 +223,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                     $this->acquisto_webinar,
                                                                                     $this->perc_webinar,
                                                                                     $_params,
-                                                                                    $this->is_asand);
+                                                                                    $this->is_asand,
+                                                                                    $this->sconto_associazione);
 
                     if (!is_array($_payment_form))
                         throw new Exception($_payment_form, E_USER_ERROR);
@@ -232,14 +239,16 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $unit_model = new gglmsModelUnita();
                 $_unit = $unit_model->getUnita($this->unit_id);
                 $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
-
+                $_order_details = $this->sconto_associazione > 0
+                    ? "applicato sconto associazione: " . $this->sconto_associazione
+                    : "";
 
                 // user model
                 $_user_quote = new gglmsModelUsers();
                 $_insert_servizi_extra = $_user_quote->insert_user_servizi_extra($this->user_id,
                                                                                 $dt->format('Y'),
                                                                                 $dt->format('Y-m-d H:i:s'),
-                                                                                "",
+                                                                                $_order_details,
                                                                                 $this->unit_prezzo,
                                                                                 array(),
                                                                                 $this->action,
