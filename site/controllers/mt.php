@@ -971,11 +971,11 @@ class gglmsControllerMt extends JControllerLegacy {
                                                 )
                                             VALUES (
                                                 " . $this->_db->quote($user_id) . ",
-                                                2022,
+                                                2024,
                                                 'quota',
                                                 'bonifico',
                                                 " . $this->_db->quote($now) . ",
-                                                'Socio straordinario da Congresso 2021'
+                                                'Socio straordinario 2024'
                                             )";
                 $this->_db->setQuery($query_quote);
                 if (!$this->_db->execute())
