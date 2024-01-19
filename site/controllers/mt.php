@@ -954,7 +954,7 @@ class gglmsControllerMt extends JControllerLegacy {
 
                 // cb_ultimoannoinregola
                 $query_update = "UPDATE #__comprofiler
-                                SET cb_ultimoannoinregola = 2022
+                                SET cb_ultimoannoinregola = 2024
                                 WHERE user_id = " . $this->_db->quote($user_id);
                 $this->_db->setQuery($query_update);
                 if (!$this->_db->execute())
