@@ -85,6 +85,10 @@ HTML;
 
         // pagamento con bonifico conferma
         jQuery('#btn-bonifico').on('click', function (e) {
+            jQuery(this).prop('disabled', true);
+            // Salva lo stato del pulsante nella localStorage
+            localStorage.setItem('isButtonDisabled', 'true');
+
             var pHref = jQuery(this).attr("data-ref");
             window.location.href = pHref+ '&totale_sinpe=' + jQuery('#amount').val()
                 + '&totale_espen=' + jQuery('#amount_espen').val();
@@ -157,6 +161,12 @@ HTML;
 
     jQuery(function() {
 
+        var isButtonDisabled = localStorage.getItem('isButtonDisabled');
+
+        // Se il pulsante è stato disabilitato, disabilitalo nuovamente
+        if (isButtonDisabled === 'true') {
+            jQuery('#btn-bonifico').prop('disabled', true);
+        }
 
         initPayPalButton();
 
