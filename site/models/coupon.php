@@ -117,10 +117,10 @@ class gglmsModelcoupon extends JModelLegacy
 
             $query = '
                 UPDATE
-                    #__gg_coupon 
-                SET id_utente = ' . $this->_db->quote($this->_userid) . ', 
+                    #__gg_coupon
+                SET id_utente = ' . $this->_db->quote($this->_userid) . ',
                 data_utilizzo = NOW()
-                WHERE 
+                WHERE
                     substring_index(coupon,"@",1)    = ' . $this->_db->quote($coupon) ;
 
             $this->_db->setQuery($query);
@@ -241,7 +241,7 @@ class gglmsModelcoupon extends JModelLegacy
             // aggiunto order by data scadenza così da prendere il coupon con la data di scadenza meno prossima in caso di corrispondenza multiple
             // eseguo il test della scandenza tipo mysql
             $query = $this->_db->getQuery(true)
-                ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc, 
+                ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc,
                             c.data_utilizzo,
                             (case when ((c.data_utilizzo + interval c.durata day) < now()) then 1 else 0 end) AS scaduto
                             ')
@@ -424,11 +424,11 @@ class gglmsModelcoupon extends JModelLegacy
         try {
             $query = '
                 UPDATE
-                    #__gg_coupon 
-                SET id_utente = ' . $this->_db->quote($user_id) . ', 
+                    #__gg_coupon
+                SET id_utente = ' . $this->_db->quote($user_id) . ',
                 data_utilizzo = NOW()
-                WHERE 
-                    substring_index(coupon,"@",1)    =   ' . $this->_db->quote($coupon) . ' 
+                WHERE
+                    substring_index(coupon,"@",1)    =   ' . $this->_db->quote($coupon) . '
                 ';
 
             $this->_db->setQuery($query);
@@ -476,7 +476,7 @@ class gglmsModelcoupon extends JModelLegacy
             $db->setQuery("SELECT  config_value FROM #__gg_configs WHERE config_key= 'durata_massima'");
             $durata_massima = $db->loadResult();
 
-            // rifaccio la query per far fare il calcolo a sql
+            // rifaccio la query per fare il calcolo con sql
             $query = $this->_db->getQuery(true)
                 ->select('DATE_ADD(c.data_utilizzo,INTERVAL '. $this->_db->quote($durata_massima) .' MONTH) as data_scadenza_calc , c.data_utilizzo')
                 ->from('#__gg_coupon AS c')
@@ -537,11 +537,11 @@ class gglmsModelcoupon extends JModelLegacy
 
             $query = '
                 UPDATE
-                    #__gg_coupon 
+                    #__gg_coupon
                 SET id_utente = NULL ,
-                id_societa = 0, 
+                id_societa = 0,
                 id_gruppi = 0
-                WHERE 
+                WHERE
                     coupon = ' . $this->_db->quote($coupon) .'
                     ';
 
