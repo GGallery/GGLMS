@@ -1939,6 +1939,7 @@ HTML;
 
             // verifico se sono richieste informazioni extra
             $infoExtraRequest = false;
+            /*
             $infoExtraCheck = utilityHelper::get_params_from_object($_params, 'campo_cb_informazioniextra');
             if (!is_null($infoExtraCheck)
                 && $infoExtraCheck != ""
@@ -1948,6 +1949,7 @@ HTML;
 
                 if ($in_ug_studente) $infoExtraRequest = true;
             }
+            */
 
             $informazioniExtraHtml = "";
 
