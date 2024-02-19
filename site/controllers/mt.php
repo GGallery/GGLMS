@@ -27,7 +27,6 @@ class gglmsControllerMt extends JControllerLegacy {
     private $_filterparam;
     public $mail_debug;
 
-
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -42,6 +41,18 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
 
 
+    }
+
+    public function test() {
+        $model_contenuto = new gglmsModelContenuto();
+
+        //$getCouponPerUtente = $model_contenuto->getCouponPerUtenteGruppoCorso(1482, 1359, true);
+
+        $contenutiPerUtenteCorso = $model_contenuto->getCorsiPerUtente(1482, '2024-01-01', '2024-01-31');
+
+        print_r($contenutiPerUtenteCorso);
+
+        $this->_japp->close();
     }
 
     public function make_pwd() {

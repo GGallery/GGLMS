@@ -4659,13 +4659,19 @@ HTML;
 
                     if (count($contenutiPerUtenteCorso) === 0 ) continue;
 
+                    // confronto il gruppo corso con il gruppo della farmacia nella tabella dei coupon
+                    // mi serve per capire se l'utente sta facendo il corso per la farmacia per cui lavora al momento oppure no
+                    // in caso contrario non conteggio le ore altrimenti si moltiplicano erroneamente per corso
+
                     // calcolo soltanto se ci sono riferimenti
                     if (!is_null($contenutiPerUtenteCorso) && count($contenutiPerUtenteCorso)) {
-
 
                         $username = $model_users->get_username($single_user['user_id'], $extDb);
 
                         foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
+
+                            $getCouponPerUtente = $model_contenuto->getCouponPerUtenteGruppoCorso($single_user['user_id'], $single_user['gruppo_farmacia'], $singleContent['gruppo_corso'], $extDb);
+                            if (count($getCouponPerUtente) == 0) continue;
 
                             $totOreUnita = 0;
                             $totContenuti = 0;

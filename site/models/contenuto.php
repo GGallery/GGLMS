@@ -1016,7 +1016,7 @@ class gglmsModelContenuto extends JModelLegacy
             ? JFactory::getDbo()
             : $extDb;
 
-        $query = "SELECT ms.id_gruppo, dip.user_id, ms.hh_store_code
+        $query = "SELECT ms.id_gruppo, dip.user_id, ms.hh_store_code, dip.id_gruppo AS gruppo_farmacia
                     FROM #__gg_master_farmacie as ms
                     join #__gg_farmacie_dipendenti as dip on ms.hh_store_code = dip.codice_esterno_cdc_3
                     where ms.hh_store_code = " . $codice ."
@@ -1052,6 +1052,40 @@ class gglmsModelContenuto extends JModelLegacy
 
     }
 
+    public function getCouponPerUtenteGruppoCorso($idUtente, $idSocieta, $gruppoCorso, $extDb = null) {
+
+        try {
+
+            $db = is_null($extDb)
+                ? JFactory::getDbo()
+                : $extDb;
+
+            $query = "SELECT id_gruppi, id_societa
+                        FROM #__gg_coupon jgc 
+                        WHERE id_utente = " . $this->_db->quote($idUtente) . "
+                        AND id_societa  = " . $this->_db->quote($idSocieta) . "
+                        AND id_gruppi = " . $this->_db->quote($gruppoCorso) . "
+                        ORDER BY id_gruppi
+                        ";
+
+            $db->setQuery($query);
+
+            $results = $db->loadAssocList();
+
+            // if ($normalizzaArray && count($results) > 0) {
+            //     return utilityHelper::normalizza_loadassoc($results, null, 'id_gruppi', true);
+            // }
+
+            return $results;
+
+        }
+        catch(Exception $ex) {
+            DEBUGG::log($ex->getMessage(), __FUNCTION__ . ' -> ERRORE', 0, 1, 0);
+            return null;
+        }
+
+    }
+
     public function getCorsiPerUtente($idUtente, $data_dal, $data_al, $extDb = null) {
 
         try {
@@ -1074,15 +1108,14 @@ class gglmsModelContenuto extends JModelLegacy
                 : $extDb;
 
             // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
-            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita
+            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita, jgum.idgruppo AS gruppo_corso
                         FROM #__gg_view_stato_user_corso v
                         JOIN #__gg_unit u ON v.id_corso = u.id
                         JOIN #__gg_report ggr ON v.id_corso = ggr.id_corso and v.id_anagrafica = ggr.id_anagrafica
-                        AND ggr.id_utente = '" . $idUtente . "'
+                        JOIN #__gg_usergroup_map jgum ON ggr.id_unita = jgum.idunita 
+                        WHERE ggr.id_utente = '" . $idUtente . "'
                         AND v.data_inizio BETWEEN " . $this->_db->quote($data_dal) ." AND " . $this->_db->quote($data_al) ."
                         GROUP BY v.id_corso" ;
-
-
 
 
             $db->setQuery($query);
@@ -1179,7 +1212,7 @@ class gglmsModelContenuto extends JModelLegacy
                         FROM #__gg_unit u
                         JOIN #__gg_report ggr ON u.id = ggr.id_corso
                         JOIN #__gg_contenuti ggc ON ggr.id_contenuto = ggc.id
-                        AND ggr.id_utente = '" . $idUtente . "'
+                        WHERE ggr.id_utente = '" . $idUtente . "'
                         AND ggr.stato = 1
                         AND ggc.pubblicato = 1
                         AND ggr.data BETWEEN ". $this->_db->quote($data_dal) ." AND ". $this->_db->quote($data_al) ."
