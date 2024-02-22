@@ -4717,17 +4717,18 @@ HTML;
                                 $i++;
                             }
 
-                            $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
-                            $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
-                            $row_filter[$j] ['id_utente'] = $single_user['user_id'];
 
-                            $j++;
 
                         }
 
 
                     }
 
+                    $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
+                    $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
+                    $row_filter[$j] ['id_utente'] = $single_user['user_id'];
+
+                    $j++;
 
 
                 }
