@@ -4696,9 +4696,9 @@ HTML;
 
                             }
 
-                            if((!in_array($single_user['gruppo_farmacia'],$row_filter))
-                                && (!in_array($singleContent['gruppo_corso'],$row_filter))
-                                && (!in_array($single_user['user_id'],$row_filter))
+                            if ((!utilityHelper::check_existing_value($single_user['gruppo_farmacia'], $row_filter, 'id_societa')) &&
+                                (!utilityHelper::check_existing_value($singleContent['gruppo_corso'], $row_filter, 'id_gruppo')) &&
+                                (!utilityHelper::check_existing_value($single_user['user_id'], $row_filter, 'id_utente'))
                             ) {
                                 $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
                                 $row[$i] ['COGNOME'] = $username->cognome;
@@ -4717,16 +4717,17 @@ HTML;
                                 $i++;
                             }
 
+                            $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
+                            $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
+                            $row_filter[$j] ['id_utente'] = $single_user['user_id'];
+
+                            $j++;
+
                         }
 
 
                     }
 
-                    $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
-                    $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
-                    $row_filter[$j] ['id_utente'] = $single_user['user_id'];
-
-                    $j++;
 
 
                 }
