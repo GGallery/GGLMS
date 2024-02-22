@@ -4566,7 +4566,7 @@ HTML;
     }
 
 
-    public function get_report_per_farmacie($data_dal = null, 
+    public function get_report_per_farmacie($data_dal = null,
                                             $data_al = null,
                                             $db_host = null,
                                             $db_user = null,
@@ -4913,6 +4913,49 @@ HTML;
         $this->_japp->close();
 
      }
+
+    public function fix_corsi_accesso_libero()
+    {
+
+        try {
+
+            //impostare id utente per cui voui creare il coupon
+            $arr_utenti = [4065, 4066, 4070, 4072, 4245, 4250, 4273, 4276, 4378];
+            //impostare il gruppo del corso
+            $ug = 1677;
+
+            foreach ($arr_utenti as $key_utente => $id_utente) {
+
+                // controllo se l'utente è già iscritto
+                $check_user_into_ug = utilityHelper::check_user_into_ug($id_utente, (array)$ug);
+                if ($check_user_into_ug)
+                    throw new Exception(JText::_('COM_GGLMS_BOXES_SCHEDA_ISCRITTO'), E_USER_ERROR);
+
+                $model_user = new gglmsModelUsers();
+                $username = $model_user->get_username_utente($id_utente);
+
+                //impostare la data inizio del corso
+                $data_inizio = '2022-11-05';
+
+                // inserimento coupon per il corso a cui l'utente si vuole iscrivere
+                $genera_coupon = utilityHelper::crea_coupon_iscrizione_corso($ug, $id_utente, $username['username'], $data_inizio, $model_user);
+                if (is_null($genera_coupon))
+                    throw new Exception("Si è verificato un errore durante la generazione del coupon", E_USER_ERROR);
+
+                // associo l'utente al gruppo
+                $_add_ug = utilityHelper::set_usergroup_generic($id_utente, $ug);
+                if (!is_array($_add_ug))
+                    throw new Exception($_add_ug, E_USER_ERROR);
+            }
+
+            return "SONO STATI INSERITI I COUPON";
+
+        }
+        catch(Exception $e) {
+            return __FUNCTION__ . " - FIX NON COMPLETATO: " . $e->getMessage();
+        }
+
+    }
 
 
 //	INUTILIZZATO

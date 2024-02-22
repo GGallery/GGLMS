@@ -378,7 +378,7 @@ class gglmsModelUsers extends JModelLegacy
             return $this->_db->loadAssoc();
 
         } catch (Exception $e) {
-            
+
             DEBUGG::error($e, 'get_user_piattaforme');
             return null;
         }
@@ -1333,7 +1333,7 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->setQuery($query);
             $results = $this->_db->loadAssocList();
 
-            return $results; 
+            return $results;
 
         }
         catch (Exception $e) {
@@ -1368,7 +1368,7 @@ class gglmsModelUsers extends JModelLegacy
                     */
 
             $query = $this->_db->getQuery(true)
-                ->select('ju.id as ref_dipendente, 
+                ->select('ju.id as ref_dipendente,
                     ju.id as user_actions,
                     jc.cb_nome,
                     jc.cb_cognome,
@@ -1446,7 +1446,7 @@ class gglmsModelUsers extends JModelLegacy
             */
 
             $query = $this->_db->getQuery(true)
-                ->select('ju.id as ref_dipendente, 
+                ->select('ju.id as ref_dipendente,
                     ju.id as user_actions,
                     jc.cb_nome,
                     jc.cb_cognome,
@@ -1491,7 +1491,7 @@ class gglmsModelUsers extends JModelLegacy
                     ->join('inner', '#__gg_master_farmacie jgmf ON jc.cb_codiceestrenocdc3 = jgmf.hh_store_code');
                     //->join('inner', '(' . $subQuery2 . ') sub2 ON ju.id = sub2.f_user_id');
 
-            
+
 
             if (!is_null($_search)) {
 
@@ -2028,6 +2028,26 @@ class gglmsModelUsers extends JModelLegacy
             return $username;
         } catch (Exception $e) {
             DEBUGG::error($e, 'error get username', 1);
+        }
+    }
+
+    public function get_username_utente($user_id)
+    {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('u.username')
+                ->from('#__users as u')
+                ->where("u.id= '" . $user_id . "'");
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssoc();
+
+        } catch (Exception $e) {
+
+            DEBUGG::error($e, 'get_username_utente');
+            return null;
         }
     }
 

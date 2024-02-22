@@ -37,6 +37,7 @@ class com_gglmsInstallerScript {
                                     "report_per_piattaforma.php",
                                     "load_corsi_from_xml.php",
                                     "fix_report_anagrafiche.php",
+                                    "fix_corso_accesso_libero.php",
                                     "fix_report_anagrafiche_2.php",
                                     "import_master_farmacie.php",
                                     "import_anagrafica_farmacie.php",
