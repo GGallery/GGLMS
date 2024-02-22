@@ -51,8 +51,8 @@ class reportFarmacie extends JApplicationCli {
             $dal = $this->input->get('dal', '');
             $al = $this->input->get('al', '');
 
-            $db_host = $this->input->get('db_host', null);
-            $db_port = $this->input->get('db_port', null);
+            $db_host = $this->input->get('db_host', 'localhost');
+            $db_port = $this->input->get('db_port', 3306);
             $db_user = $this->input->get('db_user', null);
             $db_password = $this->input->get('db_password', null);
             $db_database = $this->input->get('db_database', null);
@@ -65,7 +65,7 @@ class reportFarmacie extends JApplicationCli {
 
             $api = new gglmsControllerApi();
             $host_string = (!is_null($db_host) && !is_null($db_port)) ? $db_host . ":" . $db_port : null;
-            $report_farmacie = $api->get_report_per_farmacie($dal, 
+            $report_farmacie = $api->get_report_per_farmacie($dal,
                                                             $al,
                                                             $host_string,
                                                             $db_user,
