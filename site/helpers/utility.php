@@ -1222,22 +1222,22 @@ class utilityHelper
     }
 
     // logica che gestisce la casistica per l'inserimento di una nuova anagrafica oppure di una esisten
-    public static function new_anagrafica_manage($new_user, 
-                                $check_user_id, 
-                                $_new_user_cp, 
-                                $_new_user_id, 
-                                $ug_farmacia, 
-                                $cb_codice_esterno_cdc_3, 
-                                $cb_data_inizio_rapporto, 
-                                $cb_data_licenziamento, 
-                                $cb_stato_dipendente, 
-                                $db_option = array(), 
+    public static function new_anagrafica_manage($new_user,
+                                $check_user_id,
+                                $_new_user_cp,
+                                $_new_user_id,
+                                $ug_farmacia,
+                                $cb_codice_esterno_cdc_3,
+                                $cb_data_inizio_rapporto,
+                                $cb_data_licenziamento,
+                                $cb_stato_dipendente,
+                                $db_option = array(),
                                 $model_user = null,
                                 $farmacia_id_old = null) {
 
         try {
 
-            if (is_null($model_user)) { 
+            if (is_null($model_user)) {
                 require_once JPATH_COMPONENT . '/models/users.php';
                 $model_user = new gglmsModelUsers();
             }
@@ -1297,7 +1297,7 @@ class utilityHelper
                     // rimuovo utente dal vecchio gruppo
                     $remove_ug_user = self::remove_user_from_usergroup($check_user_id, (array) $lastFarmUg, $db_option);
                     if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
-                    
+
 
                     // ha cambiato farmacia (o non c'è nessun riferimento)
                     $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
@@ -3739,7 +3739,7 @@ HTML;
 
         $ts_start = new DateTime($start_date);
         $ts_end = new DateTime($end_date);
-        
+
         //$ts_end = DateTime::createFromFormat('Y-m-d', $end_date);
 
         return $ts_start > $ts_end;
@@ -4193,7 +4193,7 @@ HTML;
 
         if ($fromView) $writer->openToBrowser($dest_filename);
         else $writer->openToFile($dest_filename);
-        
+
         $writer->setFieldDelimiter(';');
 
         // celle header
