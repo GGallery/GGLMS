@@ -4641,6 +4641,8 @@ HTML;
 
             $i = 0;
             $row = array();
+            $row_filter = array();
+            $j = 0;
 
 
             $farmacieArr = $model_contenuto->getFarmacie($extDb);
@@ -4694,26 +4696,37 @@ HTML;
 
                             }
 
-                            $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
-                            $row[$i] ['COGNOME'] = $username->cognome;
-                            $row[$i] ['NOME'] = $username->nome;
-                            $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
-                            $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
-                            $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
-                            $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso ."%";
-                            $row[$i] ['MANSIONE'] = $username->mansione;
-                            $hh_store_code = trim($single_farmacia['codice']);
-                            if (strlen($hh_store_code) < 6) {
-                                $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
-                            }
-                            $row[$i] ['ID SEDE'] = '"'. $hh_store_code .'"';
+                            if((!in_array($single_user['gruppo_farmacia'],$row_filter))
+                                && (!in_array($singleContent['gruppo_corso'],$row_filter))
+                                && (!in_array($single_user['user_id'],$row_filter))
+                            ) {
+                                $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
+                                $row[$i] ['COGNOME'] = $username->cognome;
+                                $row[$i] ['NOME'] = $username->nome;
+                                $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
+                                $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
+                                $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
+                                $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso . "%";
+                                $row[$i] ['MANSIONE'] = $username->mansione;
+                                $hh_store_code = trim($single_farmacia['codice']);
+                                if (strlen($hh_store_code) < 6) {
+                                    $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
+                                }
+                                $row[$i] ['ID SEDE'] = '"' . $hh_store_code . '"';
 
-                            $i++;
+                                $i++;
+                            }
 
                         }
 
 
                     }
+
+                    $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
+                    $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
+                    $row_filter[$j] ['id_utente'] = $single_user['user_id'];
+
+                    $j++;
 
 
                 }
