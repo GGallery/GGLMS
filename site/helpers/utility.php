@@ -4228,6 +4228,20 @@ HTML;
 
     }
 
+    public static function check_existing_value($id_utente, $id_gruppo, $id_societa, $array){
+        foreach ($array as $key_item => $item) {
+            if ($item['id_societa'] == $id_societa) {
+                if ($item['id_utente'] == $id_utente){
+                    if ($item['id_gruppo'] == $id_gruppo){
+                        return true;
+                    }
+                }
+            }
+         }
+
+      return false;
+    }
+
 
     /* Generiche */
 }

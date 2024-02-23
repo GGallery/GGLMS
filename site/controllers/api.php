@@ -4696,10 +4696,8 @@ HTML;
 
                             }
 
-                            if ((!$this->check_existing_value($single_user['gruppo_farmacia'], $row_filter, 'id_societa')) &&
-                                (!$this->check_existing_value($singleContent['gruppo_corso'], $row_filter, 'id_gruppo')) &&
-                                (!$this->check_existing_value($single_user['user_id'], $row_filter, 'id_utente'))
-                            ) {
+                            if (!utilityHelper::check_existing_value($single_user['user_id'], $singleContent['gruppo_corso'], $single_user['gruppo_farmacia'], $row_filter)) {
+
                                 $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
                                 $row[$i] ['COGNOME'] = $username->cognome;
                                 $row[$i] ['NOME'] = $username->nome;
@@ -4717,6 +4715,12 @@ HTML;
                                 $i++;
                             }
 
+                            $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
+                            $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
+                            $row_filter[$j] ['id_utente'] = $single_user['user_id'];
+
+                            $j++;
+
 
 
                         }
@@ -4724,15 +4728,8 @@ HTML;
 
                     }
 
-                    $row_filter[$j] ['id_gruppo'] = $singleContent['gruppo_corso'];
-                    $row_filter[$j] ['id_societa'] = $single_user['gruppo_farmacia'];
-                    $row_filter[$j] ['id_utente'] = $single_user['user_id'];
-
-                    $j++;
-
 
                 }
-
 
 
             }
@@ -4970,15 +4967,6 @@ HTML;
             return __FUNCTION__ . " - FIX NON COMPLETATO: " . $e->getMessage();
         }
 
-    }
-
-    public function check_existing_value($valueToCheck, $array, $key){
-        foreach ($array as $item) {
-            if ($item[$key] == $valueToCheck) {
-                return true;
-            }
-        }
-        return false;
     }
 
 
