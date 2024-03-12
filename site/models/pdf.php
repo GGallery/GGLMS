@@ -114,6 +114,17 @@ class gglmsModelPdf extends JModelLegacy
             $_tipologia = $db->loadResult();
             $_tipologia_coupon_ext = (!is_null($_tipologia) && $_tipologia != '' && $_tipologia != 'nonimpostato') ? $_tipologia : "";
 
+
+            $modelcoupon = new gglmsModelcoupon();
+            $id_societa = $modelcoupon->get_id_societa($coupon);
+            $_id_societa = (!is_null($id_societa) && $id_societa != '') ? $id_societa : "";
+
+            //modifica per ora solo per una certa azienda per prima se serve in futuro lo facciamo in modo dinamico
+            if($_id_societa === '461') {
+                $info['logo'] = '461';
+            }
+
+
             // se vengo da una generazione multipla di coupon ritorno coupon vuoto come da comportamento originale
             if ($multi)
                 $info['coupon'] = '';

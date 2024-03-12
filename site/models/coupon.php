@@ -559,4 +559,27 @@ class gglmsModelcoupon extends JModelLegacy
         }
 
     }
+
+    public function get_id_societa($coupon)
+    {
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select("c.id_societa")
+                ->from('#__gg_coupon c')
+                ->where('coupon = ' . $this->_db->quote($coupon));
+
+            $this->_db->setQuery($query);
+
+            if (null === ($result = $this->_db->loadResult())) {
+                throw new Exception("coupon non esiste", 1);
+            }
+
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+            return __FUNCTION__ . " errore: " . $e->getMessage();
+        }
+
+    }
 }
