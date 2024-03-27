@@ -2017,7 +2017,7 @@ class gglmsModelUsers extends JModelLegacy
                 : $extDb;
 
             $query = $dbRef->getQuery(true)
-                ->select("cb_nome as nome, cb_cognome as cognome, cb_descrizionequalifica as mansione")
+                ->select("cb_nome as nome, cb_cognome as cognome, cb_codicefiscale as codice_fiscale, cb_descrizionequalifica as mansione")
                 ->from("#__comprofiler")
                 ->where("user_id = " . $user_id);
 

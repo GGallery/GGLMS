@@ -4701,6 +4701,7 @@ HTML;
                                 $row[$i] ['FARMACIA'] = $single_farmacia['nome_farmacia'];
                                 $row[$i] ['COGNOME'] = $username->cognome;
                                 $row[$i] ['NOME'] = $username->nome;
+                                $row[$i] ['CODICE FISCALE'] = $username->codice_fiscale;
                                 $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
                                 $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
                                 $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
