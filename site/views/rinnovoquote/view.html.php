@@ -76,9 +76,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             $_config = new gglmsModelConfig();
             $_user_quote = new gglmsModelUsers();
             $this->client_id = $_config->getConfigValue('paypal_client_id');
-            if (is_null($this->client_id)
-                || $this->client_id == "")
-                throw new Exception("Client ID di PayPal non valorizzato!", 1);
+            if (is_null($this->client_id) || $this->client_id == "") throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
 
             // dettagli utente
             $_user = new gglmsModelUsers();
@@ -91,46 +89,43 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             // chi o cosa mi sta chiamando
 
 
-            if (!is_array($_user_details))
-                throw new Exception($_user_details, 1);
+            if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
 
             $dt = new DateTime();
 
             // funzionialità diverse a seconda del servizio invocato
             //if ($this->nome_servizio == "sinpe") {
 
-            if (!isset($_user_details['ultimo_anno_pagato'])
-                    || $_user_details['ultimo_anno_pagato'] == "")
-                    throw new Exception("Ultimo anno di pagamento non definito", 1);
+            if (!isset($_user_details['ultimo_anno_pagato']) || $_user_details['ultimo_anno_pagato'] == "") throw new Exception("Ultimo anno di pagamento non definito", E_USER_ERROR);
 
-                $_anno_corrente = $dt->format('Y');
-                // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
-                $this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);
+            $_anno_corrente = $dt->format('Y');
+            // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
+            $this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);
 
-                /*
-                // controllo esistenza quote
-                $this->user_id = $_check_user['success'];
-                $_user_quote = $_user->get_user_quote($this->user_id);
+            /*
+            // controllo esistenza quote
+            $this->user_id = $_check_user['success'];
+            $_user_quote = $_user->get_user_quote($this->user_id);
 
-                if (!is_array($_user_quote))
-                    throw new Exception($_user_quote, 1);
-                */
+            if (!is_array($_user_quote))
+                throw new Exception($_user_quote, 1);
+            */
 
-                //$this->ultimo_anno_pagato = UtilityHelper::get_ultimo_anno_quota($_user_quote);
-                $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
-                    $this->ultimo_anno_pagato,
-                    $_anno_corrente,
-                    $_user_details);
+            //$this->ultimo_anno_pagato = UtilityHelper::get_ultimo_anno_quota($_user_quote);
+            $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
+                $this->ultimo_anno_pagato,
+                $_anno_corrente,
+                $_user_details);
 
-                if (!is_array($_payment_form))
-                    throw new Exception($_payment_form);
+            if (!is_array($_payment_form))
+                throw new Exception($_payment_form);
 
-                $this->payment_form = $_payment_form['success'];
-                $this->in_error = 0;
+            $this->payment_form = $_payment_form['success'];
+            $this->in_error = 0;
 
-                // verifico se esiste l'indicazione per il metodo di pagamento alternativi
-                $_extra_pay = utilityHelper::get_params_from_plugin();
-                $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
+            // verifico se esiste l'indicazione per il metodo di pagamento alternativi
+            $_extra_pay = utilityHelper::get_params_from_plugin();
+            $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
             //}
 
             if ($this->action == 'bb_buy_request') { // l'utente vuole pagare con bonifico

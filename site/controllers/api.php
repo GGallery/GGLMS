@@ -7,6 +7,8 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use phpDocumentor\Reflection\DocBlock\Tags\Example;
+
 defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/models/report.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
@@ -2333,6 +2335,345 @@ HTML;
         echo json_encode($retArr);
         $this->_japp->close();
 
+    }
+
+    public function sinpeCheckEmail() {
+
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                if (isset($_POST['email']) && $_POST['email']) {
+                    $emailCheck = utilityHelper::check_user_by_column_row('email', $_POST['email']);
+                    if (!is_null($emailCheck)) throw new Exception("L'Email selezionata è già esistente", E_USER_ERROR);
+                }
+
+                if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) throw new Exception("L'Email selezionata non è valida: " . $_POST['email'], E_USER_ERROR);
+
+            }
+
+            $response['success'] = time();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    public function sinpeCheckUserName() {
+
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                if (isset($_POST['username']) && $_POST['username']) {
+                    $usernameCheck = utilityHelper::check_user_by_column_row('username', $_POST['username']);
+                    if (!is_null($usernameCheck)) throw new Exception("Lo Username selezionato è già esistente", E_USER_ERROR);
+                }
+
+            }
+
+            $response['success'] = time();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    public function sinpeCheckCodiceFiscale() {
+       
+        $response = [];
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                if (isset($_POST['cf']) && $_POST['cf']) {
+                    $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $_POST['cf']);
+
+                    if ($comprofilerCheck) {
+
+                        // controllo se l'utente è online oppure moroso
+                        $_params = utilityHelper::get_params_from_plugin();
+                        $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+                        $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+                        $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+    
+                        // online
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online))) 
+                            throw new Exception("Il Codice fiscale indicato risulta già iscritto ed online", E_USER_ERROR);
+    
+                        // moroso
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
+                            throw new Exception("Il Codice fiscale indicato risulta già iscritto e moroso", E_USER_ERROR);
+
+                        // decaduto
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto)))
+                            throw new Exception("Il Codice fiscale indicato risulta già iscritto e decaduto. Continuando i dati esistenti saranno aggiornati con quelli nuovi", E_USER_ERROR);
+
+                        // cf esistente
+                        throw new Exception("L'utente con il codice fiscale ". strtoupper($_POST['cf']) . " è esistente" , E_USER_ERROR);
+                    }
+                }
+
+            }
+
+            $response['success'] = time();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    public function sinpeRegistrationAction() {
+
+        $response = [];
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                $jsonContent = file_get_contents('php://input');
+                $decoded = json_decode($jsonContent, true);
+                
+                if (!$decoded || !isset($decoded['request_obj'])) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
+
+                $_new_user = [];
+                $_new_user_cp = [];
+                $dt = new DateTime();
+
+                foreach ($decoded['request_obj'] as $sub_key => $sub_arr) {
+
+                    if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_nome') {
+                        $nome_utente = preg_replace("/[^a-zA-Z]/", "", $decoded['request_obj'] [$sub_key]['value']);
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_cognome') {
+                        $cognome_utente = preg_replace("/[^a-zA-Z]/", "", $sub_arr['value']);
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'email_utente') {
+                        $email_utente = $sub_arr['value'];
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'username') {
+                        $username = $sub_arr['value'];
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'password_utente') {
+                        $password_utente = $sub_arr['value'];
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_codicefiscale') {
+                        $cf_utente = strtoupper($sub_arr['value']);
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'cb_datadinascita') {
+                        // format date artigianale
+                        $_tmp_date = date("Y-m-d", strtotime(str_replace('/', '-', trim($sub_arr['value']))));
+                        $sub_arr['value'] = $_tmp_date;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_privacy') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_dtai_immagini') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_statuto') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_newsletter') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_accessonutritiononline') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+
+                    // campi cb
+                    if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] != ''
+                        && isset($sub_arr['value'])) {
+
+                        $cb_value = $sub_arr['value'];
+
+                        // campi select
+                        if (isset($sub_arr['is_id'])
+                            && $sub_arr['is_id'] != '') {
+                            $row_arr = utilityHelper::get_cb_fieldtitle_values($sub_arr['is_id'], $cb_value);
+                            if (isset($row_arr['fieldtitle']))
+                                $cb_value = $row_arr['fieldtitle'];
+                        }
+
+                        $_new_user_cp[$sub_arr['cb']] = addslashes($cb_value);
+
+                    }
+
+                }
+
+                // name e username prima lettera nome + cognome
+                $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
+                $_new_user['username'] = trim($username);
+                $_new_user['email'] = trim($email_utente);
+                $_new_user['password'] = JUserHelper::hashPassword($password_utente);
+                $_new_user['block'] = 0;
+                $_new_user['registerDate'] = $dt->format('Y-m-d H:i:s');
+
+                // controllo il codice fiscale
+                $_cf_check = utilityHelper::conformita_cf($cf_utente);
+                if (!isset($_cf_check['valido'])
+                    || $_cf_check['valido'] != 1) {
+
+                    $_err = "Problemi con il Codice fiscale";
+                    if (isset($_cf_check['msg'])
+                        && $_cf_check['msg'] != "")
+                        $_err .= " " . $_cf_check['msg'];
+
+                    throw new Exception($_err, E_USER_ERROR);
+                }
+
+                // controllo validità email
+                if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], E_USER_ERROR);
+
+                // verifico l'esistenza delle colonne minimali per l'inserimento utente
+                $_test_users_fields = utilityHelper::check_new_user_array($_new_user);
+                if ($_test_users_fields != "") throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, E_USER_ERROR);
+
+                // controllo esistenza utente su username
+                if (utilityHelper::check_user_by_username($_new_user['username'])) {
+                    // aggiungo dei numeri randomici
+                    $_new_user['username'] = $_new_user['username'] . rand(1, 999);
+                }
+
+                // controllo esistenza utente per codice fiscale
+                $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $cf_utente);
+                $isDecaduto = false;
+                $newUserId = null;
+                $fileExt = null;
+                $cvData = null;
+
+                if ($comprofilerCheck) {
+
+                    $userModel = new gglmsModelUsers();
+                    // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
+                    // gli permetto di completarlo
+                    $annoRef = $dt->format('Y');
+                    
+                    // prima controllo se ha un pagamento di tipo bonifico in sospeso
+                    $checkQuota = $userModel->get_quota_per_id($comprofilerCheck['user_id'], 'user_id', $annoRef);
+                    if (isset($checkQuota['tipo_pagamento'])) throw new Exception('Hai già un pagamento registrato per l\'anno ' . $annoRef);
+
+                    // controllo se l'utente è online oppure moroso - in questo caso blocco il procedimento
+                    $_params = utilityHelper::get_params_from_plugin();
+                    $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+                    $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+                    $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+
+                    // online
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online)))
+                        throw new Exception("Il Codice fiscale indicato risulta già iscritto ed online", E_USER_ERROR);
+
+                    // moroso
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
+                        throw new Exception("Il Codice fiscale indicato risulta già iscritto e moroso", E_USER_ERROR);
+
+                    // se decaduto 
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;
+                    else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
+                }
+
+                if (isset($decoded['userImage'])) {
+
+                    $dataExploded = explode(",", $decoded['userImage']);
+                    $cvData = base64_decode($dataExploded[1]);
+
+                    preg_match("/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*/", $decoded['userImage'], $mimeMatch);
+                    $tipoMIME = $mimeMatch[1] ?? null;
+                    $fileExt = utilityHelper::mime_to_extension($tipoMIME);
+                    if (is_null($fileExt)) throw new Exception("Il file caricato ha un'estensione non supportata. Si prega di verificare il contenuto", E_USER_ERROR);
+
+                }
+
+
+                if ($isDecaduto) {
+                    // aggiornamento utente
+                    $userUpdateQuery = utilityHelper::get_update_query('users', $_new_user, " where id = " . $comprofilerCheck['user_id']);
+                    $_user_update_query_result = utilityHelper::insert_new_with_query($userUpdateQuery);
+                    if (!is_array($_user_update_query_result)) throw new Exception("Aggiornamento anagrafica utente fallito: " . $_user_update_query_result, E_USER_ERROR);
+                    
+                    // riferimento id per CP
+                    $_new_user_cp['id'] = $comprofilerCheck['user_id'];
+                    $_new_user_cp['user_id'] = $comprofilerCheck['user_id'];
+
+                    // aggiornamento comprofiler
+                    $comprofilerUpdateQuery = utilityHelper::get_update_query('comprofiler', $_new_user_cp, " where user_id = " . $comprofilerCheck['user_id']);
+                    $_cp_update_query_result = utilityHelper::insert_new_with_query($comprofilerUpdateQuery);
+                    if (!is_array($_cp_update_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'aggiornamento del profilo utente", E_USER_ERROR);
+
+                    $newUserId = $comprofilerCheck['user_id'];
+                }
+                else {
+                    // inserimento utente
+                    $userInsertQuery = utilityHelper::get_insert_query("users", $_new_user);
+                    $_user_insert_query_result = utilityHelper::insert_new_with_query($userInsertQuery);
+
+                    if (!is_array($_user_insert_query_result)) throw new Exception("Inserimento anagrafica utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+
+                    // inserimento utente in CP
+                    $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                    $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
+                    if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'inserimento del profilo utente", E_USER_ERROR);
+
+                    $newUserId = $_user_insert_query_result['success'];
+
+                }
+
+                if (!is_null($fileExt)) {
+                    
+                    $dirPath =  JPATH_ROOT . '/tmp/' . $newUserId;
+
+                    if (!file_exists($dirPath)) $createPath = mkdir($dirPath, 0777, true);
+                    
+                    $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
+                    file_put_contents($filePath, $cvData);
+                }
+                    
+
+                $response['success'] = "tuttook";
+                $response['token'] = utilityHelper::build_randon_token($newUserId);
+
+
+            }
+            
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
     }
 
     // stampa ricevuta per pagamento quota asand

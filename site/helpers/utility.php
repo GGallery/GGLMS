@@ -914,6 +914,36 @@ class utilityHelper
 
     }
 
+    // controllo esistenza utente per colonna e valore di comprofiler restituendo l'intera riga
+    public static function check_comprofiler_by_column_row($target_col, $target_val) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler')
+                ->where($target_col . " = " . $db->quote($target_val));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return (isset($results) && !is_null($results))
+                ? $results
+                : null;
+
+        }
+        catch (Exception $e) {
+            //DEBUGG::error($e, __FUNCTION__);
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return null;
+        }
+
+    }
+
     // controllo esistenza utente per colonna e valore restituendo l'intera riga
     public static function check_user_by_column_row($target_col, $target_val) {
 
@@ -1805,6 +1835,28 @@ HTML;
         return $_ret;
     }
 
+    // aggiornamento da colonne
+    public static function get_update_query($_table, $_new_user_cp, $where) {
+
+        $query = "UPDATE #__" . $_table . " SET ";
+        
+        $counter = 0;
+        foreach ($_new_user_cp as $key => $value) {
+            $query .= $key . ' = ' . '\''. $value .'\'';
+
+            if ($counter < count($_new_user_cp)-1) { 
+                $query .= ', ';
+            }
+
+            $counter++;
+        }
+
+        $query .= $where;
+
+        return $query;
+
+    }
+
     // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z -utility per controller.users._import()
     public static function get_insert_query($_table, $_new_user_cp) {
 
@@ -1814,8 +1866,7 @@ HTML;
 
         foreach ($_new_user_cp as $key => $value) {
 
-            if (is_null($value) || $value === "")
-                continue;
+            if (is_null($value) || $value === "") continue;
 
             $_cols[] = $key;
             $_values[] = $value;
@@ -3450,6 +3501,21 @@ HTML;
     /* Date */
 
     /* Generiche */
+    public static function mime_to_extension($mime) {
+
+        if (is_null($mime)) return $mime;
+
+        $mime_map = [
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/zip' => 'zip',
+            'application/pdf' => 'pdf',
+        ];
+    
+        return $mime_map[$mime] ?? null;
+    }
     public static function arr_to_json($_obj) {
 
         return json_encode($_obj);
