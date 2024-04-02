@@ -64,6 +64,11 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 
 
+
+            // se loggato impedisco la vista
+            $_current_user = JFactory::getUser();
+            if (isset($_current_user->id) && $_current_user->id > 0) throw new Exception("Non è possibile accedere alla pagina richiesta", E_USER_ERROR);
+
             // campi encoded dalla chiamata
             $this->action = JRequest::getVar('action', null);
 

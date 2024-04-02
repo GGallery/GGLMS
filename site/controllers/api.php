@@ -2444,6 +2444,7 @@ HTML;
     public function sinpeRegistrationAction() {
 
         $response = [];
+        $startTransaction = false;
         try {
 
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -2456,7 +2457,6 @@ HTML;
                 $_new_user = [];
                 $_new_user_cp = [];
                 $dt = new DateTime();
-                $checkCbLaureaIn = null;
 
                 foreach ($decoded['request_obj'] as $sub_key => $sub_arr) {
 
@@ -2509,6 +2509,16 @@ HTML;
                     else if (isset($sub_arr['cb'])
                         && $sub_arr['cb'] == 'cb_accessonutritiononline') {
                         $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_privacy'
+                        && ($sub_arr['value']) != 1) {
+                        throw new Exception("Devi accettare l'informativa sulla privacy");
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_statuto'
+                        && ($sub_arr['value']) != 1) {
+                        throw new Exception("Devi accettare lo Statuto della società");
                     }
 
                     // campi cb
@@ -2572,10 +2582,10 @@ HTML;
                 $newUserId = null;
                 $fileExt = null;
                 $cvData = null;
+                $userModel = new gglmsModelUsers();
 
                 if ($comprofilerCheck) {
 
-                    $userModel = new gglmsModelUsers();
                     // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
                     // gli permetto di completarlo
                     $annoRef = $dt->format('Y');
@@ -2616,16 +2626,20 @@ HTML;
                 }
 
 
+                $this->_db->transactionStart();
+                $startTransaction = true;
+
                 if ($isDecaduto) {
+
+                    // riferimento id per CP
+                    $_new_user_cp['id'] = $comprofilerCheck['user_id'];
+                    $_new_user_cp['user_id'] = $comprofilerCheck['user_id'];
+
                     // aggiornamento utente
                     $userUpdateQuery = utilityHelper::get_update_query('users', $_new_user, " where id = " . $comprofilerCheck['user_id']);
                     $_user_update_query_result = utilityHelper::insert_new_with_query($userUpdateQuery);
                     if (!is_array($_user_update_query_result)) throw new Exception("Aggiornamento anagrafica utente fallito: " . $_user_update_query_result, E_USER_ERROR);
                     
-                    // riferimento id per CP
-                    $_new_user_cp['id'] = $comprofilerCheck['user_id'];
-                    $_new_user_cp['user_id'] = $comprofilerCheck['user_id'];
-
                     // aggiornamento comprofiler
                     $comprofilerUpdateQuery = utilityHelper::get_update_query('comprofiler', $_new_user_cp, " where user_id = " . $comprofilerCheck['user_id']);
                     $_cp_update_query_result = utilityHelper::insert_new_with_query($comprofilerUpdateQuery);
@@ -2634,6 +2648,7 @@ HTML;
                     $newUserId = $comprofilerCheck['user_id'];
                 }
                 else {
+
                     // inserimento utente
                     $userInsertQuery = utilityHelper::get_insert_query("users", $_new_user);
                     $_user_insert_query_result = utilityHelper::insert_new_with_query($userInsertQuery);
@@ -2641,22 +2656,17 @@ HTML;
                     if (!is_array($_user_insert_query_result)) throw new Exception("Inserimento anagrafica utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
 
                     // inserimento utente in CP
+                    $_new_user_cp['id'] =  $_user_insert_query_result['success'];
+                    $_new_user_cp['user_id'] = $_user_insert_query_result['success'];
+                    $newUserId = $_user_insert_query_result['success'];
+
+                    
                     $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                    //throw new Exception($_cp_insert_query, E_USER_ERROR);
+                    
                     $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
                     if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'inserimento del profilo utente", E_USER_ERROR);
 
-                    $newUserId = $_user_insert_query_result['success'];
-
-                }
-
-                if (!is_null($fileExt)) {
-                    
-                    $dirPath =  JPATH_ROOT . '/tmp/' . $newUserId;
-
-                    if (!file_exists($dirPath)) $createPath = mkdir($dirPath, 0777, true);
-                    
-                    $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
-                    file_put_contents($filePath, $cvData);
                 }
 
                 // se è un utente nuovo lo inserisco temporaneamente nei preiscritti
@@ -2666,6 +2676,18 @@ HTML;
 
                     $insert_ug = $userModel->insert_user_into_usergroup($newUserId, $userGroupId);
                     if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                }
+
+                $this->_db->transactionCommit();
+
+                if (!is_null($fileExt)) {
+                    
+                    $dirPath =  JPATH_ROOT . '/tmp/' . $newUserId;
+
+                    if (!file_exists($dirPath)) $createPath = mkdir($dirPath, 0777, true);
+                    
+                    $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
+                    file_put_contents($filePath, $cvData);
                 }
                     
 
@@ -2677,6 +2699,8 @@ HTML;
             
         }
         catch(Exception $e) {
+            if ($startTransaction) $this->_db->transactionRollback();
+
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
             $response['error'] = $e->getMessage();
         }

@@ -108,15 +108,6 @@ defined('_JEXEC') or die;
                     const formData = new FormData();
                     const formObject = {};
 
-                    const fileInput = document.querySelector('input[type="file"]');
-                    if (fileInput.files.length > 0) {
-                        const file = fileInput.files[0];
-                        const base64String = await convertFileToBase64(file);
-                        formObject['userImage'] = base64String;
-                        // Append the file directly to a FormData object
-                        //formData.append("cb_cv", file, file.name);
-                    }
-
                     // validazione dati
                     const pNomeUtente = jQuery('#cb_nome').val();
                     if (pNomeUtente.trim() == "") {
@@ -298,6 +289,9 @@ defined('_JEXEC') or die;
                     const pCognomeUtenteCB = jQuery('#cb_cognome').attr("data-campo");
                     pPropArr.push({campo: pCognomeUtenteID, cb: pCognomeUtenteCB, value: pCognomeUtente.toUpperCase()});
 
+                    pPropArr.push({campo: 'firstname', cb: 'firstname', value: pNomeUtente.toUpperCase()});
+                    pPropArr.push({campo: 'lastname', cb: 'lastname', value: pCognomeUtente.toUpperCase()});
+
                     const pEmailID = jQuery('#email_utente').attr("id");
                     pPropArr.push({campo: pEmailID, cb: null, value: pEmail});
 
@@ -426,6 +420,15 @@ defined('_JEXEC') or die;
                     const pAccessoNutritionOnlineCheckCB = jQuery('#cb_accessonutritiononline').attr("data-campo");
                     pPropArr.push({campo: pAccessoNutritionOnlineCheckID, cb: pAccessoNutritionOnlineCheckCB, value: pAccessoNutritionOnlineCheck});
 
+                    const fileInput = document.querySelector('input[type="file"]');
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        const base64String = await convertFileToBase64(file);
+                        formObject['userImage'] = base64String;
+                        // Append the file directly to a FormData object
+                        //formData.append("cb_cv", file, file.name);
+                    }
+
                     formObject['request_obj'] = pPropArr;
 
                     fetch('index.php?option=com_gglms&task=api.sinpeRegistrationAction', {
@@ -447,9 +450,9 @@ defined('_JEXEC') or die;
                         }
 
                         const pToken = data.token;
-                        console.log(pToken);
+                        //console.log(pToken);
                         
-                        //window.location.href = "index.php?option=com_gglms&view=registrazionesinpe&action=user_registration_payment&pp=" + pToken;
+                        window.location.href = "index.php?option=com_gglms&view=registrazionesinpe&action=user_registration_payment&pp=" + pToken;
                     })
                     .catch((error) => {
                         console.error('Errore:', error);

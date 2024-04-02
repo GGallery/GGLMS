@@ -1134,6 +1134,8 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->transactionStart();
 
             // inserisco le righe riferite agli anni
+            // riferimento quota
+            $refQuota = 'quota';
             $query = "INSERT INTO #__gg_quote_iscrizioni (user_id,
                                                                 anno,
                                                                 tipo_quota,
@@ -1144,10 +1146,13 @@ class gglmsModelUsers extends JModelLegacy
                             VALUES ";
 
             if($totale_sinpe && $tipo_quota == 'paypal') {
+                
+                if ($totale_espen > 0) $refQuota = 'espen + quota';
+
                 $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
-                               'quota',
+                               '" . $refQuota . "',
                                'paypal',
                                '" . $_data_creazione . "',
                                '" . $totale_sinpe . "',
@@ -2080,7 +2085,7 @@ class gglmsModelUsers extends JModelLegacy
                                                     $_anno_quota,
                                                     $_data_pagamento = null,
                                                     $totale_sinpe,
-                                                     $totale_espen = 0) {
+                                                    $totale_espen = 0) {
 
         try {
 

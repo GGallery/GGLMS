@@ -1231,12 +1231,12 @@ HTML;
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Missing user id", E_USER_ERROR);
 
             if (!isset($totale)
                 || $totale == ""
                 || $totale == 0)
-                throw new Exception("Missing totale", 1);
+                throw new Exception("Missing totale", E_USER_ERROR);
 
             $dt = new DateTime();
             $_anno_quota = $dt->format('Y');
@@ -1260,8 +1260,7 @@ HTML;
 
             utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
-            if (!is_array($_bonifico))
-                throw new Exception($_bonifico, 1);
+            if (!is_array($_bonifico)) throw new Exception($_bonifico, E_USER_ERROR);
 
             $_ret['success'] = "tuttook";
 
