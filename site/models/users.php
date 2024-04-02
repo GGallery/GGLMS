@@ -2309,5 +2309,27 @@ class gglmsModelUsers extends JModelLegacy
         }
         return $_codice;
     }
+
+    public function get_nome_societa_by_id($id_gruppo)
+    {
+
+        $res = array();
+
+        try {
+
+            $query_P = $this->_db->getQuery(true)
+                ->select('title as nome_societa')
+                ->from('#__usergroups')
+                ->where('id = "' . $id_gruppo . '"');
+            $this->_db->setQuery($query_P);
+            $res = $this->_db->loadObject();
+
+            return $res;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_nome_societa_byid');
+        }
+
+
+    }
 }
 

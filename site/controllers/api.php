@@ -4071,6 +4071,28 @@ HTML;
         $japp->close();
     }
 
+    public function fix_create_company_forum()
+    {
+        try {
+
+            $data = JRequest::get($_POST);
+            $model_genera = new gglmsModelgeneracoupon();
+            $gruppo_azienda = $this->_filterparam->gruppo_id;
+            $model_users = new gglmsModelUsers();
+            $nome_azienda = $model_users->get_nome_societa_by_id($gruppo_azienda);
+
+            $model_genera->_create_company_forum($gruppo_azienda,$nome_azienda->nome_societa);
+
+            $this->_ret['success'] = "tuttook";
+            echo json_encode($this->_ret);
+
+        } catch (Exception $e) {
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        $this->_japp->close();
+    }
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
