@@ -1106,30 +1106,25 @@ HTML;
             $checkUser = $userModel->get_user_joomla($userId);
             if (is_null($checkUser)
                 || !isset($checkUser->id)) {
-                $this->show_view = true;
                 throw new Exception("Nessun utente trovato", E_USER_ERROR);
             }
 
             // sblocco l'utente
             $updateUser = $userModel->update_user_column($userId, "block", 0);
 
-            if (is_null($updateUser))
-                throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
+            if (is_null($updateUser)) throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
 
             // inserisco l'utente nel gruppo quota di riferimento
             $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
-            if (is_null($insert_ug))
-                throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
+            if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $userModel->update_ultimo_anno_pagato($userId, $annoQuota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, E_USER_ERROR);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
 
             // aggiorno lo stato del pagamento
             $updateQuota = $userModel->update_user_column($id_quota, "stato", 1, "gg_quote_iscrizioni");
-            if (is_null($updateQuota))
-                throw new Exception("Errore durante l'aggiornamento della quota", E_USER_ERROR);
+            if (is_null($updateQuota)) throw new Exception("Errore durante l'aggiornamento della quota", E_USER_ERROR);
 
             $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
             $dettagliUtente = $userModel->get_user_full_details_cb($userId);

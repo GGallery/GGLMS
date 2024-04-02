@@ -273,16 +273,13 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 // inserimento utente in CP
                 $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
                 $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
-                if (!is_array($_cp_insert_query_result))
-                    throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
+                if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante inserimento", E_USER_ERROR);
 
                 $userGroupId = utilityHelper::check_usergroups_by_name("Registered");
-                if (is_null($userGroupId))
-                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
                 $insert_ug = $userModel->insert_user_into_usergroup($_new_user_id, $userGroupId);
-                    if (is_null($insert_ug))
-                        throw new Exception("Inserimento utente in gruppo corso fallito: " . $_new_user_id . ", " . $userGroupId, E_USER_ERROR);
+                if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $_new_user_id . ", " . $userGroupId, E_USER_ERROR);
 
                 $this->_ret['success'] = "tuttook";
                 $this->_ret['token'] = utilityHelper::build_randon_token($_new_user_id . "|==|" . $quota_associativa);
@@ -301,8 +298,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $decryptedToken = utilityHelper::decrypt_random_token($pp);
                 $parsedToken = explode("|==|", $decryptedToken);
 
-                if (!is_array($parsedToken))
-                    throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+                if (!is_array($parsedToken)) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
 
                 $_config = new gglmsModelConfig();
                 $this->client_id = $_config->getConfigValue('paypal_client_id');
@@ -313,8 +309,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $userId = $parsedToken[0];
                 $requestedQuota = $parsedToken[1];
 
-                if (!is_numeric($userId))
-                    throw new Exception("Id utente non numerico!", E_USER_ERROR);
+                if (!is_numeric($userId)) throw new Exception("Id utente non numerico!", E_USER_ERROR);
 
                 $userModel = new gglmsModelUsers();
                 // controllo utente
@@ -342,8 +337,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
 
                 // verifico se esiste già un richiesta di pagamento con questo token
                 $checkToken = $userModel->get_quota_per_user_token($userId, $newToken, $annoCorrente);
-                if (!is_null($checkToken))
-                    throw new Exception("Esiste già una richiesta di pagamento, impossibile continuare", E_USER_ERROR);
+                if (!is_null($checkToken)) throw new Exception("Esiste già una richiesta di pagamento, impossibile continuare", E_USER_ERROR);
 
                 // se il token non esiste memorizzo la richiesta
                 //$checkToken = $userModel->get_registration_request($userId, $newToken);
@@ -352,8 +346,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $reqPagamentoQuery = utilityHelper::get_insert_query("gg_registration_request", $newReq);
                 $reqPagamentoInsertResult = utilityHelper::insert_new_with_query($reqPagamentoQuery);
 
-                if (!is_array($reqPagamentoInsertResult))
-                    throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
+                if (!is_array($reqPagamentoInsertResult)) throw new Exception("Inserimento riferimento token pagamento fallito: " . $reqPagamentoInsertResult, E_USER_ERROR);
                 //}
 
                 $_payment_form = outputHelper::get_payment_form_quota_asand($userId, $this->requested_quota, $this->incremento_pp, $parsedToken[1], $_params, $newToken);
@@ -379,9 +372,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $decryptedToken = utilityHelper::decrypt_random_token($pp);
                 $parsedToken = explode("|==|", $decryptedToken);
 
-                if (!is_array($parsedToken)) {
-                    throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
-                }
+                if (!is_array($parsedToken)) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
 
                 $userId = $parsedToken[0];
                 $requestedQuota = $parsedToken[1];
@@ -418,8 +409,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
 
                 $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
-                if (is_null($userGroupId))
-                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
                 $_insert_servizi_extra = $userModel->insert_user_servizi_extra($userId,
                                             $annoCorrente,
@@ -438,8 +428,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 }
 
                 $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
-                if (is_null($insert_ug))
-                    throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
+                if (is_null($insert_ug))throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 
 
                 // aggiorno ultimo anno pagato
@@ -511,8 +500,11 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 $dettagliUtente['testo_pagamento_bonifico'] = utilityHelper::get_ug_from_object($_params, 'testo_pagamento_bonifico');
 
                 $userGroupId = utilityHelper::check_usergroups_by_name($requestedQuota);
-                if (is_null($userGroupId))
-                    throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                // per sicurezza rimuovo dal gruppo della quota
+                $ug_quota = !is_array($userGroupId) ? (array) $userGroupId : $userGroupId;
+                utilityHelper::remove_user_from_usergroup($userId, $ug_quota);
 
                 $_insert_servizi_extra = $userModel->insert_user_servizi_extra($userId,
                                                                                 $dt->format('Y'),
