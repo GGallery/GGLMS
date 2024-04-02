@@ -1417,7 +1417,9 @@ class gglmsModelUsers extends JModelLegacy
                     ->select("u.id AS user_id, u.username, u.email,
                                     cp.cb_nome AS nome, cp.cb_cognome AS cognome,
                                     cp.cb_codicefiscale AS codice_fiscale,
-                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita, cp.cb_ultimoannoinregola AS ultimo_anno,
+                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita, 
+                                    cp.cb_ultimoannoinregola AS ultimo_anno, 
+                                    IF(cp.cb_professione_sinpe IS NULL, 0, 1) AS sinpe_dep,
                                     ug.title AS tipo_socio, ug.id AS id_group");
 
             $count_query = $this->_db->getQuery(true)

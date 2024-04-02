@@ -142,7 +142,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 $this->ultimo_anno_pagato = $_anno_corrente-1;
 
                 // devo verificare se è un biologo, in quel caso non deve vedere direttamente il pagamento
-                if (strpos(strtolower($_user_details['tipo_laurea']), 'biologia') !== false) {
+                if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
                     $this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di adesione a SINPE è stata presa in carico.");
                     $this->in_error = 1;
                 }

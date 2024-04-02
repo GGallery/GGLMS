@@ -1672,6 +1672,9 @@ HTML;*/
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
                         }
+                        else if ($key == "sinpe_dep") {
+                            $value = ($value == 1) ? 'SI' : 'NO';    
+                        }
 
                         $_ret[$_key_socio][$key] = $value;
                     }

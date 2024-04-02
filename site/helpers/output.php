@@ -2802,6 +2802,7 @@ HTML;
               </div>
             </div>
 
+            <!--
             <div class="form-group row">
               <label for="cb_qualifica" class="col-sm-2 col-form-label">{$_label_qualifica}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
@@ -2811,6 +2812,7 @@ HTML;
                 </select>
               </div>
             </div>
+          -->
 
             <div class="form-group row">
               <label for="cb_azienda" class="col-sm-2 col-form-label">{$_label_azienda}<span class="text-danger">*</span></label>

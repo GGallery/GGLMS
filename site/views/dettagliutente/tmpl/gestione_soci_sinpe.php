@@ -49,6 +49,7 @@ defined('_JEXEC') or die('Restricted access');
             <th data-field="data_nascita" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'); ?></th>
             <th data-field="ultimo_anno" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR8'); ?></th>
             <th data-field="tipo_socio" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR9'); ?></th>
+            <th data-field="sinpe_dep" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR52'); ?></th>
             <th data-field="tipo_azione" data-sortable="false"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR10'); ?></th>
         </tr>
         </thead>

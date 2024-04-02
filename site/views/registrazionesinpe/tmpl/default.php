@@ -228,19 +228,21 @@ defined('_JEXEC') or die;
                     }
 
                     const pNumeroIscrizione = jQuery('#cb_numeroiscrizione').val();
-                    if (pOrdine.trim() == "") {
+                    if (pNumeroIscrizione.trim() == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR38'), '#cb_numeroiscrizione');
                         return;
                     }
 
+                    /*
                     const pQualifica = jQuery('#cb_qualifica').val();
                     if (pQualifica.trim() == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR52'), '#cb_qualifica');
                         return;
                     }
+                    */
 
                     const pAzienda = jQuery('#cb_azienda').val();
-                    if (pQualifica.trim() == "") {
+                    if (pAzienda.trim() == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR53'), '#cb_azienda');
                         return;
                     }
@@ -252,7 +254,7 @@ defined('_JEXEC') or die;
                     }
 
                     const pReparto = jQuery('#cb_reparto').val();
-                    if (pDipartimento.trim() == "") {
+                    if (pReparto.trim() == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR56'), '#cb_reparto');
                         return;
                     }
@@ -369,9 +371,9 @@ defined('_JEXEC') or die;
                     const pLaureAnnoCB = jQuery('#cb_laureanno').attr("data-campo");
                     pPropArr.push({campo: pLaureAnnoID, cb: pLaureAnnoCB, value: pLaureAnno});
 
-                    const pProfessioneDisciplinaID = jQuery('#cb_regione').attr("id");
-                    const pProfessioneDisciplinaCB = jQuery('#cb_regione').attr("data-campo");
-                    const pProfessioneDisciplinaIDRef = jQuery('#cb_regione').attr("data-id-ref");
+                    const pProfessioneDisciplinaID = jQuery('#cb_professionedisciplina').attr("id");
+                    const pProfessioneDisciplinaCB = jQuery('#cb_professionedisciplina').attr("data-campo");
+                    const pProfessioneDisciplinaIDRef = jQuery('#cb_professionedisciplina').attr("data-id-ref");
                     pPropArr.push({campo: pProfessioneDisciplinaID, cb: pProfessioneDisciplinaCB, value: pProfessioneDisciplina, is_id: pProfessioneDisciplinaIDRef});
 
                     const pOrdineID = jQuery('#cb_ordine').attr("id");
@@ -383,10 +385,12 @@ defined('_JEXEC') or die;
                     const pNumeroIscrizioneCB = jQuery('#cb_numeroiscrizione').attr("data-campo");
                     pPropArr.push({campo: pNumeroIscrizioneID, cb: pNumeroIscrizioneCB, value: pNumeroIscrizione});
 
+                    /*
                     const pQualificaID = jQuery('#cb_qualifica').attr("id");
                     const pQualificaCB = jQuery('#cb_qualifica').attr("data-campo");
                     const pQualificaIDRef = jQuery('#cb_qualifica').attr("data-id-ref");
                     pPropArr.push({campo: pQualificaID, cb: pQualificaCB, value: pQualifica, is_id: pQualificaIDRef});
+                    */
 
                     const pAziendaID = jQuery('#cb_azienda').attr("id");
                     const pAziendaCB = jQuery('#cb_azienda').attr("data-campo");
@@ -419,6 +423,8 @@ defined('_JEXEC') or die;
                     const pAccessoNutritionOnlineCheckID = jQuery('#cb_accessonutritiononline').attr("id");
                     const pAccessoNutritionOnlineCheckCB = jQuery('#cb_accessonutritiononline').attr("data-campo");
                     pPropArr.push({campo: pAccessoNutritionOnlineCheckID, cb: pAccessoNutritionOnlineCheckCB, value: pAccessoNutritionOnlineCheck});
+
+                    pPropArr.push({campo: 'cb_professione_sinpe', cb: 'cb_professione_sinpe', value: Math.floor(Date.now() / 1000)});
 
                     const fileInput = document.querySelector('input[type="file"]');
                     if (fileInput.files.length > 0) {
