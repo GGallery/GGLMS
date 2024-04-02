@@ -1380,8 +1380,7 @@ HTML;
             $user_id = $params["user_id"];
 
             if (!isset($user_id)
-                || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                || $user_id == "") throw new Exception("Missing user id", E_USER_ERROR);
 
             $dt = new DateTime();
             // non anno corrente perchè da moroso deve pagare partendo dall'ultimo anno
@@ -1394,14 +1393,12 @@ HTML;
 
             // inserisco utente nel gruppo moroso
             $_check = utilityHelper::set_usergroup_moroso($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_check))
-                throw new Exception($_check, 1);
+            if (!is_array($_check)) throw new Exception($_check, E_USER_ERROR);
 
             // aggiorno ultimo anno pagato
             $_user = new gglmsModelUsers();
             $_ultimo_anno = $_user->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
 
             $_ret['success'] = "tuttook";
 

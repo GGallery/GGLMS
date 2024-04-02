@@ -182,9 +182,9 @@ defined('_JEXEC') or die('Restricted access');
                 if (isNaN(pTest)) {
                     customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
                     return;
-                } else if (pTipoQuota != 'espen') {
-                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR37'); ?>")
-                        return;
+                } else if (pTipoQuota != 'espen' || pTipoQuota != 'quota') {
+                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR37'); ?>")
+                    return;
                 }
                 else {
 

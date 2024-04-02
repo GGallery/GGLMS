@@ -748,13 +748,13 @@ class gglmsModelUsers extends JModelLegacy
             $db = JFactory::getDbo();
             $query = $db->getQuery(true)
                 ->select('cb_professionedisciplina as professione,
-                                cb_laureain as tipo_laurea,
-                                cb_laureanno as anno_laurea,
-                                cb_datadinascita as data_nascita,
-                                firstname as nome_utente,
-                                lastname as cognome_utente,
-                                cb_codicefiscale as codice_fiscale,
-                                cb_ultimoannoinregola as ultimo_anno_pagato')
+                            cb_laureain as tipo_laurea,
+                            cb_laureanno as anno_laurea,
+                            cb_datadinascita as data_nascita,
+                            firstname as nome_utente,
+                            lastname as cognome_utente,
+                            cb_codicefiscale as codice_fiscale,
+                            cb_ultimoannoinregola as ultimo_anno_pagato')
                 ->from('#__comprofiler')
                 ->where("user_id = '" . $user_id . "'");
 
@@ -1067,8 +1067,7 @@ class gglmsModelUsers extends JModelLegacy
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
 
             // inserisco le quote per l'utente selezionato
             $_user_details = $this->get_user_details_cb($user_id);
@@ -1085,13 +1084,11 @@ class gglmsModelUsers extends JModelLegacy
 
             // inserisco l'utente nel gruppo online
             $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_ins_online))
-                throw new Exception($_ins_online, 1);
+            if (!is_array($_ins_online)) throw new Exception($_ins_online, E_USER_ERROR);
 
             // inserisco l'utente nel gruppo categoria corretto
             $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
-            if (!is_array($_ins_categoria))
-                throw new Exception($_ins_categoria, 1);
+            if (!is_array($_ins_categoria)) throw new Exception($_ins_categoria, E_USER_ERROR);
 
 
             $this->_db->transactionCommit();
@@ -1187,8 +1184,7 @@ class gglmsModelUsers extends JModelLegacy
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
 
             // estrapolo i parametri dal plugin
             $_params = utilityHelper::get_params_from_plugin();
@@ -1202,13 +1198,11 @@ class gglmsModelUsers extends JModelLegacy
 
             // inserisco l'utente nel gruppo online
             $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_ins_online))
-                throw new Exception($_ins_online, 1);
+            if (!is_array($_ins_online)) throw new Exception($_ins_online, E_USER_ERROR);
 
             // inserisco l'utente nel gruppo categoria corretto
             $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
-            if (!is_array($_ins_categoria))
-                throw new Exception($_ins_categoria, 1);
+            if (!is_array($_ins_categoria)) throw new Exception($_ins_categoria, E_USER_ERROR);
 
             $this->_db->transactionCommit();
 

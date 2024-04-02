@@ -2456,6 +2456,7 @@ HTML;
                 $_new_user = [];
                 $_new_user_cp = [];
                 $dt = new DateTime();
+                $checkCbLaureaIn = null;
 
                 foreach ($decoded['request_obj'] as $sub_key => $sub_arr) {
 
@@ -2656,6 +2657,15 @@ HTML;
                     
                     $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
                     file_put_contents($filePath, $cvData);
+                }
+
+                // se è un utente nuovo lo inserisco temporaneamente nei preiscritti
+                if (!$isDecaduto) {
+                    $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
+                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                    $insert_ug = $userModel->insert_user_into_usergroup($newUserId, $userGroupId);
+                    if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
                 }
                     
 

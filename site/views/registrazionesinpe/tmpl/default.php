@@ -28,7 +28,7 @@ defined('_JEXEC') or die;
 </style>
 
 <?php
-    if ($this->hide_pp) :
+    if ($this->hide_pp && $this->in_error == 0) :
         echo $this->payment_form;
         ?>
 
@@ -570,62 +570,64 @@ defined('_JEXEC') or die;
 
     </script>
 
+    <?php elseif ($this->in_error == 1): 
+        echo $this->payment_form;
+        ?>
+        
     <?php else : ?>
 
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $this->client_id; ?>&currency=EUR" data-sdk-integration-source="button-factory"></script>
 
     <div class="container">
 
-        <?php echo $this->payment_form; ?>
-
         <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <p id="descriptionError" style="display: none; color: red;">
-                    <?php echo JText::_('COM_PAYPAL_SINPE_STR2') ?>
-                </p>
-                <p  id="priceLabelError" style="display: none; color: red;">
-                    <?php echo JText::_('COM_PAYPAL_SINPE_STR3') ?>
-                </p>
+            <div class="col-12">
+                <h4><span style="color: black; font-weight: bold"><?php echo JText::_('COM_PAYPAL_SINPE_STR1') ?></span></h4>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="alert alert-danger" role="alert" id="paymentError" style="display: none;">
-                    <?php echo JText::_('COM_PAYPAL_SINPE_STR4') ?> <br />
-                    <p>
-                    <pre id="paymentErrorDetails"></pre>
-                    </p>
-                </div>
-            </div>
+            <?php echo $this->payment_form; ?>
+            <p id="descriptionError" style="display: none; color: red;">
+                <?php echo JText::_('COM_PAYPAL_SINPE_STR2') ?>
+            </p>
+            <p  id="priceLabelError" style="display: none; color: red;">
+                <?php echo JText::_('COM_PAYPAL_SINPE_STR3') ?>
+            </p>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="alert alert-success" role="alert" id="paymentSuccess" style="display: none;">
-                    <?php echo JText::_('COM_PAYPAL_SINPE_STR5') ?> <br />
-                    <p>
-                        <textarea id="paymentSuccessDetails" class="form-control col-sm-6"></textarea>
-                    </p>
-                </div>
-            </div>
+        <?php
+        // informazioni relative al bonifico ulteriori indicazioni
+        echo $this->payment_extra_form;
+        if($this->call_result == 'tuttook') {
+            echo <<<HTML
+            <script type="text/javascript">
+
+              document.getElementById("myForm").style.display = "block";
+
+            </script>
+HTML;
+        }
+        ?>
+
+        <div class="alert alert-danger" role="alert" id="paymentError" style="display: none;">
+            <?php echo JText::_('COM_PAYPAL_SINPE_STR4') ?> <br />
+            <p>
+                <pre id="paymentErrorDetails"></pre>
+            </p>
+        </div>
+
+        <div class="alert alert-success" role="alert" id="paymentSuccess" style="display: none;">
+            <?php echo JText::_('COM_PAYPAL_SINPE_STR5') ?> <br />
+            <p>
+                <textarea id="paymentSuccessDetails" class="form-control col-sm-6"></textarea>
+            </p>
         </div>
 
     </div>
 
 
     <script type="text/javascript">
-
-        jQuery(function() {
-            if (jQuery('#paypal-button-container').length)
-                initPayPalButton();
-        });
-
-        // pagamento con bonifico conferma
-        jQuery('#btn-bonifico').on('click', function (e) {
-            let pHref = jQuery(this).attr("data-ref");
-            window.location.href = pHref;
-        });
 
         function initPayPalButton() {
             var description = document.querySelector('#description');
@@ -645,6 +647,17 @@ defined('_JEXEC') or die;
             function validate(event) {
                 return event.value.length > 0;
             }
+
+            // pagamento con bonifico conferma
+            jQuery('#btn-bonifico').on('click', function (e) {
+
+                // disabilito bottone per evitare click multipli
+                document.getElementById('btn-bonifico').disabled = true;
+
+                var pHref = jQuery(this).attr("data-ref");
+                window.location.href = pHref+ '&totale_sinpe=' + jQuery('#amount').val()
+                    + '&totale_espen=' + jQuery('#amount_espen').val();
+            });
 
             paypal.Buttons({
                 style: {
@@ -690,9 +703,14 @@ defined('_JEXEC') or die;
                     return actions.order.capture().then(function (details) {
 
                         window.location.href = 'index.php?option=com_gglms&view=paypal'
-                            + '&pp=registrazioneasand'
-                            + '&order_id=' + details.id
-                            + '&token=' + jQuery('#token').val()
+                                            + '&pp=sinpe'
+                                            + '&order_id=' + details.id
+                                            + '&user_id=' + jQuery('#user_id').val()
+                                            //+ '&gruppi_online=' + jQuery('#gruppi_online').val()
+                                            //+ '&gruppi_moroso=' + jQuery('#gruppi_moroso').val()
+                                            //+ '&gruppi_decaduto=' + jQuery('#gruppi_decaduto').val()
+                                            + '&totale_sinpe=' + jQuery('#amount').val()
+                                            + '&totale_espen=' + jQuery('#amount_espen').val();
 
                     });
                 },
@@ -705,6 +723,47 @@ defined('_JEXEC') or die;
                 }
             }).render('#paypal-button-container');
         }
+
+        jQuery(function() {
+
+
+            initPayPalButton();
+
+            jQuery('#anni_da_pagare').on('change', function (){
+                jQuery(this).attr("checked", true);
+            });
+
+            jQuery('#anni_da_pagare_espen').on('change', function (){
+
+                if (!jQuery('#amount_espen').length)
+                    return false;
+
+                var amount = parseFloat(jQuery('#amount').val());
+                var amountEspen = parseFloat(jQuery('#tariffa_espen').val());
+                var description = jQuery('#description').val();
+
+                var nuovoTotale = 0;
+                var totaleEspen = 0;
+                var nuovaDescription = "";
+
+                if (jQuery(this).attr("checked")) {
+                    nuovoTotale = amount + amountEspen;
+                    totaleEspen = amountEspen;
+                    nuovaDescription = description + jQuery.trim(jQuery('#anni_da_pagare_espen').attr("data-descr"));
+                }
+                else {
+                    nuovoTotale = amount - amountEspen;
+                    nuovaDescription = description.replace(jQuery.trim(jQuery('#anni_da_pagare_espen').attr("data-descr")), "");
+                }
+
+                jQuery('#amount').val(nuovoTotale);
+                jQuery('#amount_espen').val(totaleEspen);
+                jQuery('#amount_span').html(nuovoTotale);
+                jQuery('#description').val(nuovaDescription);
+
+            });
+
+        });
 
     </script>
 

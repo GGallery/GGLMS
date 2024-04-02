@@ -82,7 +82,6 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
             $_user = new gglmsModelUsers();
             $_user_details = $_user->get_user_details_cb($this->user_id);
 
-
             $this->action = JRequest::getVar('action');
             $pp = JRequest::getVar('pp');
 
@@ -117,8 +116,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 $_anno_corrente,
                 $_user_details);
 
-            if (!is_array($_payment_form))
-                throw new Exception($_payment_form);
+            if (!is_array($_payment_form)) throw new Exception($_payment_form);
 
             $this->payment_form = $_payment_form['success'];
             $this->in_error = 0;
@@ -136,8 +134,8 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 $totale_espen = JRequest::getVar('totale_espen');
 
                 $_user_details = $_user_quote->get_user_details_cb($this->user_id);
-                if (!is_array($_user_details))
-                    throw new Exception($_user_details, E_USER_ERROR);
+                if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+
 
                 $_insert_quote = $_user_quote->insert_user_quote_stato_bonifico(
                     $this->user_id,
@@ -152,9 +150,7 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                     $this->call_result = "tuttook";
 
                 // nessuna delle opzioni richieste elaborata
-                if ($this->call_result == "")
-                    throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
-
+                if ($this->call_result == "") throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
 
                 if($this->call_result == 'tuttook') {
                     $_html = <<<HTML
