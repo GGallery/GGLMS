@@ -86,10 +86,8 @@ class gglmsViewPaypal extends JViewLegacy {
                                                 $_user_details,
                                                 true);
 
-                if (!is_array($_insert_quote))
-                    $this->call_result = $_insert_quote;
-                else
-                    $this->call_result = "tuttook";
+                if (!is_array($_insert_quote)) $this->call_result = $_insert_quote;
+                else $this->call_result = "tuttook";
 
             }
             // acquisto di servizi extra (ad esempio ESPEN in un secondo momento)

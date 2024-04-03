@@ -2167,7 +2167,8 @@ HTML;
                                                $_user_details,
                                                $totale_sinpe,
                                                $totale_espen=0,
-                                               $template="rinnovo") {
+                                               $template="rinnovo",
+                                               $extraEmail = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2185,7 +2186,6 @@ HTML;
             && $_user_details['codice_fiscale'] != "")
             $_cf .= $_user_details['codice_fiscale'];
 
-        $dt = new DateTime($_data_creazione);
         $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
 
         if ($template == "servizi_extra")
@@ -2195,7 +2195,8 @@ HTML;
         else if ($template == "preiscritto")
             $oggetto = "SINPE - Approvazione account preiscritto";
 
-        if ($template != 'preiscritto')
+        if ($template != 'preiscritto' && $template != 'richiesta_bonifico_sinpe') {
+            $dt = new DateTime($_data_creazione);
             $body = <<<HTML
                     <br /><br />
                     <p>Nominativo: <b>{$_nominativo}</b></p>
@@ -2206,7 +2207,8 @@ HTML;
                     <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
                     <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
 HTML;
-        else
+        }
+        else if ($template == 'preiscritto')
             $body = <<<HTML
                     <br /><br />
                     <p>Gentilissimo/a, la tua richiesta di iscrizione a SINPE è stata approvata dal Consiglio Direttivo.</p>
@@ -2214,9 +2216,24 @@ HTML;
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;
+        else if ($template == 'richiesta_bonifico_sinpe')
+            $body = <<<HTML
+                    <br /><br />
+                    <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
+                    <p>Ecco i dati necessari per effettuare il bonifico:</p>
+                    <p>
+                    BANCO DI CREDITO AZZOAGLIO S.P.A.<br />
+                    FILIALE DI CENGIO<br />
+                    IBAN: IT03E0342549370000000011990<br />
+                    BENEFICIARIO: GGALLERY SRL<br />
+                    </p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
 
         $_destinatario = array();
         if ($email_default != "") $_destinatario[] = $email_default;
+        if (!is_null($extraEmail)) $_destinatario[] = $extraEmail;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true);
 
@@ -3605,9 +3622,7 @@ HTML;
         $mailer->Encoding = 'base64';
         $mailer->setBody($body);
         // logo se richiesto
-        if ($with_logo)
-            $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
-
+        if ($with_logo) $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
 
         $send = $mailer->Send();
 

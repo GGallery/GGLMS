@@ -114,6 +114,21 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 if (!is_array($_insert_quote)) throw new Exception($_insert_quote, E_USER_ERROR);
                 else $this->payment_form = outputHelper::get_payment_form_error("La richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.");
 
+                $_params = utilityHelper::get_params_from_plugin();
+                $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+                $selectedUser = $userModel->get_user_joomla($this->user_id);
+                if (isset($selectedUser->email) && $selectedUser->email != '') {
+                    utilityHelper::send_sinpe_email_pp($selectedUser->email,
+                                                    date('Y-m-d'),
+                                                    "",
+                                                    "",
+                                                    $_user_details,
+                                                    0,
+                                                    0,
+                                                    'richiesta_bonifico_sinpe',
+                                                    $email_default);
+                }
+
             }
             else if ($this->action == 'user_registration_payment') {
 

@@ -81,12 +81,9 @@ class gglmsControllerMt extends JControllerLegacy {
 
         try {
 
-            $_params = utilityHelper::get_params_from_plugin();
-            $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
-            $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
-
-            $_check_ug = utilityHelper::check_user_into_ug(9, explode(",", $gruppi_online));
-            var_dump($_check_ug);
+            $userModel = new gglmsModelUsers();
+            $user = $userModel->get_user_joomla(10);
+            print_r($user->email);
 
         }
         catch(Exception $e) {

@@ -144,13 +144,25 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                     $totale_sinpe,
                     $totale_espen);
 
-                if (!is_array($_insert_quote))
-                    $this->call_result = $_insert_quote;
-                else
-                    $this->call_result = "tuttook";
+                if (!is_array($_insert_quote)) $this->call_result = $_insert_quote;
+                else $this->call_result = "tuttook";
 
                 // nessuna delle opzioni richieste elaborata
                 if ($this->call_result == "") throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
+
+                $email_default = utilityHelper::get_params_from_object($_extra_pay, "email_default");
+                $selectedUser = $_user->get_user_joomla($this->user_id);
+                if (isset($selectedUser->email) && $selectedUser->email != '') {
+                    utilityHelper::send_sinpe_email_pp($selectedUser->email,
+                                                    date('Y-m-d'),
+                                                    "",
+                                                    "",
+                                                    $_user_details,
+                                                    0,
+                                                    0,
+                                                    'richiesta_bonifico_sinpe',
+                                                    $email_default);
+                }
 
                 if($this->call_result == 'tuttook') {
                     $_html = <<<HTML
