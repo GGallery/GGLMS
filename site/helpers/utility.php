@@ -2191,22 +2191,32 @@ HTML;
         if ($template == "servizi_extra")
             $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PP";
         else if ($template == "bonifico")
-            $oggetto = "SINPE - -Effettuato nuovo pagamento quota a mezzo bonifico";
+            $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo bonifico";
+        else if ($template == "preiscritto")
+            $oggetto = "SINPE - Approvazione account preiscritto";
 
-        $body = <<<HTML
-                <br /><br />
-                <p>Nominativo: <b>{$_nominativo}</b></p>
-                <p>Codice fiscale: {$_cf}</p>
-                <p>Anno di riferimento: {$_anno_quota}</p>
-                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
-                <p>Dettagli ordine: {$_order_details}</p>
-                <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
-                <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+        if ($template != 'preiscritto')
+            $body = <<<HTML
+                    <br /><br />
+                    <p>Nominativo: <b>{$_nominativo}</b></p>
+                    <p>Codice fiscale: {$_cf}</p>
+                    <p>Anno di riferimento: {$_anno_quota}</p>
+                    <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                    <p>Dettagli ordine: {$_order_details}</p>
+                    <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
+                    <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+HTML;
+        else
+            $body = <<<HTML
+                    <br /><br />
+                    <p>Gentilissimo/a, la tua richiesta di iscrizione a SINPE è stata approvata dal Consiglio Direttivo.</p>
+                    <p>Accedi al sito <a href="https://sinpe.org">www.sinpe.it</a> con le credenziali scelte in fase di registrazione e seleziona la voce ISCRIVITI/RINNOVA LA TUA QUOTA per completare la tua iscrizione.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
 HTML;
 
         $_destinatario = array();
-        if ($email_default != "")
-            $_destinatario[] = $email_default;
+        if ($email_default != "") $_destinatario[] = $email_default;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true);
 

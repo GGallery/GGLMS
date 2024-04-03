@@ -2411,15 +2411,15 @@ HTML;
     
                         // online
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online))) 
-                            throw new Exception("Il Codice fiscale indicato risulta già iscritto ed online", E_USER_ERROR);
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_ONLINE'), E_USER_ERROR);
     
                         // moroso
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
-                            throw new Exception("Il Codice fiscale indicato risulta già iscritto e moroso", E_USER_ERROR);
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
                         // decaduto
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto)))
-                            throw new Exception("Il Codice fiscale indicato risulta già iscritto e decaduto. Continuando i dati esistenti saranno aggiornati con quelli nuovi", E_USER_ERROR);
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_DECADUTO'), E_USER_ERROR);
 
                         // cf esistente
                         throw new Exception("L'utente con il codice fiscale ". strtoupper($_POST['cf']) . " è esistente" , E_USER_ERROR);
@@ -2602,11 +2602,11 @@ HTML;
 
                     // online
                     if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online)))
-                        throw new Exception("Il Codice fiscale indicato risulta già iscritto ed online", E_USER_ERROR);
+                        throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_ONLINE'), E_USER_ERROR);
 
                     // moroso
                     if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
-                        throw new Exception("Il Codice fiscale indicato risulta già iscritto e moroso", E_USER_ERROR);
+                        throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
                     // se decaduto 
                     if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;

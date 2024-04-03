@@ -1377,6 +1377,9 @@ HTML;
 
             $params = JRequest::get($_GET);
             $user_id = $params["user_id"];
+            $preiscritto = isset($params["preiscritto"]) ? 
+                (int) $params["preiscritto"]
+                : 0;
 
             if (!isset($user_id)
                 || $user_id == "") throw new Exception("Missing user id", E_USER_ERROR);
@@ -1398,6 +1401,21 @@ HTML;
             $_user = new gglmsModelUsers();
             $_ultimo_anno = $_user->update_ultimo_anno_pagato($user_id, $_anno_quota);
             if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+            // se decaduto devo inviare email per riabilitazione account
+            if ($preiscritto == 1) {
+                $_user_details = $_user->get_user_details_cb($user_id);
+                $_params = utilityHelper::get_params_from_plugin();
+                $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+                utilityHelper::send_sinpe_email_pp($email_default,
+                                                    date('Y-m-d'),
+                                                    "",
+                                                    "",
+                                                    $_user_details,
+                                                    0,
+                                                    0,
+                                                    'preiscritto');
+            }
 
             $_ret['success'] = "tuttook";
 

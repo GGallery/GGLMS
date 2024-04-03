@@ -2473,6 +2473,27 @@ HTML;
           <form method="POST" id="subscriptionForm" enctype="multipart/form-data">
 
             <div class="form-group row">
+              <label for="cb_codicefiscale" class="col-sm-2 col-form-label">{$_label_cf}<span style="color: red">*</span></label>
+              <div class="col-sm-10">
+                <input 
+                  class="form-control w-25 text-uppercase" 
+                  type="text" 
+                  id="cb_codicefiscale" 
+                  maxlength="16" 
+                  data-campo="{$_cb_codicefiscale}" 
+                  placeholder="{$_label_cf}" 
+                  required
+                  />
+              </div>
+            </div>
+
+            <div id="codiceFiscaleFeedback" class="form-group row sr-only">
+              <div class="col-sm-12">
+                <div id="codiceFiscaleFeedbackMsg" class="alert alert-danger" role="alert"></div>
+              </div>
+            </div>
+
+            <div class="form-group row">
               <label for="cb_nome" class="col-sm-2 col-form-label">{$_label_nome}<span style="color: red">*</span></label>
               <div class="col-sm-10">
                 <input 
@@ -2571,27 +2592,6 @@ HTML;
                     <option value="">-</option>
                     {$_cb_titolo_options}
                 </select>
-              </div>
-            </div>
-
-            <div class="form-group row">
-              <label for="cb_codicefiscale" class="col-sm-2 col-form-label">{$_label_cf}<span style="color: red">*</span></label>
-              <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_codicefiscale" 
-                  maxlength="16" 
-                  data-campo="{$_cb_codicefiscale}" 
-                  placeholder="{$_label_cf}" 
-                  required
-                  />
-              </div>
-            </div>
-
-            <div id="codiceFiscaleFeedback" class="form-group row sr-only">
-              <div class="col-sm-12">
-                <div id="codiceFiscaleFeedbackMsg" class="alert alert-danger" role="alert"></div>
               </div>
             </div>
 
@@ -2829,7 +2829,7 @@ HTML;
             </div>
             
             <div class="form-group row">
-              <label for="cb_dipartimento" class="col-sm-2 col-form-label">{$_label_dipartimento}<span class="text-danger">*</span></label>
+              <label for="cb_dipartimento" class="col-sm-2 col-form-label">{$_label_dipartimento}</label>
               <div class="col-sm-10">
                 <input 
                   class="form-control w-25 text-uppercase" 
@@ -2843,7 +2843,7 @@ HTML;
             </div>
             
             <div class="form-group row">
-              <label for="cb_reparto" class="col-sm-2 col-form-label">{$_label_reparto}<span class="text-danger">*</span></label>
+              <label for="cb_reparto" class="col-sm-2 col-form-label">{$_label_reparto}</label>
               <div class="col-sm-10">
                 <input 
                   class="form-control w-25 text-uppercase" 

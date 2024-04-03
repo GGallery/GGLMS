@@ -248,16 +248,20 @@ defined('_JEXEC') or die;
                     }
 
                     const pDipartimento = jQuery('#cb_dipartimento').val();
+                    /*
                     if (pDipartimento.trim() == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR54'), '#cb_dipartimento');
                         return;
                     }
+                    */
 
                     const pReparto = jQuery('#cb_reparto').val();
+                    /*
                     if (pReparto.trim() == "") {
                         customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR56'), '#cb_reparto');
                         return;
                     }
+                    */
 
                     const pPassword = jQuery('#cb_privacy').val();
                     if (pPassword == "") {

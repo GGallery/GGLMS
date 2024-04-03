@@ -236,7 +236,7 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
-        // da decaduto a moroso
+        // da preiscritto a moroso
         function impostaMoroso(userId) {
 
             alertify.confirm()
@@ -250,10 +250,10 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
-        // utente riabilitato al pagamento (moroso di un anno)
+        // utente riabilitato al pagamento (moroso di un anno) da preiscritto (nuovo form di registrazione)
         function eseguiImpostaMoroso(userId) {
 
-                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
+                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId, preiscritto: 1 } )
                     .done(function(results) {
 
                         // risposta non conforme
@@ -380,6 +380,7 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
+        // da decaduto a moroso
         function riabilitaDecaduto(userId) {
 
             alertify.confirm()
@@ -396,7 +397,7 @@ defined('_JEXEC') or die('Restricted access');
         // utente riabilitato al pagamento (moroso di un anno)
         function eseguiRiabilitaDecaduto(userId) {
 
-                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
+                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId, preiscritto: 0 } )
                     .done(function(results) {
 
                         // risposta non conforme

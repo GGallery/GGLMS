@@ -112,7 +112,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                     $totale_espen);
 
                 if (!is_array($_insert_quote)) throw new Exception($_insert_quote, E_USER_ERROR);
-                else $this->payment_form = outputHelper::get_payment_form_error("La richiesta di pagamento a mezzo bonifico è stata registrata correttamente. La tua quota sarà confermata non appena il pagamento verrà ricevuto.");
+                else $this->payment_form = outputHelper::get_payment_form_error("La richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.");
 
             }
             else if ($this->action == 'user_registration_payment') {
