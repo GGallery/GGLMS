@@ -148,7 +148,7 @@ class gglmsControllerMt extends JControllerLegacy {
         try {
 
 
-            if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            //if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
             if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->del_ug)) throw new Exception("Riferimento gruppo in eliminazione non specificato", E_USER_ERROR);
             if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
 
@@ -162,10 +162,12 @@ class gglmsControllerMt extends JControllerLegacy {
             $del_ug = $this->_filterparam->del_ug;
             // morosi
             $new_ug = $this->_filterparam->new_ug;
+            // anno corrente
+            $annoRef = date('Y');
 
             $completed = 0;
 
-            $arr_ids = $this->sinpe_get_online_anno($del_ug, $this->_filterparam->anno_ref, $this->_filterparam->extraoff ?? 0);
+            $arr_ids = $this->sinpe_get_online_anno($del_ug, $annoRef, $this->_filterparam->extraoff ?? 0);
             if (!is_array($arr_ids) || !count($arr_ids)) throw new Exception("Non è stato trovato nessun utente appartenente ai criteri desiderati", E_USER_ERROR);
 
             $this->_db->transactionStart();
@@ -222,17 +224,20 @@ class gglmsControllerMt extends JControllerLegacy {
      * @anno_request: ultimo anno in regola
      * @extraoff_request: se impostato non considera i soci straordinari
      */
-    public function sinpe_get_online_anno($check_ug = null, $anno_request = null, $extraoff_request = null)
+    public function sinpe_get_online_anno($check_ug = null, $anno_ref = null, $extraoff_request = null)
     {
 
         try {
 
             if (!isset($this->_filterparam->check_ug) && is_null($check_ug)) throw new Exception("Gruppo di selezione non indicato", E_USER_ERROR);
-            if (!isset($this->_filterparam->anno_ref) && is_null($anno_request)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            //if (!isset($this->_filterparam->anno_ref) && is_null($anno_request)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (is_null($anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
 
+            /*
             $anno_ref = isset($this->_filterparam->anno_ref)
                 ? $this->_filterparam->anno_ref
                 : $anno_request;
+            */
             $extra_ug = null;
 
             if (isset($this->_filterparam->extraoff)) $extra_ug = $this->_filterparam->extraoff;
