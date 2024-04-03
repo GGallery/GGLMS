@@ -1262,6 +1262,25 @@ HTML;
 
             if (!is_array($_bonifico)) throw new Exception($_bonifico, E_USER_ERROR);
 
+            /*
+            $_user_details = $_user->get_user_details_cb($user_id);
+            if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+            
+            $email_default = utilityHelper::get_params_from_object(utilityHelper::get_params_from_plugin(), "email_default");
+            $selectedUser = $_user->get_user_joomla($user_id);
+            if (isset($selectedUser->email) && $selectedUser->email != '') {
+                utilityHelper::send_sinpe_email_pp($email_default,
+                                                date('Y-m-d'),
+                                                "",
+                                                "",
+                                                $_user_details,
+                                                0,
+                                                0,
+                                                'conferma_bonifico_sinpe',
+                                                $selectedUser->email);
+            }
+            */
+
             $_ret['success'] = "tuttook";
 
         }
@@ -1405,11 +1424,10 @@ HTML;
             // se preiscritto devo inviare email per riabilitazione account
             if ($preiscritto == 1) {
                 $_user_details = $_user->get_user_details_cb($user_id);
-                $_params = utilityHelper::get_params_from_plugin();
                 $email_default = utilityHelper::get_params_from_object($_params, "email_default");
                 $selectedUser = $_user->get_user_joomla($user_id);
                 if (isset($selectedUser->email) && $selectedUser->email != '') {
-                    utilityHelper::send_sinpe_email_pp($selectedUser->email,
+                    utilityHelper::send_sinpe_email_pp($email_default,
                                                         date('Y-m-d'),
                                                         "",
                                                         "",
@@ -1417,7 +1435,7 @@ HTML;
                                                         0,
                                                         0,
                                                         'preiscritto',
-                                                        $email_default);
+                                                        $selectedUser->email);
                 }
             }
 
