@@ -1225,9 +1225,9 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
-            $user_id = $params["user_id"];
-            $totale = $params["totale"];
+            $requestParams = JRequest::get($_GET);
+            $user_id = $requestParams["user_id"];
+            $totale = $requestParams["totale"];
 
             if (!isset($user_id)
                 || $user_id == "")
@@ -1262,11 +1262,12 @@ HTML;
 
             if (!is_array($_bonifico)) throw new Exception($_bonifico, E_USER_ERROR);
 
-            /*
             $_user_details = $_user->get_user_details_cb($user_id);
             if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
             
-            $email_default = utilityHelper::get_params_from_object(utilityHelper::get_params_from_plugin(), "email_default");
+            $_params = utilityHelper::get_params_from_plugin();
+            $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+            
             $selectedUser = $_user->get_user_joomla($user_id);
             if (isset($selectedUser->email) && $selectedUser->email != '') {
                 utilityHelper::send_sinpe_email_pp($email_default,
@@ -1279,7 +1280,6 @@ HTML;
                                                 'conferma_bonifico_sinpe',
                                                 $selectedUser->email);
             }
-            */
 
             $_ret['success'] = "tuttook";
 

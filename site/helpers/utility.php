@@ -2186,16 +2186,22 @@ HTML;
             && $_user_details['codice_fiscale'] != "")
             $_cf .= $_user_details['codice_fiscale'];
 
-        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
+        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PayPal";
 
         if ($template == "servizi_extra")
-            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PP";
+            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PayPal";
         else if ($template == "bonifico")
             $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo bonifico";
         else if ($template == "preiscritto")
-            $oggetto = "SINPE - Approvazione account preiscritto";
+            $oggetto = "SINPE - Approvazione richiesta di iscrizione";
+        else if ($template == "richiesta_bonifico_sinpe")
+            $oggetto = "SINPE - Richiesta di pagamento con bonifico registrata";
+        else if ($template == "conferma_bonifico_sinpe")
+            $oggetto = "SINPE - Pagamento della quota associativa confermato";
 
-        if ($template != 'preiscritto' && $template != 'richiesta_bonifico_sinpe') {
+        if ($template != 'preiscritto' 
+            && $template != 'richiesta_bonifico_sinpe'
+            && $template != 'conferma_bonifico_sinpe') {
             $dt = new DateTime($_data_creazione);
             $body = <<<HTML
                     <br /><br />
@@ -2227,6 +2233,13 @@ HTML;
                     IBAN: IT03E0342549370000000011990<br />
                     BENEFICIARIO: GGALLERY SRL<br />
                     </p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'conferma_bonifico_sinpe')
+            $body = <<<HTML
+                    <br /><br />
+                    <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;
