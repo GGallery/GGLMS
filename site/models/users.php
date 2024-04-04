@@ -1730,7 +1730,7 @@ class gglmsModelUsers extends JModelLegacy
         }
     }
 
-    public function get_quota_user_anno($user_id, $anno = null) {
+    public function get_quota_user_anno($user_id, $anno = null, $tipo_quota = 'annuale') {
 
         try {
 
@@ -1743,6 +1743,7 @@ class gglmsModelUsers extends JModelLegacy
                 ->from('#__gg_quote_iscrizioni')
                 ->where('user_id = ' . $user_id)
                 ->where('anno = ' . $anno)
+                ->where('tipo_quota = ' . $this->_db->quote($tipo_quota))
                 ->order('id DESC');
 
             $this->_db->setQuery($query);
