@@ -1681,7 +1681,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function get_quota_per_user_token($userId, $token, $anno) {
+    public function get_quota_per_user_token($userId, $token, $anno, $tipo_quota = 'annuale') {
 
         try {
 
@@ -1692,6 +1692,7 @@ class gglmsModelUsers extends JModelLegacy
                 ->where('ref_token.token = ' . $this->_db->quote($token))
                 ->where('subscr.user_id = ' . $this->_db->quote($userId))
                 ->where('subscr.anno = ' . $this->_db->quote($anno))
+                ->where('subscr.tipo_quota = ' . $this->_db->quote($tipo_quota))
                 ->order('subscr.id DESC');
 
             $this->_db->setQuery($query);
