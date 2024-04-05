@@ -1180,6 +1180,17 @@ class gglmsModelUsers extends JModelLegacy
                                NULL
                             )";
             }
+            elseif ($tipo_quota == 'voucher_sinpe') {
+                $query .= "(
+                    '" . $user_id . "',
+                    '" . $_anno_quota . "',
+                    '" . $refQuota . "',
+                    'voucher',
+                    '" . $_data_creazione . "',
+                    '" . $totale_sinpe . "',
+                    '" . addslashes($_order_details) . "'
+                 )";
+            }
 
             $query .= ";";
 
@@ -1200,6 +1211,8 @@ class gglmsModelUsers extends JModelLegacy
             $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
             $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
             $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+            $emailTemplate = 'rinnovo';
+            $extraEmail = null;
 
             // inserisco l'utente nel gruppo online
             $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
@@ -1211,6 +1224,15 @@ class gglmsModelUsers extends JModelLegacy
 
             $this->_db->transactionCommit();
 
+            // per il voucher invio anche all'utente il messaggio di pagamento
+            if ($tipo_quota == 'voucher_sinpe') {
+                $emailTemplate = $tipo_quota;
+                $selectedUser = $this->get_user_joomla($user_id);
+                $extraEmail = (isset($selectedUser->email) && $selectedUser->email != '')
+                    ? $selectedUser->email
+                    : null;
+            }
+
             if ($send_email)
                 utilityHelper::send_sinpe_email_pp($email_default,
                                                     $_data_creazione,
@@ -1218,7 +1240,10 @@ class gglmsModelUsers extends JModelLegacy
                                                     $_anno_quota,
                                                     $_user_details,
                                                     $totale_sinpe,
-                                                    $totale_espen);
+                                                    $totale_espen,
+                                                    $emailTemplate,
+                                                    $extraEmail
+                                                );
 
             $_ret['success'] = "tuttook";
 
@@ -2334,6 +2359,31 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    // controllo se un voucher è già stato utilizzato
+    public function checkVoucherValid($requestedVoucher) {
+
+        try {
+
+            $checkVoucher = "SELECT *
+                            FROM #__gg_quote_voucher
+                            WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND user_id IS NULL";
+            
+            $this->_db->setQuery($checkVoucher);
+            if (!$this->_db->execute()) throw new Exception("Error during checking voucher code: " . $requestedVoucher, E_USER_ERROR);
+            
+            return $this->_db->loadResult();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() , __FUNCTION__);
+
+            return "error";
+        }
+
+    }
+
+    // rimuovo un utente da un gruppo per user_id e group_id
     public function deleteUserFromUserGroup($user_id, $group_id) {
 
         try {
@@ -2353,7 +2403,6 @@ class gglmsModelUsers extends JModelLegacy
 
             return null;
         }
-
 
     }
 }

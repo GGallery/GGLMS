@@ -68,13 +68,11 @@ class gglmsViewPaypal extends JViewLegacy {
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale_sinpe, $totale_espen), true);
 
-                if (!isset($new_order['success']))
-                    throw new Exception($new_order['error'], E_USER_ERROR);
+                if (!isset($new_order['success'])) throw new Exception($new_order['error'], E_USER_ERROR);
 
                 // inserisco le quote per l'utente selezionato
                 $_user_details = $_user_quote->get_user_details_cb($user_id);
-                if (!is_array($_user_details))
-                    throw new Exception($_user_details, E_USER_ERROR);
+                if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
 
                 $_insert_quote = $_user_quote->insert_user_quote_anno(
                                                 $user_id,

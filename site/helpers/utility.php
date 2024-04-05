@@ -2198,10 +2198,13 @@ HTML;
             $oggetto = "SINPE - Richiesta di pagamento con bonifico registrata";
         else if ($template == "conferma_bonifico_sinpe")
             $oggetto = "SINPE - Pagamento della quota associativa confermato";
+        else if ($template == "voucher_sinpe")
+            $oggetto = "SINPE - Effettuato nuovo pagamento quota con voucher";
 
         if ($template != 'preiscritto' 
             && $template != 'richiesta_bonifico_sinpe'
-            && $template != 'conferma_bonifico_sinpe') {
+            && $template != 'conferma_bonifico_sinpe'
+            && $template != 'voucher_sinpe') {
             $dt = new DateTime($_data_creazione);
             $body = <<<HTML
                     <br /><br />
@@ -2237,6 +2240,12 @@ HTML;
         else if ($template == 'conferma_bonifico_sinpe')
             $body = <<<HTML
                     <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'voucher_sinpe')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.</p>
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;

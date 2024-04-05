@@ -138,12 +138,19 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                     throw new Exception("Nessun parametro definito", E_USER_ERROR);
 
                 $decryptedToken = utilityHelper::decrypt_random_token($pp);
-                if (is_null($decryptedToken) || !is_numeric($decryptedToken)) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
-
+                
+                $parsedToken = explode("|==|", $decryptedToken);
+                if (count($parsedToken) < 2) throw new Exception("Il token non è valido, impossibile processare la richiesta di iscrizione", E_USER_ERROR);
+                if (!isset($parsedToken[0]) || !is_numeric($parsedToken[0])) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+                
                 $this->hide_pp = false;
 
                 $userModel = new gglmsModelUsers();
-                $this->user_id = $decryptedToken;
+                $this->user_id = $parsedToken[0];
+                $voucherCode = (isset($parsedToken[1]) && !is_null($parsedToken[1]) && $parsedToken[1] != '')
+                    ? $parsedToken[1]
+                    : null;
+
                 $_user_details = $userModel->get_user_details_cb($this->user_id);
                 if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
 
@@ -156,8 +163,31 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 //$this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);  
                 $this->ultimo_anno_pagato = $_anno_corrente-1;
 
+                // verifico la presenza del voucher di pagamento - in questo caso iscrivo l'utente senza richiedere pagamento
+                if (!is_null($voucherCode)) {
+
+                    $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
+                    $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+                    if (!is_array($updateVoucher)) throw new Exception($updateVoucher, E_USER_ERROR);
+
+                    $_insert_quote = $userModel->insert_user_quote_anno(
+                        $this->user_id,
+                        date('Y'),
+                        $dateTimeCorrente,
+                        'Pagamento quota con voucher codice: ' . $voucherCode,
+                        0,
+                        0,
+                        $_user_details,
+                        true,
+                        'voucher_sinpe'
+                    );
+
+                    $this->payment_form = outputHelper::get_payment_form_error("Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.");
+                    $this->in_error = 1;
+
+                }
                 // devo verificare se è un biologo, in quel caso non deve vedere direttamente il pagamento
-                if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
+                else if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
 
                     // rimuovo da moroso
                     $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");

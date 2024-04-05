@@ -2305,8 +2305,7 @@ HTML;
             $this->_db->setQuery($checkVoucher);
             $resultVoucher = $this->_db->loadResult();
 
-            if (!$resultVoucher)
-                throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
+            if (!$resultVoucher) throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
 
             // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
             $checkUserForYear = "SELECT *
@@ -2454,6 +2453,8 @@ HTML;
                 $_new_user = [];
                 $_new_user_cp = [];
                 $dt = new DateTime();
+                $userModel = new gglmsModelUsers();
+                $voucher_code = null;
 
                 foreach ($decoded['request_obj'] as $sub_key => $sub_arr) {
 
@@ -2517,6 +2518,12 @@ HTML;
                         && ($sub_arr['value']) != 1) {
                         throw new Exception("Devi accettare lo Statuto della società");
                     }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'voucher_code') {
+                        $voucher_code = (!is_null($sub_arr['value']) && $sub_arr['value'] != '')
+                            ? $sub_arr['value']
+                            : null;
+                    }
 
                     // campi cb
                     if (isset($sub_arr['cb'])
@@ -2536,6 +2543,16 @@ HTML;
                         $_new_user_cp[$sub_arr['cb']] = addslashes($cb_value);
 
                     }
+
+                }
+
+                // controllo esistenza voucher
+                if (!is_null($voucher_code)) {
+                    
+                    $checkVoucher = $userModel->checkVoucherValid($voucher_code);
+                    if ($checkVoucher == "error") throw new Exception("Si è verificato un errore durante il controllo del voucher". E_USER_ERROR);
+
+                    if (!$checkVoucher) throw new Exception("Il codice voucher immesso non è stato trovato oppure è già stato utilizzato.", E_USER_ERROR);
 
                 }
 
@@ -2689,7 +2706,7 @@ HTML;
                     
 
                 $response['success'] = "tuttook";
-                $response['token'] = utilityHelper::build_randon_token($newUserId);
+                $response['token'] = utilityHelper::build_randon_token($newUserId . '|==|' . $voucher_code);
 
 
             }

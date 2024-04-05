@@ -429,6 +429,8 @@ defined('_JEXEC') or die;
                     pPropArr.push({campo: pAccessoNutritionOnlineCheckID, cb: pAccessoNutritionOnlineCheckCB, value: pAccessoNutritionOnlineCheck});
 
                     pPropArr.push({campo: 'cb_professione_sinpe', cb: 'cb_professione_sinpe', value: Math.floor(Date.now() / 1000)});
+                    pPropArr.push({campo: 'voucher_code', cb: null, value: jQuery('#voucher_code').val()});
+
 
                     const fileInput = document.querySelector('input[type="file"]');
                     if (fileInput.files.length > 0) {

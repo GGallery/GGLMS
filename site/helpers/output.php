@@ -2460,6 +2460,8 @@ HTML;
         $_label_cb_statuto_2 = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR66');
         $_label_cb_newsletter = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR62');
         $_label_cb_accessonutritiononline = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR63');
+        $_label_voucher = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR68');
+        $_label_voucher_info = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR69');
 
         $_html =<<<HTML
         <div class="row mt-4">
@@ -2854,6 +2856,21 @@ HTML;
                   required
                   />
               </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="voucher_code" class="col-sm-2 col-form-label">{$_label_voucher}*</label>
+              <div class="col-sm-10">
+                <input 
+                  class="form-control w-25" 
+                  type="text" 
+                  id="voucher_code" 
+                  placeholder="{$_label_voucher}" 
+                  required
+                  />
+                  <p class="small">*{$_label_voucher_info}</p>
+              </div>
+              
             </div>
 
             <div class="form-group row">
