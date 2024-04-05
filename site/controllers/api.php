@@ -126,16 +126,14 @@ class gglmsControllerApi extends JControllerLegacy
                          . ' WHERE id_utente = ' . $id_user . ' AND id_gruppi = ' . $this->_db->quote($gruppo);
                      $this->_db->setQuery($update_coupon);
 
-                     if (!$this->_db->execute())
-                        throw new Exception("update coupon query ko -> " . $update_coupon, 1);
+                     if (!$this->_db->execute()) throw new Exception("update coupon query ko -> " . $update_coupon, 1);
 
                      //cancello da user_usergroup corso per utente
                      $delete_usergroup = "DELETE FROM #__user_usergroup_map"
                          . " WHERE group_id = " . $this->_db->quote($gruppo) . " AND user_id = " . $id_user;
                      $this->_db->setQuery($delete_usergroup);
 
-                     if (!$this->_db->execute())
-                         throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
+                     if (!$this->_db->execute()) throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
 
 
                      //seleziono tutti i contenuti del corso
@@ -143,8 +141,7 @@ class gglmsControllerApi extends JControllerLegacy
                      $contents = $model_report->getContenutiArrayList($id_corso);
 
 
-                     if(!isset($contents) || !is_array($contents))
-                         throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
+                     if(!isset($contents) || !is_array($contents)) throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
 
                      foreach ($contents as $content) {
                          if (isset($content['id'])) {
