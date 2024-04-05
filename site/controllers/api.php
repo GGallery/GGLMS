@@ -2669,7 +2669,7 @@ HTML;
 
                 }
 
-                // se è un utente nuovo lo inserisco temporaneamente nei preiscritti
+                // se è un utente nuovo lo inserisco temporaneamente nei morosi
                 if (!$isDecaduto) {
                     $userGroupId = utilityHelper::check_usergroups_by_name("Moroso");
                     if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
