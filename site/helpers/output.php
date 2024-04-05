@@ -2897,7 +2897,7 @@ HTML;
             </div>
 
             <div class="form-group row no-gutters sectiontableentry1 cbft_checkbox cb_form_line">
-              <label for="cb_statuto" class="col-form-label col-sm-3 pr-sm-2">{$_label_cb_statuto_1} <a href="/area-istituzionale/statuto.html" _blank="">{$_label_cb_statuto_2}</a><span class="text-danger">*</span></label>
+              <label for="cb_statuto" class="col-form-label col-sm-3 pr-sm-2">{$_label_cb_statuto_1} <a href="/area-istituzionale/statuto.html" target="_blank">{$_label_cb_statuto_2}</a><span class="text-danger">*</span></label>
               <div class="cb_field col-sm-9">
                 <div class="form-control-plaintext">
                   <div class="cbSingleCntrl m-0 form-check form-check-inline">
