@@ -2216,7 +2216,6 @@ HTML;
         }
         else if ($template == 'preiscritto')
             $body = <<<HTML
-                    <br /><br />
                     <p>Gentilissimo/a, la tua richiesta di iscrizione a SINPE è stata approvata dal Consiglio Direttivo.</p>
                     <p>Accedi al sito <a href="https://sinpe.org">www.sinpe.it</a> con le credenziali scelte in fase di registrazione e seleziona la voce ISCRIVITI/RINNOVA LA TUA QUOTA per completare la tua iscrizione.</p>
                     <p>Cordiali saluti</p>
@@ -2224,7 +2223,6 @@ HTML;
 HTML;
         else if ($template == 'richiesta_bonifico_sinpe')
             $body = <<<HTML
-                    <br /><br />
                     <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
                     <p>Ecco i dati necessari per effettuare il bonifico:</p>
                     <p>
@@ -2238,7 +2236,6 @@ HTML;
 HTML;
         else if ($template == 'conferma_bonifico_sinpe')
             $body = <<<HTML
-                    <br /><br />
                     <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
