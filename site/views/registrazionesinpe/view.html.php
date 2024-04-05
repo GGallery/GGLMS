@@ -159,13 +159,20 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 // devo verificare se è un biologo, in quel caso non deve vedere direttamente il pagamento
                 if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
 
+                    // rimuovo da moroso
+                    $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");
+                    if (is_null($removeUserGroupId)) throw new Exception("Non è stato trovato nessun usergroup moroso valido", E_USER_ERROR);
+                
+                    JUserHelper::removeUserFromGroup($this->user_id, $removeUserGroupId);
+
+                    // inserisco in preiscritto
                     $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
-                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
 
                     $insert_ug = $userModel->insert_user_into_usergroup($this->user_id, $userGroupId);
                     if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
 
-                    $this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di adesione a SINPE è stata presa in carico.");
+                    $this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di iscrizione è stata registrata. I tuoi dati saranno sottoposti al Consiglio Direttivo per approvazione e la segreteria ti invierà una mail con le istruzioni per completare la procedura di iscrizione.");
                     $this->in_error = 1;
                 }
                 else {
