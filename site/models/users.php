@@ -2333,5 +2333,28 @@ class gglmsModelUsers extends JModelLegacy
 
 
     }
+
+    public function deleteUserFromUserGroup($user_id, $group_id) {
+
+        try {
+            //cancello da user_usergroup corso per utente
+            $delete_usergroup = "DELETE FROM #__user_usergroup_map"
+            . " WHERE group_id = " . $this->_db->quote($group_id) . " AND user_id = " . $user_id;
+            
+            $this->_db->setQuery($delete_usergroup);
+
+            if (!$this->_db->execute()) throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, E_USER_ERROR);
+
+            return true;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() , __FUNCTION__);
+
+            return null;
+        }
+
+
+    }
 }
 

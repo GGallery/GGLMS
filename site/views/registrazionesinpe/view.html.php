@@ -163,8 +163,8 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                     $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");
                     if (is_null($removeUserGroupId)) throw new Exception("Non è stato trovato nessun usergroup moroso valido", E_USER_ERROR);
 
-                    $ug_moroso = !is_array($removeUserGroupId) ? (array) $removeUserGroupId : $removeUserGroupId;
-                    utilityHelper::remove_user_from_usergroup($this->user_id, $ug_moroso);
+                    $deleteFromMoroso = $userModel->deleteUserFromUserGroup($this->user_id, $removeUserGroupId);
+                    if (is_null($deleteFromMoroso)) throw new Exception("Si è verificato un errore durante la rimozione dell'utente dal gruppo Moroso", E_USER_ERROR);
                 
                     // inserisco in preiscritto
                     $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
