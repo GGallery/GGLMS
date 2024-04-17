@@ -2052,6 +2052,34 @@ class gglmsModelUsers extends JModelLegacy
     }
 
 
+    public function get_mansione_farmacista($userId, $extDb) {
+
+        try {
+
+            $dbRef = is_null($extDb)
+                ? $this->_db
+                : $extDb;
+
+            $rolesId = implode(",", $this->idsRuoli);
+            $query = $dbRef->getQuery(true)
+                ->select('ju3.title as role_title')
+                ->from('#__user_usergroup_map juum')
+                ->join('inner', '#__usergroups ju3 ON juum.group_id = ju3.id')
+                ->where('group_id IN (' . $rolesId . ')')
+                ->where('user_id = ' . $dbRef->quote($userId));
+
+            $dbRef->setQuery($query);
+            $result = $dbRef->loadObject();
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, 'error get mansione', 1);
+        }
+
+    }
+
 
 }
 

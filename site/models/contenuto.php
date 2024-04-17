@@ -1061,7 +1061,7 @@ class gglmsModelContenuto extends JModelLegacy
                 : $extDb;
 
             $query = "SELECT id_gruppi, id_societa
-                        FROM #__gg_coupon jgc 
+                        FROM #__gg_coupon jgc
                         WHERE id_utente = " . $this->_db->quote($idUtente) . "
                         AND id_societa  = " . $this->_db->quote($idSocieta) . "
                         AND id_gruppi = " . $this->_db->quote($gruppoCorso) . "
@@ -1108,11 +1108,11 @@ class gglmsModelContenuto extends JModelLegacy
                 : $extDb;
 
             // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
-            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita, jgum.idgruppo AS gruppo_corso
+            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita, u.data_inizio, jgum.idgruppo AS gruppo_corso
                         FROM #__gg_view_stato_user_corso v
                         JOIN #__gg_unit u ON v.id_corso = u.id
                         JOIN #__gg_report ggr ON v.id_corso = ggr.id_corso and v.id_anagrafica = ggr.id_anagrafica
-                        JOIN #__gg_usergroup_map jgum ON ggr.id_unita = jgum.idunita 
+                        JOIN #__gg_usergroup_map jgum ON ggr.id_unita = jgum.idunita
                         WHERE ggr.id_utente = '" . $idUtente . "'
                         AND v.data_inizio BETWEEN " . $this->_db->quote($data_dal) ." AND " . $this->_db->quote($data_al) ."
                         GROUP BY v.id_corso" ;
@@ -1159,7 +1159,7 @@ class gglmsModelContenuto extends JModelLegacy
             $db = JFactory::getDbo();
 
 
-            $query = "SELECT group_id 
+            $query = "SELECT group_id
                         FROM #__user_usergroup_map
                         where user_id = " . $user_id . "
                         AND group_id in (" . $ids . ")";
@@ -1265,7 +1265,7 @@ class gglmsModelContenuto extends JModelLegacy
             $query = "SELECT u.id, u.data_inizio, u.data_fine
                         from #__gg_unit as u
                         WHERE u.data_inizio BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)."
-                        AND u.data_fine BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)." 
+                        AND u.data_fine BETWEEN  ". $this->_db->quote($data_dal) ." AND ".$this->_db->quote($data_al)."
                         OR ISNULL(u.data_inizio)
                         OR ISNULL(u.data_fine) ";
 

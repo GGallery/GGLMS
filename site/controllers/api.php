@@ -4670,6 +4670,9 @@ HTML;
 
                         $username = $model_users->get_username($single_user['user_id'], $extDb);
 
+                        $modelUser = new gglmsModelUsers();
+                        $mansione = $modelUser->get_mansione_farmacista($single_user['user_id'], $extDb);
+
                         foreach ($contenutiPerUtenteCorso as $contentKey => $singleContent) {
 
                             $getCouponPerUtente = $model_contenuto->getCouponPerUtenteGruppoCorso($single_user['user_id'], $single_user['gruppo_farmacia'], $singleContent['gruppo_corso'], $extDb);
@@ -4703,10 +4706,11 @@ HTML;
                                 $row[$i] ['NOME'] = $username->nome;
                                 $row[$i] ['CODICE FISCALE'] = $username->codice_fiscale;
                                 $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
+                                $row[$i] ['DATA INIZIO CORSO'] = utilityHelper::convert_dt_in_format($singleContent['data_inizio'], 'd-m-Y');
                                 $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
                                 $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso . "%";
-                                $row[$i] ['MANSIONE'] = $username->mansione;
+                                $row[$i] ['MANSIONE'] = $mansione->role_title;
                                 $hh_store_code = trim($single_farmacia['codice']);
                                 if (strlen($hh_store_code) < 6) {
                                     $hh_store_code = str_pad((string)$hh_store_code, 6, '0', STR_PAD_LEFT);
