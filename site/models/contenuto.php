@@ -945,7 +945,7 @@ class gglmsModelContenuto extends JModelLegacy
                     $contenutiCorso = $db->loadAssocList();
 
 
-                    if (!is_array($contenutiCorso) || !count($contenutiCorso)) return 0;
+                    if (!is_array($contenutiCorso) || !count($contenutiCorso)) continue;
 
 
                     foreach ($contenutiCorso as $contentKey => $singleContent) {
