@@ -373,7 +373,7 @@ class gglmsModelReport extends JModelLegacy
             $insertquery = $insertquery . $uniqid . ',';
             $insertquery = $insertquery . '0)';
 
-            utilityHelper::make_debug_log(__FUNCTION__, $insertquery, __FUNCTION__);
+            //utilityHelper::make_debug_log(__FUNCTION__, $insertquery, __FUNCTION__);
 
             $this->_db->setQuery($insertquery);
             //$this->_db->execute();
@@ -403,7 +403,7 @@ class gglmsModelReport extends JModelLegacy
                                     set permanenza=TIME_TO_SEC(TIMEDIFF(NOW(),data_accesso))
                                     where uniqid=' . $uniquid;
 
-            utilityHelper::make_debug_log(__FUNCTION__, $updatequery, __FUNCTION__);
+            //utilityHelper::make_debug_log(__FUNCTION__, $updatequery, __FUNCTION__);
 
             $this->_db->setQuery($updatequery);
             //$this->_db->execute();
