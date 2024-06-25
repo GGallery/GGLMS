@@ -2368,6 +2368,120 @@ HTML;
 
     }
 
+    public static function get_show_event_video($randomTokenValue, $getVideoParam) {
+
+      try {
+
+        $_title_advise = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR70');
+        $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
+        $_label_cognome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR9');
+        $_label_email = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR13');
+        $_label_ordine_di = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR50');
+        $_label_numeroiscrizione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR38');
+        $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
+        $_cb_ordine_options = utilityHelper::get_cb_field_select_by_name('cb_ordine');
+        
+        $_html = <<<HTML
+        <div class="row mt-4">
+          <div class="col-12">
+            <h5><span style="color: black; font-weight: bold">{$_title_advise}</span></h5>
+          </div>
+        </div>
+
+        <div class="container-form">
+
+          <form method="POST" id="subscriptionForm" enctype="multipart/form-data">
+
+            <div class="form-group row mt-4">
+              <label for="cb_nome" class="col-sm-2 col-form-label">{$_label_nome}<span style="color: red">*</span></label>
+              <div class="col-sm-10">
+                <input 
+                  class="form-control w-25" 
+                  type="text" 
+                  id="cb_nome" 
+                  placeholder="{$_label_nome}" 
+                  required
+                  />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="cb_cognome" class="col-sm-2 col-form-label">{$_label_cognome}<span style="color: red">*</span></label>
+              <div class="col-sm-10">
+                <input 
+                  class="form-control w-25" 
+                  type="text" 
+                  id="cb_cognome" 
+                  placeholder="{$_label_cognome}" 
+                  required
+                  />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="email_utente" class="col-sm-2 col-form-label">{$_label_email}<span style="color: red">*</span></label>
+              <div class="col-sm-10">
+                <input 
+                  class="form-control w-25" 
+                  type="email" 
+                  id="email_utente" 
+                  placeholder="{$_label_email}"
+                  required  
+                />
+              </div>
+            </div>
+            
+
+            <div class="form-group row">
+              <label for="cb_ordine" class="col-sm-2 col-form-label">{$_label_ordine_di}<span class="text-danger">*</span></label>
+              <div class="col-sm-10">
+                <select 
+                  class="form-control w-25" 
+                  id="cb_ordine" 
+                  required
+                  >
+                    <option value="">-</option>
+                    {$_cb_ordine_options}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label for="cb_numeroiscrizione" class="col-sm-2 col-form-label">{$_label_numeroiscrizione}<span class="text-danger">*</span></label>
+              <div class="col-sm-10">
+                <input 
+                  class="form-control w-25 text-uppercase" 
+                  type="text" 
+                  id="cb_numeroiscrizione" 
+                  placeholder="{$_label_numeroiscrizione}" 
+                  required
+                  />
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-sm-6 offset-sm-3 text-center">
+                <button class="btn btn-large btn-registrazione">{$_label_registrazione}</button>
+              </div>
+            </div>
+
+            <input type="hidden" name="tts" id="tts" value="{$randomTokenValue}" />
+            <input type="hidden" name="cc" id="cc" value="{$getVideoParam}" />
+      </form>
+    </div>
+    
+HTML;
+
+        $_ret['success'] = $_html;
+        return $_ret;
+
+      }
+      catch (Exception $e) {
+        DEBUGG::log(json_encode($e->getMessage()), __FUNCTION__ . '_error', 0, 1, 0 );
+        return $e->getMessage();
+      }
+    }
+
     public static function get_user_registration_form_sinpe() {
 
       try {

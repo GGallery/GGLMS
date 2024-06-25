@@ -2437,6 +2437,75 @@ HTML;
         $this->_japp->close();
     }
 
+    public function sinpeWatchWebinar() {
+
+        $response = [];
+        $startTransaction = false;
+
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                $jsonContent = file_get_contents('php://input');
+                $decoded = json_decode($jsonContent, true);
+                
+                //if (!$decoded) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
+
+                // validazione campi
+                if (!isset($decoded['cb_nome']) || $decoded['cb_nome'] == "") throw new Exception("Compilare il campo Nome!", E_USER_ERROR);
+                if (!isset($decoded['cb_cognome']) || $decoded['cb_cognome'] == "") throw new Exception("Compilare il campo Cognome!", E_USER_ERROR);
+                if (!isset($decoded['email_utente']) || $decoded['email_utente'] == "") throw new Exception("Compilare il campo Email!", E_USER_ERROR);
+                if (!isset($decoded['cb_ordine']) || $decoded['cb_ordine'] == "") throw new Exception("Compilare il campo Ordine!", E_USER_ERROR);
+                if (!isset($decoded['cb_numeroiscrizione']) || $decoded['cb_numeroiscrizione'] == "") throw new Exception("Compilare il campo Numero iscrizione!", E_USER_ERROR);
+                if (!isset($decoded['tts']) || $decoded['tts'] == "") throw new Exception("Nessun riferimento token valorizzato!", E_USER_ERROR);
+
+                if (!filter_var($decoded['email_utente'], FILTER_VALIDATE_EMAIL)) throw new Exception("EMAIL NON VALIDA: " . $decoded['email_utente'], E_USER_ERROR);
+
+                $this->_db->transactionStart();
+                $startTransaction = true;
+
+                $query = "INSERT INTO #__gg_watching_video
+                             (
+                                nome,
+                                cognome,
+                                email,
+                                ordine,
+                                numeroiscrizione
+                              )
+                      VALUES (
+                          ". $this->_db->quote($decoded['cb_nome']) .",
+                          ". $this->_db->quote($decoded['cb_cognome']) .",
+                          ". $this->_db->quote($decoded['email_utente']) .",
+                          ". $this->_db->quote($decoded['cb_ordine']) .",
+                          ". $this->_db->quote($decoded['cb_numeroiscrizione']) ."
+                           )";
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->execute();
+
+                if (!$result) throw new Exception("Inserimento anagrafica fallito! Si è verificato un errore: " . $result, E_USER_ERROR);
+
+                $this->_db->transactionCommit();
+
+                $response['success'] = "tuttook";
+                $response['token'] = utilityHelper::build_randon_token($decoded['tts']);
+
+            }
+
+        }
+        catch(Exception $e) {
+            if ($startTransaction) $this->_db->transactionRollback();
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+
+    }
+
     public function sinpeRegistrationAction() {
 
         $response = [];

@@ -124,6 +124,7 @@ class gglmsController extends JControllerLegacy
             && strpos(JUri::getInstance()->toString(), 'gestione-anagrafica-centri') === false
             && strpos(JUri::getInstance()->toString(), 'registrazione-asand') === false
             && strpos(JUri::getInstance()->toString(), 'registrazione-sinpe') === false
+            && strpos(JUri::getInstance()->toString(), 'eventshowing') === false
         ) {
 //            $msg = "Per accedere al corso è necessario loggarsi";
             $msg = JText::_('COM_GGLMS_NOT_LOGGED');
