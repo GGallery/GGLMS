@@ -598,6 +598,23 @@ class gglmsModelUnita extends JModelLegacy
         if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
 
             if ($this->is_corso_expired($this)
+                || $this->check_coupon_is_expired($this)) {
+            
+                $retval = 'disabled';
+            }
+        }
+
+        return $retval;
+    }
+
+    public function get_access_class_disable_coupon($unita)
+    {
+        $retval = '';
+
+
+        if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
+
+            if ($this->is_corso_expired($this)
                 || $this->check_coupon_is_expired($this)
                 || $this->check_coupon_is_enabled($this)) {
             

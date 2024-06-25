@@ -23,9 +23,12 @@ class gglmsViewUnita extends JViewLegacy
 
     protected $params;
     protected $url_base;
+    public $genera_disabilita_coupon = 0;
 
     function display($tpl = null)
     {
+        $_config = new gglmsModelConfig();
+        $this->genera_disabilita_coupon = $_config->getConfigValue('genera_disabilita_coupon');
 
         $this->unita = $this->get('Unita');
 

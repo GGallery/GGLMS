@@ -45,7 +45,7 @@ if ($this->sottounita) {
                         $unitaObj = new gglmsModelUnita();
 
                         $is_unit_completed = $unitaObj->isUnitacompleta($unita->id);
-                        $corso_class = $unita->get_access_class($unita);
+                        $corso_class = $this->genera_disabilita_coupon ? $unita->get_access_class($unita):$unita->get_access_class_disable_coupon($unita);
                         $corso_is_disabled = $corso_class == 'disabled';
 
 
