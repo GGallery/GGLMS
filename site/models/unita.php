@@ -598,8 +598,9 @@ class gglmsModelUnita extends JModelLegacy
         if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
 
             if ($this->is_corso_expired($this)
-                || $this->check_coupon_is_expired($this)) {
-
+                || $this->check_coupon_is_expired($this)
+                || $this->check_coupon_is_enabled($this)) {
+            
                 $retval = 'disabled';
             }
         }
@@ -607,10 +608,21 @@ class gglmsModelUnita extends JModelLegacy
         return $retval;
     }
 
+    public function check_coupon_is_enabled($corso){
+        $retval=null;
+
+        try {
+            $coupon_model = new gglmsModelcoupon();
+            $retval = $coupon_model->is_coupon_enabled($corso);
+        } catch (Exception $e) {
+            DEBUGG::error($e,__FUNCTION__);
+        }
+        return $retval;
+    }
+
     public function check_coupon_is_expired($corso)
     {
         $retval = null;
-
         try {
             $access_list = explode(",", $corso->accesso);
 

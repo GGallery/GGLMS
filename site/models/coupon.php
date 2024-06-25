@@ -221,6 +221,35 @@ class gglmsModelcoupon extends JModelLegacy
 
     }
 
+    public function is_coupon_enabled($corso){
+        try {
+            $subQuery = $this->_db->getQuery(true)
+                ->select('idgruppo')
+                ->from('#__gg_usergroup_map AS ug')
+                ->join('inner', '#__user_usergroup_map AS uj ON uj.group_id = ug.idgruppo')
+                ->where('ug.idunita = ' . $corso->id)//parametrizzare con campo EB
+                ->where('uj.user_id= ' . $this->_user->id);
+
+            $query = $this->_db->getQuery(true)
+                ->select('CASE WHEN c.abilitato = 0 THEN 1 ELSE 0 END AS disabilitato')
+                ->from('#__gg_coupon AS c')
+                ->where($this->_db->quoteName('id_gruppi') . ' IN (' . $subQuery->__toString() . ')')
+                ->where('c.id_utente = ' . $this->_user->id);
+                
+                $this->_db->setQuery($query);
+
+                if (null === ($results = $this->_db->loadAssoc())) {
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                }
+                
+                return $results['disabilitato'];
+            
+        } catch (Exception $e) {
+            DEBUGG::error($e->getMessage(), 'is_coupon_expired_by_corso');
+        }
+
+        return false;
+    }
     public function is_coupon_expired_by_corso($corso)
     {
         try {
