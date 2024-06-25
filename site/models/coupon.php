@@ -243,7 +243,8 @@ class gglmsModelcoupon extends JModelLegacy
             $query = $this->_db->getQuery(true)
                 ->select('DATE_ADD(c.data_utilizzo,INTERVAL c.durata DAY) as data_scadenza_calc,
                             c.data_utilizzo,
-                            (case when ((c.data_utilizzo + interval c.durata day) < now()) then 1 else 0 end) AS scaduto
+                            (case WHEN ((c.data_utilizzo + interval c.durata day) < now()) then 1
+                                    WHEN abilitato = 0 THEN 1 ELSE 0 END) AS scaduto
                             ')
                 ->from('#__gg_coupon AS c')
                 ->where('c.id_utente = ' . $this->_user->id)
@@ -255,7 +256,6 @@ class gglmsModelcoupon extends JModelLegacy
             if (null === ($results = $this->_db->loadAssoc())) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
             }
-
             $data_scadenza_calc = strtotime($results['data_scadenza_calc']);
             $today = strtotime(date("Y-m-d"));
 
