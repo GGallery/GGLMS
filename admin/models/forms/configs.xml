@@ -1091,6 +1091,19 @@
         </field>
 
         <field
+                name="genera_disabilita_coupon"
+                type="radio"
+                class="btn-group"
+                label="Se attiva, nega l'accesso ai corsi se il coupon viene disabilitato"
+                labelclass="control-label"
+                description="OFF per nascondere, ON per visualizzare"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
+        <field
                 name="durata_massima"
                 type="text"
                 class=""

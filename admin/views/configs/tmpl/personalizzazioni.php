@@ -89,6 +89,10 @@
     </div>
 
     <div class="row-fluid">
+        <?php echo $this->form->renderField('genera_disabilita_coupon'); ?>
+    </div>
+
+    <div class="row-fluid">
         <?php echo $this->form->renderField('durata_massima'); ?>
     </div>
 
