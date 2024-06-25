@@ -475,13 +475,13 @@ class gglmsModelReport extends JModelLegacy
                             unita.titolo AS titolo_corso
                         FROM #__users u
                         JOIN #__gg_report_users r ON u.id = r.id_user
-                        JOIN #__gg_view_stato_user_unita v ON r.id = v.id_anagrafica
+                        JOIN #__gg_view_stato_user_corso v ON r.id = v.id_anagrafica
                         JOIN #__user_usergroup_map juum ON u.id = juum.user_id
                         JOIN #__usergroups ju2 ON juum.group_id = ju2.id
                         JOIN #__gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo
-                        JOIN #__gg_unit unita ON v.id_unita = unita.id
+                        JOIN #__gg_unit unita ON v.id_corso = unita.id
                         JOIN #__comprofiler comp ON u.id = comp.user_id
-                        WHERE v.id_unita = " . $db->quote($id_corso) . "
+                        WHERE v.id_corso = " . $db->quote($id_corso) . "
                         AND ju2.parent_id = " . $db->quote($gruppo_id_piattaforma) . "
                         GROUP BY u.username";
 
