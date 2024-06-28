@@ -2405,5 +2405,103 @@ class gglmsModelUsers extends JModelLegacy
         }
 
     }
+
+    public function get_anagrafica_utente($userId) {
+        $_ret=array();
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('com.id as ref_dipendente,
+                com.id as user_actions,
+                com.cb_cognome,
+                com.cb_nome,
+                u.email as cb_email,
+                com.cb_codicefiscale,
+                com.cb_datadinascita,
+                com.cb_luogodinascita,
+                com.cb_provinciadinascita,
+                com.cb_indirizzodiresidenza,
+                com.cb_citta,
+                com.cb_cap,
+                com.cb_provdiresidenza,
+                com.cb_azienda,
+                com.cb_professione,
+                com.cb_ruolo')
+                ->from('#__comprofiler com')
+                ->join('inner','#__users u on u.id=com.user_id')
+                ->where('com.user_id = '. $this->_db->quote($userId))
+                ->group('u.id');
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->loadAssoc();
+
+                return $result;
+
+
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function get_anagrafica_utenti(
+                                        $_offset=0,
+                                        $_limit=10,
+                                        $_search=null,
+                                        $_sort=null,
+                                        $_order=null){
+        $_ret = array();
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('com.id as ref_dipendente,
+                com.id as user_actions,
+                com.cb_cognome,
+                com.cb_nome,
+                u.email as cb_email,
+                com.cb_codicefiscale,
+                com.cb_datadinascita,
+                com.cb_luogodinascita,
+                com.cb_provinciadinascita,
+                com.cb_indirizzodiresidenza,
+                com.cb_citta,
+                com.cb_cap,
+                com.cb_provdiresidenza,
+                com.cb_azienda,
+                com.cb_professione,
+                com.cb_ruolo')
+                ->from('#__comprofiler com')
+                ->join('inner','#__users u on u.id=com.user_id')
+                ->group('u.id');
+
+            $count_query = $this->_db->getQuery(true)
+            ->select('COUNT(DISTINCT com.id)')
+            ->from('#__comprofiler com')
+            ->join('inner','#__users u on u.id=com.user_id');
+
+            if (!is_null($_sort) && !is_null($_order)) 
+                $query = $query->order($_sort . ' ' . $_order);
+            else
+                $query = $query->order('com.cb_cognome asc');
+
+            $this->_db->setQuery($query, $_offset, $_limit);
+            $result = $this->_db->loadAssocList();
+
+            $this->_db->setQuery($count_query);
+            $result_count = $this->_db->loadResult();
+
+            // se nessun risultato restituisco un array vuoto
+            if (!$result) return $_ret;
+
+            $_ret['rows'] = $result;
+            $_ret['total_rows'] = $result_count;
+
+            return $_ret;
+
+        }
+        catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+    }
 }
+
 

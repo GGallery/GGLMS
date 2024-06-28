@@ -2067,4 +2067,137 @@ HTML;
 
     }
 
+    public function get_anagrafica_utente() {
+        $app = JFactory::getApplication();
+        $_ret=array();
+
+        $_call_params = Jrequest::get($_GET);
+
+        try{
+            if(!isset($_call_params['user_id'])||$_call_params['user_id']=="") throw new Exception('Identificativo utente non valorizzato',E_USER_ERROR);
+            $modelUser = new gglmsModelUsers();
+
+            $editingUser = $modelUser->get_anagrafica_utente($_call_params['user_id']);
+            if(!is_array($editingUser)) throw new Exception($editingUser,E_USER_ERROR);
+
+            $cbProvRef = utilityHelper::get_cb_field_col('cb_provdiresidenza', 'fieldid');
+            $province = utilityHelper::get_cb_field_values_list($cbProvRef);
+
+            $htmlProvNascita = <<<HTML
+            <select id="cb_provinciadinascita" class="form-control w-25 form-control-fixed">
+            HTML;
+            foreach($province as $provincia) {
+                $optionSelected = $editingUser['cb_provinciadinascita'] == $provincia['fieldtitle']
+                    ? 'selected'
+                    : '';
+                $htmlProvNascita .= <<<HTML
+                <option value="{$provincia['fieldtitle']}" {$optionSelected}>{$provincia['fieldtitle']}</option>
+                HTML;
+            }
+
+            $htmlProvNascita .= <<<HTML
+            </select>
+            HTML;
+
+            $htmlProvResidenza = <<<HTML
+            <select id="cb_provdiresidenza" class="form-control w-25 form-control-fixed">
+            HTML;
+
+            foreach($province as $provincia) {
+                $optionSelected = $editingUser['cb_provdiresidenza'] == $provincia['fieldtitle']
+                    ? 'selected'
+                    : '';
+                $htmlProvResidenza .= <<<HTML
+                <option value="{$provincia['fieldtitle']}" {$optionSelected}>{$provincia['fieldtitle']}</option>
+            HTML;
+            }
+
+            $htmlProvResidenza .= <<<HTML
+            </select>
+            HTML;
+
+            $_ret['success']['editingUser'] = $editingUser;
+            $_ret['success']['cb_provinciadinascita'] = $htmlProvNascita;
+            $_ret['success']['cb_provdiresidenza'] = $htmlProvResidenza;
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+
+        $app->close();
+    }
+
+    public function get_anagrafica_utenti(){
+        
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        $_call_params = Jrequest::get($_GET);
+        
+        try{
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $modelUser = new gglmsModelUsers();
+            $users = $modelUser->get_anagrafica_utenti( $_offset, $_limit, $_search, $_sort, $_order);
+            if (isset($users['rows'])) {
+
+                $_total_rows = $users['total_rows'];
+                $_label_modifica = JText::_('COM_GGLMS_DETTAGLI_UTENTE_MODIFICA');
+
+                foreach ($users['rows'] as $_key_user => $_user) {
+
+                    foreach ($_user as $key => $value) {
+
+                        if (
+                            (
+                                $key == 'cb_datadinascita' 
+                            )
+                            && !is_null($value) 
+                            && $value != '0000-00-00') {
+                            
+                            $tmpDate = new DateTime($value);
+                            $value =  $tmpDate->format('d-m-Y');
+                        }
+                        else if ($key == 'user_actions') {
+                            $value = <<<HTML
+                            <a href="javascript:" 
+                                class="btn btn-info" 
+                                style="min-height: 50px; text-transform: uppercase !important;" onclick="editUser({$_user['ref_dipendente']})">{$_label_modifica}</a>
+                            HTML;
+                        }
+
+                        $_ret[$_key_user][$key] = $value != '0000-00-00'
+                            ? $value
+                            : '';
+
+                    }
+
+                }
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+
+    }
+        
+
+    
+
 }
