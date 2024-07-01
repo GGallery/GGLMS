@@ -2392,13 +2392,14 @@ HTML;
 
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
-
-            foreach ($_arr_add as $key => $a_group_id) {
-                JUserHelper::addUserToGroup($user_id, $a_group_id);
+            $modelUser = new gglmsModelUsers();
+            
+            foreach ($_arr_remove as $key => $d_group_id) {
+                $modelUser->deleteUserFromUserGroup($user_id,$d_group_id);
             }
 
-            foreach ($_arr_remove as $key => $d_group_id) {
-                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            foreach ($_arr_add as $key => $a_group_id) {
+                $modelUser->insert_user_into_usergroup($user_id,$a_group_id);
             }
 
             $_ret['success'] = "tuttook";
