@@ -561,6 +561,15 @@ defined('_JEXEC') or die;
             .then(data => {
                 
                 if (data.error) {
+                console.log(data.error);
+                    if(data.soloEventi){
+                        codiceFiscaleFeedbackMsg.classList.remove('alert-danger');
+                        codiceFiscaleFeedbackMsg.classList.add('alert-success');
+                    }
+                    else{
+                        codiceFiscaleFeedbackMsg.classList.remove('alert-success');
+                        codiceFiscaleFeedbackMsg.classList.add('alert-danger');
+                    }
                     codiceFiscaleFeedback.classList.remove('sr-only');
                     codiceFiscaleFeedbackMsg.innerHTML = data.error;
                     return;

@@ -2419,8 +2419,10 @@ HTML;
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_DECADUTO'), E_USER_ERROR);
 
                         // solo evento
-                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_evento)))
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_evento))){
+                            $response["soloEventi"]=true;
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_SOLO_EVENTO'), E_USER_ERROR);
+                            }
 
                         // cf esistente
                         throw new Exception("L'utente con il codice fiscale ". strtoupper($_POST['cf']) . " è esistente" , E_USER_ERROR);
