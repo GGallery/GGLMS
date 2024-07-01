@@ -280,7 +280,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                 if (is_null($userGroupId))
                     throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
-                $insert_ug = $userModel->insert_user_into_usergroup($_new_user_id, $userGroupId);
+                $insert_ug = $userModel->insert_user_into_usergroup($_new_user_id, $userGroupId,true);
                     if (is_null($insert_ug))
                         throw new Exception("Inserimento utente in gruppo corso fallito: " . $_new_user_id . ", " . $userGroupId, E_USER_ERROR);
 
@@ -437,7 +437,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
                     throw new Exception($_insert_servizi_extra, E_USER_ERROR);
                 }
 
-                $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
+                $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId,true);
                 if (is_null($insert_ug))
                     throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 
