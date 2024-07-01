@@ -200,7 +200,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                     $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
                     if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
 
-                    $insert_ug = $userModel->insert_user_into_usergroup($this->user_id, $userGroupId);
+                    $insert_ug = $userModel->insert_user_into_usergroup($this->user_id, $userGroupId,true);
                     if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
 
                     $this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di iscrizione è stata registrata. I tuoi dati saranno sottoposti al Consiglio Direttivo per approvazione e la segreteria ti invierà una mail con le istruzioni per completare la procedura di iscrizione.");

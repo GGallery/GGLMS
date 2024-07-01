@@ -2404,6 +2404,7 @@ HTML;
                         $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
                         $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
                         $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+                        $gruppi_solo_evento = utilityHelper::get_ug_from_object($_params,"ug_nonsocio");
     
                         // online
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online))) 
@@ -2416,6 +2417,12 @@ HTML;
                         // decaduto
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto)))
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_DECADUTO'), E_USER_ERROR);
+
+                        // solo evento
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_evento))){
+                            $response["soloEventi"]=true;
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_SOLO_EVENTO'), E_USER_ERROR);
+                            }
 
                         // cf esistente
                         throw new Exception("L'utente con il codice fiscale ". strtoupper($_POST['cf']) . " è esistente" , E_USER_ERROR);
@@ -2613,6 +2620,7 @@ HTML;
                     $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
                     $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
                     $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+                    $gruppi_solo_eventi = utilityHelper::get_ug_from_object($_params, "ug_nonsocio");
 
                     // online
                     if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online)))
@@ -2623,7 +2631,10 @@ HTML;
                         throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
                     // se decaduto 
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true; 
+
+                    // se solo evento
+                    if(utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) $isSoloEvento=true;
                     else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
                 }
 
@@ -2643,7 +2654,7 @@ HTML;
                 $this->_db->transactionStart();
                 $startTransaction = true;
 
-                if ($isDecaduto) {
+                if ($isDecaduto||$isSoloEvento) {
 
                     // riferimento id per CP
                     $_new_user_cp['id'] = $comprofilerCheck['user_id'];
@@ -2660,6 +2671,15 @@ HTML;
                     if (!is_array($_cp_update_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'aggiornamento del profilo utente", E_USER_ERROR);
 
                     $newUserId = $comprofilerCheck['user_id'];
+
+                    if($isSoloEvento){
+                        //lo rimuovo dal gruppo solo evento
+                    $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
+                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                    $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
+                    if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                    }
                 }
                 else {
 
@@ -2684,7 +2704,7 @@ HTML;
                 }
 
                 // se è un utente nuovo lo inserisco temporaneamente nei morosi
-                if (!$isDecaduto) {
+                if (!$isDecaduto||($isSoloEvento&&is_null($voucher_code))) {
                     $userGroupId = utilityHelper::check_usergroups_by_name("Moroso");
                     if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 

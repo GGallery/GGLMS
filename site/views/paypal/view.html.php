@@ -183,7 +183,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 if (!is_array($_insert_evento))
                     throw new Exception($_insert_evento, E_USER_ERROR);
 
-                $insert_ug = $_user_quote->insert_user_into_usergroup($userId, $userGroupId);
+                $insert_ug = $_user_quote->insert_user_into_usergroup($userId, $userGroupId,true);
                 if (is_null($insert_ug))
                     throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 
