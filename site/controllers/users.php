@@ -2198,6 +2198,80 @@ HTML;
     }
         
 
-    
+    public function update_anagrafica_utente(){
+        $app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        $_ret = array();
 
+        try {
+            $_call_params = JRequest::get($_POST);
+            $userData= array();
+            $userData['editingUser'] = null;
+
+            if (isset($_call_params['editingUser']) && $_call_params['editingUser'] != "") $userData['editingUser'] = $_call_params['editingUser'];
+
+            if(!isset($_call_params['cb_codicefiscale']) || $_call_params['cb_codicefiscale'] == "") throw new Exception("Riferimento a Codice fiscale non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_email']) || $_call_params['cb_email'] == "") throw new Exception("Riferimento a Email non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_nome']) || $_call_params['cb_nome'] == "") throw new Exception("Riferimento a Nome non valorizzato", E_USER_ERROR);
+            if(!isset($_call_params['cb_cognome']) || $_call_params['cb_cognome'] == "") throw new Exception("Riferimento a Cognome non valorizzato", E_USER_ERROR);
+
+            $userData['cb_cognome'] = $_call_params['cb_cognome'];
+            $userData['cb_nome'] = $_call_params['cb_nome'];
+            $userData['cb_codicefiscale'] = trim($_call_params['cb_codicefiscale']);
+            $userData['cb_codicefiscale'] = preg_replace('/\s+/', '', $userData['cb_codicefiscale']);
+            $userData['cb_ruolo'] = $_call_params['cb_ruolo'];
+            $userData['cb_azienda'] = $_call_params['cb_azienda'];
+
+            $userData['cb_email'] = trim($_call_params['cb_email']);
+
+            if (!filter_var($userData['cb_email'], FILTER_VALIDATE_EMAIL)) throw new Exception("Riferimento a email non valida", E_USER_ERROR);
+
+            $userData['cb_datadiascita'] = (isset($_call_params['cb_datadinascita']) && $_call_params['cb_datadinascita'] != '')
+            ? $_call_params['cb_datadinascita']
+            : "";
+
+            $userData['cb_luogodinascita'] = (isset($_call_params['cb_luogodinascita']) && $_call_params['cb_luogodinascita'] != '')
+                ? trim($_call_params['cb_luogodinascita'])
+                : "";
+
+            $userData['cb_provinciadinascita'] = (isset($_call_params['cb_provinciadinascita']) && $_call_params['cb_provinciadinascita'] != '')
+                ? trim($_call_params['cb_provinciadinascita'])
+                : "";
+
+            $userData['cb_indirizzodiresidenza'] = (isset($_call_params['cb_indirizzodiresidenza']) && $_call_params['cb_indirizzodiresidenza'] != '')
+                ? trim($_call_params['cb_indirizzodiresidenza'])
+                : "";
+
+            $userData['cb_cap'] = (isset($_call_params['cb_cap']) && $_call_params['cb_cap'] != '')
+                ? trim($_call_params['cb_cap'])
+                : "";
+
+            $userData['cb_citta'] = (isset($_call_params['cb_citta']) && $_call_params['cb_citta'] != '')
+                ? trim($_call_params['cb_citta'])
+                : "";
+
+            $userData['cb_provdiresidenza'] = (isset($_call_params['cb_provdiresidenza']) && $_call_params['cb_provdiresidenza'] != '')
+                ? trim($_call_params['cb_provdiresidenza'])
+                : "";
+            
+            $userData['cb_password'] = (isset($_call_params['cb_password']) && $_call_params['cb_password'] != "")
+                ? $_call_params['cb_password']
+                : null;
+
+            $modelUser = new gglmsModelUsers();
+            $update=$modelUser->update_anagrafica_utente($userData);
+
+            if(!is_array($update)){
+                throw new Exception("Errore nell'aggiornamento dei dati", E_USER_ERROR);
+            }
+            $_ret['success']=true;
+            
+
+        } catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+    }
 }

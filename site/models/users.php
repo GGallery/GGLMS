@@ -2502,6 +2502,46 @@ class gglmsModelUsers extends JModelLegacy
             return __FUNCTION__ . ' error: ' . $e->getMessage();
         }
     }
+    
+    public function update_anagrafica_utente($userData){
+        $_ret = false;
+        try {
+            $cb_query = $this->_db->getQuery(true)
+            ->update('#__comprofiler')
+            ->set("cb_cognome='".$userData['cb_cognome']."'")
+            ->set("cb_codicefiscale='".$userData['cb_codicefiscale']."'")
+            ->set("cb_datadinascita='".$userData['cb_datadiascita']."'")
+            ->set("cb_luogodinascita='".$userData['cb_luogodinascita']."'")
+            ->set("cb_provinciadinascita='".$userData['cb_provinciadinascita']."'")
+            ->set("cb_indirizzodiresidenza='".$userData['cb_indirizzodiresidenza']."'")
+            ->set("cb_provdiresidenza='".$userData['cb_provdiresidenza']."'")
+            ->set("cb_cap='".$userData['cb_cap']."'")
+            ->set("cb_nome='".$userData['cb_nome']."'")
+            ->set("cb_citta='".$userData['cb_citta']."'")
+            ->set("cb_azienda='".$userData['cb_azienda']."'")
+            ->set("cb_ruolo='".$userData['cb_ruolo']."'")
+            ->where('user_id='.$userData['editingUser']);
+
+            $us_query = $this->_db->getQuery(true)
+            ->update('#__users')
+            ->set("email='".$userData['cb_email']."'")
+            ->where('id='.$userData['editingUser']);
+
+            $this->update_users_password($userData['editingUser'], $userData['password']);
+            $this->_db->setQuery($cb_query);
+            if (!$this->_db->execute())
+            throw new Exception("update user data query ko -> " . $cb_query, E_USER_ERROR);
+
+            $this->_db->setQuery($us_query);
+            if (!$this->_db->execute())
+            throw new Exception("update user data query ko -> " . $us_query, E_USER_ERROR);
+
+            return [];
+
+        } catch (Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+    }
 }
 
 

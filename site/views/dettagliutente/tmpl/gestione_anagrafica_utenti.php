@@ -298,44 +298,32 @@ defined('_JEXEC') or die('Restricted access');
             e.preventDefault();
             console.log('target', e.target);
 
-            let cb_role = document.getElementById("cb_role");
             let cb_provinciadinascita = document.getElementById("cb_provinciadinascita");
             let cb_provdiresidenza = document.getElementById("cb_provdiresidenza");
 
-            if (cb_role.value == "") {
-                alert("<?php echo JText::_('COM_GGLMS_FARMACIE_MISSING_RUOLO'); ?>");
-                return;
-            }
-
             if (cb_nome.value == "") {
-                alert("<?php echo JText::_('COM_GGLMS_FARMACIE_MISSING_NOME'); ?>");
+                alert("<?php echo JText::_('COM_GGLMS_MISSING_NOME'); ?>");
                 return;
             }
 
             if (cb_cognome.value == "") {
-                alert("<?php echo JText::_('COM_GGLMS_FARMACIE_MISSING_COGNOME'); ?>");
+                alert("<?php echo JText::_('COM_GGLMS_MISSING_COGNOME'); ?>");
                 return;
             }
 
             if (cb_email.value == "") {
-                alert("<?php echo JText::_('COM_GGLMS_FARMACIE_MISSING_EMAIL'); ?>");
+                alert("<?php echo JText::_('COM_GGLMS_MISSING_EMAIL'); ?>");
                 return;
             }
             
             if (cb_codicefiscale.value == "") {
-                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_FARMACIE_MISSING_CF'); ?>");
-                return;
-            }
-
-            if (cb_codiceestrenocdc3.value == "") {
-                alert("<?php echo JText::_('COM_GGLMS_FARMACIE_MISSING_COD_CDC_3'); ?>");
+                customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_MISSING_CF'); ?>");
                 return;
             }
             
             let formData = new FormData();
             formData.append('editingUser', editingUser.value);
-            formData.append('farmacia_id', farmacia_id.value);
-            formData.append('role_id', role_id.value);
+            formData.append('cb_ruolo', cb_ruolo.value);
             formData.append('cb_nome', cb_nome.value);
             formData.append('cb_cognome', cb_cognome.value);
             formData.append('cb_email', cb_email.value);
@@ -343,8 +331,6 @@ defined('_JEXEC') or die('Restricted access');
             if (cb_password.value != '') formData.append('cb_password', cb_password.value);
             
             formData.append('cb_azienda', cb_azienda.value);
-            formData.append('cb_filiale', cb_filiale.value);
-            formData.append('cb_matricola', cb_matricola.value);
             formData.append('cb_codicefiscale', cb_codicefiscale.value);
             formData.append('cb_datadinascita', cb_datadinascita.value);
             formData.append('cb_luogodinascita', cb_luogodinascita.value);
@@ -353,20 +339,8 @@ defined('_JEXEC') or die('Restricted access');
             formData.append('cb_cap', cb_cap.value);
             formData.append('cb_citta', cb_citta.value);
             formData.append('cb_provdiresidenza', cb_provdiresidenza.value);
-            formData.append('cb_dataassunzione', cb_dataassunzione.value);
-            formData.append('cb_datainiziorapporto', cb_datainiziorapporto.value);
-            formData.append('cb_datalicenziamento', cb_datalicenziamento.value);
-            formData.append('cb_codiceestrenocdc3', cb_codiceestrenocdc3.value);
-            formData.append('role_id_old', role_id_old.value);
-            formData.append('farmacia_id_old', farmacia_id_old.value);
-            
-            /*
-            formData.append('cb_codiceestrenocdc2', cb_codiceestrenocdc2.value);
-            formData.append('cb_codiceestrenorep2', cb_codiceestrenorep2.value);
-            */
-            formData.append('cb_block', cb_block.checked ?? 0);
 
-            fetch('index.php?option=com_gglms&task=users.update_anagrafica_farmacista', {
+            fetch('index.php?option=com_gglms&task=users.update_anagrafica_utente', {
                 method: 'POST',
                 body: formData
             })
@@ -378,7 +352,7 @@ defined('_JEXEC') or die('Restricted access');
                     return;
                 }
                 else if (data.success) {
-                    alert("<?php echo JText::_('COM_GGLMS_FARMACIE_DATA_UPDATED'); ?>");
+                    alert("<?php echo JText::_('COM_GGLMS_DATA_UPDATED'); ?>");
                     pTable.bootstrapTable('refresh');
                     hideUseModal();
                 }
