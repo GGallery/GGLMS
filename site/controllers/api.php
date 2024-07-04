@@ -2464,6 +2464,7 @@ HTML;
                 if (!isset($decoded['email_utente']) || $decoded['email_utente'] == "") throw new Exception("Compilare il campo Email!", E_USER_ERROR);
                 if (!isset($decoded['cb_ordine']) || $decoded['cb_ordine'] == "") throw new Exception("Compilare il campo Ordine!", E_USER_ERROR);
                 if (!isset($decoded['cb_numeroiscrizione']) || $decoded['cb_numeroiscrizione'] == "") throw new Exception("Compilare il campo Numero iscrizione!", E_USER_ERROR);
+                if (!isset($decoded['cb_professionedisciplina']) || $decoded['cb_professionedisciplina'] == "") throw new Exception("Compilare il campo Professione/Disciplina!", E_USER_ERROR);
                 if (!isset($decoded['tts']) || $decoded['tts'] == "") throw new Exception("Nessun riferimento token valorizzato!", E_USER_ERROR);
 
                 if (!filter_var($decoded['email_utente'], FILTER_VALIDATE_EMAIL)) throw new Exception("EMAIL NON VALIDA: " . $decoded['email_utente'], E_USER_ERROR);
@@ -2477,14 +2478,16 @@ HTML;
                                 cognome,
                                 email,
                                 ordine,
-                                numeroiscrizione
+                                numeroiscrizione,
+                                professione
                               )
                       VALUES (
                           ". $this->_db->quote($decoded['cb_nome']) .",
                           ". $this->_db->quote($decoded['cb_cognome']) .",
                           ". $this->_db->quote($decoded['email_utente']) .",
                           ". $this->_db->quote($decoded['cb_ordine']) .",
-                          ". $this->_db->quote($decoded['cb_numeroiscrizione']) ."
+                          ". $this->_db->quote($decoded['cb_numeroiscrizione']) .",
+                          ". $this->_db->quote($decoded['cb_professionedisciplina']) ."
                            )";
 
                 $this->_db->setQuery($query);

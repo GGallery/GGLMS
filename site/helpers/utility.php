@@ -3323,7 +3323,7 @@ HTML;
     }
 
     // per i campi di tipo select ottengo la lista di option da name del cb field - utilità per output.php
-    public static function get_cb_field_select_by_name($_field_name) {
+    public static function get_cb_field_select_by_name($_field_name, $blackList = []) {
 
         $_options = "";
 
@@ -3337,6 +3337,8 @@ HTML;
             return "";
 
         foreach ($_cb_arr as $sub_key => $sub_values) {
+
+            if (in_array(strtolower($sub_values['fieldtitle']), $blackList)) continue;
 
             $_options .= <<<HTML
                 <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>

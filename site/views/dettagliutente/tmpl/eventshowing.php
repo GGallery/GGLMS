@@ -8,9 +8,13 @@ defined('_JEXEC') or die('Restricted access');
 <?php if ($this->eventSinpeCookie): ?>
     <div class="d-flex flex-row">
 
-        <video id="video" width="640" height="360" preload="none" style="max-width: 100%" controls
+        <video id="video" width="640" height="360" 
+                preload="none" 
+                style="max-width: 100%" 
+                controls
                 controlsList="nodownload"
-                preload="auto" class="img-thumbnail">
+                poster="tmp/logo.png"
+                class="img-thumbnail">
             <source type="video/mp4" src="<?php echo $this->eventVideoLocation; ?>"/>
 
         </video>
@@ -109,6 +113,12 @@ defined('_JEXEC') or die('Restricted access');
                     return;
                 }
 
+                const pProfessione = jQuery('#cb_professionedisciplina').val();
+                if (pProfessione.trim() == "") {
+                    customAlertifyAlert(Joomla.JText._('COM_PAYPAL_ACQUISTA_EVENTO_STR49'), '#cb_professionedisciplina');
+                    return;
+                }
+
                 const tts = jQuery('#tts').val();
                 const cc = jQuery('#cc').val();
 
@@ -121,6 +131,7 @@ defined('_JEXEC') or die('Restricted access');
                         'email_utente': pEmail,
                         'cb_ordine': pOrdine,
                         'cb_numeroiscrizione': pNumeroIscrizione,
+                        'cb_professionedisciplina': pProfessione,
                         'tts': tts,
                     })
                 })
