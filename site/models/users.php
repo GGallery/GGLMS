@@ -1759,11 +1759,10 @@ class gglmsModelUsers extends JModelLegacy
 
     // inserimento di un utente in un gruppo specifico - sovrascrive la funzione nativa di joomla che per qualche motivo fallisce
     // nonostante restituisca TRUE...
-    public function insert_user_into_usergroup($user_id, $group_id) {
+    public function insert_user_into_usergroup($user_id, $group_id,$startTransaction=false) {
 
         try {
-
-            $this->_db->transactionStart();
+            if($startTransaction) $this->_db->transactionStart();
 
             // associo utente al gruppo societa
             $insertquery_map = 'INSERT
@@ -1778,13 +1777,13 @@ class gglmsModelUsers extends JModelLegacy
             if (!$this->_db->execute())
                 throw new Exception("Si è verificato un errore durante l'inserimento", E_USER_ERROR);
 
-            $this->_db->transactionCommit();
+            if($startTransaction) $this->_db->transactionCommit();
 
             return 1;
 
         }
         catch (Exception $e) {
-            $this->_db->transactionRollback();
+            if($startTransaction) $this->_db->transactionRollback();
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }

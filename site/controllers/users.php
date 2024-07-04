@@ -1117,7 +1117,7 @@ HTML;
                 throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
 
             // inserisco l'utente nel gruppo quota di riferimento
-            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
+            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId,true);
             if (is_null($insert_ug))
                 throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 
