@@ -2478,6 +2478,34 @@ class gglmsModelUsers extends JModelLegacy
             ->from('#__comprofiler com')
             ->join('inner','#__users u on u.id=com.user_id');
 
+            if (!is_null($_search)) {
+
+                $query = $query->where('(com.cb_nome LIKE \'%' . $_search . '%\'
+                                           OR com.cb_cognome LIKE \'%' . $_search . '%\'
+                                           OR u.email LIKE \'%' . $_search . '%\'
+                                           OR com.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                           OR com.cb_luogodinascita LIKE \'%' . $_search . '%\'
+                                           OR com.cb_provinciadinascita LIKE \'%' . $_search . '%\'
+                                           OR com.cb_indirizzodiresidenza LIKE \'%' . $_search . '%\'
+                                           OR com.cb_cap LIKE \'%' . $_search . '%\'
+                                           OR com.cb_citta LIKE \'%' . $_search . '%\'
+                                           OR com.cb_provdiresidenza LIKE \'%' . $_search . '%\'
+                                           )');
+
+                $count_query = $count_query->where('(com.cb_nome LIKE \'%' . $_search . '%\'
+                                           OR com.cb_cognome LIKE \'%' . $_search . '%\'
+                                           OR u.email LIKE \'%' . $_search . '%\'
+                                           OR com.cb_codicefiscale LIKE \'%' . $_search . '%\'
+                                           OR com.cb_luogodinascita LIKE \'%' . $_search . '%\'
+                                           OR com.cb_provinciadinascita LIKE \'%' . $_search . '%\'
+                                           OR com.cb_indirizzodiresidenza LIKE \'%' . $_search . '%\'
+                                           OR com.cb_cap LIKE \'%' . $_search . '%\'
+                                           OR com.cb_citta LIKE \'%' . $_search . '%\'
+                                           OR com.cb_provdiresidenza LIKE \'%' . $_search . '%\'
+                                           )');
+
+            }
+
             if (!is_null($_sort) && !is_null($_order)) 
                 $query = $query->order($_sort . ' ' . $_order);
             else
