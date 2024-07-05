@@ -2382,7 +2382,27 @@ HTML;
         $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
         $_label_professionedisciplina = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR49');
         $_cb_ordine_options = utilityHelper::get_cb_field_select_by_name('cb_ordine');
-        $_cb_professionedisciplina_options = utilityHelper::get_cb_field_select_by_name('cb_professionedisciplina', ['studente', 'altro', 'specializzando', 'specializzando 2']);
+        $_cb_professionedisciplina_options = utilityHelper::get_cb_field_select_by_name('cb_professionedisciplina', 
+          [
+            'studente', 
+            'altro', 
+            'specializzando', 
+            'specializzando 2',
+            'biologo/anatomia patologica',
+            'biologo/biochimica clinica',
+            'biologo/igiene degli alimenti e della nutrizione',
+            'biologo/igiene, epidemiologia e sanità pubblica',
+            'biologo/laboratorio di genetica medica',
+            'biologo/medicina del lavoro',
+            'biologo/medicina nucleare',
+            'biologo/medicina trasfusionale',
+            'biologo/microbiologia e virologia',
+            'biologo/patologia clinica (laboratorio di analisi chimico, cliniche e microbiologia)',
+            'dietista',
+            'logopedista',
+            'psicologo/psicologia',
+            'psicologo/psicoterapia',
+          ]);
 
 
         
@@ -2448,6 +2468,19 @@ HTML;
               </div>
             </div>
             
+            <div class="form-group row">
+              <label for="cb_professionedisciplina" class="col-sm-2 col-form-label">{$_label_professionedisciplina}<span class="text-danger">*</span></label>
+              <div class="col-sm-10">
+                <select 
+                  class="form-control w-25" 
+                  id="cb_professionedisciplina" 
+                  required
+                  >
+                    <option value="">-</option>
+                    {$_cb_professionedisciplina_options}
+                </select>
+              </div>
+            </div>
 
             <div class="form-group row">
               <label for="cb_ordine" class="col-sm-2 col-form-label">{$_label_ordine_di}<span class="text-danger">*</span></label>
@@ -2459,20 +2492,6 @@ HTML;
                   >
                     <option value="">-</option>
                     {$_cb_ordine_options}
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group row">
-              <label for="cb_professionedisciplina" class="col-sm-2 col-form-label">{$_label_professionedisciplina}<span class="text-danger">*</span></label>
-              <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_professionedisciplina" 
-                  required
-                  >
-                    <option value="">-</option>
-                    {$_cb_professionedisciplina_options}
                 </select>
               </div>
             </div>
