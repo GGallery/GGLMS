@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
         left: 0;
         top: 0;
         width: 100%; /* Full width */
-        height: 100%; /* Full height */
+        height:85%; /* Full height */
         overflow: auto; /* Enable scroll if needed */
         background-color: rgb(0,0,0); /* Fallback color */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
@@ -24,16 +24,15 @@ defined('_JEXEC') or die('Restricted access');
     /* Modal Content/Box */
     .modal-content {
         background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
         padding: 20px;
         border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
+        width: 100%; /* Could be more or less, depending on screen size */
     }
 
     /* The Close Button */
     .close {
         color: #aaa;
-        float: right;
+        float: left;
         font-size: 1.2em;
         font-weight: bold;
     }
