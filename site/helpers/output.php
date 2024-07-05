@@ -2398,7 +2398,6 @@ HTML;
             'biologo/medicina trasfusionale',
             'biologo/microbiologia e virologia',
             'biologo/patologia clinica (laboratorio di analisi chimico, cliniche e microbiologia)',
-            'dietista',
             'logopedista',
             'psicologo/psicologia',
             'psicologo/psicoterapia',
