@@ -2445,6 +2445,7 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     public function get_anagrafica_utenti(
+                                        $societàId,        
                                         $_offset=0,
                                         $_limit=10,
                                         $_search=null,
@@ -2477,6 +2478,16 @@ class gglmsModelUsers extends JModelLegacy
             ->select('COUNT(DISTINCT com.id)')
             ->from('#__comprofiler com')
             ->join('inner','#__users u on u.id=com.user_id');
+
+            if($societàId!=0){
+                $query = $query
+                ->join('inner','#__user_usergroup_map ugm on com.user_id = ugm.user_id')
+                ->where('ugm.group_id = '.$societàId);
+
+                $count_query = $count_query
+                ->join('inner','#__user_usergroup_map ugm on com.user_id = ugm.user_id')
+                ->where('ugm.group_id = '.$societàId);
+            }
 
             if (!is_null($_search)) {
 

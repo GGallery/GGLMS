@@ -2147,7 +2147,16 @@ HTML;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
 
             $modelUser = new gglmsModelUsers();
-            $users = $modelUser->get_anagrafica_utenti( $_offset, $_limit, $_search, $_sort, $_order);
+            $user = JFactory::getUser();
+            
+            //controllo se il tutor è aziendale, in caso prendo l'id della società
+            $idSocieta=0;
+            if($modelUser->is_tutor_aziendale($user->id)){
+                $società = $modelUser->get_user_societa($user->id);
+                $idSocieta = $società[0]->id;
+            }
+
+            $users = $modelUser->get_anagrafica_utenti($idSocieta, $_offset, $_limit, $_search, $_sort, $_order);
             if (isset($users['rows'])) {
 
                 $_total_rows = $users['total_rows'];
