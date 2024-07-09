@@ -45,7 +45,8 @@ class gglmsViewdettagliutente extends JViewLegacy
 
     function display($tpl = null)
     {
-
+        $this->platforms = utilityHelper::getPiattaformeByUser(false);
+        
         try {
 
             $bootstrap_dp = "";
