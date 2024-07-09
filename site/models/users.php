@@ -2453,6 +2453,13 @@ class gglmsModelUsers extends JModelLegacy
                                         $_order=null){
         $_ret = array();
         try {
+            $admins= '8';
+
+            $subQuery = $this->_db->getQuery(true)
+                ->select('uus.user_id as uid')
+                ->from('#__user_usergroup_map uus')
+                ->where('uus.group_id IN ('.$admins.')');
+
             $query = $this->_db->getQuery(true)
                 ->select('com.id as ref_dipendente,
                 com.id as user_actions,
@@ -2472,20 +2479,22 @@ class gglmsModelUsers extends JModelLegacy
                 com.cb_ruolo')
                 ->from('#__comprofiler com')
                 ->join('inner','#__users u on u.id=com.user_id')
+                ->join('inner','#__user_usergroup_map ugm ON com.user_id = ugm.user_id')
+                ->where('com.user_id NOT IN ('.$subQuery.')')
                 ->group('u.id');
 
             $count_query = $this->_db->getQuery(true)
             ->select('COUNT(DISTINCT com.id)')
             ->from('#__comprofiler com')
-            ->join('inner','#__users u on u.id=com.user_id');
+            ->join('inner','#__users u on u.id=com.user_id')
+            ->join('inner','#__user_usergroup_map ugm ON com.user_id = ugm.user_id')
+            ->where('com.user_id NOT IN ('.$subQuery.')');
 
             if($societàId!=0){
                 $query = $query
-                ->join('inner','#__user_usergroup_map ugm on com.user_id = ugm.user_id')
                 ->where('ugm.group_id = '.$societàId);
 
                 $count_query = $count_query
-                ->join('inner','#__user_usergroup_map ugm on com.user_id = ugm.user_id')
                 ->where('ugm.group_id = '.$societàId);
             }
 
@@ -2514,7 +2523,6 @@ class gglmsModelUsers extends JModelLegacy
                                            OR com.cb_citta LIKE \'%' . $_search . '%\'
                                            OR com.cb_provdiresidenza LIKE \'%' . $_search . '%\'
                                            )');
-
             }
 
             if (!is_null($_sort) && !is_null($_order)) 
@@ -2535,7 +2543,6 @@ class gglmsModelUsers extends JModelLegacy
             $_ret['total_rows'] = $result_count;
 
             return $_ret;
-
         }
         catch (Exception $e) {
             return __FUNCTION__ . ' error: ' . $e->getMessage();
