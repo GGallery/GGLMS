@@ -1298,6 +1298,10 @@ class utilityHelper
                     $remove_ug_user = self::remove_user_from_usergroup($check_user_id, (array) $lastFarmUg, $db_option);
                     if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
 
+                    //rimuovo utente dalla farmacia
+                    $remove_farm_user = self::remove_user_from_farmacia($check_user_id, $lastFarmUg);
+                    if (is_null($remove_farm_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " dalla farmacia: " . $lastFarmUg, E_USER_ERROR);
+
 
                     // ha cambiato farmacia (o non c'è nessun riferimento)
                     $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
@@ -2454,6 +2458,26 @@ HTML;
 
     }
 
+    public static function remove_user_from_farmacia($userId, $ug_farmacia){
+        try {
+            $db = JFactory::getDbo();
+
+            $query = "DELETE FROM #__gg_farmacie_dipendenti
+                            WHERE user_id = " . $db->quote($userId) . "
+                            AND id_gruppo = " . $ug_farmacia;
+
+            $db->setQuery($query);
+            if (false === $db->execute()) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return 1;
+        } catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return null;
+        }
+    }
+
     // inserisco un utente nel gruppo online - utility per controller.users.insert_user_quote_anno_bonifico()
     public static function set_usergroup_online($user_id, $ug_online, $ug_moroso, $ug_decaduto) {
 
@@ -2544,6 +2568,25 @@ HTML;
             return __FUNCTION__ . " errore: " . $e->getMessage();
         }
 
+    }
+
+    public static function get_user_farmacia_ug($userId){
+        $db = JFactory::getDbo();
+
+        $query = $db->getQuery(true)
+            // // ->select('ug.id')
+            // // ->from('#__usergroups ug')
+            // // ->join('inner','#__user_usergroup_map uum on ug.id = uum.group_id')
+            // // ->where('ug.parent_id=16 AND uum.user_id='.$userId);
+            ->select('fd.id_gruppo')
+            ->from('#__gg_farmacie_dipendenti fd')
+            //->join('inner','#__user_usergroup_map uum on ug.id = uum.group_id')
+            ->where('fd.user_id='.$userId);
+
+            $db->setQuery($query);
+            $result = $db->loadResult();
+
+        return $result;
     }
 
     // aggiunge un utente specifico ad un elenco di gruppi
