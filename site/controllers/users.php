@@ -1678,6 +1678,12 @@ HTML;
                 $newUser = true;
             }
 
+            //controllo se la ragione sociale della farmacia è stata modificata
+            if($farmacia_id==$farmacia_id_old){
+                $farmid=utilityHelper::get_user_farmacia_ug($editingUser);
+                $farmacia_id_old=$farmid;
+            }
+
             $insertAnagrafica = utilityHelper::new_anagrafica_manage($newUser, $editingUser, $_new_user_cp, $editingUser, $farmacia_id, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $cb_stato_dipendente, array(), $model_user, $farmacia_id_old);
             if (is_null($insertAnagrafica)) throw new Exception("Errore durante l'inserimento dell'anagrafica utente: " . $cb_codicefiscale, E_USER_ERROR);
 

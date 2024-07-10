@@ -2546,6 +2546,25 @@ HTML;
 
     }
 
+    public static function get_user_farmacia_ug($userId){
+        $db = JFactory::getDbo();
+
+        $query = $db->getQuery(true)
+            // // ->select('ug.id')
+            // // ->from('#__usergroups ug')
+            // // ->join('inner','#__user_usergroup_map uum on ug.id = uum.group_id')
+            // // ->where('ug.parent_id=16 AND uum.user_id='.$userId);
+            ->select('fd.id_gruppo')
+            ->from('#__gg_farmacie_dipendenti fd')
+            //->join('inner','#__user_usergroup_map uum on ug.id = uum.group_id')
+            ->where('fd.user_id='.$userId);
+
+            $db->setQuery($query);
+            $result = $db->loadResult();
+
+        return $result;
+    }
+
     // aggiunge un utente specifico ad un elenco di gruppi
     public static function set_usergroup_generic($user_id, $ug_list, $db_option = array()) {
 
