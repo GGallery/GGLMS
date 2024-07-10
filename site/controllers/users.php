@@ -2145,7 +2145,7 @@ HTML;
             $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
-
+            $_platform = (isset($_call_params['platforms']) && $_call_params['platforms'] != "") ? $_call_params['platforms'] : null;
             $modelUser = new gglmsModelUsers();
             $user = JFactory::getUser();
             
@@ -2156,7 +2156,7 @@ HTML;
                 $idSocieta = $società[0]->id;
             }
 
-            $users = $modelUser->get_anagrafica_utenti($idSocieta, $_offset, $_limit, $_search, $_sort, $_order);
+            $users = $modelUser->get_anagrafica_utenti($idSocieta, $_offset, $_limit, $_search, $_sort, $_order,$_platform);
             if (isset($users['rows'])) {
 
                 $_total_rows = $users['total_rows'];

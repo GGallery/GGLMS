@@ -73,11 +73,12 @@ defined('_JEXEC') or die('Restricted access');
             <div class="form-group">
 		        <button id="export" class="btn btn-sm btn-primary">Export</button>
 			</div>
-			<div class="form-group ml-2">
+			<div class="form-group">
                 <input id="customSearch" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit; line-height:24px; font-family: sans-serif; display:block; width: 250px;margin-bottom :8px;" />
             </div>
-            <div class = "form-group ml-2">
-                <?php echo outputHelper::output_select('platforms', $this->platforms, 'id', 'text', 2,'form-control'); ?>
+            <div class = "form-group">
+                <label for="platforms">Piattaforma:</label>
+                <?php echo outputHelper::output_select('platforms', $this->platforms, 'value', 'text', null,'form-control'); ?>
             </div>
 		</div>
     </div>
@@ -89,7 +90,6 @@ defined('_JEXEC') or die('Restricted access');
             data-search-selector="#customSearch"
             data-ajax="ajaxRequest"
             data-search="true"
-            
             data-side-pagination="server"
             data-pagination="true"
             data-show-export="true"
@@ -453,10 +453,16 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
+        $("#platforms").change(function () {
+            pTable.bootstrapTable('refresh');
+        })
+
         function ajaxRequest(params) {
+
+            params.data.platforms = jQuery('#platforms').val().trim();
              
             // data you may need
-            //console.log(params.data);
+            console.log(params.data);
 
             jQuery.ajax({
                 type: "GET",

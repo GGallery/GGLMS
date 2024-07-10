@@ -2450,7 +2450,8 @@ class gglmsModelUsers extends JModelLegacy
                                         $_limit=10,
                                         $_search=null,
                                         $_sort=null,
-                                        $_order=null){
+                                        $_order=null,
+                                        $platform=null){
         $_ret = array();
         try {
             $admins= '8';
@@ -2480,8 +2481,8 @@ class gglmsModelUsers extends JModelLegacy
                 ->from('#__comprofiler com')
                 ->join('inner','#__users u on u.id=com.user_id')
                 ->join('inner','#__user_usergroup_map ugm ON com.user_id = ugm.user_id')
-                ->where('com.user_id NOT IN ('.$subQuery.')')
-                ->group('u.id');
+                ->where('com.user_id NOT IN ('.$subQuery.')');
+                
 
             $count_query = $this->_db->getQuery(true)
             ->select('COUNT(DISTINCT com.id)')
@@ -2497,6 +2498,13 @@ class gglmsModelUsers extends JModelLegacy
                 $count_query = $count_query
                 ->where('ugm.group_id = '.$societàId);
             }
+            else{
+                $query = $query
+                ->where('ugm.group_id = '.$platform);
+                $count_query = $count_query
+                ->where('ugm.group_id = '.$platform);
+            }
+
 
             if (!is_null($_search)) {
 
