@@ -76,10 +76,27 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="form-group">
                 <input id="customSearch" name="search" class="form-control" type="text" placeholder="Ricerca" style="height: inherit; line-height:24px; font-family: sans-serif; display:block; width: 250px;margin-bottom :8px;" />
             </div>
-            <div class = "form-group">
-                <label for="platforms">Piattaforma:</label>
-                <?php echo outputHelper::output_select('platforms', $this->platforms, 'value', 'text', null,'form-control'); ?>
-            </div>
+            <?php
+            $modelUser = new gglmsModelUsers();
+            $user = JFactory::getUser();
+            
+
+            if($modelUser->is_user_superadmin($user->id)){
+            echo '<div class = "form-group">';
+                echo '<label for="platforms">Piattaforma:</label>';
+                 echo outputHelper::output_select('platforms', $this->platforms, 'value', 'text', null,'form-control'); 
+            }
+            echo '</div>';
+
+            // if($modelUser->is_tutor_piattaforma($user->id)) {
+            //     echo '<div class = "form-group">';
+            //         echo '<label for="usergroups">Aziende:</label>';
+            //          echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', null,'form-control'); 
+            //     }
+            //     echo '</div>';
+                 ?>
+
+            
 		</div>
     </div>
 
@@ -249,6 +266,8 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 
 <script type="text/javascript">
+
+usergroupRequest(208)
 
         const pTable = jQuery('#tbl_anagrafica');
 
@@ -454,12 +473,44 @@ defined('_JEXEC') or die('Restricted access');
         }
 
         $("#platforms").change(function () {
+            jQuery("#usergroups").bootstrapTable('refresh');
             pTable.bootstrapTable('refresh');
         })
 
+        $("#usergroups").change(function () {
+            pTable.bootstrapTable('refresh');
+
+        })
+
+        function usergroupRequest(usergroupId){
+            let params = {}
+            params.usergroupId = usergroupId;
+
+            jQuery.ajax({
+                type:"GET",
+                url: "index.php?option=com_gglms&task=users.getSocietaByPlatform",
+                data: params,
+                dataType:"json",
+                success:function(data){
+                    console.log(data);
+                },
+                // error: function (er) {
+                //     params.error(er);
+                // }
+            })
+        }
+
         function ajaxRequest(params) {
 
-            params.data.platforms = jQuery('#platforms').val().trim();
+            let platforms = jQuery('#platforms').val();
+            if (typeof platforms !== 'undefined'){
+                params.data.platforms = platforms.trim();
+            }
+            let usergroups = jQuery('#usergroups').val();
+            if (typeof usergroups !== 'undefined'){
+                params.data.usergroups = usergroups.trim();
+            }
+            
              
             // data you may need
             console.log(params.data);

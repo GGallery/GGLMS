@@ -2146,6 +2146,8 @@ HTML;
             $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
             $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
             $_platform = (isset($_call_params['platforms']) && $_call_params['platforms'] != "") ? $_call_params['platforms'] : null;
+            $_usergroups = (isset($_call_params['usergroups']) && $_call_params['usergroups'] != "") ? $_call_params['usergroups'] : null;
+
             $modelUser = new gglmsModelUsers();
             $user = JFactory::getUser();
             
@@ -2156,7 +2158,7 @@ HTML;
                 $idSocieta = $società[0]->id;
             }
 
-            $users = $modelUser->get_anagrafica_utenti($idSocieta, $_offset, $_limit, $_search, $_sort, $_order,$_platform);
+            $users = $modelUser->get_anagrafica_utenti($idSocieta, $_offset, $_limit, $_search, $_sort, $_order,$_platform,$_usergroups);
             if (isset($users['rows'])) {
 
                 $_total_rows = $users['total_rows'];
@@ -2282,5 +2284,27 @@ HTML;
 
         echo json_encode($_ret);
         $app->close();
+    }
+
+    public static function getSocietaByPlatform(){
+
+        $_call_params = JRequest::get($_POST);
+        try {
+                $db = JFactory::getDbo();
+                $query = $db->getQuery(true);
+                $query->select('ug.id,ug.title')
+                ->from('#__usergroups ug')
+                ->where('ug.parent_id='.$_call_params['usergroupId']);
+
+                if (false === ($results = $db->loadAssoc())) {
+                    throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+                }
+    
+                return $results;
+
+        } catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+            return null;
+        }
     }
 }

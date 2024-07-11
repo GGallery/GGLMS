@@ -2451,7 +2451,8 @@ class gglmsModelUsers extends JModelLegacy
                                         $_search=null,
                                         $_sort=null,
                                         $_order=null,
-                                        $platform=null){
+                                        $platform=null,
+                                        $usergroups=null){
         $_ret = array();
         try {
             $admins= '8';
@@ -2481,7 +2482,9 @@ class gglmsModelUsers extends JModelLegacy
                 ->from('#__comprofiler com')
                 ->join('inner','#__users u on u.id=com.user_id')
                 ->join('inner','#__user_usergroup_map ugm ON com.user_id = ugm.user_id')
-                ->where('com.user_id NOT IN ('.$subQuery.')');
+                ->join('inner','#__usergroups ugs ON ugs.id = ugm.group_id')
+                ->where('com.user_id NOT IN ('.$subQuery.')')
+                ->group('u.id');;
                 
 
             $count_query = $this->_db->getQuery(true)
@@ -2489,6 +2492,7 @@ class gglmsModelUsers extends JModelLegacy
             ->from('#__comprofiler com')
             ->join('inner','#__users u on u.id=com.user_id')
             ->join('inner','#__user_usergroup_map ugm ON com.user_id = ugm.user_id')
+            ->join('inner','#__usergroups ugs ON ugs.id = ugm.group_id')
             ->where('com.user_id NOT IN ('.$subQuery.')');
 
             if($societàId!=0){
@@ -2498,12 +2502,21 @@ class gglmsModelUsers extends JModelLegacy
                 $count_query = $count_query
                 ->where('ugm.group_id = '.$societàId);
             }
-            else{
+            if($platform!=null){
+      //          var_dump($platform);die();
                 $query = $query
-                ->where('ugm.group_id = '.$platform);
+                ->where('ugs.parent_id like '.$platform);
                 $count_query = $count_query
-                ->where('ugm.group_id = '.$platform);
+                ->where('ugs.parent_id like '.$platform);
             }
+            if($usergroups!= null){
+                $query = $query
+                ->where('ugm.group_id = '.$usergroups);
+
+                $count_query = $count_query
+                ->where('ugm.group_id = '.$usergroups);
+            }
+
 
 
             if (!is_null($_search)) {
@@ -2537,6 +2550,8 @@ class gglmsModelUsers extends JModelLegacy
                 $query = $query->order($_sort . ' ' . $_order);
             else
                 $query = $query->order('com.cb_cognome asc');
+
+            //$query = $query->group('u.id');
 
             $this->_db->setQuery($query, $_offset, $_limit);
             $result = $this->_db->loadAssocList();

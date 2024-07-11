@@ -45,7 +45,11 @@ class gglmsViewdettagliutente extends JViewLegacy
 
     function display($tpl = null)
     {
-        $this->platforms = utilityHelper::getPiattaformeByUser(true);
+        $this->platforms = utilityHelper::getPiattaformeByUser(false);
+        //$this->usergroups = utilityHelper::getSocietaByUser();
+        
+        //$this->usergroups = utilityHelper::getSocietaByPlatform($this->platforms);
+        // var_dump($this->usergroups);
         
         try {
 
