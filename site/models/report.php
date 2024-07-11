@@ -464,6 +464,10 @@ class gglmsModelReport extends JModelLegacy
             $query_mode = "SET SQL_MODE='';";
             $db->setQuery($query_mode);
 
+            // JOIN #__gg_farmacie_dipendenti gfd ON u.id = gfd.user_id
+            //             JOIN #__usergroups ju2 ON gfd.id_gruppo = ju2.id
+            //             JOIN #__gg_master_farmacie jgmf ON gfd.codice_esterno_cdc_3 = jgmf.hh_store_code
+
             $query = "SELECT u.id AS id_utente,
                             u.name AS nominativo,
                             u.username AS codice_fiscale,
