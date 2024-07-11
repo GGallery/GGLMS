@@ -1298,11 +1298,6 @@ class utilityHelper
                     $remove_ug_user = self::remove_user_from_usergroup($check_user_id, (array) $lastFarmUg, $db_option);
                     if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
 
-                    //rimuovo utente dalla farmacia
-                    $remove_farm_user = self::remove_user_from_farmacia($check_user_id, $lastFarmUg);
-                    if (is_null($remove_farm_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " dalla farmacia: " . $lastFarmUg, E_USER_ERROR);
-
-
                     // ha cambiato farmacia (o non c'è nessun riferimento)
                     $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
                     if (is_null($user_farmacia)) throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
@@ -2456,26 +2451,6 @@ HTML;
             return null;
         }
 
-    }
-
-    public static function remove_user_from_farmacia($userId, $ug_farmacia){
-        try {
-            $db = JFactory::getDbo();
-
-            $query = "DELETE FROM #__gg_farmacie_dipendenti
-                            WHERE user_id = " . $db->quote($userId) . "
-                            AND id_gruppo = " . $ug_farmacia;
-
-            $db->setQuery($query);
-            if (false === $db->execute()) {
-                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
-            }
-
-            return 1;
-        } catch (Exception $e) {
-            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
-            return null;
-        }
     }
 
     // inserisco un utente nel gruppo online - utility per controller.users.insert_user_quote_anno_bonifico()
