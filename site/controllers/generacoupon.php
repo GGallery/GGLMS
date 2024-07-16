@@ -180,8 +180,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
             DEBUGG::log(json_encode($data), 'api_genera_coupon', 0, 1, 0 );
 
             $id_iscrizione = $this->generaCoupon->insert_coupon($data, true);
-            if (is_null($id_iscrizione))
-                throw new Exception("id_iscrizione missing", 1);
+            if (is_null($id_iscrizione)) throw new Exception("id_iscrizione missing", E_USER_ERROR);
 
             $result = new stdClass();
             $result->id_iscrizione = $id_iscrizione;
