@@ -5088,13 +5088,13 @@ HTML;
             
         } catch (Exception $e) {
             $this->_db->transactionRollback();
-            echo __FUNCTION__ . " error: " . $e->getMessage();
-                return 0;
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            return 0;
         }
         
 
     }
-    
+
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);

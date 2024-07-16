@@ -45,9 +45,6 @@ class AllineaUsegroupUtenti extends JApplicationCli{
             $app = JFactory::getApplication('site');
             $app->initialise();
 
-            $dal = $this->input->get('dal', '');
-            $al = $this->input->get('al', '');
-
             $db_host = $this->input->get('db_host', 'localhost');
             $db_port = $this->input->get('db_port', 3306);
             $db_user = $this->input->get('db_user', null);
