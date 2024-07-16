@@ -5018,11 +5018,8 @@ HTML;
                                     JOIN jos_gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo)
                             GROUP BY u.username";
 
-
-
             $this->_db->setQuery($query);
             $_users = $this->_db->loadAssocList();
-            $count=1;
 
             $this->_db->transactionStart();
 
@@ -5057,16 +5054,11 @@ HTML;
                ->set('group_id = '.$new_group)
                ->where('user_id ='.$uid.'
                AND group_id ='.$old_group);
-            //    if($uid == '4433')
-            //    var_dump('id : '.$uid.'   old_group: '.$old_group.' new_group: '.$new_group);
-
 
                $this->_db->setQuery($update_com_query); 
                if (!$this->_db->execute())
                     throw new Exception("Query aggiornamento usergroup master farmacie fallita:
                     " . $update_com_query, E_USER_ERROR);
-
-                 
 
                 //aggiorno la tabella dei coupon
                 $update_coupon_query = $this->_db->getQuery(true)
@@ -5102,6 +5094,7 @@ HTML;
         
 
     }
+    
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
 //		$query = $this->_db->getQuery(true);
