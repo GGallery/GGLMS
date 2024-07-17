@@ -45,7 +45,7 @@ class AllineaUsegroupUtenti extends JApplicationCli{
             $app = JFactory::getApplication('site');
             $app->initialise();
 
-            $db_host = $this->input->get('db_host', 'localhost');
+            $db_host = $this->input->get('db_host', '127.0.0.1');
             $db_port = $this->input->get('db_port', 3306);
             $db_user = $this->input->get('db_user', null);
             $db_password = $this->input->get('db_password', null);
@@ -58,6 +58,7 @@ class AllineaUsegroupUtenti extends JApplicationCli{
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
+            
             $host_string = (!is_null($db_host) && !is_null($db_port)) ? $db_host . ":" . $db_port : null;
             $allinea_utenti = $api->allinea_usergroups_farmacisti(
                                                             $host_string,
@@ -68,8 +69,6 @@ class AllineaUsegroupUtenti extends JApplicationCli{
                                                             $db_driver
                                                         );
 
-
-
             $this->out('Script ended with ' . $allinea_utenti . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         } catch (Exception $e) {
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
@@ -79,4 +78,4 @@ class AllineaUsegroupUtenti extends JApplicationCli{
 
 
 
-JApplicationCli::getInstance('importMasterFarmacie')->execute();
+JApplicationCli::getInstance('AllineaUsegroupUtenti')->execute();

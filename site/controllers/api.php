@@ -4979,8 +4979,12 @@ HTML;
     $db_password = null,
     $db_database = null,
     $db_prefix = null,
-    $db_driver = null,
-    $is_debug = false,){
+    $db_driver = null){
+
+        $idsRuoli = [
+            267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299
+        ];
+
         try {
 
             // gestisco la chiamata per andare su di un altro database
@@ -5004,12 +5008,11 @@ HTML;
                             u.name AS nominativo,
                             u.username AS codice_fiscale,
                             u.email AS email,
-                            COALESCE(comp.cb_descrizionequalifica, '') AS qualifica,
-                            COALESCE(comp.cb_codiceestrenocdc3, '') AS cod_farmacia
+                            COALESCE(gfd.cb_codiceestrenocdc3, '') AS cod_farmacia
                             FROM jos_users u
                             JOIN jos_user_usergroup_map juum ON u.id = juum.user_id
                             JOIN jos_usergroups ju2 ON juum.group_id = ju2.id
-                            JOIN jos_comprofiler comp ON u.id = comp.user_id
+                            JOIN jos_gg_farmacie_dipendenti gfd ON u.id = gfd.user_id
                             WHERE u.id NOT IN ( SELECT u.id AS id_utente
                                     FROM jos_users u
                                     JOIN jos_user_usergroup_map juum ON u.id = juum.user_id
@@ -5022,10 +5025,11 @@ HTML;
             $_users = $this->_db->loadAssocList();
 
             $this->_db->transactionStart();
-
             foreach ($_users as $key => $value) {
                 
                $uid = $value['id_utente'];
+               if($uid == 1773 || $uid==1743) continue;
+               var_dump($uid);
                $hh_code_farmacia = $value['cod_farmacia'];
                //se superuser (o farmacia non esitente) salto l'utente
                if (is_null($hh_code_farmacia)||$hh_code_farmacia == ""||$hh_code_farmacia=="050901") continue;
@@ -5037,13 +5041,14 @@ HTML;
                $this->_db->setQuery($query);
                $new_group =  $this->_db->loadResult();
                 
+                $rolesId = implode(",", $idsRuoli);
                //ottengo il gruppo della farmacia tramite hh_store_code
-               $old_group_query = $this->_db->getQuery(true)
-               ->select('gfd.id_gruppo')
-               ->from('#__gg_farmacie_dipendenti gfd')
-               ->where('user_id='.$uid.' AND codice_esterno_cdc_3='. $hh_code_farmacia.'')
-               ->order('id DESC')
-               ->setLimit('1');
+               $this->_db->getQuery($query_mode);
+
+                $old_group_query  = " SELECT uum.group_id, ug.parent_id 
+                FROM #__user_usergroup_map uum
+                JOIN #__usergroups ug ON uum.group_id = ug.id
+                WHERE uum.user_id = ".$uid." AND ug.parent_id = 16 AND uum.group_id NOT IN (".$rolesId.")";
 
                $this->_db->setQuery($old_group_query);
                $old_group =  $this->_db->loadResult();
