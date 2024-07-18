@@ -2287,24 +2287,29 @@ HTML;
     }
 
     public static function getSocietaByPlatform(){
-
+        $app = JFactory::getApplication();
+        $db = JFactory::getDbo();
         $_call_params = JRequest::get($_POST);
         try {
-                $db = JFactory::getDbo();
+
+                
                 $query = $db->getQuery(true);
                 $query->select('ug.id,ug.title')
                 ->from('#__usergroups ug')
-                ->where('ug.parent_id='.$_call_params['usergroupId']);
+                ->where('ug.parent_id='.$_call_params['platformId']);
 
-                if (false === ($results = $db->loadAssoc())) {
+                $db->setQuery($query);
+
+                if (false === ($results = $db->loadAssocList())) {
                     throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
                 }
-    
-                return $results;
+                $_ret['success']=$results;
 
         } catch (Exception $e) {
             DEBUGG::error($e, __FUNCTION__);
-            return null;
+            $_ret['error'] = $e->getMessage();
         }
+        echo json_encode($_ret);
+        $app->close();
     }
 }
