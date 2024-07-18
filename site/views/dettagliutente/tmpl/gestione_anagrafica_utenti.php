@@ -9,12 +9,12 @@ defined('_JEXEC') or die('Restricted access');
 
     /* The Modal (background) */
     .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
+        display: hidden; /* Hidden by default */
+        position: fixed; /*Stay in place */
         z-index: 9999; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
+        left: 40% !important ;
+        top: 0; 
+        width: fit-content !important ;/* Full width */
         height:85%; /* Full height */
         overflow: auto; /* Enable scroll if needed */
         background-color: rgb(0,0,0); /* Fallback color */
@@ -24,15 +24,18 @@ defined('_JEXEC') or die('Restricted access');
     /* Modal Content/Box */
     .modal-content {
         background-color: #fefefe;
-        padding: 20px;
+        padding: 20px !important;
+        padding-top: 40px !important;
         border: 1px solid #888;
         width: 100%; /* Could be more or less, depending on screen size */
     }
 
     /* The Close Button */
     .close {
-        color: #aaa;
+        position:relative;
+        color: #000;
         float: left;
+        top: -20px;
         font-size: 1.2em;
         font-weight: bold;
     }
@@ -45,6 +48,7 @@ defined('_JEXEC') or die('Restricted access');
     }
 
     #containerRow {
+        padding-top: 30px !important ;
         background: #ccc;
         padding: 1%;
         border-radius: 1%;
@@ -63,6 +67,11 @@ defined('_JEXEC') or die('Restricted access');
         line-height:24px !important;
         font-size: 0.8em !important;
         font-family: sans-serif !important;
+    }
+
+    .form-horizontal .form-group{
+        display: flex !important;
+        flex-direction: row !important;
     }
 </style>
 
