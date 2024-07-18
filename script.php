@@ -42,6 +42,7 @@ class com_gglmsInstallerScript {
                                     "import_master_farmacie.php",
                                     "import_anagrafica_farmacie.php",
                                     "report_farmacie.php",
+                                    "allinea_usergroup_utenti.php",
                                     );
 
             foreach ($cli_script_arr as $key_script => $cli_script) {
