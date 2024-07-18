@@ -80,20 +80,22 @@ defined('_JEXEC') or die('Restricted access');
             $modelUser = new gglmsModelUsers();
             $user = JFactory::getUser();
             
-
             if($modelUser->is_user_superadmin($user->id)){
             echo '<div class = "form-group">';
                 echo '<label for="platforms">Piattaforma:</label>';
                  echo outputHelper::output_select('platforms', $this->platforms, 'value', 'text', null,'form-control'); 
-            }
             echo '</div>';
+            }
+            else if($modelUser->is_tutor_piattaforma($user->id)){
+                     echo '<input type="hidden" id="platforms" value='.$this->platforms[0]->value.'>';
+                }
+                
 
-            // if($modelUser->is_tutor_piattaforma($user->id)) {
-            //     echo '<div class = "form-group">';
-            //         echo '<label for="usergroups">Aziende:</label>';
-            //          echo outputHelper::output_select('usergroups', $this->usergroups, 'id', 'title', null,'form-control'); 
-            //     }
-            //     echo '</div>';
+            if($modelUser->is_tutor_piattaforma($user->id)) {
+                echo '<div class = "form-group" id="selectAz">';
+                    echo '<label for="usergroups">Azienda:</label>';
+                    echo '<select id="usergroups" name="usergroups" class="form-control"></select>';
+                echo '</div>';}
                  ?>
 
             
@@ -266,8 +268,6 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 
 <script type="text/javascript">
-
-usergroupRequest(208)
 
         const pTable = jQuery('#tbl_anagrafica');
 
@@ -472,8 +472,11 @@ usergroupRequest(208)
 
         }
 
+        usergroupRequest(jQuery('#platforms').val());
+
         $("#platforms").change(function () {
-            jQuery("#usergroups").bootstrapTable('refresh');
+            usergroupRequest($("#platforms").val());
+            $("#usergroups").val(0);
             pTable.bootstrapTable('refresh');
         })
 
@@ -482,9 +485,10 @@ usergroupRequest(208)
 
         })
 
-        function usergroupRequest(usergroupId){
+        function usergroupRequest(platformId){
             let params = {}
-            params.usergroupId = usergroupId;
+            params.platformId = platformId;
+            //console.log(params)
 
             jQuery.ajax({
                 type:"GET",
@@ -492,28 +496,28 @@ usergroupRequest(208)
                 data: params,
                 dataType:"json",
                 success:function(data){
-                    console.log(data);
+                    selectAzienda(data.success);
                 },
-                // error: function (er) {
-                //     params.error(er);
-                // }
+                error: function () {
+                    console.log("errore");
+                }
             })
         }
 
         function ajaxRequest(params) {
 
             let platforms = jQuery('#platforms').val();
-            if (typeof platforms !== 'undefined'){
+            if (platforms && typeof platforms !== 'undefined'){
                 params.data.platforms = platforms.trim();
-            }
+            } 
             let usergroups = jQuery('#usergroups').val();
-            if (typeof usergroups !== 'undefined'){
+            if (usergroups && typeof usergroups !== 'undefined'){
                 params.data.usergroups = usergroups.trim();
             }
             
              
             // data you may need
-            console.log(params.data);
+            //console.log(params.data);
 
             jQuery.ajax({
                 type: "GET",
@@ -546,6 +550,26 @@ usergroupRequest(208)
                 }
             });
         }
+
+        function selectAzienda(optionsArray) {
+
+            const select = document.getElementById('usergroups');
+            select.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = 0; 
+            option.textContent = 'Tutte le aziende'; 
+            select.appendChild(option);
+
+            optionsArray.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText.id; 
+                option.textContent = optionText.title; 
+                select.appendChild(option);
+            });
+            
+            return true;
+        }
+
 
 
     </script>
