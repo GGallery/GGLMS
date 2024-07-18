@@ -5008,11 +5008,11 @@ HTML;
                             u.name AS nominativo,
                             u.username AS codice_fiscale,
                             u.email AS email,
-                            COALESCE(gfd.cb_codiceestrenocdc3, '') AS cod_farmacia
+                            COALESCE(comp.cb_codiceestrenocdc3, '') AS cod_farmacia
                             FROM jos_users u
                             JOIN jos_user_usergroup_map juum ON u.id = juum.user_id
                             JOIN jos_usergroups ju2 ON juum.group_id = ju2.id
-                            JOIN jos_gg_farmacie_dipendenti gfd ON u.id = gfd.user_id
+                            JOIN jos_comprofiler comp ON u.id = comp.user_id
                             WHERE u.id NOT IN ( SELECT u.id AS id_utente
                                     FROM jos_users u
                                     JOIN jos_user_usergroup_map juum ON u.id = juum.user_id
