@@ -2503,13 +2503,12 @@ class gglmsModelUsers extends JModelLegacy
                 ->where('ugm.group_id = '.$societàId);
             }
             if($platform!=null){
-      //          var_dump($platform);die();
                 $query = $query
                 ->where('ugs.parent_id like '.$platform);
                 $count_query = $count_query
                 ->where('ugs.parent_id like '.$platform);
             }
-            if($usergroups!= null){
+            if($usergroups!= null && $usergroups!=0){
                 $query = $query
                 ->where('ugm.group_id = '.$usergroups);
 
