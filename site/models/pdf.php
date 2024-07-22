@@ -132,6 +132,8 @@ class gglmsModelPdf extends JModelLegacy
                 }
             }
 
+            $user->cb_ateco = $info["ateco"];
+
             $pdf->add_data((array)$user);
             $pdf->add_data($info);
 
