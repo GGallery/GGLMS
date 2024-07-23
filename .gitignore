@@ -4,3 +4,4 @@
 /site/models/cache
 /site/models/tmp
 .DS_Store
+site/libraries/aws/.env
