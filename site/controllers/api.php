@@ -4979,11 +4979,14 @@ HTML;
     $db_password = null,
     $db_database = null,
     $db_prefix = null,
-    $db_driver = null){
+    $db_driver = null,
+    $log_file_name){
 
         $idsRuoli = [
             267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299
         ];
+
+        $toSkipIds = [991,4549,1145,1743,1773,2251,2252];
 
         try {
 
@@ -4999,7 +5002,7 @@ HTML;
 
                 $this->_db = JDatabaseDriver::getInstance($db_option);
             }
-
+            $usersIds = implode(",", $toSkipIds);
             //lista e dettagli degli utenti non allineati
             $_users = array();
             $query_mode = "SET SQL_MODE='';";
@@ -5018,19 +5021,22 @@ HTML;
                                     JOIN jos_user_usergroup_map juum ON u.id = juum.user_id
                                     JOIN jos_usergroups ju2 ON juum.group_id = ju2.id
                                     JOIN jos_comprofiler comp ON u.id = comp.user_id
-                                    JOIN jos_gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo)
+                                    JOIN jos_gg_master_farmacie jgmf ON ju2.id = jgmf.id_gruppo) AND u.id NOT IN (".$usersIds.")
                             GROUP BY u.username";
 
             $this->_db->setQuery($query);
             $_users = $this->_db->loadAssocList();
 
+            if(count($_users)==0) return -1;
+
+            $count = 0;
             $this->_db->transactionStart();
             foreach ($_users as $key => $value) {
-                
+                $count++;
                $uid = $value['id_utente'];
-               if($uid == 1773 || $uid==1743) continue;
                var_dump($uid);
                $hh_code_farmacia = $value['cod_farmacia'];
+               utilityHelper::log_to_file(__FUNCTION__,'Allinea farmacista : id : '.$uid.' hh_store_code :'.$hh_code_farmacia,$log_file_name);
                //se superuser (o farmacia non esitente) salto l'utente
                if (is_null($hh_code_farmacia)||$hh_code_farmacia == ""||$hh_code_farmacia=="050901") continue;
                $query = $this->_db->getQuery(true)
@@ -5088,12 +5094,12 @@ HTML;
 
             }
             $this->_db->transactionCommit();
-
+            utilityHelper::log_to_file(__FUNCTION__,"Allineati ".$count." utenti",$log_file_name);
             return 1;
             
         } catch (Exception $e) {
             $this->_db->transactionRollback();
-            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            utilityHelper::log_to_file(__FUNCTION__,$e->getMessage(),$log_file_name);
             return 0;
         }
         

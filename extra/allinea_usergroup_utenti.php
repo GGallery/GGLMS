@@ -55,6 +55,15 @@ class AllineaUsegroupUtenti extends JApplicationCli{
 
             require_once JPATH_COMPONENT . '/controllers/api.php';
 
+            $filename = JPATH_ROOT . "/tmp/allinea_usergroup_".time().".log";
+
+            $older_files = JPATH_ROOT . "/tmp/allinea_usergroup_*";
+            foreach (glob($older_files) as $filefound){
+                if (time()-filemtime($filefound) > 604800) {
+                    unlink($filefound);
+                  }
+            }
+
             $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
             $api = new gglmsControllerApi();
@@ -66,11 +75,13 @@ class AllineaUsegroupUtenti extends JApplicationCli{
                                                             $db_password,
                                                             $db_database,
                                                             $db_prefix,
-                                                            $db_driver
+                                                            $db_driver,
+                                                            $filename
                                                         );
 
             $this->out('Script ended with ' . $allinea_utenti . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         } catch (Exception $e) {
+            utilityHelper::log_to_file(__FUNCTION__,$e->getMessage(),$filename);
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }
     }

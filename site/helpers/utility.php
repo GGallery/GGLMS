@@ -4260,6 +4260,12 @@ HTML;
       return false;
     }
 
+    public static function log_to_file($function, $message, $filename){
+        $msg = $function.': '.$message;
+        
+        error_log($msg.PHP_EOL,3,$filename);
+    }
+
 
     /* Generiche */
 }
