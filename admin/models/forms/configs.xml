@@ -191,6 +191,16 @@
         />
 
         <field
+                name="aws_token"
+                type="text"
+                description="Token per identificare l'host nella gestione dei contenuti su S3"
+                readonly="true"
+                class=""
+                label="S3 Token"
+                labelclass="control-label"
+        />
+
+        <field
                 name="colonne_somme_tempi"
                 type="radio"
                 class="btn-group"

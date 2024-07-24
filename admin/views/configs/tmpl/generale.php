@@ -7,6 +7,17 @@
  */
 
 ?>
+<script type="text/javascript">
+
+    jQuery.when(jQuery.get("index.php?option=com_gglms&task=configs.setToken"))
+        .done(function(data){
+            console.log("done")
+           
+        }).fail(function(data){
+        });
+
+
+</script>
 <div class="row-fluid">
     <div class="span6">
 
@@ -73,6 +84,11 @@
             <div class="row-fluid">
                 <?php echo $this->form->renderField('mail_debug'); ?>
             </div>
+
+            <div class="row-fluid">
+                <?php echo $this->form->renderField('aws_token'); ?>
+            </div>
+
 
             <div class="alert alert-warning">
                 <span class="icon-info-2" style="position: relative; float: left; font-size: 40px; margin-right: 35px; margin-top: 11px;">  </span>

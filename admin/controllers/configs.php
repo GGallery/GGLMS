@@ -8,6 +8,7 @@
  */
 // no direct access
 defined('_JEXEC') or die;
+require_once JPATH_COMPONENT . '/models/awstoken.php';
 
 class gglmsControllerConfigs extends JControllerForm
 {
@@ -37,5 +38,11 @@ class gglmsControllerConfigs extends JControllerForm
     public function cancel($key = NULL, $urlVar = NULL)
     {
         $this->setRedirect('index.php?option=com_gglms', JText::_('Nessuna configurazione salvata'));
+    }
+
+    public function setToken(){
+            $model = new gglmsModelAwsToken();
+            echo json_encode($model->setToken());
+            JFactory::getApplication()->close();
     }
 }
