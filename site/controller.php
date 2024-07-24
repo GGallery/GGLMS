@@ -30,9 +30,11 @@ class gglmsController extends JControllerLegacy
         $this->_japp = JFactory::getApplication();
         $this->currentUrl = JUri::getInstance();
 
+        $_config = new gglmsModelConfig();
+        $site_token = $_config->getConfigValue('aws_token');
 
-        define('PATH_PRINCIPALE', '../mediagg/');
-        define('PATH_CONTENUTI', '../mediagg/contenuti/');
+        define('PATH_PRINCIPALE', 'https://bucket-gal.s3.us-east-2.amazonaws.com/'.$site_token.'/mediagg');
+        define('PATH_CONTENUTI', 'https://bucket-gal.s3.us-east-2.amazonaws.com/'.$site_token.'/mediagg/contenuti');
 
         // controllo della variabile DOMINIO definita in /home/includes/defines.php
         // che potrebbe non essere impostata perchè non presente nel file sopra
