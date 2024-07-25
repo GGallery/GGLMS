@@ -286,6 +286,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $db->setQuery($query);
                     $ateco = $db->loadResult();
                 }
+                $user_piat = $model_user->get_user_piattaforme($user->id, true);
+                $piattaforma = $user_piat[0]->text;
 
 
                 if ($generate_pdf == true) {
@@ -299,6 +301,7 @@ class gglmsControllerPdf extends JControllerLegacy
                         $tracklog,
                         $ateco,
                         $coupon,
+                        $piattaforma,
                         false,
                         $dati_corso);
 

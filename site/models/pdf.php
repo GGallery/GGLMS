@@ -43,6 +43,7 @@ class gglmsModelPdf extends JModelLegacy
                                   $tracklog,
                                   $ateco ,
                                   $coupon,
+                                  $piattaforma,
                                   $multi = false,
                                   $dati_corso = null)
     {
@@ -96,6 +97,7 @@ class gglmsModelPdf extends JModelLegacy
             $info['ateco'] = $ateco;
             $info['tracklog'] = $tracklog;
             $info['coupon'] = $coupon;
+            $info['piattaforma'] = $piattaforma;
 
             // header aggiuntivi per data inizio/fine corso
             if (!is_null($dati_corso)
