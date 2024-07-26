@@ -10,6 +10,7 @@ require_once JPATH_COMPONENT . '/helpers/utility.php';
 require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/controllers/aws.php';
 
 jimport('joomla.application.component.controller');
 jimport('joomla.access.access');
@@ -30,11 +31,10 @@ class gglmsController extends JControllerLegacy
         $this->_japp = JFactory::getApplication();
         $this->currentUrl = JUri::getInstance();
 
-        $_config = new gglmsModelConfig();
-        $site_token = $_config->getConfigValue('aws_token');
+        $aws = new gglmsControllerAws();
 
-        define('PATH_PRINCIPALE', 'https://bucket-gal.s3.us-east-2.amazonaws.com/'.$site_token.'/mediagg');
-        define('PATH_CONTENUTI', 'https://bucket-gal.s3.us-east-2.amazonaws.com/'.$site_token.'/mediagg/contenuti');
+        define('PATH_PRINCIPALE', $aws->getAwsMediaUrl().'/mediagg');
+        define('PATH_CONTENUTI', $aws->getAwsMediaUrl().'/mediagg/contenuti');
 
         // controllo della variabile DOMINIO definita in /home/includes/defines.php
         // che potrebbe non essere impostata perchè non presente nel file sopra
