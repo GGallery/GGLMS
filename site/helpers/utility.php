@@ -4054,5 +4054,21 @@ HTML;
 
     }
 
+    //funzione per ottenere la cartella root quando si usa la cli
+    public static function getSiteRoot(){
+        $fullpath = JPATH_ROOT;
+        $parts = explode('/',$fullpath);
+        $rootpath='';
+        foreach ($parts as $part) {
+            if ($part == '') continue;
+            $rootpath .= '/';
+            if($part =='httpdocs' || $part =='joomla'){ //tronca l'ultima parte di path 'joomla' per quando si è in locale
+                $rootpath .= $part;
+                break;
+            }
+            $rootpath .= $part;
+        }
+        return $rootpath;
+    }
     /* Generiche */
 }

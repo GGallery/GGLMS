@@ -35,7 +35,16 @@ class Upload_media_to_s3 extends JApplicationCli {
     public function doExecute(){
 
         try{
-        $db_host = $this->input->get('db_host', 'localhost');
+
+        // sessione interna al framework necessaria per accedere a database, parametri ecc
+        jimport( 'joomla.user.user');
+        jimport( 'joomla.session.session');
+        jimport( 'joomla.user.authentication');
+
+        $app = JFactory::getApplication('site');
+        $app->initialise();
+            
+        $db_host = $this->input->get('db_host', '127.0.0.1');
         $db_port = $this->input->get('db_port', '3306');
         $db_user = $this->input->get('db_user', null);
         $db_password = $this->input->get('db_password', null);
@@ -46,16 +55,15 @@ class Upload_media_to_s3 extends JApplicationCli {
         require_once JPATH_COMPONENT . '/controllers/aws.php';
 
         $this->out('Script start at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
-
         $aws = new gglmsControllerAws();
-
+            
         $upload_media = $aws->loadContents($db_host . ":" . $db_port,
                                                                     $db_user,
                                                                     $db_password,
                                                                     $db_database,
                                                                     $db_prefix,
                                                                     $db_driver);
-            $this->out('Script ended with ' . $importa_master_farmacie . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
+            $this->out('Script ended with ' . $upload_media . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
         }
         catch (Exception $e) {
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
