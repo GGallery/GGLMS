@@ -3,6 +3,9 @@
 CHANGELOG 
 
 F:Frontend, B:Backend, D:Database, G:Generale
+4.1.6
+-D: aggiunto database per la gestione dei report
+
 4.1.5
 -D: modificata vista __view_report per riferimento cb_codiceestrenocdc3
 
