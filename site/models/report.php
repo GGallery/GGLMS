@@ -563,6 +563,47 @@ class gglmsModelReport extends JModelLegacy
 
     }
 
+    public function get_report_request($extDb){
+
+        $_ret = array();
+
+        try {
+            $db = is_null($extDb)
+                    ? JFactory::getDbo()
+                    : $extDb;
+
+            //controlla se ci sono dei report in corso
+            $query = "SELECT COUNT(*) FROM #__gg_report_queue
+                        WHERE stato = 'progress'";
+            $db->setQuery($query); 
+
+            $progress = $db->loadResult();
+
+            if ($progress!=0) return $_ret['progress'] = false;
+
+            $reportQuery = "SELECT id, user_id , report_dal, report_al
+                            FROM #__gg_report_queue
+                            WHERE stato = 'todo'
+                            ORDER BY id
+                            LIMIT 1";
+
+            $db->setQuery($reportQuery);
+
+            $_ret = $db->loadAssoc();
+
+            $updateRequest = "UPDATE #__gg_report_queue
+                                SET stato = 'progress'
+                                WHERE id = $_ret[id]";
+            $db->setQuery($updateRequest);
+            $db->execute();
+
+            return $_ret;
+
+        } catch (Exception $e) {
+            echo __FUNCTION__ . " error: " . $e->getMessage();
+        }
+    }
+
 
 }
 
