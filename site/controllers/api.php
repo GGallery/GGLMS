@@ -4568,6 +4568,7 @@ HTML;
     //funzione per l'inserimento di richieste di report
     public function set_report_farmacie_queue($data_dal = null,
                                               $data_al = null){
+        $_ret=array();
 
         try{
             $_user = new gglmsModelUsers();
@@ -4576,14 +4577,40 @@ HTML;
             $data_dal = (isset($_call_params['dal']) && $_call_params['dal'] != "") ? $_call_params['dal'] : null;
             $data_al = (isset($_call_params['al']) && $_call_params['al'] != "") ? $_call_params['al'] : null;
 
+            if ($data_dal && $data_al) {
+                $startDate = new DateTime($data_dal);
+                $endDate = new DateTime($data_al);
+            
+                //controllo che la data di inizio sia inferiore
+                if ($startDate > $endDate) throw new Exception("La data di inizio dovrebbe essere inferiore alla data di fine");
+                else {
+                    // Calcolo la differenza in mesi
+                    $interval = $startDate->diff($endDate);
+                    $monthsDifference = ($interval->y * 12) + $interval->m;
+            
+                    // controllo su i giorni in caso il giorno della data di fine sia inferiore al giorno della data di inizio
+                    if ($interval->d > 0) {
+                        $monthsDifference++;
+                    }
+            
+                    if ($monthsDifference > 3) throw new Exception("L'intervallo massimo è di 3 mesi");
+                }
+            }
+
             $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato) 
                         VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo') "; 
             $this->_db->setQuery((string)$query);
             $this->_db->execute();
-        } catch(Exception $e){
-            echo __FUNCTION__ . " error: " . $e->getMessage();
-        }
 
+            $_ret['success'] = true;
+
+        } catch(Exception $e){
+            $msg =  __FUNCTION__ . " error: " . $e->getMessage();
+            $_ret['error']=$msg;
+            
+        }
+        echo json_encode($_ret);
+        $this->_japp->close();
     }
 
     public function check_report_requests_status(
