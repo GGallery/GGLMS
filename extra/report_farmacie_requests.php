@@ -46,7 +46,7 @@ class reportFarmacie extends JApplicationCli {
             jimport( 'joomla.user.authentication');
 
             $app = JFactory::getApplication('site');
-            $app->initialise()
+            $app->initialise();
 
             $db_host = $this->input->get('db_host', '127.0.0.1');
             $db_port = $this->input->get('db_port', 3306);
@@ -64,27 +64,50 @@ class reportFarmacie extends JApplicationCli {
             $host_string = (!is_null($db_host) && !is_null($db_port)) ? $db_host . ":" . $db_port : null;
 
             $date = $api->check_report_requests_status($host_string,
-                                                        $db_user,
-                                                        $db_password,
-                                                        $db_database,
-                                                        $db_prefix,
-                                                        $db_driver);
+                $db_user,
+                $db_password,
+                $db_database,
+                $db_prefix,
+                $db_driver);
 
-                                                        $dal = 2; $al =3;
+            if(isset($date['error'])) throw new Exception($date['error']);
+
+
+            $dal = $date['report_dal'];
+            $al = $date['report_al'];
+
+            $this->out('Generazione report dal '.$dal.' al '.$al);
 
             $report_farmacie = $api->get_report_per_farmacie($dal,
-                                                            $al,
-                                                            $host_string,
-                                                            $db_user,
-                                                            $db_password,
-                                                            $db_database,
-                                                            $db_prefix,
-                                                            $db_driver
-                                                        );
+                $al,
+                $host_string,
+                $db_user,
+                $db_password,
+                $db_database,
+                $db_prefix,
+                $db_driver
+            );
+
+            if(isset($report_farmacie['error'])){throw new Exception($report_farmacie['error']);
+
+            }
+
+            $update = $api->report_queue_update($date['id'],
+                $host_string,
+                $db_user,
+                $db_password,
+                $db_database,
+                $db_prefix,
+                $db_driver);
+
+            if(isset($update['error'])) throw new Exception($update['error']);
 
             $this->out('Script ended with ' . $report_farmacie . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
+
         }
         catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 1, 0);
+
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }
 
