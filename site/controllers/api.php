@@ -4609,19 +4609,18 @@ HTML;
 
             $reportModel = new gglmsModelReport();
             
-            $request = $reportModel->get_report_request($extDb);
+            $_ret = $reportModel->get_report_request($extDb);
 
-            if(!$request) throw new Exception("un report è già in corso...");
-
-            return $request;
-
-                     
+            if(!$_ret) throw new Exception("un report è già in corso...");
 
         } catch(Exception $e){
-            echo __FUNCTION__ . " error: " . $e->getMessage();
+            $_ret["error"] = $e->getMessage();
+            DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 1, 0);
+
+            //echo __FUNCTION__ . " error: " . $e->getMessage();
         }   
                                                 
-            
+        return $_ret;
     }
 
     public function report_queue_update($id,
@@ -4651,11 +4650,14 @@ HTML;
 
             $extDb->setQuery($updateQuery);
             if (!$extDb->execute())
-                 return 0;
+                throw new Exception("report queue update error");
 
             
             }catch(Exception $e){
-                echo __FUNCTION__ . " error: " . $e->getMessage();
+                $ret['error']=$e->getMessage();
+                DEBUGG::log($e->getMessage(), 'report_queue_update', 0, 1, 0);
+
+                //echo __FUNCTION__ . " error: " . $e->getMessage();
             } 
 
             return 1;
@@ -4849,6 +4851,7 @@ HTML;
                 window.close();
             </script>
 HTML;
+            $_ret = true;
         }
         catch (Exception $e) {
 
@@ -4857,6 +4860,8 @@ HTML;
 
             if ($fromView) echo $e->getMessage();
         }
+
+        return $_ret;
 
         $this->_japp->close();
 

@@ -597,11 +597,15 @@ class gglmsModelReport extends JModelLegacy
             $db->setQuery($updateRequest);
             $db->execute();
 
-            return $_ret;
+            
 
         } catch (Exception $e) {
-            echo __FUNCTION__ . " error: " . $e->getMessage();
+            $_ret['error'] = $e->getMessage();
+            DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 1, 0);
+
+            //echo __FUNCTION__ . " error: " . $e->getMessage();
         }
+        return $_ret;
     }
 
 
