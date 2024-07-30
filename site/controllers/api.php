@@ -4615,7 +4615,7 @@ HTML;
 
         } catch(Exception $e){
             $_ret["error"] = $e->getMessage();
-            DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 1, 0);
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
 
             //echo __FUNCTION__ . " error: " . $e->getMessage();
         }   
@@ -4654,13 +4654,71 @@ HTML;
 
             
             }catch(Exception $e){
-                $ret['error']=$e->getMessage();
-                DEBUGG::log($e->getMessage(), 'report_queue_update', 0, 1, 0);
+                $_ret['error']=$e->getMessage();
+                DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
 
                 //echo __FUNCTION__ . " error: " . $e->getMessage();
             } 
 
             return 1;
+    }
+
+    public function sendReportMail($id,
+                                    $filename,
+                                    $db_host = null,
+                                    $db_user = null,
+                                    $db_password = null,
+                                    $db_database = null,
+                                    $db_prefix = null,
+                                    $db_driver = null){
+        $_ret = array();
+        try {
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $extDb = JDatabaseDriver::getInstance($db_option);
+            }
+
+            $query = "SELECT email 
+                        FROM #__users
+                        WHERE id = $id";
+            
+            $extDb->setQuery($query);
+            $mailTo = $extDb->loadResult();
+
+            $mailer = JFactory::getMailer();
+            $config = JFactory::getConfig();
+
+            $_from = $config->get( 'mailfrom' );
+            $_from_name = $config->get( 'mailfrom' );
+    
+            $sender = array(
+                $_from,
+                $_from_name
+            );
+            $mailer->setSender($sender);
+            //$mailer->addRecipient("mail");
+            $mailer->setSubject("Nuovo report");
+
+            $mailer->setBody("Report ");
+
+            //$mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
+
+            if ( !$mailer->Send()) throw new Exception('Error sending email');
+
+            $_ret = 1;
+
+        } catch (Exception $e) {
+            $_ret['error']=$e->getMessage();
+                DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+        }
+        return $_ret;
     }
 
 
@@ -4841,8 +4899,9 @@ HTML;
 
             $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
+            $file_name = 'Report'. time() . '.csv';
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
-            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . 'Report'. time() . '.csv', $prima_riga, $fromView);
+            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . $file_name , $prima_riga, $fromView);
 
             // chiusura della finestra dopo generazione del report
             if ($fromView)
@@ -4851,7 +4910,7 @@ HTML;
                 window.close();
             </script>
 HTML;
-            $_ret = true;
+            $_ret = $file_name;
         }
         catch (Exception $e) {
 
