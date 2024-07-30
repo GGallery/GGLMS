@@ -141,7 +141,6 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
                             customAlertifyAlertSimple("Riceverai una mail quando il report sarà pronto");
                             showLoading('h');
                             clearShowing();
-                            window.replace();
                         }},
                         error:function(error){
                             customAlertifyAlertSimple(error);
