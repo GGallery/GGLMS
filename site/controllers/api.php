@@ -4639,6 +4639,7 @@ HTML;
             $_ret = $reportModel->get_report_request($extDb);
 
             if(!$_ret) throw new Exception("un report è già in corso...");
+            if(isset($_ret['error'])) throw new Exception($_ret['error']);
 
         } catch(Exception $e){
             $_ret["error"] = $e->getMessage();
@@ -4712,10 +4713,10 @@ HTML;
                 $extDb = JDatabaseDriver::getInstance($db_option);
             }
 
-            $query = "SELECT email 
+            $query = "SELECT email
                         FROM #__users
                         WHERE id = $id";
-            
+
             $extDb->setQuery($query);
             $mailTo = $extDb->loadResult();
 
@@ -4730,12 +4731,18 @@ HTML;
                 $_from_name
             );
             $mailer->setSender($sender);
-            //$mailer->addRecipient("mail");
+            $mailer->addRecipient($mailTo);
             $mailer->setSubject("Nuovo report");
 
-            $mailer->setBody("Report ");
+            $body = '<h2>Report farmacie<h2/>'.
+                    '<div>E possibile scaricare il report cliccando il bottone qua sotto</div>'.
+                    '<a href="https://iotraining.it/tmp/'.$filename.'"><button>Scarica il report</button></a>';
 
             //$mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
+
+            $mailer->isHtml(true);
+            $mailer->Encoding = 'base64';
+            $mailer->setBody($body);
 
             if ( !$mailer->Send()) throw new Exception('Error sending email');
 
