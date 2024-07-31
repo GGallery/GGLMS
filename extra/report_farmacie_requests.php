@@ -72,7 +72,6 @@ class reportFarmacie extends JApplicationCli {
 
             if(isset($date['error'])) throw new Exception($date['error']);
 
-
             $dal = $date['report_dal'];
             $al = $date['report_al'];
 
@@ -88,9 +87,10 @@ class reportFarmacie extends JApplicationCli {
                 $db_driver
             );
 
-            if(isset($report_farmacie['error'])){throw new Exception($report_farmacie['error']);
+            if(isset($report_farmacie['error']))throw new Exception($report_farmacie['error']);
 
-            }
+            $this->out('Generato il report:'.$report_farmacie);
+
 
             $update = $api->report_queue_update($date['id'],
                 $host_string,
@@ -102,7 +102,20 @@ class reportFarmacie extends JApplicationCli {
 
             if(isset($update['error'])) throw new Exception($update['error']);
 
-            $this->out('Script ended with ' . $report_farmacie . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
+            $sendMail = $api->sendReportMail($date['user_id'],
+            $report_farmacie,
+            $host_string,
+            $db_user,
+            $db_password,
+            $db_database,
+            $db_prefix,
+            $db_driver
+            );
+
+            if(isset($sendMail['error'])) throw new Exception($sendMail['error']);
+
+
+            $this->out('Script ended with ' . $sendMail . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
         }
         catch (Exception $e) {

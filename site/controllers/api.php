@@ -4574,8 +4574,9 @@ HTML;
             $_user = new gglmsModelUsers();
             $id = $_user->_userid;
             $_call_params = JRequest::get($_GET);
-            $data_dal = (isset($_call_params['dal']) && $_call_params['dal'] != "") ? $_call_params['dal'] : null;
-            $data_al = (isset($_call_params['al']) && $_call_params['al'] != "") ? $_call_params['al'] : null;
+            if(!isset($_call_params['al'])||!isset($_call_params['dal'])) throw new Exception("Data non inserita");
+            $data_dal = $_call_params['dal'];
+            $data_al = $_call_params['al'];
 
             if ($data_dal && $data_al) {
                 $startDate = new DateTime($data_dal);
@@ -4724,7 +4725,7 @@ HTML;
             $config = JFactory::getConfig();
 
             $_from = $config->get( 'mailfrom' );
-            $_from_name = $config->get( 'mailfrom' );
+            $_from_name = $config->get( 'fromname' );
     
             $sender = array(
                 $_from,
@@ -4734,11 +4735,11 @@ HTML;
             $mailer->addRecipient($mailTo);
             $mailer->setSubject("Nuovo report");
 
-            $body = '<h2>Report farmacie<h2/>'.
-                    '<div>E possibile scaricare il report cliccando il bottone qua sotto</div>'.
-                    '<a href="https://iotraining.it/tmp/'.$filename.'"><button>Scarica il report</button></a>';
+            $body = '<h2>Il report delle farmacie è pronto<h2/>'.
+                    '<div>E possibile scaricare il report in allegato a questa mail</div>'.
+                    "<div>Il team di $_from_name</div>";
 
-            //$mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
+            $mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
 
             $mailer->isHtml(true);
             $mailer->Encoding = 'base64';
