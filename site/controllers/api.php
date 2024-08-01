@@ -4737,12 +4737,13 @@ HTML;
             $extDb->setQuery($userMail);
             $mailTo = $extDb->loadResult();
 
-            $siteMail = "SELECT email_from
+            $mailQuery = "SELECT email_from, report_dal, report_al
                         FROM #__gg_report_queue
                         WHERE user_id = $id";
 
-            $extDb->setQuery($siteMail);
-            $mailFrom = json_decode($extDb->loadResult());
+            $extDb->setQuery($mailQuery);
+            $mailDetails = $extDb->loadObject();
+            $mailFrom = json_decode($mailDetails->email_from);
 
             $mailer = JFactory::getMailer();
     
@@ -4752,10 +4753,11 @@ HTML;
             );
             $mailer->setSender($sender);
             $mailer->addRecipient($mailTo);
-            $mailer->setSubject("Nuovo report");
+            $mailer->setSubject("Nuovo report farmacie");
 
             $body = 'Gentile utente, <br> 
-                la generazione del report è stata completata correttamente ed è possibile scaricarla in allegato a questa mail.  <br><br>';
+                la generazione del report farmacie nel periodo dal '.$mailDetails->report_dal.' al '.$mailDetails->report_al.' è stata completata correttamente 
+                ed è possibile scaricarla in allegato a questa mail.  <br><br>';
 
             $body .= 'Lo staff di '. $mailFrom->from_name;
 

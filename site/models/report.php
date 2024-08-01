@@ -591,7 +591,7 @@ class gglmsModelReport extends JModelLegacy
 
             $_ret = $db->loadAssoc();
 
-            if(count($_ret)==0) throw new Exception("Non ci sono report da generare");
+            if(!is_array($_ret) || count($_ret)==0) throw new Exception("Non ci sono report da generare");
 
             $updateRequest = "UPDATE #__gg_report_queue
                                 SET stato = 'progress'

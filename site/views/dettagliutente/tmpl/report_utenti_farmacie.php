@@ -15,12 +15,12 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
         <div class="row" style="margin-bottom: 30px;">
             <div class="form-group col-md-3">
                 <label for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM_SHORT') ?>:</label>
-                <input type="date" id="startdate" min="" style="width: 250px;"/>
+                <input type="date" id="startdate" min="" style="height: inherit; line-height:24px; font-family: sans-serif; display:block;"/>
             </div>
 
             <div class="form-group col-md-3">
                 <label for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_TO_SHORT') ?>:</label>
-                <input type="date" id="enddate" min="" style="width: 250px;"/>
+                <input type="date" id="enddate" min="" style="height: inherit; line-height:24px; font-family: sans-serif; display:block;"/>
             </div>
 
 
