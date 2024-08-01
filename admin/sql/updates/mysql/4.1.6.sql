@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS `#__gg_report_queue` (
   `report_dal`  date NOT NULL ,
   `report_al`  date NOT NULL ,
   `stato` text NOT NULL DEFAULT 'to-do',
+  `email_from` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

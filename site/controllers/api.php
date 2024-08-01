@@ -4606,9 +4606,17 @@ HTML;
 
             if($queue!=0) throw new Exception("Abbiamo già preso in carico una generazione di report, ti preghiamo di riprovare più tardi");
 
+            $config = JFactory::getConfig();
 
-            $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato) 
-                        VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo') "; 
+        
+    
+            $sender = array();
+
+            $sender['from'] = $config->get( 'mailfrom' );
+            $sender['from_name'] = $config->get( 'fromname' );
+
+            $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato, email_from) 
+                        VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo','".json_encode($sender)."') "; 
             $this->_db->setQuery((string)$query);
             $this->_db->execute();
 
@@ -4722,30 +4730,34 @@ HTML;
                 $extDb = JDatabaseDriver::getInstance($db_option);
             }
 
-            $query = "SELECT email
+            $userMail = "SELECT email
                         FROM #__users
                         WHERE id = $id";
 
-            $extDb->setQuery($query);
+            $extDb->setQuery($userMail);
             $mailTo = $extDb->loadResult();
 
-            $mailer = JFactory::getMailer();
-            $config = JFactory::getConfig();
+            $siteMail = "SELECT email_from
+                        FROM #__gg_report_queue
+                        WHERE user_id = $id";
 
-            $_from = $config->get( 'mailfrom' );
-            $_from_name = $config->get( 'fromname' );
+            $extDb->setQuery($siteMail);
+            $mailFrom = json_decode($extDb->loadResult());
+
+            $mailer = JFactory::getMailer();
     
             $sender = array(
-                $_from,
-                $_from_name
+                $mailFrom->from,
+                $mailFrom->from_name
             );
             $mailer->setSender($sender);
             $mailer->addRecipient($mailTo);
             $mailer->setSubject("Nuovo report");
 
-            $body = '<h2>Il report delle farmacie è pronto<h2/>'.
-                    '<p>E possibile scaricare il report in allegato a questa mail</p>'.
-                    "<p style font-weight: 300px>Il team di $_from_name</p>";
+            $body = 'Gentile utente, <br> 
+                la generazione del report è stata completata correttamente ed è possibile scaricarla in allegato a questa mail.  <br><br>';
+
+            $body .= 'Lo staff di '. $mailFrom->from_name;
 
             $mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
 
