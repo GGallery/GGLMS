@@ -603,7 +603,7 @@ class gglmsModelReport extends JModelLegacy
 
         } catch (Exception $e) {
             $_ret['error'] = $e->getMessage();
-            DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 0, 0);
+            DEBUGG::log($e->getMessage(), 'check_report_request_status', 1, 0, 1);
 
             //echo __FUNCTION__ . " error: " . $e->getMessage();
         }
