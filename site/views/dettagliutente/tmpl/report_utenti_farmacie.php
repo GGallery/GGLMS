@@ -26,7 +26,7 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
 
             <div class="form-group col-md-3">
                 <label for="export_csv"><br></label>
-                <button type="button" id="export_csv" class="form-group btn" style="background-color: #17a2b8;border: none;font-size: 16px; font-weight : bold ;">SCARICA REPORT</button>
+                <button type="button" id="export_csv" class="form-group btn" style="background-color: #17a2b8;border: none;font-size: 16px; font-weight : bold ;">GENERA REPORT</button>
             </div>
         </div>
 
@@ -91,7 +91,68 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
                 var pStart = jQuery('#startdate').val();
                 var pEnd = jQuery('#enddate').val();
 
-                window.open("index.php?option=com_gglms&task=api.get_report_per_farmacie&dal=" + pStart + "&al=" + pEnd + "&tipologia_svolgimento=view", "_blank");
+                if (pStart && pEnd) {
+                    var startDate = new Date(pStart);
+                    var endDate = new Date(pEnd);
+                    
+                    //controllo che la data di inizio sia inferiore
+                    if (startDate > endDate) {
+                        customAlertifyAlertSimple("La data di inizio dovrebbe essere inferiore alla data di fine");
+                        showLoading('h');
+                        clearShowing();
+                        return;
+                    } else {
+                        // Calcolo la differenza in mesi
+                        var monthsDifference = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+                        
+                        // controllo su i giorni in caso il giorno della data di fine sia inferiore al giorno della data di inizio
+                        if (endDate.getDate() < startDate.getDate()) {
+                            monthsDifference--;
+                        }
+
+                        if (monthsDifference >= 3) {
+                            customAlertifyAlertSimple("L'intervallo massimo è di 3 mesi");
+                            showLoading('h');
+                            clearShowing();
+                            return;
+                        }
+                    }
+                    //window.open("index.php?option=com_gglms&task=api.set_report_farmacie_queue&dal=" + pStart + "&al=" + pEnd );
+
+                    let params = {};
+                    params.dal = pStart;
+                    params.al = pEnd;
+                    jQuery.ajax({
+                        type:"GET",
+                        url:"index.php?option=com_gglms&task=api.set_report_farmacie_queue",
+                        data:params,
+                        dataType:"json",
+                        success:function(data){
+                            if (typeof data != "object") {
+                                showLoading('h');
+                                customAlertifyAlertSimple(data);
+                                return;
+                            }
+                            else if (typeof data.error != "undefined") {
+                                showLoading('h');
+                                customAlertifyAlertSimple(data.error);
+                                return;
+                            } else {
+                            customAlertifyAlertSimple("La richiesta di generazione del report è stata presa in carico, riceverai una mail su "+data.success+" quando sarà pronto");
+                            showLoading('h');
+                            clearShowing();
+                        }},
+                        error:function(error){
+                            console.log(error)
+                            customAlertifyAlertSimple(error.error);
+                            showLoading('h');
+                            clearShowing();
+                        }
+
+                        }
+                    )
+                }
+
 
             });
         });

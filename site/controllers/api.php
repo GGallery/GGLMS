@@ -4565,6 +4565,217 @@ HTML;
 
     }
 
+    //funzione per l'inserimento di richieste di report
+    public function set_report_farmacie_queue($data_dal = null,
+                                              $data_al = null){
+        $_ret=array();
+
+        try{
+            $_user = new gglmsModelUsers();
+            $id = $_user->_userid;
+            $email = $_user->get_user($id)->email;
+            $_call_params = JRequest::get($_GET);
+            if(!isset($_call_params['al'])||!isset($_call_params['dal'])) throw new Exception("Data non inserita");
+            $data_dal = $_call_params['dal'];
+            $data_al = $_call_params['al'];
+
+            if ($data_dal && $data_al) {
+                $startDate = new DateTime($data_dal);
+                $endDate = new DateTime($data_al);
+            
+                //controllo che la data di inizio sia inferiore
+                if ($startDate > $endDate) throw new Exception("La data di inizio dovrebbe essere inferiore alla data di fine");
+                else {
+                    // Calcolo la differenza in mesi
+                    $interval = $startDate->diff($endDate);
+                    $monthsDifference = ($interval->y * 12) + $interval->m;
+            
+                    // controllo su i giorni in caso il giorno della data di fine sia inferiore al giorno della data di inizio
+                    if ($interval->d > 0) {
+                        $monthsDifference++;
+                    }
+            
+                    if ($monthsDifference > 3) throw new Exception("L'intervallo massimo è di 3 mesi");
+                }
+            }
+            $checkQuery = "SELECT COUNT(*)
+                            FROM #__gg_report_queue
+                            WHERE stato = 'todo' || stato = 'progress'";
+            $this->_db->setQuery((string)$checkQuery);
+            $queue = $this->_db->loadResult();
+
+            if($queue!=0) throw new Exception("Abbiamo già preso in carico una generazione di report, ti preghiamo di riprovare più tardi");
+
+            $config = JFactory::getConfig();
+
+        
+    
+            $sender = array();
+
+            $sender['from'] = $config->get( 'mailfrom' );
+            $sender['from_name'] = $config->get( 'fromname' );
+
+            $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato, email_from) 
+                        VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo','".json_encode($sender)."') "; 
+            $this->_db->setQuery((string)$query);
+            $this->_db->execute();
+
+            $_ret['success'] = $email;
+
+        } catch(Exception $e){
+            $_ret['error'] = $e->getMessage();
+            
+        }
+        echo json_encode($_ret);
+        $this->_japp->close();
+    }
+
+    public function check_report_requests_status(
+                                            $db_host = null,
+                                            $db_user = null,
+                                            $db_password = null,
+                                            $db_database = null,
+                                            $db_prefix = null,
+                                            $db_driver = null){
+        $_ret = array();
+        try {
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $extDb = JDatabaseDriver::getInstance($db_option);
+            }
+
+            $reportModel = new gglmsModelReport();
+            
+            $_ret = $reportModel->get_report_request($extDb);
+
+            if(!$_ret) throw new Exception("un report è già in corso...");
+            if(isset($_ret['error'])) throw new Exception($_ret['error']);
+
+        } catch(Exception $e){
+            $_ret["error"] = $e->getMessage();
+            DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+
+            //echo __FUNCTION__ . " error: " . $e->getMessage();
+        }   
+                                                
+        return $_ret;
+    }
+
+    public function report_queue_update($id,
+                                            $db_host = null,
+                                            $db_user = null,
+                                            $db_password = null,
+                                            $db_database = null,
+                                            $db_prefix = null,
+                                            $db_driver = null){
+        try {
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $extDb = JDatabaseDriver::getInstance($db_option);
+            }
+
+            $updateQuery= "UPDATE #__gg_report_queue
+                            SET stato = 'completed'
+                            WHERE id = $id";
+
+
+            $extDb->setQuery($updateQuery);
+            if (!$extDb->execute())
+                throw new Exception("report queue update error");
+
+            
+            }catch(Exception $e){
+                $_ret['error']=$e->getMessage();
+                DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+
+                //echo __FUNCTION__ . " error: " . $e->getMessage();
+            } 
+
+            return 1;
+    }
+
+    public function sendReportMail($id,
+                                    $filename,
+                                    $db_host = null,
+                                    $db_user = null,
+                                    $db_password = null,
+                                    $db_database = null,
+                                    $db_prefix = null,
+                                    $db_driver = null){
+        $_ret = array();
+        try {
+            if (!is_null($db_host)) {
+
+                $db_option['driver'] = $db_driver;
+                $db_option['host'] = $db_host;
+                $db_option['user'] = $db_user;
+                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+                $db_option['database'] = $db_database;
+                $db_option['prefix'] = $db_prefix;
+
+                $extDb = JDatabaseDriver::getInstance($db_option);
+            }
+
+            $userMail = "SELECT email
+                        FROM #__users
+                        WHERE id = $id";
+
+            $extDb->setQuery($userMail);
+            $mailTo = $extDb->loadResult();
+
+            $siteMail = "SELECT email_from
+                        FROM #__gg_report_queue
+                        WHERE user_id = $id";
+
+            $extDb->setQuery($siteMail);
+            $mailFrom = json_decode($extDb->loadResult());
+
+            $mailer = JFactory::getMailer();
+    
+            $sender = array(
+                $mailFrom->from,
+                $mailFrom->from_name
+            );
+            $mailer->setSender($sender);
+            $mailer->addRecipient($mailTo);
+            $mailer->setSubject("Nuovo report");
+
+            $body = 'Gentile utente, <br> 
+                la generazione del report è stata completata correttamente ed è possibile scaricarla in allegato a questa mail.  <br><br>';
+
+            $body .= 'Lo staff di '. $mailFrom->from_name;
+
+            $mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
+
+            $mailer->isHtml(true);
+            $mailer->Encoding = 'base64';
+            $mailer->setBody($body);
+
+            if ( !$mailer->Send()) throw new Exception('Error sending email');
+
+            $_ret = 1;
+
+        } catch (Exception $e) {
+            $_ret['error']=$e->getMessage();
+                DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
+        }
+        return $_ret;
+    }
+
 
     public function get_report_per_farmacie($data_dal = null,
                                             $data_al = null,
@@ -4743,8 +4954,9 @@ HTML;
 
             $prima_riga = $oreCorsi . ' ORE EROGATE NEL PERIODO DAL ' . $data_dal . ' AL ' . $data_al;
 
+            $file_name = 'Report'. time() . '.csv';
             $_csv_cols = utilityHelper::get_cols_from_array($row[0]);
-            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . 'Report'. time() . '.csv', $prima_riga, $fromView);
+            $_export_csv = utilityHelper::esporta_csv_spout_report($row, $_csv_cols, $local_file . $file_name , $prima_riga, $fromView);
 
             // chiusura della finestra dopo generazione del report
             if ($fromView)
@@ -4753,6 +4965,7 @@ HTML;
                 window.close();
             </script>
 HTML;
+            $_ret = $file_name;
         }
         catch (Exception $e) {
 
@@ -4761,6 +4974,8 @@ HTML;
 
             if ($fromView) echo $e->getMessage();
         }
+
+        return $_ret;
 
         $this->_japp->close();
 
@@ -5046,12 +5261,12 @@ HTML;
 
                $this->_db->setQuery($query);
                $new_group =  $this->_db->loadResult();
-                
+
                 $rolesId = implode(",", $idsRuoli);
                //ottengo il gruppo della farmacia tramite hh_store_code
                $this->_db->getQuery($query_mode);
 
-                $old_group_query  = " SELECT uum.group_id, ug.parent_id 
+                $old_group_query  = " SELECT uum.group_id, ug.parent_id
                 FROM #__user_usergroup_map uum
                 JOIN #__usergroups ug ON uum.group_id = ug.id
                 WHERE uum.user_id = ".$uid." AND ug.parent_id = 16 AND uum.group_id NOT IN (".$rolesId.")";
@@ -5066,7 +5281,7 @@ HTML;
                ->where('user_id ='.$uid.'
                AND group_id ='.$old_group);
 
-               $this->_db->setQuery($update_com_query); 
+               $this->_db->setQuery($update_com_query);
                if (!$this->_db->execute())
                     throw new Exception("Query aggiornamento usergroup master farmacie fallita:
                     " . $update_com_query, E_USER_ERROR);
@@ -5076,7 +5291,7 @@ HTML;
                     ->update('#__gg_coupon')
                     ->set('id_societa = '.$new_group)
                     ->where('id_utente ='.$uid.'
-                            AND id_societa ='.$old_group);   
+                            AND id_societa ='.$old_group);
                $this->_db->setQuery($update_coupon_query);
                if (!$this->_db->execute())
                     throw new Exception("Query aggiornamento id societa fallita:
@@ -5096,13 +5311,13 @@ HTML;
             $this->_db->transactionCommit();
             utilityHelper::log_to_file(__FUNCTION__,"Allineati ".$count." utenti",$log_file_name);
             return 1;
-            
+
         } catch (Exception $e) {
             $this->_db->transactionRollback();
             utilityHelper::log_to_file(__FUNCTION__,$e->getMessage(),$log_file_name);
             return 0;
         }
-        
+
 
     }
 
