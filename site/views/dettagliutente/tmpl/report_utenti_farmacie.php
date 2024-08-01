@@ -13,12 +13,12 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
     <div id="toolbar" class="container-fluid" style="border:1px solid blue;border-radius: 4px;">
         <h4 class="text-left ml-2 mt-0" style="color: #325482; margin-bottom: 30px !important; margin-top: 40px !important;"><?php echo  JText::_('COM_GGLMS_GLOBAL_FILTRI') ?></h4>
         <div class="row" style="margin-bottom: 30px; display:flex; align-items: center; justify-content: space-between;">
-            <div class="form-group row col-md-3">
+            <div class="form-group col-md-3">
                 <label for="startdate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_FROM_SHORT') ?>:</label>
                 <input type="date" id="startdate" min="" style="height: inherit; line-height:24px; font-family: sans-serif; display:block;"/>
             </div>
 
-            <div class="form-group row col-md-3">
+            <div class="form-group col-md-3">
                 <label for="enddate"><?php echo  JText::_('COM_GGLMS_REPORT_COMPLETATI_TO_SHORT') ?>:</label>
                 <input type="date" id="enddate" min="" style="height: inherit; line-height:24px; font-family: sans-serif; display:block;"/>
             </div>
