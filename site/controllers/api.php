@@ -4573,6 +4573,7 @@ HTML;
         try{
             $_user = new gglmsModelUsers();
             $id = $_user->_userid;
+            $email = $_user->get_user($id)->email;
             $_call_params = JRequest::get($_GET);
             if(!isset($_call_params['al'])||!isset($_call_params['dal'])) throw new Exception("Data non inserita");
             $data_dal = $_call_params['dal'];
@@ -4597,17 +4598,24 @@ HTML;
                     if ($monthsDifference > 3) throw new Exception("L'intervallo massimo è di 3 mesi");
                 }
             }
+            $checkQuery = "SELECT COUNT(*)
+                            FROM #__gg_report_queue
+                            WHERE stato = 'todo' || stato = 'progress'";
+            $this->_db->setQuery((string)$checkQuery);
+            $queue = $this->_db->loadResult();
+
+            if($queue!=0) throw new Exception("Abbiamo già preso in carico una generazione di report, ti preghiamo di riprovare più tardi");
+
 
             $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato) 
                         VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo') "; 
             $this->_db->setQuery((string)$query);
             $this->_db->execute();
 
-            $_ret['success'] = true;
+            $_ret['success'] = $email;
 
         } catch(Exception $e){
-            $msg =  __FUNCTION__ . " error: " . $e->getMessage();
-            $_ret['error']=$msg;
+            $_ret['error'] = $e->getMessage();
             
         }
         echo json_encode($_ret);
@@ -4736,8 +4744,8 @@ HTML;
             $mailer->setSubject("Nuovo report");
 
             $body = '<h2>Il report delle farmacie è pronto<h2/>'.
-                    '<div>E possibile scaricare il report in allegato a questa mail</div>'.
-                    "<div>Il team di $_from_name</div>";
+                    '<p>E possibile scaricare il report in allegato a questa mail</p>'.
+                    "<p style font-weight: 300px>Il team di $_from_name</p>";
 
             $mailer->addAttachment(JPATH_ROOT . "/tmp/$filename");
 

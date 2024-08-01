@@ -26,7 +26,7 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
 
             <div class="form-group col-md-3">
                 <label for="export_csv"><br></label>
-                <button type="button" id="export_csv" class="form-group btn" style="background-color: #17a2b8;border: none;font-size: 16px; font-weight : bold ;">SCARICA REPORT</button>
+                <button type="button" id="export_csv" class="form-group btn" style="background-color: #17a2b8;border: none;font-size: 16px; font-weight : bold ;">GENERA REPORT</button>
             </div>
         </div>
 
@@ -138,12 +138,13 @@ echo "<h1>".  JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'). "</h1>";
                                 customAlertifyAlertSimple(data.error);
                                 return;
                             } else {
-                            customAlertifyAlertSimple("Riceverai una mail quando il report sarà pronto");
+                            customAlertifyAlertSimple("La richiesta di generazione del report è stata presa in carico, riceverai una mail su "+data.success+" quando sarà pronto");
                             showLoading('h');
                             clearShowing();
                         }},
                         error:function(error){
-                            customAlertifyAlertSimple(error);
+                            console.log(error)
+                            customAlertifyAlertSimple(error.error);
                             showLoading('h');
                             clearShowing();
                         }
