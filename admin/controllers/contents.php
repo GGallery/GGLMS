@@ -11,6 +11,8 @@
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.controlleradmin');
+require_once JPATH_COMPONENT . '/models/contents.php';
+
 
 class gglmsControllerContents extends JControllerAdmin
 {
@@ -36,6 +38,20 @@ class gglmsControllerContents extends JControllerAdmin
 
 	    $model=$this->getModel('contents');
 	    return $model->updateOrderValue($pk,$i);
+    }
+
+    public function delete(){
+        try{
+            $app = JFactory::getApplication();
+            $contentModel = $this->getModel('contents');
+
+            $result = $contentModel->deleteContent($app->input->get('cid')[0]);
+            $app->redirect(JRoute::_('index.php?option=com_gglms', false), $app->enqueueMessage($result));
+
+        }catch(Exception $exception){
+            $app->redirect(JRoute::_('index.php?option=com_gglms', false), $app->enqueueMessage($exception->getMessage(), 'Error'));
+
+        }
     }
 
 

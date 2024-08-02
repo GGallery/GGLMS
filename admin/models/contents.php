@@ -10,6 +10,8 @@
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modellist');
+require_once JPATH_COMPONENT . '/models/libs/debugg/debugg.php';
+
 
 class gglmsModelContents extends JModelList {
 
@@ -212,6 +214,54 @@ class gglmsModelContents extends JModelList {
         $result=$db->loadAssocList('ordinamento');
         return $result;
 
+    }
+
+    public function deleteContent($pk){
+        try {
+            $db = JFactory::getDBO();
+
+            //controllo se il contenuto è prerequisito di un altro
+            $checkQuery = "SELECT id, titolo
+                            FROM #__gg_contenuti
+                            WHERE prerequisiti LIKE '%$pk%'";
+            $db->setQuery($checkQuery);
+            $check = $db->loadAssocList();
+            
+            if(is_array($check)&&count($check)!=0) {
+                $listRequisiti = "";
+                foreach($check as $requisito){
+                    $listRequisiti.= $requisito['id'].": ";
+                    $listRequisiti.= $requisito['titolo']."\r\n";
+                };
+                throw new Exception("Il corso è prerequisito di ".$listRequisiti);
+            }
+
+            //controllo se il contenuto è presente nei report
+            $checkQuery = "SELECT COUNT(*)
+                            FROM #__gg_report
+                            WHERE id_contenuto = $pk";
+            $db->setQuery($checkQuery);
+            $check = $db->loadResult();
+            
+            if($check!=0) throw new Exception("Sono presenti dei report legati al contenuto $pk");
+            
+            //Se supera i controlli elimino il contenuto e le mappature
+            $deleteQuery = "DELETE FROM #__gg_contenuti 
+                            WHERE id = $pk";
+            $db->setQuery($deleteQuery);
+            $db->execute();
+            $deleteQuery = "DELETE FROM #__gg_unit_map 
+                            WHERE idcontenuto = $pk";
+            $db->setQuery($deleteQuery);
+            $db->execute();
+
+            return "operazione conclusa";
+
+            
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'delete content', 0, 1, 0);
+            return "operazione fallita: " . $e->getMessage();
+        }
     }
 
 
