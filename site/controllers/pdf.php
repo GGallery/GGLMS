@@ -277,6 +277,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
                 $ateco = '';
                 $piattaforma ='';
+                $dominio = '';
 
                 if ($tutor_id) {
                     $query = $db->getQuery(true)
@@ -287,12 +288,14 @@ class gglmsControllerPdf extends JControllerLegacy
                     $ateco = $db->loadResult();
 
                     $queryPiattaforma = $db->getQuery(true)
-                        ->select('mud.alias')
+                        ->select('mud.alias,mud.dominio')
                         ->from('#__usergroups_details mud')
                         ->join('inner','#__usergroups mu ON mud.group_id = mu.parent_id ')
                         ->where('mu.id = '.$user_soc[0]->id);
                     $db->setQuery($queryPiattaforma);
-                    $piattaforma = $db->loadResult();
+                    $result = $db->loadAssoc();
+                    $piattaforma = $result['alias'];
+                    $dominio = $result['dominio'];
                 }
 
                 if ($generate_pdf == true) {
@@ -307,6 +310,7 @@ class gglmsControllerPdf extends JControllerLegacy
                         $ateco,
                         $coupon,
                         $piattaforma,
+                        $dominio,
                         false,
                         $dati_corso);
 
