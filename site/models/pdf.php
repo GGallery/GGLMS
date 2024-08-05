@@ -94,7 +94,7 @@ class gglmsModelPdf extends JModelLegacy
             $info['logo'] = DOMINIO;
             $info['firma'] = DOMINIO;
             $info['dg'] = $dg;
-            $info['ateco'] = $ateco;
+            $info['cb_settore'] = $ateco;
             $info['tracklog'] = $tracklog;
             $info['coupon'] = $coupon;
             $info['piattaforma'] = $piattaforma;
