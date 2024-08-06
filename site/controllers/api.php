@@ -4630,30 +4630,13 @@ HTML;
         $this->_japp->close();
     }
 
-    public function check_report_requests_status(
-                                            $db_host = null,
-                                            $db_user = null,
-                                            $db_password = null,
-                                            $db_database = null,
-                                            $db_prefix = null,
-                                            $db_driver = null){
+    public function check_report_requests_status($extDb = null){
         $_ret = array();
         try {
-            if (!is_null($db_host)) {
-
-                $db_option['driver'] = $db_driver;
-                $db_option['host'] = $db_host;
-                $db_option['user'] = $db_user;
-                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
-                $db_option['database'] = $db_database;
-                $db_option['prefix'] = $db_prefix;
-
-                $extDb = JDatabaseDriver::getInstance($db_option);
-            }
-
+            if(!is_null($extDb)) $this->_db = $extDb;
             $reportModel = new gglmsModelReport();
             
-            $_ret = $reportModel->get_report_request($extDb);
+            $_ret = $reportModel->get_report_request($this->_db );
 
             if(!$_ret) throw new Exception("un report è già in corso...");
             if(isset($_ret['error'])) throw new Exception($_ret['error']);
@@ -4668,33 +4651,17 @@ HTML;
         return $_ret;
     }
 
-    public function report_queue_update($id,
-                                            $db_host = null,
-                                            $db_user = null,
-                                            $db_password = null,
-                                            $db_database = null,
-                                            $db_prefix = null,
-                                            $db_driver = null){
+    public function report_queue_update($id,$extDb = null,$status){
         try {
-            if (!is_null($db_host)) {
-
-                $db_option['driver'] = $db_driver;
-                $db_option['host'] = $db_host;
-                $db_option['user'] = $db_user;
-                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
-                $db_option['database'] = $db_database;
-                $db_option['prefix'] = $db_prefix;
-
-                $extDb = JDatabaseDriver::getInstance($db_option);
-            }
+            if(!is_null($extDb)) $this->_db = $extDb;
 
             $updateQuery= "UPDATE #__gg_report_queue
-                            SET stato = 'completed'
+                            SET stato = '$status'
                             WHERE id = $id";
 
 
-            $extDb->setQuery($updateQuery);
-            if (!$extDb->execute())
+            $this->_db->setQuery($updateQuery);
+            if (!$this->_db->execute())
                 throw new Exception("report queue update error");
 
             
@@ -4708,41 +4675,24 @@ HTML;
             return 1;
     }
 
-    public function sendReportMail($id,
-                                    $filename,
-                                    $db_host = null,
-                                    $db_user = null,
-                                    $db_password = null,
-                                    $db_database = null,
-                                    $db_prefix = null,
-                                    $db_driver = null){
+    public function sendReportMail($id,$filename,$extDb = null){
         $_ret = array();
         try {
-            if (!is_null($db_host)) {
-
-                $db_option['driver'] = $db_driver;
-                $db_option['host'] = $db_host;
-                $db_option['user'] = $db_user;
-                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
-                $db_option['database'] = $db_database;
-                $db_option['prefix'] = $db_prefix;
-
-                $extDb = JDatabaseDriver::getInstance($db_option);
-            }
+            if(!is_null($extDb)) $this->_db = $extDb;
 
             $userMail = "SELECT email
                         FROM #__users
                         WHERE id = $id";
 
-            $extDb->setQuery($userMail);
-            $mailTo = $extDb->loadResult();
+            $this->_db ->setQuery($userMail);
+            $mailTo = $this->_db ->loadResult();
 
             $mailQuery = "SELECT email_from, report_dal, report_al
                         FROM #__gg_report_queue
                         WHERE user_id = $id";
 
-            $extDb->setQuery($mailQuery);
-            $mailDetails = $extDb->loadObject();
+            $this->_db ->setQuery($mailQuery);
+            $mailDetails = $this->_db ->loadObject();
             $mailFrom = json_decode($mailDetails->email_from);
 
             $mailer = JFactory::getMailer();
@@ -4790,7 +4740,6 @@ HTML;
                                         ) {
 
         $_ret = array();
-        $extDb = null;
         $local_file = JPATH_ROOT . '/tmp/';
 
         try {
