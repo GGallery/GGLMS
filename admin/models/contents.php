@@ -217,6 +217,7 @@ class gglmsModelContents extends JModelList {
     }
 
     public function deleteContent($pk){
+        $_ret=array();
         try {
             $db = JFactory::getDBO();
 
@@ -255,13 +256,14 @@ class gglmsModelContents extends JModelList {
             $db->setQuery($deleteQuery);
             $db->execute();
 
-            return "operazione conclusa";
+            $_ret['success'] =  "operazione conclusa";
 
             
         } catch (Exception $e) {
             DEBUGG::log($e->getMessage(), 'delete content', 0, 1, 0);
-            return "operazione fallita: " . $e->getMessage();
+            $_ret['error'] = "operazione fallita: " . $e->getMessage();
         }
+        return $_ret;
     }
 
 
