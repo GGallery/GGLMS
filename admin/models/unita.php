@@ -143,7 +143,16 @@ class gglmsModelunita extends JModelAdmin
             $contenuti = $db->loadAssocList();
 
             foreach ($contenuti as $contenuto) {
-
+                /**
+                 * Se un contenuto è stato eliminato ma è rimasto
+                 * su unit_map lo salto
+                 */
+                $query = "SELECT COUNT(*) 
+                        FROM #__gg_contenuti
+                        where id =". $contenuto['idcontenuto'];
+                $db->setQuery($query);
+                $contenutoCount = $db->loadResult();
+                if($contenutoCount == 0) continue;
 
                 $query = "insert into #__gg_contenuti (titolo,alias,pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data)
                 select titolo,CONCAT(alias,concat('_',convert(floor(RAND()*1000),CHAR(25)))),pubblicato,durata,descrizione,access,meta_tag,abstract,datapubblicazione,slide,path,id_quizdeluxe,tipologia,files,mod_track,prerequisiti,id_completed_data from #__gg_contenuti where id=" . $contenuto['idcontenuto'];
