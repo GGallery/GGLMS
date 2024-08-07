@@ -99,9 +99,7 @@ class reportFarmacie extends JApplicationCli {
 
             DEBUGG::log('Generato il report:'.$report_farmacie,'', 0, 1, 1);
 
-            $update = $api->report_queue_update($date['id'],$extDb,"completed");
 
-            if(isset($update['error'])) throw new Exception($update['error']);
 
             $sendMail = $api->sendReportMail($date['user_id'],
                 $report_farmacie,
@@ -109,6 +107,9 @@ class reportFarmacie extends JApplicationCli {
             );
 
             if(isset($sendMail['error'])) throw new Exception($sendMail['error']);
+
+            $update = $api->report_queue_update($date['id'],$extDb,"completed");
+            if(isset($update['error'])) throw new Exception($update['error']);
 
             $this->out('Script ended with ' . $sendMail . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
