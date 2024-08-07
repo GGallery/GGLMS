@@ -36,6 +36,8 @@ require_once JPATH_COMPONENT . '/helpers/utility.php';
 
 class reportFarmacie extends JApplicationCli {
 
+    public static $extDb;
+
     public function doExecute() {
 
         try {
@@ -62,20 +64,26 @@ class reportFarmacie extends JApplicationCli {
 
             $api = new gglmsControllerApi();
             $host_string = (!is_null($db_host) && !is_null($db_port)) ? $db_host . ":" . $db_port : null;
+            $db_option['driver'] = $db_driver;
+            $db_option['host'] = $db_host;
+            $db_option['user'] = $db_user;
+            $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+            $db_option['database'] = $db_database;
+            $db_option['prefix'] = $db_prefix;
 
-            $date = $api->check_report_requests_status($host_string,
-                $db_user,
-                $db_password,
-                $db_database,
-                $db_prefix,
-                $db_driver);
+            $extDb = JDatabaseDriver::getInstance($db_option);
+
+            $date = $api->check_report_requests_status($extDb);
+
+            $update = $api->report_queue_update($date['id'],$extDb,"progress");
+            if(isset($update['error'])) throw new Exception($update['error']);
 
             if(isset($date['error'])) throw new Exception($date['error']);
 
             $dal = $date['report_dal'];
             $al = $date['report_al'];
 
-            $this->out('Generazione report dal '.$dal.' al '.$al);
+            DEBUGG::log('Generazione report dal '.$dal.' al '.$al,'', 0, 1, 1);
 
             $report_farmacie = $api->get_report_per_farmacie($dal,
                 $al,
@@ -89,37 +97,23 @@ class reportFarmacie extends JApplicationCli {
 
             if(isset($report_farmacie['error']))throw new Exception($report_farmacie['error']);
 
-            $this->out('Generato il report:'.$report_farmacie);
-
-
-            $update = $api->report_queue_update($date['id'],
-                $host_string,
-                $db_user,
-                $db_password,
-                $db_database,
-                $db_prefix,
-                $db_driver);
-
-            if(isset($update['error'])) throw new Exception($update['error']);
-
             $sendMail = $api->sendReportMail($date['user_id'],
-            $report_farmacie,
-            $host_string,
-            $db_user,
-            $db_password,
-            $db_database,
-            $db_prefix,
-            $db_driver
+                $report_farmacie,
+                $extDb
             );
 
             if(isset($sendMail['error'])) throw new Exception($sendMail['error']);
 
+            $update = $api->report_queue_update($date['id'],$extDb,"completed");
+            if(isset($update['error'])) throw new Exception($update['error']);
+            DEBUGG::log('Generato il report:'.$report_farmacie,'', 0, 1, 1);
 
             $this->out('Script ended with ' . $sendMail . ' at:' . date('H:i:s') . ' on ' . date('d/m/Y'));
 
         }
         catch (Exception $e) {
             DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 1, 0);
+            $update = $api->report_queue_update($date['id'],$extDb,"error");
 
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }
