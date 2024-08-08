@@ -297,7 +297,6 @@ class gglmsControllerPdf extends JControllerLegacy
                     $piattaforma = $result['alias'];
                     $dominio = $result['dominio'];
                 }
-
                 if ($generate_pdf == true) {
                     $model = $this->getModel('pdf');
 
@@ -325,6 +324,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->dg = $dg;
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
+                    $result_user->dominio = $dominio;
+                    $result_user->piattaforma = $piattaforma;
                     $result_user->dati_corso = $dati_corso;
                     // per modifica tipologia coupon
                     $result_user->coupon = $coupon;
