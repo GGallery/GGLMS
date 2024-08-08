@@ -4869,6 +4869,7 @@ HTML;
                                 $row[$i] ['CODICE FISCALE'] = $username->codice_fiscale;
                                 $row[$i] ['TITOLO CORSO'] = $singleContent['titolo_unita'];
                                 $row[$i] ['DATA INIZIO CORSO'] = utilityHelper::convert_dt_in_format($singleContent['data_inizio'], 'd-m-Y');
+                                $row[$i] ['INIZIO FRUIZIONE CORSO'] = utilityHelper::convert_dt_in_format($singleContent['data_inizio_fruizione'], 'd-m-Y');
                                 $row[$i] ['DURATA PREVISTA (minuti)'] = $totOreUnita;
                                 $row[$i] ['DURATA VISUALIZZAZIONE (minuti)'] = $totContenuti;
                                 $row[$i] ['% DI FREQUENZA'] = $mediaOreCorso . "%";

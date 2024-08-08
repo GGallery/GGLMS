@@ -1108,7 +1108,7 @@ class gglmsModelContenuto extends JModelLegacy
                 : $extDb;
 
             // AND YEAR(ggr.data) = '" . $annoRiferimento . "'
-            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita, u.data_inizio, jgum.idgruppo AS gruppo_corso
+            $query = "SELECT v.id_corso AS id_unita, u.titolo as titolo_unita, u.data_inizio, jgum.idgruppo AS gruppo_corso, v.data_inizio AS data_inizio_fruizione
                         FROM #__gg_view_stato_user_corso v
                         JOIN #__gg_unit u ON v.id_corso = u.id
                         JOIN #__gg_report ggr ON v.id_corso = ggr.id_corso and v.id_anagrafica = ggr.id_anagrafica
