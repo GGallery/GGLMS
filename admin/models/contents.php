@@ -234,7 +234,7 @@ class gglmsModelContents extends JModelList {
                     $listRequisiti.= $requisito['id'].": ";
                     $listRequisiti.= $requisito['titolo']."\r\n";
                 };
-                throw new Exception("Il corso è prerequisito di ".$listRequisiti);
+                throw new Exception("Il corso $pk è prerequisito di ".$listRequisiti);
             }
 
             //controllo se il contenuto è presente nei report
@@ -255,6 +255,13 @@ class gglmsModelContents extends JModelList {
                             WHERE idcontenuto = $pk";
             $db->setQuery($deleteQuery);
             $db->execute();
+
+            $deletePath = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $pk;
+
+            if (is_dir($deletePath)) {
+                rmdir($deletePath);
+            }
+            
 
             $_ret['success'] =  "operazione conclusa";
 

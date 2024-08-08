@@ -47,7 +47,7 @@ class gglmsControllerContents extends JControllerAdmin
 
             $result = $contentModel->deleteContent($app->input->get('cid')[0]);
             if(isset($result['error'])) throw new Exception($result['error']);
-            $app->redirect(JRoute::_('index.php?option=com_gglms', false), $app->enqueueMessage($result));
+            $app->redirect(JRoute::_('index.php?option=com_gglms', false), $app->enqueueMessage($result['success']));
 
         }catch(Exception $exception){
             $app->redirect(JRoute::_('index.php?option=com_gglms', false), $app->enqueueMessage($exception->getMessage(), 'Error'));
