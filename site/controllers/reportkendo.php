@@ -45,7 +45,7 @@ class gglmsControllerReportKendo extends JControllerLegacy
     function get_filter_data()
     {
 
-        $params = JRequest::get($_POST);
+        $params = $this->_japp->input->getArray($_POST);
 
         $model = new gglmsModelReport();
         $result["usergroups"] = utilityHelper::getSocietaByUser();
@@ -60,7 +60,7 @@ class gglmsControllerReportKendo extends JControllerLegacy
     public function get_user_detail()
     {
 
-        $params = JRequest::get($_POST);
+        $params = $this->_japp->input->getArray($_POST);
         $user_id = $params["user_id"];
 
 

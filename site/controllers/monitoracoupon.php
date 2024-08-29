@@ -46,7 +46,7 @@ class gglmsControllerMonitoracoupon extends JControllerLegacy
     {
 
         //$filter_params = JRequest::get($_POST);
-        $filter_params = JRequest::get('$_GET');
+        $filter_params = $this->_japp->input->get('$_GET');
         $data = $this->get_filterd_coupon_list($filter_params);
 
         echo json_encode($data);
@@ -202,7 +202,7 @@ HTML;
 
     public function exportCsv()
     {
-        $filter_params = JRequest::get($_POST);
+        $filter_params = $this->_japp->input->getArray($_POST);
         $data = $this->get_filterd_coupon_list($filter_params);
         $this->createCSV($data, $filter_params["columns"]);
     }
@@ -253,7 +253,7 @@ HTML;
     public function disattivazione_coupon() {
 
         $_ret = array();
-        $filter_params = JRequest::get($_GET);
+        $filter_params = $this->_japp->input->getArray($_GET);
 
         try {
 

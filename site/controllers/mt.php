@@ -38,10 +38,10 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
 
-        $this->_filterparam->id_utente = JRequest::getVar('id_utente');
-        $this->_filterparam->id_corso = JRequest::getVar('id_corso');
-        $this->_filterparam->anno_ref = JRequest::getVar('anno_ref');
-        $this->_filterparam->secret = JRequest::getVar('secret');
+        $this->_filterparam->id_utente = $this->_japp->input->get('id_utente');
+        $this->_filterparam->id_corso = $this->_japp->input->get('id_corso');
+        $this->_filterparam->anno_ref = $this->_japp->input->get('anno_ref');
+        $this->_filterparam->secret = $this->_japp->input->get('secret');
 
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;

@@ -35,8 +35,9 @@ class gglmsControllerCoupon extends JControllerLegacy
 
 
         $japp = JFactory::getApplication();
+        $input = $japp->input;
 
-        $coupon = JRequest::getVar('coupon');
+        $coupon = $input->get('coupon');
         $model = $this->getModel('coupon');
         $dettagli_coupon = $model->check_Coupon($coupon);
 
@@ -112,8 +113,9 @@ class gglmsControllerCoupon extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
+        $input = $japp->input;
 
-        $coupon = JRequest::getVar('coupon');
+        $coupon = $input->get('coupon');
         $model = $this->getModel('coupon');
 
         $dettagli_coupon = $model->check_Coupon($coupon, true);

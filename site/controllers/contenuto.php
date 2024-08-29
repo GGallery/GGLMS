@@ -23,13 +23,14 @@ class gglmsControllerContenuto extends JControllerLegacy
 
         $japp = JFactory::getApplication();
 
+        $input = $japp->input;
 
-        $secondi = JRequest::getVar('secondi');
-        $stato = JRequest::getVar('stato');
-        $id_elemento = JRequest::getVar('id_elemento');
-        $id_utente = JRequest::getVar('id_utente');
+        $secondi = $input->get('secondi');
+        $stato = $input->get('stato');
+        $id_elemento = $input->get('id_elemento');
+        $id_utente = $input->get('id_utente');
         // per aggiornamento gg_log
-        $uniquid = JRequest::getVar('uniquid');
+        $uniquid = $input->get('uniquid');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
@@ -96,11 +97,11 @@ class gglmsControllerContenuto extends JControllerLegacy
     public function updateBookmark() {
 
         $japp = JFactory::getApplication();
+        $input = $japp->input;
 
-
-        $time = JRequest::getVar('time');
-        $id_elemento = JRequest::getVar('id_elemento');
-        $id_utente = JRequest::getVar('id_utente');
+        $time = $input->get('time');
+        $id_elemento = $input->get('id_elemento');
+        $id_utente = $input->get('id_utente');
 
         $user =  JFactory::getUser();
         $user_id = $user->get('id');
@@ -144,10 +145,11 @@ class gglmsControllerContenuto extends JControllerLegacy
         $japp = JFactory::getApplication();
         $_ret = array();
         $enable_json = false;
+        $input = $japp->input;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $input->getArray($_GET);
             $id_corso = $params["id_corso"];
 
             if (isset($params['json'])

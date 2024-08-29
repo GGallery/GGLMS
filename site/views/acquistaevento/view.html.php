@@ -72,8 +72,9 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
 
             // campi encoded dalla chiamata
-            $this->action = JRequest::getVar('action');
-            $pp = JRequest::getVar('pp');
+            $input = JFactory::getApplication()->input;
+            $this->action = $input->get('action');
+            $pp = $input->get('pp');
 
             // chi o cosa mi sta chiamando
             if (!isset($this->action)
@@ -273,7 +274,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->_ret = array();
                 $this->show_view = false;
 
-                $request_obj = JRequest::getVar('request_obj');
+                $request_obj = $input->get('request_obj');
                 if (!isset($request_obj)
                     || !is_array($request_obj)
                     || count($request_obj) == 0) {
@@ -472,7 +473,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->hide_pp = true;
                 $this->show_view = false;
 
-                $request_obj = JRequest::getVar('request_obj');
+                $request_obj = $input->get('request_obj');
                 if (!isset($request_obj)
                     || !is_array($request_obj)
                     || count($request_obj) == 0
@@ -553,7 +554,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->_ret = array();
                 $this->show_view = false;
 
-                $request_obj = JRequest::getVar('request_obj');
+                $request_obj = $input->get('request_obj');
                 if (!isset($request_obj)
                     || !is_array($request_obj)
                     || count($request_obj) == 0) {

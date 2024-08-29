@@ -54,8 +54,8 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             // delete all files from tmp folder
             $this->clean_folder();
-
-            $data = JRequest::get($_POST);
+            $input = Factory::getApplication()->input;
+            $data = $input->getArray($_POST);
 
 
             $this->id_corso = $data['id_corso'];

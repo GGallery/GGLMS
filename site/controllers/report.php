@@ -35,8 +35,8 @@ class gglmsControllerReport extends JControllerLegacy
         $this->params = $this->_app->getParams();
         $this->_db = JFactory::getDbo();
         $this->_filterparam = new stdClass();
-        $this->_filterparam->limit=JRequest::getVar('limit');
-        $this->_filterparam->offset=JRequest::getVar('offset');
+        $this->_filterparam->limit=$this->_app->input->get('limit');
+        $this->_filterparam->offset=$this->_app->input->get('offset');
 
        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
 
@@ -170,10 +170,10 @@ class gglmsControllerReport extends JControllerLegacy
 
         try {
 
-            $id_utente = $this->_filterparam->id_utente = JRequest::getVar('id_utente');
-            $id_contenuto = $this->_filterparam->id_contenuto = JRequest::getVar('id_contenuto');
-            $supporto = $this->_filterparam->supporto = JRequest::getVar('supporto');
-            $uniqid = $this->_filterparam->uniqid = JRequest::getVar('uniqid');
+            $id_utente = $this->_filterparam->id_utente = $this->_app->input->get('id_utente');
+            $id_contenuto = $this->_filterparam->id_contenuto = $this->_app->input->get('id_contenuto');
+            $supporto = $this->_filterparam->supporto = $this->_app->input->get('supporto');
+            $uniqid = $this->_filterparam->uniqid = $this->_app->input->get('uniqid');
             $ipaddress = JFactory::getApplication()->input->server->get('REMOTE_ADDR', '', '');
             $report = new gglmsModelReport();
             if ($report->insertUserLog($id_utente, $id_contenuto, $supporto, $ipaddress, $uniqid) == true) {
@@ -194,7 +194,7 @@ class gglmsControllerReport extends JControllerLegacy
 
         try {
 
-            $uniquid = $this->_filterparam->uniqid = JRequest::getVar('uniqid');
+            $uniquid = $this->_filterparam->uniqid = $this->_app->input->get('uniqid');
             $report = new gglmsModelReport();
             if ($report->updateUserLog($uniquid) == true) {
                 echo json_encode('true');

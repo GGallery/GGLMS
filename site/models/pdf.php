@@ -25,8 +25,9 @@ class gglmsModelPdf extends JModelLegacy
     public function __construct($config = array())
     {
         parent::__construct($config);
+        $input = JFactory::getApplication()->input;
 
-        $this->id_elemento = JRequest::getInt('content', 0);
+        $this->id_elemento = $input->getInt('content', 0);
 
         $user = JFactory::getUser();
         $this->_user_id = $user->get('id');

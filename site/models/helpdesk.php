@@ -33,8 +33,8 @@ class gglmsModelHelpDesk extends JModelLegacy
     public function __construct($config = array())
     {
         parent::__construct($config);
-        $this->_dbg = JRequest::getBool('dbg', 0);
         $this->_japp = JFactory::getApplication();
+        $this->_dbg = $this->_dbg = $this->_japp->input->getBool('dbg', 0);
         $this->_db = JFactory::getDbo();
         $this->_user = JFactory::getUser();
         $this->_userid = $this->_user->get('id');

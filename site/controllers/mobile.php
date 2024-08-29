@@ -33,8 +33,8 @@ class gglmsControllerMobile extends JControllerLegacy
         $this->_japp = JFactory::getApplication();
         $this->_params = $this->_japp->getParams();
 
-        $this->_user = JRequest::getVar('userid');
-        $this->_db = &JFactory::getDbo();
+        $this->_user = $this->_japp->input->get('userid');
+        $this->_db = JFactory::getDbo();
 
         $this->unitsFields = 'id, titolo, descrizione, unitapadre, is_corso';
         $this->contentsFields = 'id, titolo, durata, tipologia, mod_track, prerequisiti';
@@ -46,7 +46,7 @@ class gglmsControllerMobile extends JControllerLegacy
     public function pulldata()
     {
 
-        $id_piattaforma = JRequest::getVar('id_piattaforma');
+        $id_piattaforma = $this->_japp->input->get('id_piattaforma');
         $gruppiCorsi = utilityHelper::getGruppiCorsi($id_piattaforma, 1);
 
         $gruppiUtente = JAccess::getGroupsByUser($this->_user);

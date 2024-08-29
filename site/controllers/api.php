@@ -41,40 +41,42 @@ class gglmsControllerApi extends JControllerLegacy
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
 
+        $input = $this->app->input;
+
         $this->_filterparam = new stdClass();
 
-        $this->_filterparam->corso_id = JRequest::getVar('corso_id');
-        $this->_filterparam->gruppo_id = JRequest::getVar('gruppo_id');
-        $this->_filterparam->current = JRequest::getVar('current');
-        $this->_filterparam->rowCount = JRequest::getVar('rowCount');
-        $this->_filterparam->startdate = JRequest::getVar('startdate');
-        $this->_filterparam->finishdate = JRequest::getVar('finishdate');
-        $this->_filterparam->filterstato = JRequest::getVar('filterstato');
-        $this->_filterparam->usergroups = JRequest::getVar('usergroups');
-        $this->_filterparam->sort = JRequest::getVar('sort');
-        $this->_filterparam->order = JRequest::getVar('order');
-        $this->_filterparam->searchPhrase = JRequest::getVar('searchPhrase');
-        $this->_filterparam->csvlimit = JRequest::getVar('csvlimit');
-        $this->_filterparam->csvoffset = JRequest::getVar('csvoffset');
-        $this->_filterparam->id_chiamata = JRequest::getVar('id_chiamata');
-        $this->_filterparam->to = JRequest::getVar('to');
-        $this->_filterparam->oggettomail = JRequest::getVar('oggettomail');
-        $this->_filterparam->testomail = JRequest::getVar('testomail');
-        $this->_filterparam->tipo_report = JRequest::getVar('tipo_report');
-        $this->_filterparam->limit = JRequest::getVar('limit');
-        $this->_filterparam->offset = JRequest::getVar('offset');
-        $this->_filterparam->cid = JRequest::getVar('cid');
-        $this->_filterparam->user_id = JRequest::getVar('user_id');
-        $this->_filterparam->all_users = JRequest::getVar('all_users');
-        $this->_filterparam->zoom_user = JRequest::getVar('zoom_user');
-        $this->_filterparam->zoom_tipo = JRequest::getVar('zoom_tipo');
-        $this->_filterparam->zoom_mese = JRequest::getVar('zoom_mese');
-        $this->_filterparam->zoom_event_id = JRequest::getVar('zoom_event_id');
-        $this->_filterparam->zoom_event_label = JRequest::getVar('zoom_label');
-        $this->_filterparam->zoom_event_type = JRequest::getVar('zoom_event_type');
-        $this->_filterparam->id_piattaforma = JRequest::getVar('id_piattaforma');
-        $this->_filterparam->tipologia_svolgimento = JRequest::getVar('tipologia_svolgimento');
-        $this->_filterparam->id_quiz = JRequest::getVar('id_quiz');
+        $this->_filterparam->corso_id = $input->get('corso_id');
+        $this->_filterparam->gruppo_id = $input->get('gruppo_id');
+        $this->_filterparam->current = $input->get('current');
+        $this->_filterparam->rowCount = $input->get('rowCount');
+        $this->_filterparam->startdate = $input->get('startdate');
+        $this->_filterparam->finishdate = $input->get('finishdate');
+        $this->_filterparam->filterstato = $input->get('filterstato');
+        $this->_filterparam->usergroups = $input->get('usergroups');
+        $this->_filterparam->sort = $input->get('sort');
+        $this->_filterparam->order = $input->get('order');
+        $this->_filterparam->searchPhrase = $input->get('searchPhrase');
+        $this->_filterparam->csvlimit = $input->get('csvlimit');
+        $this->_filterparam->csvoffset = $input->get('csvoffset');
+        $this->_filterparam->id_chiamata = $input->get('id_chiamata');
+        $this->_filterparam->to = $input->get('to');
+        $this->_filterparam->oggettomail = $input->get('oggettomail');
+        $this->_filterparam->testomail = $input->get('testomail');
+        $this->_filterparam->tipo_report = $input->get('tipo_report');
+        $this->_filterparam->limit = $input->get('limit');
+        $this->_filterparam->offset = $input->get('offset');
+        $this->_filterparam->cid = $input->get('cid');
+        $this->_filterparam->user_id = $input->get('user_id');
+        $this->_filterparam->all_users = $input->get('all_users');
+        $this->_filterparam->zoom_user = $input->get('zoom_user');
+        $this->_filterparam->zoom_tipo = $input->get('zoom_tipo');
+        $this->_filterparam->zoom_mese = $input->get('zoom_mese');
+        $this->_filterparam->zoom_event_id = $input->get('zoom_event_id');
+        $this->_filterparam->zoom_event_label = $input->get('zoom_label');
+        $this->_filterparam->zoom_event_type = $input->get('zoom_event_type');
+        $this->_filterparam->id_piattaforma = $input->get('id_piattaforma');
+        $this->_filterparam->tipologia_svolgimento = $input->get('tipologia_svolgimento');
+        $this->_filterparam->id_quiz = $input->get('id_quiz');
         // email di debug
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -1540,7 +1542,7 @@ HTML;
     public function getContenuti()
     {//CONTROLLER CHE SERVE A VEDERSI STAMPARE L'ELENCO DI TUTTI I CONTENUTI DI UNA UNITA E SOTTO UNITA'. NON VIENE USATO IN ALCUNA VISTA
 
-        $id = JRequest::getVar('corso_id');
+        $id = $this->input->get('corso_id');
         $reportModel = new gglmsModelReport();
         $contenuti = $reportModel->getContenutiArrayList($id);
 
@@ -1964,7 +1966,7 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $this->input->getArray($_GET);
             $quiz_id = $params["quiz_id"];
             $user_id = $params["user_id"];
             $corso_id = $params["corso_id"];

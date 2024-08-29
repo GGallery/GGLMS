@@ -116,7 +116,7 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
 
         try {
 
-            $data = JRequest::get($_POST);
+            $data = $this->_japp->input->getArray($_POST);
 
             if ($this->send_book_email($data) === false) {
                 throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);

@@ -36,8 +36,9 @@ class gglmsViewPaypal extends JViewLegacy {
             JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
 
+            $input = JFactory::getApplication()->input;
             // campi encoded dalla chiamata
-            $pp = JRequest::getVar('pp');
+            $pp = $input->get('pp');
             $this->call_result = "";
             $new_order = null;
 
@@ -55,14 +56,14 @@ class gglmsViewPaypal extends JViewLegacy {
             // user model
             $_user_quote = new gglmsModelUsers();
             // parametri comuni
-            $order_id = JRequest::getVar('order_id');
-            $user_id = JRequest::getVar('user_id');
+            $order_id = $input->get('order_id');
+            $user_id = $input->get('user_id');
 
             // parte dedicata al form di pagamento delle quote SINPE
             if ($pp == 'sinpe') {
 
-                $totale_sinpe = JRequest::getVar('totale_sinpe');
-                $totale_espen = JRequest::getVar('totale_espen');
+                $totale_sinpe = $input->get('totale_sinpe');
+                $totale_espen = $input->get('totale_espen');
 
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale_sinpe, $totale_espen), true);
@@ -94,8 +95,8 @@ class gglmsViewPaypal extends JViewLegacy {
             // acquisto di servizi extra (ad esempio ESPEN in un secondo momento)
             else if ($pp == 'servizi_extra') {
 
-                $totale = JRequest::getVar('totale');
-                $totale_espen = JRequest::getVar('totale_espen');
+                $totale = $input->get('totale');
+                $totale_espen = $input->get('totale_espen');
 
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale, $totale_espen), true);
@@ -125,7 +126,7 @@ class gglmsViewPaypal extends JViewLegacy {
             }
             else if ($pp == 'acquistaevento') {
 
-                $token = JRequest::getVar('token');
+                $token = $input->get('token');
 
                 // decodifica dell'attributo token
                 $decode_pp = UtilityHelper::encrypt_decrypt('decrypt', $token, 'GGallery00!', 'GGallery00!');

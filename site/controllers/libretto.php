@@ -32,7 +32,8 @@ class gglmsControllerLibretto extends JControllerLegacy
         $this->_app = JFactory::getApplication();
         $this->_db = JFactory::getDbo();
         $this->_filterparam = new stdClass();
-        $this->_filterparam->user_id = JRequest::getVar('user_id');
+        $input = $this->input;
+        $this->_filterparam->user_id = $input->get('user_id');
 
 
 

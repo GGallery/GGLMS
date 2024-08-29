@@ -27,7 +27,7 @@ class gglmsViewAttestatiUtente extends JViewLegacy {
         $this->_japp = JFactory::getApplication();
         $this->_params = $this->_japp->getParams();
         $this->_filterparam = new stdClass();
-        $this->_filterparam->user_id = JRequest::getVar('user_id');
+        $this->_filterparam->user_id = $this->_japp->input->get('user_id');
 
         $obj=new gglmsControllerAttestatiUtente();
 
@@ -41,4 +41,3 @@ class gglmsViewAttestatiUtente extends JViewLegacy {
 
 
 }
-    

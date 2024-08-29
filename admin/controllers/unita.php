@@ -98,8 +98,9 @@ class gglmsControllerUnita extends JControllerForm
 
     public function setUnitOrdinamento(){
         $unitasModel=new gglmsModelunitas();
-        $unit_id=JRequest::getVar('unit_id');
-        $pos=JRequest::getVar('pos');
+        $input = JFactory::getApplication()->input;
+        $unit_id = $input->get('unit_id');
+        $pos = $input->get('pos');
         $result=$unitasModel->updateOrderValue($unit_id,$pos);
 
 

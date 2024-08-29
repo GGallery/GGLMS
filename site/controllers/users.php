@@ -1023,7 +1023,7 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $app->input->getArray($_GET);
             $user_id = $params["user_id"];
             $totale = $params["totale"];
             $tipo_quota = $params["tipo_quota"];
@@ -1077,7 +1077,7 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $app->input->getArray($_GET);
             $user_id = $params["user_id"];
             $totale = $params["totale"];
 
@@ -1125,7 +1125,7 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $app->input->getArray($_GET);
             $id_pagamento = $params["id_pagamento"];
             $user_id = $params["user_id"];
             $gruppo_corso = $params["gruppo_corso"];
@@ -1182,7 +1182,7 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $app->input->getArray($_GET);
             $id_corso = $params["id_corso"];
 
             if (!isset($id_corso)
@@ -1220,7 +1220,7 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
+            $params = $app->input->getArray($_GET);
             $user_id = $params["user_id"];
 
             if (!isset($user_id)
@@ -1268,7 +1268,7 @@ HTML;
 
         try {
 
-            $_call_params = JRequest::get($_GET);
+            $_call_params = $app->input->getArray($_GET);
             $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
             $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
             $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
@@ -1387,7 +1387,7 @@ HTML;*/
 
         try {
 
-            $_call_params = JRequest::get($_GET);
+            $_call_params = $app->input->getArray($_GET);
             $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
             $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
             $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;

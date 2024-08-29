@@ -34,8 +34,9 @@ class gglmsController extends JControllerLegacy {
     function display($cachable = false, $urlparams = false) {
         gglmsHelper::addSubmenu('messages');
 //        echo  $this->sidebar = JHtmlSidebar::render();  //RS
-        
-        JRequest::setVar('view', JRequest::getCmd('view', 'contents'));
+
+        $input = JFactory::getApplication()->input;
+        $input->set('view', 'contents');
         parent::display($cachable);
     }
 
@@ -106,11 +107,11 @@ class gglmsController extends JControllerLegacy {
 //the name of the file in PHP's temp directory that we are going to move to our folder
         $fileTemp = $_FILES[$fieldName]['tmp_name'];
 
-//for security purposes, we will also do a getimagesize on the temp file (before we have moved it 
+//for security purposes, we will also do a getimagesize on the temp file (before we have moved it
 //to the folder) to check the MIME type of the file, and whether it has a width and height
 //$imageinfo = getimagesize($fileTemp);
 //we are going to define what file extensions/MIMEs are ok, and only let these ones in (whitelisting), rather than try to scan for bad
-//types, where we might miss one (whitelisting is always better than blacklisting) 
+//types, where we might miss one (whitelisting is always better than blacklisting)
         $okMIMETypes = 'image/jpeg,image/pjpeg,image/png,image/x-png,image/gif,';
         $validFileTypes = explode(",", $okMIMETypes);
 
@@ -235,11 +236,11 @@ class gglmsController extends JControllerLegacy {
 //the name of the file in PHP's temp directory that we are going to move to our folder
         $fileTemp = $_FILES[$fieldName]['tmp_name'];
 
-//for security purposes, we will also do a getimagesize on the temp file (before we have moved it 
+//for security purposes, we will also do a getimagesize on the temp file (before we have moved it
 //to the folder) to check the MIME type of the file, and whether it has a width and height
 //$imageinfo = getimagesize($fileTemp);
 //we are going to define what file extensions/MIMEs are ok, and only let these ones in (whitelisting), rather than try to scan for bad
-//types, where we might miss one (whitelisting is always better than blacklisting) 
+//types, where we might miss one (whitelisting is always better than blacklisting)
         $okMIMETypes = 'image/jpeg,image/pjpeg,image/png,image/x-png,image/gif,';
         $validFileTypes = explode(",", $okMIMETypes);
 
@@ -252,8 +253,9 @@ class gglmsController extends JControllerLegacy {
 // $fileName = preg_replace("/[^A-Za-z0-9]/i", "-", $fileName);
 //$fileName = $fileName . JRequest::getVar('id_contenuto');
 
-        $id_contenuto = JRequest::getVar('id_contenuto');
-        $path_contenuto = JRequest::getVar('path_contenuto');
+        $input = JFactory::getApplication()->input;
+        $id_contenuto = $input->get('id_contenuto');
+        $path_contenuto= $input->get('path_contenuto');
 
 
         $fileName = "esercizio.zip";

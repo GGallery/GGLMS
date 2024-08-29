@@ -32,7 +32,7 @@ class gglmsControllerReportTempiLearning extends JControllerLegacy
         $this->_app = JFactory::getApplication();
         $this->_db = JFactory::getDbo();
         $this->_filterparam = new stdClass();
-        $this->_filterparam->user_id = JRequest::getVar('user_id');
+        $this->_filterparam->user_id = $this->_app->input->get('user_id');
        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');
     }
 

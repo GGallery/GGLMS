@@ -44,7 +44,7 @@ class gglmsControllerTracklog extends JControllerLegacy
 
     public function getData()
     {
-        $filter_params = JRequest::get($_POST);
+        $filter_params = $this->_japp->input->getArray($_POST);
         $data = $this->get_tracklog_main_data($filter_params);
 
         echo json_encode($data);
@@ -105,7 +105,7 @@ class gglmsControllerTracklog extends JControllerLegacy
 
     public function getDetails()
     {
-        $filter_params = JRequest::get($_POST);
+        $filter_params = $this->_japp->input->getArray($_POST);
         $id_gruppo_societa = $filter_params['id_gruppo_azienda'];
         $id_corso = $filter_params['id_corso'];
         $id_user = $filter_params['id_user'];
@@ -146,7 +146,7 @@ class gglmsControllerTracklog extends JControllerLegacy
     {
 
 
-        $filter_params = JRequest::get($_POST);
+        $filter_params = $this->_japp->input->getArray($_POST);
         $id_gruppo_societa = $filter_params['id_gruppo_azienda'];
         $id_corso = $filter_params['id_corso'];
         $stato = $filter_params['stato'];

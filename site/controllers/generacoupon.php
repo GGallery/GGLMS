@@ -100,8 +100,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     public function generacoupon()
     {
         try {
-
-            $data = JRequest::get($_POST);
+            $input = $this->input;
+            $data = $input->getArray($_POST);
             $this->generaCoupon->insert_coupon($data);
 
             $this->_japp->redirect(('index.php?option=com_gglms&view=genera'), $this->_japp->enqueueMessage(JText::_('COM_GGLMS_GENERA_COUPON_SUCCESS'), 'Success'));
@@ -118,8 +118,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     public function api_genera_coupon()
     {
         try {
-
-            $data = JRequest::get($_POST);
+            $input = $this->input;
+            $data = $input->getArray($_POST);
 
             /*
              * required
@@ -199,7 +199,7 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
         } catch (Exception $e) {
 
             // loggo anche l'oggetto POST ricevuto per maggiori dettagli
-            UtilityHelper::make_debug_log(__FUNCTION__, print_r(JRequest::get($_POST), true), 'api_genera_coupon_post_obj');
+            UtilityHelper::make_debug_log(__FUNCTION__, print_r($input->getArray($_POST), true), 'api_genera_coupon_post_obj');
             // l'errore esclusivo della api_genera_coupon lo marco diversamente
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_exception');
             DEBUGG::error($e, __FUNCTION__, 1, true);
@@ -212,7 +212,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
-        $piva = JRequest::getVar('username');
+        $input = $japp->input;
+        $piva = $input->get('username');
 
         $query = $this->_db->getQuery(true)
             ->select('u.id, u.username, u.email, c.cb_ateco, u.name')
@@ -243,8 +244,9 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
-        $venditore = JRequest::getVar('txt_venditore');
-        $id_piattaforma = JRequest::getVar('id_piattaforma');
+        $input = $japp->input;
+        $venditore = $input->get('txt_venditore');
+        $id_piattaforma = $input->get('id_piattaforma');
 
         // filtro i venditori anche  per piattaforma
         $query = $this->_db->getQuery(true)
@@ -273,7 +275,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
-        $id_piattaforma = JRequest::getVar('id_piattaforma');
+        $input = $japp->input;
+        $id_piattaforma = $input->get('id_piattaforma');
         $result = utilityHelper::getGruppiCorsi($id_piattaforma);
 
         echo isset($result) ? json_encode($result) : null;
@@ -286,7 +289,9 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
-        $piva = JRequest::getVar('username');
+        $input = $japp->input;
+        $piva = $input->get('username');
+
 
         $query = $this->_db->getQuery(true)
             ->select('u.id, u.username, u.email, c.cb_ateco, u.name')

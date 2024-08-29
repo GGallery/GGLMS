@@ -37,10 +37,10 @@ class gglmsControllerSyncViewCarigeLearningBatch extends JControllerLegacy
         $this->params = $this->_app->getParams();
         $this->_db = JFactory::getDbo();
         $this->_filterparam = new stdClass();
-        $this->_filterparam->typeofcall=JRequest::getVar('typeofcall');
-        $this->_filterparam->limit=JRequest::getVar('limit');
-        $this->_filterparam->offset=JRequest::getVar('offset');
-        $this->_filterparam->maxts=JRequest::getVar('maxts');
+        $this->_filterparam->typeofcall=$this->_app->input->get('typeofcall');
+        $this->_filterparam->limit=$this->_app->input->get('limit');
+        $this->_filterparam->offset=$this->_app->input->get('offset');
+        $this->_filterparam->maxts=$this->_app->input->get('maxts');
         $this->syncviewcarigelearningbatchModel=new gglmsModelSyncViewCarigeLearningBatch();
 
        JHtml::_('stylesheet', 'components/com_gglms/libraries/css/debugg.css');

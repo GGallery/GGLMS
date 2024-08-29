@@ -82,7 +82,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     public function getData()
     {
-        $params = JRequest::get('$_POST');
+        $params = $this->_japp->input->getArray($_POST); //to_check
 
         $page = $params["page"];
         $take = $params["take"];
@@ -207,7 +207,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
     public function get_tracklog_details()
     {
-        $filter_params = JRequest::get($_POST);
+        $filter_params = $this->_japp->input->get($_POST);
         $id_gruppo_societa = $filter_params['id_gruppo_azienda'];
         $id_corso = $filter_params['id_corso'];
         $id_user = $filter_params['id_user'];
@@ -270,7 +270,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
     public function get_user_detail()
     {
 
-        $params = JRequest::get($_POST);
+        $params = $this->_japp->input->get($_POST);
         $user_id = $params["user_id"];
 
 
@@ -351,7 +351,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         // possono resettare i coupon solo superadmin(e solo coupon occupati)
 
-        $params = JRequest::get($_POST);
+        $params = $this->_japp->input->getArray($_POST);
         $coupon = $params["coupon"];
 
         $query_check = $this->_db->getQuery(true)
@@ -403,7 +403,7 @@ class gglmsControllerSummaryReport extends JControllerLegacy
 
         // possono resettare i coupon solo superadmin(e solo coupon occupati)
 
-        $params = JRequest::get($_POST);
+        $params = $this->_japp->input->get($_POST);
         $coupon = $params["coupon"];
 
         try {

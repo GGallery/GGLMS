@@ -34,10 +34,11 @@ class gglmsControllerCoupondispenser extends JControllerLegacy
     {
         $japp = JFactory::getApplication();
         $model = $this->getModel('coupondispenser');
+        $input = $japp->input;
 
-        $email = JRequest::getVar('email');
-        $id_iscrizione = JRequest::getVar('id_iscrizione');
-        $id_dispenser = JRequest::getVar('id_dispenser');
+        $email = $input->get('email');
+        $id_iscrizione = $input->get('id_iscrizione');
+        $id_dispenser = $input->get('id_dispenser');
 
         if ($model->checkAlreadyTaken($email, $id_dispenser)) {
             $results['report'] = "<p class='alert-danger alert'>Hai già riscosso un coupon</p>";
@@ -64,8 +65,9 @@ class gglmsControllerCoupondispenser extends JControllerLegacy
     {
 
         $japp = JFactory::getApplication();
+        $input = $japp->input;
 
-        $coupon = JRequest::getVar('coupon');
+        $coupon = $input->get('coupon');
         $model = $this->getModel('coupon');
 
         $dettagli_coupon = $model->check_Coupon($coupon, true);

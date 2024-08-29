@@ -41,9 +41,9 @@ class gglmsControllerReport extends JControllerAdmin
     public function allinea_tabella(){
 
         try {
-
-            $tabella = JRequest::getVar('tabella');
-            $modalita = JRequest::getVar('modalita');
+            $input = JFactory::getApplication()->input;
+            $tabella = $input->get('tabella');
+            $modalita = $input->get('modalita');
             $model = new gglmsModelReport();
             echo json_encode($model->allinea_tabella($tabella, $modalita));
             JFactory::getApplication()->close();

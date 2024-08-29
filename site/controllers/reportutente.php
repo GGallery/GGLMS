@@ -33,10 +33,10 @@ class gglmsControllerReportUtente extends JControllerLegacy
         $this->_app = JFactory::getApplication();
         $this->_db = JFactory::getDbo();
         $this->_filterparam = new stdClass();
-        $this->_filterparam->user_id = JRequest::getVar('user_id');
-        $this->_filterparam->unita_id = JRequest::getVar('unita_id');
-        $this->_filterparam->datetest = JRequest::getVar('datetest');
-        $this->_filterparam->data_superamento = JRequest::getVar('data_superamento');
+        $this->_filterparam->user_id = $this->_app->input->get('user_id');
+        $this->_filterparam->unita_id = $this->_app->input->get('unita_id');
+        $this->_filterparam->datetest = $this->_app->input->get('datetest');
+        $this->_filterparam->data_superamento = $this->_app->input->get('data_superamento');
 
         define('SMARTY_DIR', JPATH_COMPONENT . '/libraries/smarty/smarty/');
         define('SMARTY_COMPILE_DIR', JPATH_COMPONENT . '/models/cache/compile/');

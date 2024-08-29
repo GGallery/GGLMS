@@ -604,7 +604,8 @@ HTML;
             $_jumper_div_id = $i;
 
             //Anteprima Jumper
-            $_id_contenuto = JRequest::getInt('id', 0);
+            $input = Factory::getApplication()->input;
+            $_id_contenuto = $input->getInt('id', 0);
 
             $_img_contenuto = $obj_contenuto->_path . "images/normal/Slide" . ($i + 1) . ".jpg";
             $_background = "background-image: url('" . $_img_contenuto . "'); background-size: 60px 50px; background-position: center;  width: 60px; height: 50px;";

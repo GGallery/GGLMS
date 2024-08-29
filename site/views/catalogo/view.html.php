@@ -25,12 +25,12 @@ class gglmsViewCatalogo extends JViewLegacy
 
     function display($tpl = null)
     {
+        $input = JFactory::getApplication()->input;
+        $box = $input->get('box');
 
-        $box = JRequest::getVar('box');
-
-        $this->id_piattaforma = JRequest::getVar('piattaforma_id');
+        $this->id_piattaforma = $input->get('piattaforma_id');
         $this->catalogoModel = new gglmsModelCatalogo();
-        $layout = JRequest::getWord('template', '');
+        $layout = $input->getWord('template', '');
 
 
         if ($layout === 'prenota') {
@@ -38,7 +38,7 @@ class gglmsViewCatalogo extends JViewLegacy
             $this->catalogo = $this->catalogoModel->getCatalogo_prenota( $this->id_piattaforma );
         }
         else{
-            // template per piattaforme che non hanno ecommerce
+            // template per piat$input->gettaforme che non hanno ecommerce
             $this->catalogo = $this->catalogoModel->getCatalogo(DOMINIO, $box);
         }
 

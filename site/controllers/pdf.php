@@ -156,11 +156,11 @@ class gglmsControllerPdf extends JControllerLegacy
             if (!is_null($id_corso)) {
 
                 $query = $db->getQuery(true)
-                    ->select('COALESCE(r.data_inizio, "") as data_inizio, 
-                            COALESCE(r.data_inizio, "") as data_inizio_corso, 
+                    ->select('COALESCE(r.data_inizio, "") as data_inizio,
+                            COALESCE(r.data_inizio, "") as data_inizio_corso,
                             COALESCE(r.data_fine, "") as data_fine,
                             COALESCE(r.data_fine, "") as data_fine_corso,
-                            COALESCE(c.titolo, "") as titolo, 
+                            COALESCE(c.titolo, "") as titolo,
                             COALESCE(c.prefisso_coupon, "") as codice_corso')
                     ->from('#__gg_view_stato_user_corso as r')
                     ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
@@ -322,7 +322,7 @@ class gglmsControllerPdf extends JControllerLegacy
     public function generate_libretto()
     {
         try {
-            $user_id = JRequest::getVar('user_id');
+            $user_id = $this->_japp->input->get('user_id');
             if ($user_id) {
 
                 $model = $this->getModel('pdf');

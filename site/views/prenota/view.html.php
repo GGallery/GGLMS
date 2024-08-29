@@ -56,9 +56,9 @@ class gglmsViewPrenota extends JViewLegacy
         JHtml::_('stylesheet', 'components/com_gglms/libraries/css/prenotacoupon.css');
 
         $prenotaController = new gglmsControllerPrenotaCoupon();
-
-        $this->id_corso = JRequest::getVar('id_corso');
-        $this->id_piattaforma = JRequest::getVar('id_piattaforma');
+        $input = JFactory::getApplication()->input;
+        $this->id_corso = $input->get('id_corso');
+        $this->id_piattaforma = $input->get('id_piattaforma');
 
         $this->prezzi = $prenotaController->_getPrezziByCorso($this->id_corso);
         $this->info_corso = $prenotaController->_getInfoCorso($this->id_corso);

@@ -81,8 +81,8 @@ class gglmsViewdettagliutente extends JViewLegacy
             JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js');
             JHtml::_('script', 'https://unpkg.com/bootstrap-table@1.18.2/dist/locale/bootstrap-table-' . $this->current_lang . '.min.js');
 
-
-            $layout = JRequest::getWord('template', '');
+            $input = JFactory::getApplication()->input;
+            $layout = $input->get('template', '');
             $this->setLayout($layout);
 
             $_user = new gglmsModelUsers();
@@ -136,7 +136,7 @@ class gglmsViewdettagliutente extends JViewLegacy
             }
             else if ($layout == 'registrazione_utenti_sponsor') {
 
-                $this->id_evento_sponsor = JRequest::getVar('ev');
+                $this->id_evento_sponsor = $input->get('ev');
                 if (!isset($this->id_evento_sponsor)
                     || $this->id_evento_sponsor == "")
                     throw new Exception("Nessun evento valido specificato", 1);
