@@ -34,7 +34,7 @@ class JFormFieldlistaContenuti extends JFormFieldList {
     protected function getOptions() {
         // Initialise variables.
         $options = array();
-
+        try{
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
 
@@ -48,8 +48,8 @@ class JFormFieldlistaContenuti extends JFormFieldList {
 
         $options = $db->loadObjectList();
 
-        if ($db->getErrorNum()) {
-            JError::raiseWarning(500, $db->getErrorMsg());
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
 
 

@@ -34,7 +34,7 @@ class JFormFieldlistacorsi extends JFormFieldList {
     protected function getOptions() {
         // Initialise variables.
         $options = array();
-
+        try{
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
 
@@ -50,8 +50,8 @@ class JFormFieldlistacorsi extends JFormFieldList {
         $options = $db->loadObjectList();
         array_unshift($options,(object)['text'=>'corsi','value'=>null]);
 
-        if ($db->getErrorNum()) {
-            JError::raiseWarning(500, $db->getErrorMsg());
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
 
 

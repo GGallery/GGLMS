@@ -88,6 +88,7 @@ class gglmsControllerMobile extends JControllerLegacy
     protected function getCourses($coursesList)
     {
         $courses = array();
+        try{
         $this->_db = JFactory::getDbo();
         $query = $this->_db->getQuery(true);
 
@@ -99,10 +100,7 @@ class gglmsControllerMobile extends JControllerLegacy
 
         $this->_db->setQuery($query);
 
-        // Check for a database error.
-        if ($this->_db->getErrorNum()) {
-            JError::raiseWarning(500, $this->_db->getErrorMsg());
-        }
+
 
         $coursesTree = $this->_db->loadObjectList();
 
@@ -113,7 +111,9 @@ class gglmsControllerMobile extends JControllerLegacy
                 array_push($courses, $item2);
             }
         }
-
+        }catch (Exception $e) {
+            echo $exception->getMessage();
+        }
 
         unset($coursesTree);
         return $courses;
@@ -123,6 +123,7 @@ class gglmsControllerMobile extends JControllerLegacy
     protected function getUnits($item = 0, $courseId = 0)
     {
         $units = array();
+        try{
         $query = $this->_db->getQuery(true);
 
         $query->select($this->unitsFields);
@@ -132,9 +133,8 @@ class gglmsControllerMobile extends JControllerLegacy
 
         $this->_db->setQuery($query);
 
-        // Check for a database error.
-        if ($this->_db->getErrorNum()) {
-            JError::raiseWarning(500, $this->_db->getErrorMsg());
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
 
         $unitTree = $this->_db->loadObjectList();
@@ -152,7 +152,7 @@ class gglmsControllerMobile extends JControllerLegacy
 
     protected function getContents($units)
     {
-
+        try{
         $query = $this->_db->getQuery(true);
 
         $unitsList = [];
@@ -172,12 +172,10 @@ class gglmsControllerMobile extends JControllerLegacy
 
         $this->_db->setQuery($query);
 
-        // Check for a database error.
-        if ($this->_db->getErrorNum()) {
-            JError::raiseWarning(500, $this->_db->getErrorMsg());
-        }
-
         $contents = $this->_db->loadObjectList();
+        }catch (Exception $e) {
+            echo $exception->getMessage();
+        }
 
         return $contents;
 
@@ -185,7 +183,7 @@ class gglmsControllerMobile extends JControllerLegacy
 
     protected function getScormVars($contentsIds)
     {
-
+        try{
         $query = $this->_db->getQuery(true);
 
         $contentsList = [];
@@ -199,20 +197,17 @@ class gglmsControllerMobile extends JControllerLegacy
 
         $this->_db->setQuery($query);
 
-        // Check for a database error.
-        if ($this->_db->getErrorNum()) {
-            JError::raiseWarning(500, $this->_db->getErrorMsg());
-        }
-
         $scormVars = $this->_db->loadObjectList();
-
+        }catch (Exception $e) {
+            echo $exception->getMessage();
+        }
         return $scormVars;
 
     }
 
     protected function getQuizResults($contentsIds)
     {
-
+        try{
         $query = $this->_db->getQuery(true);
 
         $query->select('DISTINCT c.id, qr.c_passed');
@@ -224,13 +219,13 @@ class gglmsControllerMobile extends JControllerLegacy
 
         $this->_db->setQuery($query);
 
-        // Check for a database error.
-        if ($this->_db->getErrorNum()) {
-            JError::raiseWarning(500, $this->_db->getErrorMsg());
-        }
+
 
         $return = $this->_db->loadObjectList();
 
+        }catch (Exception $e) {
+            echo $exception->getMessage();
+        }
         return $return;
 
     }

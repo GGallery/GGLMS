@@ -46,6 +46,7 @@ class JFormFieldlistaalberounita extends JFormFieldList {
 
     protected function getUnitTree($item = 0) {
         $tree = array();
+        try{
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
 
@@ -55,9 +56,8 @@ class JFormFieldlistaalberounita extends JFormFieldList {
 
         $db->setQuery($query);
 
-        // Check for a database error.
-        if ($db->getErrorNum()) {
-            JError::raiseWarning(500, $db->getErrorMsg());
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
 
         $tmptree = $db->loadObjectList();

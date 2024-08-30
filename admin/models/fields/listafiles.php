@@ -35,7 +35,7 @@ class JFormFieldlistafiles extends JFormFieldList {
         // Initialise variables.
         $options = array();
         
-
+        try{
         $db = JFactory::getDbo();
         $query = $db->getQuery(true);
 
@@ -48,9 +48,8 @@ class JFormFieldlistafiles extends JFormFieldList {
 
         $options = $db->loadObjectList();
 
-        // Check for a database error.
-        if ($db->getErrorNum()) {
-            JError::raiseWarning(500, $db->getErrorMsg());
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
 
 

@@ -150,10 +150,6 @@ class outputHelper {
 
 
             $db->setQuery($query);
-            // Check for a database error.
-            if ($db->getErrorNum()) {
-                JError::raiseWarning(500, $db->getErrorMsg());
-            }
 
             $res = $db->loadObjectList();
 
@@ -168,8 +164,8 @@ class outputHelper {
             DEBUGG::log($res, " getUnitMenu");
 
             return $res;
-        } catch (Exception $e) {
-
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
     }
 

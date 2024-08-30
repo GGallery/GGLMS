@@ -29,10 +29,7 @@ class utilityHelper
             $query->from('#__gg_configs AS u');
             $db->setQuery($query);
 
-            // Check for a database error.
-            if ($db->getErrorNum()) {
-                JError::raiseWarning(500, $db->getErrorMsg());
-            }
+
 
             $res = $db->loadObjectList();
 
@@ -41,8 +38,8 @@ class utilityHelper
             }
 
             return $res;
-        } catch (Exception $e) {
-
+        }catch (Exception $e) {
+            echo $exception->getMessage();
         }
     }
 
