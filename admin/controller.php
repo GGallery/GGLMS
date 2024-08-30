@@ -36,7 +36,7 @@ class gglmsController extends JControllerLegacy {
 //        echo  $this->sidebar = JHtmlSidebar::render();  //RS
 
         $input = JFactory::getApplication()->input;
-        $input->set('view', 'contents');
+        $input->set('view', $input->getCmd('view', 'contents'));
         parent::display($cachable);
     }
 
