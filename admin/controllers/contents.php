@@ -15,7 +15,7 @@ jimport('joomla.application.component.controlleradmin');
 class gglmsControllerContents extends JControllerAdmin
 {
     private $model;
-	public function getModel($name = 'content', $prefix = 'gglmsModel') 
+	public function getModel($name = 'content', $prefix = 'gglmsModel', $config = [])
 	{
 		$model = parent::getModel($name, $prefix, array('ignore_request' => true));
 		return $model;
