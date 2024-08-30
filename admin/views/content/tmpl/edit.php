@@ -14,7 +14,7 @@
 defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 //JHtml::_('behavior.calendar');
 
 JHtml::_('behavior.formvalidator');

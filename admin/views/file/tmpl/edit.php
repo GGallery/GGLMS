@@ -8,7 +8,7 @@
 // No direct access to this file
 defined('_JEXEC') or die;
 
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.formvalidation');
 ?>
 
