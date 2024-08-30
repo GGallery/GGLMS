@@ -7,6 +7,9 @@
  * @license		License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\Document\Document;
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
@@ -32,7 +35,8 @@ class gglmsViewcoupondispensers extends JViewLegacy {
         parent::display($tpl);
 
         // Set the document
-        $this->setDocument();
+        $document = Factory::getApplication()->getDocument();
+        $this->setDocument($document);
     }
 
     protected function addToolBar() {
@@ -43,8 +47,8 @@ class gglmsViewcoupondispensers extends JViewLegacy {
         JToolBarHelper::addNew('coupondispenser.add');
     }
 
-    protected function setDocument() {
-        $document = JFactory::getDocument();
+    public function setDocument(Document $document): void
+    {
         $document->setTitle(JText::_('COM_GGLMS_ADMINISTRATION'));
     }
 

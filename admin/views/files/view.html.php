@@ -7,6 +7,9 @@
  * @license		License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\Document\Document;
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
@@ -31,11 +34,12 @@ class gglmsViewFiles extends JViewLegacy {
 
 
         // Set the document
-        $this->setDocument();
+        $document = Factory::getApplication()->getDocument();
+        $this->setDocument($document);
 
          // Display the template
         parent::display($tpl);
-        
+
 
     }
 
@@ -45,12 +49,11 @@ class gglmsViewFiles extends JViewLegacy {
         JToolBarHelper::deleteList(JText::_('COM_GGLMS__FILES_SICUROELIMINARE'),'files.delete');
         JToolBarHelper::editList('file.edit');
         JToolBarHelper::addNew('file.add');
-        
+
     }
 
-    protected function setDocument() {
-        
-        $document = JFactory::getDocument();
+    public function setDocument(Document $document): void
+    {
         $document->setTitle(JText::_('COM_GGLMS_ADMINISTRATION'));
     }
 

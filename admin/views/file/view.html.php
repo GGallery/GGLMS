@@ -7,6 +7,8 @@
  * @license		License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\Document\Document;
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
@@ -23,13 +25,13 @@ class gglmsViewFile extends JViewLegacy {
         $this->addToolBar();
 
         jimport('joomla.environment.uri');
-        
+
         $host = JURI::root();
-        
+
         JHtml::_('jquery.framework');
         JHtml::_('bootstrap.framework');
-        JHtml::_('jquery.ui', array('core', 'sortable')); 
-        
+        JHtml::_('jquery.ui', array('core', 'sortable'));
+
         $document = JFactory::getDocument();
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload.css');
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload-ui.css');
@@ -37,7 +39,8 @@ class gglmsViewFile extends JViewLegacy {
         $document->addScript($host . 'administrator/components/com_gglms/jupload/js/procedure.js');
 
         // Display the template
-        $this->setDocument();
+        $document = JFactory::getDocument();
+        $this->setDocument($document);
         parent::display($tpl);
 
 
@@ -57,11 +60,12 @@ class gglmsViewFile extends JViewLegacy {
     /**
      * Method to set up the document properties
      *
+     * @param Document $document
      * @return void
      */
-    protected function setDocument() {
+    public function setDocument(Document $document): void
+    {
         $isNew = ($this->item->id < 1);
-        $document = JFactory::getDocument();
         $document->setTitle($isNew ? JText::_('COM_GGLMS_FILE_NEW') : JText::_('COM_GGLMS_FILE_EDITING'));
     }
 

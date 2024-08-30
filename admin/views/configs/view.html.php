@@ -7,6 +7,9 @@
  * @license		License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\Document\Document;
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
@@ -21,7 +24,7 @@ class gglmsViewConfigs extends JViewLegacy {
 
         $this->form = $form;
         $this->item = $item;
-        
+
         $this->addToolBar();
 
         jimport('joomla.environment.uri');
@@ -31,7 +34,8 @@ class gglmsViewConfigs extends JViewLegacy {
         // Display the template
         parent::display($tpl);
         // Set the document
-        $this->setDocument();
+        $document = Factory::getApplication()->getDocument();
+        $this->setDocument($document);
     }
 
     protected function addToolBar() {
@@ -39,7 +43,7 @@ class gglmsViewConfigs extends JViewLegacy {
         JToolBarHelper::title("Configurazione GGLMS", 'gglms');
         JToolBarHelper::save('configs.save');
         JToolBarHelper::cancel('configs.cancel',  'JTOOLBAR_CANCEL' );
-       
+
     }
 
     /**
@@ -47,9 +51,9 @@ class gglmsViewConfigs extends JViewLegacy {
      *
      * @return void
      */
-    protected function setDocument() {
+    public function setDocument(Document $document): void
+    {
         $isNew = ($this->item->id < 1);
-        $document = JFactory::getDocument();
         $document->setTitle($isNew ? "COM_GGLMS_CONTENT_NUOVOCONTENUTO" : "COM_GGLMS_CONTENT_MODIFICACONTENUTO");
     }
 

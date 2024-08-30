@@ -7,6 +7,8 @@
  * @license		License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\Document\Document;
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
@@ -38,9 +40,9 @@ class gglmsViewunitas extends JViewLegacy {
 
         // Display the template
         parent::display($tpl);
-
+        $document = JFactory::getDocument();
         // Set the document
-        $this->setDocument();
+        $this->setDocument($document);
     }
 
     protected function addToolBar() {
@@ -52,9 +54,11 @@ class gglmsViewunitas extends JViewLegacy {
         JToolBarHelper::addNew('unita.add');
     }
 
-    protected function setDocument() {
-        $document = JFactory::getDocument();
+    public function setDocument(Document $document): void
+    {
+
         $document->setTitle(JText::_('COM_GGLMS_ADMINISTRATION'));
+        //$document->addStyleSheet("/unico/media/jui/css/jquery.searchtools.css?748d04e1ef9639d6e79290609751cf67");
     }
 
 }
