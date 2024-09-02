@@ -11,14 +11,14 @@
 
 <?php
 // No direct access to this file
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
-JHtml::_('bootstrap.tooltip');
-//JHtml::_('behavior.calendar');
-
-JHtml::_('behavior.formvalidator');
-//JHtml::_('formbehavior.chosen', 'select');
+HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('behavior.formvalidator');
+HTMLHelper::_('formbehavior.chosen', 'select');
 
 $fieldsets = $this->form->getFieldsets();
 ?>

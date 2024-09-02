@@ -8,6 +8,7 @@
  */
 // No direct access to this file
 use Joomla\CMS\Document\Document;
+use Joomla\CMS\HTML\HTMLHelper;
 
 defined('_JEXEC') or die;
 
@@ -28,9 +29,10 @@ class gglmsViewFile extends JViewLegacy {
 
         $host = JURI::root();
 
-        JHtml::_('jquery.framework');
-        JHtml::_('bootstrap.framework');
-        JHtml::_('jquery.ui', array('core', 'sortable'));
+        JHtml::_('jquery.framework', true);
+        JHtml::_('bootstrap.framework', true);
+        HTMLHelper::_('script', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('version' => 'auto', 'relative' => false));
+        HTMLHelper::_('stylesheet', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array('version' => 'auto', 'relative' => false));
 
         $document = JFactory::getDocument();
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload.css');

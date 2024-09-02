@@ -6,10 +6,12 @@
  * @license		License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die;
 
-JHtml::_('bootstrap.tooltip');
-JHtml::_('behavior.formvalidation');
+HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('behavior.formvalidator');
 ?>
 
 <style type="text/css">

@@ -6,11 +6,13 @@
  * @license        License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die;
 
-JHtml::_('bootstrap.tooltip');
-JHtml::_('behavior.formvalidation');
-JHtml::_('formbehavior.chosen', 'select');
+HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('behavior.formvalidator');
+HTMLHelper::_('formbehavior.chosen', 'select');
 ?>
 
 
@@ -22,7 +24,7 @@ JHtml::_('formbehavior.chosen', 'select');
     <?php echo JHtml::_('bootstrap.startTabSet', 'myTab', array('active' => 'general')); ?>
 
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'general', JText::_('COM_GGLMS_UNITA_PANEL', true)); ?>
-    <?php echo JHtml::_('sortablelist.sortable', 'itemList', 'adminForm', null, ""); ?>
+    <?php echo JHtml::_('sortablelist.sortable', 'itemList', 'adminForm', 'asc', ""); ?>
     <div class="row-fluid">
         <div class="span12">
 

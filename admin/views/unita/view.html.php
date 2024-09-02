@@ -7,6 +7,8 @@
  * @license        License GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access to this file
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
@@ -34,7 +36,8 @@ class gglmsViewunita extends JViewLegacy
 
         JHtml::_('jquery.framework', true);
         JHtml::_('bootstrap.framework', true);
-        //JHtml::_('jquery.ui', array('core', 'sortable'));
+        HTMLHelper::_('script', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('version' => 'auto', 'relative' => false));
+        HTMLHelper::_('stylesheet', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array('version' => 'auto', 'relative' => false));
 
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload.css');
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload-ui.css');

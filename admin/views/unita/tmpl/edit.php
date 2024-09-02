@@ -15,8 +15,8 @@ HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('formbehavior.chosen', 'select');
 ?>
 <head>
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!--    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>-->
+<!--    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
     <script>
         jQuery(document).ready(function() {
             jQuery('#sortableTable').sortable();
@@ -55,7 +55,7 @@ HTMLHelper::_('formbehavior.chosen', 'select');
     <?php echo JHtml::_('bootstrap.startTabSet', 'myTab', array('active' => 'general')); ?>
 
     <?php echo JHtml::_('bootstrap.addTab', 'myTab', 'general', JText::_('COM_GGLMS_UNITA_PANEL', true)); ?>
-    <?php echo JHtml::_('sortablelist.sortable', 'itemList', 'adminForm', null,""); ?>
+    <?php echo JHtml::_('sortablelist.sortable', 'itemList', 'adminForm','asc',""); ?>
     <div class="row-fluid">
         <div class="span12">
 
