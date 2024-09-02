@@ -31,6 +31,9 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
     protected $payment_extra_form;
     protected $in_error;
     protected $client_id;
+    protected $action;
+    protected $call_result;
+    protected $last_quota;
 
     function display($tpl = null)
     {
@@ -67,59 +70,112 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
 
             $_current_user = JFactory::getUser();
             $this->user_id = $_current_user->id;
+            $this->call_result = "";
 
             // pp client_id
             $_config = new gglmsModelConfig();
+            $_user_quote = new gglmsModelUsers();
             $this->client_id = $_config->getConfigValue('paypal_client_id');
-            if (is_null($this->client_id)
-                || $this->client_id == "")
-                throw new Exception("Client ID di PayPal non valorizzato!", 1);
+            if (is_null($this->client_id) || $this->client_id == "") throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
 
             // dettagli utente
             $_user = new gglmsModelUsers();
             $_user_details = $_user->get_user_details_cb($this->user_id);
 
-            if (!is_array($_user_details))
-                throw new Exception($_user_details, 1);
+            $this->action = JRequest::getVar('action');
+            $pp = JRequest::getVar('pp');
+
+            // chi o cosa mi sta chiamando
+
+
+            if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
 
             $dt = new DateTime();
 
             // funzionialità diverse a seconda del servizio invocato
             //if ($this->nome_servizio == "sinpe") {
 
-            if (!isset($_user_details['ultimo_anno_pagato'])
-                    || $_user_details['ultimo_anno_pagato'] == "")
-                    throw new Exception("Ultimo anno di pagamento non definito", 1);
+            if (!isset($_user_details['ultimo_anno_pagato']) || $_user_details['ultimo_anno_pagato'] == "") throw new Exception("Ultimo anno di pagamento non definito", E_USER_ERROR);
 
-                $_anno_corrente = $dt->format('Y');
-                // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
-                $this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);
+            $_anno_corrente = $dt->format('Y');
+            // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
+            $this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);
 
-                /*
-                // controllo esistenza quote
-                $this->user_id = $_check_user['success'];
-                $_user_quote = $_user->get_user_quote($this->user_id);
+            /*
+            // controllo esistenza quote
+            $this->user_id = $_check_user['success'];
+            $_user_quote = $_user->get_user_quote($this->user_id);
 
-                if (!is_array($_user_quote))
-                    throw new Exception($_user_quote, 1);
-                */
+            if (!is_array($_user_quote))
+                throw new Exception($_user_quote, 1);
+            */
 
-                //$this->ultimo_anno_pagato = UtilityHelper::get_ultimo_anno_quota($_user_quote);
-                $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
-                    $this->ultimo_anno_pagato,
-                    $_anno_corrente,
-                    $_user_details);
+            //$this->ultimo_anno_pagato = UtilityHelper::get_ultimo_anno_quota($_user_quote);
+            $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
+                $this->ultimo_anno_pagato,
+                $_anno_corrente,
+                $_user_details);
 
-                if (!is_array($_payment_form))
-                    throw new Exception($_payment_form);
+            if (!is_array($_payment_form)) throw new Exception($_payment_form);
 
-                $this->payment_form = $_payment_form['success'];
-                $this->in_error = 0;
+            $this->payment_form = $_payment_form['success'];
+            $this->in_error = 0;
 
-                // verifico se esiste l'indicazione per il metodo di pagamento alternativi
-                $_extra_pay = utilityHelper::get_params_from_plugin();
-                $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
+            // verifico se esiste l'indicazione per il metodo di pagamento alternativi
+            $_extra_pay = utilityHelper::get_params_from_plugin();
+            $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay);
             //}
+
+            if ($this->action == 'bb_buy_request') { // l'utente vuole pagare con bonifico
+
+                // mi servono informazioni sull'unita
+
+                $totale_sinpe = JRequest::getVar('totale_sinpe');
+                $totale_espen = JRequest::getVar('totale_espen');
+
+                $_user_details = $_user_quote->get_user_details_cb($this->user_id);
+                if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+
+
+                $_insert_quote = $_user_quote->insert_user_quote_stato_bonifico(
+                    $this->user_id,
+                    $dt->format('Y'),
+                    $dt->format('Y-m-d H:i:s'),
+                    $totale_sinpe,
+                    $totale_espen);
+
+                if (!is_array($_insert_quote)) $this->call_result = $_insert_quote;
+                else $this->call_result = "tuttook";
+
+                // nessuna delle opzioni richieste elaborata
+                if ($this->call_result == "") throw new Exception("Non è stata eseguita nessuna operazione valida", E_USER_ERROR);
+
+                $email_default = utilityHelper::get_params_from_object($_extra_pay, "email_default");
+                $selectedUser = $_user->get_user_joomla($this->user_id);
+                if (isset($selectedUser->email) && $selectedUser->email != '') {
+                    utilityHelper::send_sinpe_email_pp($email_default,
+                                                    date('Y-m-d'),
+                                                    "",
+                                                    "",
+                                                    $_user_details,
+                                                    0,
+                                                    0,
+                                                    'richiesta_bonifico_sinpe',
+                                                    $selectedUser->email);
+                }
+
+                if($this->call_result == 'tuttook') {
+                    $_html = <<<HTML
+            <script type="text/javascript">
+                
+                history.back();
+            </script>
+HTML;
+
+                }
+            }
+
+
 
         } catch (Exception $e){
             $this->payment_form = outputHelper::get_payment_form_error($e->getMessage());

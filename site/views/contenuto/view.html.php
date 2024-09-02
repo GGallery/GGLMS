@@ -29,7 +29,11 @@ class gglmsViewContenuto extends JViewLegacy
     protected $jumper;
     protected $att_scaricabile;
     protected $id_unita;
-    public $attiva_blocco_video_focus = 1;
+    public $attiva_blocco_video_focus = 0;
+    public $disabilita_mouse = 0;
+    protected $currentUrl;
+    public $isAzureStream = false;
+    public $azureStreamUrl;
 
 
     function display($tpl = null)
@@ -37,10 +41,11 @@ class gglmsViewContenuto extends JViewLegacy
 
         $app = JFactory::getApplication();
         $template = $app->getTemplate();
+        $_config = new gglmsModelConfig();
+        $this->disabilita_mouse = $_config->getConfigValue('disabilita_mouse');
 
 
         if($template == 'tz_meetup'){
-
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/fix_tz_meetup.css');
         }
 
@@ -57,6 +62,10 @@ class gglmsViewContenuto extends JViewLegacy
         $arr_url = parse_url(JURI::base());
         $this->slide_pdf = null;
         $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
+        $this->currentUrl = JUri::getInstance();
+        $this->isAzureStream = (!is_null($this->contenuto->url_streaming_azure) && $this->contenuto->url_streaming_azure != "")
+            ? true
+            : false;
 
         // leggo parametro attiva_blocco_video_focus
         // se 1 blocco il video se 0 non lo blocco
@@ -78,6 +87,13 @@ class gglmsViewContenuto extends JViewLegacy
 
             case 'solovideo':
                 $this->jumper = array();
+
+                if ($this->isAzureStream) {
+                    JHtml::_('stylesheet', 'components/com_gglms/libraries/css/amp.css');
+                    $this->contenuto->tipologia_contenuto = 'solovideostreaming';
+                    $this->azureStreamUrl = $this->contenuto->url_streaming_azure;
+                }
+
                 break;
             case 'attestato':
                 $this->att_scaricabile = $this->contenuto->attestato_scaricabile_by_user();

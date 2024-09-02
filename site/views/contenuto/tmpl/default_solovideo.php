@@ -16,6 +16,16 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
     jQuery(document).ready(function ($) {
 
+
+        <?php if ($this->disabilita_mouse == 1) { ?>
+
+        document.addEventListener("contextmenu", function (e) {
+            alert('Funzione disabilitata');
+            e.preventDefault();
+        }, true);
+
+        <?php } ?>
+
         <?php if (JFactory::getApplication()->getParams()->get('log_utente') == 1) echo 'UserLog(' . $this->id_utente . ',' . $this->contenuto->id . ', null);'?>
 
         var hasPlayed = false;
@@ -38,19 +48,20 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         // abilito tutte le features a prescindere dallo stato perchè controllerò il seeking
         //features = ['playpause', 'current', 'progress', 'duration', 'volume', 'fullscreen', 'tracks'];
 
-        var jumper_attuale = null;
-        var jumper = [];
+        // var jumper_attuale = null;
+        // var jumper = [];
 
         <?php
-        $i = 0;
+        /* $i = 0;
         foreach ($this->jumper as $val) {
         ?>
         jumper[<?php echo $i++; ?>] = {
-            'tstart': <?php echo $val['tstart']; ?>,
-            'titolo': "<?php echo $val['titolo']; ?>"
-        };
+             'tstart': <?php echo $val['tstart']; ?>,
+             'titolo': "<?php echo $val['titolo']; ?>"
+         };
         <?php
         }
+        */
         ?>
 
         //stoppo il video quando cambia focus
@@ -121,15 +132,15 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
 
         player.play();
-        jQuery('.jumper.enabled').on('click',function () {
-            var rel = jQuery(this).attr('rel');
-            player.setCurrentTime(rel);
-            sliding(time);
-        });
+        // jQuery('.jumper.enabled').on('click',function () {
+        //     var rel = jQuery(this).attr('rel');
+        //     player.setCurrentTime(rel);
+        //     sliding(time);
+        // });
 
-        jQuery('.jumper.disabled').on('click',function () {
-            alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
-        });
+        // jQuery('.jumper.disabled').on('click',function () {
+        //     alert("E' necessario guardare tutto il video prima di poter cliccare sui jumper");
+        // });
 
         //Aggiorno il bookmark quando chiudo la pagina
         jQuery(window).on('beforeunload', function () {
@@ -154,31 +165,31 @@ HTML;
             return false;
         });
 
-        function sliding(tempo) {
-            if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
+        // function sliding(tempo) {
+        //     if (old_tempo != tempo && typeof (jumper.length) != 'undefined') {
 
-                old_tempo = tempo;
-                var currTime = parseInt(tempo);
-                var i = 0;
-                var past_jumper_selector = [];
-                while (i < jumper.length && currTime >= parseInt(jumper[i]['tstart'])) {
-                    past_jumper_selector[i] = '#' + i;
-                    i++;
-                }
-                i--; // col ciclo while vado avanti di 1
-                if (i < jumper.length && i != jumper_attuale) { // se cambio jumper
+        //         old_tempo = tempo;
+        //         var currTime = parseInt(tempo);
+        //         var i = 0;
+        //         var past_jumper_selector = [];
+        //         while (i < jumper.length && currTime >= parseInt(jumper[i]['tstart'])) {
+        //             past_jumper_selector[i] = '#' + i;
+        //             i++;
+        //         }
+        //         i--; // col ciclo while vado avanti di 1
+        //         if (i < jumper.length && i != jumper_attuale) { // se cambio jumper
 
-                    console.log("cambio slide -> AJAX per set position");
+        //             console.log("cambio slide -> AJAX per set position");
 
-                    jumper_attuale = i;
-                    // cancello eventuali jumper azzurri
-                    jQuery('.jumper').css('background-color', '#fff');
+        //             jumper_attuale = i;
+        //             // cancello eventuali jumper azzurri
+        //             jQuery('.jumper').css('background-color', '#fff');
 
-                    // jumper attuale è azzurro
-                    jQuery('#' + i).css('background-color', '#E4E4E4');
-                }
-            }
-        }
+        //             // jumper attuale è azzurro
+        //             jQuery('#' + i).css('background-color', '#E4E4E4');
+        //         }
+        //     }
+        // }
 
 
         function finish(tempo) {
@@ -221,24 +232,24 @@ HTML;
 
 
 //INIZIO COMPARSA JUMPER
-        jQuery("#jumper").click(function () {
+        // jQuery("#jumper").click(function () {
 
-            if (jQuery("#panel_jumper").hasClass('show')) {
+        //     if (jQuery("#panel_jumper").hasClass('show')) {
 
-                $("#sidepanel").removeClass('show').addClass('sidepanelhide');
-                $(".sidepanel").removeClass('show').addClass('hide');
-                $(".container-video").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
-                $(".pulsante").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
-                $("#moduli").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
-            } else {
-                $(".sidepanel").removeClass('show').addClass('hide');
-                $("#sidepanel").removeClass('sidepanelhide').addClass('show');
-                $("#panel_jumper").removeClass("hide").addClass('show');
-                $(".container-video").removeClass("container-videosidepanelhide").addClass("container-videosidepanelshow");
-                $(".pulsante").removeClass("container-videosidepanelhide").addClass("container-videosidepanelshow");
-                $("#moduli").removeClass("container-videosidepanelhide").addClass("container-videosidepanelshow");
-            }
-        });
+        //         $("#sidepanel").removeClass('show').addClass('sidepanelhide');
+        //         $(".sidepanel").removeClass('show').addClass('hide');
+        //         $(".container-video").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
+        //         $(".pulsante").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
+        //         $("#moduli").removeClass("container-videosidepanelshow").addClass("container-videosidepanelhide");
+        //     } else {
+        //         $(".sidepanel").removeClass('show').addClass('hide');
+        //         $("#sidepanel").removeClass('sidepanelhide').addClass('show');
+        //         $("#panel_jumper").removeClass("hide").addClass('show');
+        //         $(".container-video").removeClass("container-videosidepanelhide").addClass("container-videosidepanelshow");
+        //         $(".pulsante").removeClass("container-videosidepanelhide").addClass("container-videosidepanelshow");
+        //         $("#moduli").removeClass("container-videosidepanelhide").addClass("container-videosidepanelshow");
+        //     }
+        // });
 // FINE COMPARSA JUMPER
 
 

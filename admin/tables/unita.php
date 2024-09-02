@@ -47,8 +47,13 @@ class gglmsTableunita extends JTable
         }
 
 
-        if (isset($array['id_piattaforme_abilitate'])) {
-            gglmsHelper::SetMappaAccessoPiattaforme($array);
+        if (isset($array['id_piattaforme_abilitate']) || isset($_REQUEST['jform']['id_piattaforme_abilitate'])){
+            gglmsHelper::SetMappaAccessoPiattaforme($array, $_REQUEST['jform']['id_piattaforme_abilitate']);
+
+        }
+
+        if (isset($array['id_gruppi_custom']) && isset($_REQUEST['jform']['id_gruppi_custom'])) {
+            gglmsHelper::SetIdGruppiCustom($array, $_REQUEST['jform']['id_gruppi_custom']);
 
         }
 

@@ -48,9 +48,11 @@ class gglmsModelContents extends JModelList {
 
 
         // Filter search // Extra: Search more than one fields and for multiple words
-        $regex = str_replace(' ', '|', $this->getState('filter.search'));
+        //$regex = str_replace(' ', '|', $this->getState('filter.search'));
+        $regex = $this->getState('filter.search');
         if (!empty($regex)) {
-            $regex = ' REGEXP ' . $db->quote($regex);
+            //$regex = ' REGEXP ' . $db->quote($regex);
+            $regex = " LIKE '%" . $regex . "%'";
             $query->where('(' . implode($regex . ' OR ', $this->searchInFields) . $regex . ')');
         }
 

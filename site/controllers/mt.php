@@ -15,6 +15,7 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/api.php';
 
@@ -74,8 +75,17 @@ class gglmsControllerMt extends JControllerLegacy {
 
     public function test_() {
 
-        echo $this->encrypt_decrypt('encrypt', 'GGallery00!!!__', 'GGallery00__', 'GGallery00__');
-        $this->_db->close();
+        try {
+
+            $userModel = new gglmsModelUsers();
+            $user = $userModel->get_user_joomla(10);
+            print_r($user->email);
+
+        }
+        catch(Exception $e) {
+            echo $e->getMessage();
+        }
+        $this->_japp->close();
 
     }
 
@@ -133,27 +143,41 @@ class gglmsControllerMt extends JControllerLegacy {
     {
         try {
 
-            $arr_ids = array(9,22,23,40,44,48,54,56,62,64,65,80,81,100,101,104,119,126,139,143,153,188,198,220,225,235,236,248,250,252,262,266,269,271,275,287,301,320,322,327,361,390,395,401,436,465,473,481,491,510,517,529,538,542,587,600,632,658,665,707,731,733,746,747,767,778,780,788,820,850,872,873,878,886,906,911,927,946,951,958,998,999,1008,1017,1027,1028,1041,1045,1049,1055,1061,1088,1094,1101,1108,1110,1111,1117,1119,1135,1136,1143,1176,1202,1230,1255,1260,1361,1402,1457,1482,1583,1587,1629,1674,1711,1719,1720,1722,1741,1785,1852,1854,1920,1921,1928,1942,1964,2017,2020,2027,3051,3116,3171,3237,3243,3275,3350,3405,3434,3440,3445,3486,3490,3502,3590,3603,3607,3610,3656,3658,3665,3668,3675,3680,3685,3686,3698,3708,3739,3777,3816,3858,3977,3984,3987,4140,4194,4222,4268,4327,4360,4387,4388,4413,4420,4422,4427,4435,4438,4439,4440,4444,4446,4470,4479,4481,4482,4495,4497,4502,4510,4514,4520,4554,4566,4578,4588,4627,4628,4664,4812,4854,4856);
 
+            //if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->del_ug)) throw new Exception("Riferimento gruppo in eliminazione non specificato", E_USER_ERROR);
+            if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
+
+            /*
+            $arr_ids = array(9,22,23,40,44,48,54,56,62,64,65,80,81,100,101,104,119,126,139,143,153,188,198,220,225,235,236,248,250,252,262,266,269,271,275,287,301,320,322,327,361,390,395,401,436,465,473,481,491,510,517,529,538,542,587,600,632,658,665,707,731,733,746,747,767,778,780,788,820,850,872,873,878,886,906,911,927,946,951,958,998,999,1008,1017,1027,1028,1041,1045,1049,1055,1061,1088,1094,1101,1108,1110,1111,1117,1119,1135,1136,1143,1176,1202,1230,1255,1260,1361,1402,1457,1482,1583,1587,1629,1674,1711,1719,1720,1722,1741,1785,1852,1854,1920,1921,1928,1942,1964,2017,2020,2027,3051,3116,3171,3237,3243,3275,3350,3405,3434,3440,3445,3486,3490,3502,3590,3603,3607,3610,3656,3658,3665,3668,3675,3680,3685,3686,3698,3708,3739,3777,3816,3858,3977,3984,3987,4140,4194,4222,4268,4327,4360,4387,4388,4413,4420,4422,4427,4435,4438,4439,4440,4444,4446,4470,4479,4481,4482,4495,4497,4502,4510,4514,4520,4554,4566,4578,4588,4627,4628,4664,4812,4854,4856);
             $del_ug = 23;
             $new_ug = 20;
+            */
+
+            // online
+            $del_ug = $this->_filterparam->del_ug;
+            // morosi
+            $new_ug = $this->_filterparam->new_ug;
+            // anno corrente
+            $annoRef = date('Y');
 
             $completed = 0;
+
+            $arr_ids = $this->sinpe_get_online_anno($del_ug, $annoRef, $this->_filterparam->extraoff ?? 0);
+            if (!is_array($arr_ids) || !count($arr_ids)) throw new Exception("Non è stato trovato nessun utente appartenente ai criteri desiderati", E_USER_ERROR);
 
             $this->_db->transactionStart();
 
             foreach ($arr_ids as $key => $user_id) {
 
+                // controllo se moroso
                 $query_sel = "SELECT user_id
                                 FROM #__user_usergroup_map
                                 WHERE user_id = " . $this->_db->quote($user_id) . "
                                 AND group_id = " . $this->_db->quote($new_ug);
 
                 $this->_db->setQuery($query_sel);
-                $result = $this->_db->loadResult();
-
-                if (!is_null($result))
-                    continue;
+                $checkExist = $this->_db->loadResult();
 
                 // rimuovo user da online
                 $query_del = "DELETE
@@ -162,18 +186,17 @@ class gglmsControllerMt extends JControllerLegacy {
                                 AND group_id = " . $this->_db->quote($del_ug);
 
                 $this->_db->setQuery($query_del);
-                if (!$this->_db->execute())
-                    throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+                if (!$this->_db->execute()) throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
 
+                // se già presente non lo aggiungo
+                if (!is_null($checkExist)) continue;
 
                 // aggiungo user in moroso
                 $query_ins = "INSERT INTO #__user_usergroup_map (user_id, group_id)
                                 VALUES (" . $this->_db->quote($user_id) . ", " . $this->_db->quote($new_ug) . ")";
 
                 $this->_db->setQuery($query_ins);
-                if (!$this->_db->execute())
-                    throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
-
+                if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
 
                 $completed++;
 
@@ -192,49 +215,63 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_japp->close();
     }
 
-    public function sinpe_get_morosi()
+    /**
+     * @check_ug: online
+     * @anno_request: ultimo anno in regola
+     * @extraoff_request: se impostato non considera i soci straordinari
+     */
+    public function sinpe_get_online_anno($check_ug = null, $anno_ref = null, $extraoff_request = null)
     {
 
         try {
 
-            if (!isset($this->_filterparam->anno_ref))
-                throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (!isset($this->_filterparam->check_ug) && is_null($check_ug)) throw new Exception("Gruppo di selezione non indicato", E_USER_ERROR);
+            //if (!isset($this->_filterparam->anno_ref) && is_null($anno_request)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (is_null($anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
 
+            /*
+            $anno_ref = isset($this->_filterparam->anno_ref)
+                ? $this->_filterparam->anno_ref
+                : $anno_request;
+            */
+            $extra_ug = null;
+
+            if (isset($this->_filterparam->extraoff)) $extra_ug = $this->_filterparam->extraoff;
+            else if (!is_null($extraoff_request)) $extra_ug = $extraoff_request;
 
             $query = "SELECT user_id
                         FROM #__comprofiler
-                        WHERE cb_ultimoannoinregola = " . $this->_db->quote($this->_filterparam->anno_ref);
+                        WHERE cb_ultimoannoinregola = " . $this->_db->quote($anno_ref);
 
             $this->_db->setQuery($query);
             $rows = $this->_db->loadAssocList();
 
-            if (!count($rows))
-                throw new Exception("Nessun risultato per " . $this->_filterparam->anno_ref, 1);
+            if (!count($rows)) throw new Exception("Nessun risultato per " . $anno_ref, E_USER_ERROR);
 
-            $check_ug = [23];
-            $extra_ug = [25];
+            //$check_ug = [23];
+            //$extra_ug = [25];
 
             foreach ($rows as $key => $user) {
 
                 $query_ug = "SELECT user_id
                                 FROM #__user_usergroup_map
                                 WHERE user_id = " . $this->_db->quote($user['user_id']) . "
-                                AND group_id IN (" . implode(',', $check_ug) . ")
-                                AND group_id NOT IN (" . implode(',', $extra_ug) . ")"
-                                ;
+                                AND group_id IN (" . $check_ug . ")";
+
+                // se impostato straordinari lo esclude dalla query
+                if (!is_null($extra_ug)) $query_ug .= " AND group_id NOT IN (" . $extra_ug . ")";
 
                 $this->_db->setQuery($query_ug);
                 $result = $this->_db->loadResult();
 
-                if (is_null($result)
-                    || !$result)
-                    continue;
+                if (is_null($result) || !$result) continue;
 
                 $extra_arr[] = $user['user_id'];
 
             }
 
-            echo implode(",", $extra_arr);
+            //return implode(",", $extra_arr);
+            return $extra_arr;
 
         }
         catch(Exception $e) {
@@ -578,128 +615,318 @@ class gglmsControllerMt extends JControllerLegacy {
         try {
 
             $arr_ids = [
-                4490,
-                4496,
-                4498,
-                4499,
-                4500,
-                4505,
-                4509,
-                4512,
-                4513,
-                4516,
-                4574,
-                4576,
-                4577,
-                4579,
-                4586,
-                4590,
-                4593,
-                4594,
-                4595,
-                4596,
-                4597,
-                4598,
-                4600,
-                4601,
-                4602,
-                4603,
-                4604,
-                4606,
-                4607,
-                4608,
-                4609,
-                4610,
-                4611,
-                4612,
-                4613,
-                4615,
-                4616,
-                4617,
-                4618,
-                4619,
-                4621,
-                4622,
-                4623,
-                4624,
-                4625,
-                4626,
-                4631,
-                4633,
-                4635,
-                4636,
-                4637,
-                4638,
-                4639,
-                4640,
-                4641,
-                4642,
-                4643,
-                4644,
-                4645,
-                4647,
-                4649,
-                4651,
-                4652,
-                4653,
-                4655,
-                4656,
-                4657,
-                4658,
-                4659,
-                4661,
-                4663,
-                4667,
-                4672,
-                4676,
-                4683,
-                4684,
-                4685,
-                4686,
-                4687,
-                4688,
-                4690,
-                4691,
-                4692,
-                4694,
-                4695,
-                4697,
-                4698,
-                4699,
-                4700,
-                4701,
-                4702,
-                4703,
-                4704,
-                4705,
-                4707,
-                4708,
-                4709,
-                4710,
-                4711,
-                4712,
-                4713,
-                4714,
-                4715,
-                4717,
-                4718];
+                5915,
+                5791,
+                5760,
+                6031,
+                6027,
+                5968,
+                6009,
+                5758,
+                5967,
+                5768,
+                5870,
+                5761,
+                5941,
+                5956,
+                5988,
+                5959,
+                5977,
+                6001,
+                5757,
+                5919,
+                5957,
+                5796,
+                5938,
+                5860,
+                6049,
+                5762,
+                5809,
+                5973,
+                5770,
+                5865,
+                6037,
+                5850,
+                5892,
+                5763,
+                5783,
+                5794,
+                5990,
+                5817,
+                5852,
+                5931,
+                5773,
+                5816,
+                6036,
+                5764,
+                5769,
+                5916,
+                5987,
+                6014,
+                5911,
+                5802,
+                5913,
+                5774,
+                5776,
+                5772,
+                5792,
+                5824,
+                5798,
+                5879,
+                5855,
+                6017,
+                5908,
+                6040,
+                5800,
+                5812,
+                5775,
+                6044,
+                6046,
+                5997,
+                5784,
+                6030,
+                6043,
+                5943,
+                5965,
+                6011,
+                5828,
+                5881,
+                5947,
+                5765,
+                6048,
+                5829,
+                5833,
+                5814,
+                5885,
+                6028,
+                5841,
+                6032,
+                6019,
+                5875,
+                5838,
+                5856,
+                6025,
+                5920,
+                5861,
+                5831,
+                5848,
+                5971,
+                5859,
+                5839,
+                5903,
+                6021,
+                5844,
+                6033,
+                5811,
+                5815,
+                5905,
+                5940,
+                5799,
+                5964,
+                5945,
+                5778,
+                5821,
+                5797,
+                5950,
+                5961,
+                5849,
+                5782,
+                5810,
+                6039,
+                5978,
+                5871,
+                5942,
+                5882,
+                5923,
+                5822,
+                5819,
+                5894,
+                5907,
+                5969,
+                5986,
+                5993,
+                5790,
+                5914,
+                5998,
+                5929,
+                5939,
+                5876,
+                5922,
+                6008,
+                5955,
+                5873,
+                5930,
+                5877,
+                5771,
+                5883,
+                5837,
+                5912,
+                6005,
+                5888,
+                5842,
+                5840,
+                5970,
+                5899,
+                5994,
+                5781,
+                5999,
+                6013,
+                5963,
+                5925,
+                5962,
+                5886,
+                5789,
+                5795,
+                6016,
+                5900,
+                5767,
+                6018,
+                5887,
+                5891,
+                5898,
+                5951,
+                6000,
+                5851,
+                6029,
+                5759,
+                5896,
+                5989,
+                6034,
+                5854,
+                6022,
+                5862,
+                5984,
+                5980,
+                6006,
+                5897,
+                5921,
+                6052,
+                5813,
+                5878,
+                5787,
+                5788,
+                5793,
+                6035,
+                5901,
+                6004,
+                5872,
+                5895,
+                6002,
+                5867,
+                5991,
+                5890,
+                5863,
+                5832,
+                5935,
+                5944,
+                5958,
+                6026,
+                5972,
+                5847,
+                6003,
+                6023,
+                6012,
+                5830,
+                5924,
+                5868,
+                5807,
+                5853,
+                5996,
+                5928,
+                5857,
+                5952,
+                5902,
+                5932,
+                5933,
+                5884,
+                5927,
+                5834,
+                6045,
+                5936,
+                5948,
+                5846,
+                5937,
+                5825,
+                5858,
+                5946,
+                5918,
+                6050,
+                5818,
+                5835,
+                5934,
+                6024,
+                6015,
+                5843,
+                5823,
+                6020,
+                5866,
+                5869,
+                5904,
+                5808,
+                5910,
+                5926,
+                6038,
+                5983,
+                6042,
+                5985,
+                5780,
+                5803,
+                5880,
+                5805,
+                6041,
+                6051,
+                5804,
+                5975,
+                5992,
+                5982,
+                5953,
+                5960,
+                5979,
+                5874,
+                6007,
+                5766,
+                5995,
+                6010,
+                5801,
+                5779,
+                5917,
+                5906,
+                5826,
+                5845,
+                5954,
+                5981,
+                5976,
+                5820,
+                5836,
+                5893,
+                5777,
+                5909,
+                5949,
+                5785,
+                5827,
+                5966,
+                5864
+            ];
 
-            $del_ug = [28,30];
-            $new_ug = [23,25];
+            $del_ug = [];
+            $new_ug = [23];
+            $insertQuota = false;
             $completed = 0;
 
             $this->_db->transactionStart();
             foreach ($arr_ids as $key_user => $user_id) {
 
-                // rimuovo utente da gruppi evento
-                $query_del = "DELETE
-                                FROM #__user_usergroup_map
-                                WHERE user_id = " . $this->_db->quote($user_id) . "
-                                AND group_id IN (" . implode(',', $del_ug) . ")";
+                if (count($del_ug) > 0) {
+                    // rimuovo utente da gruppi evento
+                    $query_del = "DELETE
+                                    FROM #__user_usergroup_map
+                                    WHERE user_id = " . $this->_db->quote($user_id) . "
+                                    AND group_id IN (" . implode(',', $del_ug) . ")";
 
-                $this->_db->setQuery($query_del);
-                if (!$this->_db->execute())
-                    throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+                    $this->_db->setQuery($query_del);
+                    if (!$this->_db->execute())
+                        throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+                }
 
                 // aggiungo utente a gruppi istituzionali
                 $query_ins = "INSERT INTO #__user_usergroup_map
@@ -710,37 +937,38 @@ class gglmsControllerMt extends JControllerLegacy {
 
                 $query_ins = rtrim(trim($query_ins), ",") . ";";
                 $this->_db->setQuery($query_ins);
-                if (!$this->_db->execute())
-                    throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+                if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
 
-                // cb_ultimoannoinregola
-                $query_update = "UPDATE #__comprofiler
-                                SET cb_ultimoannoinregola = 2022
-                                WHERE user_id = " . $this->_db->quote($user_id);
-                $this->_db->setQuery($query_update);
-                if (!$this->_db->execute())
-                    throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
+                if ($insertQuota) {
+                    // cb_ultimoannoinregola
+                    $query_update = "UPDATE #__comprofiler
+                                    SET cb_ultimoannoinregola = 2024
+                                    WHERE user_id = " . $this->_db->quote($user_id);
+                    $this->_db->setQuery($query_update);
+                    if (!$this->_db->execute()) throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
 
-                $now = date('Y-m-d H:i:s');
-                $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
-                                                user_id,
-                                                anno,
-                                                tipo_quota,
-                                                tipo_pagamento,
-                                                data_pagamento,
-                                                dettagli_transazione
-                                                )
-                                            VALUES (
-                                                " . $this->_db->quote($user_id) . ",
-                                                2022,
-                                                'quota',
-                                                'bonifico',
-                                                " . $this->_db->quote($now) . ",
-                                                'Socio straordinario da Congresso 2021'
-                                            )";
-                $this->_db->setQuery($query_quote);
-                if (!$this->_db->execute())
-                    throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+                
+                    $now = date('Y-m-d H:i:s');
+                    $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
+                                                    user_id,
+                                                    anno,
+                                                    tipo_quota,
+                                                    tipo_pagamento,
+                                                    data_pagamento,
+                                                    dettagli_transazione
+                                                    )
+                                                VALUES (
+                                                    " . $this->_db->quote($user_id) . ",
+                                                    2024,
+                                                    'quota',
+                                                    'bonifico',
+                                                    " . $this->_db->quote($now) . ",
+                                                    'Socio straordinario 2024'
+                                                )";
+                    $this->_db->setQuery($query_quote);
+                    if (!$this->_db->execute()) throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+
+                }
 
                 $completed++;
 

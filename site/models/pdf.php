@@ -45,6 +45,8 @@ class gglmsModelPdf extends JModelLegacy
                                   $tracklog,
                                   $ateco ,
                                   $coupon,
+                                  $piattaforma,
+                                  $dominio,
                                   $multi = false,
                                   $dati_corso = null)
     {
@@ -94,12 +96,15 @@ class gglmsModelPdf extends JModelLegacy
 
             }
 
-            $info['logo'] = $_SESSION[$this->dominio];
-            $info['firma'] = $_SESSION[$this->dominio];
+            // $info['logo'] = DOMINIO;
+            // $info['firma'] = DOMINIO;
+            $info['logo'] = $dominio;
+            $info['firma'] = $dominio;
             $info['dg'] = $dg;
-            $info['ateco'] = $ateco;
+            $info['cb_settore'] = $ateco;
             $info['tracklog'] = $tracklog;
             $info['coupon'] = $coupon;
+            $info['piattaforma'] = $piattaforma;
 
             // header aggiuntivi per data inizio/fine corso
             if (!is_null($dati_corso)
@@ -135,6 +140,8 @@ class gglmsModelPdf extends JModelLegacy
                     throw new RuntimeException($customTemplate . " NOT EXIST", E_USER_ERROR);
                 }
             }
+
+            $user->cb_ateco = $info["ateco"];
 
             $pdf->add_data((array)$user);
             $pdf->add_data($info);

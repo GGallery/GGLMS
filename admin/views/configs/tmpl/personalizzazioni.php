@@ -22,6 +22,10 @@
         <?php echo $this->form->renderField('url_redirect_on_access_deny'); ?>
     </div>
 
+    <div class="row-fluid">
+        <?php echo $this->form->renderField('accesso_corsi_tutoraz'); ?>
+    </div>
+
     <h4>Genera coupon</h4>
 
     <div class="row-fluid">

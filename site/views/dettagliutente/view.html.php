@@ -39,6 +39,12 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $dp_lang;
     protected $id_evento_sponsor;
     protected $corsi;
+    protected $quota_standard;
+    protected $quota_studente;
+    protected $forceIndexRedirect;
+    protected $eventVideoLocation;
+    protected $eventSinpeCookie;
+    protected $eventSinpeRandomToken;
 
     function display($tpl = null)
     {
@@ -50,6 +56,7 @@ class gglmsViewdettagliutente extends JViewLegacy
             $lang = JFactory::getLanguage();
             $this->current_lang = $lang->getTag();
             $lang_locale_arr = $lang->getLocale();
+            $this->forceIndexRedirect = false;
 
             if (isset($lang_locale_arr[4])
                 && $lang_locale_arr[4] != ""
@@ -60,6 +67,7 @@ class gglmsViewdettagliutente extends JViewLegacy
 
 
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('stylesheet', 'components/com_gglms/libraries/css/codice_votazione.css');
             JHtml::_('stylesheet', 'https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
@@ -139,7 +147,7 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->id_evento_sponsor = $input->get('ev');
                 if (!isset($this->id_evento_sponsor)
                     || $this->id_evento_sponsor == "")
-                    throw new Exception("Nessun evento valido specificato", 1);
+                    throw new Exception("Nessun evento valido specificato", E_USER_ERROR);
 
                 // controllo esistenza evento
                 $_unit = new gglmsModelUnita();
@@ -171,10 +179,155 @@ class gglmsViewdettagliutente extends JViewLegacy
                 $this->_html = $user_controller->get_utenti_per_societa();
 
             }
+            else if ($layout == 'gestione_anagrafica_centri_sinpe') {
+                // nothing to do at this moment..
+            }
+            else if ($layout == 'gestione_quote_asand') {
+
+                $userGroupIdStandard = utilityHelper::check_usergroups_by_name("quota_standard");
+                $userGroupIdStudente = utilityHelper::check_usergroups_by_name("quota_studente");
+
+                if (is_null($userGroupIdStandard))
+                    throw new Exception("Non è stato trovato nessun usergroup valido per la quota standard", E_USER_ERROR);
+
+                if (is_null($userGroupIdStudente))
+                    throw new Exception("Non è stato trovato nessun usergroup valido per la quota studente", E_USER_ERROR);
+
+                $this->quota_standard = $userGroupIdStandard;
+                $this->quota_studente = $userGroupIdStudente;
+            }
+            else if ($layout == 'rinnovo_quota_asand') {
+
+                if ($_current_user->guest) {
+                    $this->forceIndexRedirect = true;
+                    throw new Exception("Questa pagina non è accessibile", E_USER_ERROR);
+                }
+
+                $userDetails = $_user->get_user_full_details_cb($_current_user->id);
+                if (is_null($userDetails)) {
+                    $this->forceIndexRedirect = true;
+                    throw new Exception("Nessun riferimento comprofiler trovato per l'utente corrente!", E_USER_ERROR);
+                }
+
+                $dt = new DateTime();
+                $titoloStudio = $userDetails['cb_titolo_studio'];
+                $ultimoAnnoQuota = $userDetails['cb_ultimoannoinregola'];
+                $annoCorrente = $dt->format('Y');
+                $quotaAssociativa = "quota_standard";
+
+                if ($annoCorrente == $ultimoAnnoQuota) {
+                    $this->forceIndexRedirect = true;
+                    throw new Exception("Risulti essere in regola con la quota di iscrizione per l'anno " . $annoCorrente, E_USER_ERROR);
+                }
+
+                if ($titoloStudio == ""
+                    || is_null($titoloStudio)) {
+                    $this->forceIndexRedirect = true;
+                    throw new Exception ("Nessun riferimento al titolo di studio, si prega di completare il campo nel proofilo utente", E_USER_ERROR);
+                }
+
+                if (strpos($titoloStudio, "Studente") !== false) {
+                    $quotaAssociativa = "quota_studente";
+                }
+
+                $paymentToken = utilityHelper::build_randon_token($_current_user->id . "|==|" . $quotaAssociativa);
+
+                // index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp=" + pToken
+                $this->_html = <<<HTML
+                <script>
+                    window.location.href = "index.php?option=com_gglms&view=registrazioneasand&action=user_registration_payment&pp={$paymentToken}";
+                </script>
+HTML;
+
+            } else if ($layout == 'gestione_accesso_utenti_aic') {
+                // nothing to do at this moment..
+            } else if ($layout == 'verifica_codice_votazione') {
+
+                $_current_user = JFactory::getUser();
+                $this->user_id = $_current_user->id;
+
+            }else if ($layout == 'votazione_candidati_sinpe') {
+
+                $this->user_id = $_current_user->id;
+
+                $userGroupIdCandidati = utilityHelper::check_usergroups_by_name("candidati_2023");
+                $model_user = new gglmsModelUsers();
+                $users_id = $model_user->get_user_by_usergroup($userGroupIdCandidati);
+                $this->codice = $model_user->get_codice_votazione($this->user_id);
+
+                $this->details_users = array();
+
+                foreach ($users_id as $key => $user_id){
+
+                    $comprofiler_user= $model_user->get_user_details_cb($user_id['user_id']);
+
+                    $this->details_users[$key]['user_id'] = $user_id['user_id'];
+                    $this->details_users[$key]['nome_utente'] = $comprofiler_user['nome_utente'];
+                    $this->details_users[$key]['cognome_utente'] = $comprofiler_user['cognome_utente'];
+
+                }
+
+            }
+            else if ($layout == 'eventshowing') {
+
+                $getVideoParam = JRequest::getVar('cc', null);
+                if (is_null($getVideoParam)) throw new Exception("Impossibile continuare! La richiesta presenta dei paremetri incompleti.", E_USER_ERROR);
+
+                $getMatchToken = JRequest::getVar('pp', null);
+
+                $this->eventVideoLocation = Juri::base() . '/' . utilityHelper::encrypt_decrypt('decrypt', $getVideoParam, 'GGallery00!', 'GGallery00!');
+                $this->eventSinpeCookie = false;
+
+                // controllo se l'utente è un guest - in questo caso deve avere un cookie impostato prima per visualizzare il form di registrazione e poi per vedere il video
+                if ($_current_user->guest) {
+
+                    $tokenExpireTime = time() + (365 * 24 * 60 * 60); // 365 giorni * 24 ore * 60 minuti * 60 secondi
+
+                    // la persona si è registrata, ora verifico il token e libero la vista se i valori corrispondono
+                    if (!is_null($getMatchToken) && !isset($_COOKIE['event-showing-sinpe'])) {
+
+                        // cookie non salvato
+                        if (!isset($_COOKIE['tokenize-sinpe'])) throw new Exception("La registrazione dei dati è avvenuta con successo ma non è stato possibile utilizzare i cookie nel tuo browser. Verifica le tue impostazioni oppure cambia browser e riprova!", E_USER_ERROR);
+                        
+                        $decodedToken = utilityHelper::encrypt_decrypt('decrypt', $getMatchToken, 'GGallery00!', 'GGallery00!');
+                        if (strtolower($decodedToken) != strtolower($_COOKIE['tokenize-sinpe'])) throw new Exception("Non è possibile visualizzare il contenuto. I tentativi effettuati non corrispondono.", E_USER_ERROR);
+
+                        // cancello il cookie di appoggio e creo quello definitivo per accedere al contenuto
+                        setcookie('tokenize-sinpe', '', time() - 3600, '/');
+                        // imposto il cookie definitivo
+                        setcookie('event-showing-sinpe', time(), $tokenExpireTime, "/");
+                        echo <<<HTML
+                            <script type="text/javascript">
+                                window.location.reload();
+                            </script>';
+HTML;
+                        // Termina l'esecuzione dello script PHP
+                        exit();
+                    }
+                    // verifico cookie mostra video
+                    else if (isset($_COOKIE['event-showing-sinpe'])) $this->eventSinpeCookie = true;
+                    else {
+
+                        $randomTokenValue = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
+                        $_registration_form = outputHelper::get_show_event_video($randomTokenValue, $getVideoParam);
+                        if (!is_array($_registration_form)) throw new Exception($_registration_form, E_USER_ERROR);
+
+                        $this->eventSinpeRandomToken = utilityHelper::build_randon_token($randomTokenValue);
+
+                        setcookie('tokenize-sinpe', $randomTokenValue, $tokenExpireTime, "/");
+
+                        $this->_html = $_registration_form['success'];
+                        
+                    }
+                }
+                else {
+                    $this->eventSinpeCookie = true;
+                }
+            }
 
         }
         catch (Exception $e){
-            $this->_html = outputHelper::get_payment_form_error($e->getMessage());
+            $this->_html = outputHelper::get_payment_form_error($e->getMessage(), null, $this->forceIndexRedirect);
             $this->in_error = true;
         }
 

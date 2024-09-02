@@ -235,6 +235,18 @@
             <option value="1">ON</option>
         </field>
 
+        <field
+                name="abilita_gruppo_custom"
+                type="radio"
+                label="Abilita gruppo custom"
+                class="btn-group"
+                labelclass="control-label"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
+
 
         <field
                 name="titolo_moduli_visibile"
@@ -451,12 +463,25 @@
 
         <!-- I N I Z I O CONTENUTO -->
         <field
-                name="visualizza_link_semplice"
+            name="visualizza_link_semplice"
+            type="radio"
+            class="btn-group"
+            label="Webinar - Visualizza link evento cliccabile sotto pulsante Avvia contenuto"
+            labelclass="control-label"
+            description="Se abilitato, sotto il pulsante Avvia contenuto, verrà visualizzata una dicitura per consentire all'utente di aprire il contenuto in una nuova scheda del browser"
+            default="0"
+    >
+        <option value="0">OFF</option>
+        <option value="1">ON</option>
+        </field>
+
+        <field
+                name="disabilita_mouse"
                 type="radio"
                 class="btn-group"
-                label="Webinar - Visualizza link evento cliccabile sotto pulsante Avvia contenuto"
+                label="Inibizione del tasto destro del mouse "
                 labelclass="control-label"
-                description="Se abilitato, sotto il pulsante Avvia contenuto, verrà visualizzata una dicitura per consentire all'utente di aprire il contenuto in una nuova scheda del browser"
+                description="Se abilitato, inibizione del tasto destro del mouse solo dentro la vista contenuto."
                 default="0"
         >
             <option value="0">OFF</option>
@@ -957,6 +982,19 @@
                 description="Specificare la voce definita nei file dizionario del componente. Es. home\components\com_gglms\language\it-IT"
                 default=""
         />
+
+        <field
+                name="accesso_corsi_tutoraz"
+                type="radio"
+                class="btn-group"
+                label="Attiva accesso ai corsi tutor aziendale"
+                labelclass="control-label"
+                description="OFF per bloccare, ON per sbloccare"
+                default="0"
+        >
+            <option value="0">OFF</option>
+            <option value="1">ON</option>
+        </field>
 
         <field
                 name="genera_coupon_label_partita_iva_missing"

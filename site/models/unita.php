@@ -964,7 +964,7 @@ class gglmsModelUnita extends JModelLegacy
 
             $this->_db->setQuery($insert);
             if (!$this->_db->execute())
-                throw new Exception("Inserimento corso fallito: " . $this->_db->getQuery()->dump(), E_USER_ERROR);
+                throw new Exception("Inserimento corso fallito: " . $this->_db->getErrorMsg(), E_USER_ERROR);
 
             $last_unit_id = $this->_db->insertid();
 
@@ -1008,7 +1008,7 @@ class gglmsModelUnita extends JModelLegacy
 
             $this->_db->setQuery($insert);
             if (!$this->_db->execute())
-                throw new Exception("Inserimento riferimento utente per corso fallito: " . $this->_db->getQuery()->dump(), E_USER_ERROR);
+                throw new Exception("Inserimento riferimento utente per corso fallito: " . $this->_db->getErrorMsg(), E_USER_ERROR);
 
             $this->_db->transactionCommit();
 

@@ -39,6 +39,7 @@ class com_gglmsInstallerScript {
                                     "fix_report_anagrafiche.php",
                                     "fix_report_anagrafiche_2.php",
                                     "import_users.php",
+                                    "import_anagrafica_centri.php",
                                     );
 
             foreach ($cli_script_arr as $key_script => $cli_script) {

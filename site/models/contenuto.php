@@ -170,6 +170,9 @@ class gglmsModelContenuto extends JModelLegacy
 
 
                 $url = "index.php?option=com_gglms&view=contenuto&alias=" . $this->alias;
+                if (isset($this->url_streaming_azure) && !empty($this->url_streaming_azure))
+                    $url .= "/?streamazure=" . base64_encode($this->url_streaming_azure);
+
                 $url = "href='" . JRoute::_($url) . "'";
 
                 return $url;
@@ -218,8 +221,7 @@ class gglmsModelContenuto extends JModelLegacy
             $path = PATH_CONTENUTI . '/' . $this->id;
             // fix per evitare casi del tipo /dir/sub/../sub/..
             $filepath = JPATH_BASE . "/" . $path . "/";
-            //fix per evitare warning con php 8
-           // $filepath = JPATH_BASE . "/" . str_replace('..', '', $path) . "/";
+            //$filepath = JPATH_BASE . "/" . str_replace('..', '', $path) . "/";
 
             //if (!file_exists($filepath . "vtt_slide.vtt")) {
             $values = array();
@@ -518,6 +520,7 @@ class gglmsModelContenuto extends JModelLegacy
                 return;
 
             $stato_attuale = $this->getStato();
+            $durata = 0;
 
             $stato = new gglmsModelStatoContenuto();
             $tmp = new stdClass();
@@ -546,12 +549,20 @@ class gglmsModelContenuto extends JModelLegacy
             if (!$stato_attuale->completato) {
                 $tmp->varName = 'cmi.core.lesson_status';
 
-                if ($this->mod_track == 1)
+                if ($this->mod_track == 1) {
                     $tmp->varValue = 'completed';
-                else
-                    $tmp->varValue = 'init';
+                    $durata = $this->getDurataContenuto($this->id);
 
+                }else {
+                    $tmp->varValue = 'init';
+                }
                 $stato->setStato($tmp);
+
+                if($durata > 0) {
+                    $tmp->varName = 'cmi.core.total_time';
+                    $tmp->varValue = $durata;
+                    $stato->setStato($tmp);
+                }
             }
         } catch (Exception $e) {
             DEBUGG::log($e->getMessage(), 'error in setStato', 0, 1, 0);
@@ -886,6 +897,23 @@ class gglmsModelContenuto extends JModelLegacy
             return $e->getMessage();
         }
 
+    }
+
+    public function getDurataContenuto($id){
+
+        try {
+            $query = $this->_db->getQuery(true)
+                ->select('durata')
+                ->from('#__gg_contenuti')
+                ->where('id = ' . $id);
+
+            $this->_db->setQuery($query);
+            $data = $this->_db->loadResult();
+
+            return $data;
+        }catch (Exception $e){
+            DEBUGG::log($e->getMessage(), 'error in getDurataContenuto' , 0,1,0);
+        }
     }
 
 

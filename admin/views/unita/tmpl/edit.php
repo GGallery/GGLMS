@@ -123,6 +123,12 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 
                 <div class="row-fluid">
                     <?php
+                    if(($this->item->id) && ($this->item->abilita_gruppo_custom == 1))
+                        echo $this->form->renderField('id_gruppi_custom'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
                     if($this->item->id)
                         echo $this->form->renderField('accesso'); ?>
                 </div>

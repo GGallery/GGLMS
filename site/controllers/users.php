@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
+require_once JPATH_COMPONENT . '/models/generacoupon.php';
 use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 
 /**
@@ -464,6 +465,8 @@ HTML;
                         && count($json_config['cols_schema']['profiler']) > 0)
                 $_profiler = $json_config['cols_schema']['profiler'];
 
+            $attiva_coupon = isset($json_config['cols_schema']['attiva_coupon']) ? (int)$json_config['cols_schema']['attiva_coupon'] : 0;
+
             $_groups = null;
             if (isset($json_config['cols_schema']['groups'])
                         && count($json_config['cols_schema']['groups']) > 0)
@@ -489,6 +492,7 @@ HTML;
 
             $reader->open($target_file); //open the file
             $import_report = array();
+            $user = new gglmsModelUsers();
 
             $db->transactionStart();
             $i=0;
@@ -581,6 +585,10 @@ HTML;
                                         $email_index++;
                                     }
                                 }
+                            } else if ($db_col == "corso"){
+
+                                $titolo_corso = $_user_value;
+                                continue;
                             }
 
                             $_new_user[$db_col] = $_user_value;
@@ -630,8 +638,17 @@ HTML;
 
                             foreach ($_groups_map as $g_key => $_group_name) {
                                 $_group_id = utilityHelper::check_usergroups_by_name($_group_name);
+
+                                if($g_key == 1) {
+                                    $id_societa = $user->get_societa_new_user($_group_name);
+                                    $id_piattaforma = utilityHelper::check_usergroups_by_name($_group_name);
+                                    $_group_id = $id_societa->id;
+                                }
                                 $_new_user_groups[] = $_group_id;
                             }
+
+                            $group_corso = utilityHelper::check_usergroups_by_name($titolo_corso);
+                            $_new_user_groups[] = $group_corso;
 
                         }
 
@@ -754,7 +771,49 @@ HTML;
                         UtilityHelper::write_file_to($log_file . '_inserted_cp.log', "INSERTED CP: " . $_new_user_id . ":" . $_new_user['username'],true);
                         $import_report['inserted_cp'][] = $_new_user['username'];
 
+
+                        if ($attiva_coupon) {
+
+                            $data = array();
+                            $_config = new gglmsModelConfig();
+                            $_model_coupon = new gglmsModelgeneracoupon();
+
+                            $data['attestato'] = 1;
+                            $data['id_utente'] = $_new_user_id;
+                            $data['gruppo'] = 16;
+                            $data['creation_time'] = date('Y-m-d H:i:s', time());
+                            $data['data_utilizzo'] = date('Y-m-d H:i:s', time());
+                            $data["durata"] = $_config->getConfigValue('durata_standard_coupon');
+                            $data['abilitato'] = 1;
+                            $data['stampatracciato'] = 0;
+                            $data['trial'] = 0;
+                            $data['id_societa'] = $id_societa->id;
+                            $data['id_gruppi'] = $group_corso;
+                            $data['ref_skill'] = 'NULL';
+                            $data['id_iscrizione'] = $_model_coupon->_generate_id_iscrizione($id_piattaforma);
+                            $data['data_abilitazione'] = date('Y-m-d H:i:s', time());
+
+                            $info_corso = $_model_coupon->get_info_corso($group_corso);
+                            $prefisso_coupon = $info_corso["prefisso_coupon"];
+
+                            $nome_societa = (string)$_groups_map[1];
+
+                            $data['coupon'] = $_model_coupon->_generate_coupon($prefisso_coupon, $nome_societa);
+
+                            $_coupon_insert_query = UtilityHelper::get_insert_query("gg_coupon", $data);
+                            $_coupon_insert_query_result = UtilityHelper::insert_new_with_query($_coupon_insert_query);
+                            if (!is_array($_coupon_insert_query_result))
+                                throw new Exception(print_r($data, true) . " errore durante inserimento coupon", 1);
+
+
+                            UtilityHelper::write_file_to($log_file . '_inserted_coupon.log', "INSERTED COUPON: " . $_new_user_id . " : " . $data['coupon'],true);
+                            $import_report['inserted_coupon'][] = $data['coupon'];
+
+
+                        }
+
                         $db->transactionCommit();
+
 
                         continue 2;
 
@@ -768,6 +827,7 @@ HTML;
             $row_existing = count($import_report['row_existing']);
             $inserted = count($import_report['inserted']);
             $inserted_cp = count($import_report['inserted_cp']);
+            $inserted_coupon = count($import_report['inserted_coupon']);
             $not_inserted = count($import_report['not_inserted']);
             $missing_fields = count($import_report['missing_fields']);
             $existing = count($import_report['existing']);
@@ -780,6 +840,7 @@ HTML;
                 Righe totali {$row_existing} <br />
                 Inserite users {$inserted} righe <br />
                 Inserite profiler {$inserted_cp} righe <br />
+                Inserite coupon {$inserted_coupon} righe <br />
                 Non inserite per campi non conformi (es. email non valida) {$not_inserted} righe <br />
                 Non inserite per campi necessari mancanti {$missing_fields} righe <br />
                 Non inserite perchè già esistenti {$existing} righe <br />
@@ -1016,6 +1077,93 @@ HTML;
         $app->close();
     }
 
+    public function conferma_pagamento_bonifico_asand() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $id_quota = $params['id_quota'];
+
+            if (!isset($id_quota)
+                || $id_quota == ""
+                || !is_numeric($id_quota))
+                throw new Exception("Missing quota id", E_USER_ERROR);
+
+            // controllo se la quota esiste
+            $userModel = new gglmsModelUsers();
+            $checkQuota = $userModel->get_quota_per_id($id_quota);
+
+            if (is_null($checkQuota))
+                throw new Exception("Nessun riferimento alla quota trovato", E_USER_ERROR);
+
+            $userId = $checkQuota['user_id'];
+            $annoQuota = $checkQuota['anno'];
+            $userGroupId = $checkQuota['gruppo_corso'];
+
+            $checkUser = $userModel->get_user_joomla($userId);
+            if (is_null($checkUser)
+                || !isset($checkUser->id)) {
+                $this->show_view = true;
+                throw new Exception("Nessun utente trovato", E_USER_ERROR);
+            }
+
+            // sblocco l'utente
+            $updateUser = $userModel->update_user_column($userId, "block", 0);
+
+            if (is_null($updateUser))
+                throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
+
+            // inserisco l'utente nel gruppo quota di riferimento
+            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId,true);
+            if (is_null($insert_ug))
+                throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
+
+            // aggiorno ultimo anno pagato
+            $_ultimo_anno = $userModel->update_ultimo_anno_pagato($userId, $annoQuota);
+            if (!is_array($_ultimo_anno))
+                throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+            // aggiorno lo stato del pagamento
+            $updateQuota = $userModel->update_user_column($id_quota, "stato", 1, "gg_quote_iscrizioni");
+            if (is_null($updateQuota))
+                throw new Exception("Errore durante l'aggiornamento della quota", E_USER_ERROR);
+
+            $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+            $dettagliUtente = $userModel->get_user_full_details_cb($userId);
+
+            // l'integrazione dei campi extra al momento è soltanto per community builder
+            $_config = new gglmsModelConfig();
+            $dettagliUtente['nome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_nome')];
+            $dettagliUtente['cognome_utente'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_cognome')];
+            $dettagliUtente['codice_fiscale'] = $dettagliUtente[$_config->getConfigValue('campo_community_builder_controllo_cf')];
+            $dettagliUtente['email'] = $checkUser->email;
+            $dettagliUtente['mail_from'] = utilityHelper::get_ug_from_object($_params, 'email_from');
+
+            $sendEmail = utilityHelper::send_acquisto_evento_email($checkUser->email,
+                                                                    "",
+                                                                    $dettagliUtente,
+                                                                    $checkQuota['totale'],
+                                                                    $checkQuota['data_pagamento'],
+                                                                    "bb_buy_confirm_asand",
+                                                                    $dettagliUtente['mail_from'],
+                                                                    true,
+                                                                    $id_quota);
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch(Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
     public function inserisci_pagamento_extra() {
 
         $app = JFactory::getApplication();
@@ -1030,16 +1178,16 @@ HTML;
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Missing user id", E_USER_ERROR);
 
             if (!isset($totale)
                 || $totale == ""
                 || $totale == 0)
-                throw new Exception("Missing totale", 1);
+                throw new Exception("Missing totale", E_USER_ERROR);
 
             if (!isset($tipo_quota)
                 || $tipo_quota == "")
-                throw new Exception("Missing service type", 1);
+                throw new Exception("Missing service type", E_USER_ERROR);
 
             $dt = new DateTime();
             $_anno_quota = $dt->format('Y');
@@ -1056,7 +1204,7 @@ HTML;
                                                                 true);
 
             if (!is_array($_bonifico))
-                throw new Exception($_bonifico, 1);
+                throw new Exception($_bonifico, E_USER_ERROR);
 
             $_ret['success'] = "tuttook";
 
@@ -1077,18 +1225,18 @@ HTML;
 
         try {
 
-            $params = $app->input->getArray($_GET);
-            $user_id = $params["user_id"];
-            $totale = $params["totale"];
+            $requestParams = JRequest::get($_GET);
+            $user_id = $requestParams["user_id"];
+            $totale = $requestParams["totale"];
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Missing user id", E_USER_ERROR);
 
             if (!isset($totale)
                 || $totale == ""
                 || $totale == 0)
-                throw new Exception("Missing totale", 1);
+                throw new Exception("Missing totale", E_USER_ERROR);
 
             $dt = new DateTime();
             $_anno_quota = $dt->format('Y');
@@ -1104,8 +1252,34 @@ HTML;
                                                                 null,
                                                                 true);
 
-            if (!is_array($_bonifico))
-                throw new Exception($_bonifico, 1);
+            $log_arr = array(
+                'user_id' => $user_id,
+                'bonifico' => $_bonifico
+
+            );
+
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+            if (!is_array($_bonifico)) throw new Exception($_bonifico, E_USER_ERROR);
+
+            $_user_details = $_user->get_user_details_cb($user_id);
+            if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+            
+            $_params = utilityHelper::get_params_from_plugin();
+            $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+            
+            $selectedUser = $_user->get_user_joomla($user_id);
+            if (isset($selectedUser->email) && $selectedUser->email != '') {
+                utilityHelper::send_sinpe_email_pp($email_default,
+                                                date('Y-m-d'),
+                                                "",
+                                                "",
+                                                $_user_details,
+                                                0,
+                                                0,
+                                                'conferma_bonifico_sinpe',
+                                                $selectedUser->email);
+            }
 
             $_ret['success'] = "tuttook";
 
@@ -1222,10 +1396,12 @@ HTML;
 
             $params = $app->input->getArray($_GET);
             $user_id = $params["user_id"];
+            $preiscritto = isset($params["preiscritto"]) ? 
+                (int) $params["preiscritto"]
+                : 0;
 
             if (!isset($user_id)
-                || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                || $user_id == "") throw new Exception("Missing user id", E_USER_ERROR);
 
             $dt = new DateTime();
             // non anno corrente perchè da moroso deve pagare partendo dall'ultimo anno
@@ -1238,14 +1414,30 @@ HTML;
 
             // inserisco utente nel gruppo moroso
             $_check = utilityHelper::set_usergroup_moroso($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_check))
-                throw new Exception($_check, 1);
+            if (!is_array($_check)) throw new Exception($_check, E_USER_ERROR);
 
             // aggiorno ultimo anno pagato
             $_user = new gglmsModelUsers();
             $_ultimo_anno = $_user->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+            // se preiscritto devo inviare email per riabilitazione account
+            if ($preiscritto == 1) {
+                $_user_details = $_user->get_user_details_cb($user_id);
+                $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+                $selectedUser = $_user->get_user_joomla($user_id);
+                if (isset($selectedUser->email) && $selectedUser->email != '') {
+                    utilityHelper::send_sinpe_email_pp($email_default,
+                                                        date('Y-m-d'),
+                                                        "",
+                                                        "",
+                                                        $_user_details,
+                                                        0,
+                                                        0,
+                                                        'preiscritto',
+                                                        $selectedUser->email);
+                }
+            }
 
             $_ret['success'] = "tuttook";
 
@@ -1378,6 +1570,87 @@ HTML;*/
 
     }
 
+    public function get_quote_asand() {
+
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+            $_tipo_quota = (isset($_call_params['tipo_quota']) && $_call_params['tipo_quota'] != "") ? $_call_params['tipo_quota'] : null;
+            $_tipo_pagamento = (isset($_call_params['tipo_pagamento']) && $_call_params['tipo_pagamento'] != "") ? $_call_params['tipo_pagamento'] : null;
+            $_stato_pagamento = (isset($_call_params['stato_pagamento']) && $_call_params['stato_pagamento'] != "") ? $_call_params['stato_pagamento'] : null;
+
+            $_user = new gglmsModelUsers();
+            $_label_paga = JText::_('COM_REGISTRAZIONE_ASAND_STR13');
+            $_label_pagato = JText::_('COM_REGISTRAZIONE_ASAND_STR16');
+            $_label_nonpagato = JText::_('COM_REGISTRAZIONE_ASAND_STR17');
+
+            $_azione_btn = "";
+
+            $_soci = $_user->get_quote_asand($_tipo_quota, $_tipo_pagamento, $_stato_pagamento, $_offset, $_limit, $_search, $_sort, $_order);
+
+            if (isset($_soci['rows'])) {
+
+                $_total_rows = $_soci['total_rows'];
+
+                foreach ($_soci['rows'] as $_key_socio => $_socio) {
+
+                    foreach ($_socio as $key => $value) {
+
+                        if ($key == "stato_pagamento" && $value == 0) {
+
+                            $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagato(' . $_socio['id_quota'] . ')">' . $_label_paga . '</a>';
+                            $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
+
+                        }
+                        else if ($key == "stato_pagamento2") {
+                            $value = $value == 1
+                                ? $_label_pagato
+                                : $_label_nonpagato;
+                        }
+                        else if ($key == "data_pagamento") {
+                            $dt = new DateTimeImmutable($value);
+                            $value = $dt->format('d-m-Y H:i:s');
+                        }
+                        else if ($key == "codice_fiscale") {
+                            $value = strtoupper($value);
+                        }
+                        else if ($key == "tipo_pagamento") {
+                            $value = strtoupper($value);
+                        }
+
+                        $_ret[$_key_socio][$key] = $value;
+
+                    }
+
+
+                    unset($_ret[$_key_socio]['stato_pagamento']);
+
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+    }
+
     public function get_soci_iscritti() {
 
         $app = JFactory::getApplication();
@@ -1438,6 +1711,9 @@ HTML;*/
                                 $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagamentoExtra(' . $_socio['user_id'] . ')">' . $_label_extra . '</a>';
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
+                        }
+                        else if ($key == "sinpe_dep") {
+                            $value = ($value == 1) ? 'SI' : 'NO';    
                         }
 
                         $_ret[$_key_socio][$key] = $value;
@@ -1615,4 +1891,180 @@ HTML;
         }
 
     }
+
+    public function get_anagrafica_centri() {
+
+        $app = JFactory::getApplication();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+
+           $_user = new gglmsModelUsers();
+
+
+            $_centri = $_user->get_anagrafica_centri($_offset, $_limit, $_sort, $_order);
+
+            if (isset($_centri['rows'])) {
+
+                $_total_rows = $_centri['total_rows'];
+
+                foreach ($_centri['rows'] as $_key_centri => $_centri) {
+
+                    foreach ($_centri as $key => $value) {
+
+                        $_ret[$_key_centri][$key] = $value;
+                    }
+
+
+                }
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+
+        echo json_encode($_rows);
+        $app->close();
+    }
+
+    public function get_accesso_utenti() {
+
+        $app = JFactory::getApplication();
+        $_config = new gglmsModelConfig();
+        $_rows = array();
+        $_ret = array();
+        $_total_rows = 0;
+
+        try {
+
+            $_call_params = JRequest::get($_GET);
+            $_search = (isset($_call_params['search']) && $_call_params['search'] != "") ? $_call_params['search'] : null;
+            $_offset = (isset($_call_params['offset']) && $_call_params['offset'] != "") ? $_call_params['offset'] : 0;
+            $_limit = (isset($_call_params['limit']) && $_call_params['limit'] != "") ? $_call_params['limit'] : 10;
+            $_sort = (isset($_call_params['sort']) && $_call_params['sort'] != "") ? $_call_params['sort'] : null;
+            $_order = (isset($_call_params['order']) && $_call_params['order'] != "") ? $_call_params['order'] : null;
+
+            $_user = new gglmsModelUsers();
+
+            $_label_disabilita = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR46');
+            $_label_abilita = JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR47');
+
+
+            $_current_user = JFactory::getUser();
+            $_user_id =  $_current_user->id;
+
+
+            $tutor_az = $_user->is_tutor_aziendale($_user_id);
+            $tutor_piattaforma = $_user->is_tutor_piattaforma($_user_id);
+
+            if($tutor_az || $tutor_piattaforma) {
+
+                if($tutor_az){
+                    $id_azienda = $_user->get_user_societa($_user_id, true);
+                    $ret_users  = $_user->get_utenti_dettagli_per_azienda($id_azienda[0]->id, $_offset, $_limit, $_search, $_sort, $_order);
+
+                }elseif ($tutor_piattaforma){
+
+                    $id_piattaforma = $_config->getConfigValue('id_gruppo_piattaforme');
+                    $ret_users  = $_user->get_dettagli_user_piattaforma($id_piattaforma, $_offset, $_limit, $_search, $_sort, $_order);
+
+                }
+
+
+                if (isset($ret_users['rows']) && !is_null($ret_users)) {
+
+                    $_total_rows = $ret_users['total_rows'];
+
+                    foreach ($ret_users['rows'] as $_key_user => $user) {
+
+                        foreach ($user as $key => $value) {
+
+
+                            if ($key == "stato_user") {
+
+                            $_azione_btn = "";
+                            if ($value === '0')
+                                $_azione_btn = '<a href="javascript:" class="btn btn-danger btn-sm " style="min-height: 50px;" onclick="DisabilitaAccessoUtente(' . $user['user_id'] . ', ' . $user['stato_user'] . ')">' . $_label_disabilita . '</a>';
+                            else if ($value === '1')
+                                $_azione_btn = '<a href="javascript:" class="btn btn-success btn-sm " style="min-height: 50px;" onclick="AbilitaAccessoUtente(' . $user['user_id'] . ', ' . $user['stato_user'] . ')">' . $_label_abilita . '</a>';
+//
+
+                            $_ret[$_key_user]['tipo_azione'] = trim($_azione_btn);
+                            }
+
+                            $_ret[$_key_user][$key] = $value;
+                        }
+
+
+                    }
+                }
+
+            }
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        $_rows['rows'] = $_ret;
+        $_rows['total_rows'] = $_total_rows;
+
+        echo json_encode($_rows);
+        $app->close();
+    }
+
+    public function disabilita_accesso_utente() {
+
+        $app = JFactory::getApplication();
+        $_ret = array();
+
+        try {
+
+            $params = JRequest::get($_GET);
+            $user_id = $params["user_id"];
+            $stato_user = $params["stato_user"];
+
+
+            if (!isset($user_id)
+                || $user_id == "")
+                throw new Exception("Missing user id", E_USER_ERROR);
+
+            if (!isset($stato_user)
+                || $stato_user == "")
+                throw new Exception("Missing stato user", E_USER_ERROR);
+
+
+            $_user = new gglmsModelUsers();
+            $_result = $_user->update_accesso_utente($user_id, $stato_user);
+
+            if (!is_array($_result))
+                throw new Exception("Update query failed", 1);
+
+
+            $_ret['success'] = "tuttook";
+
+        }
+        catch (Exception $e) {
+            $_ret['error'] = $e->getMessage();
+        }
+
+        echo json_encode($_ret);
+        $app->close();
+
+    }
+
 }

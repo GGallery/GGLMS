@@ -7,6 +7,8 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use phpDocumentor\Reflection\DocBlock\Tags\Example;
+
 defined('_JEXEC') or die;
 require_once JPATH_COMPONENT . '/models/report.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
@@ -15,6 +17,7 @@ require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/helpers/utility.php';
 
 /**
  * Controller for single contact view
@@ -123,16 +126,14 @@ class gglmsControllerApi extends JControllerLegacy
                          . ' WHERE id_utente = ' . $id_user . ' AND id_gruppi = ' . $this->_db->quote($gruppo);
                      $this->_db->setQuery($update_coupon);
 
-                     if (!$this->_db->execute())
-                         throw new Exception("update coupon query ko -> " . $update_coupon, 1);
+                     if (!$this->_db->execute()) throw new Exception("update coupon query ko -> " . $update_coupon, 1);
 
                      //cancello da user_usergroup corso per utente
                      $delete_usergroup = "DELETE FROM #__user_usergroup_map"
                          . " WHERE group_id = " . $this->_db->quote($gruppo) . " AND user_id = " . $id_user;
                      $this->_db->setQuery($delete_usergroup);
 
-                     if (!$this->_db->execute())
-                         throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
+                     if (!$this->_db->execute()) throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, 1);
 
 
                      //seleziono tutti i contenuti del corso
@@ -140,8 +141,7 @@ class gglmsControllerApi extends JControllerLegacy
                      $contents = $model_report->getContenutiArrayList($id_corso);
 
 
-                     if(!isset($contents) || !is_array($contents))
-                         throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
+                     if(!isset($contents) || !is_array($contents)) throw new Exception("Nessun contenuto in questo corso" . $id_corso, 1);
 
                      foreach ($contents as $content) {
                          if (isset($content['id'])) {
@@ -2276,6 +2276,699 @@ HTML;
 
     }
 
+    public function checkVoucherValidation() {
+
+        $retArr = [];
+
+        try {
+
+            $requestedVoucher = $this->_filterparam->searchPhrase;
+            $requestedToken = $this->_filterparam->cToken;
+
+            if (!isset($requestedVoucher)
+                || $requestedVoucher == ""
+                )
+                throw new Exception("Codice voucher non valorizzato", E_USER_ERROR);
+
+            $decryptedToken = utilityHelper::decrypt_random_token($requestedToken);
+            $parsedToken = explode("|==|", $decryptedToken);
+
+            if (!isset($parsedToken[0]) || $parsedToken[0] == "" || !is_numeric($parsedToken[0]))
+                throw new Exception("Nessun token di riferimento", E_USER_ERROR);
+
+            $userId = $parsedToken[0];
+            $dt = new DateTime();
+            $annoCorrente = $dt->format('Y');
+
+            // controllo se il codice del voucher esiste e non è già stato speso
+            $checkVoucher = "SELECT *
+                            FROM #__gg_quote_voucher
+                            WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND user_id IS NULL";
+            $this->_db->setQuery($checkVoucher);
+            $resultVoucher = $this->_db->loadResult();
+
+            if (!$resultVoucher) throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
+
+            // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
+            $checkUserForYear = "SELECT *
+                                    FROM #__gg_quote_voucher
+                                    WHERE user_id = " . $this->_db->quote($userId) . "
+                                    AND date LIKE " . $this->_db->quote("%" . $annoCorrente . "%");
+
+            $this->_db->setQuery($checkUserForYear);
+            $resultUserForYear = $this->_db->loadResult();
+
+            if (!is_null($resultUserForYear))
+                throw new Exception("Esistono voucher per l'utente corrente nell'anno " . $annoCorrente, E_USER_ERROR);
+
+
+            $retArr['success'] = "Codice voucher utilizzabile";
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $retArr['error'] = "Codice voucher non utilizzabile: " . $e->getMessage();
+        }
+
+        echo json_encode($retArr);
+        $this->_japp->close();
+
+    }
+
+    public function sinpeCheckEmail() {
+
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                if (isset($_POST['email']) && $_POST['email']) {
+                    $emailCheck = utilityHelper::check_user_by_column_row('email', $_POST['email']);
+                    if (!is_null($emailCheck)) throw new Exception("L'Email selezionata è già esistente", E_USER_ERROR);
+                }
+
+                if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) throw new Exception("L'Email selezionata non è valida: " . $_POST['email'], E_USER_ERROR);
+
+            }
+
+            $response['success'] = time();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    public function sinpeCheckUserName() {
+
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                if (isset($_POST['username']) && $_POST['username']) {
+                    $usernameCheck = utilityHelper::check_user_by_column_row('username', $_POST['username']);
+                    if (!is_null($usernameCheck)) throw new Exception("Lo Username selezionato è già esistente", E_USER_ERROR);
+                }
+
+            }
+
+            $response['success'] = time();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    public function sinpeCheckCodiceFiscale() {
+       
+        $response = [];
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                if (isset($_POST['cf']) && $_POST['cf']) {
+                    $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $_POST['cf']);
+
+                    if ($comprofilerCheck) {
+
+                        // controllo se l'utente è online oppure moroso
+                        $_params = utilityHelper::get_params_from_plugin();
+                        $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+                        $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+                        $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+                        $gruppi_solo_evento = utilityHelper::get_ug_from_object($_params,"ug_nonsocio");
+    
+                        // online
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online))) 
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_ONLINE'), E_USER_ERROR);
+    
+                        // moroso
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
+
+                        // decaduto
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto)))
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_DECADUTO'), E_USER_ERROR);
+
+                        // solo evento
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_evento))){
+                            $response["soloEventi"]=true;
+                            throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_SOLO_EVENTO'), E_USER_ERROR);
+                            }
+
+                        // cf esistente
+                        throw new Exception("L'utente con il codice fiscale ". strtoupper($_POST['cf']) . " è esistente" , E_USER_ERROR);
+                    }
+                }
+
+            }
+
+            $response['success'] = time();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    public function sinpeWatchWebinar() {
+
+        $response = [];
+        $startTransaction = false;
+
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                $jsonContent = file_get_contents('php://input');
+                $decoded = json_decode($jsonContent, true);
+                
+                //if (!$decoded) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
+
+                // validazione campi
+                if (!isset($decoded['cb_nome']) || $decoded['cb_nome'] == "") throw new Exception("Compilare il campo Nome!", E_USER_ERROR);
+                if (!isset($decoded['cb_cognome']) || $decoded['cb_cognome'] == "") throw new Exception("Compilare il campo Cognome!", E_USER_ERROR);
+                if (!isset($decoded['email_utente']) || $decoded['email_utente'] == "") throw new Exception("Compilare il campo Email!", E_USER_ERROR);
+                if (!isset($decoded['cb_ordine']) || $decoded['cb_ordine'] == "") throw new Exception("Compilare il campo Ordine!", E_USER_ERROR);
+                if (!isset($decoded['cb_numeroiscrizione']) || $decoded['cb_numeroiscrizione'] == "") throw new Exception("Compilare il campo Numero iscrizione!", E_USER_ERROR);
+                if (!isset($decoded['cb_professionedisciplina']) || $decoded['cb_professionedisciplina'] == "") throw new Exception("Compilare il campo Professione/Disciplina!", E_USER_ERROR);
+                if (!isset($decoded['tts']) || $decoded['tts'] == "") throw new Exception("Nessun riferimento token valorizzato!", E_USER_ERROR);
+
+                if (!filter_var($decoded['email_utente'], FILTER_VALIDATE_EMAIL)) throw new Exception("EMAIL NON VALIDA: " . $decoded['email_utente'], E_USER_ERROR);
+
+                $this->_db->transactionStart();
+                $startTransaction = true;
+
+                $query = "INSERT INTO #__gg_watching_video
+                             (
+                                nome,
+                                cognome,
+                                email,
+                                ordine,
+                                numeroiscrizione,
+                                professione
+                              )
+                      VALUES (
+                          ". $this->_db->quote($decoded['cb_nome']) .",
+                          ". $this->_db->quote($decoded['cb_cognome']) .",
+                          ". $this->_db->quote($decoded['email_utente']) .",
+                          ". $this->_db->quote($decoded['cb_ordine']) .",
+                          ". $this->_db->quote($decoded['cb_numeroiscrizione']) .",
+                          ". $this->_db->quote($decoded['cb_professionedisciplina']) ."
+                           )";
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->execute();
+
+                if (!$result) throw new Exception("Inserimento anagrafica fallito! Si è verificato un errore: " . $result, E_USER_ERROR);
+
+                $this->_db->transactionCommit();
+
+                $response['success'] = "tuttook";
+                $response['token'] = utilityHelper::build_randon_token($decoded['tts']);
+
+            }
+
+        }
+        catch(Exception $e) {
+            if ($startTransaction) $this->_db->transactionRollback();
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+
+    }
+
+    public function sinpeRegistrationAction() {
+
+        $response = [];
+        $startTransaction = false;
+        try {
+
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+                $jsonContent = file_get_contents('php://input');
+                $decoded = json_decode($jsonContent, true);
+                
+                if (!$decoded || !isset($decoded['request_obj'])) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
+
+                $_new_user = [];
+                $_new_user_cp = [];
+                $dt = new DateTime();
+                $userModel = new gglmsModelUsers();
+                $voucher_code = null;
+
+                foreach ($decoded['request_obj'] as $sub_key => $sub_arr) {
+
+                    if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_nome') {
+                        $nome_utente = preg_replace("/[^a-zA-Z]/", "", $decoded['request_obj'] [$sub_key]['value']);
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_cognome') {
+                        $cognome_utente = preg_replace("/[^a-zA-Z]/", "", $sub_arr['value']);
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'email_utente') {
+                        $email_utente = $sub_arr['value'];
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'username') {
+                        $username = $sub_arr['value'];
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'password_utente') {
+                        $password_utente = $sub_arr['value'];
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_codicefiscale') {
+                        $cf_utente = strtoupper($sub_arr['value']);
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'cb_datadinascita') {
+                        // format date artigianale
+                        $_tmp_date = date("Y-m-d", strtotime(str_replace('/', '-', trim($sub_arr['value']))));
+                        $sub_arr['value'] = $_tmp_date;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_privacy') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_dtai_immagini') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_statuto') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_newsletter') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_accessonutritiononline') {
+                        $sub_arr['value'] = $sub_arr['value'] == 1 ? 1 : 0;
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_privacy'
+                        && ($sub_arr['value']) != 1) {
+                        throw new Exception("Devi accettare l'informativa sulla privacy");
+                    }
+                    else if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] == 'cb_statuto'
+                        && ($sub_arr['value']) != 1) {
+                        throw new Exception("Devi accettare lo Statuto della società");
+                    }
+                    else if (isset($sub_arr['campo'])
+                        && $sub_arr['campo'] == 'voucher_code') {
+                        $voucher_code = (!is_null($sub_arr['value']) && $sub_arr['value'] != '')
+                            ? $sub_arr['value']
+                            : null;
+                    }
+
+                    // campi cb
+                    if (isset($sub_arr['cb'])
+                        && $sub_arr['cb'] != ''
+                        && isset($sub_arr['value'])) {
+
+                        $cb_value = $sub_arr['value'];
+
+                        // campi select
+                        if (isset($sub_arr['is_id'])
+                            && $sub_arr['is_id'] != '') {
+                            $row_arr = utilityHelper::get_cb_fieldtitle_values($sub_arr['is_id'], $cb_value);
+                            if (isset($row_arr['fieldtitle']))
+                                $cb_value = $row_arr['fieldtitle'];
+                        }
+
+                        $_new_user_cp[$sub_arr['cb']] = addslashes($cb_value);
+
+                    }
+
+                }
+
+                // controllo esistenza voucher
+                if (!is_null($voucher_code)) {
+                    
+                    $checkVoucher = $userModel->checkVoucherValid($voucher_code);
+                    if ($checkVoucher == "error") throw new Exception("Si è verificato un errore durante il controllo del voucher". E_USER_ERROR);
+
+                    if (!$checkVoucher) throw new Exception("Il codice voucher immesso non è stato trovato oppure è già stato utilizzato.", E_USER_ERROR);
+
+                }
+
+                // name e username prima lettera nome + cognome
+                $_new_user['name'] = strtoupper(substr($nome_utente, 0, 1) . $cognome_utente);
+                $_new_user['username'] = trim($username);
+                $_new_user['email'] = trim($email_utente);
+                $_new_user['password'] = JUserHelper::hashPassword($password_utente);
+                $_new_user['block'] = 0;
+                $_new_user['registerDate'] = $dt->format('Y-m-d H:i:s');
+
+                // controllo il codice fiscale
+                $_cf_check = utilityHelper::conformita_cf($cf_utente);
+                if (!isset($_cf_check['valido'])
+                    || $_cf_check['valido'] != 1) {
+
+                    $_err = "Problemi con il Codice fiscale";
+                    if (isset($_cf_check['msg'])
+                        && $_cf_check['msg'] != "")
+                        $_err .= " " . $_cf_check['msg'];
+
+                    throw new Exception($_err, E_USER_ERROR);
+                }
+
+                // controllo validità email
+                if (!filter_var($_new_user['email'], FILTER_VALIDATE_EMAIL)) throw new Exception("EMAIL NON VALIDA: " . $_new_user['email'], E_USER_ERROR);
+
+                // verifico l'esistenza delle colonne minimali per l'inserimento utente
+                $_test_users_fields = utilityHelper::check_new_user_array($_new_user);
+                if ($_test_users_fields != "") throw new Exception("Mancano dei campi nencessari alla creazione dell'utente: " . $_test_users_fields, E_USER_ERROR);
+
+                // controllo esistenza utente su username
+                if (utilityHelper::check_user_by_username($_new_user['username'])) {
+                    // aggiungo dei numeri randomici
+                    $_new_user['username'] = $_new_user['username'] . rand(1, 999);
+                }
+
+                // controllo esistenza utente per codice fiscale
+                $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $cf_utente);
+                $isDecaduto = false;
+                $newUserId = null;
+                $fileExt = null;
+                $cvData = null;
+                $userModel = new gglmsModelUsers();
+
+                if ($comprofilerCheck) {
+
+                    // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
+                    // gli permetto di completarlo
+                    $annoRef = $dt->format('Y');
+                    
+                    // prima controllo se ha un pagamento di tipo bonifico in sospeso
+                    $checkQuota = $userModel->get_quota_per_id($comprofilerCheck['user_id'], 'user_id', $annoRef);
+                    if (isset($checkQuota['tipo_pagamento'])) throw new Exception('Hai già un pagamento registrato per l\'anno ' . $annoRef);
+
+                    // controllo se l'utente è online oppure moroso - in questo caso blocco il procedimento
+                    $_params = utilityHelper::get_params_from_plugin();
+                    $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
+                    $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
+                    $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+                    $gruppi_solo_eventi = utilityHelper::get_ug_from_object($_params, "ug_nonsocio");
+
+                    // online
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online)))
+                        throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_ONLINE'), E_USER_ERROR);
+
+                    // moroso
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
+                        throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
+
+                    // se decaduto 
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true; 
+
+                    // se solo evento
+                    if(utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) $isSoloEvento=true;
+                    else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
+                }
+
+                if (isset($decoded['userImage'])) {
+
+                    $dataExploded = explode(",", $decoded['userImage']);
+                    $cvData = base64_decode($dataExploded[1]);
+
+                    preg_match("/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*/", $decoded['userImage'], $mimeMatch);
+                    $tipoMIME = $mimeMatch[1] ?? null;
+                    $fileExt = utilityHelper::mime_to_extension($tipoMIME);
+                    if (is_null($fileExt)) throw new Exception("Il file caricato ha un'estensione non supportata. Si prega di verificare il contenuto", E_USER_ERROR);
+
+                }
+
+
+                $this->_db->transactionStart();
+                $startTransaction = true;
+
+                if ($isDecaduto||$isSoloEvento) {
+
+                    // riferimento id per CP
+                    $_new_user_cp['id'] = $comprofilerCheck['user_id'];
+                    $_new_user_cp['user_id'] = $comprofilerCheck['user_id'];
+
+                    // aggiornamento utente
+                    $userUpdateQuery = utilityHelper::get_update_query('users', $_new_user, " where id = " . $comprofilerCheck['user_id']);
+                    $_user_update_query_result = utilityHelper::insert_new_with_query($userUpdateQuery);
+                    if (!is_array($_user_update_query_result)) throw new Exception("Aggiornamento anagrafica utente fallito: " . $_user_update_query_result, E_USER_ERROR);
+                    
+                    // aggiornamento comprofiler
+                    $comprofilerUpdateQuery = utilityHelper::get_update_query('comprofiler', $_new_user_cp, " where user_id = " . $comprofilerCheck['user_id']);
+                    $_cp_update_query_result = utilityHelper::insert_new_with_query($comprofilerUpdateQuery);
+                    if (!is_array($_cp_update_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'aggiornamento del profilo utente", E_USER_ERROR);
+
+                    $newUserId = $comprofilerCheck['user_id'];
+
+                    if($isSoloEvento){
+                        //lo rimuovo dal gruppo solo evento
+                    $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
+                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                    $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
+                    if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                    }
+                }
+                else {
+
+                    // inserimento utente
+                    $userInsertQuery = utilityHelper::get_insert_query("users", $_new_user);
+                    $_user_insert_query_result = utilityHelper::insert_new_with_query($userInsertQuery);
+
+                    if (!is_array($_user_insert_query_result)) throw new Exception("Inserimento anagrafica utente fallito: " . $_user_insert_query_result, E_USER_ERROR);
+
+                    // inserimento utente in CP
+                    $_new_user_cp['id'] =  $_user_insert_query_result['success'];
+                    $_new_user_cp['user_id'] = $_user_insert_query_result['success'];
+                    $newUserId = $_user_insert_query_result['success'];
+
+                    
+                    $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
+                    //throw new Exception($_cp_insert_query, E_USER_ERROR);
+                    
+                    $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
+                    if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'inserimento del profilo utente", E_USER_ERROR);
+
+                }
+
+                // se è un utente nuovo lo inserisco temporaneamente nei morosi
+                if (!$isDecaduto||($isSoloEvento&&is_null($voucher_code))) {
+                    $userGroupId = utilityHelper::check_usergroups_by_name("Moroso");
+                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+
+                    $insert_ug = $userModel->insert_user_into_usergroup($newUserId, $userGroupId);
+                    if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                }
+
+                $this->_db->transactionCommit();
+
+                if (!is_null($fileExt)) {
+                    
+                    $dirPath =  JPATH_ROOT . '/tmp/' . $newUserId;
+
+                    if (!file_exists($dirPath)) $createPath = mkdir($dirPath, 0777, true);
+                    
+                    $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
+                    file_put_contents($filePath, $cvData);
+                }
+                    
+
+                $response['success'] = "tuttook";
+                $response['token'] = utilityHelper::build_randon_token($newUserId . '|==|' . $voucher_code);
+
+
+            }
+            
+        }
+        catch(Exception $e) {
+            if ($startTransaction) $this->_db->transactionRollback();
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            $response['error'] = $e->getMessage();
+        }
+
+        echo json_encode($response);
+
+        $this->_japp->close();
+    }
+
+    // stampa ricevuta per pagamento quota asand
+    public function printReceiptAsnd() {
+
+        try {
+            if (!isset($_REQUEST['recepit_id']))
+                throw new Exception("Identificativo quota non valorizzato", E_USER_ERROR);
+
+            $decryptedQuotaRef = utilityHelper::decrypt_random_token($_REQUEST['recepit_id']);
+            if (!is_numeric($decryptedQuotaRef))
+                throw new Exception("Identificativo quota non numerico", E_USER_ERROR);
+
+            $query = "SELECT usr.id as user_id, usr.email,
+                            cb.cb_codicefiscale, cb.cb_nome, cb.cb_cognome, DATE_FORMAT(cb.cb_datadinascita, '%d/%m/%Y') AS cb_datadinascita, cb_luogodinascita, cb_provinciadinascita,
+                            quote.anno, quote.totale, quote.tipo_pagamento, DATE_FORMAT(quote.data_pagamento, '%d/%m/%Y') AS data_pagamento, quote.gruppo_corso
+                        FROM #__users usr
+                        JOIN #__comprofiler cb ON usr.id = cb.user_id
+                        JOIN #__gg_quote_iscrizioni quote ON usr.id = quote.user_id
+                        WHERE quote.id = " . $this->_db->quote($decryptedQuotaRef);
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadAssoc();
+
+            if (is_null($result))
+                throw new Exception("Nessuna ricevuta trovata", E_USER_ERROR);
+
+            $check = utilityHelper::getJoomlaMainUrl(['asand', 'home']);
+            $siteRefUrl = utilityHelper::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/tmp/";
+            $logoAsand = $siteRefUrl . "logo_asand.png";
+            $firma_1 = $siteRefUrl . "firma1.jpg";
+            $firma_2 = $siteRefUrl . "firma2.jpg";
+            $formattedCf = strtoupper($result['cb_codicefiscale']);
+            $formattedQuota = number_format($result['totale'], 2, ',', '');
+            $speseCommissioni = 0;
+            $formattedCommissioni = 0;
+            $quotaStandard = 0;
+            $quotaStudente = 0;
+            $refQuotaOrig = 0;
+            $strCommissioni = '';
+
+            // se paypal devo aggiungere la dicitura delle spese di commissione
+            if ($result['tipo_pagamento'] == 'paypal' || $result['tipo_pagamento'] == 'voucher') {
+                $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+
+                $userGroupStandardId = utilityHelper::check_usergroups_by_name("quota_standard");
+                $userGroupStudenteId = utilityHelper::check_usergroups_by_name("quota_studente");
+
+                if ($result['gruppo_corso'] == $userGroupStandardId) {
+                    $quotaStandard = utilityHelper::get_ug_from_object($_params, "quota_standard");
+                    $refQuotaOrig = $quotaStandard;
+                    $speseCommissioni = $result['totale']-$quotaStandard;
+                }
+                else if ($result['gruppo_corso'] == $userGroupStudenteId) {
+                    $quotaStudente = utilityHelper::get_ug_from_object($_params, "quota_studente");
+                    $refQuotaOrig = $quotaStudente;
+                    $speseCommissioni = $result['totale']-$quotaStudente;
+                }
+
+                $formattedCommissioni = number_format($speseCommissioni, 2, ',', '');
+                if ($result['tipo_pagamento'] == 'paypal')
+                    $strCommissioni = ' (di cui &euro; ' . $formattedCommissioni . ' per le spese di commissione)';
+                else {
+                    $formattedQuota = $result['totale']-$refQuotaOrig;
+                    $formattedQuota = number_format($formattedQuota, 2, ',', '');
+                    $formattedQuotaOrig = number_format($refQuotaOrig, 2, ',', '');
+                    $strCommissioni = ' (applicato sconto di &euro; ' . $formattedQuotaOrig . ' per utilizzo voucher)';
+                }
+            }
+
+            echo <<<HTML
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    * { font-family: Calibri; font-size: 20px; }
+                    table {
+                        /* width: auto; */
+                    }
+                    table, th, td  {
+                        border: 0px !important;
+                        border-collapse: collapse;
+                        /* padding: 2px 3px;
+                        text-align: center; */
+                    }
+                    @media print
+                    {
+                        .no-print, .no-print *
+                        {
+                            display: none !important;
+                        }
+                    }
+
+                </style>
+            </head>
+            <body>
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <img src="{$logoAsand}" alt="logo" title="logo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;">Genova, {$result['data_pagamento']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Si certifica che {$result['cb_cognome']} {$result['cb_nome']} nato/a a {$result['cb_luogodinascita']} ({$result['cb_provinciadinascita']}) il {$result['cb_datadinascita']},
+                    con codice fiscale {$formattedCf}, ha versato ad ASAND la quota associativa relativa all'anno {$result['anno']}, pari a &euro; {$formattedQuota}{$strCommissioni}.<br />
+                    Il socio {$result['cb_cognome']} {$result['cb_nome']} &egrave; iscritto all'Associazione tecnico Scientifica Alimentazione, Nutrizione e Dietetica ASAND per l'anno {$result['anno']}.
+                </p>
+                <p>NI: {$result['anno']}-{$result['user_id']}</p>
+                <br />
+                <br />
+                <table style="width: 100%">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center;">
+                                Il segretario
+                            </td>
+                            <td style="text-align: center;">
+                                Il tesoriere
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;">
+                                <img style="width: 40%" src="{$firma_1}" alt="firma1" title="firma1" />
+                            </td>
+                            <td style="text-align: center;">
+                                <img style="width: 40%" src="{$firma_2}" alt="firma2" title="firma2" />
+                            </td>
+                        </tr>
+                        <tr class="no-print">
+                            <td colspan="2" style="text-align: center">
+                                <button onclick="window.print();">STAMPA</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+HTML;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() . " -> ". print_r($_POST, true), __FUNCTION__ . "_error");
+            echo $e->getMessage();
+        }
+
+        $this->_japp->close();
+    }
+
     // abilito i coupon in appoggio alla tabella di controllo
     public function attivazione_coupons_utenti($id_piattaforma) {
 
@@ -3023,6 +3716,492 @@ HTML;
 
         $this->_japp->close();
     }
+
+    // importazione anagrafica centri Sinpe da API
+    // oppure in locale se si tratta di LP (esempio) from_local è il nome file che attesta se fare riferimento a questo file che si trova nella cartella JPATH_ROOT/tmp/
+    public function importa_anagrafica_centri( $is_debug = false,
+                                               $from_local = '') {
+
+        try {
+
+
+            $local_file = JPATH_ROOT . '/tmp/';
+            $filename = "anagrafica_centri.csv";
+
+            $get_centri = utilityHelper::get_csv_remote($local_file, $filename, false, $is_debug, $from_local);
+
+            if (!is_array($get_centri)
+                || is_null($get_centri))
+                throw new Exception("Nessun file di anagrafica corsi disponibile", E_USER_ERROR);
+
+            $this->_db->transactionStart();
+
+            // grande loop di inserimento degli centri
+
+            foreach ($get_centri as $row_key => $row_arr) {
+                $centro = trim($row_arr[0]);
+
+                $indirizzo = trim($row_arr[1]);
+
+                $telefono_responsabile = trim($row_arr[2]);
+
+                $telefono_servizio = trim($row_arr[3]);
+
+                $fax = trim($row_arr[4]);
+
+                $email = trim($row_arr[5]);
+
+                $responsabile = trim($row_arr[6]);
+
+                $ruolo = trim($row_arr[7]);
+
+                $latitudine = trim($row_arr[8]);
+
+                $longitudine = trim($row_arr[9]);
+
+                $citta = trim($row_arr[10]);
+
+
+                $query = "INSERT INTO #__gg_anagrafica_centri
+                             (
+                              centro,
+                              indirizzo,
+                              telefono_responsabile,
+                              telefono_servizio,
+                              fax,
+                              email,
+                              responsabile,
+                              ruolo,
+                              latitudine,
+                              longitudine,
+                              citta)
+                      VALUES (
+                          ". $this->_db->quote($centro) .",
+                          ". $this->_db->quote($indirizzo) .",
+                          ". $this->_db->quote($telefono_responsabile) .",
+                          ". $this->_db->quote($telefono_servizio) .",
+                          ". $this->_db->quote($fax) .",
+                          ". $this->_db->quote($email) .",
+                          ". $this->_db->quote($responsabile) .",
+                          ". $this->_db->quote($ruolo).",
+                          ". $this->_db->quote($latitudine).",
+                          ". $this->_db->quote($longitudine).",
+                          ". $this->_db->quote($citta)."
+                           )";
+
+                $this->_db->setQuery($query);
+                $result = $this->_db->execute();
+
+                if (!$result)
+                    throw new Exception("Inserimento anagrafica centri non andato a buon fine: " . $result, 1);
+
+
+            }
+
+
+            $this->_db->transactionCommit();
+
+            return 1;
+
+
+        }
+        catch (Exception $e) {
+
+          $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            return 0;
+        }
+
+        $this->_japp->close();
+    }
+
+
+    public function fix_gruppo_socio() {
+
+        try {
+
+
+
+            //not in (select user_id from #__user_usergroup_map WHERE group_id = 28)
+
+            $this->_db->transactionStart();
+
+            $query = $this->_db->getQuery(true)
+                ->select('um.user_id, q.anno, um.group_id ')
+                ->from('#__user_usergroup_map as um ')
+                ->join('inner', '#__gg_quote_iscrizioni as q on um.user_id = q.user_id')
+                ->where('um.user_id not in (select user_id from #__user_usergroup_map WHERE group_id = 28)')
+                ->where('q.anno <= 2019')
+                ->where('um.group_id in (20,23,21)');
+
+            $this->_db->setQuery($query);
+            $results_soci = $this->_db->loadAssocList();
+
+
+            if (count($results_soci) == 0)
+                throw new Exception("Nessun socio trovato!", E_USER_ERROR,1);
+
+            $updated = 0;
+            $new_ug = 21;
+            foreach ($results_soci as $key_socio => $socio) {
+
+
+                   //cancello user da moroso o online
+                   $query_del = "DELETE
+                                FROM #__user_usergroup_map
+                                WHERE user_id = " . $this->_db->quote($socio['user_id']) . "
+                                AND group_id = " . $this->_db->quote($socio['group_id']);
+
+                   $this->_db->setQuery($query_del);
+                   if (!$this->_db->execute())
+                       throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+
+
+                   // aggiungo user in moroso
+                   $query_ins = "INSERT IGNORE INTO #__user_usergroup_map (user_id, group_id)
+                                VALUES (" . $this->_db->quote($socio['user_id']) . ", " . $this->_db->quote($new_ug) . ")";
+
+                   $this->_db->setQuery($query_ins);
+                   if (!$this->_db->execute())
+                       throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+
+
+                $updated++;
+
+
+            }
+
+            $this->_db->transactionCommit();
+
+        }
+        catch (Exception $e) {
+            $this->_db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+
+        }
+
+        echo "UPDATED: " . $updated;
+
+    }
+
+    public function get_fatture()
+    {
+        try {
+
+
+            $id_user =  $this->_filterparam->id_user;
+
+
+            $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
+            $limit = (isset($this->_filterparam->limit) && $this->_filterparam->limit != "") ? $this->_filterparam->limit : 5;
+            $_sort = (isset($this->_filterparam->sort) && $this->_filterparam->sort != "") ? $this->_filterparam->sort : null;
+            $_order = (isset($this->_filterparam->order) && $this->_filterparam->order != "") ? $this->_filterparam->order : null;
+
+
+            if(!isset($id_user)
+                || !is_numeric($id_user))
+                throw new Exception("id_user non valorizzato " . $this->_filterparam->id_user, 1);
+
+
+
+            $db = JFactory::getDbo();
+            $query_count = $db->getQuery(true)
+                ->select('count(*)')
+                ->from('#__gg_quote_iscrizioni')
+               ->where('user_id = ' . $id_user);
+
+            $db->setQuery($query_count);
+            $count = $db->loadObject();
+
+            $query = $db->getQuery(true)
+                ->select('id, CONCAT( anno, "-", user_id ) AS numero_fattura, tipo_pagamento,DATE_FORMAT(data_pagamento, "%d-%m-%Y") as data_pagamento, totale, stato')
+                ->from('#__gg_quote_iscrizioni')
+                 ->where('user_id = ' . $id_user);
+
+            // ordinamento per colonna - di default per id utente
+            if (!is_null($_sort)
+                && !is_null($_order)) {
+                $query = $query->order($_sort . ' ' . $_order);
+            }
+            else
+                $query = $query->order('id', 'asc');
+
+
+
+            $db->setQuery($query,$offset,$limit);
+
+            $fatture = $db->loadObjectList();
+
+
+            if (isset($fatture)) {
+                foreach ($fatture as $_key_row => $_row) {
+
+                    //rows da colorare
+                    if($_row->stato == 1){
+                        $color_cell = 'color:green';
+                        $_row->stato = <<<HTML
+                            <span style="{$color_cell}" >Pagato</span>
+HTML;
+                        $encodedReceiptId = utilityHelper::build_randon_token($_row->id);
+
+                        $url = "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId ;
+                        $_row->fattura = <<<HTML
+                                   <a class="far fa-file-pdf fa-2x"
+                                      target="popup"
+                                      onclick="window.open('{$url}','popup','width=600,height=600'); return false;" style="cursor: pointer;color: red">
+
+                                    </a>
+HTML;
+
+
+                    }else if($_row.'stato' == 0) {
+                        $color_cell = 'color:red';
+                        $_row->stato = <<<HTML
+                            <span style="{$color_cell}" >Non pagato</span>
+HTML;
+                        $_row->fattura = '';
+                    }
+
+
+
+                }
+            }
+
+            $result['rowCount'] = $count;
+            $result['rows'] = $fatture;
+
+
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+
+        echo json_encode($result);
+        $this->_japp->close();
+    }
+
+
+    public function genera_votazione_code() {
+
+        $db = JFactory::getDBO();
+        $exclude_query = $db->getQuery(true)
+                    ->select('user_id')
+                    ->from('#__user_usergroup_map')
+                    ->where('group_id = ' . $db->quote('68'))
+                    ->group('user_id');
+        $db->setQuery($exclude_query);
+        $result_users = $db->loadAssocList();
+
+        $_ids_codici = array();
+        $dettagli_utente = array();
+
+
+        if (count($result_users) == 0)
+            utilityHelper::make_debug_log(__FUNCTION__, "Nessun risultato users da elaborare" , __FUNCTION__);
+
+        if (!is_null($result_users)
+            && count($result_users) > 0) {
+
+            foreach ($result_users as $key_user => $user) {
+
+                $bytes = random_bytes(5);
+                $codice = bin2hex($bytes);
+
+                // Verifica e gestione dell'unicità del codice
+
+                $encode_user = UtilityHelper::encrypt_decrypt('encrypt', $user['user_id'], 'Sinpe', '2023');
+
+                $_ids_codici[] = sprintf("('%s', '%s', '%s')",
+                    $encode_user,
+                    $codice,
+                    date('Y-m-d H:i:s')
+                );
+
+                $dettagli_utente[$key_user]['user_id'] = $user['user_id'];
+                $dettagli_utente[$key_user]['codice'] = $codice ;
+            }
+
+        }
+
+        // li inserisco nel DB
+        $query_insert = 'INSERT INTO #__gg_cod_votazioni_users (id_user,
+                                                codice,
+                                                timestamp
+                                                ) VALUES ' . join(',', $_ids_codici);
+        $this->_db->setQuery($query_insert);
+
+        if (false === $this->_db->execute()) {
+            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+        }
+
+        foreach ($dettagli_utente as $utente) {
+
+            $_model_user = new gglmsModelUsers();
+            $user_model = $_model_user->get_user_by_id($utente['user_id']);
+
+            $_send_email = UtilityHelper::send_codice_vitazione_email_sinpe('', $user_model->name, $user_model->email, $utente['codice'], 'salma@ggallery.it');
+
+        }
+        $this->_ret['success'] = "tuttook";
+        echo json_encode($this->_ret);
+        die();
+
+    }
+
+
+    public function check_codice_votazione()
+    {
+
+        $japp = JFactory::getApplication();
+
+        $codice = JRequest::getVar('codice');
+        $user_id = JRequest::getVar('user_id');
+
+        $dettagli_codice = $this->check_codice_sinpe($codice);
+        $results = array();
+
+
+        if(empty($dettagli_codice) || count($dettagli_codice) < 0) {
+
+            $results['report'] = "<p class='alert-danger alert'>Il codice inserito sbagliato</p>";
+            $results['valido'] = 0;
+
+        }else{
+
+            $decode_user = UtilityHelper::encrypt_decrypt('decrypt', $dettagli_codice['id_user'], 'Sinpe', '2023');
+
+            $check_votazione = $this->check_votazioni_candidati($codice);
+
+            if ($decode_user != $user_id){
+
+                $results['report'] = "<p class='alert-danger alert'>Il codice inserito sbagliato </p>";
+                $results['valido'] = 0;
+
+            } elseif (!empty($check_votazione) || count($check_votazione) > 0) {
+
+                $decode_user_vot = UtilityHelper::encrypt_decrypt('decrypt', $check_votazione['id_user'], 'Sinpe', '2023');
+
+                if ($user_id === $decode_user_vot) {
+
+                    $results['report'] = "<p class='alert-danger alert'>Ha già votato con il codice inserito</p>";
+                    $results['valido'] = 0;
+                }
+            }else {
+
+                $results['report'] = "<p class='alert-success alert'>Codice corretto</p>";
+                $results['valido'] = 1;
+            }
+
+
+        }
+
+        echo json_encode($results);
+        $japp->close();
+    }
+
+    public function check_codice_sinpe($codice)
+    {
+        try {
+
+                $query = $this->_db->getQuery(true)
+                    ->select('*')
+                    ->from('#__gg_cod_votazioni_users as c')
+                    ->where('c.codice="' . ($codice) . '"');
+
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+            $_codice = empty($results) ? array() : $results;
+
+        } catch (Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        return $_codice;
+    }
+
+
+    public function check_votazioni_candidati($codice)
+    {
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('c.id_user, c.codice')
+                ->from('#__gg_votazioni_candidati as c')
+                ->where('c.codice="' . ($codice) . '"');
+
+
+            $this->_db->setQuery($query);
+            if (false === ($results = $this->_db->loadAssoc()))
+                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+
+            $_codice = empty($results) ? array() : $results;
+
+        } catch (Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        return $_codice;
+    }
+
+    public function store_votazione_candidati()
+    {
+
+        try {
+
+
+                $japp = JFactory::getApplication();
+
+                $codice = JRequest::getVar('codice');
+                $id_candidato = JRequest::getVar('id_candidato');
+                $user_id = JRequest::getVar('user_id');
+
+                $db = JFactory::getDBO();
+
+                $encode_user_id = UtilityHelper::encrypt_decrypt('encrypt', $user_id, 'Sinpe', '2023');
+                $encode_candidato_id = UtilityHelper::encrypt_decrypt('encrypt', $id_candidato, 'Sinpe', '2023');
+
+                $query = "insert into #__gg_votazioni_candidati (id_user, id_candidato, codice)  VALUES ('$encode_user_id','$encode_candidato_id','$codice')";
+
+                $db->setQuery($query);
+
+                if (false === ($db->execute()))
+                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+
+                $result['valido'] = 1;
+
+
+       } catch (Exception $e) {
+                utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+
+        echo json_encode($result);
+        $japp->close();
+    }
+
+    public function fix_create_company_forum()
+    {
+        try {
+
+            $data = JRequest::get($_POST);
+            $model_genera = new gglmsModelgeneracoupon();
+            $gruppo_azienda = $this->_filterparam->gruppo_id;
+            $model_users = new gglmsModelUsers();
+            $nome_azienda = $model_users->get_nome_societa_by_id($gruppo_azienda);
+
+            $model_genera->_create_company_forum($gruppo_azienda,$nome_azienda->nome_societa);
+
+            $this->_ret['success'] = "tuttook";
+            echo json_encode($this->_ret);
+
+        } catch (Exception $e) {
+
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+        }
+        $this->_japp->close();
+    }
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){

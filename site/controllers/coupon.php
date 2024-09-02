@@ -40,6 +40,9 @@ class gglmsControllerCoupon extends JControllerLegacy
         $coupon = $input->get('coupon');
         $model = $this->getModel('coupon');
         $dettagli_coupon = $model->check_Coupon($coupon);
+        $accesso_tutor_aziendale = 0;
+        $_config = new gglmsModelConfig();
+        $accesso_tutor_aziendale = $_config->getConfigValue('accesso_corsi_tutoraz');
 
 
         if (empty($dettagli_coupon)) {
@@ -51,7 +54,9 @@ class gglmsControllerCoupon extends JControllerLegacy
                 $results['valido'] = 0;
             } else {
 
-                if ($model->is_logged_user_tutor()) {
+
+                if (($model->is_logged_user_tutor()) && (int)$accesso_tutor_aziendale === 0) {
+
 
                     $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_TUTOR') . "</p>";
                     $results['valido'] = 0;
@@ -61,12 +66,12 @@ class gglmsControllerCoupon extends JControllerLegacy
                     $coupon_vecchio = $model->check_already_exist($dettagli_coupon);
 
                     if (($model->check_already_enrolled($dettagli_coupon)) && ($model->is_expired_less_than_year($coupon_vecchio))) {
-                        // controllo che non esista già un coupon per lo stesso gruppo per lo stesso utente e se il vacchio coupon scaduto meno di un anno
+                        // controllo che non esiste già un coupon per lo stesso gruppo per lo stesso utente e se il vecchio coupon scaduto meno di un anno
 
                         $results['report'] = "<p class='alert-danger alert'>" . JText::_('COM_GGLMS_COUPON_INSERT_DUPLICATED') . "</p>";
                         $results['valido'] = 0;
                     } else {
-
+                        //se dopo un anno l'utente vuole rifare lo stesso corso si può, ma bisogna anche resettare lo stesso corso manualmente prima
 
                         if ((!empty($coupon_vecchio)) && (isset($coupon_vecchio)))
                             $model->liberaCoupon($coupon_vecchio);

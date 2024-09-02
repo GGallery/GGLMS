@@ -23,3 +23,16 @@ $files= $this->contenuto->getFiles();
         ?>
     </ul>
 </div>
+
+<script type="text/javascript">
+
+    <?php if ($this->disabilita_mouse == 1) { ?>
+
+    document.addEventListener("contextmenu", function (e) {
+        alert('Funzione disabilitata');
+        e.preventDefault();
+    }, true);
+
+    <?php } ?>
+
+</script>

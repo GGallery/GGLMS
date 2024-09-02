@@ -34,6 +34,15 @@ defined('_JEXEC') or die;
     <?php
         // informazioni relative al bonificoco ulteriori indicazioni
         echo $this->payment_extra_form;
+        if($this->call_result == 'tuttook') {
+            echo <<<HTML
+            <script type="text/javascript">
+
+              document.getElementById("myForm").style.display = "block";
+
+            </script>
+HTML;
+        }
         ?>
 
     <div class="alert alert-danger" role="alert" id="paymentError" style="display: none;">
@@ -73,6 +82,13 @@ defined('_JEXEC') or die;
         function validate(event) {
             return event.value.length > 0;
         }
+
+        // pagamento con bonifico conferma
+        jQuery('#btn-bonifico').on('click', function (e) {
+            var pHref = jQuery(this).attr("data-ref");
+            window.location.href = pHref+ '&totale_sinpe=' + jQuery('#amount').val()
+                + '&totale_espen=' + jQuery('#amount_espen').val();
+        });
 
         paypal.Buttons({
             style: {

@@ -134,6 +134,18 @@
 		/>
 
 		<field
+				name="url_streaming_azure"
+				type="url"
+				label="Url streaming Azure"
+				description="L'indirizzo per la riproduzione del video in streaming"
+				class="inputbox"
+				required=""
+				showon="tipologia:2"
+				default=""
+				size="30"
+		/>
+
+		<field
 				name="orientamento"
 				type="radio"
 				label="Orientamento"

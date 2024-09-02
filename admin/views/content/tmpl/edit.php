@@ -76,6 +76,12 @@ $fieldsets = $this->form->getFieldsets();
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                    echo $this->form->renderField('url_streaming_azure'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                         echo $this->form->renderField('orientamento'); ?>
                 </div>
 
@@ -211,14 +217,14 @@ $fieldsets = $this->form->getFieldsets();
                     <?php //echo JHtml::_('sliders.panel', JText::_('Caricamento file multimediali'), 'Upload'); ?>
                     <!-- The fileinput-button span is used to style the file input field as button -->
                     <span class="btn btn-success fileinput-button">
-                        <i class="glyphicon glyphicon-plus"></i> 
+                        <i class="glyphicon glyphicon-plus"></i>
                         <span><?php echo JText::_('COM_GGLMS_CONTENT_CARICAFILE'); ?></span>
                         <!-- The file input field used as target for the file upload widget -->
                         <input id="fileupload" type="file" name="files[]" multiple>
                     </span>
 
                     <span class="btn btn-info fileinput-button">
-                        <i class="glyphicon glyphicon-plus"></i> 
+                        <i class="glyphicon glyphicon-plus"></i>
                         <span><?php echo JText::_('COM_GGLMS_CONTENT_CARICASLIDE'); ?></span>
                         <!-- The file input field used as target for the file upload widget -->
                         <input id="fileuploadslide" type="file" name="files[]" multiple>

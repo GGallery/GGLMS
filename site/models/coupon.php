@@ -476,7 +476,7 @@ class gglmsModelcoupon extends JModelLegacy
             $db->setQuery("SELECT  config_value FROM #__gg_configs WHERE config_key= 'durata_massima'");
             $durata_massima = $db->loadResult();
 
-            // rifaccio la query per far fare il calcolo a sql
+            // rifaccio la query per fare il calcolo con sql
             $query = $this->_db->getQuery(true)
                 ->select('DATE_ADD(c.data_utilizzo,INTERVAL '. $this->_db->quote($durata_massima) .' MONTH) as data_scadenza_calc , c.data_utilizzo')
                 ->from('#__gg_coupon AS c')

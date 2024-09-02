@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 // operazioni di lettura/scrittura sul XLS,CSV,ecc
 require_once JPATH_COMPONENT . '/libraries/xls/src/Spout/Autoloader/autoload.php';
 use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Reader\Common\Creator\ReaderEntityFactory;
 use Box\Spout\Common\Entity\Row;
 
 class utilityHelper
@@ -730,6 +731,32 @@ class utilityHelper
 
     }
 
+    // id per un campo community builder da name - utility per self.get_cb_field_col()
+    public static function get_cb_fieldId_by_name($field_name) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('fieldid')
+                ->from('#__comprofiler_fields')
+                ->where("name = '" . trim($field_name) . "'");
+
+            $db->setQuery($query);
+
+            if (false === ($result = $db->loadResult())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+        }
+
+    }
+
     // informazioni per un campo community builder da id - utility per self.get_cb_field_name()
     public static function get_cb_field($field_id) {
 
@@ -884,6 +911,66 @@ class utilityHelper
 
     }
 
+    // controllo esistenza utente per colonna e valore di comprofiler restituendo l'intera riga
+    public static function check_comprofiler_by_column_row($target_col, $target_val) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler')
+                ->where($target_col . " = " . $db->quote($target_val));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return (isset($results) && !is_null($results))
+                ? $results
+                : null;
+
+        }
+        catch (Exception $e) {
+            //DEBUGG::error($e, __FUNCTION__);
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return null;
+        }
+
+    }
+
+    // controllo esistenza utente per colonna e valore restituendo l'intera riga
+    public static function check_user_by_column_row($target_col, $target_val) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__users')
+                ->where($target_col . " = " . $db->quote($target_val));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return (isset($results) && !is_null($results))
+                ? $results
+                : null;
+
+        }
+        catch (Exception $e) {
+            //DEBUGG::error($e, __FUNCTION__);
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return null;
+        }
+
+    }
+
     // controllo esistenza utente per colonna e valore - utility per view.acquistaevento
     public static function check_user_by_column($target_col, $target_val) {
 
@@ -981,10 +1068,13 @@ class utilityHelper
             $lista_aziende = null;
             $_filtro_azienda = "";
 
+            // fix necessario per prima dove il corso padre è il 2 e non l'1
+            $currentUrl = JUri::getInstance();
+            
             if ($id_corso == ""
-                || $id_corso == 1
+                || ($id_corso == 1 && !strpos($currentUrl, 'primaelearning.it'))
                 || !isset($id_corso))
-                throw new Exception("Nessun corso valido selezionato", 1);
+                throw new Exception("Nessun corso valido selezionato", E_USER_ERROR);
 
             // ricavo l'id del gruppo corso dal corso
             $unit_model = new gglmsModelUnita();
@@ -1299,7 +1389,7 @@ class utilityHelper
     }
 
     // esporta in CSV basandosi sulla libreria SPOUT - utility per api.get_dettagli_quiz()
-    function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
+    public static function esporta_csv_spout($arr_values, $arr_cols, $dest_filename) {
 
         $writer = WriterEntityFactory::createCSVWriter();
         $writer->openToBrowser($dest_filename);
@@ -1592,11 +1682,21 @@ class utilityHelper
 
     }
 
+    public static function getHostname($withHttp = false)
+    {
+        $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+
+        if ($withHttp) return $_https . "://".$_SERVER["HTTP_HOST"];
+
+        return parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+    }
+
     // imposta dominio
     public static function imposta_domino()
     {
-        $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
-        $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+        // $_https = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+        // $hostname = parse_url($_https . "://".$_SERVER["HTTP_HOST"], PHP_URL_HOST);
+        $hostname = self::getHostname();
 
         $_arr_host = explode(".", $hostname);
         // indirizzi tipo https://dominio.it
@@ -1732,6 +1832,28 @@ HTML;
         return $_ret;
     }
 
+    // aggiornamento da colonne
+    public static function get_update_query($_table, $_new_user_cp, $where) {
+
+        $query = "UPDATE #__" . $_table . " SET ";
+        
+        $counter = 0;
+        foreach ($_new_user_cp as $key => $value) {
+            $query .= $key . ' = ' . '\''. $value .'\'';
+
+            if ($counter < count($_new_user_cp)-1) { 
+                $query .= ', ';
+            }
+
+            $counter++;
+        }
+
+        $query .= $where;
+
+        return $query;
+
+    }
+
     // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z -utility per controller.users._import()
     public static function get_insert_query($_table, $_new_user_cp) {
 
@@ -1741,8 +1863,7 @@ HTML;
 
         foreach ($_new_user_cp as $key => $value) {
 
-            if (is_null($value) || $value === "")
-                continue;
+            if (is_null($value) || $value === "") continue;
 
             $_cols[] = $key;
             $_values[] = $value;
@@ -1827,14 +1948,14 @@ HTML;
 
         $_check = self::set_usergroup_generic($user_id, $ug_destinazione, $_user);
         if (!is_array($_check))
-            throw new Exception($_check, 1);
+            throw new Exception($_check, E_USER_ERROR);
 
         if ($send_email)
             self::send_acquisto_evento_email($_email_to,
                                             $_unit->titolo,
                                             $_dettagli_utente,
                                             $unit_prezzo,
-                                null,
+                                            null,
                                             $action,
                                             $_email_from);
 
@@ -1921,14 +2042,28 @@ HTML;
 
     }
 
+    public static function setRicevutoLinkRef($lastQuotaRef) {
+
+        $check = self::getJoomlaMainUrl(['asand', 'home']);
+        $siteRefUrl = self::getHostname(true) . (!is_null($check) ? '/' . $check : "") . "/";
+        $encodedReceiptId = self::build_randon_token($lastQuotaRef);
+        $linkReceipt = $siteRefUrl . "index.php?option=com_gglms&task=api.printReceiptAsnd&recepit_id=" . $encodedReceiptId;
+        return <<<HTML
+            <p>Per visualizzare la ricevuta stampabile del pagamento clicca <a href={$linkReceipt}">QUI</a>
+HTML;
+
+    }
+
     // invia email relativa alle richieste relative all'acquisto di un evento - utility per self.processa_acquisto_evento()
     public static function send_acquisto_evento_email($email_default,
                                                       $_event_title,
                                                       $_user_details,
                                                       $totale = 0,
                                                       $_data_creazione = null,
-                                                      $template="bb_buy_request",
-                                                      $mail_from = null) {
+                                                      $template = "bb_buy_request",
+                                                      $mail_from = null,
+                                                      $quotaAnnualeAsand = false,
+                                                      $lastQuotaRef = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -1953,24 +2088,57 @@ HTML;
             $dt = new DateTime();
 
         $oggetto = "Acquisto evento " . $_event_title;
+
+        if ($quotaAnnualeAsand)
+            $oggetto = "Acquisto quota annuale " . $dt->format('Y') . " portale ASAND";
+
         $_label_pagato = "pagato";
         $_label_extra = "";
 
-        if ($template == 'bb_buy_request') {
+        if ($template == 'bb_buy_request'
+            || $template == 'bb_buy_quota_asand') {
+
             $oggetto .= " - Richiesta pagamento con bonifico";
-            $_label_pagato .= "da pagare";
-            $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />
-                                Per concludere la transazione deve inviare una E-Mail con nome, cognome, codice fiscale
-                                e contatto telefonico allegando la ricevta del bonifico";
+            $_label_pagato = "da pagare";
+            $_label_evento = '<p>Evento di riferimento: ' . $_event_title .'</p>';
+
+            if ($template != 'bb_buy_quota_asand')
+                $_label_extra = "L'utente NON ha ancora completato l'acquisto dell'evento.<br />";
+            else
+                $_label_evento = "";
+
+            $_label_extra .= "Per concludere la transazione inviare un'E-Mail con nome, cognome, codice fiscale
+                            e contatto telefonico allegando la ricevuta del bonifico";
+
+            if ($template == 'bb_buy_quota_asand') {
+                $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'COORDINATE PER BONIFICO BANCARIO', $_user_details['testo_pagamento_bonifico']);
+                $_label_extra .= '<p>' . $_testo_pagamento_bonifico . '</p>';
+            }
+
         }
-        else if ($template == 'acquistaevento')
+        else if ($template == 'acquistaevento' || $template == 'registrazioneasand') {
             $oggetto .= " - Conferma pagamento con PayPal";
+
+            if ($template == 'registrazioneasand')
+                $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+
+        }
+        else if ($template == 'bb_buy_confirm_asand') {
+            $oggetto .= " - Conferma pagamento con bonifico";
+            $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+        }
+        else if ($template == 'voucher_buy_quota_asand') {
+            $oggetto .= " - Conferma pagamento con voucher";
+            $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
+            $formattedTotale =  number_format($totale, 2, ',', '');
+            $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per utilizzo voucher)";
+        }
 
         $body = <<<HTML
                 <br /><br />
                 <p>Nominativo: <b>{$_nominativo}</b></p>
                 <p>Codice fiscale: {$_cf}</p>
-                <p>Evento di riferimento: {$_event_title}</p>
+                {$_label_evento}
                 <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
                 <p>Totale {$_label_pagato}: &euro; <b>{$totale}</b></p>
                 {$_label_extra}
@@ -1979,6 +2147,10 @@ HTML;
         $_destinatario = array();
         if ($email_default != "")
             $_destinatario[] = $email_default;
+
+        // per asand il messaggio deve essere ricevuto anche dal mittente
+        if ($quotaAnnualeAsand && !is_null($mail_from))
+            $_destinatario[] = $mail_from;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true, $mail_from);
 
@@ -1992,7 +2164,8 @@ HTML;
                                                $_user_details,
                                                $totale_sinpe,
                                                $totale_espen=0,
-                                               $template="rinnovo") {
+                                               $template="rinnovo",
+                                               $extraEmail = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2010,28 +2183,73 @@ HTML;
             && $_user_details['codice_fiscale'] != "")
             $_cf .= $_user_details['codice_fiscale'];
 
-        $dt = new DateTime($_data_creazione);
-        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
+        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PayPal";
 
         if ($template == "servizi_extra")
-            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PP";
+            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PayPal";
         else if ($template == "bonifico")
-            $oggetto = "SINPE - -Effettuato nuovo pagamento quota a mezzo bonifico";
+            $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo bonifico";
+        else if ($template == "preiscritto")
+            $oggetto = "SINPE - Approvazione richiesta di iscrizione";
+        else if ($template == "richiesta_bonifico_sinpe")
+            $oggetto = "SINPE - Richiesta di pagamento con bonifico registrata";
+        else if ($template == "conferma_bonifico_sinpe")
+            $oggetto = "SINPE - Pagamento della quota associativa confermato";
+        else if ($template == "voucher_sinpe")
+            $oggetto = "SINPE - Effettuato nuovo pagamento quota con voucher";
 
-        $body = <<<HTML
-                <br /><br />
-                <p>Nominativo: <b>{$_nominativo}</b></p>
-                <p>Codice fiscale: {$_cf}</p>
-                <p>Anno di riferimento: {$_anno_quota}</p>
-                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
-                <p>Dettagli ordine: {$_order_details}</p>
-                <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
-                <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+        if ($template != 'preiscritto' 
+            && $template != 'richiesta_bonifico_sinpe'
+            && $template != 'conferma_bonifico_sinpe'
+            && $template != 'voucher_sinpe') {
+            $dt = new DateTime($_data_creazione);
+            $body = <<<HTML
+                    <br /><br />
+                    <p>Nominativo: <b>{$_nominativo}</b></p>
+                    <p>Codice fiscale: {$_cf}</p>
+                    <p>Anno di riferimento: {$_anno_quota}</p>
+                    <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                    <p>Dettagli ordine: {$_order_details}</p>
+                    <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
+                    <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+HTML;
+        }
+        else if ($template == 'preiscritto')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, la tua richiesta di iscrizione a SINPE è stata approvata dal Consiglio Direttivo.</p>
+                    <p>Accedi al sito <a href="https://sinpe.org">www.sinpe.it</a> con le credenziali scelte in fase di registrazione e seleziona la voce ISCRIVITI/RINNOVA LA TUA QUOTA per completare la tua iscrizione.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'richiesta_bonifico_sinpe')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
+                    <p>Ecco i dati necessari per effettuare il bonifico:</p>
+                    <p>
+                    BANCO DI CREDITO AZZOAGLIO S.P.A.<br />
+                    FILIALE DI CENGIO<br />
+                    IBAN: IT03E0342549370000000011990<br />
+                    BENEFICIARIO: GGALLERY SRL<br />
+                    </p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'conferma_bonifico_sinpe')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'voucher_sinpe')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
 HTML;
 
         $_destinatario = array();
-        if ($email_default != "")
-            $_destinatario[] = $email_default;
+        if ($email_default != "") $_destinatario[] = $email_default;
+        if (!is_null($extraEmail)) $_destinatario[] = $extraEmail;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true);
 
@@ -2171,13 +2389,14 @@ HTML;
 
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
-
-            foreach ($_arr_add as $key => $a_group_id) {
-                JUserHelper::addUserToGroup($user_id, $a_group_id);
+            $modelUser = new gglmsModelUsers();
+            
+            foreach ($_arr_remove as $key => $d_group_id) {
+                $modelUser->deleteUserFromUserGroup($user_id,$d_group_id);
             }
 
-            foreach ($_arr_remove as $key => $d_group_id) {
-                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+            foreach ($_arr_add as $key => $a_group_id) {
+                $modelUser->insert_user_into_usergroup($user_id,$a_group_id);
             }
 
             $_ret['success'] = "tuttook";
@@ -2920,9 +3139,13 @@ HTML;
     }
 
     // setta il redirect in base alle impostazioni di gglms
-    public static function set_index_redirect_url($redirect=null) {
+    public static function set_index_redirect_url($redirect=null, $forceIndexRedirect=false) {
 
-        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : "index.php";
+        $indexRef = "index.php";
+        if ($forceIndexRedirect)
+            $indexRef = "/" . $indexRef;
+
+        $_href = (!is_null($redirect) && $redirect != "") ? $redirect : $indexRef;
 
         // controllo se è impostato il valore di rendirizzamento a index
         $_config = new gglmsModelConfig();
@@ -2943,7 +3166,8 @@ HTML;
                                                   $obj_unit,
                                                   $sconto_particolare = 0,
                                                   $acquisto_webinar = 0,
-                                                  $perc_webinar = 0) {
+                                                  $perc_webinar = 0,
+                                                  $unit_prezzo = 0) {
 
         $_ret = array();
         $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
@@ -2955,14 +3179,16 @@ HTML;
         // sconto per campo custom
         if ($sconto_custom != "") {
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_custom_cb}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_custom_cb})</small></span>
 HTML;
             $_descrizione_sconto = " sconto " . $sconto_custom;
         }
         else if ($sconto_data == 1
             && $in_groups == 1) { // sconto data per gruppo
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_data_gruppi}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_data_gruppi})</small></span>
 HTML;
             $_descrizione_sconto = " sconto Soci acquisto prima del " . $dt->format('d/m/Y');
 
@@ -2970,20 +3196,23 @@ HTML;
         else if ($sconto_data == 1
             && $in_groups == 0) { // sconto per data senza gruppo
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_data}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_data})</small></span>
 HTML;
             $_descrizione_sconto = " sconto acquisto prima del " . $dt->format('d/m/Y');
         }
         else if ($sconto_data == 0
             && $in_groups == 1) { // sconto per gruppo
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$obj_unit->sc_valore_gruppi}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$obj_unit->sc_valore_gruppi})</small></span>
 HTML;
             $_descrizione_sconto = " sconto Soci";
         }
         else if ($sconto_particolare > 0) {
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} € {$sconto_particolare}</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$sconto_particolare})</small></span>
 HTML;
             $_descrizione_sconto = " sconto personalizzato ";
         }
@@ -2991,7 +3220,8 @@ HTML;
         // gestione dell'acquisto in modalità webinar
         if ($acquisto_webinar > 0) {
             $_tipo_sconto = <<< HTML
-                    <span style="color: red;">{$_label_sconto} {$perc_webinar} %</span>
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} {$perc_webinar} %)</small></span>
 HTML;
             $_descrizione_sconto = " <b>IN MODALITA' WEBINAR</b> ";
         }
@@ -3004,6 +3234,32 @@ HTML;
 
     }
 
+    public static function getSiteMainUrl($arrPathTest, $withProtocol = true) {
+
+        $check = self::getJoomlaMainUrl($arrPathTest);
+        return self::getHostname($withProtocol) . (!is_null($check) ? '/' . $check : "");
+
+    }
+
+    // verifico l'installazione joomla
+    public static function getJoomlaMainUrl($arrPathTest) {
+
+        foreach ($arrPathTest as $key => $singleCheck) {
+            $pBase = $_SERVER['DOCUMENT_ROOT'] .  '/' . $singleCheck;
+            if (is_dir($pBase)) return $singleCheck;
+        }
+
+        return null;
+
+    }
+
+    // verifico esistenza parametro in url
+    public static function checkUrlParamExisting($url, $param) {
+
+        return strpos($url, $param);
+
+    }
+
     // costruizione del token per l'url encodato - utilità per output.php
     public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!') {
 
@@ -3013,10 +3269,24 @@ HTML;
         return $token;
     }
 
-    // costruizione del link encodato per i vari passaggi di acquisto evento
-    public static function build_encoded_link($token, $view='acquistaevento', $action='buy') {
+    public static function build_randon_token($stringTokenize = null, $secret_key = 'GGallery00!') {
 
-        return 'index.php?option=com_gglms&view=' . $view . '&action=' . $action . '&pp=' . $token;
+        return self::encrypt_decrypt('encrypt', (!is_null($stringTokenize) ? $stringTokenize : time()), $secret_key, $secret_key);
+
+    }
+
+    public static function decrypt_random_token($stringDetokenize, $secret_key = 'GGallery00!') {
+
+        return self::encrypt_decrypt('decrypt', $stringDetokenize, $secret_key, $secret_key);
+
+    }
+
+    // costruizione del link encodato per i vari passaggi di acquisto evento
+    public static function build_encoded_link($token='', $view='acquistaevento', $action='buy') {
+
+        return 'index.php?option=com_gglms&view=' . $view
+            . '&action=' . $action
+            . ($token != '' ? '&pp=' . $token : '');
 
     }
 
@@ -3051,7 +3321,7 @@ HTML;
     }
 
     // per i campi di tipo select ottengo la lista di option da name del cb field - utilità per output.php
-    public static function get_cb_field_select_by_name($_field_name) {
+    public static function get_cb_field_select_by_name($_field_name, $blackList = []) {
 
         $_options = "";
 
@@ -3065,6 +3335,8 @@ HTML;
             return "";
 
         foreach ($_cb_arr as $sub_key => $sub_values) {
+
+            if (in_array(strtolower($sub_values['fieldtitle']), $blackList)) continue;
 
             $_options .= <<<HTML
                 <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>
@@ -3149,6 +3421,15 @@ HTML;
         }
 
         return $_ret;
+    }
+
+    /* Number */
+    public static function percentageFromNumber($percentToGet, $myNumber) {
+
+        $percentInDecimal = $percentToGet / 100;
+
+        return $percentInDecimal * $myNumber;
+
     }
 
     /* Date */
@@ -3267,6 +3548,21 @@ HTML;
     /* Date */
 
     /* Generiche */
+    public static function mime_to_extension($mime) {
+
+        if (is_null($mime)) return $mime;
+
+        $mime_map = [
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/zip' => 'zip',
+            'application/pdf' => 'pdf',
+        ];
+    
+        return $mime_map[$mime] ?? null;
+    }
     public static function arr_to_json($_obj) {
 
         return json_encode($_obj);
@@ -3346,9 +3642,7 @@ HTML;
         $mailer->Encoding = 'base64';
         $mailer->setBody($body);
         // logo se richiesto
-        if ($with_logo)
-            $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
-
+        if ($with_logo) $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
 
         $send = $mailer->Send();
 
@@ -3539,7 +3833,7 @@ HTML;
     }
 
     // da un array ricavo i nomi delle colonne che saranno poi usati in esportazione
-    function get_cols_from_array($arr_values)  {
+    public static function get_cols_from_array($arr_values)  {
 
         $_ret = array();
 
@@ -3593,19 +3887,19 @@ HTML;
 
            //controllo se user appartiene ad una società
            if (!isset($user_soc) || !is_numeric($user_soc[0]->id))
-               throw new Exception("questo user non appartiene a nessuna società", 1);
+               throw new Exception("questo user non appartiene a nessuna società", E_USER_ERROR);
 
            $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
 
            //controllo tutor aziandale
            if (!isset($tutor_id) || !is_numeric($tutor_id))
-               throw new Exception(" il tutor aziendale non esiste", 1);
+               throw new Exception(" il tutor aziendale non esiste", E_USER_ERROR);
 
            //mi restituisca username del tutor aziendale perche mi serve nell'inserimento del coupon
            $username_tutor = $model_user->get_user($tutor_id);
 
            if (!isset($username_tutor))
-               throw new Exception("il username del tutor aziendale non esiste", 1);
+               throw new Exception("il username del tutor aziendale non esiste", E_USER_ERROR);
 
            $data = array();
 
@@ -3663,6 +3957,98 @@ HTML;
            return null;
        }
 
+
+    }
+
+    public static function get_csv_remote(
+                                          $local_file,
+                                          $filename = '',
+                                          $start_from_zero = false,
+                                          $is_debug = false,
+                                          $_err_label = '',
+                                          $row_separator = ";") {
+
+        try {
+
+            $rows_arr = array();
+
+
+            $target_csv = $local_file . $filename;
+
+            $file_contents = file_get_contents($target_csv);
+            $exploded_contents = explode("\n", $file_contents);
+
+            $counter = 0;
+            foreach ($exploded_contents as $key => $row) {
+
+                if ($row == "")
+                    continue;
+
+                if (!$start_from_zero
+                    && $counter == 0) {
+                    $counter++;
+                    continue;
+                }
+
+                // potrebbe essere necessario ripulire la stringa da dei double quote in eccesso
+                $rows_arr[] = explode($row_separator, str_replace('"', '', $row));
+
+                $counter++;
+
+                if ($is_debug
+                    && $counter == 5)
+                    break;
+
+            }
+
+
+            if (count($rows_arr) == 0)
+                throw new Exception("Nessuna riga elaborata nel file csv", E_USER_ERROR);
+
+
+            return $rows_arr;
+
+        }
+        catch (Exception $e) {
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), (($_err_label != '') ? $_err_label : __FUNCTION__ ) . "_error");
+            return null;
+        }
+
+    }
+
+    public static function getSecondsFromHMS($time) {
+        $timeArr = array_reverse(explode(":", $time));
+        $seconds = 0;
+        foreach ($timeArr as $key => $value) {
+            if ($key > 2)
+                break;
+            $seconds += pow(60, $key) * $value;
+        }
+        return $seconds;
+    }
+
+    public static function send_codice_vitazione_email_sinpe($email_default,
+                                                               $_name,
+                                                               $_email_user,
+                                                               $_codice,
+                                                               $_email_from) {
+
+        $oggetto = "Codice per votazione ";
+
+        $dt = new DateTime();
+
+        $body = <<<HTML
+                <br /><br />
+                <p>Nome: <b>{$_name}</b></p>
+                <p>Codice: <b>{$_codice}</b></p>
+                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+HTML;
+
+        $_destinatario = array();
+        $_destinatario[] = $email_default;
+        $_destinatario[] = $_email_user;
+
+        return self::send_email($oggetto, $body, $_destinatario, true, false, $_email_from);
 
     }
 

@@ -13,6 +13,7 @@ require_once JPATH_COMPONENT . '/models/contenuto.php';
 require_once JPATH_COMPONENT . '/models/unita.php';
 require_once JPATH_COMPONENT . '/models/coupon.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/libretto.php';
 
 
 /**
@@ -129,10 +130,13 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
                     $data->stato = $stato->completato;
                     $data->visualizzazioni =  $stato->visualizzazioni;
-                    $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
+
+//                    $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
+                    $permanenza_second = utilityHelper::getSecondsFromHMS($stato->permanenza);
+                    $data->permanenza_tot = isset($permanenza_second) ? $permanenza_second : 0;
                     $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
 
-//                    var_dump($data->permanenza_tot);
+//                    var_dump($data);
 
                     /*
                      * magari bastasse..se mi ritorna 0 va in errore cosa capitata dal 19/01/2020 e che ha bloccato i report oltre che generato una marea di problemi a catena
@@ -185,7 +189,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                         'id_anagrafica' => $data->id_anagrafica
                     );
 
-                    utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+                    //utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
 //                     DEBUGG::log($data, 'Data to store_report' );
 
@@ -389,17 +393,22 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 $tmp->nome = $this->_db->quote($tmpuser->nome);
                 $tmp->cognome = $this->_db->quote($tmpuser->cognome);
                 $tmp->fields = $this->_db->quote(json_encode($tmpuser));
-                $this->store_report_users($tmp);
+                $modelLibretto = new gglmsModelLibretto();
+                $user = $modelLibretto->get_user($user->id);
 
-                $log_arr = array(
-                    'user_id' => $tmp->id_user,
-                    'nome' => $tmp->nome,
-                    'cognome' => $tmp->cognome,
-                    'data_ref' => $_dt_ref
-                );
+                if(is_null($user) || isset($user)) {
 
-                utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+                    $this->store_report_users($tmp);
 
+                    $log_arr = array(
+                        'user_id' => $tmp->id_user,
+                        'nome' => $tmp->nome,
+                        'cognome' => $tmp->cognome,
+                        'data_ref' => $_dt_ref
+                    );
+
+                    utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+                }
             }
             DEBUGG::log('sync_report_users', 'sync_report_users, caricati: ' . count($users) . ' utenti', 0, 1, 0);
             return true;

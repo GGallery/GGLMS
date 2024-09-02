@@ -3,6 +3,25 @@
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
+# 4.2.4
+* D: aggiunta tabella gg_cod_votazioni_users
+* D: aggiunta tabella gg_votazioni_candidati
+
+# 4.2.3
+* D: aggiunta della colonna id_gruppi_custom alla tabella gg_unit
+
+# 4.2.2
+* D: aggiunta della tabella gg_quote_voucher
+
+# 4.2.1
+* D: aggiunta della colonna stato alla tabella gg_quote_iscrizioni
+
+# 4.2.0
+* D: aggiunta della colonna url_streaming_azure alla tabella gg_contenuti
+
+# 4.1.9
+
+* D: aggiunta tabella gg_anagrafica_centri per i centri di sinpe
 
 # 4.1.8
 
