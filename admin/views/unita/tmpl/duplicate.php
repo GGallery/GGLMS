@@ -7,10 +7,11 @@
  */
 // No direct access to this file
 defined('_JEXEC') or die;
+use Joomla\CMS\HTML\HTMLHelper;
 
-JHtml::_('bootstrap.tooltip');
-JHtml::_('behavior.formvalidation');
-JHtml::_('formbehavior.chosen', 'select');
+HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('behavior.formvalidator');
+HTMLHelper::_('formbehavior.chosen', 'select');
 ?>
 
 

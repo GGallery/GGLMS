@@ -7,10 +7,12 @@
  */
 // No direct access to this file
 defined('_JEXEC') or die;
+use Joomla\CMS\HTML\HTMLHelper;
 
-JHtml::_('bootstrap.tooltip');
-JHtml::_('behavior.formvalidation');
-JHtml::_('formbehavior.chosen', 'select');
+
+HTMLHelper::_('bootstrap.tooltip');
+HTMLHelper::_('behavior.formvalidator');
+HTMLHelper::_('formbehavior.chosen', 'select');
 ?>
 <head>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -59,7 +61,7 @@ JHtml::_('formbehavior.chosen', 'select');
 
             <div class="span4">
                 <div class="row-fluid">
-                    <?php echo $this->form->renderField('id'); ?>
+                    <?php  echo $this->form->renderField('id'); ?>
                 </div>
 
 

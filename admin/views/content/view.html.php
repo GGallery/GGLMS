@@ -30,7 +30,7 @@ class gglmsViewContent extends JViewLegacy {
 
         JHtml::_('jquery.framework', true);
         JHtml::_('bootstrap.framework', true);
-        JHtml::_('jquery.ui', array('core', 'sortable'));
+        //JHtml::_('jquery.ui', array('core', 'sortable'));
 
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload.css');
         $document->addStyleSheet($host . 'administrator/components/com_gglms/jupload/css/jquery.fileupload-ui.css');
