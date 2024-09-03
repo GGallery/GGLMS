@@ -42,6 +42,11 @@ class GGlmsRouter extends JComponentRouterBase
             unset($query['coupondipenser']);
         }
 
+        if (isset($query['layout'])) {
+            $segments[] = $query['layout'];
+            unset($query['layout']);
+        }
+
         return $segments;
     }
 
