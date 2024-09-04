@@ -10,6 +10,8 @@
  * @license        GNU/GPL
  */
 // no direct access
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.view');
@@ -26,11 +28,16 @@ class gglmsViewUnita extends JViewLegacy
 
     function display($tpl = null)
     {
+        $this->unitObj= $this->get('Unita');
+        $this->_app = Factory::getApplication();
+        $this->_params = $this->_app->getParams();
 
-        $this->unita = $this->get('Unita');
+        $this->unita = new gglmsModelUnita();
+        //var_dump($this->unitObj);
+
 
         //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb, lo so è una vaccata
-        $this->_params = $this->unita->_params;
+        //$this->_params = $this->unita->_params;
 
         JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap-grid.min.css');
         JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/js/bootstrap.min.js');
@@ -41,7 +48,9 @@ class gglmsViewUnita extends JViewLegacy
         $arr_url = parse_url(JURI::base());
         $this->url_base = $arr_url['scheme'] . '://' . $arr_url['host'];
 
-        if (!$this->unita->access()) {
+
+
+        if (!$this->unita->access($this->unitObj)) {
             $app = JFactory::getApplication();
             JFactory::getApplication()->enqueueMessage('Non puoi ancora accedere a questo corso', 'warning');
 
@@ -54,12 +63,12 @@ class gglmsViewUnita extends JViewLegacy
         }
 
 
-        $this->sottounita = $this->unita->getSottoUnita();
+        $this->sottounita = $this->unita->getSottoUnita(null,null, $this->unitObj);
 //        DEBUGG::log($e, 'getSottoUnita');
 
-        $this->contenuti = $this->unita->getContenuti_u($this->unita->id, null);
+        $this->contenuti = $this->unita->getContenuti_u($this->unitObj->id, null);
 
-        $this->breadcrumbs = outputHelper::buildUnitBreadcrumb($this->unita->id);
+        $this->breadcrumbs = outputHelper::buildUnitBreadcrumb($this->unitObj->id);
 
 
         parent::display($tpl);

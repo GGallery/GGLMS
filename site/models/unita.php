@@ -40,7 +40,7 @@ class gglmsModelUnita extends JModelLegacy
         $user = JFactory::getUser();
         $this->_userid = $user->get('id');
 
-        $this->_db = $this->getDbo();
+        $this->_db = $this->getDatabase();
 
         $this->_app = JFactory::getApplication('site');
         $this->_params = $this->_app->getParams();
@@ -49,7 +49,7 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    protected function populateState()
+    protected function populateState($ordering = 'name', $direction = 'asc'): void
     {
         $app = JFactory::getApplication('site');
 
@@ -82,10 +82,11 @@ class gglmsModelUnita extends JModelLegacy
 
 
             $this->_db->setQuery($query);
-            $unit = $this->_db->loadObject('gglmsModelUnita');
-
+//            $class = new gglmsModelUnita();
+//            var_dump(gettype($class));die;
+            $unit= $this->_db->loadObject();
             if (empty($unit)) {
-                return JError::raiseError(404, JText::_('Unita non disponibile -->') . (string)$query);
+                throw new RuntimeException('No unit with id ' . $pk . ' found.');
             }
         } catch (Exception $e) {
             DEBUGG::log($e, 'getUnita');
@@ -95,9 +96,9 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    public function getSottoUnita($pk = null, $is_attestato = null)
+    public function getSottoUnita($pk = null, $is_attestato = null, $unitObj = null)
     {
-        $query_id = $this->id;
+        $query_id = $unitObj != null ? $unitObj->id : $this->id;
         if ($pk != null) {
             $query_id = $pk;
         }
@@ -111,7 +112,7 @@ class gglmsModelUnita extends JModelLegacy
                 ->order('ordinamento')
                 ->order('id');
             $this->_db->setQuery($query);
-            $data = $this->_db->loadObjectList('', 'gglmsModelUnita');
+            $data = $this->_db->loadObjectList();
 
 
         } catch (Exception $e) {
@@ -144,7 +145,7 @@ class gglmsModelUnita extends JModelLegacy
             }
 
             $this->_db->setQuery($query);
-            $contenuti = $this->_db->loadObjectList('', 'gglmsModelContenuto');
+            $contenuti = $this->_db->loadObjectList();
 
         } catch (Exception $e) {
             DEBUGG::log($e, 'getContenuti');
@@ -154,7 +155,7 @@ class gglmsModelUnita extends JModelLegacy
     }
 
 
-    public function isUnitaCompleta($pk = null, $userid = null)
+    public function isUnitaCompleta($pk = null, $userid = null): bool
     {
 
         $pk = (!empty($pk)) ? $pk : (int)$this->getState('unita.id');
@@ -172,9 +173,12 @@ class gglmsModelUnita extends JModelLegacy
 
             $contenutoObj = new gglmsModelContenuto();
             $obj = $contenutoObj->getContenuto($contenuto->id);
-            if ($obj->getStato($userid)->completato == 0) {
+
+
+            if ($contenutoObj->getStato($userid,$obj)->completato == 0) {
                 return false;
             }
+
         }
         return true;
     }
@@ -210,8 +214,14 @@ class gglmsModelUnita extends JModelLegacy
         return;
     }
 
-    public function access()
+    public function access($unit = null)
     {
+        if(!is_null($unit)) {
+            if ($unit->is_corso || $unit->id == 1)
+                return $this->access_tipology($unit);
+            else
+                return $this->access_tipology($this->find_corso($unit->unitapadre));
+        }
 
         if ($this->is_corso || $this->id == 1)
             return $this->access_tipology($this);
@@ -596,10 +606,10 @@ class gglmsModelUnita extends JModelLegacy
         $retval = '';
 
 
-        if ($unita->is_corso == 1 && !$unita->isUnitacompleta($unita->id)) {
+        if ($unita->is_corso == 1 && !$this->isUnitacompleta($unita->id)) {
 
-            if ($this->is_corso_expired($this)
-                || $this->check_coupon_is_expired($this)) {
+            if ($this->is_corso_expired($unita)
+                || $this->check_coupon_is_expired($unita)) {
 
                 $retval = 'disabled';
             }
@@ -662,7 +672,7 @@ class gglmsModelUnita extends JModelLegacy
 
                 $this->_db->setQuery($update);
                 if (false === $this->_db->execute())
-                    throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+                    throw new Exception("errore update_tipologia_corso_unita", E_USER_ERROR);
 
             }
 
@@ -776,7 +786,7 @@ class gglmsModelUnita extends JModelLegacy
             $this->_db->setQuery($query);
 
             if (false === ($corso_obj = $this->_db->loadObject('gglmsModelUnita'))) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("errore get_corso_from_gruppo", E_USER_ERROR);
             }
 
             return $corso_obj;
@@ -964,7 +974,7 @@ class gglmsModelUnita extends JModelLegacy
 
             $this->_db->setQuery($insert);
             if (!$this->_db->execute())
-                throw new Exception("Inserimento corso fallito: " . $this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new Exception("Inserimento corso fallito ", E_USER_ERROR);
 
             $last_unit_id = $this->_db->insertid();
 
@@ -1008,7 +1018,7 @@ class gglmsModelUnita extends JModelLegacy
 
             $this->_db->setQuery($insert);
             if (!$this->_db->execute())
-                throw new Exception("Inserimento riferimento utente per corso fallito: " . $this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new Exception("Inserimento riferimento utente per corso fallito", E_USER_ERROR);
 
             $this->_db->transactionCommit();
 

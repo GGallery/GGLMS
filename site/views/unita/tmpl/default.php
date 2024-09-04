@@ -33,11 +33,11 @@ if ($this->sottounita) {
         foreach ($this->sottounita as $unita) {
 
 
-                if ($this->unita->_params->get('visualizza_solo_mieicorsi') && !$unita->access()) {
+                if ($this->unita->_params->get('visualizza_solo_mieicorsi') && !$this->unita->access($unita)) {
 //            echo "non puoi vedere". $unita->titolo;
 
                 } elseif (
-                    ($unita->is_corso == 1 && $unita->is_visibile_today($unita))
+                    ($unita->is_corso == 1 && $this->unita->is_visibile_today($unita))
                     || $unita->is_corso != 1) {
 
                     try {
@@ -45,7 +45,7 @@ if ($this->sottounita) {
                         $unitaObj = new gglmsModelUnita();
 
                         $is_unit_completed = $unitaObj->isUnitacompleta($unita->id);
-                        $corso_class = $unita->get_access_class($unita);
+                        $corso_class = $this->unita->get_access_class($unita);
                         $corso_is_disabled = $corso_class == 'disabled';
 
 
