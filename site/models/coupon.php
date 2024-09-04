@@ -55,7 +55,7 @@ class gglmsModelcoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadColumn()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             $corsi_abilitati = empty($results) ? array() : $results;
         } catch (Exception $e) {
             DEBUGG::error($e);
@@ -92,7 +92,7 @@ class gglmsModelcoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             $this->_coupon = empty($results) ? array() : $results;
 
@@ -125,7 +125,7 @@ class gglmsModelcoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             return true;
 
@@ -163,7 +163,7 @@ class gglmsModelcoupon extends JModelLegacy
 
                 $this->_db->setQuery($query);
                 if (false === ($results = $this->_db->loadAssoc()))
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                    throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
                 $unita = empty($results) ? array() : $results;
 
             } catch (Exception $e) {
@@ -252,8 +252,8 @@ class gglmsModelcoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
 
-            if (null === ($results = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            if (null == ($results = $this->_db->loadAssoc())) {
+                throw new Exception("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $data_scadenza_calc = strtotime($results['data_scadenza_calc']);
@@ -314,7 +314,7 @@ class gglmsModelcoupon extends JModelLegacy
             $this->_db->setQuery($query);
 
             if (null === ($results = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $data_scadenza_calc = new DateTime($results['data_scadenza_calc']);
@@ -346,7 +346,7 @@ class gglmsModelcoupon extends JModelLegacy
             $this->_db->setQuery($query);
 
             if (null === ($res = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $new_durata = (int)$res['diff_days'] + (int)$res['current_durata'];
@@ -485,7 +485,7 @@ class gglmsModelcoupon extends JModelLegacy
             $this->_db->setQuery($query);
 
             if (null === ($results = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $data_scadenza_calc = new DateTime($results['data_scadenza_calc']);
@@ -547,7 +547,7 @@ class gglmsModelcoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             return true;
 

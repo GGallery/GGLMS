@@ -575,13 +575,13 @@ class gglmsModelUsers extends JModelLegacy
             $query = 'INSERT INTO #__kunena_user_categories (user_id, category_id, role) VALUES (' . $user_id . ', ' . $forum_id . ', 1)';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $query = 'INSERT INTO #__kunena_users (userid, moderator, rank) VALUES (' . $forum_id . ', 1, 8) ON DUPLICATE KEY UPDATE moderator=1, rank=8';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
             return true;
 
@@ -1146,7 +1146,7 @@ class gglmsModelUsers extends JModelLegacy
                             VALUES ";
 
             if($totale_sinpe && $tipo_quota == 'paypal') {
-                
+
                 if ($totale_espen > 0) $refQuota = 'espen + quota';
 
                 $query .= "(
@@ -1442,8 +1442,8 @@ class gglmsModelUsers extends JModelLegacy
                     ->select("u.id AS user_id, u.username, u.email,
                                     cp.cb_nome AS nome, cp.cb_cognome AS cognome,
                                     cp.cb_codicefiscale AS codice_fiscale,
-                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita, 
-                                    cp.cb_ultimoannoinregola AS ultimo_anno, 
+                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita,
+                                    cp.cb_ultimoannoinregola AS ultimo_anno,
                                     IF(cp.cb_professione_sinpe IS NULL, 0, 1) AS sinpe_dep,
                                     ug.title AS tipo_socio, ug.id AS id_group");
 
@@ -2273,7 +2273,7 @@ class gglmsModelUsers extends JModelLegacy
             $db->setQuery($query);
 
             if (false === ($results = $db->loadObjectList())) {
-                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return isset($results[0]) ? $results[0] : null;
@@ -2299,7 +2299,7 @@ class gglmsModelUsers extends JModelLegacy
             $db->setQuery($query);
 
             if (false === ($results = $db->loadAssocList())) {
-                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return isset($results) ? $results : null;
@@ -2325,7 +2325,7 @@ class gglmsModelUsers extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             $_codice = empty($results) ? array() : $results;
 
@@ -2367,10 +2367,10 @@ class gglmsModelUsers extends JModelLegacy
                             FROM #__gg_quote_voucher
                             WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
                             AND user_id IS NULL";
-            
+
             $this->_db->setQuery($checkVoucher);
             if (!$this->_db->execute()) throw new Exception("Error during checking voucher code: " . $requestedVoucher, E_USER_ERROR);
-            
+
             return $this->_db->loadResult();
 
         }
@@ -2389,7 +2389,7 @@ class gglmsModelUsers extends JModelLegacy
             //cancello da user_usergroup corso per utente
             $delete_usergroup = "DELETE FROM #__user_usergroup_map"
             . " WHERE group_id = " . $this->_db->quote($group_id) . " AND user_id = " . $user_id;
-            
+
             $this->_db->setQuery($delete_usergroup);
 
             if (!$this->_db->execute()) throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, E_USER_ERROR);

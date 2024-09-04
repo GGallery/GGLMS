@@ -603,14 +603,14 @@ HTML;
             $this->_db->setQuery($query);
 
             if (!$this->_db->execute())
-                $_ret['messages'][] = $this->_db->getErrorMsg();
+                $_ret['messages'][] = "Errore".__FUNCTION__;
 
             $query = "DELETE FROM #__quiz_r_student_quiz"
                 . "\n WHERE c_id = '". $cid . "'";
             $this->_db->setQuery($query);
 
             if (!$this->_db->execute())
-                $_ret['messages'][] = $this->_db->getErrorMsg();
+                $_ret['messages'][] = "Errore".__FUNCTION__;
 
         }
         catch (Exception $e) {
@@ -2391,7 +2391,7 @@ HTML;
     }
 
     public function sinpeCheckCodiceFiscale() {
-       
+
         $response = [];
         try {
 
@@ -2408,11 +2408,11 @@ HTML;
                         $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
                         $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
                         $gruppi_solo_evento = utilityHelper::get_ug_from_object($_params,"ug_nonsocio");
-    
+
                         // online
-                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online))) 
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online)))
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_ONLINE'), E_USER_ERROR);
-    
+
                         // moroso
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
@@ -2458,7 +2458,7 @@ HTML;
 
                 $jsonContent = file_get_contents('php://input');
                 $decoded = json_decode($jsonContent, true);
-                
+
                 //if (!$decoded) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
 
                 // validazione campi
@@ -2529,7 +2529,7 @@ HTML;
 
                 $jsonContent = file_get_contents('php://input');
                 $decoded = json_decode($jsonContent, true);
-                
+
                 if (!$decoded || !isset($decoded['request_obj'])) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
 
                 $_new_user = [];
@@ -2630,7 +2630,7 @@ HTML;
 
                 // controllo esistenza voucher
                 if (!is_null($voucher_code)) {
-                    
+
                     $checkVoucher = $userModel->checkVoucherValid($voucher_code);
                     if ($checkVoucher == "error") throw new Exception("Si è verificato un errore durante il controllo del voucher". E_USER_ERROR);
 
@@ -2685,7 +2685,7 @@ HTML;
                     // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
                     // gli permetto di completarlo
                     $annoRef = $dt->format('Y');
-                    
+
                     // prima controllo se ha un pagamento di tipo bonifico in sospeso
                     $checkQuota = $userModel->get_quota_per_id($comprofilerCheck['user_id'], 'user_id', $annoRef);
                     if (isset($checkQuota['tipo_pagamento'])) throw new Exception('Hai già un pagamento registrato per l\'anno ' . $annoRef);
@@ -2705,8 +2705,8 @@ HTML;
                     if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
                         throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
-                    // se decaduto 
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true; 
+                    // se decaduto
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;
 
                     // se solo evento
                     if(utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) $isSoloEvento=true;
@@ -2739,7 +2739,7 @@ HTML;
                     $userUpdateQuery = utilityHelper::get_update_query('users', $_new_user, " where id = " . $comprofilerCheck['user_id']);
                     $_user_update_query_result = utilityHelper::insert_new_with_query($userUpdateQuery);
                     if (!is_array($_user_update_query_result)) throw new Exception("Aggiornamento anagrafica utente fallito: " . $_user_update_query_result, E_USER_ERROR);
-                    
+
                     // aggiornamento comprofiler
                     $comprofilerUpdateQuery = utilityHelper::get_update_query('comprofiler', $_new_user_cp, " where user_id = " . $comprofilerCheck['user_id']);
                     $_cp_update_query_result = utilityHelper::insert_new_with_query($comprofilerUpdateQuery);
@@ -2769,10 +2769,10 @@ HTML;
                     $_new_user_cp['user_id'] = $_user_insert_query_result['success'];
                     $newUserId = $_user_insert_query_result['success'];
 
-                    
+
                     $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
                     //throw new Exception($_cp_insert_query, E_USER_ERROR);
-                    
+
                     $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
                     if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'inserimento del profilo utente", E_USER_ERROR);
 
@@ -2790,22 +2790,22 @@ HTML;
                 $this->_db->transactionCommit();
 
                 if (!is_null($fileExt)) {
-                    
+
                     $dirPath =  JPATH_ROOT . '/tmp/' . $newUserId;
 
                     if (!file_exists($dirPath)) $createPath = mkdir($dirPath, 0777, true);
-                    
+
                     $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
                     file_put_contents($filePath, $cvData);
                 }
-                    
+
 
                 $response['success'] = "tuttook";
                 $response['token'] = utilityHelper::build_randon_token($newUserId . '|==|' . $voucher_code);
 
 
             }
-            
+
         }
         catch(Exception $e) {
             if ($startTransaction) $this->_db->transactionRollback();
@@ -4031,7 +4031,7 @@ HTML;
         $this->_db->setQuery($query_insert);
 
         if (false === $this->_db->execute()) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
         }
 
         foreach ($dettagli_utente as $utente) {
@@ -4111,7 +4111,7 @@ HTML;
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             $_codice = empty($results) ? array() : $results;
 
@@ -4134,7 +4134,7 @@ HTML;
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
 
             $_codice = empty($results) ? array() : $results;
@@ -4167,7 +4167,7 @@ HTML;
                 $db->setQuery($query);
 
                 if (false === ($db->execute()))
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                    throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
                 $result['valido'] = 1;
 

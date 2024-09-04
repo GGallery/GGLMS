@@ -204,7 +204,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                                 ref_skill) VALUES ' . join(',', $values);
             $this->_db->setQuery($query);
             if (false === $this->_db->execute()) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
 
@@ -224,7 +224,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                 $data["id_piattaforma"],
                                 $data['email_coupon'],
                                 $from_api) === false) {
-                            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                            throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
                         }
 
                     }
@@ -235,7 +235,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                             $id_gruppo_societa,
                             $data['email_coupon'],
                             $from_api) === false) {
-                        throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                        throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
                     }
 
 
@@ -345,7 +345,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = sprintf('INSERT INTO #__users (name, username, password, email, sendEmail, registerDate, activation) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 0, NOW(), \'\')', $this->_db->escape($data['ragione_sociale']), $this->_db->escape($data['username']), $crypt, $data['email']);
             $this->_db->setQuery($query);
             if (false === $this->_db->query())
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 //                debug::msg('Nuovo utente ' . $data['username'] . ':' . $password . ' inserito.');
 
             // id del nuovo user
@@ -373,7 +373,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === $this->_db->query()) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
 
@@ -413,7 +413,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = 'SELECT id FROM #__users WHERE username=\'' . $this->_db->escape($username) . '\' LIMIT 1';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadRow())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return isset($results[0]) ? $results[0] : null;
@@ -435,7 +435,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $this->_db->setQuery($query);
 
             if (false === ($results = $this->_db->loadRow())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return isset($results[0]) ? $results[0] : null;
@@ -770,7 +770,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             if (false === ($result = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return $result;
@@ -989,13 +989,13 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             // ID della categoria del forum appena creata
             $query = 'SELECT LAST_INSERT_ID() AS id';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
             $company_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
             if (empty($company_forum_id)) {
@@ -1008,7 +1008,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = $query . 'VALUES ( \'' . $this->_db->escape($alias) . '\', \'' . $alias_type . '\',' . $company_forum_id . ')';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
 
             // se va a buon fine
@@ -1054,7 +1054,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             if (false === ($results = $this->_db->loadResult())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return isset($results) ? $results : null;
@@ -1093,7 +1093,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
 
             if (false === ($results = $this->_db->loadRow())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             return isset($results) ? $results : null;
@@ -1185,7 +1185,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                        )';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
 
@@ -1193,7 +1193,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = 'SELECT LAST_INSERT_ID() AS id';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $corso_forum_id = filter_var($results['id'], FILTER_VALIDATE_INT);
@@ -1208,7 +1208,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $query = $query . 'VALUES ( \'' . $this->_db->escape($alias) . '\', \'' . $alias_type . '\',' . $corso_forum_id . ')';
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->query())) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
 

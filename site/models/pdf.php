@@ -185,7 +185,7 @@ class gglmsModelPdf extends JModelLegacy
 
             $this->_db->setQuery($query);
             if (false === ($results = $this->_db->loadAssoc()))
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
             return $results['attestati_custom'] == 1 ? $results['alias'] : '';
 

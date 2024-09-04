@@ -53,7 +53,7 @@ class gglmsControllerHelpDesk extends JControllerLegacy
             $data = $input->get($_POST);
 
             if (  $this->model->sendRequestMail($data) === false) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             //$this->_japp->redirect(JRoute::_('/home/helpdesk'), $this->_japp->enqueueMessage(JText::_('COM_GGLMS_HELP_DESK_SUCCESS'), 'Success'));

@@ -320,7 +320,7 @@ class gglmsModelStatoContenuto extends JModelLegacy
         $query = 'INSERT INTO #__quiz_r_student_quiz(c_quiz_id, c_student_id, c_total_score, c_total_time, c_date_time, c_passed ,unique_id, allow_review, c_order_id, c_rel_id, c_lid, unique_pass_id,c_finished, user_email, c_passing_score, c_max_score, user_name, user_surname, params, timestamp ) VALUES ' . join(',', $values);
         $this->_db->setQuery($query);
         if (false === $this->_db->execute()) {
-            throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+            throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
         }
 
 

@@ -119,7 +119,7 @@ class gglmsControllerPrenotaCoupon extends JControllerLegacy
             $data = $this->_japp->input->getArray($_POST);
 
             if ($this->send_book_email($data) === false) {
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
             $this->_japp->redirect(('index.php?option=com_gglms&view=prenota&id_corso=' . $data["id_corso"] . '&id_piattaforma=' . $data["id_piattaforma"]), $this->_japp->enqueueMessage('Richiesta inviata con successo!', 'Success'));

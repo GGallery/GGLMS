@@ -380,7 +380,7 @@ class gglmsModelReport extends JModelLegacy
 
             // gestione dell'errore di query
             if (!$this->_db->execute())
-                throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new Exception("Errore".__FUNCTION__, E_USER_ERROR);
 
             return true;
 
@@ -410,7 +410,7 @@ class gglmsModelReport extends JModelLegacy
 
             // gestione dell'errore di query
             if (!$this->_db->execute())
-                throw new Exception($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new Exception("Errore".__FUNCTION__, E_USER_ERROR);
 
             return true;
 

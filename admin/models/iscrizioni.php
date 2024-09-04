@@ -80,7 +80,7 @@ class gglmsModelIscrizioni extends JModelList {
 
         $db->setQuery($query);
         if (false === ($items = $db->loadColumn()))
-            throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
 
         return $items;
@@ -99,7 +99,7 @@ class gglmsModelIscrizioni extends JModelList {
 
         $db->setQuery($query);
         if (false === ($items = $db->loadAssocList('id', 'title')))
-            throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
 
 
         return $items;

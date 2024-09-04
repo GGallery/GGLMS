@@ -415,7 +415,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
 
             if (false === ($result = $this->_db->loadAssoc())) {
 
-                throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
             }
 
 
