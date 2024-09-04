@@ -6,6 +6,10 @@
  * @package    Joomla.Components
  * @subpackage WebTV
  */
+
+use Joomla\CMS\Factory;
+use Joomla\Database\DatabaseInterface;
+
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
@@ -37,7 +41,7 @@ class gglmsModelContenuto extends JModelLegacy
         $user = JFactory::getUser();
         $this->_userid = $user->get('id');
 
-        $this->_db = JFactory::getDBO();
+        $this->_db = Factory::getContainer()->get(DatabaseInterface::class);
 
         $this->_app = JFactory::getApplication('site');
         $this->_params = $this->_app->getParams();
@@ -95,7 +99,7 @@ class gglmsModelContenuto extends JModelLegacy
 
             $this->_db->setQuery($query);
 
-            $data = $this->_db->loadObject('gglmsModelContenuto');
+            $data = $this->_db->loadObject();
 
             if (empty($data)) {
                 DEBUGG::log('contenuto non trovato, id: ' . $id, 'error in getContenuto', 0, 1, 0);
@@ -297,7 +301,7 @@ class gglmsModelContenuto extends JModelLegacy
         }
     }
 
-    public function getStato($user_id = null)
+    public function getStato($user_id = null,$contentObj=null)
     {
 
         try {
@@ -307,9 +311,9 @@ class gglmsModelContenuto extends JModelLegacy
                 $this->_userid = $user_id;
             }
 
-
+            $tipologia = $this->tipologia == null ? $contentObj->tipologia : $this->tipologia;
 //		RESTITUISCO UN OGGETTO STATO
-            switch ($this->tipologia) {
+            switch ($tipologia) {
                 case 3: //allegati
                     $data = $this->getStato_allegati();
                     return $data;
@@ -339,7 +343,6 @@ class gglmsModelContenuto extends JModelLegacy
                 case 8:  //ss0
                     return $this->getStato_SSO();
                     break;
-
             }
         } catch (Exception $e) {
             DEBUGG::log($e->getMessage(), 'error in getStato', 0, 1, 0);
@@ -626,7 +629,7 @@ class gglmsModelContenuto extends JModelLegacy
                 $this->_db->setQuery($query);
 
                 if (null === ($results = $this->_db->loadResult())) {
-                    throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
+                    throw new RuntimeException("Errore".__FUNCTION__, E_USER_ERROR);
                 }
 
             } else {
