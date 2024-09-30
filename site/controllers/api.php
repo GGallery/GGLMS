@@ -4246,6 +4246,10 @@ HTML;
             $db->setQuery($query);
             $db->execute();
 
+
+
+            $db->transactionCommit();
+
             $body   = 'Grazie per esserti iscritto! <br>
                  Le tue credenziali per il primo accesso sono: <br>'
                 .'Username: <b>'.$email .'</b> <br> '
@@ -4259,8 +4263,6 @@ HTML;
             if($res != 'Mail inviata'){
                 throw new Exception('Send Email error', E_USER_ERROR);
             }
-
-            $db->transactionCommit();
             return;
 
         } catch (Exception $e) {
