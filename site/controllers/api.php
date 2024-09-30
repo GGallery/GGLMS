@@ -4206,7 +4206,7 @@ HTML;
         $config = JFactory::getConfig();
         try {
 
-        $db->transactionStart();
+       // $db->transactionStart();
 
         $pass = uniqid();
         $query = "INSERT INTO #__users (name, username, email, password, requireReset)
@@ -4248,7 +4248,7 @@ HTML;
 
 
 
-            $db->transactionCommit();
+           // $db->transactionCommit();
 
             $body   = 'Grazie per esserti iscritto! <br>
                  Le tue credenziali per il primo accesso sono: <br>'
@@ -4266,7 +4266,7 @@ HTML;
             return;
 
         } catch (Exception $e) {
-            $db->transactionRollback();
+           // $db->transactionRollback();
             utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
             $this->sendResponse(500, 'Internal server error');
         }
