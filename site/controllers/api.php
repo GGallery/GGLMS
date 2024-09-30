@@ -17,6 +17,7 @@ require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
+require_once JPATH_COMPONENT . '/controllers/users.php';
 require_once JPATH_COMPONENT . '/helpers/utility.php';
 
 /**
@@ -2388,7 +2389,7 @@ HTML;
     }
 
     public function sinpeCheckCodiceFiscale() {
-       
+
         $response = [];
         try {
 
@@ -2405,11 +2406,11 @@ HTML;
                         $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
                         $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
                         $gruppi_solo_evento = utilityHelper::get_ug_from_object($_params,"ug_nonsocio");
-    
+
                         // online
-                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online))) 
+                        if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_online)))
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_ONLINE'), E_USER_ERROR);
-    
+
                         // moroso
                         if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
                             throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
@@ -2455,7 +2456,7 @@ HTML;
 
                 $jsonContent = file_get_contents('php://input');
                 $decoded = json_decode($jsonContent, true);
-                
+
                 //if (!$decoded) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
 
                 // validazione campi
@@ -2526,7 +2527,7 @@ HTML;
 
                 $jsonContent = file_get_contents('php://input');
                 $decoded = json_decode($jsonContent, true);
-                
+
                 if (!$decoded || !isset($decoded['request_obj'])) throw new Exception("Nessun dato valido per essere elaborato", E_USER_ERROR);
 
                 $_new_user = [];
@@ -2627,7 +2628,7 @@ HTML;
 
                 // controllo esistenza voucher
                 if (!is_null($voucher_code)) {
-                    
+
                     $checkVoucher = $userModel->checkVoucherValid($voucher_code);
                     if ($checkVoucher == "error") throw new Exception("Si è verificato un errore durante il controllo del voucher". E_USER_ERROR);
 
@@ -2682,7 +2683,7 @@ HTML;
                     // la casistica si riferisce ad un utente che non ha completato il procedimento di registrazione
                     // gli permetto di completarlo
                     $annoRef = $dt->format('Y');
-                    
+
                     // prima controllo se ha un pagamento di tipo bonifico in sospeso
                     $checkQuota = $userModel->get_quota_per_id($comprofilerCheck['user_id'], 'user_id', $annoRef);
                     if (isset($checkQuota['tipo_pagamento'])) throw new Exception('Hai già un pagamento registrato per l\'anno ' . $annoRef);
@@ -2702,8 +2703,8 @@ HTML;
                     if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_moroso)))
                         throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
-                    // se decaduto 
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true; 
+                    // se decaduto
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;
 
                     // se solo evento
                     if(utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) $isSoloEvento=true;
@@ -2736,7 +2737,7 @@ HTML;
                     $userUpdateQuery = utilityHelper::get_update_query('users', $_new_user, " where id = " . $comprofilerCheck['user_id']);
                     $_user_update_query_result = utilityHelper::insert_new_with_query($userUpdateQuery);
                     if (!is_array($_user_update_query_result)) throw new Exception("Aggiornamento anagrafica utente fallito: " . $_user_update_query_result, E_USER_ERROR);
-                    
+
                     // aggiornamento comprofiler
                     $comprofilerUpdateQuery = utilityHelper::get_update_query('comprofiler', $_new_user_cp, " where user_id = " . $comprofilerCheck['user_id']);
                     $_cp_update_query_result = utilityHelper::insert_new_with_query($comprofilerUpdateQuery);
@@ -2766,10 +2767,10 @@ HTML;
                     $_new_user_cp['user_id'] = $_user_insert_query_result['success'];
                     $newUserId = $_user_insert_query_result['success'];
 
-                    
+
                     $_cp_insert_query = utilityHelper::get_insert_query("comprofiler", $_new_user_cp);
                     //throw new Exception($_cp_insert_query, E_USER_ERROR);
-                    
+
                     $_cp_insert_query_result = utilityHelper::insert_new_with_query($_cp_insert_query);
                     if (!is_array($_cp_insert_query_result)) throw new Exception(print_r($_new_user_cp, true) . " errore durante l'inserimento del profilo utente", E_USER_ERROR);
 
@@ -2787,22 +2788,22 @@ HTML;
                 $this->_db->transactionCommit();
 
                 if (!is_null($fileExt)) {
-                    
+
                     $dirPath =  JPATH_ROOT . '/tmp/' . $newUserId;
 
                     if (!file_exists($dirPath)) $createPath = mkdir($dirPath, 0777, true);
-                    
+
                     $filePath = $dirPath .'/' . $_new_user['name'] . '.' . $fileExt;
                     file_put_contents($filePath, $cvData);
                 }
-                    
+
 
                 $response['success'] = "tuttook";
                 $response['token'] = utilityHelper::build_randon_token($newUserId . '|==|' . $voucher_code);
 
 
             }
-            
+
         }
         catch(Exception $e) {
             if ($startTransaction) $this->_db->transactionRollback();
@@ -4197,6 +4198,136 @@ HTML;
             utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
         }
         $this->_japp->close();
+    }
+
+    private function registerFromApi($name, $lastname, $email, $phone): void
+    {
+        $db = JFactory::getDbo();
+        $config = JFactory::getConfig();
+        try {
+
+        $db->transactionStart();
+
+        $pass = uniqid();
+        $query = "INSERT INTO #__users (name, username, email, password, requireReset)
+                        VALUES (
+                              '" . $name . "',
+                              '" . $email . "',
+                              '" . $email . "',
+                              '" .JUserHelper::hashPassword($pass)."',
+                              1
+                        )";
+
+        $db->setQuery($query);
+        $db->execute();
+
+        $lastUser = $db->insertid();
+
+            $query = "INSERT INTO #__comprofiler (id , user_id, cb_cognome, cb_nome, cb_telefono)
+                        VALUES (
+                                $lastUser,
+                                $lastUser,
+                              '" . $lastname . "',
+                              '" . $name . "',
+                              '" . $phone . "'
+                        )";
+
+            $db->setQuery($query);
+            $db->execute();
+
+            $ug_id = utilityHelper::check_usergroups_by_name('Registered');
+
+            $query = "INSERT INTO #__user_usergroup_map (user_id, group_id)
+                        VALUES (
+                                $lastUser,
+                                $ug_id
+                        )";
+
+            $db->setQuery($query);
+            $db->execute();
+
+            $body   = 'Grazie per esserti iscritto! <br>
+                 Le tue credenziali per il primo accesso sono: <br>'
+                .'Username: <b>'.$email .'</b> <br> '
+                .'Password: <b>'.$pass .'</b> <br><br> '
+
+                . '<div>Lo staff di '.$config['sitename'].' </div> <br><br>';
+
+            $sendMail = new gglmsControllerUsers();
+            $res = $sendMail->sendMail($email,'Dettagli Nuovo Utente', $body);
+
+            if($res != 'Mail inviata'){
+                throw new Exception('Send Email error', E_USER_ERROR);
+            }
+
+            $db->transactionCommit();
+            return;
+
+        } catch (Exception $e) {
+            $db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            $this->sendResponse(500, 'Internal server error');
+        }
+    }
+
+    private function checkApiKey(): bool
+    {
+        $KEY = 'zI*hog7fRIgu7r0thuN7';
+
+        $headers = apache_request_headers();
+
+        if(isset($headers['X-Api-Key'])){
+            if($headers['X-Api-Key'] == $KEY) return true;
+        }
+        return false;
+    }
+
+    private function sendResponse($status, $description){
+        JFactory::getApplication()->setHeader('Content-type', 'application/json', true);
+        Jfactory::getApplication()->setHeader('status', $status, true);
+        echo json_encode($description);
+        Jfactory::getApplication()->close();
+    }
+
+
+    public function registerUser(){
+        $app = JFactory::getApplication();
+        $input = $app->input;
+
+        if($_SERVER['REQUEST_METHOD'] != 'POST'){
+            $this->sendResponse(405, 'Method not allowed');
+        }
+
+        if(!$this->checkApiKey()){
+            $this->sendResponse(401, 'Not Authorized');
+        }
+
+        $data = json_decode(file_get_contents("php://input"),true);
+        if (empty($data)) {
+            $this->sendResponse(400, 'Bad Request');
+        }
+
+        //validation
+        if (empty($data['name']) || empty($data['lastname']) || empty($data['email']) || empty($data['phone'])) {
+            $this->sendResponse(406, 'Missing required fields');
+        }
+
+        $emailCheck = utilityHelper::check_user_by_column_row('email', $data['email']);
+        if (!is_null($emailCheck)) $this->sendResponse(406, 'User already exists');
+
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $this->sendResponse(406, 'Invalid email format');
+
+
+        $this->registerFromApi(htmlspecialchars($data['name']), htmlspecialchars($data['lastname']), $data['email'], htmlspecialchars($data['phone']));
+
+        $response = [
+            'status' => 'success',
+            'message' => 'User data submitted successfully',
+            'data' => $data
+        ];
+
+        $this->sendResponse('success', $response);
+
     }
 
 

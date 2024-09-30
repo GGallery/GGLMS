@@ -1264,10 +1264,10 @@ HTML;
 
             $_user_details = $_user->get_user_details_cb($user_id);
             if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
-            
+
             $_params = utilityHelper::get_params_from_plugin();
             $email_default = utilityHelper::get_params_from_object($_params, "email_default");
-            
+
             $selectedUser = $_user->get_user_joomla($user_id);
             if (isset($selectedUser->email) && $selectedUser->email != '') {
                 utilityHelper::send_sinpe_email_pp($email_default,
@@ -1396,7 +1396,7 @@ HTML;
 
             $params = JRequest::get($_GET);
             $user_id = $params["user_id"];
-            $preiscritto = isset($params["preiscritto"]) ? 
+            $preiscritto = isset($params["preiscritto"]) ?
                 (int) $params["preiscritto"]
                 : 0;
 
@@ -1713,7 +1713,7 @@ HTML;*/
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
                         }
                         else if ($key == "sinpe_dep") {
-                            $value = ($value == 1) ? 'SI' : 'NO';    
+                            $value = ($value == 1) ? 'SI' : 'NO';
                         }
 
                         $_ret[$_key_socio][$key] = $value;
