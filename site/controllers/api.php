@@ -4200,7 +4200,7 @@ HTML;
         $this->_japp->close();
     }
 
-    private function registerFromApi($name, $lastname, $email, $phone): void
+    private function registerFromApi($name, $lastname, $email, $phone,$company,$region): void
     {
         $db = JFactory::getDbo();
         $config = JFactory::getConfig();
@@ -4223,13 +4223,15 @@ HTML;
 
         $lastUser = $db->insertid();
 
-            $query = "INSERT INTO #__comprofiler (id , user_id, cb_cognome, cb_nome, cb_telefono)
+            $query = "INSERT INTO #__comprofiler (id , user_id, cb_cognome, cb_nome, cb_telefono,cb_azienda, cb_regioneazienda)
                         VALUES (
                                 $lastUser,
                                 $lastUser,
                               '" . $lastname . "',
                               '" . $name . "',
-                              '" . $phone . "'
+                              '" . $phone . "',
+                              '" . $company . "',
+                              '" . $region . "'
                         )";
 
             $db->setQuery($query);
@@ -4316,7 +4318,7 @@ HTML;
         }
 
         //validation
-        if (empty($data['name']) || empty($data['lastname']) || empty($data['email']) || empty($data['phone'])) {
+        if (empty($data['name']) || empty($data['lastname']) || empty($data['email']) || empty($data['phone']) || empty($data['company']) || empty($data['region'])) {
             $this->sendResponse(406, 'Missing required fields');
         }
 
@@ -4326,7 +4328,7 @@ HTML;
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $this->sendResponse(406, 'Invalid email format');
 
 
-        $this->registerFromApi(htmlspecialchars($data['name']), htmlspecialchars($data['lastname']), $data['email'], htmlspecialchars($data['phone']));
+        $this->registerFromApi(htmlspecialchars($data['name']), htmlspecialchars($data['lastname']), $data['email'], htmlspecialchars($data['phone']), htmlspecialchars($data['company']) || htmlspecialchars($data['region']));
 
         $response = [
             'status' => 'success',
