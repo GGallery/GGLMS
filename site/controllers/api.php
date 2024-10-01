@@ -4250,12 +4250,18 @@ HTML;
 
             $db->transactionCommit();
 
-            $body   = 'Grazie per esserti iscritto! <br>
-                 Le tue credenziali per il primo accesso sono: <br>'
-                .'Username: <b>'.$email .'</b> <br> '
-                .'Password: <b>'.$pass .'</b> <br><br> '
+            $body   = 'Grazie '. $name .' '. $lastname .' <br>
+                 Abbiamo creato il tuo account sulla piattaforma e-learning, con le seguenti credenziali <br>'
+                .'USERNAME: <b>'.$email .'</b> <br> '
+                .'PASSWORD: <b>'.$pass .'</b> <br><br> '
 
-                . '<div>Lo staff di '.$config['sitename'].' </div> <br><br>';
+                . '<div>Per completare la registrazione, entra nella piattaforma a questo link: '.utilityHelper::getHostname().'/registrati'  .' </div> <br>
+                 Utilizza le credenziali appena indicate e compila i restanti campi della scheda anagrafica, obbligatori per normativa ECM.<br>
+                 Al primo accesso ti sarà anche richiesto di modificare la password con una a tua scelta.<br>
+                 Ti chiediamo di prestare la massima attenzione durante la compilazione della scheda anagrafica, in quanto in presenza di dati errati il provider non può garantire la corretta rendicontazione dei crediti ECM.<br>
+                 Una volta completata la registrazione, avrai accesso all\'area formativa per consultare i contenuti, superare il test e scaricare l\'attestato ECM.<br>
+                 Grazie e buona formazione<br>
+                 ';
 
             $sendMail = new gglmsControllerUsers();
             $res = $sendMail->sendMail($email,'Dettagli Nuovo Utente', $body);
