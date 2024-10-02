@@ -4255,7 +4255,7 @@ HTML;
                 .'USERNAME: <b>'.$email .'</b> <br> '
                 .'PASSWORD: <b>'.$pass .'</b> <br><br> '
 
-                . '<div>Per completare la registrazione, entra nella piattaforma a questo link: '.utilityHelper::getHostname().'/registrati'  .' </div> <br>
+                . '<div>Per completare la registrazione, entra nella piattaforma a questo link: <a href="'.utilityHelper::getHostname().'/accedi'  .'" >'.utilityHelper::getHostname().'/accedi'  .' </a></div> <br>
                  Utilizza le credenziali appena indicate e compila i restanti campi della scheda anagrafica, obbligatori per normativa ECM.<br>
                  Al primo accesso ti sarà anche richiesto di modificare la password con una a tua scelta.<br>
                  Ti chiediamo di prestare la massima attenzione durante la compilazione della scheda anagrafica, in quanto in presenza di dati errati il provider non può garantire la corretta rendicontazione dei crediti ECM.<br>
