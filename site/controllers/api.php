@@ -4318,7 +4318,7 @@ HTML;
         }
 
         //validation
-        if (empty($data['name']) || empty($data['lastname']) || empty($data['email']) || empty($data['phone']) || empty($data['company']) || empty($data['region'])) {
+        if (!isset($data['name']) || !isset($data['lastname']) || !isset($data['email']) || !isset($data['phone']) || !isset($data['company']) || !isset($data['region'])) {
             $this->sendResponse(406, 'Missing required fields');
         }
 
@@ -4328,7 +4328,7 @@ HTML;
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $this->sendResponse(406, 'Invalid email format');
 
 
-        $this->registerFromApi(htmlspecialchars($data['name']), htmlspecialchars($data['lastname']), $data['email'], htmlspecialchars($data['phone']), htmlspecialchars($data['company']) || htmlspecialchars($data['region']));
+        $this->registerFromApi(htmlspecialchars($data['name']), htmlspecialchars($data['lastname']), $data['email'], htmlspecialchars($data['phone']), htmlspecialchars($data['company']), htmlspecialchars($data['region']));
 
         $response = [
             'status' => 'success',
