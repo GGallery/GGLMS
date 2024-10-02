@@ -4248,8 +4248,6 @@ HTML;
             $db->setQuery($query);
             $db->execute();
 
-
-
             $db->transactionCommit();
 
             $body   = 'Grazie '. $name .' '. $lastname .' <br>
@@ -4295,6 +4293,7 @@ HTML;
     private function sendResponse($status, $description){
         JFactory::getApplication()->setHeader('Content-type', 'application/json', true);
         Jfactory::getApplication()->setHeader('status', $status, true);
+        http_response_code($status);
         echo json_encode($description);
         Jfactory::getApplication()->close();
     }
