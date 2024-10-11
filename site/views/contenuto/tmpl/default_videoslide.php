@@ -17,6 +17,22 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
 
     jQuery(document).ready(function ($) {
 
+        const video = document.querySelector("video");
+        const allowedPlaybackRate = 1.0;
+
+        video.addEventListener('ratechange', function() {
+            if (video.playbackRate !== allowedPlaybackRate) {
+                console.warn(`Playback rate changed to ${video.playbackRate}. Resetting to ${allowedPlaybackRate}.`);
+                video.playbackRate = allowedPlaybackRate;
+            }
+        });
+
+        setInterval(() => {
+            if (video.playbackRate !== allowedPlaybackRate) {
+                video.playbackRate = allowedPlaybackRate;
+            }
+        }, 100);
+
         <?php if ($this->disabilita_mouse == 1) { ?>
 
         document.addEventListener("contextmenu", function (e) {
@@ -335,6 +351,7 @@ HTML;
         <hr>
     </div>
 <?php endif; ?>
+
 
 
 
