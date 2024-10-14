@@ -4656,7 +4656,7 @@ HTML;
             if(!is_null($extDb)) $this->_db = $extDb;
 
             $updateQuery= "UPDATE #__gg_report_queue
-                            SET stato = ".$status."
+                            SET stato = ".$this->_db->quote($status)."
                             WHERE id = $id";
 
 
