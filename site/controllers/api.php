@@ -4582,19 +4582,19 @@ HTML;
             if ($data_dal && $data_al) {
                 $startDate = new DateTime($data_dal);
                 $endDate = new DateTime($data_al);
-            
+
                 //controllo che la data di inizio sia inferiore
                 if ($startDate > $endDate) throw new Exception("La data di inizio dovrebbe essere inferiore alla data di fine");
                 else {
                     // Calcolo la differenza in mesi
                     $interval = $startDate->diff($endDate);
                     $monthsDifference = ($interval->y * 12) + $interval->m;
-            
+
                     // controllo su i giorni in caso il giorno della data di fine sia inferiore al giorno della data di inizio
                     if ($interval->d > 0) {
                         $monthsDifference++;
                     }
-            
+
                     if ($monthsDifference > 3) throw new Exception("L'intervallo massimo è di 3 mesi");
                 }
             }
@@ -4608,15 +4608,15 @@ HTML;
 
             $config = JFactory::getConfig();
 
-        
-    
+
+
             $sender = array();
 
             $sender['from'] = $config->get( 'mailfrom' );
             $sender['from_name'] = $config->get( 'fromname' );
 
-            $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato, email_from) 
-                        VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo','".json_encode($sender)."') "; 
+            $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato, email_from)
+                        VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo','".json_encode($sender)."') ";
             $this->_db->setQuery((string)$query);
             $this->_db->execute();
 
@@ -4624,7 +4624,7 @@ HTML;
 
         } catch(Exception $e){
             $_ret['error'] = $e->getMessage();
-            
+
         }
         echo json_encode($_ret);
         $this->_japp->close();
@@ -4635,8 +4635,8 @@ HTML;
         try {
             if(!is_null($extDb)) $this->_db = $extDb;
             $reportModel = new gglmsModelReport();
-            
-            $_ret = $reportModel->get_report_request($this->_db );
+
+            $_ret = $reportModel->get_report_request($this->_db);
 
             if(!$_ret) throw new Exception("un report è già in corso...");
             if(isset($_ret['error'])) throw new Exception($_ret['error']);
@@ -4646,8 +4646,8 @@ HTML;
             DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
 
             //echo __FUNCTION__ . " error: " . $e->getMessage();
-        }   
-                                                
+        }
+
         return $_ret;
     }
 
@@ -4656,7 +4656,7 @@ HTML;
             if(!is_null($extDb)) $this->_db = $extDb;
 
             $updateQuery= "UPDATE #__gg_report_queue
-                            SET stato = '$status'
+                            SET stato = ".$status."
                             WHERE id = $id";
 
 
@@ -4664,18 +4664,18 @@ HTML;
             if (!$this->_db->execute())
                 throw new Exception("report queue update error");
 
-            
+
             }catch(Exception $e){
                 $_ret['error']=$e->getMessage();
                 DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
 
                 //echo __FUNCTION__ . " error: " . $e->getMessage();
-            } 
+            }
 
             return 1;
     }
 
-    public function sendReportMail($id,$filename,$extDb = null){
+    public function sendReportMail($id,$filename,$data_dal,$data_al,$extDb = null){
         $_ret = array();
         try {
             if(!is_null($extDb)) $this->_db = $extDb;
@@ -4687,7 +4687,7 @@ HTML;
             $this->_db ->setQuery($userMail);
             $mailTo = $this->_db ->loadResult();
 
-            $mailQuery = "SELECT email_from, report_dal, report_al
+            $mailQuery = "SELECT email_from
                         FROM #__gg_report_queue
                         WHERE user_id = $id";
 
@@ -4696,7 +4696,7 @@ HTML;
             $mailFrom = json_decode($mailDetails->email_from);
 
             $mailer = JFactory::getMailer();
-    
+
             $sender = array(
                 $mailFrom->from,
                 $mailFrom->from_name
@@ -4705,8 +4705,8 @@ HTML;
             $mailer->addRecipient($mailTo);
             $mailer->setSubject("Nuovo report farmacie");
 
-            $body = 'Gentile utente, <br> 
-                la generazione del report farmacie nel periodo dal '.$mailDetails->report_dal.' al '.$mailDetails->report_al.' è stata completata correttamente 
+            $body = 'Gentile utente, <br>
+                la generazione del report farmacie nel periodo dal '.$data_dal.' al '.$data_al.' è stata completata correttamente
                 ed è possibile scaricarla in allegato a questa mail.  <br><br>';
 
             $body .= 'Lo staff di '. $mailFrom->from_name;

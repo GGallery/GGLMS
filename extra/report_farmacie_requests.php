@@ -99,6 +99,8 @@ class reportFarmacie extends JApplicationCli {
 
             $sendMail = $api->sendReportMail($date['user_id'],
                 $report_farmacie,
+                $dal,
+                $al,
                 $extDb
             );
 
