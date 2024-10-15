@@ -4614,6 +4614,7 @@ HTML;
 
             $sender['from'] = $config->get( 'mailfrom' );
             $sender['from_name'] = $config->get( 'fromname' );
+            $sender['created_at'] = date("Y-m-d H:i:s");
 
             $query = "INSERT INTO #__gg_report_queue (user_id,report_dal, report_al, stato, email_from)
                         VALUES ('$id',".$this->_db->quote($data_dal).",".$this->_db->quote($data_al).",'todo','".json_encode($sender)."') ";
@@ -4717,8 +4718,12 @@ HTML;
             $mailer->Encoding = 'base64';
             $mailer->setBody($body);
 
-            if ( !$mailer->Send()) throw new Exception('Error sending email');
+            $send = $mailer->Send();
 
+            $check_mail = $send!==true ? 0 : 1;
+
+            utilityHelper::logMail(__FUNCTION__, print_r($sender, true), $mailTo, $check_mail);
+            if(!$check_mail) throw new Exception($send->get('message'));
             $_ret = 1;
 
         } catch (Exception $e) {
