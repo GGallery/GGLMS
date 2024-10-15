@@ -74,11 +74,10 @@ class reportFarmacie extends JApplicationCli {
             $extDb = JDatabaseDriver::getInstance($db_option);
 
             $date = $api->check_report_requests_status($extDb);
+            if(isset($date['error'])) throw new Exception($date['error']);
 
             $update = $api->report_queue_update($date['id'],$extDb,"progress");
             if(isset($update['error'])) throw new Exception($update['error']);
-
-            if(isset($date['error'])) throw new Exception($date['error']);
 
             $dal = $date['report_dal'];
             $al = $date['report_al'];
@@ -115,7 +114,8 @@ class reportFarmacie extends JApplicationCli {
         }
         catch (Exception $e) {
             DEBUGG::log($e->getMessage(), 'check_report_request_status', 0, 1, 0);
-            $update = $api->report_queue_update($date['id'],$extDb,"error");
+            if(isset($date['id']))
+                $update = $api->report_queue_update($date['id'],$extDb,"error");
 
             $this->out(date('d/m/Y H:i:s') . ' - ERRORE: ' . $e->getMessage());
         }

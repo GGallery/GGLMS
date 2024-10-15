@@ -4645,8 +4645,6 @@ HTML;
         } catch(Exception $e){
             $_ret["error"] = $e->getMessage();
             DEBUGG::log($e->getMessage(), __FUNCTION__, 0, 1, 0);
-
-            //echo __FUNCTION__ . " error: " . $e->getMessage();
         }
 
         return $_ret;
