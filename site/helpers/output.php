@@ -1129,6 +1129,9 @@ HTML;
 
             $_ret = array();
 
+            $unit_model = new gglmsModelUnita();
+            $unit= $unit_model->getUnita($unit_id);
+
             $_title_advise = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR6');
             $_cb_nome  = UtilityHelper::get_cb_field_name($_params, 'campo_cb_nome', 'name');
             $_cb_cognome = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cognome', 'name');
@@ -1196,6 +1199,13 @@ HTML;
               $_label_titolo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR35');
               $_label_professione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR36');
               $_label_informazioni_extra = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR45');
+
+                $_label_numero_albo = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR38');
+                $_label_ordine_citta = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR39');
+                $_cb_provincia_albo = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provincia_albo', 'name');
+                $_cb_provincia_albo_options= UtilityHelper::get_cb_field_select($_params, 'campo_cb_provincia_albo');
+                $_cb_provincia_albo_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_provincia_albo');
+
             }
 
 
@@ -1278,6 +1288,31 @@ HTML;
               </div>
             </div>
 HTML;
+            $_html_ecm_event = null;
+                if ($unit->ecm_event) {
+                    $_html_ecm_event = <<<HTML
+            <div class="rowcustom">
+              <div class="col-25">
+                <label for="albo_id">{$_label_numero_albo}<span style="color: red">*</span></label>
+              </div>
+              <div class="col-25">
+                <input class="form-control" style="width: 320px;" type="text" id="albo_id" placeholder="{$_label_numero_albo}" />
+              </div>
+            </div>
+
+            <div class="rowcustom">
+              <div class="col-25">
+                <label for="ordine_citta">{$_label_ordine_citta}<span style="color: red">*</span></label>
+              </div>
+              <div class="col-25">
+                <select class="form-control" id="ordine_citta" data-campo="{$_cb_provincia_albo}" data-id-ref="{$_cb_provincia_albo_id}">
+                    <option value="">-</option>
+                    {$_cb_provincia_albo_options}
+                </select>
+              </div>
+            </div>
+HTML;
+                }
 
             /* $_html_informazioni_extra = <<<HTML
             <div class="rowcustom hidden" id="rowGiornoStd">
@@ -1437,6 +1472,8 @@ HTML; */
                     </div>
 
                     {$_html_laurea}
+
+                    {$_html_ecm_event}
 
                     <div class="rowcustom">
                       <div class="col-25">
@@ -1925,14 +1962,14 @@ HTML;
             $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_row_pagamento_bonfico = "";
 
-            $token = UtilityHelper::build_token_url($unit_prezzo, 
-              $unit_id, 
-              $user_id, 
-              $sconto_data, 
-              $sconto_custom, 
-              $in_groups, 
-              'GGallery00!', 
-              $is_asand, 
+            $token = UtilityHelper::build_token_url($unit_prezzo,
+              $unit_id,
+              $user_id,
+              $sconto_data,
+              $sconto_custom,
+              $in_groups,
+              'GGallery00!',
+              $is_asand,
               $sconto_associazione
             );
             $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
