@@ -313,6 +313,12 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
 
                 <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('ecm_event'); ?>
+                </div>
+
+                <div class="row-fluid">
                     <?php echo $this->form->renderField('disponibile_dal'); ?>
                 </div>
 

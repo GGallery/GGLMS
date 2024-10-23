@@ -289,7 +289,20 @@
                 name="on_sale"
                 type="radio"
                 label="Acquistabile"
-                description="Se abilitato crea un catalogo di acquisto per i corsi (necessaria installazione del modulo di Acquisto corsi"
+                description="Se abilitato crea un catalogo di acquisto per i corsi (necessaria installazione del modulo di Acquisto corsi)"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+        <field
+                name="ecm_event"
+                type="radio"
+                label="Evento ECM"
+                description="Se abilitato forza le registrazioni ad includere i campi necessari per ECM (necessaria installazione del modulo di Acquisto corsi"
                 class="btn-group"
                 showon="is_corso:1[AND]accesso:gruppo"
                 default="0"

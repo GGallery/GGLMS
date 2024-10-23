@@ -478,6 +478,7 @@ CREATE TABLE `#__gg_unit` (
   `mobile` int(10) DEFAULT '0',
   `attestato` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   `on_sale` tinyint(1) UNSIGNED DEFAULT '0',
+  `ecm_event` tinyint(1) UNSIGNED DEFAULT '0',
   `disponibile_dal` date DEFAULT NULL,
   `disponibile_al` date DEFAULT NULL,
   `prezzo` decimal(6,2) DEFAULT NULL,
