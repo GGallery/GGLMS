@@ -2118,6 +2118,23 @@ HTML;
 
     }
 
+    public static function send_adesione_evento_email($email_default,
+                                                      $_event_title,
+                                                      $_user_details,
+                                                      $mail_from = null){
+        $oggetto = "Conferma adesione evento " . $_event_title;
+
+        $body = <<<HTML
+                <br /><br />
+                <p>Spett.le <b>{$_user_details['cognome_utente']} {$_user_details['nome_utente']}</b></p>
+                <p>Le confermiamo l'adesione al corso <b>{$_event_title}</b></p>
+                <p>Cordiali saluti</p><br>
+                <p>Questa mail è generata automaticamente, si prega di non rispondere.</p>
+HTML;
+
+        return self::send_email($oggetto, $body, $email_default, true, false);
+    }
+
     // invia email relativa all'esito del pagamento per il rinnovo delle quote sinpe - utility per model.users.insert_user_servizi_extra()
     public static function send_sinpe_email_pp($email_default,
                                                $_data_creazione,
@@ -3559,7 +3576,6 @@ HTML;
         // logo se richiesto
         if ($with_logo)
             $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
-
 
         $send = $mailer->Send();
 

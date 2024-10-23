@@ -158,7 +158,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             if (isset($decode_arr[9])
                 && $decode_arr[9] != "")
                 $this->is_asand = true;
-            
+
             // integrazione ASAND associazione medico
             if (isset($decode_arr[10])
                 && $decode_arr[10] != ""
@@ -775,6 +775,46 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                             $this->in_groups,
                                                                                             $_params,
                                                                                             $_unit->titolo);
+
+                if (!is_array($_payment_form))
+                    throw new Exception($_payment_form);
+
+                $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
+
+            }
+
+            else if ($this->action == 'confirm_user_registration') {
+
+                $this->hide_pp = true;
+                $unit_model = new gglmsModelUnita();
+                $_unit = $unit_model->getUnita($this->unit_id);
+                $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+                $_already_request = utilityHelper::check_user_into_ug($this->user_id, (array) $unit_gruppo);
+                if ($_already_request)
+                    throw new Exception("Sei già registrato all'evento selezionato", E_USER_ERROR);
+
+                $user = Jfactory::getUser($this->user_id);
+                $userModel = new gglmsModelUsers();
+                $_user_details = $userModel->get_user_full_details_cb($this->user_id);
+                $_config = new gglmsModelConfig();
+                $_dettagli_utente['nome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_nome')];
+                $_dettagli_utente['cognome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_cognome')];
+
+                $_event_title = $_unit->titolo;
+                $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
+
+                $mail_to=[$user->email,$_email_from];
+                var_dump($_email_from);
+                $_send_email = UtilityHelper::send_adesione_evento_email($mail_to,$_event_title,$_dettagli_utente);
+                $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
+
+
+
+                if (!is_array($_insert_ug))
+                    throw new Exception($_insert_ug, E_USER_ERROR);
+
+                $_payment_form = OutputHelper::get_user_insert_confirm_group_sponsor_evento($_event_title);
 
                 if (!is_array($_payment_form))
                     throw new Exception($_payment_form);
