@@ -2352,23 +2352,30 @@ HTML;
             $decryptedToken = utilityHelper::decrypt_random_token($requestedToken);
             $parsedToken = explode("|==|", $decryptedToken);
 
-            if (!isset($parsedToken[1]) || $parsedToken[1] == "" || !is_numeric($parsedToken[0]))
+            if (!isset($parsedToken[0]) || $parsedToken[0] == "" || !is_numeric($parsedToken[0]))
                 throw new Exception("Nessun token di riferimento", E_USER_ERROR);
 
-            $userId = $parsedToken[1];
+            $userId = $parsedToken[2];
+
+            $unitId = $parsedToken[1];
+
+            $unit_model= new gglmsModelUnita();
+            $unit_gruppo = $unit_model->get_id_gruppo_unit($unitId);
 
             // controllo se il codice del voucher esiste e non è già stato speso
             $checkVoucher = "SELECT *
-                            FROM #__gg_quote_voucher
+                            FROM #__gg_event_voucher
                             WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
                             AND user_id IS NULL";
             $this->_db->setQuery($checkVoucher);
-            $resultVoucher = $this->_db->loadResult();
-
-            //TODO controllare se non ha usato un'altro voucher per lo stesso corso
+            $resultVoucher = $this->_db->loadObject();
 
             if (!$resultVoucher)
                 throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
+
+            if($resultVoucher->group_id != $unit_gruppo){
+                throw new Exception("Il codice immesso non è valido", E_USER_ERROR);
+            }
 
             $retArr['success'] = "Codice voucher utilizzabile";
         }catch (Exception $e) {

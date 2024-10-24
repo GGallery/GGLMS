@@ -804,6 +804,36 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function update_event_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null) {
+
+        try {
+
+            $dateTimeRef = is_null($dateTimeRef)
+                ? date('Y-m-d H:i:s')
+                : $dateTimeRef;
+
+            $query = $this->_db->getQuery(true)
+                ->update("#__gg_event_voucher")
+                ->set("user_id = " . $this->_db->quote($userId))
+                ->set("date = " . $this->_db->quote($dateTimeRef))
+                ->where("code = " . $this->_db->quote($codiceVoucher));
+
+            $this->_db->setQuery($query);
+
+            if (!$this->_db->execute()) throw new Exception("update voucher query ko -> " . $query, E_USER_ERROR);
+
+            $_ret['success'] = 'tuttook';
+
+            return $_ret;
+
+        }
+        catch(Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
+
     public function update_tipo_quota_iscrizione($id_pagamento, $tipo_quota) {
 
         try {
@@ -883,6 +913,8 @@ class gglmsModelUsers extends JModelLegacy
 
             if ($_template == 'registrazioneasand'
                 || $_template == 'voucher_buy_quota_asand'
+                || $_template == 'confirm_user_registration'
+                || $_template == 'voucher_buy_request'
                 || $is_asand) {
                 $_extra_col .= ', stato';
                 $_extra_insert .= ", " . $this->_db->quote(1);
@@ -922,6 +954,14 @@ class gglmsModelUsers extends JModelLegacy
             }
             else if ($_template == 'voucher_buy_quota_asand') {
                 $_tipo_quota = 'annuale';
+                $_tipo_pagamento = 'voucher';
+            }
+            else if ($_template == 'confirm_user_registration') {
+                $_tipo_quota = 'evento';
+                $_tipo_pagamento = 'gratuito';
+            }
+            else if ($_template == 'voucher_buy_request') {
+                $_tipo_quota = 'evento';
                 $_tipo_pagamento = 'voucher';
             }
 

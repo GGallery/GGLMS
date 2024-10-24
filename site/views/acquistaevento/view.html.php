@@ -784,7 +784,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->in_error = 0;
 
             }
-
+            // adesione gratuita a un corso
             else if ($this->action == 'confirm_user_registration') {
 
                 $this->hide_pp = true;
@@ -802,11 +802,25 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_dettagli_utente['nome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_nome')];
                 $_dettagli_utente['cognome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_cognome')];
 
+                $_order_details = 'Applicato sconto associazione';
+                $_insert_servizi_extra = $userModel->insert_user_servizi_extra($this->user_id,
+                    $dt->format('Y'),
+                    $dt->format('Y-m-d H:i:s'),
+                    $_order_details,
+                    $this->unit_prezzo,
+                    array(),
+                    $this->action,
+                    true,
+                    $this->unit_id,
+                    $unit_gruppo);
+
+                if (!is_array($_insert_servizi_extra))
+                    throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+
                 $_event_title = $_unit->titolo;
                 $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
 
                 $mail_to=[$user->email,$_email_from];
-                var_dump($_email_from);
                 $_send_email = UtilityHelper::send_adesione_evento_email($mail_to,$_event_title,$_dettagli_utente);
                 $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
 
@@ -824,6 +838,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->in_error = 0;
 
             }
+            // adesione a un corso tramite voucher
             else if ($this->action == 'voucher_buy_request') {
                 $this->hide_pp = true;
                 if (is_null($voucherCode)
@@ -833,14 +848,18 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 $dt = new DateTime();
                 $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
-
+                $user = Jfactory::getUser($this->user_id);
                 $userModel = new gglmsModelUsers();
+                $_user_details = $userModel->get_user_full_details_cb($this->user_id);
+                $_config = new gglmsModelConfig();
+                $_dettagli_utente['nome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_nome')];
+                $_dettagli_utente['cognome_utente'] = $_user_details[$_config->getConfigValue('campo_community_builder_cognome')];
 
                 $unit_model = new gglmsModelUnita();
                 $_unit = $unit_model->getUnita($this->unit_id);
                 $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
 
-                $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+                $updateVoucher = $userModel->update_event_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
 
                 if (!is_array($updateVoucher))
                     throw new Exception($updateVoucher, E_USER_ERROR);
@@ -848,7 +867,29 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 if (!is_array($_insert_ug))
                     throw new Exception($_insert_ug, E_USER_ERROR);
+
+
+                $_order_details = 'Applicato sconto voucher';
+
+                $_insert_servizi_extra = $userModel->insert_user_servizi_extra($this->user_id,
+                    $dt->format('Y'),
+                    $dt->format('Y-m-d H:i:s'),
+                    $_order_details,
+                    $this->unit_prezzo,
+                    array(),
+                    $this->action,
+                    true,
+                    $this->unit_id,
+                    $unit_gruppo);
+
+                if (!is_array($_insert_servizi_extra))
+                    throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+
+                $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
+                $mail_to=[$user->email,$_email_from];
                 $_event_title = $_unit->titolo;
+
+                $_send_email = UtilityHelper::send_adesione_evento_email($mail_to,$_event_title,$_dettagli_utente);
                 $_payment_form = OutputHelper::get_user_insert_confirm_group_sponsor_evento($_event_title);
 
                 if (!is_array($_payment_form))
