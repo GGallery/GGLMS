@@ -1973,7 +1973,7 @@ HTML;
               $sconto_associazione
             );
             $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
-            $endpointVoucher = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'voucher_buy_request');
+            $endpointVoucherEvent = utilityHelper::build_encoded_link($token, 'acquistaevento', 'voucher_buy_request');
 
             // verifico se sono richieste informazioni extra
             $infoExtraRequest = false;
@@ -2121,7 +2121,7 @@ HTML;
 
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$unit_prezzo}" />
                 <input type="hidden" id="token" value="{$token}" />
-                <input type="hidden" id="v_url" value="{$endpointVoucher}" />
+                <input type="hidden" id="v_url" value="{$endpointVoucherEvent}" />
                 <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
 HTML;
 

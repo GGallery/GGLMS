@@ -78,6 +78,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             // campi encoded dalla chiamata
             $this->action = JRequest::getVar('action');
             $pp = JRequest::getVar('pp');
+            $voucherCode = JRequest::getVar('vv', null);
 
             // chi o cosa mi sta chiamando
             if (!isset($this->action)
@@ -823,7 +824,39 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $this->in_error = 0;
 
             }
+            else if ($this->action == 'voucher_buy_request') {
+                $this->hide_pp = true;
+                if (is_null($voucherCode)
+                    || !isset($voucherCode)
+                    || $voucherCode == "")
+                    throw new Exception("Nessun voucher definito", E_USER_ERROR);
 
+                $dt = new DateTime();
+                $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
+
+                $userModel = new gglmsModelUsers();
+
+                $unit_model = new gglmsModelUnita();
+                $_unit = $unit_model->getUnita($this->unit_id);
+                $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+
+                $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+
+                if (!is_array($updateVoucher))
+                    throw new Exception($updateVoucher, E_USER_ERROR);
+                $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
+
+                if (!is_array($_insert_ug))
+                    throw new Exception($_insert_ug, E_USER_ERROR);
+                $_event_title = $_unit->titolo;
+                $_payment_form = OutputHelper::get_user_insert_confirm_group_sponsor_evento($_event_title);
+
+                if (!is_array($_payment_form))
+                    throw new Exception($_payment_form);
+
+                $this->payment_form = $_payment_form['success'];
+                $this->in_error = 0;
+            }
         } catch (Exception $e){
 
             DEBUGG::log($e->getMessage() . ' -> ' . print_r($decode_arr, true), 'acquistaevento', 0, 1, 0);

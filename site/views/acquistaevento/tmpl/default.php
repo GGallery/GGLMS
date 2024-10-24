@@ -876,7 +876,7 @@ defined('_JEXEC') or die;
 
             if (pVoucher == "" || pVoucher == undefined) return;
 
-            fetch(`index.php?option=com_gglms&task=api.checkVoucherValidation&searchPhrase=${pVoucher}&cToken=${pToken}`)
+            fetch(`index.php?option=com_gglms&task=api.checkEventVoucher&searchPhrase=${pVoucher}&cToken=${pToken}`)
                 .then((response) => {
                     return response.json();
                 })

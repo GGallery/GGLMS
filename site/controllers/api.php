@@ -2335,8 +2335,48 @@ HTML;
 
     }
 
+    //richiesta per verificare voucher per eventi ECM
     public function checkEventVoucher(){
+        $retArr = [];
 
+        try {
+
+            $requestedVoucher = $this->_filterparam->searchPhrase;
+            $requestedToken = $this->_filterparam->cToken;
+
+            if (!isset($requestedVoucher)
+                || $requestedVoucher == ""
+            )
+                throw new Exception("Codice voucher non valorizzato", E_USER_ERROR);
+
+            $decryptedToken = utilityHelper::decrypt_random_token($requestedToken);
+            $parsedToken = explode("|==|", $decryptedToken);
+
+            if (!isset($parsedToken[1]) || $parsedToken[1] == "" || !is_numeric($parsedToken[0]))
+                throw new Exception("Nessun token di riferimento", E_USER_ERROR);
+
+            $userId = $parsedToken[1];
+
+            // controllo se il codice del voucher esiste e non è già stato speso
+            $checkVoucher = "SELECT *
+                            FROM #__gg_quote_voucher
+                            WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND user_id IS NULL";
+            $this->_db->setQuery($checkVoucher);
+            $resultVoucher = $this->_db->loadResult();
+
+            //TODO controllare se non ha usato un'altro voucher per lo stesso corso
+
+            if (!$resultVoucher)
+                throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
+
+            $retArr['success'] = "Codice voucher utilizzabile";
+        }catch (Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
+            $retArr['error'] = "Codice voucher non utilizzabile: " . $e->getMessage();
+        }
+        echo json_encode($retArr);
+        $this->_japp->close();
     }
 
     // richiesta di interessa da parte di un utente per un data specifica dell'evento
