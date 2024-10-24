@@ -2335,6 +2335,10 @@ HTML;
 
     }
 
+    public function checkEventVoucher(){
+
+    }
+
     // richiesta di interessa da parte di un utente per un data specifica dell'evento
     public function storeReqEventDt() {
 
@@ -2497,7 +2501,7 @@ HTML;
                 <br />
                 <table style="width: 100%">
                     <tbody>
-                      
+
                         <tr class="no-print">
                             <td colspan="2" style="text-align: center">
                                 <button onclick="window.print();">STAMPA</button>

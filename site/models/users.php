@@ -2260,5 +2260,26 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function is_solo_eventi($user_id){
+        $groupQuery = $this->_db->getQuery(true)
+            ->select('id')
+            ->from('#__usergroups')
+            ->where('title LIKE "%solo_eventi%"');
+
+        $this->_db->setQuery($groupQuery);
+        $group = $this->_db->loadResult();
+
+        $userQuery = $this->_db->getQuery(true)
+            ->select('*')
+            ->from('#__user_usergroup_map')
+            ->where('user_id = ' . $user_id)
+            ->where('group_id = ' . $group);
+
+        $this->_db->setQuery($userQuery);
+        $res = $this->_db->loadResult();
+
+        return !is_null($res);
+    }
+
 }
 

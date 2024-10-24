@@ -1973,6 +1973,7 @@ HTML;
               $sconto_associazione
             );
             $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
+            $endpointVoucher = utilityHelper::build_encoded_link($token, 'registrazioneasand', 'voucher_buy_request');
 
             // verifico se sono richieste informazioni extra
             $infoExtraRequest = false;
@@ -2035,6 +2036,38 @@ HTML;
                     </tr>
 HTML;
 
+            $_row_pagamento_voucher = null;
+            $userModel = new gglmsModelUsers();
+            $unit_model = new gglmsModelUnita();
+
+            if($userModel->is_solo_eventi($user_id) && $unit_model->is_evento_ecm($unit_id)){
+
+            $_row_pagamento_voucher = <<<HTML
+    <div class="flex">
+        <div class="row mt-5">
+          <div class="col-md-12 text-center">
+            <p class="font-weight-bold h4 text-dark">Sei in possesso di un voucher?</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="offset-md-4 col-md-4">
+            <input type="text" class="form-control h6" id="v_code" name="v_code" placeholder="Inserisci qui il codice" />
+          </div>
+        </div>
+        <div class="row hidden" id="row_vcheck">
+          <div class="col-md-4 offset-md-4 text-center" id="msg_vcheck"></div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mt-5 offset-md-4 text-center">
+            <button class="btn btn-primary" id="btn-voucher" data-ref="">Verifica</button>
+            <button class="btn btn-primary hidden" id="btn-voucher-apply" data-ref="">Applica</button>
+          </div>
+        </div>
+</div>
+HTML;
+            };
+
+
 
             $_html = <<<HTML
                     <table style="width: 100%;">
@@ -2042,6 +2075,11 @@ HTML;
 HTML;
 
             $_html .= <<<HTML
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                                    {$_row_pagamento_voucher}
+                        </td>
+                    </tr>
                     <tr>
                         <td colspan="5" style="text-align: center;">
                             <h4><span style="color: black; font-weight: bold">{$_testo_pagamento_paypal}</span></h4>
@@ -2083,6 +2121,7 @@ HTML;
 
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$unit_prezzo}" />
                 <input type="hidden" id="token" value="{$token}" />
+                <input type="hidden" id="v_url" value="{$endpointVoucher}" />
                 <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
 HTML;
 

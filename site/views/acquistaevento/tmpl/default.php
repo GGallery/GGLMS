@@ -34,7 +34,7 @@ defined('_JEXEC') or die;
     } else if ($this->action == 'buy'
         && !$this->hide_pp) { ?>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $this->client_id; ?>&currency=EUR" data-sdk-integration-source="button-factory"></script>
-    
+
         <div class="row">
             <?php echo $this->payment_form; ?>
             <p id="descriptionError" style="display: none; color: red;">
@@ -854,6 +854,60 @@ defined('_JEXEC') or die;
 
             }
 
+        });
+
+        // check voucher
+        jQuery('#btn-voucher').on('click', function (e) {
+            e.preventDefault();
+
+
+            const rowCheck =  document.getElementById("row_vcheck");
+            const pVoucher = document.getElementById("v_code").value;
+            const pToken = document.getElementById("token").value;
+            const pVochTokern = document.getElementById("v_url").value;
+            let msgCheck = document.getElementById("msg_vcheck");
+            let btnVchr = document.getElementById("btn-voucher");
+            let btnVchrApply = document.getElementById("btn-voucher-apply");
+
+            rowCheck.classList.add("hidden");
+            btnVchr.classList.remove("hidden");
+            btnVchrApply.classList.add("hidden");
+            btnVchrApply.setAttribute("data-ref", "");
+
+            if (pVoucher == "" || pVoucher == undefined) return;
+
+            fetch(`index.php?option=com_gglms&task=api.checkVoucherValidation&searchPhrase=${pVoucher}&cToken=${pToken}`)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+
+                    msgCheck.innerHTML = '';
+                    rowCheck.classList.remove("hidden");
+
+                    if (data.error != undefined) {
+                        msgCheck.innerHTML = `<p class="text-danger">${data.error}</p>`;
+                        return;
+                    }
+
+                    btnVchr.classList.add("hidden");
+                    btnVchrApply.classList.remove("hidden");
+                    btnVchrApply.setAttribute("data-ref", pVochTokern);
+                    msgCheck.innerHTML = `<p class="text-success">${data.success}</p>`;
+
+                })
+                .catch(function(error) {
+                    alert(`Si è verificato un errore: ${error}`);
+                    console.log('error =>', error);
+                });
+
+        });
+
+        // pagamento con voucher dopo controllo validità
+        jQuery('#btn-voucher-apply').on('click', function (e) {
+            let pHref = jQuery(this).attr("data-ref");
+            const pVoucher = document.getElementById("v_code").value;
+            window.location.href = `${pHref}&vv=${pVoucher}`;
         });
 
     </script>

@@ -1067,6 +1067,24 @@ class gglmsModelUnita extends JModelLegacy
 
     }
 
+    public function is_evento_ecm($unit_id){
+        try {
+
+
+        $query = $this->_db->getQuery(true)
+            ->select('*')
+            ->from('#__gg_unit')
+            ->where('id=' . $unit_id);
+
+        $this->_db->setQuery($query);
+        $unit = $this->_db->loadObject();
+
+        return $unit->ecm_event;
+        }catch (Exception $e) {
+            DEBUGG::error($e, 'is_evento_ecm');
+        }
+    }
+
 
 }
 
