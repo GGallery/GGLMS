@@ -29,6 +29,8 @@ defined('_JEXEC') or die('Restricted access');
                     <option value="">-</option>
                     <option value="bonifico"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR18');?></option>
                     <option value="paypal"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR19');?></option>
+                    <option value="voucher"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR30');?></option>
+                    <option value="gratuito"><?php echo JText::_('COM_REGISTRAZIONE_ASAND_STR31');?></option>
                 </select>
             </div>
             <div class="form-group ml-2">
