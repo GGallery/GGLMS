@@ -1311,6 +1311,19 @@ HTML;
                 </select>
               </div>
             </div>
+
+            <div class="rowcustom">
+                <div class="col-25"><b>Ho letto l'informativa <a href="/privacy-policy" target="_blank">privacy</a> e do il consenso al trattamento dei miei dati</b> <span style="color: red">*</span></div>
+                    <div class="col-25">
+                        <div class="form-check">
+                        <input class="form-check-input mt-0" type="checkbox" id="privacy_check">
+                        <label class="form-check-label mt-1" for="privacy_check">
+                            Accetta termini e condizioni
+                        </label>
+
+                    </div>
+                </div>
+            </div>
 HTML;
                 }
 

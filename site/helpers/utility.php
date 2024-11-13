@@ -2125,10 +2125,12 @@ HTML;
         $oggetto = "Conferma adesione evento " . $_event_title;
 
         $body = <<<HTML
-                <br /><br />
-                <p>Spett.le <b>{$_user_details['cognome_utente']} {$_user_details['nome_utente']}</b></p>
-                <p>Le confermiamo l'adesione al corso <b>{$_event_title}</b></p>
+                <br />
+                <p>Gentile <b>{$_user_details['cognome_utente']} {$_user_details['nome_utente']}</b></p><br/>
+                <p>Le confermiamo la sua adesione al corso <b>{$_event_title}</b></p>
+                <p>Può accedere all’area formativa sul sito <a href="https://www.asand.it">www.asand.it<a>, accedendo con le sue credenziali e selezionando la voce di menu I MIEI CORSI.</p> <br>
                 <p>Cordiali saluti</p><br>
+                <p>ASAND</p>
                 <p>Questa mail è generata automaticamente, si prega di non rispondere.</p>
 HTML;
 
