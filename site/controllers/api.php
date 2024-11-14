@@ -4535,46 +4535,32 @@ HTML;
 
     }
 
-    public function completamentoCorsoFiaso(){
-        $japp = JFactory::getApplication();
-        $db = JFactory::getDBO();
-
-        $userQuery = $db->getQuery(true)
-            ->select('count(*)')
-            ->from('#__users');
-        $db->setQuery($userQuery);
-
-        $userCount = $db->loadResult();
-
-        $completedQuery = $db->getQuery(true)
-            ->select('count(*)')
-            ->from('#__gg_view_stato_user_corso')
-        ->where('id_corso = 247 AND stato = 1');
-
-        $db->setQuery($completedQuery);
-
-        $completedCount = $db->loadResult();
-
-        $response = [
-            'status' => 'success',
-            'userCount' => $userCount,
-            'completedCount' => $completedCount,
-        ];
-
-
-        $this->sendResponse('success', $response);
-    }
-
     public function getReportCorsoFiaso(){
         $japp = JFactory::getApplication();
         $db = JFactory::getDBO();
 
-        $userQuery = $db->getQuery(true)
+        //query per gli utenti che hanno completato il corso
+        $completedQuery = $db->getQuery(true)
             ->select('com.cb_nome as nome ,com.cb_cognome as cognome ,com.cb_codicefiscale as cf ,com.cb_professionedisciplina as professione ,u.email as email')//TODO aggiungi azienda
             ->from('#__users u')
             ->join('inner','#__comprofiler com ON com.user_id = u.id')
             ->join('inner','#__gg_report gr ON gr.id_utente = u.id')
-            ->where('id_contenuto=54 and stato=1');
+            ->where('id_contenuto=54 and stato=1')
+            ->order('com.cb_cognome asc');
+        $db->setQuery($completedQuery);
+
+        $completedUsers = $db->loadObjectList();
+
+        //query di tutti gli utenti
+        $userQuery = $db->getQuery(true)
+            ->select('com.user_id ,com.cb_nome as nome ,com.cb_cognome as cognome ,com.cb_codicefiscale as cf ,com.cb_professionedisciplina as professione ,u.email as email')//TODO aggiungi azienda
+            ->from('#__users u')
+            ->join('inner','#__comprofiler com ON com.user_id = u.id')
+            ->where('com.user_id NOT IN (SELECT com.user_id
+                                                    FROM #__comprofiler com
+                                                    JOIN #__gg_report gr ON gr.id_utente = com.user_id
+                                                    WHERE gr.id_contenuto=54 and stato=1  )')
+            ->order('com.cb_cognome asc');
         $db->setQuery($userQuery);
 
         $users = $db->loadObjectList();
@@ -4584,11 +4570,20 @@ HTML;
 
         $output = fopen('php://output', 'w');
 
-        fputcsv($output, ["yes"]);
+        fputcsv($output, ["Utenti iscritti alla piattaforma"]);
+        fputcsv($output, ['Nome', 'Cognome', 'Codice Fiscale', 'Professione', 'Email']);
+
+        foreach ($users as $user) {
+            fputcsv($output, [$user->nome, $user->cognome, $user->cf, $user->professione, $user->email]);
+        }
+
+        fputcsv($output, [""]);
+        fputcsv($output, [""]);
+        fputcsv($output, ["Utenti che hanno completato il corso"]);
         fputcsv($output, ['Nome', 'Cognome', 'Codice Fiscale', 'Professione', 'Email']);
 
 
-        foreach ($users as $user) {
+        foreach ($completedUsers as $user) {
             fputcsv($output, [$user->nome, $user->cognome, $user->cf, $user->professione, $user->email]);
         }
 
