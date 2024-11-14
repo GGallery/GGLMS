@@ -21,6 +21,7 @@
 				<option value="verifica_codice_votazione">SINPE - Verifica codice votazione</option>
 				<option value="votazione_candidati_sinpe">SINPE - Votazione candidati</option>
 				<option value="eventshowing">SINPE - Visualizza registrazione evento</option>
+                <option value="report_fiaso">FIASO - Report Corso</option>
 			</field>
 
 		</fieldset>
