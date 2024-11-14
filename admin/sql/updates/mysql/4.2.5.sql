@@ -1,7 +1,3 @@
-ALTER TABLE `#__gg_unit`
-    ADD COLUMN `on_sale` tinyint(1) UNSIGNED DEFAULT '0';
-
-
 CREATE TABLE `#__gg_event_voucher` (
                                        `id` int(10) NOT NULL AUTO_INCREMENT,
                                        `code` text NOT NULL,
