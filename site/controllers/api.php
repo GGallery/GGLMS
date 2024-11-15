@@ -4571,20 +4571,20 @@ HTML;
         $output = fopen('php://output', 'w');
 
         fputcsv($output, ["Utenti iscritti alla piattaforma"]);
-        fputcsv($output, ['Nome', 'Cognome', 'Codice Fiscale', 'Professione', 'Email']);
+        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email']);
 
         foreach ($users as $user) {
-            fputcsv($output, [$user->nome, $user->cognome, $user->cf, $user->professione, $user->email]);
+            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email]);
         }
 
         fputcsv($output, [""]);
         fputcsv($output, [""]);
         fputcsv($output, ["Utenti che hanno completato il corso"]);
-        fputcsv($output, ['Nome', 'Cognome', 'Codice Fiscale', 'Professione', 'Email']);
+        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email']);
 
 
         foreach ($completedUsers as $user) {
-            fputcsv($output, [$user->nome, $user->cognome, $user->cf, $user->professione, $user->email]);
+            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email]);
         }
 
         fclose($output);
