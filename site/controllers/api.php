@@ -4535,13 +4535,39 @@ HTML;
 
     }
 
+    //stringa per unificare le aziende per il database di fiaso
+    private $fiasoAzQuery = "CASE
+        WHEN com.cb_azabruzzo IS NOT NULL THEN com.cb_azabruzzo
+        WHEN com.cb_azbasilicata IS NOT NULL THEN com.cb_azbasilicata
+        WHEN com.cb_azcalabria IS NOT NULL THEN com.cb_azcalabria
+        WHEN com.cb_azcampania IS NOT NULL THEN com.cb_azcampania
+        WHEN com.cb_azemiliaromagna IS NOT NULL THEN com.cb_azemiliaromagna
+        WHEN com.cb_azfriuli IS NOT NULL THEN com.cb_azfriuli
+        WHEN com.cb_azlazio IS NOT NULL THEN com.cb_azlazio
+        WHEN com.cb_azliguria IS NOT NULL THEN com.cb_azliguria
+        WHEN com.cb_azlombardia IS NOT NULL THEN com.cb_azlombardia
+        WHEN com.cb_az_marche IS NOT NULL THEN com.cb_az_marche
+        WHEN com.cb_az_piemonte IS NOT NULL THEN com.cb_az_piemonte
+        WHEN com.cb_az_molise IS NOT NULL THEN com.cb_az_molise
+        WHEN com.cb_az_provbolzano IS NOT NULL THEN com.cb_az_provbolzano
+        WHEN com.cb_az_provtrento IS NOT NULL THEN com.cb_az_provtrento
+        WHEN com.cb_azpuglia IS NOT NULL THEN com.cb_azpuglia
+        WHEN com.cb_azsardegna IS NOT NULL THEN com.cb_azsardegna
+        WHEN com.cb_azsicilia IS NOT NULL THEN com.cb_azsicilia
+        WHEN com.cb_aztoscana IS NOT NULL THEN com.cb_aztoscana
+        WHEN com.cb_azumbria IS NOT NULL THEN com.cb_azumbria
+        WHEN com.cb_azveneto IS NOT NULL THEN com.cb_azveneto
+        ELSE NULL
+    END";
+
     public function getReportCorsoFiaso(){
         $japp = JFactory::getApplication();
         $db = JFactory::getDBO();
-
+        $selectFields = 'com.cb_nome as nome, com.cb_cognome as cognome, com.cb_codicefiscale as cf, com.cb_professionedisciplina as professione, u.email as email,
+        cb_ordine as ordine, cb_numeroiscrizione as iscrizione,cb_regioneazienda as regioneAz, (' . $this->fiasoAzQuery . ') AS azienda';
         //query per gli utenti che hanno completato il corso
         $completedQuery = $db->getQuery(true)
-            ->select('com.cb_nome as nome ,com.cb_cognome as cognome ,com.cb_codicefiscale as cf ,com.cb_professionedisciplina as professione ,u.email as email')//TODO aggiungi azienda
+            ->select($selectFields)
             ->from('#__users u')
             ->join('inner','#__comprofiler com ON com.user_id = u.id')
             ->join('inner','#__gg_report gr ON gr.id_utente = u.id')
@@ -4553,7 +4579,7 @@ HTML;
 
         //query di tutti gli utenti
         $userQuery = $db->getQuery(true)
-            ->select('com.user_id ,com.cb_nome as nome ,com.cb_cognome as cognome ,com.cb_codicefiscale as cf ,com.cb_professionedisciplina as professione ,u.email as email')//TODO aggiungi azienda
+            ->select($selectFields)
             ->from('#__users u')
             ->join('inner','#__comprofiler com ON com.user_id = u.id')
             ->where('com.user_id NOT IN (SELECT com.user_id
@@ -4571,20 +4597,20 @@ HTML;
         $output = fopen('php://output', 'w');
 
         fputcsv($output, ["Utenti iscritti alla piattaforma"]);
-        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email']);
+        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email','Ordine','Numero iscrizione','Regione Azienda','Azienda']);
 
         foreach ($users as $user) {
-            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email]);
+            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda]);
         }
 
         fputcsv($output, [""]);
         fputcsv($output, [""]);
         fputcsv($output, ["Utenti che hanno completato il corso"]);
-        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email']);
+        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email','Ordine','Numero iscrizione','Regione Azienda','Azienda']);
 
 
         foreach ($completedUsers as $user) {
-            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email]);
+            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda]);
         }
 
         fclose($output);
