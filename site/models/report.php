@@ -502,6 +502,51 @@ class gglmsModelReport extends JModelLegacy
 
     }
 
+    public function copia_report_ecm($corso_id)
+    {
+
+        try{
+            $Juser = JFactory::getUser();
+
+            $db = JFactory::getDBO();
+            $query = "INSERT INTO #__gg_report_ecm (id_corso,
+                              id_event_booking,
+                              id_unita,
+                              id_contenuto,
+                              id_utente ,
+                              id_anagrafica,
+                              stato,
+                              visualizzazioni,
+                              permanenza_tot,
+                              data,
+                              data_extra,
+                              data_primo_accesso)
+        SELECT id_corso,
+              id_event_booking,
+              id_unita,
+              id_contenuto,
+              id_utente ,
+              id_anagrafica,
+              stato,
+              visualizzazioni,
+              permanenza_tot,
+              data,
+              data_extra,
+              data_primo_accesso
+        FROM #__gg_report
+        WHERE id_utente = $Juser->id
+        AND id_corso = $corso_id ";
+
+            $db->setQuery($query);
+            $result = $db->execute();
+            return $result;
+
+        } catch (Exception $e) {
+            DEBUGG::log($e->getMessage(), 'errore copia report ecm', 0, 1, 0);
+        }
+
+    }
+
 
 }
 

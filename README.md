@@ -3,6 +3,10 @@
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
+# 4.2.5
+* D: aggiunta della colonna ecm alla tabella gg_unit
+* D: aggiunta tabella gg_report_ecm
+
 # 4.2.4
 * D: aggiunta tabella gg_cod_votazioni_users
 * D: aggiunta tabella gg_votazioni_candidati

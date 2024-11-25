@@ -221,6 +221,19 @@
             <option value="0">No</option>
         </field>
 
+        <field
+                name="ecm"
+                type="radio"
+                label="ECM"
+                description="Specifica se il corso é un corso Ecm"
+                class="btn-group"
+                showon="is_corso:1"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
 
         <field
                 name="id_contenuto_completamento"

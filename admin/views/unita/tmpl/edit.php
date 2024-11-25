@@ -174,6 +174,12 @@ JHtml::_('formbehavior.chosen', 'select');
                         echo $this->form->renderField('mobile'); ?>
                 </div>
 
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
+                        echo $this->form->renderField('ecm'); ?>
+                </div>
+
             </div>
 
             <div class="span4">

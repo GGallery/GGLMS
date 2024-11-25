@@ -131,4 +131,6 @@ class gglmsModelReport extends JModelList
 
         return $query;
     }
+
+
 }

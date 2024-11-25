@@ -502,6 +502,7 @@ CREATE TABLE `#__gg_unit` (
   `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
   `prezzo_webinar_fisso` tinyint(1) NOT NULL DEFAULT 0,
   `id_gruppi_custom` varchar(255) DEFAULT NULL,
+  `ecm`  tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
@@ -862,6 +863,27 @@ CREATE TABLE `#__gg_quote_voucher` (
   `code` TEXT NOT NULL,
   `date` DATETIME NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_report_ecm`
+-- ----------------------------
+DROP TABLE IF EXISTS `#__gg_report_ecm`;
+CREATE TABLE `#__gg_report_ecm` (
+                                `id_corso` int(10) NOT NULL,
+                                `id_event_booking` int(10) DEFAULT NULL,
+                                `id_unita` int(10) NOT NULL,
+                                `id_contenuto` int(10) NOT NULL,
+                                `id_utente` int(10) NOT NULL,
+                                `id_anagrafica` int(10) DEFAULT NULL,
+                                `stato` int(10) DEFAULT NULL,
+                                `data` date DEFAULT NULL,
+                                `visualizzazioni` int(10) DEFAULT NULL,
+                                `permanenza_tot` int(10) DEFAULT NULL,
+                                `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                `data_extra` datetime NULL,
+                                `data_primo_accesso` datetime NULL,
+                                PRIMARY KEY (`id_contenuto`,`id_utente`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
