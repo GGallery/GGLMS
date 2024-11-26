@@ -29,6 +29,7 @@ class gglmsViewUnita extends JViewLegacy
 
         $this->unita = $this->get('Unita');
         $model_report = new gglmsModelReport();
+        $model_content = new gglmsModelContenuto();
 
         //faccio questa riattribuzione inutile in modo da uniformare il codice delle breadcrumb, lo so è una vaccata
         $this->_params = $this->unita->_params;
@@ -61,11 +62,12 @@ class gglmsViewUnita extends JViewLegacy
 
             $id_quiz = $matches[1]; // Il valore dell'id quiz_deluxe dall'URL
 
-            if(isset($id_quiz) && is_numeric($id_quiz)){
+            if(isset($id_quiz) && is_numeric($id_quiz) && $id_quiz>0){
                   $stato_copy = $model_report->copia_report_ecm($this->unita->id);
 
                   if($stato_copy){
-                      var_dump($stato_copy);die();
+
+                      $stato_reset = $model_content->reset_corso_ecm($this->unita->id, $id_quiz);
                   }
             }
 
