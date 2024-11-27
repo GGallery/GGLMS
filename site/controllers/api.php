@@ -4563,55 +4563,73 @@ HTML;
     public function getReportCorsoFiaso(){
         $japp = JFactory::getApplication();
         $db = JFactory::getDBO();
+//        $selectFields = 'com.cb_nome as nome, com.cb_cognome as cognome, com.cb_codicefiscale as cf, com.cb_professionedisciplina as professione, u.email as email,
+//        cb_ordine as ordine, cb_numeroiscrizione as iscrizione,cb_regioneazienda as regioneAz, (' . $this->fiasoAzQuery . ') AS azienda';
+//        //query per gli utenti che hanno completato il corso
+//        $completedQuery = $db->getQuery(true)
+//            ->select($selectFields)
+//            ->from('#__users u')
+//            ->join('inner','#__comprofiler com ON com.user_id = u.id')
+//            ->join('inner','#__gg_report gr ON gr.id_utente = u.id')
+//            ->where('id_contenuto=54 and stato=1')
+//            ->order('com.cb_cognome asc');
+//        $db->setQuery($completedQuery);
+//
+//        $completedUsers = $db->loadObjectList();
+//
+//        //query di tutti gli utenti
+//        $userQuery = $db->getQuery(true)
+//            ->select($selectFields)
+//            ->from('#__users u')
+//            ->join('left','#__comprofiler com ON com.user_id = u.id')
+//            ->where('com.user_id NOT IN (SELECT com.user_id
+//                                                    FROM #__comprofiler com
+//                                                    JOIN #__gg_report gr ON gr.id_utente = com.user_id
+//                                                    WHERE gr.id_contenuto=54 and stato=1  )')
+//            ->order('com.cb_cognome asc');
+//        $db->setQuery($userQuery);
+
         $selectFields = 'com.cb_nome as nome, com.cb_cognome as cognome, com.cb_codicefiscale as cf, com.cb_professionedisciplina as professione, u.email as email,
-        cb_ordine as ordine, cb_numeroiscrizione as iscrizione,cb_regioneazienda as regioneAz, (' . $this->fiasoAzQuery . ') AS azienda';
-        //query per gli utenti che hanno completato il corso
-        $completedQuery = $db->getQuery(true)
+    cb_ordine as ordine, cb_numeroiscrizione as iscrizione, cb_regioneazienda as regioneAz, (' . $this->fiasoAzQuery . ') AS azienda,
+    CASE
+        WHEN gr.stato = 1 THEN "superato"
+        WHEN gr.stato = 0 THEN "non superato"
+        ELSE "non superato"
+    END AS stato';
+
+// Single query to get both users who completed and did not complete the course
+        $combinedQuery = $db->getQuery(true)
             ->select($selectFields)
             ->from('#__users u')
-            ->join('inner','#__comprofiler com ON com.user_id = u.id')
-            ->join('inner','#__gg_report gr ON gr.id_utente = u.id')
-            ->where('id_contenuto=54 and stato=1')
-            ->order('com.cb_cognome asc');
-        $db->setQuery($completedQuery);
+            ->join('LEFT', '#__comprofiler com ON com.user_id = u.id')
+            ->join('LEFT', '#__gg_report gr ON gr.id_utente = u.id AND gr.id_contenuto = 54')
+            ->order('com.cb_cognome ASC');
 
-        $completedUsers = $db->loadObjectList();
+        $db->setQuery($combinedQuery);
+        $allUsers = $db->loadObjectList();
 
-        //query di tutti gli utenti
-        $userQuery = $db->getQuery(true)
-            ->select($selectFields)
-            ->from('#__users u')
-            ->join('inner','#__comprofiler com ON com.user_id = u.id')
-            ->where('com.user_id NOT IN (SELECT com.user_id
-                                                    FROM #__comprofiler com
-                                                    JOIN #__gg_report gr ON gr.id_utente = com.user_id
-                                                    WHERE gr.id_contenuto=54 and stato=1  )')
-            ->order('com.cb_cognome asc');
-        $db->setQuery($userQuery);
-
-        $users = $db->loadObjectList();
+        //$users = $db->loadObjectList();
 
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="report.csv"');
 
         $output = fopen('php://output', 'w');
 
-        fputcsv($output, ["Utenti iscritti alla piattaforma"]);
         fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email','Ordine','Numero iscrizione','Regione Azienda','Azienda']);
 
-        foreach ($users as $user) {
-            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda]);
+        foreach ($allUsers as $user) {
+            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda, $user->stato]);
         }
-
-        fputcsv($output, [""]);
-        fputcsv($output, [""]);
-        fputcsv($output, ["Utenti che hanno completato il corso"]);
-        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email','Ordine','Numero iscrizione','Regione Azienda','Azienda']);
-
-
-        foreach ($completedUsers as $user) {
-            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda]);
-        }
+//
+//        fputcsv($output, [""]);
+//        fputcsv($output, [""]);
+//        fputcsv($output, ["Utenti che hanno completato il corso"]);
+//        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email','Ordine','Numero iscrizione','Regione Azienda','Azienda']);
+//
+//
+//        foreach ($completedUsers as $user) {
+//            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda]);
+//        }
 
         fclose($output);
         $japp->close();
