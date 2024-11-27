@@ -882,7 +882,7 @@ CREATE TABLE `#__gg_report_ecm` (
                                 `permanenza_tot` int(10) DEFAULT NULL,
                                 `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                 `data_extra` datetime NULL,
-                                `data_primo_accesso` datetime NULL,
+                                `data_primo_accesso` datetime NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
