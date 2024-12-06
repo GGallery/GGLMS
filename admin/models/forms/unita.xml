@@ -311,6 +311,16 @@
             <option value="0">No</option>
         </field>
 
+        <field
+                name="tag_corso"
+                type="text"
+                label="Tag corso"
+                description="Tag per identificare il corso"
+                class="input-box"
+                showon="is_corso:1"
+                size="20"
+        />
+
         <field name="disponibile_dal"
                type="calendar"
                default=""

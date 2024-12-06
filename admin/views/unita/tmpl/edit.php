@@ -319,6 +319,10 @@ JHtml::_('formbehavior.chosen', 'select');
                 </div>
 
                 <div class="row-fluid">
+                    <?php echo $this->form->renderField('tag_corso'); ?>
+                </div>
+
+                <div class="row-fluid">
                     <?php echo $this->form->renderField('disponibile_dal'); ?>
                 </div>
 
