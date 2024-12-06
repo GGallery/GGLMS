@@ -4,8 +4,14 @@
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
 
-# 4.2.5
+# 4.2.6
+* D: aggiunta colonna tag_corso alla tabella gg_unit
+
+# 4.2.6
 * D: aggiunta colonna ecm_event alla tabella gg_unit
+
+# 4.2.5
+* D: aggiunta tabella gg_event_voucher
 
 # 4.2.4
 * D: aggiunta della colonna rif_eta alla tabella gg_vendita_sconti_particolari
