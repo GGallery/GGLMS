@@ -2866,7 +2866,7 @@ HTML;
                 </div>
 
                 <div class="form-group row">
-                  <span class="col-sm-2 col-form-label">Autodichiarazione titolo di studio</span>
+                  <label class="col-sm-2 col-form-label">Autodichiarazione titolo di studio</label>
                   <div class="col-sm-10">
                       Consapevole delle sanzioni penali applicabili in caso di dichiarazioni mendaci e non veritiere che sono previste dagli articoli 75 e 76 del D.P.R 28/12/2000 n. 445 e per gli effetti dell’art. 47 del citato D.P.R. 445/2000, sotto la personale responsabilità, <b>DICHIARO</b> ai sensi dell'art. 46 D.P.R. n. 445/2000 di essere in possesso del titolo di studio sotto indicato
                   </div>
@@ -2998,7 +2998,7 @@ HTML;
                     </div>
 
                     <div class="form-group row">
-                      <span class="col-sm-2 col-form-label">Autodichiarazione Iscrizione Albo</span>
+                      <label class="col-sm-2 col-form-label">Autodichiarazione Iscrizione Albo</label>
                       <div class="col-sm-10">Dichiaro inoltre di essere iscritto all'Albo Dietisti</div>
                     </div>
 
