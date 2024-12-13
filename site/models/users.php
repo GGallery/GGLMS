@@ -30,7 +30,7 @@ class gglmsModelUsers extends JModelLegacy
         $this->_params = $this->_app->getParams();
         $this->_config = new gglmsModelConfig();
         $this->idsRuoli = [
-            267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299
+            267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 295, 299, 296
         ];
 
 
