@@ -1293,11 +1293,15 @@ class utilityHelper
                         $lastFarmUg = $last_farmacia['id_gruppo'];
                     }
                     else $lastFarmUg = $farmacia_id_old;
-
                     // rimuovo utente dal vecchio gruppo
+                    if(is_null($lastFarmUg)) {
+                        var_dump($check_user_id);
+                        }
+
+                    if(!is_null($lastFarmUg)) {
                     $remove_ug_user = self::remove_user_from_usergroup($check_user_id, (array) $lastFarmUg, $db_option);
                     if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
-
+                    }
                     // ha cambiato farmacia (o non c'è nessun riferimento)
                     $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
                     if (is_null($user_farmacia)) throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
