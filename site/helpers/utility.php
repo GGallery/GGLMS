@@ -1073,7 +1073,7 @@ class utilityHelper
 
             // fix necessario per prima dove il corso padre è il 2 e non l'1
             $currentUrl = JUri::getInstance();
-            
+
             if ($id_corso == ""
                 || ($id_corso == 1 && !strpos($currentUrl, 'primaelearning.it'))
                 || !isset($id_corso))
@@ -1218,6 +1218,7 @@ class utilityHelper
    //nel caso di portare tutti gli utenti su dettaglio Quiz
     public static function _export_csv_dettaglio($filename, $data)
     {
+
 
         try {
             if (!empty($data)) {
@@ -1839,12 +1840,12 @@ HTML;
     public static function get_update_query($_table, $_new_user_cp, $where) {
 
         $query = "UPDATE #__" . $_table . " SET ";
-        
+
         $counter = 0;
         foreach ($_new_user_cp as $key => $value) {
             $query .= $key . ' = ' . '\''. $value .'\'';
 
-            if ($counter < count($_new_user_cp)-1) { 
+            if ($counter < count($_new_user_cp)-1) {
                 $query .= ', ';
             }
 
@@ -2201,7 +2202,7 @@ HTML;
         else if ($template == "voucher_sinpe")
             $oggetto = "SINPE - Effettuato nuovo pagamento quota con voucher";
 
-        if ($template != 'preiscritto' 
+        if ($template != 'preiscritto'
             && $template != 'richiesta_bonifico_sinpe'
             && $template != 'conferma_bonifico_sinpe'
             && $template != 'voucher_sinpe') {
@@ -2393,7 +2394,7 @@ HTML;
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
             $modelUser = new gglmsModelUsers();
-            
+
             foreach ($_arr_remove as $key => $d_group_id) {
                 $modelUser->deleteUserFromUserGroup($user_id,$d_group_id);
             }
@@ -3562,7 +3563,7 @@ HTML;
             'application/zip' => 'zip',
             'application/pdf' => 'pdf',
         ];
-    
+
         return $mime_map[$mime] ?? null;
     }
     public static function arr_to_json($_obj) {

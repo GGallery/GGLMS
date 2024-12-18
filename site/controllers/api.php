@@ -2214,11 +2214,11 @@ HTML;
 
                     $dettagli_quiz = utilityHelper::clean_quiz_array($dettagli_quiz);
 
-
-                    $nome_user = ["nome" => $user['denominazione_utente']];
-
-
-                    array_push($dettaglio_tot,$nome_user);
+                    $quiz_info = $model_content->get_quiz_info($quiz_id);
+                    if($quiz_info['c_author'] != 'survey'){
+                        $nome_user = ["nome" => $user['denominazione_utente']];
+                        array_push($dettaglio_tot,$nome_user);
+                    }
 
                     array_push($dettaglio_tot,$_csv_cols);
 
