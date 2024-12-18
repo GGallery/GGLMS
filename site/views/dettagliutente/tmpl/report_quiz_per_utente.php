@@ -29,21 +29,21 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
                 </select>
             </div>
 
-            <div class="form-group to_show" id="div_option" style="display: none;">
-                <label for="selezione_utenti">Selezione utenti</label>
-                <select id="selezione_utenti" class="form-control">
-                    <option value="">-</option>
-                    <option value="1">Tutti utenti</option>
-                    <option value="2">Singolo utente</option>
-                </select>
-            </div>
-
-            <div class="form-group to_show" id="div_utenti" style="display: none;">
-                <label for="utenti">Utenti corso</label>
-                <select id="utenti" class="form-control">
-
-                </select>
-            </div>
+<!--            <div class="form-group to_show" id="div_option" style="display: none;">-->
+<!--                <label for="selezione_utenti">Selezione utenti</label>-->
+<!--                <select id="selezione_utenti" class="form-control">-->
+<!--                    <option value="">-</option>-->
+<!--                    <option value="1">Tutti utenti</option>-->
+<!--                    <option value="2">Singolo utente</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!---->
+<!--            <div class="form-group to_show" id="div_utenti" style="display: none;">-->
+<!--                <label for="utenti">Utenti corso</label>-->
+<!--                <select id="utenti" class="form-control">-->
+<!---->
+<!--                </select>-->
+<!--            </div>-->
 
             <div class="form-group text-center to_show" id="btn_genera" style="display:none;">
                 <button class="btn btn-success" id="btn-report">
@@ -221,9 +221,7 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
 
                                         pSelectList += '<option value="' + pUtenteId + '">' + pDenominazione + '</option>';
                                     }
-                                    jQuery('#selezione_utenti').val('');
-                                    jQuery('#utenti').html(pSelectList);
-                                    jQuery('#div_option').show();
+                                    jQuery('#btn_genera').show();
 
                                 }
 
@@ -238,79 +236,79 @@ $_form_class = ($_select_corsi == "") ? 'disabled' : '';
 
             });
 
-            //selezione utenti
-            jQuery('#selezione_utenti').on('change', function (e) {
-
-                var pQuiz = jQuery('#quiz').val();
-
-                showLoading('s');
-                if (pQuiz == ""
-                    || pQuiz == 0) {
-                    customAlertifyAlertSimple('Nessun quiz selezionato');
-                    showLoading('h');
-                    clearShowing();
-                    return;
-                }
-
-                if (jQuery("#selezione_utenti option:selected").val() == 1) {
-
-                    jQuery('#div_utenti').hide();
-                    jQuery('#btn_genera').show();
-                    showLoading('h');
-
-                } else {
-
-                    jQuery('#div_utenti').show();
-
-                }
-            });
-
-
-            // selezione dell'utente
-            jQuery('#utenti').on('change', function (e) {
-
-                var pQuiz = jQuery(this).val();
-                var pCorso = jQuery('#corso').val();
-                var pUtente = jQuery('#utenti').val();
-                var pOpzione = jQuery('#selezione_utenti').val();
-
-                showLoading('s');
-                if (pQuiz == ""
-                    || pQuiz == 0) {
-                    customAlertifyAlertSimple('Nessun quiz selezionato');
-                    showLoading('h');
-                    clearShowing();
-                    return;
-                }
-
-                if (pCorso == ""
-                    || pCorso == 0) {
-                    customAlertifyAlertSimple('Nessun corso selezionato');
-                    showLoading('h');
-                    clearShowing();
-                    return;
-                }
-
-                if (pOpzione == ""
-                    || pOpzione == 0) {
-                    customAlertifyAlertSimple('Nessun opzione per utenti selezionata');
-                    showLoading('h');
-                    clearShowing();
-                    return;
-                }
-
-                if (pUtente == ""
-                    || pUtente == 0) {
-                    customAlertifyAlertSimple('Nessun utente selezionato');
-                    showLoading('h');
-                    clearShowing();
-                    return;
-                }
-
-                jQuery('#btn_genera').show();
-                showLoading('h');
-
-            });
+            // //selezione utenti
+            // jQuery('#selezione_utenti').on('change', function (e) {
+            //
+            //     var pQuiz = jQuery('#quiz').val();
+            //
+            //     showLoading('s');
+            //     if (pQuiz == ""
+            //         || pQuiz == 0) {
+            //         customAlertifyAlertSimple('Nessun quiz selezionato');
+            //         showLoading('h');
+            //         clearShowing();
+            //         return;
+            //     }
+            //
+            //     if (jQuery("#selezione_utenti option:selected").val() == 1) {
+            //
+            //         jQuery('#div_utenti').hide();
+            //
+            //         showLoading('h');
+            //
+            //     } else {
+            //
+            //         jQuery('#div_utenti').show();
+            //
+            //     }
+            // });
+            //
+            //
+            // // selezione dell'utente
+            // jQuery('#utenti').on('change', function (e) {
+            //
+            //     var pQuiz = jQuery(this).val();
+            //     var pCorso = jQuery('#corso').val();
+            //     var pUtente = jQuery('#utenti').val();
+            //     var pOpzione = jQuery('#selezione_utenti').val();
+            //
+            //     showLoading('s');
+            //     if (pQuiz == ""
+            //         || pQuiz == 0) {
+            //         customAlertifyAlertSimple('Nessun quiz selezionato');
+            //         showLoading('h');
+            //         clearShowing();
+            //         return;
+            //     }
+            //
+            //     if (pCorso == ""
+            //         || pCorso == 0) {
+            //         customAlertifyAlertSimple('Nessun corso selezionato');
+            //         showLoading('h');
+            //         clearShowing();
+            //         return;
+            //     }
+            //
+            //     if (pOpzione == ""
+            //         || pOpzione == 0) {
+            //         customAlertifyAlertSimple('Nessun opzione per utenti selezionata');
+            //         showLoading('h');
+            //         clearShowing();
+            //         return;
+            //     }
+            //
+            //     if (pUtente == ""
+            //         || pUtente == 0) {
+            //         customAlertifyAlertSimple('Nessun utente selezionato');
+            //         showLoading('h');
+            //         clearShowing();
+            //         return;
+            //     }
+            //
+            //     jQuery('#btn_genera').show();
+            //     showLoading('h');
+            //
+            // });
 
             // clicca bottone report
              jQuery('#btn-report').on('click', function (e) {
