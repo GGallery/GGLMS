@@ -55,23 +55,23 @@ class gglmsViewUnita extends JViewLegacy
             $app->redirect($url);
         }
 
-        if($this->unita->ecm){
-            $request_uri = $_SERVER['REQUEST_URI'];
-
-            preg_match('/\/([^\/]+)$/', $request_uri, $matches);
-
-            $id_quiz = $matches[1]; // Il valore dell'id quiz_deluxe dall'URL
-
-            if(isset($id_quiz) && is_numeric($id_quiz) && $id_quiz>0){
-                  $stato_copy = $model_report->copia_report_ecm($this->unita->id);
-
-                  if($stato_copy){
-
-                      $stato_reset = $model_content->reset_corso_ecm($this->unita->id, $id_quiz);
-                  }
-            }
-
-        }
+//        if($this->unita->ecm){
+//            $request_uri = $_SERVER['REQUEST_URI'];
+//
+//            preg_match('/\/([^\/]+)$/', $request_uri, $matches);
+//
+//            $id_quiz = $matches[1]; // Il valore dell'id quiz_deluxe dall'URL
+//
+//            if(isset($id_quiz) && is_numeric($id_quiz) && $id_quiz>0){
+//                  $stato_copy = $model_report->copia_report_ecm($this->unita->id);
+//
+//                  if($stato_copy){
+//
+//                      $stato_reset = $model_content->reset_corso_ecm($this->unita->id, $id_quiz);
+//                  }
+//            }
+//
+//        }
 
         $this->sottounita = $this->unita->getSottoUnita();
 //        DEBUGG::log($e, 'getSottoUnita');

@@ -919,12 +919,12 @@ class gglmsModelContenuto extends JModelLegacy
         }
     }
 
-    public function reset_corso_ecm($id_corso, $id_quiz)
+    public function reset_corso_ecm($id_corso, $id_quiz,$userId)
     {
 
         try {
 
-            $id_user = JFactory::getUser();
+            $id_user = JFactory::getUser($userId);
 
             //seleziono tutti i contenuti del corso
             $model_report = new gglmsModelReport();
@@ -1034,12 +1034,7 @@ class gglmsModelContenuto extends JModelLegacy
 
                                     if (!$this->_db->execute())
                                         throw new Exception("Delete scormvars query ko ->" . $delete_scormvars, 1);
-
                                 }
-
-
-
-
                         }
 
                     }
@@ -1050,11 +1045,12 @@ class gglmsModelContenuto extends JModelLegacy
 
             $this->_db->transactionCommit();
             utilityHelper::make_debug_log(__FUNCTION__, "utente stato elaborato in ecm corso :" . $id_user->id , __FUNCTION__);
-            return true;
+            return 1;
 
         } catch (Exception $e) {
             $this->_db->transactionRollback();
             DEBUGG::log($e->getMessage(), 'error in reset corso ecm' , 0,1,0);
+            return 0;
         }
 
     }

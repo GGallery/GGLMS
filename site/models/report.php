@@ -502,11 +502,13 @@ class gglmsModelReport extends JModelLegacy
 
     }
 
-    public function copia_report_ecm($corso_id)
+    public function copia_report_ecm($corso_id,$userId)
     {
 
         try{
-            $Juser = JFactory::getUser();
+            $Juser = JFactory::getUser($userId);
+
+
 
             $db = JFactory::getDBO();
             $query = "INSERT INTO #__gg_report_ecm (id_corso,

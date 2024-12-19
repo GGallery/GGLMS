@@ -4535,6 +4535,67 @@ HTML;
 
     }
 
+    public function reset_stato_quiz_api(){
+        $quizId = $_POST['quizId'];
+        $userId = $_POST['userId'];
+        $db = JFactory::getDBO();
+
+        $stato_reset = 0;
+        $model_report = new gglmsModelReport();
+        $model_content = new gglmsModelContenuto();
+        $unitModel = new gglmsModelUnita();
+
+        $contentQuery = $db->getQuery(true)
+            ->select('id')
+            ->from('#__gg_contenuti')
+            ->where('id_quizdeluxe = ' . $quizId);
+
+        $db->setQuery($contentQuery);
+
+        $contentId = $db->loadResult();
+
+        $unitQuery = $db->getQuery(true)
+            ->select('idunita')
+            ->from('#__gg_unit_map')
+            ->where('idcontenuto = ' . $contentId);
+
+        $db->setQuery($unitQuery);
+
+        $unitId = $db->loadResult();
+
+        $unit = $unitModel->getUnita($unitId);
+
+        if($unit->ecm){
+//            $request_uri = $_SERVER['REQUEST_URI'];
+//
+//            preg_match('/\/([^\/]+)$/', $request_uri, $matches);
+//
+//            $id_quiz = $matches[1]; // Il valore dell'id quiz_deluxe dall'URL
+
+            if(isset($quizId) && is_numeric($quizId) && $quizId>0){
+                $stato_copy = $model_report->copia_report_ecm($unit->id,$userId);
+
+                if($stato_copy){
+
+                    $stato_reset = $model_content->reset_corso_ecm($unit->id, $quizId, $userId);
+                }
+            }
+
+        }
+
+        DEBUGG::log('reset_stato_quiz_api', 'status:'. $stato_reset,0,1,0);
+
+        header('Content-Type: application/json');
+        http_response_code(200);
+
+                $response = [
+                    'status' => 'success',
+                    'quiz_id' => $quizId,
+                    'reset_status' => $stato_reset,
+                ];
+                echo json_encode($response);
+    }
+
 
 //	INUTILIZZATO
 //	public function getSummarizeCourse(){
