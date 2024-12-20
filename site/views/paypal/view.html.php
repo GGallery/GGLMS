@@ -68,13 +68,11 @@ class gglmsViewPaypal extends JViewLegacy {
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale_sinpe, $totale_espen), true);
 
-                if (!isset($new_order['success']))
-                    throw new Exception($new_order['error'], E_USER_ERROR);
+                if (!isset($new_order['success'])) throw new Exception($new_order['error'], E_USER_ERROR);
 
                 // inserisco le quote per l'utente selezionato
                 $_user_details = $_user_quote->get_user_details_cb($user_id);
-                if (!is_array($_user_details))
-                    throw new Exception($_user_details, E_USER_ERROR);
+                if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
 
                 $_insert_quote = $_user_quote->insert_user_quote_anno(
                                                 $user_id,
@@ -86,10 +84,8 @@ class gglmsViewPaypal extends JViewLegacy {
                                                 $_user_details,
                                                 true);
 
-                if (!is_array($_insert_quote))
-                    $this->call_result = $_insert_quote;
-                else
-                    $this->call_result = "tuttook";
+                if (!is_array($_insert_quote)) $this->call_result = $_insert_quote;
+                else $this->call_result = "tuttook";
 
             }
             // acquisto di servizi extra (ad esempio ESPEN in un secondo momento)
@@ -187,7 +183,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 if (!is_array($_insert_evento))
                     throw new Exception($_insert_evento, E_USER_ERROR);
 
-                $insert_ug = $_user_quote->insert_user_into_usergroup($userId, $userGroupId);
+                $insert_ug = $_user_quote->insert_user_into_usergroup($userId, $userGroupId,true);
                 if (is_null($insert_ug))
                     throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 

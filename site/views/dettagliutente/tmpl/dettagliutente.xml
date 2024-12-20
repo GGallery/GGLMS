@@ -20,6 +20,7 @@
 				<option value="gestione_accesso_utenti_aic">AIC - Gestione accesso utenti</option>
 				<option value="verifica_codice_votazione">SINPE - Verifica codice votazione</option>
 				<option value="votazione_candidati_sinpe">SINPE - Votazione candidati</option>
+				<option value="eventshowing">SINPE - Visualizza registrazione evento</option>
 			</field>
 
 		</fieldset>

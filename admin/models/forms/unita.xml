@@ -263,11 +263,12 @@
                 label="Piattaforme abilitate alla visualizzazione del corso"
                 description="Associazione corso/piattaforma. Valido sia per il catalogo che per genera coupon e reports"
                 showon="is_corso:1"
-                required=""
                 multiple="multiple"
+                id="id_piattaforme_abilitate"
+                required=""
                 size="10"
-
         >
+            <option value="-1">Nessun piattaforma abilitata</option>
         </field>
 
 

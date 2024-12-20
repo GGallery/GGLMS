@@ -81,254 +81,9 @@ class gglmsControllerMt extends JControllerLegacy {
 
         try {
 
-            $arrCfs = [
-                'BFFBBR77A53D612T',
-                'BGLNLY76C41E897C',
-                'BLFPBL74B20B354S',
-                'BNDMCR93H64I470F',
-                'BNFDRA83B43I480S',
-                'BNGSLV69E56I138Y',
-                'BNLSFN79C63B963K',
-                'BNOFNC99E57E290B',
-                'BNUMTT62C06I158N',
-                'BNZRNO76E44H717S',
-                'BRCBNC92A70F952J',
-                'BRNSNT64T50H501X',
-                'Brrgrm88h58e974e',
-                'BRSSRN84P52I462C',
-                'BRVCLT95P49A479N',
-                'BSSNNT68E46E954Q',
-                'BTGCTN93A53D612U',
-                'CCCBMN61L19L424N',
-                'CCCVNC93T71B157T',
-                'CHRLSS85R71H355C',
-                'CHRMLS75M48L483W',
-                'CHRNHL90A29A290R',
-                'CHSMGH88E57G224I',
-                'CLBLRI88M52F839Q',
-                'clclra63a62l331n',
-                'CLCMRT90B44D862X',
-                'CLDVCN76R50F892H',
-                'CLLCLD96T42I462D',
-                'CLLLSN82C22L219X',
-                'cllmrt67s51e098b',
-                'CLMLLC69B65F704V',
-                'CLMMNL74M53L319M',
-                'CLMVLR82H65L049O',
-                'CMNSFN83D59G273F',
-                'CNNTRS95L68A225C',
-                'CNTMHL72R25H501E',
-                'CPPCHR80D69L682V',
-                'CPPLNR86P69L219I',
-                'CPTLNE93T59A246B',
-                'CPZSRN88R60A984G',
-                'CRBCCT88T44A662Y',
-                'CRNRME70H17C773K',
-                'CRPSLV91A53F770D',
-                'CRVLLE91S66C722C',
-                'CRVSRN90L58A669G',
-                'CSLPLL67D09D969C',
-                'Csmcrn78e68b780u',
-                'CSRRRT87M04D391R',
-                'Cssbrc72t53f952x',
-                'CTRDNL60B59F205A',
-                'DBNGLI97P56F964I',
-                'DFLCNN94T55A124P',
-                'DFSCLN82L63L083E',
-                'DGNFRC85E65D773E',
-                'DGSGPP93P11C710U',
-                'dgvmrc60c15f545k',
-                'DLCRKE89R41B114t',
-                'DLFCLD93S62L750R',
-                'DLGFRC73T66F839V',
-                'DLILRI87L41L219G',
-                'DLLGLI89H64A475Z',
-                'DLPCCT64D52G478U',
-                'DNTVGN84C62F205P',
-                'DPLFBA91C21G273H',
-                'DPNMCR64A70L219M',
-                'DRSNLB83C61F839F',
-                'DZOGLG63M41G388J',
-                'FLCFNC83D68G479X',
-                'FLMCHR83R57L378S',
-                'FNNLCA87C42A794H',
-                'FRMLNE89A63D969U',
-                'FRPMHL83H61D150X',
-                'FRRLSN60D41F205T',
-                'FSCFRC78E42D976K',
-                'GDURND69L25A271Z',
-                'GGGRLL65H58B429G',
-                'GLDDBR93B56F257Z',
-                'GLLFNC92B29A859S',
-                'Gndcnn74a66e488x',
-                'GRCNGL77A27B963Z',
-                'GRDLSN88R66D451S',
-                'grnlra85m63e472v',
-                'GRRFRD96A51E730K',
-                'GRSGLC77C24F839O',
-                'Grvgta86l53f839v',
-                'GVZLDI72E67F205D',
-                'LBNFLR72T51F839H',
-                'LCCCLT87D66H199X',
-                'LEONLS70L64A509U',
-                'Lmtrsl81e49g273t',
-                'lndrce76a68f347c',
-                'LNZPLA65E44F205U',
-                'lprlnu78p43a176j',
-                'LPTMRT62M66G478N',
-                'Lvogrl74p45f839u',
-                'Lxagta83a57f158s',
-                'MCRMSL63T11F158V',
-                'MGNMGB57A12L049G',
-                'mlcmrm65l67h836b',
-                'MLFVCN66L20F779D',
-                'MLLMRT63A29H501E',
-                'MLRSLV90R67L483L',
-                'MLUGPP59R23A957V',
-                'Mmllnz81c53l424c',
-                'MMMLNR89H51G273P',
-                'MNCMNC92C68B157Q',
-                'MNNLSN74R44G273Y',
-                'MNRMRA59S01G902V',
-                'MNTLSE98S58C665R',
-                'MNTMLD85H56F839R',
-                'MOIDRN64L11E897S',
-                'MPRGLC76S24L126X',
-                'MRCLSU59A50I634R',
-                'Mrcmct75p48f537g',
-                'MRCNTN91E27F158D',
-                'MRGFNC83E63C765D',
-                'mrkyna77b59z138w',
-                'MRTLCN78M43E682I',
-                'NRAMRT91E54E379F',
-                'NRDMTR71D66G224Z',
-                'NRIMHL92H18L407L',
-                'NSTNCY93A68F158R',
-                'NZDNNA83D54H501S',
-                'PCRNLT73D49H501R',
-                'PGLGPP86P19L083K',
-                'PGNMCR81H57A512L',
-                'PLNCST71B56G224X',
-                'Pmtrrt72a56f205g',
-                'PNDRLE92H41C800L',
-                'PNLGNN75S50F205S',
-                'PNNRNT89P58C351F',
-                'PRICTN90E50L219M',
-                'Prnndr85b14g224d',
-                'PRNSFN61M09A944R',
-                'PRNSFN84L22F611J',
-                'PRTLSE93P52D969T',
-                'Prtvnt86a68e256s',
-                'PSCVLR89B28H501H',
-                'PSLGPP65T07B157T',
-                'PSTMNL66R66G388M',
-                'PSTRKE85C42G674D',
-                'PTLZRA95A67H509U',
-                'RCCSRN72R57B354V',
-                'RCCVNT84B59H620T',
-                'RDVLRA77A56E098O',
-                'RGNNNZ74L53A285Z',
-                'RGNSRN73L49D530M',
-                'RMENRT74A50H501N',
-                'rmngio65m48l483t',
-                'RMPSRN66A62G224N',
-                'RMRTMS68H19B963Y',
-                'RNLNDR70L31H501C',
-                'RNNMNL84B21C352Y',
-                'RPSMLS69L44C351U',
-                'RRENLL87L21A717Z',
-                'rscchr90e41l175c',
-                'RSLNSC82C45H727N',
-                'RSSLLL67D01F839L',
-                'RSSLRA92E63D488L',
-                'Rsslrt90l21f241n',
-                'RTALNZ61R68I138H',
-                'Schgli94t51g605x',
-                'SCLFRC93B55G888X',
-                'SCLMRL89L44G273P',
-                'SCLRMN75T59D223P',
-                'SCRLND79H59C351J',
-                'Scrvni89a54e506q',
-                'SDOVLR78R44H501E',
-                'Sfrlse77h62d969z',
-                'SLNNDR65C25H501K',
-                'Sltgcm77d29e625s',
-                'SLVCHR88M66F335H',
-                'sntlbt93p54g605o',
-                'SNTMNL77H69A123D',
-                'Sntvnn74s44h501d',
-                'SPGLNR95S47L840C',
-                'spnmnl72c51f061b',
-                'SRFLNE91A47H501L',
-                'SRNSLL89R68H620M',
-                'SRRVCN67B66A326N',
-                'STFMNC87S65L781P',
-                'STLGNN84L60G141O',
-                'STRLSE87C43L219Q',
-                'STRMRA74L52I199C',
-                'STTCCL89C41G224S',
-                'TKHVLR73T50D325S',
-                'TMBVNC95C64D962U',
-                'TNSLRA75R46Z129Z',
-                'TPKLNE68L59Z154C',
-                'TRCNLR72C61D643Z',
-                'TRLMLS68S58G388M',
-                'TRMCRN92H63C710Q',
-                'TRPLNE69C56C111R',
-                'TRTLCA84M41M109J',
-                'TRVNDR61S09A662X',
-                'TSNLZM92H43L949Y',
-                'VGGMTR79T61A662Q',
-                'VGHMRA95E48D286M',
-                'VGNLCU63L10G489K',
-                'VLALND76P43F258X',
-                'VLDCCL80B41D600K',
-                'vlrmtr59h49d451x',
-                'VLUGPP58D07H703H',
-                'vncfnc76p66g337f',
-                'VRITZN82R42M172H',
-                'vtirfl59s25l424n',
-                'VTLMRT92E44B429U',
-                'VVNNTN59L02H501M',
-                'ZCCNRT59E63I712P',
-                'ZLZFRC92R16C621I',
-                'Znnmcr62h49l872j'
-            ];
-
-            // controllo se moroso
-            $query_sel = "SELECT ju.id, jc.cb_codicefiscale, juum.group_id 
-                FROM jos_users ju 
-                JOIN jos_comprofiler jc on ju.id = jc.user_id 
-                JOIN jos_user_usergroup_map juum ON ju.id = juum.user_id 
-                WHERE jc.cb_codicefiscale IN (" . sprintf("'%s'", implode("','", $arrCfs ) ) . ")
-            order by jc.cb_codicefiscale, juum.group_id 
-            ";
-
-            $this->_db->setQuery($query_sel);
-            $checkExists = $this->_db->loadAssocList();
-
-            $retArrBlackList = [];
-            $arrGroups = [20,21,22,23,24,25];
-
-            foreach($checkExists as $singleUser) {
-
-                if (in_array($singleUser['group_id'], $arrGroups) && !in_array($singleUser['cb_codicefiscale'], $retArrBlackList)) {
-                    $retArrBlackList[] = $singleUser['cb_codicefiscale'];
-                    continue;
-                }
-
-            }
-
-            $retWhiteList = [];
-            foreach($arrCfs as $singleCf) {
-
-                if (!in_array($singleCf, $retArrBlackList)) $retWhiteList[] = $singleCf;
-
-            }
-
-            echo implode("\n", $retArrBlackList);
-            echo "\n\n|___|\n\n";
-            echo implode("\n", $retWhiteList);
+            $userModel = new gglmsModelUsers();
+            $user = $userModel->get_user_joomla(10);
+            print_r($user->email);
 
         }
         catch(Exception $e) {
@@ -393,7 +148,7 @@ class gglmsControllerMt extends JControllerLegacy {
         try {
 
 
-            if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            //if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
             if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->del_ug)) throw new Exception("Riferimento gruppo in eliminazione non specificato", E_USER_ERROR);
             if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
 
@@ -407,10 +162,12 @@ class gglmsControllerMt extends JControllerLegacy {
             $del_ug = $this->_filterparam->del_ug;
             // morosi
             $new_ug = $this->_filterparam->new_ug;
+            // anno corrente
+            $annoRef = date('Y');
 
             $completed = 0;
 
-            $arr_ids = $this->sinpe_get_online_anno($del_ug, $this->_filterparam->anno_ref, $this->_filterparam->extraoff ?? 0);
+            $arr_ids = $this->sinpe_get_online_anno($del_ug, $annoRef, $this->_filterparam->extraoff ?? 0);
             if (!is_array($arr_ids) || !count($arr_ids)) throw new Exception("Non è stato trovato nessun utente appartenente ai criteri desiderati", E_USER_ERROR);
 
             $this->_db->transactionStart();
@@ -467,17 +224,20 @@ class gglmsControllerMt extends JControllerLegacy {
      * @anno_request: ultimo anno in regola
      * @extraoff_request: se impostato non considera i soci straordinari
      */
-    public function sinpe_get_online_anno($check_ug = null, $anno_request = null, $extraoff_request = null)
+    public function sinpe_get_online_anno($check_ug = null, $anno_ref = null, $extraoff_request = null)
     {
 
         try {
 
             if (!isset($this->_filterparam->check_ug) && is_null($check_ug)) throw new Exception("Gruppo di selezione non indicato", E_USER_ERROR);
-            if (!isset($this->_filterparam->anno_ref) && is_null($anno_request)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            //if (!isset($this->_filterparam->anno_ref) && is_null($anno_request)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
+            if (is_null($anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
 
+            /*
             $anno_ref = isset($this->_filterparam->anno_ref)
                 ? $this->_filterparam->anno_ref
                 : $anno_request;
+            */
             $extra_ug = null;
 
             if (isset($this->_filterparam->extraoff)) $extra_ug = $this->_filterparam->extraoff;
@@ -859,128 +619,318 @@ class gglmsControllerMt extends JControllerLegacy {
         try {
 
             $arr_ids = [
-                4490,
-                4496,
-                4498,
-                4499,
-                4500,
-                4505,
-                4509,
-                4512,
-                4513,
-                4516,
-                4574,
-                4576,
-                4577,
-                4579,
-                4586,
-                4590,
-                4593,
-                4594,
-                4595,
-                4596,
-                4597,
-                4598,
-                4600,
-                4601,
-                4602,
-                4603,
-                4604,
-                4606,
-                4607,
-                4608,
-                4609,
-                4610,
-                4611,
-                4612,
-                4613,
-                4615,
-                4616,
-                4617,
-                4618,
-                4619,
-                4621,
-                4622,
-                4623,
-                4624,
-                4625,
-                4626,
-                4631,
-                4633,
-                4635,
-                4636,
-                4637,
-                4638,
-                4639,
-                4640,
-                4641,
-                4642,
-                4643,
-                4644,
-                4645,
-                4647,
-                4649,
-                4651,
-                4652,
-                4653,
-                4655,
-                4656,
-                4657,
-                4658,
-                4659,
-                4661,
-                4663,
-                4667,
-                4672,
-                4676,
-                4683,
-                4684,
-                4685,
-                4686,
-                4687,
-                4688,
-                4690,
-                4691,
-                4692,
-                4694,
-                4695,
-                4697,
-                4698,
-                4699,
-                4700,
-                4701,
-                4702,
-                4703,
-                4704,
-                4705,
-                4707,
-                4708,
-                4709,
-                4710,
-                4711,
-                4712,
-                4713,
-                4714,
-                4715,
-                4717,
-                4718];
+                5915,
+                5791,
+                5760,
+                6031,
+                6027,
+                5968,
+                6009,
+                5758,
+                5967,
+                5768,
+                5870,
+                5761,
+                5941,
+                5956,
+                5988,
+                5959,
+                5977,
+                6001,
+                5757,
+                5919,
+                5957,
+                5796,
+                5938,
+                5860,
+                6049,
+                5762,
+                5809,
+                5973,
+                5770,
+                5865,
+                6037,
+                5850,
+                5892,
+                5763,
+                5783,
+                5794,
+                5990,
+                5817,
+                5852,
+                5931,
+                5773,
+                5816,
+                6036,
+                5764,
+                5769,
+                5916,
+                5987,
+                6014,
+                5911,
+                5802,
+                5913,
+                5774,
+                5776,
+                5772,
+                5792,
+                5824,
+                5798,
+                5879,
+                5855,
+                6017,
+                5908,
+                6040,
+                5800,
+                5812,
+                5775,
+                6044,
+                6046,
+                5997,
+                5784,
+                6030,
+                6043,
+                5943,
+                5965,
+                6011,
+                5828,
+                5881,
+                5947,
+                5765,
+                6048,
+                5829,
+                5833,
+                5814,
+                5885,
+                6028,
+                5841,
+                6032,
+                6019,
+                5875,
+                5838,
+                5856,
+                6025,
+                5920,
+                5861,
+                5831,
+                5848,
+                5971,
+                5859,
+                5839,
+                5903,
+                6021,
+                5844,
+                6033,
+                5811,
+                5815,
+                5905,
+                5940,
+                5799,
+                5964,
+                5945,
+                5778,
+                5821,
+                5797,
+                5950,
+                5961,
+                5849,
+                5782,
+                5810,
+                6039,
+                5978,
+                5871,
+                5942,
+                5882,
+                5923,
+                5822,
+                5819,
+                5894,
+                5907,
+                5969,
+                5986,
+                5993,
+                5790,
+                5914,
+                5998,
+                5929,
+                5939,
+                5876,
+                5922,
+                6008,
+                5955,
+                5873,
+                5930,
+                5877,
+                5771,
+                5883,
+                5837,
+                5912,
+                6005,
+                5888,
+                5842,
+                5840,
+                5970,
+                5899,
+                5994,
+                5781,
+                5999,
+                6013,
+                5963,
+                5925,
+                5962,
+                5886,
+                5789,
+                5795,
+                6016,
+                5900,
+                5767,
+                6018,
+                5887,
+                5891,
+                5898,
+                5951,
+                6000,
+                5851,
+                6029,
+                5759,
+                5896,
+                5989,
+                6034,
+                5854,
+                6022,
+                5862,
+                5984,
+                5980,
+                6006,
+                5897,
+                5921,
+                6052,
+                5813,
+                5878,
+                5787,
+                5788,
+                5793,
+                6035,
+                5901,
+                6004,
+                5872,
+                5895,
+                6002,
+                5867,
+                5991,
+                5890,
+                5863,
+                5832,
+                5935,
+                5944,
+                5958,
+                6026,
+                5972,
+                5847,
+                6003,
+                6023,
+                6012,
+                5830,
+                5924,
+                5868,
+                5807,
+                5853,
+                5996,
+                5928,
+                5857,
+                5952,
+                5902,
+                5932,
+                5933,
+                5884,
+                5927,
+                5834,
+                6045,
+                5936,
+                5948,
+                5846,
+                5937,
+                5825,
+                5858,
+                5946,
+                5918,
+                6050,
+                5818,
+                5835,
+                5934,
+                6024,
+                6015,
+                5843,
+                5823,
+                6020,
+                5866,
+                5869,
+                5904,
+                5808,
+                5910,
+                5926,
+                6038,
+                5983,
+                6042,
+                5985,
+                5780,
+                5803,
+                5880,
+                5805,
+                6041,
+                6051,
+                5804,
+                5975,
+                5992,
+                5982,
+                5953,
+                5960,
+                5979,
+                5874,
+                6007,
+                5766,
+                5995,
+                6010,
+                5801,
+                5779,
+                5917,
+                5906,
+                5826,
+                5845,
+                5954,
+                5981,
+                5976,
+                5820,
+                5836,
+                5893,
+                5777,
+                5909,
+                5949,
+                5785,
+                5827,
+                5966,
+                5864
+            ];
 
-            $del_ug = [28,30];
-            $new_ug = [23,25];
+            $del_ug = [];
+            $new_ug = [23];
+            $insertQuota = false;
             $completed = 0;
 
             $this->_db->transactionStart();
             foreach ($arr_ids as $key_user => $user_id) {
 
-                // rimuovo utente da gruppi evento
-                $query_del = "DELETE
-                                FROM #__user_usergroup_map
-                                WHERE user_id = " . $this->_db->quote($user_id) . "
-                                AND group_id IN (" . implode(',', $del_ug) . ")";
+                if (count($del_ug) > 0) {
+                    // rimuovo utente da gruppi evento
+                    $query_del = "DELETE
+                                    FROM #__user_usergroup_map
+                                    WHERE user_id = " . $this->_db->quote($user_id) . "
+                                    AND group_id IN (" . implode(',', $del_ug) . ")";
 
-                $this->_db->setQuery($query_del);
-                if (!$this->_db->execute())
-                    throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+                    $this->_db->setQuery($query_del);
+                    if (!$this->_db->execute())
+                        throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+                }
 
                 // aggiungo utente a gruppi istituzionali
                 $query_ins = "INSERT INTO #__user_usergroup_map
@@ -991,37 +941,38 @@ class gglmsControllerMt extends JControllerLegacy {
 
                 $query_ins = rtrim(trim($query_ins), ",") . ";";
                 $this->_db->setQuery($query_ins);
-                if (!$this->_db->execute())
-                    throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+                if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
 
-                // cb_ultimoannoinregola
-                $query_update = "UPDATE #__comprofiler
-                                SET cb_ultimoannoinregola = 2022
-                                WHERE user_id = " . $this->_db->quote($user_id);
-                $this->_db->setQuery($query_update);
-                if (!$this->_db->execute())
-                    throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
+                if ($insertQuota) {
+                    // cb_ultimoannoinregola
+                    $query_update = "UPDATE #__comprofiler
+                                    SET cb_ultimoannoinregola = 2024
+                                    WHERE user_id = " . $this->_db->quote($user_id);
+                    $this->_db->setQuery($query_update);
+                    if (!$this->_db->execute()) throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
 
-                $now = date('Y-m-d H:i:s');
-                $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
-                                                user_id,
-                                                anno,
-                                                tipo_quota,
-                                                tipo_pagamento,
-                                                data_pagamento,
-                                                dettagli_transazione
-                                                )
-                                            VALUES (
-                                                " . $this->_db->quote($user_id) . ",
-                                                2022,
-                                                'quota',
-                                                'bonifico',
-                                                " . $this->_db->quote($now) . ",
-                                                'Socio straordinario da Congresso 2021'
-                                            )";
-                $this->_db->setQuery($query_quote);
-                if (!$this->_db->execute())
-                    throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+                
+                    $now = date('Y-m-d H:i:s');
+                    $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
+                                                    user_id,
+                                                    anno,
+                                                    tipo_quota,
+                                                    tipo_pagamento,
+                                                    data_pagamento,
+                                                    dettagli_transazione
+                                                    )
+                                                VALUES (
+                                                    " . $this->_db->quote($user_id) . ",
+                                                    2024,
+                                                    'quota',
+                                                    'bonifico',
+                                                    " . $this->_db->quote($now) . ",
+                                                    'Socio straordinario 2024'
+                                                )";
+                    $this->_db->setQuery($query_quote);
+                    if (!$this->_db->execute()) throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+
+                }
 
                 $completed++;
 

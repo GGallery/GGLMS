@@ -49,6 +49,7 @@ defined('_JEXEC') or die('Restricted access');
             <th data-field="data_nascita" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR38'); ?></th>
             <th data-field="ultimo_anno" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR8'); ?></th>
             <th data-field="tipo_socio" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR9'); ?></th>
+            <th data-field="sinpe_dep" data-sortable="true"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR52'); ?></th>
             <th data-field="tipo_azione" data-sortable="false"><?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR10'); ?></th>
         </tr>
         </thead>
@@ -182,9 +183,9 @@ defined('_JEXEC') or die('Restricted access');
                 if (isNaN(pTest)) {
                     customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR22'); ?>")
                     return;
-                } else if (pTipoQuota != 'espen') {
-                        customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR37'); ?>")
-                        return;
+                } else if (pTipoQuota != 'espen' || pTipoQuota != 'quota') {
+                    customAlertifyAlertSimple("<?php echo JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_STR37'); ?>")
+                    return;
                 }
                 else {
 
@@ -235,7 +236,7 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
-        // da decaduto a moroso
+        // da preiscritto a moroso
         function impostaMoroso(userId) {
 
             alertify.confirm()
@@ -249,10 +250,10 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
-        // utente riabilitato al pagamento (moroso di un anno)
+        // utente riabilitato al pagamento (moroso di un anno) da preiscritto (nuovo form di registrazione)
         function eseguiImpostaMoroso(userId) {
 
-                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
+                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId, preiscritto: 1 } )
                     .done(function(results) {
 
                         // risposta non conforme
@@ -379,6 +380,7 @@ defined('_JEXEC') or die('Restricted access');
 
         }
 
+        // da decaduto a moroso
         function riabilitaDecaduto(userId) {
 
             alertify.confirm()
@@ -395,7 +397,7 @@ defined('_JEXEC') or die('Restricted access');
         // utente riabilitato al pagamento (moroso di un anno)
         function eseguiRiabilitaDecaduto(userId) {
 
-                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId} )
+                jQuery.get( "index.php?option=com_gglms&task=users.riabilita_decaduto", { user_id: userId, preiscritto: 0 } )
                     .done(function(results) {
 
                         // risposta non conforme

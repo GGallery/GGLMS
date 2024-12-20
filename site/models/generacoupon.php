@@ -81,7 +81,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
             }
 
             // se non è specificato nel form il default è coupon abilitati.
-            $data['abilitato'] = $data['abilitato'] == 'on' ? 1 : $this->_config->getConfigValue('coupon_active_default') == 0 ? 1 : 0;
+            //$data['abilitato'] = $data['abilitato'] == 'on' ? 1 : $this->_config->getConfigValue('coupon_active_default') == 0 ? 1 : 0;
+            $data['abilitato'] = ($data['abilitato'] == 'on') ? 1 : (($this->_config->getConfigValue('coupon_active_default') == 0) ? 1 : 0);
             $data['stampatracciato'] = $data['stampatracciato'] == 'on' ? 1 : 0;
             $data['trial'] = $data['trial'] == 'on' ? 1 : 0;
             $data['venditore'] = isset($data['venditore']) ? $data["venditore"] : NULL;
@@ -92,8 +93,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             // esiste gia' l'username (P.iva) ?
             $user_id = $this->_check_username((string)$data['username'], $from_api);
             // controllo se il check è andato in errore
-            if (is_array($user_id))
-                throw new RuntimeException("check username in errore:" . $user_id['error'], E_USER_ERROR);
+            if (is_array($user_id)) throw new RuntimeException("check username in errore:" . $user_id['error'], E_USER_ERROR);
 
             $company_user = null;
             $new_societa = false;
@@ -276,8 +276,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
             return $id_iscrizione;
 
         } catch (Exception $e) {
-            if ($from_api)
-                UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
+            if ($from_api) UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_response');
 
             DEBUGG::error($e, 'insert_coupon', 0, true);
             return null;

@@ -42,6 +42,9 @@ class gglmsViewdettagliutente extends JViewLegacy
     protected $quota_standard;
     protected $quota_studente;
     protected $forceIndexRedirect;
+    protected $eventVideoLocation;
+    protected $eventSinpeCookie;
+    protected $eventSinpeRandomToken;
 
     function display($tpl = null)
     {
@@ -236,9 +239,9 @@ class gglmsViewdettagliutente extends JViewLegacy
                 </script>
 HTML;
 
-            }else if ($layout == 'gestione_accesso_utenti_aic') {
+            } else if ($layout == 'gestione_accesso_utenti_aic') {
                 // nothing to do at this moment..
-            }else if ($layout == 'verifica_codice_votazione') {
+            } else if ($layout == 'verifica_codice_votazione') {
 
                 $_current_user = JFactory::getUser();
                 $this->user_id = $_current_user->id;
@@ -264,6 +267,62 @@ HTML;
 
                 }
 
+            }
+            else if ($layout == 'eventshowing') {
+
+                $getVideoParam = JRequest::getVar('cc', null);
+                if (is_null($getVideoParam)) throw new Exception("Impossibile continuare! La richiesta presenta dei paremetri incompleti.", E_USER_ERROR);
+
+                $getMatchToken = JRequest::getVar('pp', null);
+
+                $this->eventVideoLocation = Juri::base() . '/' . utilityHelper::encrypt_decrypt('decrypt', $getVideoParam, 'GGallery00!', 'GGallery00!');
+                $this->eventSinpeCookie = false;
+
+                // controllo se l'utente è un guest - in questo caso deve avere un cookie impostato prima per visualizzare il form di registrazione e poi per vedere il video
+                if ($_current_user->guest) {
+
+                    $tokenExpireTime = time() + (365 * 24 * 60 * 60); // 365 giorni * 24 ore * 60 minuti * 60 secondi
+
+                    // la persona si è registrata, ora verifico il token e libero la vista se i valori corrispondono
+                    if (!is_null($getMatchToken) && !isset($_COOKIE['event-showing-sinpe'])) {
+
+                        // cookie non salvato
+                        if (!isset($_COOKIE['tokenize-sinpe'])) throw new Exception("La registrazione dei dati è avvenuta con successo ma non è stato possibile utilizzare i cookie nel tuo browser. Verifica le tue impostazioni oppure cambia browser e riprova!", E_USER_ERROR);
+                        
+                        $decodedToken = utilityHelper::encrypt_decrypt('decrypt', $getMatchToken, 'GGallery00!', 'GGallery00!');
+                        if (strtolower($decodedToken) != strtolower($_COOKIE['tokenize-sinpe'])) throw new Exception("Non è possibile visualizzare il contenuto. I tentativi effettuati non corrispondono.", E_USER_ERROR);
+
+                        // cancello il cookie di appoggio e creo quello definitivo per accedere al contenuto
+                        setcookie('tokenize-sinpe', '', time() - 3600, '/');
+                        // imposto il cookie definitivo
+                        setcookie('event-showing-sinpe', time(), $tokenExpireTime, "/");
+                        echo <<<HTML
+                            <script type="text/javascript">
+                                window.location.reload();
+                            </script>';
+HTML;
+                        // Termina l'esecuzione dello script PHP
+                        exit();
+                    }
+                    // verifico cookie mostra video
+                    else if (isset($_COOKIE['event-showing-sinpe'])) $this->eventSinpeCookie = true;
+                    else {
+
+                        $randomTokenValue = utilityHelper::genera_stringa_randomica('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
+                        $_registration_form = outputHelper::get_show_event_video($randomTokenValue, $getVideoParam);
+                        if (!is_array($_registration_form)) throw new Exception($_registration_form, E_USER_ERROR);
+
+                        $this->eventSinpeRandomToken = utilityHelper::build_randon_token($randomTokenValue);
+
+                        setcookie('tokenize-sinpe', $randomTokenValue, $tokenExpireTime, "/");
+
+                        $this->_html = $_registration_form['success'];
+                        
+                    }
+                }
+                else {
+                    $this->eventSinpeCookie = true;
+                }
             }
 
         }

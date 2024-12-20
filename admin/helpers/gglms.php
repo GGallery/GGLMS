@@ -570,7 +570,7 @@ class gglmsHelper
             $unitid = $item['id'];
             $list_gruppi = implode(",", $request);
 
-            $query = "UPDATE #__gg_unit 
+            $query = "UPDATE #__gg_unit
                       SET " . $col . " = '" . $list_gruppi . "'
                       WHERE id = '" . $unitid . "'";
 
@@ -584,26 +584,28 @@ class gglmsHelper
 
     }
 
-    public static function SetMappaAccessoPiattaforme($item)
+    public static function SetMappaAccessoPiattaforme($item, $request)
     {
 
         try {
             $db = JFactory::getDBO();
 
             $unitid = $item['id'];
-            $list_piattaforme = $item['id_piattaforme_abilitate'];
+            $list_piattaforme = $request;
 
 
             $query_del = "DELETE FROM #__gg_piattaforma_corso_map WHERE id_unita = $unitid";
             $db->setQuery((string)$query_del);
             $db->execute();
 
-            foreach ($list_piattaforme as $value) {
-                $query = "INSERT IGNORE INTO #__gg_piattaforma_corso_map (id_unita, id_gruppo_piattaforma) values ($unitid,$value)";
+            if(!in_array("-1",$list_piattaforme)) {
+                foreach ($list_piattaforme as $value) {
+                    $query = "INSERT IGNORE INTO #__gg_piattaforma_corso_map (id_unita, id_gruppo_piattaforma) values ($unitid,$value)";
 
-                $db->setQuery((string)$query);
-                $res = $db->execute();
+                    $db->setQuery((string)$query);
+                    $res = $db->execute();
 
+                }
             }
         } catch (Exception $e) {
             echo "<pre>";
@@ -720,7 +722,7 @@ class gglmsHelper
             $unitid = $item['id'];
             $list_gruppi = implode(",", $request);
 
-            $query = "UPDATE #__gg_unit 
+            $query = "UPDATE #__gg_unit
                       SET id_gruppi_custom = '" . $list_gruppi . "'
                       WHERE id = '" . $unitid . "'";
 

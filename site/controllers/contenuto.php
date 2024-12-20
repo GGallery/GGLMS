@@ -53,7 +53,7 @@ class gglmsControllerContenuto extends JControllerLegacy
                         'uniquid' => $uniquid,
                     );
 
-        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+        //utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
         try {
             if($stato == 1){
@@ -110,7 +110,7 @@ class gglmsControllerContenuto extends JControllerLegacy
             || (int) $user_id == 0)
             $user_id = $id_utente;
 
-        utilityHelper::make_debug_log(__FUNCTION__, print_r($_REQUEST, true), __FUNCTION__);
+        //utilityHelper::make_debug_log(__FUNCTION__, print_r($_REQUEST, true), __FUNCTION__);
 
 
         $modelstato = new gglmsModelStatoContenuto();
@@ -125,7 +125,7 @@ class gglmsControllerContenuto extends JControllerLegacy
             'id_elemento' => $id_elemento
         );
 
-        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+        //utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
         try{
             $tmp->varName = 'bookmark';

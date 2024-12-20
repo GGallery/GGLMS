@@ -5,7 +5,7 @@
     </head>
     <body>
         <h1> Richiesta di assistenza {$request_type}  su {$alias}</h1>
-         <h2>Dettali richiesta:</h2>
+         <h2>Dettagli richiesta:</h2>
         <p> Nome:{$sender_name}
             <br /> Email:{$sender_email}
             <br /> Messaggio :{$message}
