@@ -408,7 +408,7 @@ class gglmsModelContenuto extends JModelLegacy
                 ->where('q.c_quiz_id = ' . (int)$quiz_id)
                 ->where('q.c_student_id = ' . $user_id)
                 ->order('q.c_passed desc')
-                ->order('c_date_time')
+                ->order('c_date_time desc')
                 ->setLimit(1);
 
             $this->_db->setQuery($query);
