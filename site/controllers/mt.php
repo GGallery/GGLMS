@@ -81,9 +81,18 @@ class gglmsControllerMt extends JControllerLegacy {
 
         try {
 
-            $userModel = new gglmsModelUsers();
-            $user = $userModel->get_user_joomla(10);
-            print_r($user->email);
+            $_params = UtilityHelper::get_params_from_module();
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'Ecco i dati necessari per effettuare il bonifico:', $_testo_pagamento_bonifico);
+
+
+            $body = <<<HTML
+                    <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
+                    {$_testo_pagamento_bonifico}
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+            echo $body;
 
         }
         catch(Exception $e) {

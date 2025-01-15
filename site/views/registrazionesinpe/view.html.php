@@ -118,7 +118,8 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 $email_default = utilityHelper::get_params_from_object($_params, "email_default");
                 $selectedUser = $userModel->get_user_joomla($this->user_id);
                 if (isset($selectedUser->email) && $selectedUser->email != '') {
-                    utilityHelper::send_sinpe_email_pp($email_default,
+                    utilityHelper::send_sinpe_email_pp(
+                                                    $email_default,
                                                     date('Y-m-d'),
                                                     "",
                                                     "",
@@ -126,7 +127,9 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                                                     0,
                                                     0,
                                                     'richiesta_bonifico_sinpe',
-                                                    $selectedUser->email);
+                                                    $selectedUser->email,
+                                                    $_params
+                                                );
                 }
 
             }
