@@ -18,8 +18,9 @@ class gglmsControllerAws extends JControllerLegacy
     protected $_config;
     protected $s3Client;
     protected $bucket;
+    protected $bucketEndpoint;
     protected $site_token;
-    
+
 
     public function __construct($config = array()){
         parent::__construct($config);
@@ -28,7 +29,7 @@ class gglmsControllerAws extends JControllerLegacy
         $this->_db = JFactory::getDbo();
         $this->_config = new gglmsModelConfig();
         $this->site_token = $this->_config->getConfigValue('aws_token');
-        
+
         if($this->site_token=='') {
             $_aws = new gglmsModelAwsToken();
             $this->site_token = $_aws->setToken();
@@ -37,15 +38,18 @@ class gglmsControllerAws extends JControllerLegacy
         $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../libraries/aws');
         $dotenv->load();
 
-        $acces_id = $_ENV['AWS_ACCESS_KEY_ID'];
+        $access_id = $_ENV['AWS_ACCESS_KEY_ID'];
         $secret_key = $_ENV['AWS_SECRET_ACCESS_KEY'];
         $region = $_ENV['AWS_DEFAULT_REGION'];
+        $this->bucketEndpoint = $_ENV['AWS_BUCKET_ENDPOINT'];
         $this->bucket = $_ENV['AWS_BUCKET'];
         $this->s3Client = new S3Client([
             'version' => 'latest',
             'region' => $region,
+            'endpoint' => $this->bucketEndpoint,
+            'use_path_style_endpoint' => true,
             'credentials' => [
-                'key' => $acces_id,
+                'key' => $access_id,
                 'secret' => $secret_key,
             ],
         ]);
@@ -63,16 +67,55 @@ class gglmsControllerAws extends JControllerLegacy
     }
 
 
-    public function loadContents($db_host = null,
-                                    $db_user = null,
-                                    $db_password = null,
-                                    $db_database = null,
-                                    $db_prefix = null,
-                                    $db_driver = null){
+//    public function loadContents($db_host = null,
+//                                    $db_user = null,
+//                                    $db_password = null,
+//                                    $db_database = null,
+//                                    $db_prefix = null,
+//                                    $db_driver = null){
+//
+//        $db_option = array();
+//        try {
+//            if (!is_null($db_host)||!is_null($db_driver)) {
+//
+//                $db_option['driver'] = $db_driver;
+//                $db_option['host'] = $db_host;
+//                $db_option['user'] = $db_user;
+//                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
+//                $db_option['database'] = $db_database;
+//                $db_option['prefix'] = $db_prefix;
+//
+//                $this->_db = JDatabaseDriver::getInstance($db_option);
+//                $this->site_token = $this->getSiteToken();
+//            }
+//            $pathRoot = utilityHelper::getSiteRoot();
+//            $this->s3Client->uploadDirectory($pathRoot.'/mediagg',
+//                $this->bucket.'/'.$this->site_token.'/mediagg',
+//                [
+//                    'before_upload' => function (\Aws\Command $command) {
+//                        $command['ACL'] = 'public-read'; // Set the ACL to public-read
+//                    }
+//                ]);
+//            echo "Directory uploaded successfully.\n";
+//            return 1;
+//
+//        } catch (S3Exception $e) {
+//            echo $e->getMessage();
+//            return 0;
+//        }
+//
+//    }
 
+    public function loadContents($db_host = null,
+                                 $db_user = null,
+                                 $db_password = null,
+                                 $db_database = null,
+                                 $db_prefix = null,
+                                 $db_driver = null)
+    {
         $db_option = array();
         try {
-            if (!is_null($db_host)||!is_null($db_driver)) {
+            if (!is_null($db_host) || !is_null($db_driver)) {
 
                 $db_option['driver'] = $db_driver;
                 $db_option['host'] = $db_host;
@@ -84,16 +127,34 @@ class gglmsControllerAws extends JControllerLegacy
                 $this->_db = JDatabaseDriver::getInstance($db_option);
                 $this->site_token = $this->getSiteToken();
             }
+
             $pathRoot = utilityHelper::getSiteRoot();
-            $this->s3Client->uploadDirectory($pathRoot.'/mediagg', $this->bucket.'/'.$this->site_token.'/mediagg');
-            echo "Directory uploaded successfully.\n";
+            $directoryPath = $pathRoot . '/mediagg';
+            $bucketPath = $this->bucket . '/' . $this->site_token . '/mediagg';
+
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($directoryPath, RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+
+            foreach ($files as $file) {
+                $filePath = $file->getRealPath();
+                $keyName = str_replace($directoryPath . '/', '', $filePath);
+
+                $this->s3Client->putObject([
+                    'Bucket' => $this->bucket,
+                    'Key' => $bucketPath . '/' . $keyName,
+                    'SourceFile' => $filePath,
+                    'ACL' => 'public-read',
+                ]);
+            }
+
+            echo "Directory uploaded successfully\n";
             return 1;
 
         } catch (S3Exception $e) {
-            echo $e->getMessage();
+            echo "Error uploading directory: " . $e->getMessage();
             return 0;
         }
-
     }
 
     private function getSiteToken(){
