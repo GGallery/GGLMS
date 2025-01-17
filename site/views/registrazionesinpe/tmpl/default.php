@@ -78,17 +78,21 @@ defined('_JEXEC') or die;
 
         jQuery(function() {
 
+            /*
             document.getElementById('email_utente').addEventListener('input', function() {
                 checkEmail(this.value);
             });
+            */
             
             document.getElementById('cb_codicefiscale').addEventListener('input', function() {
                 checkCodiceFiscale(this.value);
             });
             
+            /*
             document.getElementById('username').addEventListener('input', function() {
                 checkUsername(this.value);
             });
+            */
 
             jQuery('.datepicker').datepicker({
                 language: '<?php echo $this->dp_lang; ?>',

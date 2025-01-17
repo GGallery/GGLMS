@@ -272,11 +272,12 @@ class gglmsControllerPdf extends JControllerLegacy
 
                 $orientamento = ($attestato->orientamento != null ? $attestato->orientamento : null);
 
-
                 //ATECO calcolo codice ateco a partire da utente
                 $user_soc = $model_user->get_user_societa($user->id, true);
                 $tutor_id = $model_user->get_tutor_aziendale($user_soc[0]->id);
                 $ateco = '';
+                $piattaforma ='';
+                $dominio = '';
 
                 if ($tutor_id) {
                     $query = $db->getQuery(true)
@@ -285,9 +286,17 @@ class gglmsControllerPdf extends JControllerLegacy
                         ->where('c.user_id =' . $tutor_id);
                     $db->setQuery($query);
                     $ateco = $db->loadResult();
+
+                    $queryPiattaforma = $db->getQuery(true)
+                        ->select('mud.alias,mud.dominio')
+                        ->from('#__usergroups_details mud')
+                        ->join('inner','#__usergroups mu ON mud.group_id = mu.parent_id ')
+                        ->where('mu.id = '.$user_soc[0]->id);
+                    $db->setQuery($queryPiattaforma);
+                    $result = $db->loadAssoc();
+                    $piattaforma = $result['alias'];
+                    $dominio = $result['dominio'];
                 }
-
-
                 if ($generate_pdf == true) {
                     $model = $this->getModel('pdf');
 
@@ -299,6 +308,8 @@ class gglmsControllerPdf extends JControllerLegacy
                         $tracklog,
                         $ateco,
                         $coupon,
+                        $piattaforma,
+                        $dominio,
                         false,
                         $dati_corso);
 
@@ -313,6 +324,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->dg = $dg;
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
+                    $result_user->dominio = $dominio;
+                    $result_user->piattaforma = $piattaforma;
                     $result_user->dati_corso = $dati_corso;
                     // per modifica tipologia coupon
                     $result_user->coupon = $coupon;
