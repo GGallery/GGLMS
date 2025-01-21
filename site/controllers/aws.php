@@ -55,6 +55,50 @@ class gglmsControllerAws extends JControllerLegacy
         ]);
     }
 
+    public function putCorsConfiguration(){
+        try{
+            $corsConfiguration = [
+                'CORSRules' => [
+                    [
+                        'AllowedHeaders' => ['*'],
+                        'AllowedMethods' => ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
+                        'AllowedOrigins' => ["https://test.gallerygroup.dvl.to"],
+                        'ExposeHeaders' => ['ETag', 'Content-Length'],
+                        'MaxAgeSeconds' => 3000,
+                    ],
+                ],
+            ];
+
+            $result = $this->s3Client->putBucketCors([
+                'Bucket' => $this->bucket, // Replace with your bucket name
+                'CORSConfiguration' => $corsConfiguration,
+            ]);
+            echo "CORS configuration applied successfully.";
+        } catch (Aws\S3\Exception\S3Exception $e) {
+            echo "Error setting CORS configuration: " . $e->getMessage();
+        }
+    }
+
+    public function deleteCorsConfiguration()
+    {
+        try{$result = $this->s3Client->deleteBucketCors([
+            'Bucket' => $this->bucket, // Replace with your bucket name
+        ]);
+
+            echo "CORS configuration deleted successfully.";
+        } catch (Aws\S3\Exception\S3Exception $e) {
+            echo "Error deleting CORS configuration: " . $e->getMessage();
+        }
+    }
+
+    public function getCorsConfiguration(){
+        $result = $this->s3Client->getBucketCors([
+            'Bucket' => $this->bucket,
+        ]);
+
+        echo "CORS configuration retrieved. \n ".$result;
+    }
+
     public function readBuckets(){
         try {
             $buckets = $this->s3Client->listBuckets();
@@ -65,46 +109,6 @@ class gglmsControllerAws extends JControllerLegacy
             echo $e->getMessage();
         }
     }
-
-
-//    public function loadContents($db_host = null,
-//                                    $db_user = null,
-//                                    $db_password = null,
-//                                    $db_database = null,
-//                                    $db_prefix = null,
-//                                    $db_driver = null){
-//
-//        $db_option = array();
-//        try {
-//            if (!is_null($db_host)||!is_null($db_driver)) {
-//
-//                $db_option['driver'] = $db_driver;
-//                $db_option['host'] = $db_host;
-//                $db_option['user'] = $db_user;
-//                $db_option['password'] = utilityHelper::encrypt_decrypt('decrypt', $db_password, "GGallery00!", "GGallery00!");
-//                $db_option['database'] = $db_database;
-//                $db_option['prefix'] = $db_prefix;
-//
-//                $this->_db = JDatabaseDriver::getInstance($db_option);
-//                $this->site_token = $this->getSiteToken();
-//            }
-//            $pathRoot = utilityHelper::getSiteRoot();
-//            $this->s3Client->uploadDirectory($pathRoot.'/mediagg',
-//                $this->bucket.'/'.$this->site_token.'/mediagg',
-//                [
-//                    'before_upload' => function (\Aws\Command $command) {
-//                        $command['ACL'] = 'public-read'; // Set the ACL to public-read
-//                    }
-//                ]);
-//            echo "Directory uploaded successfully.\n";
-//            return 1;
-//
-//        } catch (S3Exception $e) {
-//            echo $e->getMessage();
-//            return 0;
-//        }
-//
-//    }
 
     public function loadContents($db_host = null,
                                  $db_user = null,
@@ -180,7 +184,7 @@ class gglmsControllerAws extends JControllerLegacy
     }
 
     public function getAwsMediaUrl(){
-        $s3Url = 'https://bucket-gal.s3.us-east-2.amazonaws.com/'.$this->site_token;
+        $s3Url = $this->bucketEndpoint .'/'.$this->bucket.'/mediagg'.'/'.$this->site_token;
 
         return $s3Url;
     }
