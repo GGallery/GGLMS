@@ -184,7 +184,7 @@ class gglmsControllerAws extends JControllerLegacy
     }
 
     public function getAwsMediaUrl(){
-        $s3Url = $this->bucketEndpoint .'/'.$this->bucket.'/mediagg'.'/'.$this->site_token;
+        $s3Url = $this->bucketEndpoint .'/'.$this->bucket.'/'.$this->site_token;  //../mediagg ecc...
 
         return $s3Url;
     }
