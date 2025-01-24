@@ -3003,6 +3003,11 @@ HTML;
                     </div>
 
                     <div class="form-group row">
+                      <label class="col-sm-2 col-form-label"></label>
+                      <div class="col-sm-10" style="font-style: italic;">*Se sei un neolaureato ancora in attesa del numero di iscrizione, compila il campo scrivendo "0000". Potrai aggiornare il campo accedendo a "Il tuo profilo"</div>
+                    </div>
+
+                    <div class="form-group row">
                       <label for="numero_albo" class="col-sm-2 col-form-label">{$_label_numero_albo}<span class="text-danger">*</span></label>
                       <div class="col-sm-10">
                         <input class="form-control w-25 campi_professione" type="text" id="numero_albo" data-campo="{$_cb_numero_albo}" />
