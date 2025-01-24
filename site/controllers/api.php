@@ -2869,6 +2869,7 @@ HTML;
                 // controllo esistenza utente per codice fiscale
                 $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $cf_utente);
                 $isDecaduto = false;
+                $isSoloEvento = false;
                 $newUserId = null;
                 $fileExt = null;
                 $cvData = null;
