@@ -23,7 +23,7 @@ echo "<h1 class='hd-title'> Help Desk " . $this->info_piattaforma->alias . "</h1
             <div class="col-sm-12">
                 <div> <span title='email' class='glyphicon glyphicon-envelope info-icon'
                     ></span> <b><a
-                                href="<?php echo $this->info_piattaforma->email_riferimento ?>"><?php echo $this->info_piattaforma->email_riferimento ?></a></b>
+                                href="mailto:<?php echo $this->info_piattaforma->email_riferimento ?>"><?php echo $this->info_piattaforma->email_riferimento ?></a></b>
                 </div>
             </div>
         </div>
