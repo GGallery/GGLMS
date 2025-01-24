@@ -68,16 +68,15 @@ class gglmsViewdettagliutente extends JViewLegacy
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css');
             JHtml::_('stylesheet', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css');
             JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css');
-
+            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+            
             JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
             JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js');
 
             if ($bootstrap_dp != "")
                 JHtml::_('script', $bootstrap_dp);
 
-            JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
-
 
             JHtml::_('script', 'https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js');
             JHtml::_('script', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js');

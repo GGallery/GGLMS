@@ -36,8 +36,8 @@ class gglmsViewZoom extends JViewLegacy {
 
 
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/bootstrap.min.css');
+            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
             JHtml::_('script', 'components/com_gglms/libraries/js/bootstrap.min.js');
-            JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
 
             $_config = new gglmsModelConfig();
             $this->api_key = $_config->getConfigValue('zoom_api_key');
