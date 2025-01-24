@@ -2947,11 +2947,11 @@ HTML;
 
                     if($isSoloEvento){
                         //lo rimuovo dal gruppo solo evento
-                    $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
-                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                        $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
+                        if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
-                    $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
-                    if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                        $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
+                        if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
                     }
                 }
                 else {
