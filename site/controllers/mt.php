@@ -105,6 +105,82 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function asand_remove_ug_quote_year() {
+
+        $startTransaction = false;
+
+        try {
+
+            $_params = utilityHelper::get_params_from_plugin('cb.checksociasand');
+
+            $ug_categoria = utilityHelper::get_ug_from_object($_params, "ug_categoria");
+
+            if ($ug_categoria == "") 
+                throw new Exception("Gruppi quota utente non valorizzati", E_USER_ERROR);
+
+            $query_sel = "
+                SELECT 
+                    comp.user_id, 
+                    comp.cb_ultimoannoinregola
+                    
+                FROM 
+                    #__comprofiler comp
+                WHERE 
+                    comp.user_id IN (
+                        SELECT DISTINCT user_id
+                        FROM #__user_usergroup_map
+                        WHERE group_id IN (". $ug_categoria .")
+                    )
+                    AND comp.cb_ultimoannoinregola != \"" . $this->_filterparam->anno_ref . "\"
+            ";
+
+            $this->_db->setQuery($query_sel);
+            $checkQuotes = $this->_db->loadAssocList();
+
+            if (count($checkQuotes) == 0) 
+                throw new Exception("Nessuna quota utente trovata per l'elaborazione", E_USER_ERROR);
+            
+            $attemptAttended = count($checkQuotes);
+            $attemptCounter = 0;
+
+            $this->_db->transactionStart();
+            $startTransaction = true;
+
+            foreach ($checkQuotes as $keyQuota => $singleQuota) {
+
+                // rimuovo quota
+                $query_del = "DELETE
+                                FROM #__user_usergroup_map
+                                WHERE user_id = " . $this->_db->quote($singleQuota['user_id']) . "
+                                AND group_id IN (". $ug_categoria .")";
+
+                $this->_db->setQuery($query_del);
+                if (!$this->_db->execute()) throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+
+                $attemptCounter++;
+
+            }
+
+            $this->_db->transactionCommit();
+
+            $debugMsg = "TOTALI: " . $attemptAttended . " | ELABORATI: " . $attemptCounter;
+            utilityHelper::make_debug_log(__FUNCTION__, $debugMsg, __FUNCTION__);
+
+            echo $debugMsg;
+
+        }
+        catch(Exception $e) {
+
+            if ($startTransaction) $this->_db->transactionRollback();
+
+            echo $e->getMessage();
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+        }
+
+        $this->_japp->close();
+
+    }
+
     // rimuove massivamente gli aderenti alla quota standard e quella studente
     public function asand_remove_ug_quote() {
 
@@ -116,7 +192,8 @@ class gglmsControllerMt extends JControllerLegacy {
 
             $ug_categoria = utilityHelper::get_ug_from_object($_params, "ug_categoria");
 
-            if ($ug_categoria == "") throw new Exception("Gruppi quota utente non valorizzati", E_USER_ERROR);
+            if ($ug_categoria == "") 
+                throw new Exception("Gruppi quota utente non valorizzati", E_USER_ERROR);
 
             $query_sel = "SELECT user_id, group_id
                                 FROM #__user_usergroup_map
@@ -127,7 +204,8 @@ class gglmsControllerMt extends JControllerLegacy {
             $this->_db->setQuery($query_sel);
             $checkQuotes = $this->_db->loadAssocList();
 
-            if (count($checkQuotes) == 0) throw new Exception("Nessuna quota utente trovata per l'elaborazione", E_USER_ERROR);
+            if (count($checkQuotes) == 0) 
+                throw new Exception("Nessuna quota utente trovata per l'elaborazione", E_USER_ERROR);
             
             $attemptAttended = count($checkQuotes);
             $attemptCounter = 0;
@@ -142,6 +220,8 @@ class gglmsControllerMt extends JControllerLegacy {
                                 FROM #__user_usergroup_map
                                 WHERE user_id = " . $this->_db->quote($singleQuota['user_id']) . "
                                 AND group_id = " . $this->_db->quote($singleQuota['group_id']);
+
+                echo $query_del; die();
 
                 $this->_db->setQuery($query_del);
                 if (!$this->_db->execute()) throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
