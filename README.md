@@ -3,6 +3,9 @@
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
+# 4.2.5
+* D: modifica ed integrazione dell'elenco professione disciplina ECM
+
 # 4.2.4
 * D: aggiunta tabella gg_cod_votazioni_users
 * D: aggiunta tabella gg_votazioni_candidati
