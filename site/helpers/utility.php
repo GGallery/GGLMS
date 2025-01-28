@@ -1293,11 +1293,15 @@ class utilityHelper
                         $lastFarmUg = $last_farmacia['id_gruppo'];
                     }
                     else $lastFarmUg = $farmacia_id_old;
-
                     // rimuovo utente dal vecchio gruppo
+                    if(is_null($lastFarmUg)) {
+                        var_dump($check_user_id);
+                        }
+
+                    if(!is_null($lastFarmUg)) {
                     $remove_ug_user = self::remove_user_from_usergroup($check_user_id, (array) $lastFarmUg, $db_option);
                     if (is_null($remove_ug_user)) throw new Exception("Errore durante la rimozione dell'utente " . $check_user_id . " da gruppo: " . $last_farmacia['id_gruppo'], E_USER_ERROR);
-
+                    }
                     // ha cambiato farmacia (o non c'è nessun riferimento)
                     $user_farmacia = $model_user->insert_user_farmacia($check_user_id, $ug_farmacia, $cb_codice_esterno_cdc_3, $cb_data_inizio_rapporto, $cb_data_licenziamento, $db_option);
                     if (is_null($user_farmacia)) throw new Exception("Inserimento user_farmacia fallito per user_id: " . $check_user_id, E_USER_ERROR);
@@ -2900,101 +2904,101 @@ HTML;
                         $_row_value = trim($value_cell->getValue());
 
                         // 2 - azienda
-                        if ($num_cell == 0)
+                        if ($num_cell == 1)
                             $rows_arr[$counter][2] = $_row_value;
 
                         // 3 - filiale
-                        if ($num_cell == 1)
+                        if ($num_cell == 2)
                             $rows_arr[$counter][3] = $_row_value;
 
                         // 4- ragione sociale
-                        if ($num_cell == 2)
+                        if ($num_cell == 3)
                             $rows_arr[$counter][4] = $_row_value;
 
                         // 5 - descrizione filiale
                         $rows_arr[$counter][5] = "";
 
                         // 6 - matricola
-                        if ($num_cell == 3)
+                        if ($num_cell == 4)
                             $rows_arr[$counter][6] = $_row_value;
 
                         // 7 - cognome
-                        if ($num_cell == 4)
+                        if ($num_cell == 5)
                             $rows_arr[$counter][7] = $_row_value;
 
                         // 8 - nome
-                        if ($num_cell == 5)
+                        if ($num_cell == 6)
                             $rows_arr[$counter][8] = $_row_value;
 
                         // 9 - codice fiscale
-                        if ($num_cell == 6)
+                        if ($num_cell == 7)
                             $rows_arr[$counter][9] = $_row_value;
 
                         // 10 - data di nascita
-                        if ($num_cell == 7)
+                        if ($num_cell == 8)
                             $rows_arr[$counter][10] = $_row_value;
 
                         // 11 - codice comune di nascita
-                        if ($num_cell == 8)
+                        if ($num_cell == 9)
                             $rows_arr[$counter][11] = $_row_value;
 
                         // 12 - comune di nascita
-                        if ($num_cell == 9)
+                        if ($num_cell == 10)
                             $rows_arr[$counter][12] = $_row_value;
 
                         // 13 - provincia di nascita
-                        if ($num_cell == 10)
+                        if ($num_cell == 11)
                             $rows_arr[$counter][13] = $_row_value;
 
                         // 14 - indirizzo di residenza
-                        if ($num_cell == 11)
+                        if ($num_cell == 12)
                             $rows_arr[$counter][14] = $_row_value;
 
                         // 15 - cap di residenza
                         $rows_arr[$counter][15] = "";
 
                         // 16 - comune di residenza
-                        if ($num_cell == 12)
+                        if ($num_cell == 13)
                             $rows_arr[$counter][16] = $_row_value;
 
                         // 17 - provincia di residenza
-                        if ($num_cell == 13)
+                        if ($num_cell == 14)
                             $rows_arr[$counter][17] = $_row_value;
 
                         // 18 - data assunzione
-                        if ($num_cell == 14)
+                        if ($num_cell == 15)
                             $rows_arr[$counter][18] = $_row_value;
 
                         // 19 - data licenziamento - in questo caso data termine contratto
-                        if ($num_cell == 15)
+                        if ($num_cell == 16)
                             $rows_arr[$counter][19] = $_row_value;
 
                         // 20 - stato del dipendente
-                        if ($num_cell == 16)
+                        if ($num_cell == 17)
                             $rows_arr[$counter][20] = $_row_value;
 
                         // 21 - descrizione qualifica
-                        if ($num_cell == 17)
+                        if ($num_cell == 18)
                             $rows_arr[$counter][22] = $_row_value;
 
                         // 22 - email
-                        if ($num_cell == 18)
+                        if ($num_cell == 19)
                             $rows_arr[$counter][23] = $_row_value;
 
                         // 23 - codice esterno cdc 2
-                        if ($num_cell == 19)
+                        if ($num_cell == 20)
                             $rows_arr[$counter][24] = $_row_value;
 
                         // 24 - codice esterno cdc 3
-                        if ($num_cell == 20)
+                        if ($num_cell == 21)
                             $rows_arr[$counter][25] = $_row_value;
 
                         // 25 - codice esterno rep 2
-                        if ($num_cell == 21)
+                        if ($num_cell == 22)
                             $rows_arr[$counter][26] = $_row_value;
 
                         // 21 - Cod.tab.qualifica
-                        if ($num_cell == 22)
+                        if ($num_cell == 23)
                             $rows_arr[$counter][21] = $_row_value;
 
                         // 26 - data inizio rapporti
@@ -4262,7 +4266,7 @@ HTML;
 
     public static function log_to_file($function, $message, $filename){
         $msg = $function.': '.$message;
-        
+
         error_log($msg.PHP_EOL,3,$filename);
     }
 
