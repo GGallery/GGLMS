@@ -2869,6 +2869,7 @@ HTML;
                 // controllo esistenza utente per codice fiscale
                 $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $cf_utente);
                 $isDecaduto = false;
+                $isSoloEvento = false;
                 $newUserId = null;
                 $fileExt = null;
                 $cvData = null;
@@ -2900,11 +2901,14 @@ HTML;
                         throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
                     // se decaduto
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) 
+                        $isDecaduto = true;
 
                     // se solo evento
-                    if(utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) $isSoloEvento=true;
-                    else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) 
+                        $isSoloEvento = true;
+
+                    //else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
                 }
 
                 if (isset($decoded['userImage'])) {
@@ -2943,11 +2947,11 @@ HTML;
 
                     if($isSoloEvento){
                         //lo rimuovo dal gruppo solo evento
-                    $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
-                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                        $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
+                        if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
-                    $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
-                    if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                        $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
+                        if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
                     }
                 }
                 else {

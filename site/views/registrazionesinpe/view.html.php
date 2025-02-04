@@ -60,7 +60,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
             if ($bootstrap_dp != "")
                 JHtml::_('script', $bootstrap_dp);
 
-            JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
+            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 
 
@@ -100,7 +100,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 $userModel = new gglmsModelUsers();
                 $_user_details = $userModel->get_user_details_cb($this->user_id);
                 if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
-                
+
                 $totale_sinpe = JRequest::getVar('totale_sinpe');
                 $totale_espen = JRequest::getVar('totale_espen');
 
@@ -118,7 +118,8 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 $email_default = utilityHelper::get_params_from_object($_params, "email_default");
                 $selectedUser = $userModel->get_user_joomla($this->user_id);
                 if (isset($selectedUser->email) && $selectedUser->email != '') {
-                    utilityHelper::send_sinpe_email_pp($email_default,
+                    utilityHelper::send_sinpe_email_pp(
+                                                    $email_default,
                                                     date('Y-m-d'),
                                                     "",
                                                     "",
@@ -126,7 +127,9 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                                                     0,
                                                     0,
                                                     'richiesta_bonifico_sinpe',
-                                                    $selectedUser->email);
+                                                    $selectedUser->email,
+                                                    $_params
+                                                );
                 }
 
             }
@@ -138,11 +141,11 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                     throw new Exception("Nessun parametro definito", E_USER_ERROR);
 
                 $decryptedToken = utilityHelper::decrypt_random_token($pp);
-                
+
                 $parsedToken = explode("|==|", $decryptedToken);
                 if (count($parsedToken) < 2) throw new Exception("Il token non è valido, impossibile processare la richiesta di iscrizione", E_USER_ERROR);
                 if (!isset($parsedToken[0]) || !is_numeric($parsedToken[0])) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
-                
+
                 $this->hide_pp = false;
 
                 $userModel = new gglmsModelUsers();
@@ -160,7 +163,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
 
                 $_anno_corrente = $dt->format('Y');
                 // se ultimo anno non è valorizzato richiedo il pagamento dell'anno corrente
-                //$this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);  
+                //$this->ultimo_anno_pagato = $_user_details['ultimo_anno_pagato'] > 0 ? $_user_details['ultimo_anno_pagato'] : ($_anno_corrente-1);
                 $this->ultimo_anno_pagato = $_anno_corrente-1;
 
                 // verifico la presenza del voucher di pagamento - in questo caso iscrivo l'utente senza richiedere pagamento
@@ -195,7 +198,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
 
                     $deleteFromMoroso = $userModel->deleteUserFromUserGroup($this->user_id, $removeUserGroupId);
                     if (is_null($deleteFromMoroso)) throw new Exception("Si è verificato un errore durante la rimozione dell'utente dal gruppo Moroso", E_USER_ERROR);
-                
+
                     // inserisco in preiscritto
                     $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
                     if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
@@ -223,7 +226,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 }
 
             }
-            
+
 
         } catch (Exception $e){
 

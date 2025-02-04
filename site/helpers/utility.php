@@ -1073,7 +1073,7 @@ class utilityHelper
 
             // fix necessario per prima dove il corso padre è il 2 e non l'1
             $currentUrl = JUri::getInstance();
-            
+
             if ($id_corso == ""
                 || ($id_corso == 1 && !strpos($currentUrl, 'primaelearning.it'))
                 || !isset($id_corso))
@@ -1839,12 +1839,12 @@ HTML;
     public static function get_update_query($_table, $_new_user_cp, $where) {
 
         $query = "UPDATE #__" . $_table . " SET ";
-        
+
         $counter = 0;
         foreach ($_new_user_cp as $key => $value) {
             $query .= $key . ' = ' . '\''. $value .'\'';
 
-            if ($counter < count($_new_user_cp)-1) { 
+            if ($counter < count($_new_user_cp)-1) {
                 $query .= ', ';
             }
 
@@ -2168,7 +2168,8 @@ HTML;
                                                $totale_sinpe,
                                                $totale_espen=0,
                                                $template="rinnovo",
-                                               $extraEmail = null) {
+                                               $extraEmail = null,
+                                               $_params = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2201,7 +2202,7 @@ HTML;
         else if ($template == "voucher_sinpe")
             $oggetto = "SINPE - Effettuato nuovo pagamento quota con voucher";
 
-        if ($template != 'preiscritto' 
+        if ($template != 'preiscritto'
             && $template != 'richiesta_bonifico_sinpe'
             && $template != 'conferma_bonifico_sinpe'
             && $template != 'voucher_sinpe') {
@@ -2224,19 +2225,27 @@ HTML;
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;
-        else if ($template == 'richiesta_bonifico_sinpe')
+        else if ($template == 'richiesta_bonifico_sinpe') {
+            // cablatura del testo con il plugin di cb checksoci
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'Ecco i dati necessari per effettuare il bonifico:', $_testo_pagamento_bonifico);
+
+            /*
+            <p>Ecco i dati necessari per effettuare il bonifico:</p>
+            <p>
+            Banca Intesa San Paolo Spa<br />
+            IBAN: IT17K0306909606100000403014<br />
+            SWIFT: BCITITMM<br />
+            BENEFICIARIO: SINPE – Società Italiana di Nutrizione Artificiale e Metabolismo<br />
+            </p>
+            */
             $body = <<<HTML
                     <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
-                    <p>Ecco i dati necessari per effettuare il bonifico:</p>
-                    <p>
-                    BANCO DI CREDITO AZZOAGLIO S.P.A.<br />
-                    FILIALE DI CENGIO<br />
-                    IBAN: IT03E0342549370000000011990<br />
-                    BENEFICIARIO: GGALLERY SRL<br />
-                    </p>
+                    {$_testo_pagamento_bonifico}
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;
+        }
         else if ($template == 'conferma_bonifico_sinpe')
             $body = <<<HTML
                     <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>
@@ -2393,7 +2402,7 @@ HTML;
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
             $modelUser = new gglmsModelUsers();
-            
+
             foreach ($_arr_remove as $key => $d_group_id) {
                 $modelUser->deleteUserFromUserGroup($user_id,$d_group_id);
             }
@@ -3562,7 +3571,7 @@ HTML;
             'application/zip' => 'zip',
             'application/pdf' => 'pdf',
         ];
-    
+
         return $mime_map[$mime] ?? null;
     }
     public static function arr_to_json($_obj) {
