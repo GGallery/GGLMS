@@ -865,6 +865,34 @@ CREATE TABLE `#__gg_quote_voucher` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for `#__gg_cod_votazioni_users`
+-- ----------------------------
+
+DROP TABLE IF EXISTS `#__gg_cod_votazioni_users`;
+CREATE TABLE `#__gg_cod_votazioni_users` (
+  `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_user` varchar(100) NOT NULL,
+  `codice` varchar(100) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`,`id_user`, `codice`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_quote_voucher`
+-- ----------------------------
+
+DROP TABLE IF EXISTS `#__gg_quote_voucher`;
+CREATE TABLE `#__gg_quote_voucher` (
+      `id`  int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+      `id_user` varchar(100) NOT NULL,
+      `id_candidato` varchar(100) NOT NULL,
+      `codice` varchar(100) NOT NULL,
+      `dettagli` varchar(100) DEFAULT NULL,
+      `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`,`id_user`, `codice`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
 -- colonne custom di #__comprofiler
 -- auto popolamento dei campi di Community Builder
 -- ----------------------------
