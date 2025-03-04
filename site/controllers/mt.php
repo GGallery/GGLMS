@@ -81,9 +81,18 @@ class gglmsControllerMt extends JControllerLegacy {
 
         try {
 
-            $userModel = new gglmsModelUsers();
-            $user = $userModel->get_user_joomla(10);
-            print_r($user->email);
+            $_params = UtilityHelper::get_params_from_module();
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'Ecco i dati necessari per effettuare il bonifico:', $_testo_pagamento_bonifico);
+
+
+            $body = <<<HTML
+                    <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
+                    {$_testo_pagamento_bonifico}
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+            echo $body;
 
         }
         catch(Exception $e) {
@@ -143,20 +152,108 @@ class gglmsControllerMt extends JControllerLegacy {
 
     }
 
+    public function sinpe_set_onorari()
+    {
+
+        try {
+
+            if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) 
+                throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
+            
+            if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->new_ug)) 
+                throw new Exception("Riferimento gruppo corrente non specificato", E_USER_ERROR);
+
+            if (!isset($this->_filterparam->check_ug) || $this->_filterparam->check_ug == "") 
+                throw new Exception("Riferimento gruppo in rimozione non specificato", E_USER_ERROR);
+
+            // onorario
+            $current_ug = $this->_filterparam->del_ug;
+            // online
+            $new_ug = $this->_filterparam->new_ug;
+            // gruppi da cui rimuovere
+            $check_ug = $this->_filterparam->check_ug;
+            // anno corrente
+            $annoRef = date('Y');
+            $ordinariArr = [];
+
+            // controllo ordinari
+            $query_sel = "SELECT user_id
+                FROM #__user_usergroup_map
+                WHERE group_id = " . $this->_db->quote($current_ug);
+
+            $this->_db->setQuery($query_sel);
+            $ordinariRows = $this->_db->loadAssocList();
+
+            if (empty($ordinariRows)) 
+                throw new Exception("Nessun risultato per " . $current_ug, E_USER_ERROR);
+
+            foreach($ordinariRows as $keyOrd => $ord) {
+                $ordinariArr[] = $ord['user_id'];
+            }
+
+            // cancello ordinari da eventuali gruppi non in regola
+            $query_del = "DELETE
+                FROM #__user_usergroup_map
+                WHERE user_id IN (" . implode(",", $ordinariArr) . ")
+                AND group_id IN (" . $check_ug .")";
+
+
+            $this->_db->setQuery($query_del);
+            if (!$this->_db->execute()) 
+                throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+
+            $completed = 0;
+
+            $this->_db->transactionStart();
+
+            foreach ($ordinariArr as $user_id) {
+
+                // aggiungo user in online
+                $query_ins = "INSERT INTO #__user_usergroup_map (user_id, group_id)
+                                VALUES (" . $this->_db->quote($user_id) . ", " . $this->_db->quote($new_ug) . ")";
+
+                $this->_db->setQuery($query_ins);
+                if (!$this->_db->execute()) 
+                    throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+
+                // aggiorno ultimo anno pagamento
+                $query_update = "UPDATE #__comprofiler
+                    SET cb_ultimoannoinregola = " . $this->_db->quote($annoRef) . "
+                    WHERE user_id = " . $this->_db->quote($user_id);
+
+                $this->_db->setQuery($query_update);
+                if (!$this->_db->execute())
+                    throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
+
+                $completed++; 
+
+            }
+
+            $this->_db->transactionCommit();
+
+            echo "TOTALI: " . count($ordinariRows) . " | ELABORATI: " . $completed;
+
+        }
+        catch(Exception $e) {
+            $this->_db->transactionRollback();
+            echo "ERRORE: " . $e->getMessage();
+        }
+
+        $this->_japp->close();
+
+    }
+
     public function sinpe_set_morosi()
     {
         try {
 
 
             //if (!isset($this->_filterparam->anno_ref) || $this->_filterparam->anno_ref == "" || !is_numeric($this->_filterparam->anno_ref)) throw new Exception("Anno di riferimento non indicato", E_USER_ERROR);
-            if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->del_ug)) throw new Exception("Riferimento gruppo in eliminazione non specificato", E_USER_ERROR);
-            if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
-
-            /*
-            $arr_ids = array(9,22,23,40,44,48,54,56,62,64,65,80,81,100,101,104,119,126,139,143,153,188,198,220,225,235,236,248,250,252,262,266,269,271,275,287,301,320,322,327,361,390,395,401,436,465,473,481,491,510,517,529,538,542,587,600,632,658,665,707,731,733,746,747,767,778,780,788,820,850,872,873,878,886,906,911,927,946,951,958,998,999,1008,1017,1027,1028,1041,1045,1049,1055,1061,1088,1094,1101,1108,1110,1111,1117,1119,1135,1136,1143,1176,1202,1230,1255,1260,1361,1402,1457,1482,1583,1587,1629,1674,1711,1719,1720,1722,1741,1785,1852,1854,1920,1921,1928,1942,1964,2017,2020,2027,3051,3116,3171,3237,3243,3275,3350,3405,3434,3440,3445,3486,3490,3502,3590,3603,3607,3610,3656,3658,3665,3668,3675,3680,3685,3686,3698,3708,3739,3777,3816,3858,3977,3984,3987,4140,4194,4222,4268,4327,4360,4387,4388,4413,4420,4422,4427,4435,4438,4439,4440,4444,4446,4470,4479,4481,4482,4495,4497,4502,4510,4514,4520,4554,4566,4578,4588,4627,4628,4664,4812,4854,4856);
-            $del_ug = 23;
-            $new_ug = 20;
-            */
+            if (!isset($this->_filterparam->del_ug) || $this->_filterparam->del_ug == "" || !is_numeric($this->_filterparam->del_ug)) 
+                throw new Exception("Riferimento gruppo in eliminazione non specificato", E_USER_ERROR);
+            
+            if (!isset($this->_filterparam->new_ug) || $this->_filterparam->new_ug == "" || !is_numeric($this->_filterparam->new_ug)) 
+                throw new Exception("Riferimento gruppo in inserimento non specificato", E_USER_ERROR);
 
             // online
             $del_ug = $this->_filterparam->del_ug;

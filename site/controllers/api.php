@@ -2869,6 +2869,7 @@ HTML;
                 // controllo esistenza utente per codice fiscale
                 $comprofilerCheck = utilityHelper::check_comprofiler_by_column_row('cb_codicefiscale', $cf_utente);
                 $isDecaduto = false;
+                $isSoloEvento = false;
                 $newUserId = null;
                 $fileExt = null;
                 $cvData = null;
@@ -2900,11 +2901,14 @@ HTML;
                         throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
                     // se decaduto
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) $isDecaduto = true;
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) 
+                        $isDecaduto = true;
 
                     // se solo evento
-                    if(utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) $isSoloEvento=true;
-                    else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) 
+                        $isSoloEvento = true;
+
+                    //else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
                 }
 
                 if (isset($decoded['userImage'])) {
@@ -2943,11 +2947,11 @@ HTML;
 
                     if($isSoloEvento){
                         //lo rimuovo dal gruppo solo evento
-                    $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
-                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
+                        $userGroupId = utilityHelper::check_usergroups_by_name("Solo_eventi");
+                        if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup valido", E_USER_ERROR);
 
-                    $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
-                    if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                        $insert_ug = $userModel->deleteUserFromUserGroup($newUserId, $userGroupId);
+                        if (is_null($insert_ug)) throw new Exception("Eliminazione utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
                     }
                 }
                 else {
@@ -4533,6 +4537,75 @@ HTML;
 
         $this->sendResponse('success', $response);
 
+    }
+
+    //stringa per unificare le aziende per il database di fiaso
+    private $fiasoAzQuery = "CASE
+        WHEN com.cb_azabruzzo IS NOT NULL THEN com.cb_azabruzzo
+        WHEN com.cb_azbasilicata IS NOT NULL THEN com.cb_azbasilicata
+        WHEN com.cb_azcalabria IS NOT NULL THEN com.cb_azcalabria
+        WHEN com.cb_azcampania IS NOT NULL THEN com.cb_azcampania
+        WHEN com.cb_azemiliaromagna IS NOT NULL THEN com.cb_azemiliaromagna
+        WHEN com.cb_azfriuli IS NOT NULL THEN com.cb_azfriuli
+        WHEN com.cb_azlazio IS NOT NULL THEN com.cb_azlazio
+        WHEN com.cb_azliguria IS NOT NULL THEN com.cb_azliguria
+        WHEN com.cb_azlombardia IS NOT NULL THEN com.cb_azlombardia
+        WHEN com.cb_az_marche IS NOT NULL THEN com.cb_az_marche
+        WHEN com.cb_az_piemonte IS NOT NULL THEN com.cb_az_piemonte
+        WHEN com.cb_az_molise IS NOT NULL THEN com.cb_az_molise
+        WHEN com.cb_az_provbolzano IS NOT NULL THEN com.cb_az_provbolzano
+        WHEN com.cb_az_provtrento IS NOT NULL THEN com.cb_az_provtrento
+        WHEN com.cb_azpuglia IS NOT NULL THEN com.cb_azpuglia
+        WHEN com.cb_azsardegna IS NOT NULL THEN com.cb_azsardegna
+        WHEN com.cb_azsicilia IS NOT NULL THEN com.cb_azsicilia
+        WHEN com.cb_aztoscana IS NOT NULL THEN com.cb_aztoscana
+        WHEN com.cb_azumbria IS NOT NULL THEN com.cb_azumbria
+        WHEN com.cb_azveneto IS NOT NULL THEN com.cb_azveneto
+        ELSE NULL
+    END";
+
+    public function getReportCorsoFiaso(){
+        $japp = JFactory::getApplication();
+        $db = JFactory::getDBO();
+
+
+        $selectFields = 'com.cb_nome as nome, com.cb_cognome as cognome, com.cb_codicefiscale as cf, com.cb_professionedisciplina as professione, u.email as email,
+    cb_ordine as ordine, cb_numeroiscrizione as iscrizione, cb_regioneazienda as regioneAz, (' . $this->fiasoAzQuery . ') AS azienda, u.registerDate as registrazione,
+    CASE
+        WHEN gr.stato = 1 THEN "superato"
+        WHEN gr.stato = 0 THEN "non superato"
+        ELSE "non superato"
+    END AS stato';
+
+// Single query to get both users who completed and did not complete the course
+        $combinedQuery = $db->getQuery(true)
+            ->select($selectFields)
+            ->from('#__users u')
+            ->join('LEFT', '#__comprofiler com ON com.user_id = u.id')
+            ->join('LEFT', '#__gg_report gr ON gr.id_utente = u.id AND gr.id_contenuto = 54')
+            ->order('com.cb_cognome ASC');
+
+        $db->setQuery($combinedQuery);
+        $allUsers = $db->loadObjectList();
+
+        //$users = $db->loadObjectList();
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="report.csv"');
+
+        $output = fopen('php://output', 'w');
+
+        fputcsv($output, ['Cognome', 'Nome', 'Codice Fiscale', 'Professione', 'Email','Ordine','Numero iscrizione','Regione Azienda','Azienda','Data di registrazione','Stato Corso']);
+
+
+
+        foreach ($allUsers as $user) {
+            $data= strtotime($user->registrazione);
+            fputcsv($output, [$user->cognome, $user->nome, $user->cf, $user->professione, $user->email, $user->ordine,$user->iscrizione, $user->regioneAz, $user->azienda,date("d/m/Y",$data), $user->stato]);
+        }
+
+        fclose($output);
+        $japp->close();
     }
 
 

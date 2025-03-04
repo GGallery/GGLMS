@@ -71,7 +71,7 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
             if ($bootstrap_dp != "")
                 JHtml::_('script', $bootstrap_dp);
 
-            JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
+            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 
 

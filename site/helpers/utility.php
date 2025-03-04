@@ -2168,7 +2168,8 @@ HTML;
                                                $totale_sinpe,
                                                $totale_espen=0,
                                                $template="rinnovo",
-                                               $extraEmail = null) {
+                                               $extraEmail = null,
+                                               $_params = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2224,19 +2225,27 @@ HTML;
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;
-        else if ($template == 'richiesta_bonifico_sinpe')
+        else if ($template == 'richiesta_bonifico_sinpe') {
+            // cablatura del testo con il plugin di cb checksoci
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'Ecco i dati necessari per effettuare il bonifico:', $_testo_pagamento_bonifico);
+
+            /*
+            <p>Ecco i dati necessari per effettuare il bonifico:</p>
+            <p>
+            Banca Intesa San Paolo Spa<br />
+            IBAN: IT17K0306909606100000403014<br />
+            SWIFT: BCITITMM<br />
+            BENEFICIARIO: SINPE – Società Italiana di Nutrizione Artificiale e Metabolismo<br />
+            </p>
+            */
             $body = <<<HTML
                     <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
-                    <p>Ecco i dati necessari per effettuare il bonifico:</p>
-                    <p>
-                    Banca Intesa San Paolo Spa<br />
-                    IBAN: IT17K0306909606100000403014<br />
-                    SWIFT: BCITITMM<br />
-                    BENEFICIARIO: SINPE – Società Italiana di Nutrizione Artificiale e Metabolismo<br />
-                    </p>
+                    {$_testo_pagamento_bonifico}
                     <p>Cordiali saluti</p>
                     <p>Segreteria SINPE</p>
 HTML;
+        }
         else if ($template == 'conferma_bonifico_sinpe')
             $body = <<<HTML
                     <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>

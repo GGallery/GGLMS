@@ -79,7 +79,7 @@ class gglmsViewdettagliutente extends JViewLegacy
             if ($bootstrap_dp != "")
                 JHtml::_('script', $bootstrap_dp);
 
-            JHtml::_('script', 'https://kit.fontawesome.com/dee2e7c711.js');
+            JHtml::_('stylesheet', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
             JHtml::_('script', 'https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js');
 
 
@@ -288,7 +288,7 @@ HTML;
 
                         // cookie non salvato
                         if (!isset($_COOKIE['tokenize-sinpe'])) throw new Exception("La registrazione dei dati è avvenuta con successo ma non è stato possibile utilizzare i cookie nel tuo browser. Verifica le tue impostazioni oppure cambia browser e riprova!", E_USER_ERROR);
-                        
+
                         $decodedToken = utilityHelper::encrypt_decrypt('decrypt', $getMatchToken, 'GGallery00!', 'GGallery00!');
                         if (strtolower($decodedToken) != strtolower($_COOKIE['tokenize-sinpe'])) throw new Exception("Non è possibile visualizzare il contenuto. I tentativi effettuati non corrispondono.", E_USER_ERROR);
 
@@ -317,7 +317,7 @@ HTML;
                         setcookie('tokenize-sinpe', $randomTokenValue, $tokenExpireTime, "/");
 
                         $this->_html = $_registration_form['success'];
-                        
+
                     }
                 }
                 else {
