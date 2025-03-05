@@ -163,11 +163,30 @@ if ($this->contenuti) {
     }
 //    echo "<div id='contenuti' class='box g-grid'>";
     //   modifica box con card bootstrap responsive
+    $aws = new gglmsControllerAws();
+    $contentImages = []; // Cache existing file paths
+
+// Fetch all objects in 'mediagg/contenuti/' in one request
+    $existingObjects = $aws->getExistingS3Objects('/mediagg/contenuti/');
+    $site_token = $aws->site_token;
 
     echo "<div id='contenuti' class='row'>";
 
     foreach ($this->contenuti as $contenuto) {
         $count++;
+
+        $c_path = '/mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
+        $c_file = $aws->getAwsMediaUrl() . $c_path;
+
+        // Format the S3 key correctly
+        $s3_key = ltrim($site_token . $c_path, '/');
+
+        // Check if the image exists on S3
+        if (in_array($s3_key, $existingObjects)) {
+            $img = $c_file;
+        } else {
+            $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+        }
         ?>
 
         <div class="col-sm-3 py-3">
@@ -175,21 +194,6 @@ if ($this->contenuti) {
 
                 <?php
                 // revisione caricamento immagini di background dei contenuti
-                /*
-                if (file_exists('../mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg'))
-                    $img = '../mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
-                else
-                    $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
-                */
-                $c_path = '/mediagg/contenuti/' . $contenuto->id . '/' . $contenuto->id . '.jpg';
-                $c_file = $_SERVER['DOCUMENT_ROOT'] . $c_path;
-                // carico l'immagine da indirizzo assoluto
-                if (file_exists($c_file)) {
-                    $img = $this->url_base . $c_path;
-                }
-                else
-                    $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
-
                 $stato = $contenuto->getStato();
 
                 if ($contenuto->getPropedeuticita()) {
