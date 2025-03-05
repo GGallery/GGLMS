@@ -62,8 +62,8 @@ class gglmsControllerAws extends JControllerLegacy
                     [
                         'AllowedHeaders' => ['*'],
                         'AllowedMethods' => ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
-                        'AllowedOrigins' => ["https://test.gallerygroup.dvl.to"],
-                        'ExposeHeaders' => ['ETag', 'Content-Length'],
+                        'AllowedOrigins' => ["*"],
+                        'ExposeHeaders' => ["ETag", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers"],
                         'MaxAgeSeconds' => 3000,
                     ],
                 ],
@@ -187,6 +187,15 @@ class gglmsControllerAws extends JControllerLegacy
         $s3Url = $this->bucketEndpoint .'/'.$this->bucket.'/'.$this->site_token;
 
         return $s3Url;
+    }
+
+    public function doesS3ObjectExist($filePath)
+    {
+        try {
+            return $this->s3Client->doesObjectExist($this->bucket, ltrim($filePath, '/'));
+        } catch (S3Exception $e) {
+            return false;
+        }
     }
 
     public function getExistingS3Objects($prefix)

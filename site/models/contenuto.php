@@ -113,11 +113,18 @@ class gglmsModelContenuto extends JModelLegacy
     {
         try {
 
-            $xml_path = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $this->id . '/' . $this->id . '.xml';
+            $aws = new gglmsControllerAws();
+            $xml_path = '/mediagg/contenuti/' . $this->id . '/' . $this->id . '.xml';
+            $s3_xml_url = $aws->getAwsMediaUrl() . $xml_path;
 
+            $s3_key = ltrim($aws->site_token . $xml_path, '/');
 
-            if (!file_exists($xml_path)) {
-                JFactory::getApplication()->enqueueMessage('Impossibile trovare l\'xml per il contenuto "' . $this->titolo . '" al path ' . $this->_path . '', 'error');
+        // Check if the XML file exists on S3
+            if (!$aws->doesS3ObjectExist($s3_key)) {
+                JFactory::getApplication()->enqueueMessage(
+                    'Impossibile trovare l\'XML per il contenuto "' . $this->titolo . '" al path ' . $s3_xml_url,
+                    'error'
+                );
                 return array();
             }
 
