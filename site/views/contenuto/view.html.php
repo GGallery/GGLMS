@@ -44,6 +44,8 @@ class gglmsViewContenuto extends JViewLegacy
         $_config = new gglmsModelConfig();
         $this->disabilita_mouse = $_config->getConfigValue('disabilita_mouse');
 
+        $aws = new gglmsControllerAws();
+
 
         if($template == 'tz_meetup'){
             JHtml::_('stylesheet', 'components/com_gglms/libraries/css/fix_tz_meetup.css');
@@ -78,9 +80,9 @@ class gglmsViewContenuto extends JViewLegacy
                 // scaricamento delle slide in formato pdf se file presente
                 $_slide_pdf = null;
                 $c_path = '/mediagg/contenuti/' . $this->contenuto->id . '/slide.pdf';
-                $c_file = $_SERVER['DOCUMENT_ROOT'] . $c_path;
+                $c_file = $aws->getAwsMediaUrl() . $c_path;
                 // carico l'immagine da indirizzo assoluto
-                if (file_exists($c_file)) {
+                if ($aws->doesS3ObjectExist($aws->site_token.$c_path)) {
                     $this->slide_pdf = $this->url_base . $c_path;
                 }
                 break;
