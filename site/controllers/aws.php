@@ -19,7 +19,7 @@ class gglmsControllerAws extends JControllerLegacy
     protected $s3Client;
     protected $bucket;
     protected $bucketEndpoint;
-    protected $site_token;
+    public $site_token;
 
 
     public function __construct($config = array()){
@@ -187,6 +187,27 @@ class gglmsControllerAws extends JControllerLegacy
         $s3Url = $this->bucketEndpoint .'/'.$this->bucket.'/'.$this->site_token;
 
         return $s3Url;
+    }
+
+    public function getExistingS3Objects($prefix)
+    {
+        try {
+            $existingObjects = [];
+            $result = $this->s3Client->listObjectsV2([
+                'Bucket' => $this->bucket,
+                'Prefix' => ltrim($this->site_token . $prefix, '/'),
+            ]);
+
+            if (!empty($result['Contents'])) {
+                foreach ($result['Contents'] as $object) {
+                    $existingObjects[] = $object['Key']; // Store object keys
+                }
+            }
+
+            return $existingObjects;
+        } catch (S3Exception $e) {
+            return [];
+        }
     }
 
 }

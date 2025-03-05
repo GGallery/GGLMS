@@ -28,6 +28,12 @@ if ($this->sottounita) {
 //    echo "<div id='unita' class='box g-grid'>";
 
 //   modifica box con card bootstrap responsive
+    $aws = new gglmsControllerAws();
+    $unitImages = []; // Cache existing file paths
+
+// Fetch all objects in 'mediagg/images/unit/' in one request
+    $existingObjects = $aws->getExistingS3Objects('/mediagg/images/unit/');
+    $site_token = $aws->site_token;
 
      echo "<div id='unita' class='row'>";
         foreach ($this->sottounita as $unita) {
@@ -63,12 +69,16 @@ if ($this->sottounita) {
                                 $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
                             */
                             $u_path = '/mediagg/images/unit/' . $unita->id . '.jpg';
-                            $u_file = $_SERVER['DOCUMENT_ROOT'] . $u_path;
-                            // carico l'immagine per indirizzo assoluto
-                            if (file_exists($u_file)) {
-                                $img = $this->url_base . $u_path;
-                            } else
+                            $u_file = $aws->getAwsMediaUrl() . $u_path;
+
+                            // Correct the lookup key format
+                            $s3_key = ltrim($site_token . $u_path, '/');
+
+                            if (in_array($s3_key, $existingObjects)) {
+                                $img = $u_file;
+                            } else {
                                 $img = 'components/com_gglms/libraries/images/immagine_non_disponibile.png';
+                            }
 
                             //                        $is_corso_disabled = $corso_class == 'disabled';
                             $unitaObj = new gglmsModelUnita();
