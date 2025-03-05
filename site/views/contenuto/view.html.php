@@ -83,7 +83,7 @@ class gglmsViewContenuto extends JViewLegacy
                 $c_file = $aws->getAwsMediaUrl() . $c_path;
                 // carico l'immagine da indirizzo assoluto
                 if ($aws->doesS3ObjectExist($aws->site_token.$c_path)) {
-                    $this->slide_pdf = $this->url_base . $c_path;
+                    $this->slide_pdf = $c_file;
                 }
                 break;
 
