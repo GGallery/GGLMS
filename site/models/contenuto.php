@@ -128,18 +128,11 @@ class gglmsModelContenuto extends JModelLegacy
                 return array();
             }
 
-            // if (empty($itemid) || !filter_var($itemid, FILTER_VALIDATE_INT))
-            //     throw new BadMethodCallException('Parametro non valido, atteso un intero valido - Jumper', E_USER_ERROR);
-            // if (empty($jumpers) || !is_array($jumpers))
-            //     throw new BadMethodCallException('Parametro non valido, atteso un array valido - Jumper', E_USER_ERROR);
-
-
             $jumpers = array();
             $xml = new DOMDocument();
-            $xml->load($xml_path);
+            $xml->load($s3_xml_url);
             $cue_points = $xml->getElementsByTagName('CuePoint');
             $i = 0;
-
 
             foreach ($cue_points as $point) {
                 foreach ($point->childNodes as $node) {
