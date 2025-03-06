@@ -104,7 +104,7 @@ echo "<h1>" . $this->contenuto->titolo . "</h1>";
         // declare object for video
         player = new MediaElementPlayer('video', {
             features: features,
-            slidesSelector: '.mejs-slides-player-slides',
+            //slidesSelector: '.mejs-slides-player-slides',
             autoplay: true,
             enableKeyboard: false,
             success: function (mediaElement, domObject) {
@@ -223,8 +223,8 @@ HTML;
                 }
                 i--; // col ciclo while vado avanti di 1
                 if (i < jumper.length && i != jumper_attuale) { // se cambio jumper
-
-                    console.log("cambio slide -> AJAX per set position");
+                    jQuery('.mejs-slides-player-slides img').css('display', 'none');
+                    jQuery('#slide-' + (i+1)).css('display', 'inline-block');
 
                     jumper_attuale = i;
                     // cancello eventuali jumper azzurri
@@ -299,7 +299,11 @@ HTML;
     </div>
 
     <div id="boxslide" class="g-block size-50 span6 ">
-        <div class="mejs-slides-player-slides img-thumbnail"></div>
+        <div class="mejs-slides-player-slides img-thumbnail">
+            <?php
+            echo outputHelper::buildSlidebox($this->jumper, $this->contenuto);
+            ?>
+        </div>
 
         <!-- ICONE - PULSANTI-->
         <?php if (!is_null($this->slide_pdf)) { ?>
