@@ -23,6 +23,12 @@ class JFormFieldlistagruppiabilitati extends JFormFieldList
      * @since    1.6
      */
     public $type = 'listagruppiabilitati';
+    public $currentUrl;
+
+    public function __construct()
+    {
+        $this->currentUrl = $_SERVER['HTTP_HOST'];
+    }
 
     /**
      * Method to get a list of categories that respects access controls and can be used for
@@ -52,8 +58,15 @@ class JFormFieldlistagruppiabilitati extends JFormFieldList
 
             $query->select('id as value, title as text');
             $query->from('#__usergroups as e');
+        
             $query->where("e.parent_id in($parent_id_accesso_corsi)");
-            $query->order('id');
+            
+            // se SINPE
+            if (strpos($this->currentUrl, 'sinpe.org') !== false) {
+                $query = $query->orWhere("e.parent_id = 2");
+            }
+
+            $query = $query->order('id');
 
             // Get the options.
             $db->setQuery($query);
