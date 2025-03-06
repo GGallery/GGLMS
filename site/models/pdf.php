@@ -49,8 +49,29 @@ class gglmsModelPdf extends JModelLegacy
                                   $dati_corso = null)
     {
 
+        $aws = new gglmsControllerAws();
+        $tempFilePath = $_SERVER['DOCUMENT_ROOT'] . '/mediagg/contenuti/' . $attestato->id . '/' . $attestato->id . ".tpl";
+        $s3Url = $aws->getAwsMediaUrl()."/mediagg/contenuti/" . $attestato->id . "/" . $attestato->id . ".tpl";
 
         try {
+            //gestione download e salvataggio file da S3 in locale
+            $tplContent = file_get_contents($s3Url);
+            if ($tplContent === false) {
+                throw new RuntimeException("Non è stato possibile scaricare il file da S3", E_USER_ERROR);
+            }
+
+            $dirPath = dirname($tempFilePath);
+            if (!is_dir($dirPath)) {
+                if (!mkdir($dirPath, 0777, true) && !is_dir($dirPath)) {
+                    throw new RuntimeException("Failed to create directory: " . $dirPath, E_USER_ERROR);
+                }
+            }
+
+            if (!file_put_contents($tempFilePath, $tplContent)) {
+                throw new RuntimeException("Non è stato possibile salvare il file localmente", E_USER_ERROR);
+            }
+
+
             require_once JPATH_COMPONENT . '/libraries/pdf/certificatePDF.class.php';
             $orientation = $orientamento;
             $pdf = new certificatePDF($orientation);
@@ -149,7 +170,7 @@ class gglmsModelPdf extends JModelLegacy
 
             if ($multi == true) {
                 // se è un download di attesati multipli ritorno l'oggetto pdf
-                return $pdf;
+                $result = $pdf;
 
             } else {
                 //altrimenti lo scarico
@@ -157,15 +178,20 @@ class gglmsModelPdf extends JModelLegacy
                 // così facendo rinomina due volte .pdf
                 //$pdf->Output($nomefile . '.pdf', 'D');
                 $pdf->Output($nomefile, 'D');
-                return 1;
+                $result = 1;
             }
 
 
         } catch (Exception $e) {
             // FB::log($e);
             DEBUGG::error($e, 'error generate_pdf');
+            $result = 0;
+        } finally {
+            if (file_exists($tempFilePath)) {
+                unlink($tempFilePath);
+            }
         }
-        return 0;
+        return $result;
     }
 
     private function customTemplate()
