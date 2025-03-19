@@ -1469,7 +1469,7 @@ HTML;
 
             $_current_user = JFactory::getUser();
             $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
-            $this->user_id = $_user_id;
+            //$this->user_id = $_user_id;
 
             // parametri dal plugin di gestione acquisto corsi
             $_params_module = UtilityHelper::get_params_from_module();
@@ -1508,25 +1508,32 @@ HTML;*/
                             $_tipo_quota = (!is_null($value)) ? strtoupper($value) : "";
                             $_tipo_pagamento = (!is_null($_quota['tipo_pagamento'])) ? strtolower($_quota['tipo_pagamento']) : "";
 
-                            //$_fab_pagamento = ($_tipo_pagamento == "paypal") ? "fab fa-paypal" : "fas fa-university";
                             $_fab_pagamento = strtoupper($_tipo_pagamento);
 
                             if (is_null($_tipo_pagamento)
                                 || $_tipo_pagamento == "") {
-                                //$_fab_pagamento = "fas fa-dollar-sign";
                                 $_fab_pagamento = "ARCHIVIATO";
                             }
 
                             if ($_tipo_quota == "EVENTO_NC") {
 
-                                if (is_null($_user_id))
-                                    $value = <<<HTML
+                                $payment_ko = true;
+
+                                if (is_null($_user_id)) {
+
+                                    if ($_tipo_pagamento != 'voucher')
+                                        $value = <<<HTML
                                     <a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="confermaAcquistaEvento({$_quota['id_pagamento']}, {$_quota['user_id']}, {$_quota['gruppo_corso']})">{$_label_conferma_acquisto} {$_quota['titolo_corso']}</a>
 HTML;
+                                    else {
+                                        $value = $_quota['titolo_corso'];
+                                        $payment_ko = false;
+                                    }
+                                }
                                 else
                                     $value = $_label_conferma_acquisto_user . ' ' . $_quota['titolo_corso'];
 
-                                $payment_ko = true;
+                                
                             }
                             else if ($_tipo_quota == "EVENTO") {
                                 $value = $_quota['titolo_corso'];

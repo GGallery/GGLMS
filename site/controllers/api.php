@@ -16,6 +16,7 @@ require_once JPATH_COMPONENT . '/models/config.php';
 require_once JPATH_COMPONENT . '/models/generacoupon.php';
 require_once JPATH_COMPONENT . '/models/syncdatareport.php';
 require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
+require_once JPATH_COMPONENT . '/models/voucher.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/users.php';
 require_once JPATH_COMPONENT . '/helpers/utility.php';
@@ -2490,29 +2491,32 @@ HTML;
             if (!isset($parsedToken[0]) || $parsedToken[0] == "" || !is_numeric($parsedToken[0]))
                 throw new Exception("Nessun token di riferimento", E_USER_ERROR);
 
+            $voucher = new gglmsModelVoucher();
             $userId = $parsedToken[0];
             $dt = new DateTime();
             $annoCorrente = $dt->format('Y');
 
             // controllo se il codice del voucher esiste e non è già stato speso
-            $checkVoucher = "SELECT *
-                            FROM #__gg_quote_voucher
-                            WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
-                            AND user_id IS NULL";
-            $this->_db->setQuery($checkVoucher);
-            $resultVoucher = $this->_db->loadResult();
+            // $checkVoucher = "SELECT *
+            //                 FROM #__gg_quote_voucher
+            //                 WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+            //                 AND user_id IS NULL";
+            // $this->_db->setQuery($checkVoucher);
+            // $resultVoucher = $this->_db->loadResult();
 
+            $resultVoucher = $voucher->checkVoucherByCode($requestedVoucher);
             if (!$resultVoucher) throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
 
             // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
-            $checkUserForYear = "SELECT *
-                                    FROM #__gg_quote_voucher
-                                    WHERE user_id = " . $this->_db->quote($userId) . "
-                                    AND date LIKE " . $this->_db->quote("%" . $annoCorrente . "%");
+            // $checkUserForYear = "SELECT *
+            //                         FROM #__gg_quote_voucher
+            //                         WHERE user_id = " . $this->_db->quote($userId) . "
+            //                         AND date LIKE " . $this->_db->quote("%" . $annoCorrente . "%");
 
-            $this->_db->setQuery($checkUserForYear);
-            $resultUserForYear = $this->_db->loadResult();
-
+            // $this->_db->setQuery($checkUserForYear);
+            // $resultUserForYear = $this->_db->loadResult();
+            
+            $resultUserForYear = $voucher->checkUsedVoucher((int) $userId, $annoCorrente);
             if (!is_null($resultUserForYear))
                 throw new Exception("Esistono voucher per l'utente corrente nell'anno " . $annoCorrente, E_USER_ERROR);
 

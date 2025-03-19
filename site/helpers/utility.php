@@ -1944,7 +1944,7 @@ HTML;
         // inserimento dell'utente nel gruppo
         // se acquistaevento l'utente ha effettivamente acquistato il corso per cui lo inserirò nel gruppo corso
         // se l'utente non ha acquista il corso lo inserisco in un gruppo specifico letto dalla configurazione del modulo
-        if ($action == 'acquistaevento')
+        if ($action == 'acquistaevento' || $action == 'voucher_buy_request')
             $ug_destinazione = $unit_gruppo;
         else
             $ug_destinazione = self::get_ug_from_object($_params, $ug_group, true);
@@ -2125,6 +2125,11 @@ HTML;
             if ($template == 'registrazioneasand')
                 $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
 
+        }
+        else if ($template == 'voucher_buy_request') {
+            $oggetto .= " - Conferma pagamento con Voucher";
+            $formattedTotale =  number_format($totale, 2, ',', '');
+            $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per utilizzo voucher)";
         }
         else if ($template == 'bb_buy_confirm_asand') {
             $oggetto .= " - Conferma pagamento con bonifico";

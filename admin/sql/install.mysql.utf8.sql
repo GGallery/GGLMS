@@ -497,6 +497,7 @@ CREATE TABLE `#__gg_unit` (
   `codice_alfanumerico`  varchar(255) NULL,
   `tipologia_corso`  tinyint(1) NOT NULL DEFAULT 6,
   `sconti_particolari` tinyint(1) UNSIGNED DEFAULT '0',
+  `buy_voucher` tinyint(1) UNSIGNED DEFAULT '0',
   `riduzione_webinar` tinyint(1) UNSIGNED DEFAULT '0',
   `sc_webinar_perc` decimal(6,2) DEFAULT NULL COMMENT 'Lo sconto percentuale per acquisto in modalita webinar',
   `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
@@ -859,6 +860,7 @@ DROP TABLE IF EXISTS `#__gg_quote_voucher`;
 CREATE TABLE `#__gg_quote_voucher` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `user_id` INT(11) NULL,
+  `course_id` INT(11) NULL AFTER `user_id`,
   `code` TEXT NOT NULL,
   `date` DATETIME NULL,
   PRIMARY KEY (`id`)

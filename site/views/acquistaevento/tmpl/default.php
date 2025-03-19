@@ -27,6 +27,7 @@ defined('_JEXEC') or die;
 
     if ($this->in_error == 1
         || $this->action == 'bb_buy_request'
+        || $this->action == 'voucher_buy_request'
         || $this->hide_pp) {
 
         echo $this->payment_form;
@@ -187,6 +188,22 @@ defined('_JEXEC') or die;
             jQuery('#btn-bonifico').on('click', function (e) {
                 var pHref = jQuery(this).attr("data-ref");
                 window.location.href = pHref;
+            });
+
+            // pagamento con voucher conferma
+            jQuery('#btn-voucher').on('click', function (e) {
+
+                let voucherCode = document.getElementById('buy_voucher_code');
+                if (!voucherCode)
+                    return;
+
+                if (voucherCode.value == '') {
+                    alert('Devi inserire il codice prima di procedere!');
+                    return;
+                }
+
+                let pHref = jQuery(this).attr("data-ref");
+                window.location.href = pHref + `&vc=${voucherCode.value}`;
             });
 
             // richiesta di login oppure registrazione

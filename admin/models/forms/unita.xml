@@ -352,6 +352,20 @@
             <option value="0">No</option>
         </field>
 
+        <!-- acquisto con voucher -->
+        <field
+                name="buy_voucher"
+                type="radio"
+                label="Acquistabile con voucher"
+                description="Se abilitato consente il pagamento del corso con un voucher"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
         <!-- sconto webinar -->
         <field
                 name="riduzione_webinar"

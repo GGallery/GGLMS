@@ -1559,6 +1559,38 @@ HTML;
 
     }
 
+    // messaggio che informa l'utente che la sua richiesta di pagamento con voucher è andata a buon fine
+    public static function get_payment_form_acquisto_evento_voucher($user_id, $_event_title) {
+
+      try {
+
+        $_href = utilityHelper::set_index_redirect_url();
+
+        $_html = <<<HTML
+                <div class="jumbotron">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Grazie!</h4>
+                            <p>L'iscrizione all'evento <b>{$_event_title}</b> è andata a buon fine!
+                                <br />
+                                Clicca <a href="{$_href}">QUI</a> per ritornare in HOME page
+                            </p>
+                        </div>
+                    </div>
+                </div>
+HTML;
+            $_ret['success'] = $_html;
+            return $_ret;
+
+      }
+      catch (Exception $e) {
+        $_log_error = "USER: " . $user_id . " - " . $e->getMessage();
+        DEBUGG::log(json_encode($_log_error), __FUNCTION__ . '_error', 0, 1, 0 );
+        return $e->getMessage();
+      }
+
+    }
+
     // semplice messaggio che informa l'utente che la sua richiesta di pagamento sarà elaborata post ricezione bonifico
     public static function get_payment_form_acquisto_evento_bonifico($user_id, $_event_title, $totale, $_params, $quotaAsand = false) {
 
@@ -1812,11 +1844,13 @@ HTML;
             $_testo_pagamento_bonifico_btn = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR2');
             $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_row_pagamento_bonfico = "";
+            $_row_pagamento_voucher = "";
 
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
-            $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
 
-            if ($_testo_pagamento_bonifico != "")
+            if ($_testo_pagamento_bonifico != "") {
+
+              $endpointBB = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
 
                 $_row_pagamento_bonfico = <<<HTML
                     <tr>
@@ -1826,10 +1860,52 @@ HTML;
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align: center;">
-                          <button class="btn btn-primary" id="btn-bonifico" data-ref="{$endpoint}">{$_testo_pagamento_bonifico_btn}</button>
+                          <button class="btn btn-primary" id="btn-bonifico" data-ref="{$endpointBB}">{$_testo_pagamento_bonifico_btn}</button>
                         </td>
                     </tr>
 HTML;
+            }
+
+            if ((int) $_unit->buy_voucher == 1) {
+
+              $_testo_pagamento_voucher = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR73');
+              $_placeholder_voucher = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR74');
+
+              $endpointVoucher = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'voucher_buy_request');
+
+              $_row_pagamento_voucher = <<<HTML
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                  <td colspan="5" style="text-align: center;">
+                    <h4>
+                      <span style="color: black; font-weight: bold;">{$_testo_pagamento_voucher}</span>
+                    </h4>
+                  </td>
+              </tr>
+              <tr>
+                  <td colspan="5" style="text-align: center;">
+                    <input 
+                      class="w-25" 
+                      style="padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 5px; outline: none; transition: all 0.3s ease-in-out;"
+                      type="text" 
+                      id="buy_voucher_code" 
+                      placeholder="{$_placeholder_voucher}" 
+                    />
+                  </td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                  <td colspan="5" style="text-align: center;">
+                    <button class="btn btn-primary" id="btn-voucher" data-ref="{$endpointVoucher}">{$_testo_pagamento_voucher}</button>
+                  </td>
+              </tr>
+HTML;
+
+            }
 
 
             $_html = <<<HTML
@@ -1872,6 +1948,7 @@ HTML;
                         </td>
                     </tr>
                     {$_row_pagamento_bonfico}
+                    {$_row_pagamento_voucher}
                 </table>
 
                 <input style="display: none;" type="number" id="amount" name="amount" value="{$unit_prezzo}" />

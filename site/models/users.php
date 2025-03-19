@@ -775,7 +775,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null) {
+    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null, $courseId = 0) {
 
         try {
 
@@ -786,8 +786,12 @@ class gglmsModelUsers extends JModelLegacy
             $query = $this->_db->getQuery(true)
                         ->update("#__gg_quote_voucher")
                         ->set("user_id = " . $this->_db->quote($userId))
-                        ->set("date = " . $this->_db->quote($dateTimeRef))
-                        ->where("code = " . $this->_db->quote($codiceVoucher));
+                        ->set("date = " . $this->_db->quote($dateTimeRef));
+
+            if ($courseId > 0)
+                $query = $query->set('course_id = ' . $this->_db->quote($courseId));
+
+            $query = $query->where("code = " . $this->_db->quote($codiceVoucher));
 
             $this->_db->setQuery($query);
 
@@ -906,6 +910,10 @@ class gglmsModelUsers extends JModelLegacy
                 $_tipo_quota = 'evento_nc';
                 $_tipo_pagamento = 'bonifico';
             }
+            else if ($_template == 'voucher_buy_request') {
+                $_tipo_quota = 'evento_nc';
+                $_tipo_pagamento = 'voucher';
+            }
             else if ($_template == 'bb_buy_quota_asand') {
                 $_tipo_quota = 'annuale';
                 $_tipo_pagamento = 'bonifico';
@@ -952,7 +960,9 @@ class gglmsModelUsers extends JModelLegacy
 
             }
             else if ($_template == 'acquistaevento'
-                        || $_template == 'bb_buy_request') {
+                        || $_template == 'bb_buy_request'
+                        || $_template == 'voucher_buy_request'
+                        ) {
 
                 // precarico i params del modulo
                 $_params = utilityHelper::get_params_from_module();
@@ -2404,5 +2414,6 @@ class gglmsModelUsers extends JModelLegacy
         }
 
     }
+
 }
 

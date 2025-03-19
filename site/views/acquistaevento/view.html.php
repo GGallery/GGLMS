@@ -18,6 +18,7 @@ jimport('joomla.application.component.helper');
 
 require_once JPATH_COMPONENT . '/controllers/paypal.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/voucher.php';
 
 class gglmsViewAcquistaEvento extends JViewLegacy {
 
@@ -206,6 +207,71 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                                                                                     $this->acquisto_webinar,
                                                                                     $this->perc_webinar,
                                                                                     $_params);
+
+                    if (!is_array($_payment_form))
+                        throw new Exception($_payment_form, E_USER_ERROR);
+
+                    $this->payment_form = $_payment_form['success'];
+                    $this->in_error = 0;
+                }
+            }
+            else if ($this->action == 'voucher_buy_request') { // l'utente vuole pagare con dice voucher
+
+                $voucherCode = JRequest::getVar('vc', null);
+                $inError = false;
+                if (is_null($voucherCode) || $voucherCode == '') {
+                    echo <<<HTML
+                        <script>
+                            alert('Nessun codice voucher inserito!');
+                            window.history.back();
+                        </script>
+HTML;
+                    $inError = true;
+                }
+
+                $voucher = new gglmsModelVoucher();
+
+                // controllo se il codice del voucher esiste e non è già stato speso
+                $resultVoucher = $voucher->checkVoucherByCode($voucherCode);
+                if (!$resultVoucher) {
+                    echo <<<HTML
+                    <script>
+                        alert('Il codice immesso non è stato trovato oppure è già stato utilizzato');
+                        window.history.back();
+                    </script>
+HTML;
+                    $inError = true;
+                }
+
+                if (!$inError) {
+
+                    // mi servono informazioni sull'unita
+                    $unit_model = new gglmsModelUnita();
+                    $_unit = $unit_model->getUnita($this->unit_id);
+                    $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+
+                    // user model
+                    $_user_quote = new gglmsModelUsers();
+                    $_insert_servizi_extra = $_user_quote->insert_user_servizi_extra($this->user_id,
+                                                                                    $dt->format('Y'),
+                                                                                    $dt->format('Y-m-d H:i:s'),
+                                                                                    "",
+                                                                                    $this->unit_prezzo,
+                                                                                    array(),
+                                                                                    $this->action,
+                                                                                    true,
+                                                                                    $this->unit_id,
+                                                                                    $unit_gruppo);
+
+                    if (!is_array($_insert_servizi_extra))
+                        throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+
+                    // spendo il voucher
+                    $updateVoucher = $_user_quote->update_voucher_utilizzato($voucherCode, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id);
+                    if (!is_array($updateVoucher))
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+
+                    $_payment_form = outputHelper::get_payment_form_acquisto_evento_voucher($this->user_id, $_unit->titolo);
 
                     if (!is_array($_payment_form))
                         throw new Exception($_payment_form, E_USER_ERROR);
