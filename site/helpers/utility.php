@@ -2147,7 +2147,7 @@ HTML;
                 <p>Nominativo: <b>{$_nominativo}</b></p>
                 <p>Codice fiscale: {$_cf}</p>
                 {$_label_evento}
-                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                <p>Data registrazione: {$dt->format('d/m/Y H:i:s')}</p>
                 <p>Totale {$_label_pagato}: &euro; <b>{$totale}</b></p>
                 {$_label_extra}
 HTML;

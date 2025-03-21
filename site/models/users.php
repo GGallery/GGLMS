@@ -775,7 +775,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null, $courseId = 0) {
+    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null, $courseId = 0, $subscription = 1, $course = 0) {
 
         try {
 
@@ -791,7 +791,11 @@ class gglmsModelUsers extends JModelLegacy
             if ($courseId > 0)
                 $query = $query->set('course_id = ' . $this->_db->quote($courseId));
 
-            $query = $query->where("code = " . $this->_db->quote($codiceVoucher));
+            $query = $query
+                        ->where("code = " . $this->_db->quote($codiceVoucher))
+                        ->where("buy_subscription = " . $this->_db->quote($subscription))
+                        ->where("buy_course = " . $this->_db->quote($course))
+                        ;
 
             $this->_db->setQuery($query);
 
@@ -2369,13 +2373,15 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // controllo se un voucher è già stato utilizzato
-    public function checkVoucherValid($requestedVoucher) {
+    public function checkVoucherValid($requestedVoucher, int $subscription = 1, int $course = 0) {
 
         try {
 
             $checkVoucher = "SELECT *
                             FROM #__gg_quote_voucher
                             WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND buy_subscription = " . $subscription . "
+                            AND buy_course = " . $course . "
                             AND user_id IS NULL";
             
             $this->_db->setQuery($checkVoucher);

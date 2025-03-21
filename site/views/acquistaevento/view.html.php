@@ -222,7 +222,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 if (is_null($voucherCode) || $voucherCode == '') {
                     echo <<<HTML
                         <script>
-                            alert('Nessun codice voucher inserito!');
+                            alert('Nessun codice voucher inserito! Premi OK per tornare indietro');
                             window.history.back();
                         </script>
 HTML;
@@ -232,11 +232,11 @@ HTML;
                 $voucher = new gglmsModelVoucher();
 
                 // controllo se il codice del voucher esiste e non è già stato speso
-                $resultVoucher = $voucher->checkVoucherByCode($voucherCode);
+                $resultVoucher = $voucher->checkVoucherByCode($voucherCode, 0, 1);
                 if (!$resultVoucher) {
                     echo <<<HTML
                     <script>
-                        alert('Il codice immesso non è stato trovato oppure è già stato utilizzato');
+                        alert('Il codice immesso non è stato trovato oppure è già stato utilizzato. Premi OK per tornare indietro');
                         window.history.back();
                     </script>
 HTML;
@@ -267,7 +267,7 @@ HTML;
                         throw new Exception($_insert_servizi_extra, E_USER_ERROR);
 
                     // spendo il voucher
-                    $updateVoucher = $_user_quote->update_voucher_utilizzato($voucherCode, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id);
+                    $updateVoucher = $_user_quote->update_voucher_utilizzato($voucherCode, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id, 0, 1);
                     if (!is_array($updateVoucher))
                         throw new Exception($updateVoucher, E_USER_ERROR);
 

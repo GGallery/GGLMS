@@ -18,13 +18,15 @@ class gglmsModelVoucher extends JModelLegacy {
 	}
 
     // controllo se il codice del voucher esiste e non è già stato speso
-    public function checkVoucherByCode(string $requestedVoucher) {
+    public function checkVoucherByCode(string $requestedVoucher, int $subscription = 1, int $course = 0) {
 
         try {
 
             $checkVoucher = "SELECT *
                             FROM #__gg_quote_voucher
                             WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND buy_subscription = " . $subscription . "
+                            AND buy_course = " . $course . "
                             AND user_id IS NULL";
             $this->_db->setQuery($checkVoucher);
 
@@ -40,13 +42,15 @@ class gglmsModelVoucher extends JModelLegacy {
     }
 
     // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
-    public function checkUsedVoucher(int $userId, int $annoCorrente) {
+    public function checkUsedVoucher(int $userId, int $annoCorrente, int $subscription = 1, int $course = 0) {
 
         try {
 
             $checkUserForYear = "SELECT *
                                     FROM #__gg_quote_voucher
                                     WHERE user_id = " . $this->_db->quote($userId) . "
+                                    AND buy_subscription = " . $subscription . "
+                                    AND buy_course = " . $course . "
                                     AND date LIKE " . $this->_db->quote("%" . $annoCorrente . "%");
 
             $this->_db->setQuery($checkUserForYear);

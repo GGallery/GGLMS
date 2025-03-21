@@ -2497,25 +2497,11 @@ HTML;
             $annoCorrente = $dt->format('Y');
 
             // controllo se il codice del voucher esiste e non è già stato speso
-            // $checkVoucher = "SELECT *
-            //                 FROM #__gg_quote_voucher
-            //                 WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
-            //                 AND user_id IS NULL";
-            // $this->_db->setQuery($checkVoucher);
-            // $resultVoucher = $this->_db->loadResult();
-
             $resultVoucher = $voucher->checkVoucherByCode($requestedVoucher);
-            if (!$resultVoucher) throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
+            if (!$resultVoucher) 
+                throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
 
             // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
-            // $checkUserForYear = "SELECT *
-            //                         FROM #__gg_quote_voucher
-            //                         WHERE user_id = " . $this->_db->quote($userId) . "
-            //                         AND date LIKE " . $this->_db->quote("%" . $annoCorrente . "%");
-
-            // $this->_db->setQuery($checkUserForYear);
-            // $resultUserForYear = $this->_db->loadResult();
-            
             $resultUserForYear = $voucher->checkUsedVoucher((int) $userId, $annoCorrente);
             if (!is_null($resultUserForYear))
                 throw new Exception("Esistono voucher per l'utente corrente nell'anno " . $annoCorrente, E_USER_ERROR);
