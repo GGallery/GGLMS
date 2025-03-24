@@ -1117,7 +1117,7 @@ HTML;
                 throw new Exception("Errore durante l'aggiornamento dell'utente", E_USER_ERROR);
 
             // inserisco l'utente nel gruppo quota di riferimento
-            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId);
+            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId,true);
             if (is_null($insert_ug))
                 throw new Exception("Inserimento utente in gruppo corso fallito: " . $userId . ", " . $userGroupId, E_USER_ERROR);
 
@@ -1225,18 +1225,18 @@ HTML;
 
         try {
 
-            $params = JRequest::get($_GET);
-            $user_id = $params["user_id"];
-            $totale = $params["totale"];
+            $requestParams = JRequest::get($_GET);
+            $user_id = $requestParams["user_id"];
+            $totale = $requestParams["totale"];
 
             if (!isset($user_id)
                 || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                throw new Exception("Missing user id", E_USER_ERROR);
 
             if (!isset($totale)
                 || $totale == ""
                 || $totale == 0)
-                throw new Exception("Missing totale", 1);
+                throw new Exception("Missing totale", E_USER_ERROR);
 
             $dt = new DateTime();
             $_anno_quota = $dt->format('Y');
@@ -1260,8 +1260,26 @@ HTML;
 
             utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
-            if (!is_array($_bonifico))
-                throw new Exception($_bonifico, 1);
+            if (!is_array($_bonifico)) throw new Exception($_bonifico, E_USER_ERROR);
+
+            $_user_details = $_user->get_user_details_cb($user_id);
+            if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+
+            $_params = utilityHelper::get_params_from_plugin();
+            $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+
+            $selectedUser = $_user->get_user_joomla($user_id);
+            if (isset($selectedUser->email) && $selectedUser->email != '') {
+                utilityHelper::send_sinpe_email_pp($email_default,
+                                                date('Y-m-d'),
+                                                "",
+                                                "",
+                                                $_user_details,
+                                                0,
+                                                0,
+                                                'conferma_bonifico_sinpe',
+                                                $selectedUser->email);
+            }
 
             $_ret['success'] = "tuttook";
 
@@ -1378,10 +1396,12 @@ HTML;
 
             $params = JRequest::get($_GET);
             $user_id = $params["user_id"];
+            $preiscritto = isset($params["preiscritto"]) ?
+                (int) $params["preiscritto"]
+                : 0;
 
             if (!isset($user_id)
-                || $user_id == "")
-                throw new Exception("Missing user id", 1);
+                || $user_id == "") throw new Exception("Missing user id", E_USER_ERROR);
 
             $dt = new DateTime();
             // non anno corrente perchè da moroso deve pagare partendo dall'ultimo anno
@@ -1394,14 +1414,30 @@ HTML;
 
             // inserisco utente nel gruppo moroso
             $_check = utilityHelper::set_usergroup_moroso($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_check))
-                throw new Exception($_check, 1);
+            if (!is_array($_check)) throw new Exception($_check, E_USER_ERROR);
 
             // aggiorno ultimo anno pagato
             $_user = new gglmsModelUsers();
             $_ultimo_anno = $_user->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
+
+            // se preiscritto devo inviare email per riabilitazione account
+            if ($preiscritto == 1) {
+                $_user_details = $_user->get_user_details_cb($user_id);
+                $email_default = utilityHelper::get_params_from_object($_params, "email_default");
+                $selectedUser = $_user->get_user_joomla($user_id);
+                if (isset($selectedUser->email) && $selectedUser->email != '') {
+                    utilityHelper::send_sinpe_email_pp($email_default,
+                                                        date('Y-m-d'),
+                                                        "",
+                                                        "",
+                                                        $_user_details,
+                                                        0,
+                                                        0,
+                                                        'preiscritto',
+                                                        $selectedUser->email);
+                }
+            }
 
             $_ret['success'] = "tuttook";
 
@@ -1433,7 +1469,7 @@ HTML;
 
             $_current_user = JFactory::getUser();
             $_user_id = ($_current_user->authorise('core.admin')) ? null : $_current_user->id;
-            $this->user_id = $_user_id;
+            //$this->user_id = $_user_id;
 
             // parametri dal plugin di gestione acquisto corsi
             $_params_module = UtilityHelper::get_params_from_module();
@@ -1472,25 +1508,32 @@ HTML;*/
                             $_tipo_quota = (!is_null($value)) ? strtoupper($value) : "";
                             $_tipo_pagamento = (!is_null($_quota['tipo_pagamento'])) ? strtolower($_quota['tipo_pagamento']) : "";
 
-                            //$_fab_pagamento = ($_tipo_pagamento == "paypal") ? "fab fa-paypal" : "fas fa-university";
                             $_fab_pagamento = strtoupper($_tipo_pagamento);
 
                             if (is_null($_tipo_pagamento)
                                 || $_tipo_pagamento == "") {
-                                //$_fab_pagamento = "fas fa-dollar-sign";
                                 $_fab_pagamento = "ARCHIVIATO";
                             }
 
                             if ($_tipo_quota == "EVENTO_NC") {
 
-                                if (is_null($_user_id))
-                                    $value = <<<HTML
+                                $payment_ko = true;
+
+                                if (is_null($_user_id)) {
+
+                                    if ($_tipo_pagamento != 'voucher')
+                                        $value = <<<HTML
                                     <a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="confermaAcquistaEvento({$_quota['id_pagamento']}, {$_quota['user_id']}, {$_quota['gruppo_corso']})">{$_label_conferma_acquisto} {$_quota['titolo_corso']}</a>
 HTML;
+                                    else {
+                                        $value = $_quota['titolo_corso'];
+                                        $payment_ko = false;
+                                    }
+                                }
                                 else
                                     $value = $_label_conferma_acquisto_user . ' ' . $_quota['titolo_corso'];
 
-                                $payment_ko = true;
+                                
                             }
                             else if ($_tipo_quota == "EVENTO") {
                                 $value = $_quota['titolo_corso'];
@@ -1675,6 +1718,9 @@ HTML;*/
                                 $_azione_btn = '<a href="javascript:" class="btn btn-info" style="min-height: 50px;" onclick="impostaPagamentoExtra(' . $_socio['user_id'] . ')">' . $_label_extra . '</a>';
 
                             $_ret[$_key_socio]['tipo_azione'] = trim($_azione_btn);
+                        }
+                        else if ($key == "sinpe_dep") {
+                            $value = ($value == 1) ? 'SI' : 'NO';
                         }
 
                         $_ret[$_key_socio][$key] = $value;

@@ -914,6 +914,36 @@ class utilityHelper
 
     }
 
+    // controllo esistenza utente per colonna e valore di comprofiler restituendo l'intera riga
+    public static function check_comprofiler_by_column_row($target_col, $target_val) {
+
+        try {
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from('#__comprofiler')
+                ->where($target_col . " = " . $db->quote($target_val));
+
+            $db->setQuery($query);
+
+            if (false === ($results = $db->loadAssoc())) {
+                throw new RuntimeException($db->getErrorMsg(), E_USER_ERROR);
+            }
+
+            return (isset($results) && !is_null($results))
+                ? $results
+                : null;
+
+        }
+        catch (Exception $e) {
+            //DEBUGG::error($e, __FUNCTION__);
+            self::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__);
+            return null;
+        }
+
+    }
+
     // controllo esistenza utente per colonna e valore restituendo l'intera riga
     public static function check_user_by_column_row($target_col, $target_val) {
 
@@ -1043,7 +1073,7 @@ class utilityHelper
 
             // fix necessario per prima dove il corso padre è il 2 e non l'1
             $currentUrl = JUri::getInstance();
-            
+
             if ($id_corso == ""
                 || ($id_corso == 1 && !strpos($currentUrl, 'primaelearning.it'))
                 || !isset($id_corso))
@@ -1805,6 +1835,28 @@ HTML;
         return $_ret;
     }
 
+    // aggiornamento da colonne
+    public static function get_update_query($_table, $_new_user_cp, $where) {
+
+        $query = "UPDATE #__" . $_table . " SET ";
+
+        $counter = 0;
+        foreach ($_new_user_cp as $key => $value) {
+            $query .= $key . ' = ' . '\''. $value .'\'';
+
+            if ($counter < count($_new_user_cp)-1) {
+                $query .= ', ';
+            }
+
+            $counter++;
+        }
+
+        $query .= $where;
+
+        return $query;
+
+    }
+
     // stabilisco il valore della colonna in base agli accodamenti di colonne es. Y_Z -utility per controller.users._import()
     public static function get_insert_query($_table, $_new_user_cp) {
 
@@ -1814,8 +1866,7 @@ HTML;
 
         foreach ($_new_user_cp as $key => $value) {
 
-            if (is_null($value) || $value === "")
-                continue;
+            if (is_null($value) || $value === "") continue;
 
             $_cols[] = $key;
             $_values[] = $value;
@@ -1893,7 +1944,7 @@ HTML;
         // inserimento dell'utente nel gruppo
         // se acquistaevento l'utente ha effettivamente acquistato il corso per cui lo inserirò nel gruppo corso
         // se l'utente non ha acquista il corso lo inserisco in un gruppo specifico letto dalla configurazione del modulo
-        if ($action == 'acquistaevento')
+        if ($action == 'acquistaevento' || $action == 'voucher_buy_request')
             $ug_destinazione = $unit_gruppo;
         else
             $ug_destinazione = self::get_ug_from_object($_params, $ug_group, true);
@@ -2075,6 +2126,11 @@ HTML;
                 $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
 
         }
+        else if ($template == 'voucher_buy_request') {
+            $oggetto .= " - Conferma pagamento con Voucher";
+            $formattedTotale =  number_format($totale, 2, ',', '');
+            $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per utilizzo voucher)";
+        }
         else if ($template == 'bb_buy_confirm_asand') {
             $oggetto .= " - Conferma pagamento con bonifico";
             $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
@@ -2091,7 +2147,7 @@ HTML;
                 <p>Nominativo: <b>{$_nominativo}</b></p>
                 <p>Codice fiscale: {$_cf}</p>
                 {$_label_evento}
-                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                <p>Data registrazione: {$dt->format('d/m/Y H:i:s')}</p>
                 <p>Totale {$_label_pagato}: &euro; <b>{$totale}</b></p>
                 {$_label_extra}
 HTML;
@@ -2116,7 +2172,9 @@ HTML;
                                                $_user_details,
                                                $totale_sinpe,
                                                $totale_espen=0,
-                                               $template="rinnovo") {
+                                               $template="rinnovo",
+                                               $extraEmail = null,
+                                               $_params = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2134,28 +2192,81 @@ HTML;
             && $_user_details['codice_fiscale'] != "")
             $_cf .= $_user_details['codice_fiscale'];
 
-        $dt = new DateTime($_data_creazione);
-        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PP";
+        $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PayPal";
 
         if ($template == "servizi_extra")
-            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PP";
+            $oggetto = "SINPE - Effettuato acquisto servizio extra a mezzo PayPal";
         else if ($template == "bonifico")
-            $oggetto = "SINPE - -Effettuato nuovo pagamento quota a mezzo bonifico";
+            $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo bonifico";
+        else if ($template == "preiscritto")
+            $oggetto = "SINPE - Approvazione richiesta di iscrizione";
+        else if ($template == "richiesta_bonifico_sinpe")
+            $oggetto = "SINPE - Richiesta di pagamento con bonifico registrata";
+        else if ($template == "conferma_bonifico_sinpe")
+            $oggetto = "SINPE - Pagamento della quota associativa confermato";
+        else if ($template == "voucher_sinpe")
+            $oggetto = "SINPE - Effettuato nuovo pagamento quota con voucher";
 
-        $body = <<<HTML
-                <br /><br />
-                <p>Nominativo: <b>{$_nominativo}</b></p>
-                <p>Codice fiscale: {$_cf}</p>
-                <p>Anno di riferimento: {$_anno_quota}</p>
-                <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
-                <p>Dettagli ordine: {$_order_details}</p>
-                <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
-                <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+        if ($template != 'preiscritto'
+            && $template != 'richiesta_bonifico_sinpe'
+            && $template != 'conferma_bonifico_sinpe'
+            && $template != 'voucher_sinpe') {
+            $dt = new DateTime($_data_creazione);
+            $body = <<<HTML
+                    <br /><br />
+                    <p>Nominativo: <b>{$_nominativo}</b></p>
+                    <p>Codice fiscale: {$_cf}</p>
+                    <p>Anno di riferimento: {$_anno_quota}</p>
+                    <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
+                    <p>Dettagli ordine: {$_order_details}</p>
+                    <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
+                    <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
+HTML;
+        }
+        else if ($template == 'preiscritto')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, la tua richiesta di iscrizione a SINPE è stata approvata dal Consiglio Direttivo.</p>
+                    <p>Accedi al sito <a href="https://sinpe.org">www.sinpe.it</a> con le credenziali scelte in fase di registrazione e seleziona la voce ISCRIVITI/RINNOVA LA TUA QUOTA per completare la tua iscrizione.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'richiesta_bonifico_sinpe') {
+            // cablatura del testo con il plugin di cb checksoci
+            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'Ecco i dati necessari per effettuare il bonifico:', $_testo_pagamento_bonifico);
+
+            /*
+            <p>Ecco i dati necessari per effettuare il bonifico:</p>
+            <p>
+            Banca Intesa San Paolo Spa<br />
+            IBAN: IT17K0306909606100000403014<br />
+            SWIFT: BCITITMM<br />
+            BENEFICIARIO: SINPE – Società Italiana di Nutrizione Artificiale e Metabolismo<br />
+            </p>
+            */
+            $body = <<<HTML
+                    <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
+                    {$_testo_pagamento_bonifico}
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        }
+        else if ($template == 'conferma_bonifico_sinpe')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite bonifico è stato completato correttamente e la tua iscrizione è stata confermata.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
+HTML;
+        else if ($template == 'voucher_sinpe')
+            $body = <<<HTML
+                    <p>Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.</p>
+                    <p>Cordiali saluti</p>
+                    <p>Segreteria SINPE</p>
 HTML;
 
         $_destinatario = array();
-        if ($email_default != "")
-            $_destinatario[] = $email_default;
+        if ($email_default != "") $_destinatario[] = $email_default;
+        if (!is_null($extraEmail)) $_destinatario[] = $extraEmail;
 
         return self::send_email($oggetto, $body, $_destinatario, true, true);
 
@@ -2295,13 +2406,14 @@ HTML;
 
             $_arr_remove = array_merge(self::get_usergroup_id($ug_decaduto), self::get_usergroup_id($ug_moroso), self::get_usergroup_id($ug_preiscritto));
             $_arr_add = self::get_usergroup_id($ug_online);
-
-            foreach ($_arr_add as $key => $a_group_id) {
-                JUserHelper::addUserToGroup($user_id, $a_group_id);
-            }
+            $modelUser = new gglmsModelUsers();
 
             foreach ($_arr_remove as $key => $d_group_id) {
-                JUserHelper::removeUserFromGroup($user_id, $d_group_id);
+                $modelUser->deleteUserFromUserGroup($user_id,$d_group_id);
+            }
+
+            foreach ($_arr_add as $key => $a_group_id) {
+                $modelUser->insert_user_into_usergroup($user_id,$a_group_id);
             }
 
             $_ret['success'] = "tuttook";
@@ -3225,7 +3337,7 @@ HTML;
     }
 
     // per i campi di tipo select ottengo la lista di option da name del cb field - utilità per output.php
-    public static function get_cb_field_select_by_name($_field_name) {
+    public static function get_cb_field_select_by_name($_field_name, $blackList = []) {
 
         $_options = "";
 
@@ -3239,6 +3351,8 @@ HTML;
             return "";
 
         foreach ($_cb_arr as $sub_key => $sub_values) {
+
+            if (in_array(strtolower($sub_values['fieldtitle']), $blackList)) continue;
 
             $_options .= <<<HTML
                 <option value="{$sub_values['fieldvalueid']}">{$sub_values['fieldtitle']}</option>
@@ -3450,6 +3564,21 @@ HTML;
     /* Date */
 
     /* Generiche */
+    public static function mime_to_extension($mime) {
+
+        if (is_null($mime)) return $mime;
+
+        $mime_map = [
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/zip' => 'zip',
+            'application/pdf' => 'pdf',
+        ];
+
+        return $mime_map[$mime] ?? null;
+    }
     public static function arr_to_json($_obj) {
 
         return json_encode($_obj);
@@ -3529,9 +3658,7 @@ HTML;
         $mailer->Encoding = 'base64';
         $mailer->setBody($body);
         // logo se richiesto
-        if ($with_logo)
-            $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
-
+        if ($with_logo) $mailer->AddEmbeddedImage( JPATH_COMPONENT.'/images/logo.jpg', 'logo_id', 'logo.jpg', 'base64', 'image/jpeg' );
 
         $send = $mailer->Send();
 

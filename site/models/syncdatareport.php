@@ -189,7 +189,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
                         'id_anagrafica' => $data->id_anagrafica
                     );
 
-                    utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+                    //utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
 
 //                     DEBUGG::log($data, 'Data to store_report' );
 

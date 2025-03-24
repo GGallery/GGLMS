@@ -748,13 +748,13 @@ class gglmsModelUsers extends JModelLegacy
             $db = JFactory::getDbo();
             $query = $db->getQuery(true)
                 ->select('cb_professionedisciplina as professione,
-                                cb_laureain as tipo_laurea,
-                                cb_laureanno as anno_laurea,
-                                cb_datadinascita as data_nascita,
-                                firstname as nome_utente,
-                                lastname as cognome_utente,
-                                cb_codicefiscale as codice_fiscale,
-                                cb_ultimoannoinregola as ultimo_anno_pagato')
+                            cb_laureain as tipo_laurea,
+                            cb_laureanno as anno_laurea,
+                            cb_datadinascita as data_nascita,
+                            firstname as nome_utente,
+                            lastname as cognome_utente,
+                            cb_codicefiscale as codice_fiscale,
+                            cb_ultimoannoinregola as ultimo_anno_pagato')
                 ->from('#__comprofiler')
                 ->where("user_id = '" . $user_id . "'");
 
@@ -775,7 +775,7 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
-    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null) {
+    public function update_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null, $courseId = 0, $subscription = 1, $course = 0) {
 
         try {
 
@@ -786,8 +786,16 @@ class gglmsModelUsers extends JModelLegacy
             $query = $this->_db->getQuery(true)
                         ->update("#__gg_quote_voucher")
                         ->set("user_id = " . $this->_db->quote($userId))
-                        ->set("date = " . $this->_db->quote($dateTimeRef))
-                        ->where("code = " . $this->_db->quote($codiceVoucher));
+                        ->set("date = " . $this->_db->quote($dateTimeRef));
+
+            if ($courseId > 0)
+                $query = $query->set('course_id = ' . $this->_db->quote($courseId));
+
+            $query = $query
+                        ->where("code = " . $this->_db->quote($codiceVoucher))
+                        ->where("buy_subscription = " . $this->_db->quote($subscription))
+                        ->where("buy_course = " . $this->_db->quote($course))
+                        ;
 
             $this->_db->setQuery($query);
 
@@ -906,6 +914,10 @@ class gglmsModelUsers extends JModelLegacy
                 $_tipo_quota = 'evento_nc';
                 $_tipo_pagamento = 'bonifico';
             }
+            else if ($_template == 'voucher_buy_request') {
+                $_tipo_quota = 'evento_nc';
+                $_tipo_pagamento = 'voucher';
+            }
             else if ($_template == 'bb_buy_quota_asand') {
                 $_tipo_quota = 'annuale';
                 $_tipo_pagamento = 'bonifico';
@@ -952,7 +964,9 @@ class gglmsModelUsers extends JModelLegacy
 
             }
             else if ($_template == 'acquistaevento'
-                        || $_template == 'bb_buy_request') {
+                        || $_template == 'bb_buy_request'
+                        || $_template == 'voucher_buy_request'
+                        ) {
 
                 // precarico i params del modulo
                 $_params = utilityHelper::get_params_from_module();
@@ -1067,8 +1081,7 @@ class gglmsModelUsers extends JModelLegacy
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
 
             // inserisco le quote per l'utente selezionato
             $_user_details = $this->get_user_details_cb($user_id);
@@ -1085,13 +1098,11 @@ class gglmsModelUsers extends JModelLegacy
 
             // inserisco l'utente nel gruppo online
             $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_ins_online))
-                throw new Exception($_ins_online, 1);
+            if (!is_array($_ins_online)) throw new Exception($_ins_online, E_USER_ERROR);
 
             // inserisco l'utente nel gruppo categoria corretto
             $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
-            if (!is_array($_ins_categoria))
-                throw new Exception($_ins_categoria, 1);
+            if (!is_array($_ins_categoria)) throw new Exception($_ins_categoria, E_USER_ERROR);
 
 
             $this->_db->transactionCommit();
@@ -1137,6 +1148,8 @@ class gglmsModelUsers extends JModelLegacy
             $this->_db->transactionStart();
 
             // inserisco le righe riferite agli anni
+            // riferimento quota
+            $refQuota = 'quota';
             $query = "INSERT INTO #__gg_quote_iscrizioni (user_id,
                                                                 anno,
                                                                 tipo_quota,
@@ -1147,10 +1160,13 @@ class gglmsModelUsers extends JModelLegacy
                             VALUES ";
 
             if($totale_sinpe && $tipo_quota == 'paypal') {
+                
+                if ($totale_espen > 0) $refQuota = 'espen + quota';
+
                 $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
-                               'quota',
+                               '" . $refQuota . "',
                                'paypal',
                                '" . $_data_creazione . "',
                                '" . $totale_sinpe . "',
@@ -1178,6 +1194,17 @@ class gglmsModelUsers extends JModelLegacy
                                NULL
                             )";
             }
+            elseif ($tipo_quota == 'voucher_sinpe') {
+                $query .= "(
+                    '" . $user_id . "',
+                    '" . $_anno_quota . "',
+                    '" . $refQuota . "',
+                    'voucher',
+                    '" . $_data_creazione . "',
+                    '" . $totale_sinpe . "',
+                    '" . addslashes($_order_details) . "'
+                 )";
+            }
 
             $query .= ";";
 
@@ -1187,8 +1214,7 @@ class gglmsModelUsers extends JModelLegacy
 
             // aggiorno ultimo anno pagato
             $_ultimo_anno = $this->update_ultimo_anno_pagato($user_id, $_anno_quota);
-            if (!is_array($_ultimo_anno))
-                throw new Exception($_ultimo_anno, 1);
+            if (!is_array($_ultimo_anno)) throw new Exception($_ultimo_anno, E_USER_ERROR);
 
             // estrapolo i parametri dal plugin
             $_params = utilityHelper::get_params_from_plugin();
@@ -1199,18 +1225,27 @@ class gglmsModelUsers extends JModelLegacy
             $gruppi_online = utilityHelper::get_ug_from_object($_params, "ug_online");
             $gruppi_moroso = utilityHelper::get_ug_from_object($_params, "ug_moroso");
             $gruppi_decaduto = utilityHelper::get_ug_from_object($_params, "ug_decaduto");
+            $emailTemplate = 'rinnovo';
+            $extraEmail = null;
 
             // inserisco l'utente nel gruppo online
             $_ins_online = UtilityHelper::set_usergroup_online($user_id, $gruppi_online, $gruppi_moroso, $gruppi_decaduto);
-            if (!is_array($_ins_online))
-                throw new Exception($_ins_online, 1);
+            if (!is_array($_ins_online)) throw new Exception($_ins_online, E_USER_ERROR);
 
             // inserisco l'utente nel gruppo categoria corretto
             $_ins_categoria = utilityHelper::set_usergroup_categorie($user_id, $ug_categoria, $ug_default, $ug_extra, $_user_details);
-            if (!is_array($_ins_categoria))
-                throw new Exception($_ins_categoria, 1);
+            if (!is_array($_ins_categoria)) throw new Exception($_ins_categoria, E_USER_ERROR);
 
             $this->_db->transactionCommit();
+
+            // per il voucher invio anche all'utente il messaggio di pagamento
+            if ($tipo_quota == 'voucher_sinpe') {
+                $emailTemplate = $tipo_quota;
+                $selectedUser = $this->get_user_joomla($user_id);
+                $extraEmail = (isset($selectedUser->email) && $selectedUser->email != '')
+                    ? $selectedUser->email
+                    : null;
+            }
 
             if ($send_email)
                 utilityHelper::send_sinpe_email_pp($email_default,
@@ -1219,7 +1254,10 @@ class gglmsModelUsers extends JModelLegacy
                                                     $_anno_quota,
                                                     $_user_details,
                                                     $totale_sinpe,
-                                                    $totale_espen);
+                                                    $totale_espen,
+                                                    $emailTemplate,
+                                                    $extraEmail
+                                                );
 
             $_ret['success'] = "tuttook";
 
@@ -1418,7 +1456,9 @@ class gglmsModelUsers extends JModelLegacy
                     ->select("u.id AS user_id, u.username, u.email,
                                     cp.cb_nome AS nome, cp.cb_cognome AS cognome,
                                     cp.cb_codicefiscale AS codice_fiscale,
-                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita, cp.cb_ultimoannoinregola AS ultimo_anno,
+                                    COALESCE(cp.cb_datadinascita, '') AS data_nascita, 
+                                    cp.cb_ultimoannoinregola AS ultimo_anno, 
+                                    IF(cp.cb_professione_sinpe IS NULL, 0, 1) AS sinpe_dep,
                                     ug.title AS tipo_socio, ug.id AS id_group");
 
             $count_query = $this->_db->getQuery(true)
@@ -1733,11 +1773,10 @@ class gglmsModelUsers extends JModelLegacy
 
     // inserimento di un utente in un gruppo specifico - sovrascrive la funzione nativa di joomla che per qualche motivo fallisce
     // nonostante restituisca TRUE...
-    public function insert_user_into_usergroup($user_id, $group_id) {
+    public function insert_user_into_usergroup($user_id, $group_id,$startTransaction=false) {
 
         try {
-
-            $this->_db->transactionStart();
+            if($startTransaction) $this->_db->transactionStart();
 
             // associo utente al gruppo societa
             $insertquery_map = 'INSERT
@@ -1752,13 +1791,13 @@ class gglmsModelUsers extends JModelLegacy
             if (!$this->_db->execute())
                 throw new Exception("Si è verificato un errore durante l'inserimento", E_USER_ERROR);
 
-            $this->_db->transactionCommit();
+            if($startTransaction) $this->_db->transactionCommit();
 
             return 1;
 
         }
         catch (Exception $e) {
-            $this->_db->transactionRollback();
+            if($startTransaction) $this->_db->transactionRollback();
             utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
@@ -2086,7 +2125,7 @@ class gglmsModelUsers extends JModelLegacy
                                                     $_anno_quota,
                                                     $_data_pagamento = null,
                                                     $totale_sinpe,
-                                                     $totale_espen = 0) {
+                                                    $totale_espen = 0) {
 
         try {
 
@@ -2310,5 +2349,77 @@ class gglmsModelUsers extends JModelLegacy
         }
         return $_codice;
     }
+
+    public function get_nome_societa_by_id($id_gruppo)
+    {
+
+        $res = array();
+
+        try {
+
+            $query_P = $this->_db->getQuery(true)
+                ->select('title as nome_societa')
+                ->from('#__usergroups')
+                ->where('id = "' . $id_gruppo . '"');
+            $this->_db->setQuery($query_P);
+            $res = $this->_db->loadObject();
+
+            return $res;
+        } catch (Exception $e) {
+            DEBUGG::error($e, 'get_nome_societa_byid');
+        }
+
+
+    }
+
+    // controllo se un voucher è già stato utilizzato
+    public function checkVoucherValid($requestedVoucher, int $subscription = 1, int $course = 0) {
+
+        try {
+
+            $checkVoucher = "SELECT *
+                            FROM #__gg_quote_voucher
+                            WHERE code = " . $this->_db->quote(trim(strtoupper($requestedVoucher))) . "
+                            AND buy_subscription = " . $subscription . "
+                            AND buy_course = " . $course . "
+                            AND user_id IS NULL";
+            
+            $this->_db->setQuery($checkVoucher);
+            if (!$this->_db->execute()) throw new Exception("Error during checking voucher code: " . $requestedVoucher, E_USER_ERROR);
+            
+            return $this->_db->loadResult();
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() , __FUNCTION__);
+
+            return "error";
+        }
+
+    }
+
+    // rimuovo un utente da un gruppo per user_id e group_id
+    public function deleteUserFromUserGroup($user_id, $group_id) {
+
+        try {
+            //cancello da user_usergroup corso per utente
+            $delete_usergroup = "DELETE FROM #__user_usergroup_map"
+            . " WHERE group_id = " . $this->_db->quote($group_id) . " AND user_id = " . $user_id;
+            
+            $this->_db->setQuery($delete_usergroup);
+
+            if (!$this->_db->execute()) throw new Exception("Delete usergroup da user query ko -> " . $delete_usergroup, E_USER_ERROR);
+
+            return true;
+
+        }
+        catch(Exception $e) {
+            utilityHelper::make_debug_log(__FUNCTION__, $e->getMessage() , __FUNCTION__);
+
+            return null;
+        }
+
+    }
+
 }
 

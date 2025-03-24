@@ -327,6 +327,10 @@ JHtml::_('formbehavior.chosen', 'select');
                 <div class="row-fluid">
                     <?php echo $this->form->renderField('sconti_particolari'); ?>
                 </div>
+                
+                <div class="row-fluid">
+                    <?php echo $this->form->renderField('buy_voucher'); ?>
+                </div>
 
                 <div class="row-fluid">
                     <?php echo $this->form->renderField('riduzione_webinar'); ?>
