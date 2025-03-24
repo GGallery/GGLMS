@@ -198,11 +198,25 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
         } catch (Exception $e) {
 
+            // Imposta header
+            header('HTTP/1.1 500 Internal Server Error', true, 500);
+            
+            // Prepara il JSON di errore
+            $error = new stdClass();
+            $error->success = false;
+            $error->message = $e->getMessage();
+            
+            // Invia risposta JSON
+            echo json_encode($error);
+
             // loggo anche l'oggetto POST ricevuto per maggiori dettagli
             UtilityHelper::make_debug_log(__FUNCTION__, print_r(JRequest::get($_POST), true), 'api_genera_coupon_post_obj');
             // l'errore esclusivo della api_genera_coupon lo marco diversamente
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), 'api_genera_coupon_exception');
             DEBUGG::error($e, __FUNCTION__, 1, true);
+
+            // Termina l'esecuzione
+            $this->_japp->close();
         }
 
     }
