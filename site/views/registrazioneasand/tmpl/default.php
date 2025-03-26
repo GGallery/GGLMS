@@ -242,6 +242,8 @@ defined('_JEXEC') or die;
                         return;
                     }
 
+                    //regione_utente
+
                     var pTitoloStudio = jQuery('#titolo_studio').val();
                     let pTitoloStudioText = jQuery( "#titolo_studio option:selected" ).text();
                     if (pTitoloStudio.trim() == "") {
@@ -427,6 +429,16 @@ defined('_JEXEC') or die;
                     var pTelefonoID = jQuery('#telefono_utente').attr("id");
                     var pTelefonoCB = jQuery('#telefono_utente').attr("data-campo");
                     pPropArr.push({campo: pTelefonoID, cb: pTelefonoCB, value: pTelefono});
+
+                    var pRegioneID = jQuery('#regione_utente').attr("id");
+                    var pRegioneCB = jQuery('#regione_utente').attr("data-campo");
+                    var pRegioneIDRef = jQuery('#regione_utente').attr("data-id-ref");
+                    pPropArr.push({
+                        campo: pRegioneID, 
+                        cb: pRegioneCB, 
+                        value: pRegione,
+                        is_id: pRegioneIDRef
+                    });
 
                     var pTitoloStudioID = jQuery('#titolo_studio').attr("id");
                     var pTitoloStudioCB = jQuery('#titolo_studio').attr("data-campo");
