@@ -1376,7 +1376,7 @@ INSERT INTO `#__comprofiler_field_values` (`fieldid`, `fieldtitle`, `fieldlabel`
 	(70, 'Medico Chirurgo/Igiene degli alimenti e della nutrizione', '', 0, 0, 0),
 	(70, 'Medico Chirurgo/Igiene, epidemiologia e sanità pubblica', '', 0, 0, 0),
 	(70, 'Medico Chirurgo/Laboratorio di genetica medica', '', 0, 0, 0),
-	(70, 'Medico Chirurgo/Malattie dell'apparato respiratorio', '', 0, 0, 0),
+	(70, 'Medico Chirurgo/Malattie dell"apparato respiratorio', '', 0, 0, 0),
 	(70, 'Medico Chirurgo/Malattie infettive', '', 0, 0, 0),
 	(70, 'Medico Chirurgo/Malattie metaboliche e diabetologia', '', 0, 0, 0),
 	(70, 'Medico Chirurgo/Medicina aeronautica e spaziale', '', 0, 0, 0),
