@@ -861,7 +861,7 @@ DROP TABLE IF EXISTS `#__gg_quote_voucher`;
 CREATE TABLE `#__gg_quote_voucher` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `user_id` INT(11) NULL,
-  `course_id` INT(11) NULL AFTER `user_id`,
+  `course_id` INT(11) NULL,
   `code` TEXT NOT NULL,
   `buy_subscription` tinyint(1) UNSIGNED DEFAULT '1',
   `buy_course` tinyint(1) UNSIGNED DEFAULT '0',
