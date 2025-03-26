@@ -840,6 +840,7 @@ HTML;
             $_cb_indirizzo = UtilityHelper::get_cb_field_name($_params, 'campo_cb_indirizzo', 'name');
             $_cb_citta = UtilityHelper::get_cb_field_name($_params, 'campo_cb_citta', 'name');
             $_cb_cap = UtilityHelper::get_cb_field_name($_params, 'campo_cb_cap', 'name');
+                       
             $_cb_provincia = UtilityHelper::get_cb_field_name($_params, 'campo_cb_provincia', 'name');
             $_cb_telefono = UtilityHelper::get_cb_field_name($_params, 'campo_cb_telefono', 'name');
             $_cb_professione_disciplina = UtilityHelper::get_cb_field_name($_params, 'campo_cb_professione_disciplina', 'name');
@@ -866,6 +867,10 @@ HTML;
             $_cb_reclutamento_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_reclutamento');
             $_cb_reclutamento_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_reclutamento');
 
+            $_cb_regione_options = UtilityHelper::get_cb_field_select($_params,'campo_cb_regione');
+            $_cb_regione_id = UtilityHelper::get_params_from_object($_params, 'campo_cb_regione');
+
+            //# label dizionario
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_label_username = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR2');
             $_label_password = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR3');
@@ -886,6 +891,7 @@ HTML;
             $_label_ordine = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR17');
             $_label_iscrizione = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR18');
             $_label_reclutamento = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR19');
+            $_label_regione = JText::_('COM_GGLMS_ISCRIZIONE_EVENTO_STR25');
 
             $token = UtilityHelper::build_token_url(0, $id_evento, 0, 0, 0, 0);
             $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'user_registration_sponsor_request');
@@ -2660,6 +2666,8 @@ HTML;
             $_cb_citta_azienda = 'cb_citta_azienda';
             $_cb_indirizzo_studio = 'cb_indirizzo_studio';
             $_cb_citta_studio = 'cb_citta_studio';
+            $_cb_regione = 'cb_regione';
+            
             // lista options da community builder
             $_cb_dipendente_options = UtilityHelper::get_cb_field_select_by_name('cb_dipendente');
             $_cb_dipendente_id = UtilityHelper::get_cb_fieldId_by_name('cb_dipendente');
@@ -2673,6 +2681,9 @@ HTML;
             $_cb_provincia_albo_id = UtilityHelper::get_cb_fieldId_by_name('cb_provincia_albo');
             $_cb_provincia_nascita_options = UtilityHelper::get_cb_field_select_by_name('cb_provinciadinascita');
             $_cb_provincia_nascita_id = UtilityHelper::get_cb_fieldId_by_name('cb_provinciadinascita');
+
+            $_cb_regione_options = UtilityHelper::get_cb_field_select_by_name('cb_regione');
+            $_cb_regione_nascita_id = UtilityHelper::get_cb_fieldId_by_name('cb_regione');
 
             $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
             $_label_nome = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR8');
@@ -2708,6 +2719,7 @@ HTML;
             $_label_citta_azienda = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR42');
             $_label_indirizzo_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR43');
             $_label_citta_studio = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR44');
+            $_label_regione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR47');
 
             $_quota_standard = $quotaStandard > 0
               ? "&euro; " . number_format($quotaStandard, 2, ',', '')
@@ -2847,6 +2859,16 @@ HTML;
                     <select class="form-control w-25" id="pv_utente" data-campo="{$_cb_provincia}" data-id-ref="{$_cb_provincia_id}">
                       <option value="">-</option>
                       {$_cb_provincia_options}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="regione_utente" class="col-sm-2 col-form-label">{$_label_regione}<span style="color: red">*</span></label>
+                  <div class="col-sm-10">
+                    <select class="form-control w-25" id="regione_utente" data-campo="{$_cb_regione}" data-id-ref="{$_cb_regione_id}">
+                      <option value="">-</option>
+                      {$_cb_regione_options}
                     </select>
                   </div>
                 </div>
