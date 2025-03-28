@@ -436,7 +436,6 @@ defined('_JEXEC') or die;
                     pPropArr.push({
                         campo: pRegioneID, 
                         cb: pRegioneCB, 
-                        value: pRegione,
                         is_id: pRegioneIDRef
                     });
 
