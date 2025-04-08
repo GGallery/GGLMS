@@ -171,6 +171,7 @@ CREATE TABLE `#__gg_contenuti` (
   `id_evento` varchar(25) NULL COMMENT 'aggiunta per le chiamate api zoom',
   `tipo_zoom` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'aggiunta per distinguere webinar da meeting',
   `url_streaming_azure` TEXT DEFAULT NULL,
+  `gruppo_attestato` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -503,6 +504,7 @@ CREATE TABLE `#__gg_unit` (
   `disabilita_aquisto_presenza` tinyint(1) UNSIGNED DEFAULT '0' COMMENT 'Vendita - Disabilita acquisto eventi in presenza',
   `prezzo_webinar_fisso` tinyint(1) NOT NULL DEFAULT 0,
   `id_gruppi_custom` varchar(255) DEFAULT NULL,
+  `attestato_personalizzato` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   FULLTEXT KEY `titolo` (`titolo`,`descrizione`)
 ) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;

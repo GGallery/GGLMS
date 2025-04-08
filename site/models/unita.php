@@ -128,6 +128,13 @@ class gglmsModelUnita extends JModelLegacy
         $query_id = $unit_id;
 
         try {
+
+            $user_id = $this->_userid;
+            $_user = new gglmsModelUsers();
+            $_user_details = $_user->get_user_full_details_cb($user_id);
+            $attestato_personalizzato = $this->get_attestato_personalizzato_unita($unit_id);
+
+
             $query = $this->_db->getQuery(true)
                 ->select('c.*')
                 ->from('#__gg_unit_map as m')
@@ -142,13 +149,20 @@ class gglmsModelUnita extends JModelLegacy
                 $query = $query->where('c.tipologia = 5');
             }
 
+            if ($attestato_personalizzato == 1) {
+                $profilo = strtolower($_user_details['cb_profiloprofessionale']);
+                $query->where('(c.tipologia != 5 OR LOWER(c.gruppo_attestato) = ' . $this->_db->quote($profilo) . ')');
+            }
+
             $this->_db->setQuery($query);
             $contenuti = $this->_db->loadObjectList('', 'gglmsModelContenuto');
+
 
         } catch (Exception $e) {
             DEBUGG::log($e, 'getContenuti');
 
         }
+
         return $contenuti;
     }
 
@@ -1039,6 +1053,28 @@ class gglmsModelUnita extends JModelLegacy
             UtilityHelper::make_debug_log(__FUNCTION__, $e->getMessage(), __FUNCTION__ . "_error");
             return null;
         }
+    }
+
+    public function get_attestato_personalizzato_unita($id_corso) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('attestato_personalizzato')
+                ->from('#__gg_unit')
+                ->where('id = ' . $this->_db->quote($id_corso));
+
+            $this->_db->setQuery($query);
+            $result = $this->_db->loadResult();
+
+            return $result;
+
+        }
+        catch (Exception $e) {
+            DEBUGG::error($e, __FUNCTION__);
+            return null;
+        }
+
     }
 
 

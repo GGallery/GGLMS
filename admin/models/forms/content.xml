@@ -245,6 +245,18 @@
 				required=""
 				default=""
 		/>
+
+		<field
+				name="gruppo_attestato"
+				type="text"
+				label="Gruppo attestato"
+				description="Attestato personalizzata per una certa professione"
+				class="inputbox"
+				required=""
+				showon="tipologia:5"
+				default=""
+				size="30"
+		/>
 		<field
 				name="abstract"
 				type="editor"

@@ -164,6 +164,12 @@ JHtml::_('formbehavior.chosen', 'select');
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                        echo $this->form->renderField('attestato_personalizzato'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                         echo $this->form->renderField('prefisso_coupon'); ?>
                 </div>
 
@@ -327,7 +333,7 @@ JHtml::_('formbehavior.chosen', 'select');
                 <div class="row-fluid">
                     <?php echo $this->form->renderField('sconti_particolari'); ?>
                 </div>
-                
+
                 <div class="row-fluid">
                     <?php echo $this->form->renderField('buy_voucher'); ?>
                 </div>

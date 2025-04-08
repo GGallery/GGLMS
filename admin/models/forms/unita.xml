@@ -196,6 +196,20 @@
         </field>
 
         <field
+                name="attestato_personalizzato"
+                type="radio"
+                label="Attestato personalizzato"
+                description="Specifica se il corso ha attestati associati a professione"
+                class="btn-group"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
+
+
+
+        <field
                 name="prefisso_coupon"
                 type="text"
                 default=""

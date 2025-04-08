@@ -134,6 +134,12 @@ $fieldsets = $this->form->getFieldsets();
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                        echo $this->form->renderField('gruppo_attestato'); ?>
+                </div>
+
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                         echo $this->form->renderField('meta_tag'); ?>
                 </div>
             </div>

@@ -3,6 +3,9 @@
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
+# 4.2.6
+* D: aggiunta della colonna attestato_personalizzato alla tabella gg_unit
+* D: aggiunta della colonna gruppo_attestato alla tabella gg_contenuti
 # 4.2.5
 * D: aggiunta della colonna buy_voucher alla tabella gg_unit
 * D: aggiunta della colonna course_id alla tabella gg_quote_voucher
