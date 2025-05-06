@@ -1526,7 +1526,7 @@ HTML;
             $_ref_accedi = "index.php?option=com_comprofiler&view=login";
 
             $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
-            $_ref_registrazione = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'new_user_request');
+            $_ref_registrazione = "index.php?option=com_comprofiler&view=registers";
 
             $_html = <<<HTML
             <div class="row">
@@ -1886,12 +1886,12 @@ HTML;
               </tr>
               <tr>
                   <td colspan="5" style="text-align: center;">
-                    <input 
-                      class="w-25" 
+                    <input
+                      class="w-25"
                       style="padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 5px; outline: none; transition: all 0.3s ease-in-out;"
-                      type="text" 
-                      id="buy_voucher_code" 
-                      placeholder="{$_placeholder_voucher}" 
+                      type="text"
+                      id="buy_voucher_code"
+                      placeholder="{$_placeholder_voucher}"
                     />
                   </td>
               </tr>
@@ -2170,7 +2170,7 @@ HTML;
 
                     <div class="row mt-5">
                       <div class="col-md-12 text-center">
-                        <button  class="btn btn-lg btn-bonifico" id="btn-bonifico" onclick="openForm()" data-ref="{$endpoint}" 
+                        <button  class="btn btn-lg btn-bonifico" id="btn-bonifico" onclick="openForm()" data-ref="{$endpoint}"
                           style="background-color: #17a2b8;font-weight: 900;height: 40px !important; width: 500px;font-size: 15px !important;">{$_testo_pagamento_bonifico_bt}</button>
                       </div>
                     </div>
@@ -2459,11 +2459,11 @@ HTML;
         $_label_registrazione = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR5');
         $_label_professionedisciplina = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR49');
         $_cb_ordine_options = utilityHelper::get_cb_field_select_by_name('cb_ordine');
-        $_cb_professionedisciplina_options = utilityHelper::get_cb_field_select_by_name('cb_professionedisciplina', 
+        $_cb_professionedisciplina_options = utilityHelper::get_cb_field_select_by_name('cb_professionedisciplina',
           [
-            'studente', 
-            'altro', 
-            'specializzando', 
+            'studente',
+            'altro',
+            'specializzando',
             'specializzando 2',
             'biologo/anatomia patologica',
             'biologo/biochimica clinica',
@@ -2481,7 +2481,7 @@ HTML;
           ]);
 
 
-        
+
         $_html = <<<HTML
         <div class="row mt-4">
           <div class="col-12">
@@ -2508,11 +2508,11 @@ HTML;
             <div class="form-group row mt-4">
               <label for="cb_nome" class="col-sm-2 col-form-label">{$_label_nome}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="text" 
-                  id="cb_nome" 
-                  placeholder="{$_label_nome}" 
+                <input
+                  class="form-control w-25"
+                  type="text"
+                  id="cb_nome"
+                  placeholder="{$_label_nome}"
                   required
                   />
               </div>
@@ -2521,11 +2521,11 @@ HTML;
             <div class="form-group row">
               <label for="cb_cognome" class="col-sm-2 col-form-label">{$_label_cognome}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="text" 
-                  id="cb_cognome" 
-                  placeholder="{$_label_cognome}" 
+                <input
+                  class="form-control w-25"
+                  type="text"
+                  id="cb_cognome"
+                  placeholder="{$_label_cognome}"
                   required
                   />
               </div>
@@ -2534,22 +2534,22 @@ HTML;
             <div class="form-group row">
               <label for="email_utente" class="col-sm-2 col-form-label">{$_label_email}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="email" 
-                  id="email_utente" 
+                <input
+                  class="form-control w-25"
+                  type="email"
+                  id="email_utente"
                   placeholder="{$_label_email}"
-                  required  
+                  required
                 />
               </div>
             </div>
-            
+
             <div class="form-group row">
               <label for="cb_professionedisciplina" class="col-sm-2 col-form-label">{$_label_professionedisciplina}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_professionedisciplina" 
+                <select
+                  class="form-control w-25"
+                  id="cb_professionedisciplina"
                   required
                   >
                     <option value="">-</option>
@@ -2561,9 +2561,9 @@ HTML;
             <div class="form-group row">
               <label for="cb_ordine" class="col-sm-2 col-form-label">{$_label_ordine_di}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_ordine" 
+                <select
+                  class="form-control w-25"
+                  id="cb_ordine"
                   required
                   >
                     <option value="">-</option>
@@ -2575,11 +2575,11 @@ HTML;
             <div class="form-group row">
               <label for="cb_numeroiscrizione" class="col-sm-2 col-form-label">{$_label_numeroiscrizione}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_numeroiscrizione" 
-                  placeholder="{$_label_numeroiscrizione}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_numeroiscrizione"
+                  placeholder="{$_label_numeroiscrizione}"
                   required
                   />
               </div>
@@ -2595,7 +2595,7 @@ HTML;
             <input type="hidden" name="cc" id="cc" value="{$getVideoParam}" />
       </form>
     </div>
-    
+
 HTML;
 
         $_ret['success'] = $_html;
@@ -2717,13 +2717,13 @@ HTML;
             <div class="form-group row">
               <label for="cb_codicefiscale" class="col-sm-2 col-form-label">{$_label_cf}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_codicefiscale" 
-                  maxlength="16" 
-                  data-campo="{$_cb_codicefiscale}" 
-                  placeholder="{$_label_cf}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_codicefiscale"
+                  maxlength="16"
+                  data-campo="{$_cb_codicefiscale}"
+                  placeholder="{$_label_cf}"
                   required
                   />
               </div>
@@ -2738,12 +2738,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_nome" class="col-sm-2 col-form-label">{$_label_nome}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="text" 
-                  id="cb_nome" 
-                  data-campo="{$_cb_nome}" 
-                  placeholder="{$_label_nome}" 
+                <input
+                  class="form-control w-25"
+                  type="text"
+                  id="cb_nome"
+                  data-campo="{$_cb_nome}"
+                  placeholder="{$_label_nome}"
                   required
                   />
               </div>
@@ -2752,12 +2752,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_cognome" class="col-sm-2 col-form-label">{$_label_cognome}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="text" 
-                  id="cb_cognome" 
-                  data-campo="{$_cb_cognome}" 
-                  placeholder="{$_label_cognome}" 
+                <input
+                  class="form-control w-25"
+                  type="text"
+                  id="cb_cognome"
+                  data-campo="{$_cb_cognome}"
+                  placeholder="{$_label_cognome}"
                   required
                   />
               </div>
@@ -2766,12 +2766,12 @@ HTML;
             <div class="form-group row">
               <label for="email_utente" class="col-sm-2 col-form-label">{$_label_email}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="email" 
-                  id="email_utente" 
+                <input
+                  class="form-control w-25"
+                  type="email"
+                  id="email_utente"
                   placeholder="{$_label_email}"
-                  required  
+                  required
                 />
               </div>
             </div>
@@ -2785,12 +2785,12 @@ HTML;
             <div class="form-group row">
               <label for="username" class="col-sm-2 col-form-label">{$_label_username}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="text" 
-                  id="username" 
-                  data-campo="{$_cb_nome}" 
-                  placeholder="{$_label_username}" 
+                <input
+                  class="form-control w-25"
+                  type="text"
+                  id="username"
+                  data-campo="{$_cb_nome}"
+                  placeholder="{$_label_username}"
                   required
                   />
               </div>
@@ -2824,10 +2824,10 @@ HTML;
             <div class="form-group row">
               <label for="cb_titolo" class="col-sm-2 col-form-label">{$_label_titolo}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_titolo" 
-                  data-campo="{$_cb_titolo}" 
+                <select
+                  class="form-control w-25"
+                  id="cb_titolo"
+                  data-campo="{$_cb_titolo}"
                   data-id-ref="{$_cb_titolo_id}"
                   required
                   >
@@ -2840,11 +2840,11 @@ HTML;
             <div class="form-group row">
               <label for="cb_datadinascita" class="col-sm-2 col-form-label">{$_label_dt_nascita}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 datepicker" 
-                  type="text" 
-                  id="cb_datadinascita" 
-                  data-campo="{$_cb_datadinascita}" 
+                <input
+                  class="form-control w-25 datepicker"
+                  type="text"
+                  id="cb_datadinascita"
+                  data-campo="{$_cb_datadinascita}"
                   required
                   />
               </div>
@@ -2853,24 +2853,24 @@ HTML;
             <div class="form-group row">
               <label for="cb_luogodinascita" class="col-sm-2 col-form-label">{$_label_citta_nascita}<span style="color: red">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_luogodinascita" 
-                  data-campo="{$_cb_luogodinascita}" 
-                  placeholder="{$_label_citta_nascita}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_luogodinascita"
+                  data-campo="{$_cb_luogodinascita}"
+                  placeholder="{$_label_citta_nascita}"
                   required
                   />
               </div>
             </div>
-            
+
             <div class="form-group row">
               <label for="cb_provinciadinascita" class="col-sm-2 col-form-label">{$_label_pv_nascita}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_provinciadinascita" 
-                  data-campo="{$_cb_provinciadinascita}" 
+                <select
+                  class="form-control w-25"
+                  id="cb_provinciadinascita"
+                  data-campo="{$_cb_provinciadinascita}"
                   data-id-ref="{$_cb_provinciadinascita_id}"
                   required
                   >
@@ -2883,12 +2883,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_nazionalita" class="col-sm-2 col-form-label">{$_label_nazionalita}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_nazionalita" 
-                  data-campo="{$_cb_nazionalita}" 
-                  placeholder="{$_label_nazionalita}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_nazionalita"
+                  data-campo="{$_cb_nazionalita}"
+                  placeholder="{$_label_nazionalita}"
                   required
                   />
               </div>
@@ -2904,11 +2904,11 @@ HTML;
             <div class="form-group row">
               <label for="cb_indirizzodiresidenza" class="col-sm-2 col-form-label">{$_label_indirizzo}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" id="cb_indirizzodiresidenza" 
-                  data-campo="{$_cb_indirizzodiresidenza}" 
-                  placeholder="{$_label_indirizzo}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text" id="cb_indirizzodiresidenza"
+                  data-campo="{$_cb_indirizzodiresidenza}"
+                  placeholder="{$_label_indirizzo}"
                   required
                   />
               </div>
@@ -2917,10 +2917,10 @@ HTML;
             <div class="form-group row">
               <label for="cb_provdiresidenza" class="col-sm-2 col-form-label">{$_label_pv}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_provdiresidenza" 
-                  data-campo="{$_cb_provdiresidenza}" 
+                <select
+                  class="form-control w-25"
+                  id="cb_provdiresidenza"
+                  data-campo="{$_cb_provdiresidenza}"
                   data-id-ref="{$_cb_provdiresidenza_id}"
                   required
                   >
@@ -2933,12 +2933,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_citta" class="col-sm-2 col-form-label">{$_label_citta}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_citta" 
-                  data-campo="{$_cb_citta}" 
-                  placeholder="{$_label_citta}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_citta"
+                  data-campo="{$_cb_citta}"
+                  placeholder="{$_label_citta}"
                   required
                   />
               </div>
@@ -2947,12 +2947,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_cap" class="col-sm-2 col-form-label">{$_label_cap}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_cap" 
-                  data-campo="{$_cb_cap}" 
-                  placeholder="{$_label_cap}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_cap"
+                  data-campo="{$_cb_cap}"
+                  placeholder="{$_label_cap}"
                   required
                   />
               </div>
@@ -2961,10 +2961,10 @@ HTML;
             <div class="form-group row">
               <label for="cb_regione" class="col-sm-2 col-form-label">{$_label_regione}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_regione" 
-                  data-campo="{$_cb_regione}" 
+                <select
+                  class="form-control w-25"
+                  id="cb_regione"
+                  data-campo="{$_cb_regione}"
                   data-id-ref="{$_cb_regione_id}"
                   required
                   >
@@ -2987,12 +2987,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_laureanno" class="col-sm-2 col-form-label">{$_label_laurea_anno}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_laureanno" 
-                  data-campo="{$_cb_laureanno}" 
-                  placeholder="{$_label_laurea_anno}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_laureanno"
+                  data-campo="{$_cb_laureanno}"
+                  placeholder="{$_label_laurea_anno}"
                   required
                   />
               </div>
@@ -3001,10 +3001,10 @@ HTML;
             <div class="form-group row">
               <label for="cb_professionedisciplina" class="col-sm-2 col-form-label">{$_label_professionedisciplina}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_professionedisciplina" 
-                  data-campo="{$_cb_professionedisciplina}" 
+                <select
+                  class="form-control w-25"
+                  id="cb_professionedisciplina"
+                  data-campo="{$_cb_professionedisciplina}"
                   data-id-ref="{$_cb_professionedisciplina_id}"
                   required
                   >
@@ -3017,10 +3017,10 @@ HTML;
             <div class="form-group row">
               <label for="cb_ordine" class="col-sm-2 col-form-label">{$_label_ordine_di}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <select 
-                  class="form-control w-25" 
-                  id="cb_ordine" 
-                  data-campo="{$_cb_ordine}" 
+                <select
+                  class="form-control w-25"
+                  id="cb_ordine"
+                  data-campo="{$_cb_ordine}"
                   data-id-ref="{$_cb_ordine_id}"
                   required
                   >
@@ -3033,12 +3033,12 @@ HTML;
             <div class="form-group row">
               <label for="cb_numeroiscrizione" class="col-sm-2 col-form-label">{$_label_numeroiscrizione}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_numeroiscrizione" 
-                  data-campo="{$_cb_numeroiscrizione}" 
-                  placeholder="{$_label_numeroiscrizione}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_numeroiscrizione"
+                  data-campo="{$_cb_numeroiscrizione}"
+                  placeholder="{$_label_numeroiscrizione}"
                   required
                   />
               </div>
@@ -3059,39 +3059,39 @@ HTML;
             <div class="form-group row">
               <label for="cb_azienda" class="col-sm-2 col-form-label">{$_label_azienda}<span class="text-danger">*</span></label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_azienda" 
-                  data-campo="{$_cb_azienda}" 
-                  placeholder="{$_label_azienda}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_azienda"
+                  data-campo="{$_cb_azienda}"
+                  placeholder="{$_label_azienda}"
                   required
                 />
               </div>
             </div>
-            
+
             <div class="form-group row">
               <label for="cb_dipartimento" class="col-sm-2 col-form-label">{$_label_dipartimento}</label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_dipartimento" 
-                  data-campo="{$_cb_dipartimento}" 
-                  placeholder="{$_label_dipartimento}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_dipartimento"
+                  data-campo="{$_cb_dipartimento}"
+                  placeholder="{$_label_dipartimento}"
                   required
                   />
               </div>
             </div>
-            
+
             <div class="form-group row">
               <label for="cb_reparto" class="col-sm-2 col-form-label">{$_label_reparto}</label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25 text-uppercase" 
-                  type="text" 
-                  id="cb_reparto" 
-                  data-campo="{$_cb_reparto}" 
+                <input
+                  class="form-control w-25 text-uppercase"
+                  type="text"
+                  id="cb_reparto"
+                  data-campo="{$_cb_reparto}"
                   placeholder="{$_label_reparto}"
                   required
                   />
@@ -3101,16 +3101,16 @@ HTML;
             <div class="form-group row">
               <label for="voucher_code" class="col-sm-2 col-form-label">{$_label_voucher}*</label>
               <div class="col-sm-10">
-                <input 
-                  class="form-control w-25" 
-                  type="text" 
-                  id="voucher_code" 
-                  placeholder="{$_label_voucher}" 
+                <input
+                  class="form-control w-25"
+                  type="text"
+                  id="voucher_code"
+                  placeholder="{$_label_voucher}"
                   required
                   />
                   <p class="small">*{$_label_voucher_info}</p>
               </div>
-              
+
             </div>
 
             <div class="form-group row">
@@ -3118,13 +3118,13 @@ HTML;
               <div class="col-sm-6">
                 <div class="form-group">
                   <label for="cb_cv">{$_label_file_upload}</label>
-                  <input 
-                    id="cb_cv" 
-                    data-campo="{$_cb_cv}" 
+                  <input
+                    id="cb_cv"
+                    data-campo="{$_cb_cv}"
                     aria-describedby="cb_cv"
                     accept=".doc,.docx,.xls,.xlsx,.zip,.pdf"
-                    type="file" 
-                    class="form-control-file" 
+                    type="file"
+                    class="form-control-file"
                     style="height: 25% !important;"
                     />
                 </div>
@@ -3185,7 +3185,7 @@ HTML;
                 </div>
               </div>
             </div>
-            
+
             <div class="form-group row">
               <div class="col-sm-6 offset-sm-3 text-center">
                 <button class="btn btn-large btn-registrazione">{$_label_registrazione}</button>
