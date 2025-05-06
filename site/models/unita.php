@@ -152,11 +152,11 @@ class gglmsModelUnita extends JModelLegacy
             if ($attestato_personalizzato == 1) {
                 $input = JFactory::getApplication()->input;
                 $id_user = $input->getInt('user_id');
-                $profilo = strtolower($_user_details['cb_profiloprofessionale']);
+                $profilo = strtolower($_user_details['cb_tipoattestato']);
 
                 if($profilo == '' || is_null($profilo)){
                     $_user_details = $_user->get_user_full_details_cb($id_user);
-                    $profilo = strtolower($_user_details['cb_profiloprofessionale']);
+                    $profilo = strtolower($_user_details['cb_tipoattestato']);
                 }
 
                 $query->where('(LOWER(c.gruppo_attestato) = ' . $this->_db->quote($profilo) . ')');
