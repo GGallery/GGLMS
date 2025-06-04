@@ -197,6 +197,13 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                     if ($_already_request)
                         throw new Exception("Evento acquistato oppure in attesa del bonifico", E_USER_ERROR);
 
+                    $logData = [
+                        'user_id'   => $this->user_id,
+                        'unit_id'  => $this->unit_id,
+                        'prezzo_corso' => $this->unit_prezzo,
+                    ];
+                    utilityHelper::make_debug_log('prima della funzione : get_payment_form_acquisto_evento', print_r($logData, true), __FUNCTION__);
+
                     $_payment_form = outputHelper::get_payment_form_acquisto_evento($this->unit_prezzo,
                                                                                     $this->unit_id,
                                                                                     $this->user_id,

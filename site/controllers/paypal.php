@@ -55,6 +55,8 @@ class gglmsControllerPaypal extends JControllerLegacy {
 
             $order_info_arr = json_decode($order_info_obj, true);
 
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($order_info_arr, true), __FUNCTION__);
+
             // dettaglio transazione non disponibile
             if (isset($order_info_arr['error']))
                 throw new Exception($order_info_arr['error'], 1);
@@ -254,6 +256,14 @@ class gglmsControllerPaypal extends JControllerLegacy {
         try {
 
             $request = new OrdersGetRequest($order_id);
+
+            $logData = [
+                'client_id'   => $client_id,
+                'client_secret'  => $client_secret,
+                'is_production' => $is_production,
+            ];
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($logData, true), __FUNCTION__);
+
             $client = $this->create_client($client_id, $client_secret, $is_production);
             $response = $client->execute($request);
 
@@ -262,6 +272,7 @@ class gglmsControllerPaypal extends JControllerLegacy {
         }
         catch (Exception $e) {
             $_err = json_encode($e->getMessage());
+            utilityHelper::make_debug_log(__FUNCTION__, print_r($_err, true), __FUNCTION__);
             DEBUGG::log($_err, 'ERRORE DA ' . __FUNCTION__, 1, 1);
             $_ret['error'] = $e->getMessage();
         }

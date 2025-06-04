@@ -247,8 +247,17 @@ class gglmsViewPaypal extends JViewLegacy {
                 //$sconto_data = $decode_arr[3];
                 //$in_groups = $decode_arr[4];
 
+                $logData = [
+                    'unit_prezzo'   => $unit_prezzo,
+                    'unit_id'  => $unit_id,
+                    'user_id' => $user_id,
+                ];
+                utilityHelper::make_debug_log(__FUNCTION__, print_r($logData, true), __FUNCTION__);
+
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->acquisto_evento_store_payment($order_id, $user_id, $unit_prezzo), true);
+
+                utilityHelper::make_debug_log(__FUNCTION__, print_r($new_order, true), __FUNCTION__);
 
                 if (!isset($new_order['success']))
                     throw new Exception($new_order['error'], E_USER_ERROR);
