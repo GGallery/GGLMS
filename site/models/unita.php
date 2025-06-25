@@ -159,7 +159,7 @@ class gglmsModelUnita extends JModelLegacy
                     $profilo = strtolower($_user_details['cb_tipoattestato']);
                 }
 
-                $query->where('(LOWER(c.gruppo_attestato) = ' . $this->_db->quote($profilo) . ')');
+                $query->where('(c.tipologia != 5 OR LOWER(c.gruppo_attestato) = ' . $this->_db->quote($profilo) . ')');
 
             }
 

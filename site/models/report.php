@@ -321,6 +321,7 @@ class gglmsModelReport extends JModelLegacy
                 array_push($id_piattaforma_array, $p->value);
             }
 
+
             $query->join('inner', '#__gg_piattaforma_corso_map AS pc ON pc.id_unita = a.id');
             $query->join('inner', '#__usergroups_details AS ud ON pc.id_gruppo_piattaforma = ud.group_id');
             $query->where("a.pubblicato=1");

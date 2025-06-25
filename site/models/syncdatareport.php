@@ -247,7 +247,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
             if ($_dt_ref > '1900-01-01')
                 $query->where('timestamp > "' . $_dt_ref . '"');
 
-            $query->setLimit($offset, $limit);
+            $query->setLimit($limit, $offset);
 
             $this->_db->setQuery($query);
 
@@ -280,7 +280,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
             if ($_dt_ref)
                 $query->where('q.c_date_time > "' . $_dt_ref . '"');
 
-            $query->setLimit($offset, $limit);
+            $query->setLimit($limit, $offset);
 
             $this->_db->setQuery($query);
             $data = $this->_db->loadObjectList();
@@ -579,6 +579,123 @@ class gglmsModelSyncdatareport extends JModelLegacy
             return false;
         }
 
+    }
+
+    public function get_all_report_pagamenti($limit, $offset, $data_sync = null, $colonna_datetime = null)
+    {
+        DEBUGG::log('inizio sync_report', 'inizio sync_report limit:' . $limit . ' offset:' . $offset, 0, 1, 0);
+        //ini_set('max_execution_time', 6000);
+
+        // $_extra_date = !is_null($colonna_datetime) ? $colonna_datetime : $this->params->get('colonna_datetime');
+
+        try {
+            $scormvar_list = $this->_getScormvarsVariation($limit, $offset, $data_sync);
+            $quizdeluxe_list = $this->_getQuizDeluxeVariation($limit, $offset, $data_sync);
+            $list = array_merge($scormvar_list, $quizdeluxe_list);
+            $result = array();
+
+            //if($limit==200){$list=null;} //SIMULAZIONE DI FINE
+            if (count($list) > 0) {
+                foreach ($list as $item) {
+                    $data = new Stdclass();
+                    $data->id_utente = $item->id_utente;
+                    $data->id_contenuto = $item->id_contenuto;
+                    $modelcontenuto = new gglmsModelContenuto();
+
+                    $contenuto = $modelcontenuto->getContenuto($item->id_contenuto);
+                    if ($contenuto == null) continue;
+
+                    $stato = $contenuto->getStato($data->id_utente);
+                    $data->data = $stato->data;
+
+                    // data in formato Y-m-d H:i:s
+                    $data->data_extra = $stato->data_extra;
+                    $data->data_primo_accesso = $stato->data_primo_accesso;
+
+                    $data->stato = $stato->completato;
+                    $data->visualizzazioni =  $stato->visualizzazioni;
+
+//                    $data->permanenza_tot= $contenuto->calculatePermanenza_tot($item->id_contenuto, $data->id_utente);
+                    //$permanenza_second = utilityHelper::getSecondsFromHMS($stato->permanenza);
+                    //$data->permanenza_tot = isset($permanenza_second) ? $permanenza_second : 0;
+                    $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
+
+//                    var_dump($data);
+
+                    /*
+                     * magari bastasse..se mi ritorna 0 va in errore cosa capitata dal 19/01/2020 e che ha bloccato i report oltre che generato una marea di problemi a catena
+                     * */
+                    //if (!isset($data->id_unita)) continue;
+                    if (!isset($data->id_unita)
+                        || $data->id_unita == 0)
+                        continue;
+
+                    $modelunita = new gglmsModelUnita();
+                    $unita = $modelunita->getUnita($data->id_unita);
+
+                    $corso = $unita->find_corso($data->id_unita, false);
+                    if ($corso->pubblicato == 0) continue;
+
+                    $data->id_corso = $corso->id;
+                    //$data->id_event_booking = ($corso->id_event_booking) ? $corso->id_event_booking : 0;
+                    //$data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
+                    // se utente non presente in gg_report_users (id_anagrafica = 0) viene aggiunto qui
+                    /*if($data->id_anagrafica == 0){
+                        $modelUser = new gglmsModelUsers();
+                        $tmpuser = $modelUser->get_user($data->id_utente, $data->id_event_booking);
+
+                        $tmp = new stdClass();
+                        $tmp->id = $data->id_utente;
+                        $tmp->id_event_booking = $data->id_event_booking;
+                        $tmp->id_user = $data->id_utente;
+                        $tmp->nome = $this->_db->quote($tmpuser->nome);
+                        $tmp->cognome = $this->_db->quote($tmpuser->cognome);
+                        $tmp->fields = $this->_db->quote(json_encode($tmpuser));
+                        $this->store_report_users($tmp);
+
+                        $data->id_anagrafica = $this->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
+                        $log_arr = array(
+                            'user_id' => $data->id_utente,
+                            'id_anagrafica' => $data->id_anagrafica,
+                            'id_event_booking' => $data->id_event_booking,
+                            'nome' => $tmpuser->nome,
+                            'cognome' => $tmpuser->cognome
+                        );
+
+                        utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+                    }*/
+
+                    /*$log_arr = array(
+                        'user_id' => $data->id_utente,
+                        'id_anagrafica' => $data->id_anagrafica
+                    );*/
+
+                    //utilityHelper::make_debug_log(__FUNCTION__, print_r($log_arr, true), __FUNCTION__);
+
+//                     DEBUGG::log($data, 'Data to store_report' );
+
+                    //$this->store_report($data);
+                    //unset($modelunita);
+                    //unset($unita);
+                    //unset($data);
+
+                    //var_dump($data);
+                    //unset($modelcontenuto);
+                    //unset($contenuto);
+                    array_push($result, $data);
+                }
+
+                return $result;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            //echo $e->getMessage();
+            DEBUGG::log($e->getMessage(), 'error in get_all_report_pagamenti', 0, 1, 0);
+        }
     }
 
 
