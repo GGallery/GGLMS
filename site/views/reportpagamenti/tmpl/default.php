@@ -84,11 +84,11 @@ defined('_JEXEC') or die;
             </div>
         </div>
 
-        <div class="row mt-3">
+        <!--<div class="row mt-3">
             <div class="col text-right" id="upd_at">
                 <?php echo JText::_('COM_GGLMS_REPORT_UPDATED_AT') ?>
             </div>
-        </div>
+        </div>-->
     </div>
 
 
