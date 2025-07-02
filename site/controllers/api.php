@@ -4612,175 +4612,100 @@ HTML;
 
     private function new_get_data_pagamenti($offsetforcsv = null)
     {
-        $_ret = array();
-
-        $data_sync = '2019-11-19';
-        $model_sync = new gglmsModelSyncdatareport();
-        $limit = $this->_filterparam->limit;
-        $offset = $this->_filterparam->offset;
-        //$_ret = $model_sync->get_all_report_pagamenti($limit, $offset, $data_sync);
-
-        $model = new gglmsModelReport();
-        $array_corsi = $model->getCorsi();
-        $model_unita = new gglmsModelUnita();
-        $model_user = new gglmsModelUsers();
-
-        foreach ($array_corsi as $corso){
-            if($corso->id === 1)
-                continue;
-
-            $group_id = $model_unita->get_id_gruppo_unit($corso->id);
-            $array_users = $model_user->get_user_by_usergroup($group_id);
-
-            foreach ($array_users as $row){
-
-              $result = $this->new_get_user_quiz_per_corso($corso->id, $row['user_id'], $limit, $offset);
-                var_dump($result);
-            }
-        }
-       die();
-
-
-        //$this->_filterparam->task = JRequest::getVar('task');
-        //FILTERSTATO: 2=TUTTI 1=COMPLETATI 0=SOLO NON COMPLETATI 3=IN SCADENZA
-        if(strpos($this->_filterparam->corso_id,'|')){
-
-            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-            $id_contenuto = explode('|', $this->_filterparam->corso_id)[1];
-        }else{
-            $id_corso = explode('|', $this->_filterparam->corso_id)[0];
-        }
-
-        $alert_days_before = $this->_params->get('alert_days_before');
-        $tipo_report = $this->_filterparam->tipo_report;
-        $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
-        $limit = (isset($this->_filterparam->limit) && $this->_filterparam->limit != "") ? $this->_filterparam->limit : 5;
-        $_sort = (isset($this->_filterparam->sort) && $this->_filterparam->sort != "") ? $this->_filterparam->sort : null;
-        $_order = (isset($this->_filterparam->order) && $this->_filterparam->order != "") ? $this->_filterparam->order : null;
-
-        $filters = array(
-            'startdate' => $this->_filterparam->startdate,
-            'finishdate' => $this->_filterparam->finishdate,
-            'filterstato' => $this->_filterparam->filterstato,
-            'searchPhrase' => $this->_filterparam->searchPhrase,
-            'usergroups' => $this->_filterparam->usergroups);
-
         try {
+            $_ret = array();
+            $model = new gglmsModelReport();
+            $model_unita = new gglmsModelUnita();
+            $model_user = new gglmsModelUsers();
+
+            $offset = (isset($this->_filterparam->offset) && $this->_filterparam->offset != "") ? $this->_filterparam->offset : 0;
+            $limit = (isset($this->_filterparam->limit) && $this->_filterparam->limit != "") ? $this->_filterparam->limit : 5;
+            $sort = (isset($this->_filterparam->sort) && $this->_filterparam->sort != "") ? $this->_filterparam->sort : null;
+            $order = (isset($this->_filterparam->order) && $this->_filterparam->order != "") ? $this->_filterparam->order : null;
+
+            $tipo_report = $this->_filterparam->tipo_report;
+            $filterstato = $this->_filterparam->filterstato;
+            $id_corso = $this->_filterparam->corso_id;
+
+            $group_id = $model_unita->get_id_gruppo_unit($id_corso);
+            $users = $model_user->get_user_by_usergroup($group_id);
 
 
-            $columns = array();
-            $rows = array();
+            $_all = [];
 
-
-            $att_id_string = $this->getAttestati($id_corso);
-
-            if(strpos($att_id_string,'|')){
-
-                $attestati = explode('|',$att_id_string);
-                $attestato = $attestati[1];
-                $attestato_hidden = $attestati[0];
-            }else{
-                $attestato_hidden = $att_id_string;
-            }
-
-            $query = $this->_db->getQuery(true);
-            $query->select('vista.id_anagrafica as id_anagrafica,"'. $attestato .'" as Attestato,"' . $attestato_hidden . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
-            $query->from('#__gg_view_stato_user_corso  as vista');
-            $query->where('id_corso=' . $id_corso);
-
-
-            $query = $this->_db->getQuery(true);
-            $query->select('vista.id_anagrafica as id_anagrafica,"'. $attestato .'" as Attestato,"' . $attestato_hidden . '" as attestati_hidden, vista.stato as stato, vista.data_inizio as data_inizio, vista.data_fine as data_fine , IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=' . $id_corso . '), INTERVAL -' . $alert_days_before . ' DAY), IF(stato=0,1,0),0) as scadenza');
-            $query->from('#__gg_view_stato_user_corso  as vista');
-            $query->where('id_corso=' . $id_corso);
-            switch ($filters['filterstato']) {
-
-                case 0: //qualsiasi stato
-
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $_order, $_sort, $limit, $offset, $filters['searchPhrase'], $filters['usergroups']);
-                    $users = $arrayresult[0];
-                    $count = $arrayresult[1];
-                    $queryGeneralCube = $arrayresult[2];
-                    $queryGeneralCubeCount = $arrayresult[3];
-//                            $result['secondaryCubeQuery'] = (string)$query;
-                    $datas = $this->buildPrimaryDataCube($query);
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", null, "stato", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_inizio", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", null, "data_fine", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", null, "scadenza", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", null, "attestati_hidden", 'outer');
-                    $users = $this->addColumn($users, $datas, "id_anagrafica", null, "Attestato", 'outer');
-                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields','attestati_hidden','Attestato');
-
-                    $rows = $users;
-
-
-                    break;
-
-                case 1:
-                case 2:
-                case 3:
-                    if ($filters['filterstato'] == 1)
-                        $query->where("vista.stato = 1");
-                    if ($filters['filterstato'] == 2)
-                        $query->where("vista.stato = 0");
-                    if ($filters['filterstato'] == 3)
-                        $query->where("vista.stato = 0 and IF(date(now())>DATE_ADD((select data_fine from #__gg_unit where id=" . $id_corso . "), INTERVAL -" . $alert_days_before . " DAY), IF(stato=0,1,0),0)=1");
-
-
-                    if ($filters['startdate'] != null)
-                        $query->where("vista.data_fine>'" . $filters['startdate'] . "'");
-                    if ($filters['finishdate'] != null)
-                        $query->where("vista.data_fine<'" . $filters['finishdate'] . "'");
-
-                    if ($filters['searchPhrase'] != null) {
-                        $query->where('id_anagrafica in (select anagrafica.id from #__gg_report_users as anagrafica where anagrafica.cognome LIKE \'%' . $filters['searchPhrase'] . '%\')');
-
-                    }
-                    // $result['secondaryCubeQuery'] = (string)$query;
+            foreach ($users as $user) {
+                $user_id = (int)$user['user_id'];
+                $db = JFactory::getDbo();
 
 
 
-
-//                            $count = $this->countPrimaryDataCube($query);!!! BUG il count che viene su da qui non è filtrato per azienda!!
-//                            $datas = $this->buildPrimaryDataCube($query,$offset, $limit); !!! BUG offset e limit erano invertiti!!
-                    $datas = $this->buildPrimaryDataCube($query,null,null);
-
-
-
-
-                    $arrayresult = $this->buildGeneralDataCubeUtentiInCorso($id_corso, $_order, $_sort, $limit, $offset, $filters['searchPhrase'], $filters['usergroups'], implode(",", (array_column($datas, "id_anagrafica"))));
-                    $users = $arrayresult[0];
-
-                    // in sostituzione del count commentato sopra --> il count era già presente come parametro di ritorno ma non veniva usato
-                    $count = $arrayresult[1];
-
-                    $queryGeneralCube = $arrayresult[2];
-                    $queryGeneralCubeCount = $arrayresult[3];
-                    $datas = $this->addColumn($datas, $users, "id_anagrafica", null, "nome", 'inner');
-                    $datas = $this->addColumn($datas, $users, "id_anagrafica", null, "cognome", 'inner');
-                    $datas = $this->addColumn($datas, $users, "id_anagrafica", null, "fields", 'inner');
-                    $rows = $datas;
-
-                    $columns = array('id_anagrafica', 'cognome', 'nome', 'stato', 'data_inizio', 'data_fine', 'scadenza', 'fields', 'attestati_hidden','Attestato');
-
-                    break;
+                $query = $db->getQuery(true)
+                    ->select([
+                        'SQ.c_passed AS stato',
+                        'SQ.c_date_time AS data_fine',
+                    ])
+                    ->from('#__gg_unit AS U')
+                    ->join('INNER', '#__gg_contenuti AS C ON C.id = U.id_contenuto_completamento')
+                    ->join('LEFT OUTER', '#__quiz_r_student_quiz AS SQ ON C.id_quizdeluxe = SQ.c_quiz_id')
+                    ->where('SQ.c_student_id = ' . $user_id)
+                    ->where('SQ.c_passed = 1')
+                    ->where('U.id = ' . (int)$id_corso)
+                    ->order('SQ.c_date_time DESC');
 
 
+                $db->setQuery($query);
+                $row = $db->loadAssoc();
+
+
+                $query_pagamento = $db->getQuery(true)
+                    ->select('totale')
+                    ->from('#__gg_quote_iscrizioni')
+                    ->where('user_id = ' . $user_id)
+                    ->where('gruppo_corso = ' . $group_id);
+
+                $db->setQuery($query_pagamento);
+                $row_pagamento = $db->loadAssoc();
+
+
+                $data_inizio = $this->hasUserStartedCorso($id_corso, $user_id);
+                $comprofiler_cb = utilityHelper::check_comprofiler_by_column_row('user_id', $user_id);
+
+                $stato = $row['stato'] ?? null;
+                $include = false;
+                switch ((int)$filterstato) {
+                    case 1:
+                        $include = ($stato === '1' || $stato === 1);
+                        break;
+                    case 2:
+                        $include = ($stato === '0' || $stato === 0 || $stato === null);
+                        break;
+                    default:
+                        $include = true;
+                        break;
+                }
+
+                if ($include && $comprofiler_cb) {
+                    $_all[] = [
+                        'id_anagrafica'   => $user_id,
+                        'cognome'         => $comprofiler_cb['cb_cognome'],
+                        'nome'            => $comprofiler_cb['cb_nome'],
+                        'stato'           => $row['stato'] ?? 0,
+                        'data_inizio'     => $data_inizio ?? '',
+                        'data_fine'       => $row['data_fine'] ?? '',
+                        'cb_codicefiscale'  => $comprofiler_cb['cb_codicefiscale']?? '',
+                        'cb_professionedisciplina'  => $comprofiler_cb['cb_professionedisciplina'] ?? '',
+                        'totale' => $row_pagamento['totale'] ?? '',
+                        'id_corso'        => $id_corso,
+                    ];
+                }
             }
 
 
+            $totalCount = count($_all);
+            $_ret = array_slice($_all, $offset, $limit);
 
 
 
-
-
-
-
-            $fields = explode(',', $this->_params->get('campicustom_report'));
-            $columns = array_merge($columns, $fields);
-
-            $rows = $this->buildPivot($rows, $columns, "");
 
 
         } catch (Exception $e) {
@@ -4789,167 +4714,110 @@ HTML;
             //DEBUGG::error($e, 'error', 1);
         }
 
-        if (isset($rows)) {
-            foreach ($rows as $_key_row => $_row) {
-
+        if (isset($_ret)) {
+            foreach ($_ret as $_key_row => $_row) {
+                $color_cell = '';
                 $disable = '0';
-                //rows da colorare
-                if($_row['stato'] == 1){
+
+                if (isset($_row['stato']) && $_row['stato'] == '1') {
                     $color_cell = 'color:green';
                     $disable = '1';
-                }else if($_row['scadenza'] == 1) {
-                    $color_cell = 'color:red';
-                }else{
-                    $color_cell = '';
+                }elseif (isset($_row['stato']) && $_row['stato'] == '0' && (!empty($_row['data_inizio']))){
+                    $color_cell = 'color:blue';
                 }
 
                 foreach ($_row as $key => $value) {
-                    $user_id1 = $_row['fields']->user_id;
 
-                    //salto i fields perche un object
-                    if($key == 'fields')continue;
-
-                    $_ret[$_key_row][$key] = <<<HTML
-                            <span style="{$color_cell}" >{$value}</span>
+                    if ($key === 'stato') {
+                        if ($value === '1') {
+                            $_ret[$_key_row][$key] = <<<HTML
+<i title="Completato" class="fas fa-check-square fa-1x" style="color:green;"></i>
 HTML;
-                    if($value == '1'){
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <i title="completato" class="fas fa-check-square fa-2x" style="color:green;"></i>
+                            continue;
+                        } elseif ($value == 0 && !empty($_row['data_inizio']) && $_row['data_inizio'] !== '0000-00-00' && $_row['data_inizio'] !== '0000-00-00 00:00:00') {
+                            $_ret[$_key_row][$key] = <<<HTML
+<i title="Iniziato" class="fas fa-sign-in-alt fa-1x" style="color:#4169e1;"></i>
 HTML;
-                    }else if($value == '0'){
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <i title="iniziato" class="fas fa-sign-in-alt fa-2x" style="color:#4169e1;"></i>
-HTML;
-                    }else if($value == '0000-00-00'){
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <span ></span>
-HTML;
-                    }else if(($disable == '1')&&($key == 'attestati_hidden')){ //aggiungo buttone per scaricare l'attestato
-                        $content_id = explode('#',$_row['attestati_hidden'])[0];
-                        $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
-HTML;
-                    }else if(($disable == '1')&&($key == 'Attestato')&&($attestato != '')){
-                        $content_id = explode('#',$_row['Attestato'])[0];
-                        $url = 'index.php?option=com_gglms&task=reportutente.generateAttestato&content_id='.$content_id.'&user_id='.$user_id1.'&id_corso='.$id_corso;
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <i class="far fa-file-pdf fa-2x" onclick="javascript:window.open('{$url}')" style="cursor: pointer;color: red"></i>
-HTML;
-                    }else if(($disable == '0')&&($key == 'attestati_hidden')){
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <span></span>
-HTML;
-                    }else if(($disable == '0')&&($key == 'attestato')){
-                        $_ret[$_key_row][$key] = <<<HTML
-                            <span></span>
-HTML;
+                            continue;
+                        }
                     }
 
 
+                    if (in_array($value, ['', '0000-00-00', '0000-00-00 00:00:00'])) {
+                        $_ret[$_key_row][$key] = '<span></span>';
+                        continue;
+                    }
+
+
+                    $_ret[$_key_row][$key] = <<<HTML
+<span style="{$color_cell}">{$value}</span>
+HTML;
                 }
-                //aggiungo i fields
-                $_ret[$_key_row]['fields'] = $_row['fields'];
-
             }
-
         }
 
-
-
-//       $result['queryGeneralCube'] = (string)$queryGeneralCube;
-
-//        $result['datas'] = $datas;
-//        $result['buildGeneralDataCubeUtentiInCorso'] = $arrayresult[0];
-        //$result['current']=$this->_filterparam->current;
-//        $result['columns'] = $columns;
-        $result['rowCount'] = $count;
+        $result['rowCount'] = $totalCount;
         $result['rows'] = $_ret;
-        //$result['total']=$total;
-//       $result['totalquery'] = (string)$queryGeneralCubeCount;
-        //echo json_encode($result);
+
         return $result;
     }
 
-    public function new_get_user_quiz_per_corso($id_corso, $userid, $limit, $offset) {
+    public function hasUserStartedCorso($id_corso, $userid)
+    {
 
-        try {
-
-            $columns = array();
-
-            $query = $this->_db->getQuery(true)
-                ->select('SQ.c_passed as stato, SQ.c_date_time as data,CP.cb_nome AS nome, CP.cb_cognome AS cognome')
-                ->from('#__gg_contenuti C')
-                ->join('inner', '#__quiz_r_student_quiz SQ ON C.id_quizdeluxe = SQ.c_quiz_id')
-                ->join('inner', '#__comprofiler CP ON SQ.c_student_id = CP.user_id')
-                ->where("SQ.c_student_id = ".$userid."
-                        and C.id = (
-                                            select u.id_contenuto_completamento
-                                            from #__gg_unit as u
-                                            where id = ".$id_corso."
-                                            )"
-                )
-                ->group('SQ.c_passed');
-
-            $this->_db->setQuery($query);
-            $data = $this->_db->loadAssocList();
-            if (count($data)>0) {
-                return ['isCorsoCompleto' => 1, 'data' => $data[0]['data'], 'nome' => $data[0]['nome'], 'cognome' => $data[0]['cognome']];
-            }
-            else {
-                return ['isCorsoCompleto' => 0, 'data' => null, 'nome' => null, 'cognome' => null];
-            }
-
-            //var_dump($data);die();
-            //$query = $this->_db->getQuery(true);
-            /*$sub_query1 = $this->_db->getQuery(true);
-
-            $sub_query1->select('user_id');
-            $sub_query1->from('#__user_usergroup_map');
-            $sub_query1->where('user_id = 337 ' );
-
-            $query->from('#__gg_contenuti C');
-            $query->join('inner', '#__quiz_r_student_quiz SQ ON C.id_quizdeluxe = SQ.c_quiz_id');
-            $query->join('inner', '#__gg_unit_map UM ON C.id = UM.idcontenuto');
-            $query->join('inner', '(' . $sub_query1 . ') AS SUB1 ON SQ.c_student_id = SUB1.user_id');
-            $query->join('inner', '#__comprofiler CP ON SQ.c_student_id = CP.user_id');
-            $query->where('UM.idunita = ' . $id_corso);
-
-            // clono la query originale per il conteggio
-            //$countquery = clone $query;
-
-            $query->select('CP.cb_nome AS nome, CP.cb_cognome AS cognome, UPPER(CP.cb_codicefiscale) AS codice_fiscale,
-			                DATE_FORMAT(SQ.c_date_time, \'%d/%m/%Y %H:%i\') AS data_completamento,
-			                SQ.c_passed AS esito,
-			                SQ.c_quiz_id AS quiz_ref,
-			                SQ.c_id AS quiz_id,
-			                SQ.c_student_id AS student_id');
-
-            //$countquery->select("COUNT(*) AS num_rows");
-
-            //$query->order('SQ.c_date_time', 'desc');
-            //$query->order('SQ.c_student_id', 'asc');
+        $reportObj = new gglmsModelReport();
+        $unitas = $reportObj->getSottoUnitaArrayList($id_corso);
 
 
-            $this->_db->setQuery($query);
-            $rows = $this->_db->loadAssocList();*/
+        if (empty($unitas)) {
 
-            //$this->_db->setQuery($countquery);
-            //$count = $this->_db->loadResult();
+            $ids_string =  $id_corso;
+        }else{
 
-
-            //$columns = utilityHelper::get_nomi_colonne_da_query_results($count, $rows);
-
-            //$result['columns'] = $columns;
-            //$result['rowCount'] = $count;
-            $result['rows'] = $data;
-
-            return $result;
-        }
-        catch (Exception $e) {
-            DEBUGG::log(json_encode($e->getMessage()), 'ERRORE DA ' . __FUNCTION__, 1, 1);
+            $ids = array_column($unitas, 'id');
+            $ids_string = implode(',', $ids);
         }
 
+        $db = JFactory::getDbo();
+
+
+        $query = $db->getQuery(true)
+            ->select('SV.timestamp')
+            ->from('`#__gg_unit_map` AS UM')
+            ->innerJoin('`#__gg_contenuti` AS C ON C.id = UM.idcontenuto')
+            ->innerJoin('`#__gg_scormvars` AS SV ON SV.scoid = C.id')
+            ->where('UM.idunita IN (' . $ids_string . ')')
+            ->where('SV.userid = ' . (int) $userid)
+            ->where("SV.varName = 'cmi.core.lesson_status'")
+            ->where("SV.varValue IN ('completed', 'passed', 'init')");
+
+        $db->setQuery($query);
+        $res = $db->loadResult();
+
+        return $res;
+    }
+
+    public function getDataFineQuiz($id_corso, $userid)
+    {
+        $db = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query
+            ->select([
+                'SQ.c_passed AS stato',
+                'SQ.c_date_time AS data_fine',
+                'CP.cb_nome AS nome',
+                'CP.cb_cognome AS cognome'
+            ])
+            ->from('`#__gg_unit` AS U')
+            ->innerJoin('`#__gg_contenuti` AS C ON C.id = U.id_contenuto_completamento')
+            ->innerJoin('`#__quiz_r_student_quiz` AS SQ ON C.id_quizdeluxe = SQ.c_quiz_id')
+            ->innerJoin('`#__comprofiler` AS CP ON SQ.c_student_id = CP.user_id')
+            ->where('SQ.c_student_id = ' . (int) $userid)
+            ->where('U.id = ' . (int) $id_corso);
+
+        $db->setQuery($query);
+        return $db->loadAssoc();
     }
 
 
