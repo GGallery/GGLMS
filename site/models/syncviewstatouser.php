@@ -85,10 +85,10 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
         }
     }
 
-    private function insertData($offset,$limit,$maxts){
+    public function insertData($offset,$limit,$maxts,$userIds = []){
 
 
-        $datauserunit=$this->deltaReport($offset,$limit,$maxts);
+        $datauserunit=$this->deltaReport($offset,$limit,$maxts,$userIds);
 
         if(count($datauserunit)>0){
             $this->insertViewUnita($datauserunit);
@@ -104,7 +104,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
     }
 
-    public function deltaReport($offset,$limit,$maxts){
+    public function deltaReport($offset,$limit,$maxts,$userIds = []){
 
         try
         {
@@ -114,7 +114,11 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                 if($maxts!=null) {
                    $query->where('r.`timestamp`> \'' . $maxts . '\' and  id_unita<>0');
                 }
+                if (!empty($userIds)) {
+                    $query->where('r.id_utente in (' . implode(',', $userIds) . ')');
+                }
             $query->setLimit($offset,$limit);
+            
             $this->_db->setQuery($query);
 
 
@@ -192,7 +196,7 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
                                 data_inizio_extra = \'' . $datainizio_extra . '\',
                                 data_fine_extra = \'' . $datafine_extra . '\'
                                 ';
-                //echo $query;
+                echo $query;
                 $this->_db->setQuery($query);
                 $this->_db->execute();
           }
@@ -317,8 +321,8 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
             //$data_inizio = $this->_db->loadResult();
             $arr_inizio = $this->_db->loadAssoc();
-            $data_inizio = $arr_inizio['data'];
-            $data_inizio_extra = $arr_inizio['data_extra'];
+            $data_inizio = isset($arr_inizio['data']) ? $arr_inizio['data'] : null;
+            $data_inizio_extra = isset($arr_inizio['data_extra']) ? $arr_inizio['data_extra'] : null;
 
             $query_data_fine = "select `data`, `data_extra`
                                   from #__gg_report
@@ -332,8 +336,8 @@ class gglmsModelSyncViewStatoUser extends JModelLegacy
 
             //$data_fine = $this->_db->loadResult();
             $arr_fine = $this->_db->loadAssoc();
-            $data_fine = $arr_fine['data'];
-            $data_fine_extra = $arr_fine['data_extra'];
+            $data_fine = isset($arr_fine['data']) ? $arr_fine['data'] : null;
+            $data_fine_extra = isset($arr_fine['data_extra']) ? $arr_fine['data_extra'] : null;
 
             //DEBUGG::log('prendo data inizio '.$query_data_inizio, 'insertData',0,1,0);
             //DEBUGG::log('prendo data fine '.$query_data_fine, 'insertData',0,1,0);

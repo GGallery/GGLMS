@@ -271,11 +271,6 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 ->select('DISTINCT  c.id as id_contenuto, q.c_student_id as id_utente')
                 ->from('#__quiz_r_student_quiz as q')
                 ->join('inner', '#__gg_contenuti as c on q.c_quiz_id = c.id_quizdeluxe');
-
-            /*
-            if ($this->params->get('data_sync'))
-                $query->where('q.timestamp > "' . $this->params->get('data_sync') . '"');
-            */
             // la colonna q.timestamp non esiste in #__quiz_r_student_quiz
             if ($_dt_ref)
                 $query->where('q.c_date_time > "' . $_dt_ref . '"');
@@ -295,7 +290,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
         }
     }
 
-    private function _getAnagraficaid($user_id, $event_id)
+    public function _getAnagraficaid($user_id, $event_id)
     {
 
         try {
@@ -317,7 +312,7 @@ class gglmsModelSyncdatareport extends JModelLegacy
 
     }
 
-    private function store_report($data)
+    public function store_report($data)
     {
 
         try {

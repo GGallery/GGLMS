@@ -4033,6 +4033,10 @@ HTML;
     }
 
     public static function getSecondsFromHMS($time) {
+        
+        if (empty($time))
+            return 0;
+
         $timeArr = array_reverse(explode(":", $time));
         $seconds = 0;
         foreach ($timeArr as $key => $value) {

@@ -96,7 +96,9 @@ class gglmsModelUnita extends JModelLegacy
 
     public function getSottoUnita($pk = null, $is_attestato = null)
     {
-        $query_id = $this->id;
+        if ($this->id)
+            $query_id = $this->id;
+        
         if ($pk != null) {
             $query_id = $pk;
         }

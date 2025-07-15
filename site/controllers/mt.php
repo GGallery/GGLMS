@@ -18,6 +18,7 @@ require_once JPATH_COMPONENT . '/models/syncviewstatouser.php';
 require_once JPATH_COMPONENT . '/models/users.php';
 require_once JPATH_COMPONENT . '/controllers/zoom.php';
 require_once JPATH_COMPONENT . '/controllers/api.php';
+require_once JPATH_COMPONENT . '/controllers/allineareport.php';
 
 class gglmsControllerMt extends JControllerLegacy {
 
@@ -47,6 +48,8 @@ class gglmsControllerMt extends JControllerLegacy {
         $this->_filterparam->del_ug = JRequest::getVar('del_ug');
         $this->_filterparam->new_ug = JRequest::getVar('new_ug');
         $this->_filterparam->check_ug = JRequest::getVar('check_ug');
+        $this->_filterparam->from = JRequest::getVar('from');
+        $this->_filterparam->to = JRequest::getVar('to');
 
         $this->mail_debug = $this->_config->getConfigValue('mail_debug');
         $this->mail_debug = ($this->mail_debug == "" || is_null($this->mail_debug)) ? "luca.gallo@gallerygroup.it" : $this->mail_debug;
@@ -100,22 +103,6 @@ HTML;
         }
         $this->_japp->close();
 
-    }
-
-    public function test_xml_import()
-    {
-        $api = new gglmsControllerApi();
-        $ragione_sociale = "Utenti privati skillab";
-        $piva = "00000000000";
-        $email = "skillabfad@skillab.it";
-        $get_corsi = [
-            'Iscritti_20220214153157.xml',
-            'Corsi_20220214153157.xml',
-            'Corsi_20220214150901.xml',
-            'Iscritti_20220214150901.xml'
-        ];
-
-        echo $api->load_corsi_from_xml(16, $ragione_sociale, $piva, $email, true, $get_corsi);
     }
 
     public function massive_password_update()
@@ -383,713 +370,846 @@ HTML;
 
     }
 
-    public function sinpe_new_extra() {
+    // public function sinpe_new_extra() {
 
-        try {
+    //     try {
 
-            $cf_s = array(
-                        23,
-                        44,
-                        118,
-                        206,
-                        211,
-                        227,
-                        236,
-                        334,
-                        361,
-                        436,
-                        499,
-                        529,
-                        587,
-                        668,
-                        706,
-                        733,
-                        760,
-                        767,
-                        769,
-                        850,
-                        860,
-                        879,
-                        911,
-                        915,
-                        927,
-                        951,
-                        1041,
-                        1069,
-                        1071,
-                        1110,
-                        1135,
-                        1143,
-                        1230,
-                        1246,
-                        1289,
-                        1341,
-                        1462,
-                        1464,
-                        1629,
-                        1647,
-                        1719,
-                        1724,
-                        1812,
-                        1852,
-                        1902,
-                        1921,
-                        1928,
-                        2007,
-                        2019,
-                        3051,
-                        3060,
-                        3171,
-                        3237,
-                        3415,
-                        3509,
-                        3524,
-                        3656,
-                        3671,
-                        3779,
-                        3928,
-                        3950,
-                        3977,
-                        4045,
-                        4222,
-                        4327,
-                        4360,
-                        4376,
-                        4391,
-                        4392,
-                        4406,
-                        4427,
-                        4470,
-                        4471,
-                        4490,
-                        4496,
-                        4498,
-                        4499,
-                        4500,
-                        4504,
-                        4505,
-                        4507,
-                        4509,
-                        4512,
-                        4513,
-                        4516,
-                        4574,
-                        4576,
-                        4577,
-                        4579,
-                        4584,
-                        4586,
-                        4590,
-                        4593,
-                        4594,
-                        4595,
-                        4596,
-                        4597,
-                        4598,
-                        4599,
-                        4600,
-                        4601,
-                        4602,
-                        4603,
-                        4604,
-                        4605,
-                        4606,
-                        4607,
-                        4608,
-                        4609,
-                        4610,
-                        4611,
-                        4612,
-                        4613,
-                        4614,
-                        4615,
-                        4616,
-                        4617,
-                        4618,
-                        4619,
-                        4621,
-                        4622,
-                        4623,
-                        4624,
-                        4625,
-                        4626,
-                        4629,
-                        4630,
-                        4631,
-                        4633,
-                        4634,
-                        4635,
-                        4636,
-                        4637,
-                        4638,
-                        4639,
-                        4640,
-                        4641,
-                        4642,
-                        4643,
-                        4644,
-                        4645,
-                        4646,
-                        4647,
-                        4648,
-                        4649,
-                        4650,
-                        4651,
-                        4652,
-                        4653,
-                        4654,
-                        4655,
-                        4656,
-                        4657,
-                        4658,
-                        4659,
-                        4660,
-                        4661,
-                        4663,
-                        4665,
-                        4667,
-                        4670,
-                        4671,
-                        4672,
-                        4673,
-                        4676,
-                        4680,
-                        4681,
-                        4683,
-                        4684,
-                        4685,
-                        4686,
-                        4687,
-                        4688,
-                        4689,
-                        4690,
-                        4691,
-                        4692,
-                        4693,
-                        4694,
-                        4695,
-                        4697,
-                        4698,
-                        4699,
-                        4700,
-                        4701,
-                        4702,
-                        4703,
-                        4704,
-                        4705,
-                        4707,
-                        4708,
-                        4709,
-                        4710,
-                        4711,
-                        4712,
-                        4713,
-                        4714,
-                        4715,
-                        4717,
-                        4718);
-            $extra_arr = [];
+    //         $cf_s = array(
+    //                     23,
+    //                     44,
+    //                     118,
+    //                     206,
+    //                     211,
+    //                     227,
+    //                     236,
+    //                     334,
+    //                     361,
+    //                     436,
+    //                     499,
+    //                     529,
+    //                     587,
+    //                     668,
+    //                     706,
+    //                     733,
+    //                     760,
+    //                     767,
+    //                     769,
+    //                     850,
+    //                     860,
+    //                     879,
+    //                     911,
+    //                     915,
+    //                     927,
+    //                     951,
+    //                     1041,
+    //                     1069,
+    //                     1071,
+    //                     1110,
+    //                     1135,
+    //                     1143,
+    //                     1230,
+    //                     1246,
+    //                     1289,
+    //                     1341,
+    //                     1462,
+    //                     1464,
+    //                     1629,
+    //                     1647,
+    //                     1719,
+    //                     1724,
+    //                     1812,
+    //                     1852,
+    //                     1902,
+    //                     1921,
+    //                     1928,
+    //                     2007,
+    //                     2019,
+    //                     3051,
+    //                     3060,
+    //                     3171,
+    //                     3237,
+    //                     3415,
+    //                     3509,
+    //                     3524,
+    //                     3656,
+    //                     3671,
+    //                     3779,
+    //                     3928,
+    //                     3950,
+    //                     3977,
+    //                     4045,
+    //                     4222,
+    //                     4327,
+    //                     4360,
+    //                     4376,
+    //                     4391,
+    //                     4392,
+    //                     4406,
+    //                     4427,
+    //                     4470,
+    //                     4471,
+    //                     4490,
+    //                     4496,
+    //                     4498,
+    //                     4499,
+    //                     4500,
+    //                     4504,
+    //                     4505,
+    //                     4507,
+    //                     4509,
+    //                     4512,
+    //                     4513,
+    //                     4516,
+    //                     4574,
+    //                     4576,
+    //                     4577,
+    //                     4579,
+    //                     4584,
+    //                     4586,
+    //                     4590,
+    //                     4593,
+    //                     4594,
+    //                     4595,
+    //                     4596,
+    //                     4597,
+    //                     4598,
+    //                     4599,
+    //                     4600,
+    //                     4601,
+    //                     4602,
+    //                     4603,
+    //                     4604,
+    //                     4605,
+    //                     4606,
+    //                     4607,
+    //                     4608,
+    //                     4609,
+    //                     4610,
+    //                     4611,
+    //                     4612,
+    //                     4613,
+    //                     4614,
+    //                     4615,
+    //                     4616,
+    //                     4617,
+    //                     4618,
+    //                     4619,
+    //                     4621,
+    //                     4622,
+    //                     4623,
+    //                     4624,
+    //                     4625,
+    //                     4626,
+    //                     4629,
+    //                     4630,
+    //                     4631,
+    //                     4633,
+    //                     4634,
+    //                     4635,
+    //                     4636,
+    //                     4637,
+    //                     4638,
+    //                     4639,
+    //                     4640,
+    //                     4641,
+    //                     4642,
+    //                     4643,
+    //                     4644,
+    //                     4645,
+    //                     4646,
+    //                     4647,
+    //                     4648,
+    //                     4649,
+    //                     4650,
+    //                     4651,
+    //                     4652,
+    //                     4653,
+    //                     4654,
+    //                     4655,
+    //                     4656,
+    //                     4657,
+    //                     4658,
+    //                     4659,
+    //                     4660,
+    //                     4661,
+    //                     4663,
+    //                     4665,
+    //                     4667,
+    //                     4670,
+    //                     4671,
+    //                     4672,
+    //                     4673,
+    //                     4676,
+    //                     4680,
+    //                     4681,
+    //                     4683,
+    //                     4684,
+    //                     4685,
+    //                     4686,
+    //                     4687,
+    //                     4688,
+    //                     4689,
+    //                     4690,
+    //                     4691,
+    //                     4692,
+    //                     4693,
+    //                     4694,
+    //                     4695,
+    //                     4697,
+    //                     4698,
+    //                     4699,
+    //                     4700,
+    //                     4701,
+    //                     4702,
+    //                     4703,
+    //                     4704,
+    //                     4705,
+    //                     4707,
+    //                     4708,
+    //                     4709,
+    //                     4710,
+    //                     4711,
+    //                     4712,
+    //                     4713,
+    //                     4714,
+    //                     4715,
+    //                     4717,
+    //                     4718);
+    //         $extra_arr = [];
 
-            //$imp = "'" . implode( "','", $cf_s) . "'";
-            $imp = implode(",", $cf_s);
-            $check_ug = [20,21,23];
+    //         //$imp = "'" . implode( "','", $cf_s) . "'";
+    //         $imp = implode(",", $cf_s);
+    //         $check_ug = [20,21,23];
 
-            /*WHERE comp.cb_codicefiscale IN (" . $imp . ")*/
-            $query = "SELECT usr.id AS user_id, usr.username, comp.cb_codicefiscale
-                        FROM #__comprofiler comp
-                        JOIN #__users usr ON comp.user_id = usr.id
-                        WHERE usr.id IN (" . $imp . ")";
+    //         /*WHERE comp.cb_codicefiscale IN (" . $imp . ")*/
+    //         $query = "SELECT usr.id AS user_id, usr.username, comp.cb_codicefiscale
+    //                     FROM #__comprofiler comp
+    //                     JOIN #__users usr ON comp.user_id = usr.id
+    //                     WHERE usr.id IN (" . $imp . ")";
 
-            $this->_db->setQuery($query);
-            $rows = $this->_db->loadAssocList();
+    //         $this->_db->setQuery($query);
+    //         $rows = $this->_db->loadAssocList();
 
-            foreach ($rows as $key_row => $user) {
+    //         foreach ($rows as $key_row => $user) {
 
 
-                $query_ug = "SELECT user_id
-                                FROM #__user_usergroup_map
-                                WHERE user_id = " . $this->_db->quote($user['user_id']) . "
-                                AND group_id IN (" . implode(',', $check_ug) . ")"
-                                ;
-                $this->_db->setQuery($query_ug);
-                $result = $this->_db->loadResult();
+    //             $query_ug = "SELECT user_id
+    //                             FROM #__user_usergroup_map
+    //                             WHERE user_id = " . $this->_db->quote($user['user_id']) . "
+    //                             AND group_id IN (" . implode(',', $check_ug) . ")"
+    //                             ;
+    //             $this->_db->setQuery($query_ug);
+    //             $result = $this->_db->loadResult();
 
-                if (is_null($result)
-                    || !$result)
-                    $extra_arr[] = $user['user_id'];
+    //             if (is_null($result)
+    //                 || !$result)
+    //                 $extra_arr[] = $user['user_id'];
 
-                /*
-                if (($key = array_search($user['cb_codicefiscale'], $cf_s)) !== false) {
-                    unset($cf_s[$key]);
-                }
-                */
+    //             /*
+    //             if (($key = array_search($user['cb_codicefiscale'], $cf_s)) !== false) {
+    //                 unset($cf_s[$key]);
+    //             }
+    //             */
 
-            }
+    //         }
 
-            echo implode(",", $extra_arr);
+    //         echo implode(",", $extra_arr);
 
-        }
-        catch (Exception $e) {
-            echo "ERRORE: " . $e->getMessage();
-        }
+    //     }
+    //     catch (Exception $e) {
+    //         echo "ERRORE: " . $e->getMessage();
+    //     }
 
-        $this->_japp->close();
+    //     $this->_japp->close();
 
-    }
+    // }
 
-    public function sinpe_insert_quote()
-    {
+    // public function sinpe_insert_quote()
+    // {
 
-        try {
+    //     try {
 
-            $arr_ids = [
-                        755,
-                        848,
-                        1144,
-                        493,
-                        508,
-                        4988,
-                        435,
-                        467,
-                        136,
-                        702,
-                        1109,
-                        358,
-                        357,
-                        1250
-                    ];
-            $completed = 0;
+    //         $arr_ids = [
+    //                     755,
+    //                     848,
+    //                     1144,
+    //                     493,
+    //                     508,
+    //                     4988,
+    //                     435,
+    //                     467,
+    //                     136,
+    //                     702,
+    //                     1109,
+    //                     358,
+    //                     357,
+    //                     1250
+    //                 ];
+    //         $completed = 0;
 
-            $this->_db->transactionStart();
-            foreach ($arr_ids as $key_user => $user_id) {
+    //         $this->_db->transactionStart();
+    //         foreach ($arr_ids as $key_user => $user_id) {
 
-                // cb_ultimoannoinregola
-                $query_update = "UPDATE #__comprofiler
-                                SET cb_ultimoannoinregola = 2022
-                                WHERE user_id = " . $this->_db->quote($user_id);
+    //             // cb_ultimoannoinregola
+    //             $query_update = "UPDATE #__comprofiler
+    //                             SET cb_ultimoannoinregola = 2022
+    //                             WHERE user_id = " . $this->_db->quote($user_id);
 
-                $this->_db->setQuery($query_update);
-                if (!$this->_db->execute())
-                    throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
+    //             $this->_db->setQuery($query_update);
+    //             if (!$this->_db->execute())
+    //                 throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
 
-                $now = date('Y-m-d H:i:s');
-                $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
-                                                user_id,
-                                                anno,
-                                                tipo_quota,
-                                                tipo_pagamento,
-                                                data_pagamento,
-                                                dettagli_transazione
-                                                )
-                                            VALUES (
-                                                " . $this->_db->quote($user_id) . ",
-                                                2022,
-                                                'quota',
-                                                'bonifico',
-                                                " . $this->_db->quote($now) . ",
-                                                'Socio onorario 2022'
-                                            )";
-                $this->_db->setQuery($query_quote);
-                if (!$this->_db->execute())
-                    throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+    //             $now = date('Y-m-d H:i:s');
+    //             $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
+    //                                             user_id,
+    //                                             anno,
+    //                                             tipo_quota,
+    //                                             tipo_pagamento,
+    //                                             data_pagamento,
+    //                                             dettagli_transazione
+    //                                             )
+    //                                         VALUES (
+    //                                             " . $this->_db->quote($user_id) . ",
+    //                                             2022,
+    //                                             'quota',
+    //                                             'bonifico',
+    //                                             " . $this->_db->quote($now) . ",
+    //                                             'Socio onorario 2022'
+    //                                         )";
+    //             $this->_db->setQuery($query_quote);
+    //             if (!$this->_db->execute())
+    //                 throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
 
-                $completed++;
+    //             $completed++;
 
-            }
+    //         }
 
-            $this->_db->transactionCommit();
+    //         $this->_db->transactionCommit();
 
-            echo "TOTALI: " . count($arr_ids) . " | ELABORATI: " . $completed;
+    //         echo "TOTALI: " . count($arr_ids) . " | ELABORATI: " . $completed;
 
-        }
-        catch(Exception $e) {
-            $this->_db->transactionRollback();
-            echo "ERRORE: " . $e->getMessage();
-        }
+    //     }
+    //     catch(Exception $e) {
+    //         $this->_db->transactionRollback();
+    //         echo "ERRORE: " . $e->getMessage();
+    //     }
 
-        $this->_japp->close();
+    //     $this->_japp->close();
 
-    }
+    // }
 
-    public function sinpe_ug_move() {
+    // public function sinpe_ug_move() {
 
-        try {
+    //     try {
 
-            $arr_ids = [
-                5915,
-                5791,
-                5760,
-                6031,
-                6027,
-                5968,
-                6009,
-                5758,
-                5967,
-                5768,
-                5870,
-                5761,
-                5941,
-                5956,
-                5988,
-                5959,
-                5977,
-                6001,
-                5757,
-                5919,
-                5957,
-                5796,
-                5938,
-                5860,
-                6049,
-                5762,
-                5809,
-                5973,
-                5770,
-                5865,
-                6037,
-                5850,
-                5892,
-                5763,
-                5783,
-                5794,
-                5990,
-                5817,
-                5852,
-                5931,
-                5773,
-                5816,
-                6036,
-                5764,
-                5769,
-                5916,
-                5987,
-                6014,
-                5911,
-                5802,
-                5913,
-                5774,
-                5776,
-                5772,
-                5792,
-                5824,
-                5798,
-                5879,
-                5855,
-                6017,
-                5908,
-                6040,
-                5800,
-                5812,
-                5775,
-                6044,
-                6046,
-                5997,
-                5784,
-                6030,
-                6043,
-                5943,
-                5965,
-                6011,
-                5828,
-                5881,
-                5947,
-                5765,
-                6048,
-                5829,
-                5833,
-                5814,
-                5885,
-                6028,
-                5841,
-                6032,
-                6019,
-                5875,
-                5838,
-                5856,
-                6025,
-                5920,
-                5861,
-                5831,
-                5848,
-                5971,
-                5859,
-                5839,
-                5903,
-                6021,
-                5844,
-                6033,
-                5811,
-                5815,
-                5905,
-                5940,
-                5799,
-                5964,
-                5945,
-                5778,
-                5821,
-                5797,
-                5950,
-                5961,
-                5849,
-                5782,
-                5810,
-                6039,
-                5978,
-                5871,
-                5942,
-                5882,
-                5923,
-                5822,
-                5819,
-                5894,
-                5907,
-                5969,
-                5986,
-                5993,
-                5790,
-                5914,
-                5998,
-                5929,
-                5939,
-                5876,
-                5922,
-                6008,
-                5955,
-                5873,
-                5930,
-                5877,
-                5771,
-                5883,
-                5837,
-                5912,
-                6005,
-                5888,
-                5842,
-                5840,
-                5970,
-                5899,
-                5994,
-                5781,
-                5999,
-                6013,
-                5963,
-                5925,
-                5962,
-                5886,
-                5789,
-                5795,
-                6016,
-                5900,
-                5767,
-                6018,
-                5887,
-                5891,
-                5898,
-                5951,
-                6000,
-                5851,
-                6029,
-                5759,
-                5896,
-                5989,
-                6034,
-                5854,
-                6022,
-                5862,
-                5984,
-                5980,
-                6006,
-                5897,
-                5921,
-                6052,
-                5813,
-                5878,
-                5787,
-                5788,
-                5793,
-                6035,
-                5901,
-                6004,
-                5872,
-                5895,
-                6002,
-                5867,
-                5991,
-                5890,
-                5863,
-                5832,
-                5935,
-                5944,
-                5958,
-                6026,
-                5972,
-                5847,
-                6003,
-                6023,
-                6012,
-                5830,
-                5924,
-                5868,
-                5807,
-                5853,
-                5996,
-                5928,
-                5857,
-                5952,
-                5902,
-                5932,
-                5933,
-                5884,
-                5927,
-                5834,
-                6045,
-                5936,
-                5948,
-                5846,
-                5937,
-                5825,
-                5858,
-                5946,
-                5918,
-                6050,
-                5818,
-                5835,
-                5934,
-                6024,
-                6015,
-                5843,
-                5823,
-                6020,
-                5866,
-                5869,
-                5904,
-                5808,
-                5910,
-                5926,
-                6038,
-                5983,
-                6042,
-                5985,
-                5780,
-                5803,
-                5880,
-                5805,
-                6041,
-                6051,
-                5804,
-                5975,
-                5992,
-                5982,
-                5953,
-                5960,
-                5979,
-                5874,
-                6007,
-                5766,
-                5995,
-                6010,
-                5801,
-                5779,
-                5917,
-                5906,
-                5826,
-                5845,
-                5954,
-                5981,
-                5976,
-                5820,
-                5836,
-                5893,
-                5777,
-                5909,
-                5949,
-                5785,
-                5827,
-                5966,
-                5864
-            ];
+    //         $arr_ids = [
+    //             5915,
+    //             5791,
+    //             5760,
+    //             6031,
+    //             6027,
+    //             5968,
+    //             6009,
+    //             5758,
+    //             5967,
+    //             5768,
+    //             5870,
+    //             5761,
+    //             5941,
+    //             5956,
+    //             5988,
+    //             5959,
+    //             5977,
+    //             6001,
+    //             5757,
+    //             5919,
+    //             5957,
+    //             5796,
+    //             5938,
+    //             5860,
+    //             6049,
+    //             5762,
+    //             5809,
+    //             5973,
+    //             5770,
+    //             5865,
+    //             6037,
+    //             5850,
+    //             5892,
+    //             5763,
+    //             5783,
+    //             5794,
+    //             5990,
+    //             5817,
+    //             5852,
+    //             5931,
+    //             5773,
+    //             5816,
+    //             6036,
+    //             5764,
+    //             5769,
+    //             5916,
+    //             5987,
+    //             6014,
+    //             5911,
+    //             5802,
+    //             5913,
+    //             5774,
+    //             5776,
+    //             5772,
+    //             5792,
+    //             5824,
+    //             5798,
+    //             5879,
+    //             5855,
+    //             6017,
+    //             5908,
+    //             6040,
+    //             5800,
+    //             5812,
+    //             5775,
+    //             6044,
+    //             6046,
+    //             5997,
+    //             5784,
+    //             6030,
+    //             6043,
+    //             5943,
+    //             5965,
+    //             6011,
+    //             5828,
+    //             5881,
+    //             5947,
+    //             5765,
+    //             6048,
+    //             5829,
+    //             5833,
+    //             5814,
+    //             5885,
+    //             6028,
+    //             5841,
+    //             6032,
+    //             6019,
+    //             5875,
+    //             5838,
+    //             5856,
+    //             6025,
+    //             5920,
+    //             5861,
+    //             5831,
+    //             5848,
+    //             5971,
+    //             5859,
+    //             5839,
+    //             5903,
+    //             6021,
+    //             5844,
+    //             6033,
+    //             5811,
+    //             5815,
+    //             5905,
+    //             5940,
+    //             5799,
+    //             5964,
+    //             5945,
+    //             5778,
+    //             5821,
+    //             5797,
+    //             5950,
+    //             5961,
+    //             5849,
+    //             5782,
+    //             5810,
+    //             6039,
+    //             5978,
+    //             5871,
+    //             5942,
+    //             5882,
+    //             5923,
+    //             5822,
+    //             5819,
+    //             5894,
+    //             5907,
+    //             5969,
+    //             5986,
+    //             5993,
+    //             5790,
+    //             5914,
+    //             5998,
+    //             5929,
+    //             5939,
+    //             5876,
+    //             5922,
+    //             6008,
+    //             5955,
+    //             5873,
+    //             5930,
+    //             5877,
+    //             5771,
+    //             5883,
+    //             5837,
+    //             5912,
+    //             6005,
+    //             5888,
+    //             5842,
+    //             5840,
+    //             5970,
+    //             5899,
+    //             5994,
+    //             5781,
+    //             5999,
+    //             6013,
+    //             5963,
+    //             5925,
+    //             5962,
+    //             5886,
+    //             5789,
+    //             5795,
+    //             6016,
+    //             5900,
+    //             5767,
+    //             6018,
+    //             5887,
+    //             5891,
+    //             5898,
+    //             5951,
+    //             6000,
+    //             5851,
+    //             6029,
+    //             5759,
+    //             5896,
+    //             5989,
+    //             6034,
+    //             5854,
+    //             6022,
+    //             5862,
+    //             5984,
+    //             5980,
+    //             6006,
+    //             5897,
+    //             5921,
+    //             6052,
+    //             5813,
+    //             5878,
+    //             5787,
+    //             5788,
+    //             5793,
+    //             6035,
+    //             5901,
+    //             6004,
+    //             5872,
+    //             5895,
+    //             6002,
+    //             5867,
+    //             5991,
+    //             5890,
+    //             5863,
+    //             5832,
+    //             5935,
+    //             5944,
+    //             5958,
+    //             6026,
+    //             5972,
+    //             5847,
+    //             6003,
+    //             6023,
+    //             6012,
+    //             5830,
+    //             5924,
+    //             5868,
+    //             5807,
+    //             5853,
+    //             5996,
+    //             5928,
+    //             5857,
+    //             5952,
+    //             5902,
+    //             5932,
+    //             5933,
+    //             5884,
+    //             5927,
+    //             5834,
+    //             6045,
+    //             5936,
+    //             5948,
+    //             5846,
+    //             5937,
+    //             5825,
+    //             5858,
+    //             5946,
+    //             5918,
+    //             6050,
+    //             5818,
+    //             5835,
+    //             5934,
+    //             6024,
+    //             6015,
+    //             5843,
+    //             5823,
+    //             6020,
+    //             5866,
+    //             5869,
+    //             5904,
+    //             5808,
+    //             5910,
+    //             5926,
+    //             6038,
+    //             5983,
+    //             6042,
+    //             5985,
+    //             5780,
+    //             5803,
+    //             5880,
+    //             5805,
+    //             6041,
+    //             6051,
+    //             5804,
+    //             5975,
+    //             5992,
+    //             5982,
+    //             5953,
+    //             5960,
+    //             5979,
+    //             5874,
+    //             6007,
+    //             5766,
+    //             5995,
+    //             6010,
+    //             5801,
+    //             5779,
+    //             5917,
+    //             5906,
+    //             5826,
+    //             5845,
+    //             5954,
+    //             5981,
+    //             5976,
+    //             5820,
+    //             5836,
+    //             5893,
+    //             5777,
+    //             5909,
+    //             5949,
+    //             5785,
+    //             5827,
+    //             5966,
+    //             5864
+    //         ];
 
-            $del_ug = [];
-            $new_ug = [23];
-            $insertQuota = false;
-            $completed = 0;
+    //         $del_ug = [];
+    //         $new_ug = [23];
+    //         $insertQuota = false;
+    //         $completed = 0;
 
-            $this->_db->transactionStart();
-            foreach ($arr_ids as $key_user => $user_id) {
+    //         $this->_db->transactionStart();
+    //         foreach ($arr_ids as $key_user => $user_id) {
 
-                if (count($del_ug) > 0) {
-                    // rimuovo utente da gruppi evento
-                    $query_del = "DELETE
-                                    FROM #__user_usergroup_map
-                                    WHERE user_id = " . $this->_db->quote($user_id) . "
-                                    AND group_id IN (" . implode(',', $del_ug) . ")";
+    //             if (count($del_ug) > 0) {
+    //                 // rimuovo utente da gruppi evento
+    //                 $query_del = "DELETE
+    //                                 FROM #__user_usergroup_map
+    //                                 WHERE user_id = " . $this->_db->quote($user_id) . "
+    //                                 AND group_id IN (" . implode(',', $del_ug) . ")";
 
-                    $this->_db->setQuery($query_del);
-                    if (!$this->_db->execute())
-                        throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
-                }
+    //                 $this->_db->setQuery($query_del);
+    //                 if (!$this->_db->execute())
+    //                     throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
+    //             }
 
-                // aggiungo utente a gruppi istituzionali
-                $query_ins = "INSERT INTO #__user_usergroup_map
-                                (user_id, group_id) VALUES ";
-                foreach ($new_ug as $key_ug => $ug) {
-                    $query_ins .= "(" . $this->_db->quote($user_id) . ", " . $this->_db->quote($ug) . "),";
-                }
+    //             // aggiungo utente a gruppi istituzionali
+    //             $query_ins = "INSERT INTO #__user_usergroup_map
+    //                             (user_id, group_id) VALUES ";
+    //             foreach ($new_ug as $key_ug => $ug) {
+    //                 $query_ins .= "(" . $this->_db->quote($user_id) . ", " . $this->_db->quote($ug) . "),";
+    //             }
 
-                $query_ins = rtrim(trim($query_ins), ",") . ";";
-                $this->_db->setQuery($query_ins);
-                if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
+    //             $query_ins = rtrim(trim($query_ins), ",") . ";";
+    //             $this->_db->setQuery($query_ins);
+    //             if (!$this->_db->execute()) throw new Exception("insert query ko -> " . $query_ins, E_USER_ERROR);
 
-                if ($insertQuota) {
-                    // cb_ultimoannoinregola
-                    $query_update = "UPDATE #__comprofiler
-                                    SET cb_ultimoannoinregola = 2024
-                                    WHERE user_id = " . $this->_db->quote($user_id);
-                    $this->_db->setQuery($query_update);
-                    if (!$this->_db->execute()) throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
+    //             if ($insertQuota) {
+    //                 // cb_ultimoannoinregola
+    //                 $query_update = "UPDATE #__comprofiler
+    //                                 SET cb_ultimoannoinregola = 2024
+    //                                 WHERE user_id = " . $this->_db->quote($user_id);
+    //                 $this->_db->setQuery($query_update);
+    //                 if (!$this->_db->execute()) throw new Exception("update query ko -> " . $query_update, E_USER_ERROR);
 
                 
-                    $now = date('Y-m-d H:i:s');
-                    $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
-                                                    user_id,
-                                                    anno,
-                                                    tipo_quota,
-                                                    tipo_pagamento,
-                                                    data_pagamento,
-                                                    dettagli_transazione
-                                                    )
-                                                VALUES (
-                                                    " . $this->_db->quote($user_id) . ",
-                                                    2024,
-                                                    'quota',
-                                                    'bonifico',
-                                                    " . $this->_db->quote($now) . ",
-                                                    'Socio straordinario 2024'
-                                                )";
-                    $this->_db->setQuery($query_quote);
-                    if (!$this->_db->execute()) throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
+    //                 $now = date('Y-m-d H:i:s');
+    //                 $query_quote = "INSERT INTO #__gg_quote_iscrizioni (
+    //                                                 user_id,
+    //                                                 anno,
+    //                                                 tipo_quota,
+    //                                                 tipo_pagamento,
+    //                                                 data_pagamento,
+    //                                                 dettagli_transazione
+    //                                                 )
+    //                                             VALUES (
+    //                                                 " . $this->_db->quote($user_id) . ",
+    //                                                 2024,
+    //                                                 'quota',
+    //                                                 'bonifico',
+    //                                                 " . $this->_db->quote($now) . ",
+    //                                                 'Socio straordinario 2024'
+    //                                             )";
+    //                 $this->_db->setQuery($query_quote);
+    //                 if (!$this->_db->execute()) throw new Exception("insert quote query ko -> " . $query_quote, E_USER_ERROR);
 
+    //             }
+
+    //             $completed++;
+
+    //         }
+
+    //         $this->_db->transactionCommit();
+
+    //         echo "TOTALI: " . count($arr_ids) . " | ELABORATI: " . $completed;
+
+    //     }
+    //     catch(Exception $e) {
+    //         $this->_db->transactionRollback();
+    //         echo "ERRORE: " . $e->getMessage();
+    //     }
+
+    //     $this->_japp->close();
+
+    // }
+
+    public function fixReportViews() {
+
+        try {
+
+            // controllo ordinari
+            $query_sel = "SELECT DISTINCT
+                c.id        AS id_contenuto,
+                q.c_student_id AS id_utente
+            FROM
+                #__quiz_r_student_quiz AS q
+            INNER JOIN
+                #__gg_contenuti AS c
+                ON q.c_quiz_id = c.id_quizdeluxe
+            WHERE DATE(q.c_date_time) = ". $this->_db->quote($this->_filterparam->from);
+
+            $this->_db->setQuery($query_sel);
+            $quizResults = $this->_db->loadAssocList();
+
+            echo "Query eseguita: <b>" . $query_sel . "</b><br />";
+
+            if (empty($quizResults))
+                throw new \Exception('Nessun risultato valido per l\'elaborazione per la data ' . $this->_filterparam->from);
+
+            echo "Ci sono " . count($quizResults) . " riferimenti ai quiz<br />";
+
+            $insertionCounter = 0;
+            $userIds = [];
+            foreach ($quizResults as $item) {
+
+                $data = new Stdclass();
+                $data->id_utente = $item['id_utente'];
+                $data->id_contenuto = $item['id_contenuto'];
+                if (!in_array($item['id_utente'], $userIds))
+                    $userIds[] = $item['id_utente'];
+
+                $modelcontenuto = new gglmsModelContenuto();
+                $contenuto = $modelcontenuto->getContenuto($item['id_contenuto']);
+                if ($contenuto == null) {
+                    echo "Il contenuto corrente ID " . $item['id_contenuto'] . " utente " . $item['id_utente'] . " è NULL, continuo...<br />";
+                    continue;
                 }
 
-                $completed++;
+                $stato = $contenuto->getStato($data->id_utente);
+                $data->data = $stato->data;
+
+                $data->data_extra = $stato->data_extra;
+                $data->data_primo_accesso = $stato->data_primo_accesso;
+
+                $data->stato = $stato->completato;
+                $data->visualizzazioni =  $stato->visualizzazioni;
+
+                $permanenza_second = utilityHelper::getSecondsFromHMS($stato->permanenza);
+                $data->permanenza_tot = isset($permanenza_second) ? $permanenza_second : 0;
+                $data->id_unita = $contenuto->getUnitPadre();//se  questo fallisce non lo metto nel report
+
+                if (!isset($data->id_unita)
+                    || $data->id_unita == 0) {
+                    echo "L'unità corrente ha ID 0 (contenuto ID " . $item['id_contenuto'] . " utente " . $item['id_utente'] . "), continuo...<br />";
+                    continue;
+                }
+                $modelunita = new gglmsModelUnita();
+                $unita = $modelunita->getUnita($data->id_unita);
+
+                $corso = $unita->find_corso($data->id_unita, false);
+                if ($corso->pubblicato == 0) {
+                    echo "Il corso ID " . $corso->id . " (contenuto ID " . $item['id_contenuto'] . " utente " . $item['id_utente'] . ") non è pubblicato, continuo...<br />";
+                    continue;
+                }
+
+                $modelDataReport = new gglmsModelSyncdatareport();
+                $data->id_corso = $corso->id;
+                $data->id_event_booking = ($corso->id_event_booking) ? $corso->id_event_booking : 0;
+                $data->id_anagrafica = $modelDataReport->_getAnagraficaid($data->id_utente, $data->id_event_booking);
+
+                if($data->id_anagrafica == 0)
+                    throw new \Exception('Anagrafica dell\'utente ID ' . $data->id_utente . ' non presente');
+
+                $modelDataReport->store_report($data);
+
+                unset($modelunita);
+                unset($unita);
+                unset($data);
+
+                unset($modelcontenuto);
+                unset($contenuto);
+
+                $insertionCounter++;
 
             }
 
-            $this->_db->transactionCommit();
+            echo "Elaborati " . $insertionCounter . " record, allinea_vista_con_report<br />";
 
-            echo "TOTALI: " . count($arr_ids) . " | ELABORATI: " . $completed;
+            // parte relativa a gg_view_stato_user_corso
+            $allineaReport = new gglmsControllerAllineaReport();
+            $allineaReport->allinea_vista_con_report();
+
+            $modelViewStatoUser = new gglmsModelSyncViewStatoUser();
+            $dt = $this->_filterparam->from;
+
+            $rs = $modelViewStatoUser->insertData(null, null, $dt, $userIds);
+            if (!$rs) {
+                echo "DT: " . $dt . " insert views con esito false<br />";
+            }
+            else {
+                echo "DT: " . $dt . " insert views con esito true<br />";
+            }
+
+            echo "Termine script <br />";
 
         }
-        catch(Exception $e) {
-            $this->_db->transactionRollback();
-            echo "ERRORE: " . $e->getMessage();
+        catch(\Exception $e) {
+            echo $e->getMessage();
         }
 
         $this->_japp->close();
-
     }
 
+    private function getDateRange(string $fromDate, string $toDate, string $format = 'Y-m-d'): array
+    {
+        $dates = [];
 
+        $start = new DateTime($fromDate);
+        $end = new DateTime($toDate);
+        $end->modify('+1 day'); // Include anche il giorno finale
+
+        $interval = new DateInterval('P1D'); // intervallo di 1 giorno
+        $period = new DatePeriod($start, $interval, $end);
+
+        foreach ($period as $date) {
+            $dates[] = $date->format($format);
+        }
+
+        return $dates;
+    }
 
     public function get_tz() {
 
