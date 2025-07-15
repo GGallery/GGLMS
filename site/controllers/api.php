@@ -2872,7 +2872,7 @@ HTML;
                     $annoRef = $dt->format('Y');
 
                     // prima controllo se ha un pagamento di tipo bonifico in sospeso
-                    $checkQuota = $userModel->get_quota_per_id($comprofilerCheck['user_id'], 'user_id', $annoRef);
+                    $checkQuota = $userModel->get_quota_per_id($comprofilerCheck['user_id'], 'user_id', $annoRef, 'quota');
                     if (isset($checkQuota['tipo_pagamento'])) throw new Exception('Hai già un pagamento registrato per l\'anno ' . $annoRef);
 
                     // controllo se l'utente è online oppure moroso - in questo caso blocco il procedimento

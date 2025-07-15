@@ -1722,7 +1722,7 @@ class gglmsModelUsers extends JModelLegacy
     }
 
     // quota ricercata per colonna e valore della colonna
-    public function get_quota_per_id($idQuota, $targetCol = 'id', $anno = null) {
+    public function get_quota_per_id($idQuota, $targetCol = 'id', $anno = null, $tipo_quota = '') {
 
         try {
 
@@ -1733,6 +1733,9 @@ class gglmsModelUsers extends JModelLegacy
 
             if (!is_null($anno))
                 $query = $query->where('anno = ' . $this->_db->quote($anno));
+
+            if ($tipo_quota != '')
+                $query = $query->where('tipo_quota = ' . $this->_db->quote($tipo_quota));
 
             $query = $query->order('id DESC');
 
