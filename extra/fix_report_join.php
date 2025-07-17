@@ -104,7 +104,7 @@ class fixReportJoin extends JApplicationCli {
                     continue;
                 }
 
-                $this->out("ID CONTENUTO: " . $contenuto->id);
+                $this->out("ID CONTENUTO: " . $item['id_contenuto']);
 
                 $stato = $contenuto->getStato($data->id_utente);
                 $data->data = $stato->data;
