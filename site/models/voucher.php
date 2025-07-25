@@ -30,7 +30,8 @@ class gglmsModelVoucher extends JModelLegacy {
                             AND user_id IS NULL";
             $this->_db->setQuery($checkVoucher);
 
-            return $this->_db->loadResult();
+            //return $this->_db->loadResult();
+            return $this->_db->loadAssoc();
 
         }
         catch(\Exception $e) {

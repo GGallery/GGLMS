@@ -3,6 +3,9 @@
 # CHANGELOG 
 
 ### F:Frontend, B:Backend, D:Database, G:Generale
+# 4.2.6
+* D: aggiunta la colonna sc_valore alla tabella gg_quote_voucher
+
 # 4.2.5
 * D: aggiunta della colonna buy_voucher alla tabella gg_unit
 * D: aggiunta della colonna course_id alla tabella gg_quote_voucher

@@ -3183,7 +3183,8 @@ HTML;
                                                   $sconto_particolare = 0,
                                                   $acquisto_webinar = 0,
                                                   $perc_webinar = 0,
-                                                  $unit_prezzo = 0) {
+                                                  $unit_prezzo = 0,
+                                                  $sc_voucher = 0) {
 
         $_ret = array();
         $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
@@ -3232,6 +3233,13 @@ HTML;
 HTML;
             $_descrizione_sconto = " sconto personalizzato ";
         }
+        else if ($sc_voucher > 0) {
+            $_tipo_sconto = <<< HTML
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$sc_voucher})</small></span>
+HTML;
+            $_descrizione_sconto = " sconto voucher ";
+        }
 
         // gestione dell'acquisto in modalità webinar
         if ($acquisto_webinar > 0) {
@@ -3277,9 +3285,9 @@ HTML;
     }
 
     // costruizione del token per l'url encodato - utilità per output.php
-    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!') {
+    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!', $sc_voucher = 0, $sc_voucher_code = '') {
 
-        $b_url = $unit_prezzo . '|==|' . $unit_id . '|==|' . $user_id . '|==|' . $sconto_data . '|==|' . $sconto_custom . '|==|' . $in_groups;
+        $b_url = $unit_prezzo . '|==|' . $unit_id . '|==|' . $user_id . '|==|' . $sconto_data . '|==|' . $sconto_custom . '|==|' . $in_groups . '|==|' . $sc_voucher . '|==|' . $sc_voucher_code;
         $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
 
         return $token;

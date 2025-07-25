@@ -865,6 +865,7 @@ CREATE TABLE `#__gg_quote_voucher` (
   `code` TEXT NOT NULL,
   `buy_subscription` tinyint(1) UNSIGNED DEFAULT '1',
   `buy_course` tinyint(1) UNSIGNED DEFAULT '0',
+  `sc_valore` decimal(6,2) DEFAULT NULL,
   `date` DATETIME NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

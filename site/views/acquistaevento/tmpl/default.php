@@ -27,13 +27,15 @@ defined('_JEXEC') or die;
 
     if ($this->in_error == 1
         || $this->action == 'bb_buy_request'
-        || $this->action == 'voucher_buy_request'
+        || ($this->action == 'voucher_buy_request' && !$this->sc_voucher)
         || $this->hide_pp) {
 
         echo $this->payment_form;
 
-    } else if ($this->action == 'buy'
-        && !$this->hide_pp) { ?>
+    } else if (
+        ($this->action == 'buy' || ($this->action == 'voucher_buy_request' && $this->sc_voucher > 0))
+        && !$this->hide_pp) { 
+            ?>
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $this->client_id; ?>&currency=EUR" data-sdk-integration-source="button-factory"></script>
 
         <div class="row">

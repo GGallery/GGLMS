@@ -207,7 +207,7 @@ class gglmsViewPaypal extends JViewLegacy {
                 $token = JRequest::getVar('token');
 
                 // decodifica dell'attributo token
-                $decode_pp = UtilityHelper::encrypt_decrypt('decrypt', $token, 'GGallery00!', 'GGallery00!');
+                $decode_pp = utilityHelper::encrypt_decrypt('decrypt', $token, 'GGallery00!', 'GGallery00!');
                 $decode_arr = explode('|==|', $decode_pp);
 
                 // controllo i valori del token
@@ -247,6 +247,9 @@ class gglmsViewPaypal extends JViewLegacy {
                 //$sconto_data = $decode_arr[3];
                 //$in_groups = $decode_arr[4];
 
+                $sc_voucher = $decode_arr[6];
+                $sc_voucher_code = $decode_arr[7];
+
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->acquisto_evento_store_payment($order_id, $user_id, $unit_prezzo), true);
 
@@ -265,12 +268,23 @@ class gglmsViewPaypal extends JViewLegacy {
                                                                             $pp,
                                                                             true,
                                                                             $unit_id,
-                                                                            $unit_gruppo);
+                                                                            $unit_gruppo,
+                                                                            $sc_voucher,
+                                                                            $sc_voucher_code
+                                                                            );
 
                 if (!is_array($_insert_evento))
                     $this->call_result = $_insert_evento;
                 else
                     $this->call_result = "tuttook";
+
+                // spendo voucher
+                if ($sc_voucher > 0 && $sc_voucher_code != '') {
+                
+                    $updateVoucher = $_user_quote->update_voucher_utilizzato($sc_voucher_code, $user_id, date('Y-m-d H:i:s'), $unit_id, 0, 1);
+                    if (!is_array($updateVoucher))
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+                }
 
             }
 

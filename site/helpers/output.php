@@ -1789,7 +1789,9 @@ HTML;
                                                             $sconto_particolare = 0,
                                                             $acquisto_webinar = 0,
                                                             $perc_webinar = 0,
-                                                            $_params) {
+                                                            $_params,
+                                                            $sc_voucher = 0,
+                                                            $sc_voucher_code = '') {
 
         try {
 
@@ -1817,6 +1819,12 @@ HTML;
                 $unit_prezzo = $acquisto_webinar;
             }
 
+            // se c'è sconto voucher
+            if ($sc_voucher > 0) {
+              $unit_prezzo_db = $unit_prezzo;
+              $unit_prezzo = number_format($unit_prezzo-$sc_voucher, 2);
+            }
+
             $dt = new DateTime($_unit->data_inizio);
             $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento($sconto_data,
                 $sconto_custom,
@@ -1825,7 +1833,9 @@ HTML;
                 $sconto_particolare,
                 $acquisto_webinar,
                 $perc_webinar,
-                $unit_prezzo);
+                $unit_prezzo,
+                $sc_voucher
+            );
 
             $_descr_checkbox_evento = "Acquisto " . $_unit->titolo;
             $_descr_checkbox_evento .= $_tipo_sconto['descrizione_sconto'] != "" ? ' ' . $_tipo_sconto['descrizione_sconto'] : '';
@@ -1837,20 +1847,21 @@ HTML;
             $_descr_attr_evento .= ($in_groups == 1) ? '-sc_gruppo' : '';
             $_descr_attr_evento .= ($sconto_particolare > 0) ? '-sc_ps' : '';
             $_descr_attr_evento .= ($acquisto_webinar > 0) ? '-webinar' : '';
+            $_descr_attr_evento .= ($sc_voucher > 0) ? '-sc_voucher' : '';
 
             $_descrizione_hidden = $_descr_attr_evento;
 
             $_testo_pagamento_paypal = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR1');
             $_testo_pagamento_bonifico_btn = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR2');
-            $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
+            $_testo_pagamento_bonifico = utilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_row_pagamento_bonfico = "";
             $_row_pagamento_voucher = "";
 
-            $token = UtilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups);
+            $token = utilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $sc_voucher, $sc_voucher_code);
 
             if ($_testo_pagamento_bonifico != "") {
 
-              $endpointBB = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
+              $endpointBB = utilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
 
                 $_row_pagamento_bonfico = <<<HTML
                     <tr>
@@ -1866,7 +1877,8 @@ HTML;
 HTML;
             }
 
-            if ((int) $_unit->buy_voucher == 1) {
+            // integro lo sconto con voucher ma solo se non ne sto già applicando uno
+            if ((int) $_unit->buy_voucher == 1 && $sc_voucher == 0) {
 
               $_testo_pagamento_voucher = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR73');
               $_placeholder_voucher = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR74');

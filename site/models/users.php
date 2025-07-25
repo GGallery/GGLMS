@@ -872,7 +872,9 @@ class gglmsModelUsers extends JModelLegacy
                                               $_template = 'servizi_extra',
                                               $send_email = true,
                                               $unit_id = null,
-                                              $unit_gruppo = null) {
+                                              $unit_gruppo = null,
+                                              $sc_voucher = 0,
+                                              $sc_voucher_code = '') {
 
         try {
 
@@ -891,6 +893,10 @@ class gglmsModelUsers extends JModelLegacy
             if ($_template == 'registrazioneasand' || $_template == 'voucher_buy_quota_asand') {
                 $_extra_col .= ', stato';
                 $_extra_insert .= ", " . $this->_db->quote(1);
+            }
+
+            if ($sc_voucher_code != '') {
+                $_order_details .= ' Pagamento con voucher codice: ' . $sc_voucher_code . ' sconto: ' . $sc_voucher; 
             }
 
             // inserisco le righe riferite agli anni

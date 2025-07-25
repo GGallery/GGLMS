@@ -30,6 +30,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
     protected $sconto_custom;
     protected $in_groups;
     protected $sconto_particolare;
+    protected $sc_voucher;
     protected $acquisto_webinar;
     protected $perc_webinar;
     protected $payment_form;
@@ -233,7 +234,7 @@ HTML;
 
                 // controllo se il codice del voucher esiste e non è già stato speso
                 $resultVoucher = $voucher->checkVoucherByCode($voucherCode, 0, 1);
-                if (!$resultVoucher) {
+                if (empty($resultVoucher)) {
                     echo <<<HTML
                     <script>
                         alert('Il codice immesso non è stato trovato oppure è già stato utilizzato. Premi OK per tornare indietro');
@@ -245,36 +246,69 @@ HTML;
 
                 if (!$inError) {
 
-                    // mi servono informazioni sull'unita
-                    $unit_model = new gglmsModelUnita();
-                    $_unit = $unit_model->getUnita($this->unit_id);
-                    $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+                    // voucher con sconto
+                    if (!is_null($resultVoucher['sc_valore'])
+                        && $resultVoucher['sc_valore'] > 0) {
 
-                    // user model
-                    $_user_quote = new gglmsModelUsers();
-                    $_insert_servizi_extra = $_user_quote->insert_user_servizi_extra($this->user_id,
-                                                                                    $dt->format('Y'),
-                                                                                    $dt->format('Y-m-d H:i:s'),
-                                                                                    "",
-                                                                                    $this->unit_prezzo,
-                                                                                    array(),
-                                                                                    $this->action,
-                                                                                    true,
+                        $this->client_id = $_config->getConfigValue('paypal_client_id');
+                        if (is_null($this->client_id)
+                            || $this->client_id == "")
+                            throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
+                            
+                        $_payment_form = outputHelper::get_payment_form_acquisto_evento($this->unit_prezzo,
                                                                                     $this->unit_id,
-                                                                                    $unit_gruppo);
+                                                                                    $this->user_id,
+                                                                                    $this->sconto_data,
+                                                                                    $this->sconto_custom,
+                                                                                    $this->in_groups,
+                                                                                    $this->sconto_particolare,
+                                                                                    $this->acquisto_webinar,
+                                                                                    $this->perc_webinar,
+                                                                                    $_params,
+                                                                                    $resultVoucher['sc_valore'],
+                                                                                    $resultVoucher['code']
+                                                                                );
 
-                    if (!is_array($_insert_servizi_extra))
-                        throw new Exception($_insert_servizi_extra, E_USER_ERROR);
 
-                    // spendo il voucher
-                    $updateVoucher = $_user_quote->update_voucher_utilizzato($voucherCode, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id, 0, 1);
-                    if (!is_array($updateVoucher))
-                        throw new Exception($updateVoucher, E_USER_ERROR);
+                        if (!is_array($_payment_form))
+                            throw new Exception($_payment_form, E_USER_ERROR);
 
-                    $_payment_form = outputHelper::get_payment_form_acquisto_evento_voucher($this->user_id, $_unit->titolo);
+                        $this->hide_pp = false;
+                        $this->sc_voucher = $resultVoucher['sc_valore'];
+                    }
+                    else {
 
-                    if (!is_array($_payment_form))
-                        throw new Exception($_payment_form, E_USER_ERROR);
+                        // mi servono informazioni sull'unita
+                        $unit_model = new gglmsModelUnita();
+                        $_unit = $unit_model->getUnita($this->unit_id);
+                        $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
+
+                        // user model
+                        $_user_quote = new gglmsModelUsers();
+                        $_insert_servizi_extra = $_user_quote->insert_user_servizi_extra($this->user_id,
+                                                                                        $dt->format('Y'),
+                                                                                        $dt->format('Y-m-d H:i:s'),
+                                                                                        "",
+                                                                                        $this->unit_prezzo,
+                                                                                        array(),
+                                                                                        $this->action,
+                                                                                        true,
+                                                                                        $this->unit_id,
+                                                                                        $unit_gruppo);
+
+                        if (!is_array($_insert_servizi_extra))
+                            throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+
+                        // spendo il voucher
+                        $updateVoucher = $_user_quote->update_voucher_utilizzato($voucherCode, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id, 0, 1);
+                        if (!is_array($updateVoucher))
+                            throw new Exception($updateVoucher, E_USER_ERROR);
+
+                        $_payment_form = outputHelper::get_payment_form_acquisto_evento_voucher($this->user_id, $_unit->titolo);
+
+                        if (!is_array($_payment_form))
+                            throw new Exception($_payment_form, E_USER_ERROR);
+                    }
 
                     $this->payment_form = $_payment_form['success'];
                     $this->in_error = 0;
