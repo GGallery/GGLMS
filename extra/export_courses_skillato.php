@@ -62,6 +62,8 @@ class exportCoursesSkillato extends JApplicationCli {
 
             //$selCorsi .= " and id = 1468";
             //$selCorsi .= " and id = 1019";
+            //$selCorsi .= " and id = 1801";
+            $selCorsi .= " and id = 1194";
 
             $db->setQuery($selCorsi);
             $rsCorsi = $db->loadAssocList();
@@ -243,6 +245,8 @@ class exportCoursesSkillato extends JApplicationCli {
                 );
             }
 
+            $this->out(date('d/m/Y H:i:s') . ' - verificando contenuto: ' . $contenuto['titolo']);
+
             // gestione delle varie tipologie
             switch($contenuto['tipologia']) {
 
@@ -250,16 +254,26 @@ class exportCoursesSkillato extends JApplicationCli {
                     // videoslide
                     $slideType = '';
                     $ext = '';
-                    if (file_get_contents($siteUrl . $commontContentPath . '.mp4')) {
+                    
+                    $fileUrl = $siteUrl . $commontContentPath . '.mp4';
+                    $this->out(date('d/m/Y H:i:s') . ' - controllando esistenza del file' . $fileUrl);
 
-                        $this->out(date('d/m/Y H:i:s') . ' - video slide - MP4 esistente: ' . $siteUrl . $commontContentPath . '.mp4');
+                    //if (@file_get_contents($fileUrl)) {
+                    if ($this->remoteFileExists($fileUrl)) {
+
+                        $this->out(date('d/m/Y H:i:s') . ' - video slide - MP4 esistente: ' . $fileUrl);
 
                         $slideType = 'VideoUpload';
                         $ext = 'mp4';
                     }
-                    else if (file_get_contents($siteUrl . $commontContentPath . '.pdf')) {
 
-                        $this->out(date('d/m/Y H:i:s') . ' - video slide - PDF esistente: ' . $siteUrl . $commontContentPath . '.pdf');
+                    $fileUrl = $siteUrl . $commontContentPath . '.pdf';
+                    $this->out(date('d/m/Y H:i:s') . ' - controllando esistenza del file' . $fileUrl);
+
+                    //if (@file_get_contents($fileUrl)) {
+                    if ($this->remoteFileExists($fileUrl)) {
+
+                        $this->out(date('d/m/Y H:i:s') . ' - video slide - PDF esistente: ' . $fileUrl);
 
                         $slideType = 'DocumentUpload';
                         $ext = 'pdf';
@@ -321,7 +335,11 @@ class exportCoursesSkillato extends JApplicationCli {
                         foreach($rsFiles as $singleFile) {
 
                             $fileUrl = $siteUrl . 'mediagg/files/' . $singleFile['file_id'] . '/' . $singleFile['filename'];
-                            if (@file_get_contents($fileUrl)) {
+
+                            $this->out(date('d/m/Y H:i:s') . ' - controllando esistenza del file' . $fileUrl);
+
+                            //if (@file_get_contents($fileUrl)) {
+                            if ($this->remoteFileExists($fileUrl)) {
 
                                 $this->out(date('d/m/Y H:i:s') . ' - allegati - contenuto ' . $contenuto['titolo'] . ' file esistente all\'url ' . $fileUrl);
 
@@ -386,7 +404,12 @@ class exportCoursesSkillato extends JApplicationCli {
                     // pdfsingolo
                     $this->out(date('d/m/Y H:i:s') . ' - pdfsingolo');
 
-                    if (file_get_contents($siteUrl . $commontContentPath . '.pdf')) {
+                    $fileUrl = $siteUrl . $commontContentPath . '.pdf';
+
+                    $this->out(date('d/m/Y H:i:s') . ' - controllando esistenza del file' . $fileUrl);
+
+                    //if (file_get_contents($siteUrl . $commontContentPath . '.pdf')) {
+                    if ($this->remoteFileExists($fileUrl)) {
 
                         $this->out(date('d/m/Y H:i:s') . ' - pdfsingolo - contenuto: ' . $contenuto['titolo'] . ' - esiste documento');
 
@@ -443,6 +466,21 @@ class exportCoursesSkillato extends JApplicationCli {
     //     }
     // }
 
+    private function remoteFileExists(string $url, int $timeout = 5): bool {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_NOBODY => true,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_CONNECTTIMEOUT => $timeout,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
+        curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return ($code >= 200 && $code < 300);
+    }
+
     private function writeCsv($data, $filename)
     {
         $retArr = [];
@@ -465,9 +503,12 @@ class exportCoursesSkillato extends JApplicationCli {
                 // Selezioniamo solo i campi stabiliti da headers
                 $line = [];
                 foreach ($headers as $field) {
-                    $line[] = $row[$field];
+                    $val = $row[$field] ?? '';
+                    $clean = preg_replace('/[\r\n]+/', ' ', $val);
+                    $clean = str_replace(',', ', ', $clean);
+                    $line[] = $clean;
                 }
-                fputcsv($fp, $line);
+                fputcsv($fp, $line, ',', '"', '');
             }
 
             // 7. Chiusura del file
