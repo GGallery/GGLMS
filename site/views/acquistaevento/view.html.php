@@ -31,6 +31,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
     protected $in_groups;
     protected $sconto_particolare;
     protected $sc_voucher;
+    protected $sc_voucher_code;
     protected $acquisto_webinar;
     protected $perc_webinar;
     protected $payment_form;
@@ -136,6 +137,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             $this->sconto_particolare = 0;
             $this->acquisto_webinar = 0;
             $this->perc_webinar = 0;
+            $this->sc_voucher = 0;
+            $this->sc_voucher_code = '';
 
             // sconti particolari
             if (isset($decode_arr[6])
@@ -151,6 +154,16 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
             if (isset($decode_arr[8])
                 && $decode_arr[8] != "")
                 $this->perc_webinar = $decode_arr[8];
+
+            // sconto valore voucher
+            if (isset($decode_arr[9])
+                && $decode_arr[9] != "")
+                $this->sc_voucher = $decode_arr[9];
+
+            // codice voucher
+            if (isset($decode_arr[10])
+                && $decode_arr[10] != "")
+                $this->sc_voucher_code = $decode_arr[10];
 
             $_config = new gglmsModelConfig();
 
@@ -275,6 +288,7 @@ HTML;
 
                         $this->hide_pp = false;
                         $this->sc_voucher = $resultVoucher['sc_valore'];
+                        $this->sc_voucher_code = $resultVoucher['code'];
                     }
                     else {
 
@@ -299,7 +313,7 @@ HTML;
                         if (!is_array($_insert_servizi_extra))
                             throw new Exception($_insert_servizi_extra, E_USER_ERROR);
 
-                        // spendo il voucher
+                        // smarco voucher se utilizzato
                         $updateVoucher = $_user_quote->update_voucher_utilizzato($voucherCode, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id, 0, 1);
                         if (!is_array($updateVoucher))
                             throw new Exception($updateVoucher, E_USER_ERROR);
@@ -333,10 +347,22 @@ HTML;
                                                                                 $this->action,
                                                                                 true,
                                                                                 $this->unit_id,
-                                                                                $unit_gruppo);
+                                                                                $unit_gruppo,
+                                                                                $this->sc_voucher,
+                                                                                $this->sc_voucher_code
+                                                                            );
 
                 if (!is_array($_insert_servizi_extra))
                     throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+
+                // smarco voucher se utilizzato
+                if ($this->sc_voucher_code != '') {
+
+                    $updateVoucher = $_user_quote->update_voucher_utilizzato($this->sc_voucher_code, $this->user_id, date('Y-m-d H:i:s'), $this->unit_id, 0, 1);
+                    if (!is_array($updateVoucher))
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+
+                }
 
                 $_payment_form = outputHelper::get_payment_form_acquisto_evento_bonifico($this->user_id,
                                                                                         $_unit->titolo,

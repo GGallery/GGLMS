@@ -2190,7 +2190,7 @@ HTML;
 
         if (isset($_user_details['codice_fiscale'])
             && $_user_details['codice_fiscale'] != "")
-            $_cf .= $_user_details['codice_fiscale'];
+            $_cf .= strtoupper($_user_details['codice_fiscale']);
 
         $oggetto = "SINPE - Effettuato nuovo pagamento quota a mezzo PayPal";
 
@@ -3233,7 +3233,9 @@ HTML;
 HTML;
             $_descrizione_sconto = " sconto personalizzato ";
         }
-        else if ($sc_voucher > 0) {
+        
+        // sconto con voucher se applicato ha la priorità
+        if ($sc_voucher > 0) {
             $_tipo_sconto = <<< HTML
                     <!-- style="color: red;" -->
                     <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$sc_voucher})</small></span>
@@ -3285,9 +3287,29 @@ HTML;
     }
 
     // costruizione del token per l'url encodato - utilità per output.php
-    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!', $sc_voucher = 0, $sc_voucher_code = '') {
+    public static function build_token_url($unit_prezzo, 
+        $unit_id, 
+        $user_id, 
+        $sconto_data, 
+        $sconto_custom, 
+        $in_groups, 
+        $secret_key = 'GGallery00!', 
+        $check_sconti_particolari = 0, 
+        $unit_prezzo_webinar = 0, 
+        $perc_webinar = 0, 
+        $sc_voucher = 0, 
+        $sc_voucher_code = '') {
 
-        $b_url = $unit_prezzo . '|==|' . $unit_id . '|==|' . $user_id . '|==|' . $sconto_data . '|==|' . $sconto_custom . '|==|' . $in_groups . '|==|' . $sc_voucher . '|==|' . $sc_voucher_code;
+        $b_url = $unit_prezzo . '|==|' 
+            . $unit_id . '|==|' 
+            . $user_id . '|==|' 
+            . $sconto_data . '|==|' 
+            . $sconto_custom . '|==|' 
+            . $in_groups . '|==|' 
+            . $check_sconti_particolari . '|==|'
+            . $unit_prezzo_webinar . '|==|'
+            . $perc_webinar . '|==|'
+            . $sc_voucher . '|==|' . $sc_voucher_code;
         $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
 
         return $token;

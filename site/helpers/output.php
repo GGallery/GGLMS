@@ -1821,8 +1821,8 @@ HTML;
 
             // se c'è sconto voucher
             if ($sc_voucher > 0) {
-              $unit_prezzo_db = $unit_prezzo;
-              $unit_prezzo = number_format($unit_prezzo-$sc_voucher, 2);
+              //$unit_prezzo_db = $unit_prezzo;
+              $unit_prezzo = number_format($unit_prezzo_db-$sc_voucher, 2);
             }
 
             $dt = new DateTime($_unit->data_inizio);
@@ -1857,7 +1857,7 @@ HTML;
             $_row_pagamento_bonfico = "";
             $_row_pagamento_voucher = "";
 
-            $token = utilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $sc_voucher, $sc_voucher_code);
+            $token = utilityHelper::build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, 'GGallery00!', $sconto_particolare, $acquisto_webinar, $perc_webinar, $sc_voucher, $sc_voucher_code);
 
             if ($_testo_pagamento_bonifico != "") {
 
@@ -1904,6 +1904,7 @@ HTML;
                       type="text" 
                       id="buy_voucher_code" 
                       placeholder="{$_placeholder_voucher}" 
+                      autocomplete="off"
                     />
                   </td>
               </tr>
