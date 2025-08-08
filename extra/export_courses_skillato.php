@@ -63,7 +63,10 @@ class exportCoursesSkillato extends JApplicationCli {
             //$selCorsi .= " and id = 1468";
             //$selCorsi .= " and id = 1019";
             //$selCorsi .= " and id = 1801";
-            $selCorsi .= " and id = 1194";
+            //$selCorsi .= " and id = 1194";
+            $selCorsi .= " and data_inizio like '2025%'
+                        and unitapadre in (0,1)
+                        order by data_inizio";
 
             $db->setQuery($selCorsi);
             $rsCorsi = $db->loadAssocList();
@@ -71,12 +74,23 @@ class exportCoursesSkillato extends JApplicationCli {
             if (empty($rsCorsi))
                 throw new Exception("Nessun corso disponibile", E_USER_ERROR);
 
+            $this->out(date('d/m/Y H:i:s') . ' - ci sono: ' . count($rsCorsi) . ' corsi da elaborare');
+
+            $indexCorsiCategoria = 0;
+            
+            $dir = __DIR__ . '/../tmp';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            $fileDate = date('Ymd_His');
+            $logFile = $dir . '/export_' . $fileDate . '.log';
+
             foreach ($rsCorsi as $corso) {
 
                 $this->out(date('d/m/Y H:i:s') . ' - elaboro corso: ' . $corso['titolo']);
-                $indexCorsiCategoria = 0;
 
-                $selBox = "SELECT jgbd.description 
+                $selBox = "SELECT jgbd.id as box_id, jgbd.description 
                             from #__gg_box_details jgbd 
                             join #__gg_box_unit_map jgbum on jgbd.id = jgbum.box 
                             where jgbum.id_unita = " . $corso['id'];
@@ -84,7 +98,10 @@ class exportCoursesSkillato extends JApplicationCli {
                 $db->setQuery($selBox);
                 $rsBox = $db->loadAssoc();
 
-                $courseBox = $rsBox['description'] ?? '';
+                $courseBoxTitle = $rsBox['description'] ?? '';
+                $courseBoxImage = $rsBox['box_id'] 
+                    ? $siteUrl . 'images/box_' . $rsBox['box_id'] . '.jpg'
+                    : '';
 
                 // verifico la presenza di sottounita
                 $selSottoUnita = "SELECT * 
@@ -103,12 +120,15 @@ class exportCoursesSkillato extends JApplicationCli {
                         'description_IT'    => '',
                         'color'             => '#000000',
                         'published_at'      => $corso['data_inizio'],
-                        'section_code'      => $courseBox,
-                        'user_set_code'     => $corso['titolo'],
+                        'section_code'      => $courseBoxTitle,
+                        'user_set_code'     => '',
                         'degree_type'       => '',
+                        'image_url'         => $courseBoxImage,
                     );
 
-                    $this->out(date('d/m/Y H:i:s') . ' - ci sono sotto unità per ' . $corso['titolo']);
+                    $logMessage = 'ci sono sotto unità per ID:' . $corso['id'] . ', TITOLO: ' . $corso['titolo'];
+                    $this->out(date('d/m/Y H:i:s') . ' - ' . $logMessage);
+                    //$this->simpleLog($logMessage, $logFile);
 
                     foreach($rsSottoUnita as $sottoUnita) {
 
@@ -118,14 +138,16 @@ class exportCoursesSkillato extends JApplicationCli {
                                         join #__gg_contenuti jgc on jgum.idcontenuto = jgc.id
                                         where jgum.idunita = " . $sottoUnita['id'] . "
                                         and jgc.pubblicato = 1
-                                        and jgc.tipologia in (1,2,3,5,6,9)
+                                        and jgc.tipologia in (1,2,3,5,9)
                                         order by jgum.ordinamento ";
 
                         $db->setQuery($selContenuti);
                         $rsContenuti = $db->loadAssocList();
 
                         if (empty($rsContenuti)) {
-                            $this->out(date('d/m/Y H:i:s') . ' - NON ci sono contenuti per ' . $sottoUnita['titolo']);
+                            $logMessage = 'NON ci sono contenuti per SOTTOUNITA ID:' . $sottoUnita['id'] . ', TITOLO: ' . $sottoUnita['titolo'];
+                            $this->out(date('d/m/Y H:i:s') . ' - ' . $logMessage);
+                            $this->simpleLog($logMessage, $logFile);
                             continue;
                         }
 
@@ -141,7 +163,9 @@ class exportCoursesSkillato extends JApplicationCli {
                 }
                 else {
 
-                    $this->out(date('d/m/Y H:i:s') . ' - NON ci sono sotto unità per ' . $corso['titolo']);
+                    $logMessage = 'NON ci sono sotto unità per ID:' . $corso['id'] . ', TITOLO: ' . $corso['titolo'];
+                    $this->out(date('d/m/Y H:i:s') . ' - ' . $logMessage);
+                    //$this->simpleLog($logMessage, $logFile);
 
                     $arrCorsiCategoria[$indexCorsiCategoria] = array(
                         'code'          => $corso['alias'],
@@ -149,9 +173,10 @@ class exportCoursesSkillato extends JApplicationCli {
                         'description_IT'    => '',
                         'color'             => '#000000',
                         'published_at'      => $corso['data_inizio'],
-                        'section_code'      => $courseBox,
-                        'user_set_code'     => $corso['titolo'],
+                        'section_code'      => $courseBoxTitle,
+                        'user_set_code'     => '',
                         'degree_type'       => '',
+                        'image_url'         => $courseBoxImage,
                     );
 
                     $selContenuti = "SELECT jgc.* from 
@@ -160,14 +185,16 @@ class exportCoursesSkillato extends JApplicationCli {
                                         join #__gg_contenuti jgc on jgum.idcontenuto = jgc.id
                                         where jgum.idunita = " . $corso['id'] . "
                                         and jgc.pubblicato = 1
-                                        and jgc.tipologia in (1,2,3,5,6,9)
+                                        and jgc.tipologia in (1,2,3,5,9)
                                         order by jgum.ordinamento ";
 
                     $db->setQuery($selContenuti);
                     $rsContenuti = $db->loadAssocList();
 
                     if (empty($rsContenuti)) {
-                        $this->out(date('d/m/Y H:i:s') . ' - NON ci sono contenuti per ' . $corso['titolo']);
+                        $logMessage = 'NON ci sono contenuti per CORSO ID: ' . $corso['id'] . ', TITOLO: ' . $corso['titolo'];
+                        $this->out(date('d/m/Y H:i:s') . ' - ' . $logMessage);
+                        $this->simpleLog($logMessage, $logFile);
                         continue;
                     }
 
@@ -178,15 +205,10 @@ class exportCoursesSkillato extends JApplicationCli {
                 $indexCorsiCategoria++;
 
             }
-            
-            $dir = __DIR__ . '/../tmp';
-            if (!is_dir($dir)) {
-                mkdir($dir, 0777, true);
-            }
 
-            $fileCorsiCategoria = $dir . '/corsi-categoria_' . date('Ymd_His') . '.csv';
-            $fileCorsoModuliCategoria = $dir . '/corsi-moduli-categoria_' . date('Ymd_His') . '.csv';
-            $filenameModuliLearningObject = $dir . '/moduli-learningobject_' . date('Ymd_His') . '.csv';
+            $fileCorsiCategoria = $dir . '/corsi-categoria_' . $fileDate . '.csv';
+            $fileCorsoModuliCategoria = $dir . '/corsi-moduli-categoria_' . $fileDate . '.csv';
+            $filenameModuliLearningObject = $dir . '/moduli-learningobject_' . $fileDate . '.csv';
 
             $writeCorsiCategoria = $this->writeCsv($arrCorsiCategoria, $fileCorsiCategoria);
             if (isset($writeCorsiCategoria['error'])) {
@@ -479,6 +501,21 @@ class exportCoursesSkillato extends JApplicationCli {
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         return ($code >= 200 && $code < 300);
+    }
+
+    private function simpleLog($message, $filePath = 'app.log'): bool
+    {
+        // Aggiunge timestamp standard ISO 8601 + newline
+        $timestampedMessage = '[' . date('Y-m-d H:i:s') . '] ' . $message . PHP_EOL;
+
+        // Appende al file ed esegue lock esclusivo
+        $result = file_put_contents(
+            $filePath,
+            $timestampedMessage,
+            FILE_APPEND | LOCK_EX
+        );
+
+        return ($result !== false);
     }
 
     private function writeCsv($data, $filename)
