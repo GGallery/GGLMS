@@ -313,7 +313,8 @@ class gglmsControllerPdf extends JControllerLegacy
                         $piattaforma,
                         $dominio,
                         false,
-                        $dati_corso);
+                        $dati_corso,
+                        $name);
 
                 } else {
 
