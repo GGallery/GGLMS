@@ -320,8 +320,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->orientamento = $orientamento;
                     $result_user->attestato = $attestato;
                     $result_user->contenuto_verifica = $contenuto_verifica;
-                    $result_user->dg = result_dg[0]['dg'];
-                    $result_user->name = result_dg[0]['name'];
+                    $result_user->dg = $result_dg[0]['dg'];
+                    $result_user->name = $result_dg[0]['name'];
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
                     $result_user->dominio = $dominio;
