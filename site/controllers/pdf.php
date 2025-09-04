@@ -125,11 +125,10 @@ class gglmsControllerPdf extends JControllerLegacy
 
                 //DIRETTORE GENERALE
                 $query = $db->getQuery(true)
-                    ->select('d.dg')
-                    ->from('#__usergroups_details d')
+                    ->select('d.dg, d.name')
                     ->where('d.dominio = "' . DOMINIO . '"');
                 $db->setQuery($query);
-                $dg = $db->loadResult();
+                $result_dg = $db->loadAssocList();
 
 
                 //TRACKLOG
@@ -164,11 +163,11 @@ class gglmsControllerPdf extends JControllerLegacy
                 if (!is_null($id_corso)) {
 
                     $query = $db->getQuery(true)
-                        ->select('COALESCE(r.data_inizio, "") as data_inizio, 
-                            COALESCE(r.data_inizio, "") as data_inizio_corso, 
+                        ->select('COALESCE(r.data_inizio, "") as data_inizio,
+                            COALESCE(r.data_inizio, "") as data_inizio_corso,
                             COALESCE(r.data_fine, "") as data_fine,
                             COALESCE(r.data_fine, "") as data_fine_corso,
-                            COALESCE(c.titolo, "") as titolo, 
+                            COALESCE(c.titolo, "") as titolo,
                             COALESCE(c.prefisso_coupon, "") as codice_corso')
                         ->from('#__gg_view_stato_user_corso as r')
                         ->join('inner', '#__gg_report_users as ru on r.id_anagrafica = ru.id')
@@ -304,7 +303,7 @@ class gglmsControllerPdf extends JControllerLegacy
                         $orientamento,
                         $attestato,
                         $contenuto_verifica,
-                        $dg,
+                        $result_dg[0]['dg'],
                         $tracklog,
                         $ateco,
                         $coupon,
@@ -321,7 +320,8 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->orientamento = $orientamento;
                     $result_user->attestato = $attestato;
                     $result_user->contenuto_verifica = $contenuto_verifica;
-                    $result_user->dg = $dg;
+                    $result_user->dg = result_dg[0]['dg'];
+                    $result_user->name = result_dg[0]['name'];
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
                     $result_user->dominio = $dominio;
