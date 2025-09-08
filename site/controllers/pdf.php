@@ -132,7 +132,7 @@ class gglmsControllerPdf extends JControllerLegacy
                 $result_dg = $db->loadObject();
 
                 $dg = $result_dg->dg;
-                $name = $result_dg->name;
+                $namedg = $result_dg->name;
 
                 //TRACKLOG
 
@@ -314,7 +314,7 @@ class gglmsControllerPdf extends JControllerLegacy
                         $dominio,
                         false,
                         $dati_corso,
-                        $name);
+                        $namedg);
 
                 } else {
 
@@ -325,7 +325,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->attestato = $attestato;
                     $result_user->contenuto_verifica = $contenuto_verifica;
                     $result_user->dg = $dg;
-                    $result_user->name = $name;
+                    $result_user->namedg = $namedg;
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
                     $result_user->dominio = $dominio;
