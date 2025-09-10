@@ -895,7 +895,7 @@ class gglmsModelUsers extends JModelLegacy
                 $_extra_insert .= ", " . $this->_db->quote(1);
             }
 
-            if ($sc_voucher_code != '') {
+            if ($sc_voucher_code != '' && $sc_voucher > 0) {
                 $_order_details .= ' Pagamento con voucher codice: ' . $sc_voucher_code . ' sconto: ' . $sc_voucher; 
             }
 

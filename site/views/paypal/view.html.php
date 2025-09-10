@@ -247,8 +247,8 @@ class gglmsViewPaypal extends JViewLegacy {
                 //$sconto_data = $decode_arr[3];
                 //$in_groups = $decode_arr[4];
 
-                $sc_voucher = $decode_arr[6];
-                $sc_voucher_code = $decode_arr[7];
+                $sc_voucher = isset($decode_arr[9]) ? $decode_arr[9] : 0;
+                $sc_voucher_code = isset($decode_arr[10]) ? $decode_arr[10] : '';
 
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->acquisto_evento_store_payment($order_id, $user_id, $unit_prezzo), true);
