@@ -300,7 +300,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $dominio = $result['dominio'];
                 }
 
-                $codice_progressivo = strtotime($dati_corso->data_fine);
+                $codice_progressivo = strtotime($dati_corso->data_fine_corso);
 
                 if ($generate_pdf == true) {
                     $model = $this->getModel('pdf');
