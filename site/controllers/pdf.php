@@ -299,6 +299,9 @@ class gglmsControllerPdf extends JControllerLegacy
                     $piattaforma = $result['alias'];
                     $dominio = $result['dominio'];
                 }
+
+                $codice_progressivo = strtotime($dati_corso->data_fine);
+
                 if ($generate_pdf == true) {
                     $model = $this->getModel('pdf');
 
@@ -314,7 +317,8 @@ class gglmsControllerPdf extends JControllerLegacy
                         $dominio,
                         false,
                         $dati_corso,
-                        $namedg);
+                        $namedg,
+                        $codice_progressivo);
 
                 } else {
 
@@ -331,6 +335,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->dominio = $dominio;
                     $result_user->piattaforma = $piattaforma;
                     $result_user->dati_corso = $dati_corso;
+                    $result_user->codice_progressivo = $codice_progressivo;
                     // per modifica tipologia coupon
                     $result_user->coupon = $coupon;
                     return $result_user;
