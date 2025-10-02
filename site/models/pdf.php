@@ -47,7 +47,8 @@ class gglmsModelPdf extends JModelLegacy
                                   $dominio,
                                   $multi = false,
                                   $dati_corso = null,
-                                  $name = '' )
+                                  $namedg = '' ,
+                                  $codice_progressivo = '')
     {
 
 
@@ -102,7 +103,8 @@ class gglmsModelPdf extends JModelLegacy
             $info['tracklog'] = $tracklog;
             $info['coupon'] = $coupon;
             $info['piattaforma'] = $piattaforma;
-            $info['name'] = $name;
+            $info['namedg'] = $namedg;
+            $info['codice_progressivo'] = $codice_progressivo;
 
             // header aggiuntivi per data inizio/fine corso
             if (!is_null($dati_corso)
