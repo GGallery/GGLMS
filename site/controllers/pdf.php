@@ -122,12 +122,13 @@ class gglmsControllerPdf extends JControllerLegacy
                 $db->setQuery($query);
                 $unita = $db->loadObject('gglmsModelUnita');
 
+                $dominio = utilityHelper::getHostname();
 
                 //DIRETTORE GENERALE
                 $query = $db->getQuery(true)
                     ->select('d.dg, d.name')
                     ->from('#__usergroups_details d')
-                    ->where('d.dominio = "' . DOMINIO . '"');
+                    ->where('d.dominio = ' . $db->quote($dominio));
                 $db->setQuery($query);
                 $result_dg = $db->loadObject();
 
@@ -170,6 +171,7 @@ class gglmsControllerPdf extends JControllerLegacy
                             COALESCE(r.data_inizio, "") as data_inizio_corso,
                             COALESCE(r.data_fine, "") as data_fine,
                             COALESCE(r.data_fine, "") as data_fine_corso,
+                            COALESCE(r.data_fine_extra, "") as data_fine_extra_corso,
                             COALESCE(c.titolo, "") as titolo,
                             COALESCE(c.prefisso_coupon, "") as codice_corso')
                         ->from('#__gg_view_stato_user_corso as r')
@@ -182,6 +184,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $db->setQuery($query);
                     $dati_corso = $db->loadObjectList();
                 }
+
 
                 $tracklog = null;
                 if ($corso_obj->accesso == 'gruppo') {
@@ -300,7 +303,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $dominio = $result['dominio'];
                 }
 
-                $codice_progressivo = strtotime($dati_corso->data_fine_corso);
+                $codice_progressivo = strtotime($dati_corso[0]->data_fine_extra_corso);
 
                 if ($generate_pdf == true) {
                     $model = $this->getModel('pdf');
