@@ -3300,7 +3300,8 @@ HTML;
         $sc_voucher = 0, 
         $sc_voucher_code = '') {
 
-        $b_url = $unit_prezzo . '|==|' 
+        $b_url = 
+            $unit_prezzo . '|==|' 
             . $unit_id . '|==|' 
             . $user_id . '|==|' 
             . $sconto_data . '|==|' 
@@ -3309,7 +3310,8 @@ HTML;
             . $check_sconti_particolari . '|==|'
             . $unit_prezzo_webinar . '|==|'
             . $perc_webinar . '|==|'
-            . $sc_voucher . '|==|' . $sc_voucher_code;
+            . $sc_voucher . '|==|' 
+            . $sc_voucher_code;
         $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
 
         return $token;
