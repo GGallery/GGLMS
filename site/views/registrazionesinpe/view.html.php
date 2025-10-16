@@ -169,44 +169,68 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 // verifico la presenza del voucher di pagamento - in questo caso iscrivo l'utente senza richiedere pagamento
                 if (!is_null($voucherCode)) {
 
-                    $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
-                    $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
-                    if (!is_array($updateVoucher)) throw new Exception($updateVoucher, E_USER_ERROR);
+                    /*
+                    Se biologo..
+                    */
+                    if (utilityHelper::checkSinpeRegistrationTitle($_user_details['tipo_laurea'])) {
 
-                    $_insert_quote = $userModel->insert_user_quote_anno(
-                        $this->user_id,
-                        date('Y'),
-                        $dateTimeCorrente,
-                        'Pagamento quota con voucher codice: ' . $voucherCode,
-                        0,
-                        0,
-                        $_user_details,
-                        true,
-                        'voucher_sinpe'
-                    );
+                        $checking = utilityHelper::checkSinpeRegistrationByTitle($this->user_id, $userModel);
+                        if (!is_array($checking) || !isset($checking['success'])) {
+                            throw new Exception($checking, E_USER_ERROR);
+                        }
 
-                    $this->payment_form = outputHelper::get_payment_form_error("Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.");
+                        $this->payment_form = outputHelper::get_payment_form_error($checking['success']);
+
+                    }
+                    else {
+
+                        $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
+                        $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+                        if (!is_array($updateVoucher)) throw new Exception($updateVoucher, E_USER_ERROR);
+
+                        $_insert_quote = $userModel->insert_user_quote_anno(
+                            $this->user_id,
+                            date('Y'),
+                            $dateTimeCorrente,
+                            'Pagamento quota con voucher codice: ' . $voucherCode,
+                            0,
+                            0,
+                            $_user_details,
+                            true,
+                            'voucher_sinpe'
+                        );
+
+                        $this->payment_form = outputHelper::get_payment_form_error("Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.");
+                    }
+
                     $this->in_error = 1;
 
                 }
                 // devo verificare se è un biologo, in quel caso non deve vedere direttamente il pagamento
-                else if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
+                else if (utilityHelper::checkSinpeRegistrationTitle($_user_details['tipo_laurea'])) {
+                    //else if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
 
                     // rimuovo da moroso
-                    $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");
-                    if (is_null($removeUserGroupId)) throw new Exception("Non è stato trovato nessun usergroup moroso valido", E_USER_ERROR);
+                    // $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");
+                    // if (is_null($removeUserGroupId)) throw new Exception("Non è stato trovato nessun usergroup moroso valido", E_USER_ERROR);
 
-                    $deleteFromMoroso = $userModel->deleteUserFromUserGroup($this->user_id, $removeUserGroupId);
-                    if (is_null($deleteFromMoroso)) throw new Exception("Si è verificato un errore durante la rimozione dell'utente dal gruppo Moroso", E_USER_ERROR);
+                    // $deleteFromMoroso = $userModel->deleteUserFromUserGroup($this->user_id, $removeUserGroupId);
+                    // if (is_null($deleteFromMoroso)) throw new Exception("Si è verificato un errore durante la rimozione dell'utente dal gruppo Moroso", E_USER_ERROR);
 
-                    // inserisco in preiscritto
-                    $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
-                    if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
+                    // // inserisco in preiscritto
+                    // $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
+                    // if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
 
-                    $insert_ug = $userModel->insert_user_into_usergroup($this->user_id, $userGroupId,true);
-                    if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+                    // $insert_ug = $userModel->insert_user_into_usergroup($this->user_id, $userGroupId,true);
+                    // if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
 
-                    $this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di iscrizione è stata registrata. I tuoi dati saranno sottoposti al Consiglio Direttivo per approvazione e la segreteria ti invierà una mail con le istruzioni per completare la procedura di iscrizione.");
+                    //$this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di iscrizione è stata registrata. I tuoi dati saranno sottoposti al Consiglio Direttivo per approvazione e la segreteria ti invierà una mail con le istruzioni per completare la procedura di iscrizione.");
+
+                    $checking = utilityHelper::checkSinpeRegistrationByTitle($this->user_id, $userModel);
+                    if (!is_array($checking) || !isset($checking['success'])) {
+                        throw new Exception($checking, E_USER_ERROR);
+                    }
+                    $this->payment_form = outputHelper::get_payment_form_error($checking['success']);
                     $this->in_error = 1;
                 }
                 else {
