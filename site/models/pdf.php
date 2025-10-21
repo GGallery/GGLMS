@@ -40,6 +40,7 @@ class gglmsModelPdf extends JModelLegacy
                                   $attestato,
                                   $contenuto_verifica,
                                   $dg,
+                                  $dg_firma,
                                   $tracklog,
                                   $ateco ,
                                   $coupon,
@@ -97,7 +98,7 @@ class gglmsModelPdf extends JModelLegacy
             // $info['logo'] = DOMINIO;
             // $info['firma'] = DOMINIO;
             $info['logo'] = $dominio;
-            $info['firma'] = $dominio;
+            $info['firma'] = $dg_firma;
             $info['dg'] = $dg;
             $info['cb_settore'] = $ateco;
             $info['tracklog'] = $tracklog;
