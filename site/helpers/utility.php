@@ -4100,5 +4100,44 @@ HTML;
 
     }
 
+    public static function checkSinpeRegistrationTitle($userTitle) {
+
+        return strpos(strtolower($userTitle), 'altra') !== false;
+
+    }
+
+    public static function checkSinpeRegistrationByTitle($userId, $userModel) {
+
+        try {
+
+            // rimuovo da moroso
+            $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");
+            if (is_null($removeUserGroupId)) 
+                throw new Exception("Non è stato trovato nessun usergroup moroso valido", E_USER_ERROR);
+
+            $deleteFromMoroso = $userModel->deleteUserFromUserGroup($userId, $removeUserGroupId);
+            if (is_null($deleteFromMoroso)) 
+                throw new Exception("Si è verificato un errore durante la rimozione dell'utente dal gruppo Moroso", E_USER_ERROR);
+
+            // inserisco in preiscritto
+            $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
+            if (is_null($userGroupId)) 
+                throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
+
+            $insert_ug = $userModel->insert_user_into_usergroup($userId, $userGroupId, true);
+            if (is_null($insert_ug)) 
+                throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
+
+            return [
+                    'success' => 'La tua richiesta di iscrizione è stata registrata. I tuoi dati saranno sottoposti al Consiglio Direttivo per approvazione e la segreteria ti invierà una mail con le istruzioni per completare la procedura di iscrizione.'
+                ];
+
+        }
+        catch(\Exception $e) {
+            return $e->getMessage();
+        }
+
+    }
+
     /* Generiche */
 }

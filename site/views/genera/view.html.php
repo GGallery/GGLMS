@@ -113,7 +113,8 @@ class gglmsViewGenera extends JViewLegacy
         $user = JFactory::getUser();
         $user_model = new gglmsModelUsers();
         $is_super_admin = $user_model->is_user_superadmin($user->id);
-        if ($is_super_admin == 1) {
+        $is_tutor_platform = $user_model->is_tutor_piattaforma($user->id);
+        if ($is_super_admin == 1 || $is_tutor_platform == 1) {
             $this->show_trial = 1;
         }
 

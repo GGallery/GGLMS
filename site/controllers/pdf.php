@@ -126,7 +126,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
                 //DIRETTORE GENERALE
                 $query = $db->getQuery(true)
-                    ->select('d.dg, d.name')
+                    ->select('d.group_id,d.dg, d.name')
                     ->from('#__usergroups_details d')
                     ->where('d.dominio = ' . $db->quote($dominio));
                 $db->setQuery($query);
@@ -134,6 +134,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
                 $dg = $result_dg->dg;
                 $namedg = $result_dg->name;
+                $platformId = $result_dg->group_id;
 
                 //TRACKLOG
 
@@ -183,6 +184,21 @@ class gglmsControllerPdf extends JControllerLegacy
 
                     $db->setQuery($query);
                     $dati_corso = $db->loadObjectList();
+
+                    $tmp = !empty($dati_corso) ? $dati_corso[0] : null;
+
+                    $query = $db->getQuery(true)
+                        ->select('*')
+                        ->from($db->quoteName('#__usergroups_details_firme'))
+                        ->where('usergroup_id = ' . (int) $platformId)
+                        ->where('data_da < "' . $tmp->data_fine_corso . '"')
+                        ->where('data_a > "' . $tmp->data_fine_corso . '"');
+                    $db->setQuery($query);
+                    $result = $db->loadObject();
+                    if($result){
+                        $dg = $result->dg;
+                        $dg_firma = $result->dg_firma;
+                    }
                 }
 
 
@@ -303,6 +319,9 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result = $db->loadAssoc();
                     $piattaforma = $result['alias'];
                     $dominio = $result['dominio'];
+                    if(!$dg_firma){
+                        $dg_firma=$result['dominio'];
+                    }
                 }
 
                 $codice_progressivo = strtotime($dati_corso[0]->data_fine_extra_corso);
@@ -315,6 +334,7 @@ class gglmsControllerPdf extends JControllerLegacy
                         $attestato,
                         $contenuto_verifica,
                         $dg,
+                        $dg_firma,
                         $tracklog,
                         $ateco,
                         $coupon,
@@ -354,7 +374,7 @@ class gglmsControllerPdf extends JControllerLegacy
 
         } catch (Exception $e) {
 
-            DEBUGG::log($e, 'Exception in generateAttestato ', 1);
+            DEBUGG::log($e, 'Exception in generateAttestato '.$e->getMessage(), 1,1);
         }
         $this->_japp->close();
     }
