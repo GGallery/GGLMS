@@ -286,11 +286,13 @@ class gglmsControllerPdf extends JControllerLegacy
 
                 if ($tutor_id) {
                     $query = $db->getQuery(true)
-                        ->select('c.cb_ateco')
+                        ->select('c.cb_ateco, c.cb_rischio')
                         ->from('#__comprofiler as c')
                         ->where('c.user_id =' . $tutor_id);
                     $db->setQuery($query);
-                    $ateco = $db->loadResult();
+                    $result_comprof = $db->loadObject();
+                    $ateco = $result_comprof->cb_ateco;
+                    $rischio = $result_comprof->cb_rischio;
 
                     $queryPiattaforma = $db->getQuery(true)
                         ->select('mud.alias,mud.dominio')
@@ -321,7 +323,8 @@ class gglmsControllerPdf extends JControllerLegacy
                         false,
                         $dati_corso,
                         $namedg,
-                        $codice_progressivo);
+                        $codice_progressivo,
+                        $rischio);
 
                 } else {
 
@@ -335,6 +338,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->namedg = $namedg;
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
+                    $result_user->rischio = $rischio;
                     $result_user->dominio = $dominio;
                     $result_user->piattaforma = $piattaforma;
                     $result_user->dati_corso = $dati_corso;

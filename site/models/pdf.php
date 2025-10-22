@@ -48,7 +48,8 @@ class gglmsModelPdf extends JModelLegacy
                                   $multi = false,
                                   $dati_corso = null,
                                   $namedg = '' ,
-                                  $codice_progressivo = '')
+                                  $codice_progressivo = '',
+                                  $rischio = '')
     {
 
 
@@ -100,6 +101,7 @@ class gglmsModelPdf extends JModelLegacy
             $info['firma'] = $dominio;
             $info['dg'] = $dg;
             $info['cb_settore'] = $ateco;
+            $info['cb_rischio'] = $rischio;
             $info['tracklog'] = $tracklog;
             $info['coupon'] = $coupon;
             $info['piattaforma'] = $piattaforma;
