@@ -149,8 +149,6 @@ class gglmsModelPdf extends JModelLegacy
             $pdf->add_data((array)$user);
             $pdf->add_data($info);
 
-
-
             $nomefile = "attestato_" . $user->nome . "_" . $user->cognome . ".pdf";
             $pdf->fetch_pdf_template($template, null, true, false, 0);
 

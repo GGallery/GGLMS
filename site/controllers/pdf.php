@@ -301,14 +301,24 @@ class gglmsControllerPdf extends JControllerLegacy
                 $dominio = '';
 
                 if ($tutor_id) {
+                    $columns = $db->getTableColumns('#__comprofiler');
+
+                    $hasRischio = array_key_exists('cb_rischio', $columns);
+
                     $query = $db->getQuery(true)
-                        ->select('c.cb_ateco, c.cb_rischio')
-                        ->from('#__comprofiler as c')
-                        ->where('c.user_id =' . $tutor_id);
+                        ->select('c.cb_ateco')
+                        ->from('#__comprofiler AS c')
+                        ->where('c.user_id = ' . (int) $tutor_id);
+
+                    if ($hasRischio) {
+                        $query->select('c.cb_rischio');
+                    }
+
                     $db->setQuery($query);
                     $result_comprof = $db->loadObject();
-                    $ateco = $result_comprof->cb_ateco;
-                    $rischio = $result_comprof->cb_rischio;
+
+                    $ateco = $result_comprof->cb_ateco ?? null;
+                    $rischio = $hasRischio ? ($result_comprof->cb_rischio ?? null) : null;
 
                     $queryPiattaforma = $db->getQuery(true)
                         ->select('mud.alias,mud.dominio')
@@ -355,6 +365,7 @@ class gglmsControllerPdf extends JControllerLegacy
                     $result_user->attestato = $attestato;
                     $result_user->contenuto_verifica = $contenuto_verifica;
                     $result_user->dg = $dg;
+                    $result_user->dg_firma = $dg_firma;
                     $result_user->namedg = $namedg;
                     $result_user->tracklog = $tracklog;
                     $result_user->ateco = $ateco;
@@ -409,10 +420,8 @@ class gglmsControllerPdf extends JControllerLegacy
 
             $result = array();
             foreach ($user_id_list as $user_id) {
-
                 $res = $this->generateAttestato($user_id, $id_content, false, $id_corso);
                 array_push($result, $res);
-
             }
 
             return $result;
