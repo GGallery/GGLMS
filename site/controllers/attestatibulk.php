@@ -191,6 +191,7 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                             $data->attestato,
                             $data->contenuto_verifica,
                             $data->dg,
+                            $data->dg_firma,
                             $data->tracklog,
                             $data->ateco,
                             $data->coupon,
