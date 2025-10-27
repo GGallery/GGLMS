@@ -2498,7 +2498,7 @@ HTML;
 
             // controllo se il codice del voucher esiste e non è già stato speso
             $resultVoucher = $voucher->checkVoucherByCode($requestedVoucher);
-            if (!$resultVoucher) 
+            if (!$resultVoucher)
                 throw new Exception("Il codice immesso non è stato trovato oppure è già stato utilizzato", E_USER_ERROR);
 
             // controllo se l'utente ha già utilizzato un voucher per l'anno corrente
@@ -2891,11 +2891,11 @@ HTML;
                         throw new Exception(JText::_('COM_GGLMS_DETTAGLI_UTENTE_DETTAGLI_ERR_MOROSO'), E_USER_ERROR);
 
                     // se decaduto
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto))) 
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_decaduto)))
                         $isDecaduto = true;
 
                     // se solo evento
-                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi))) 
+                    if (utilityHelper::check_user_into_ug($comprofilerCheck['user_id'], explode(",", $gruppi_solo_eventi)))
                         $isSoloEvento = true;
 
                     //else  throw new Exception("L'utente con il codice fiscale ". strtoupper($cf_utente) . " è esistente" , E_USER_ERROR);
@@ -4596,6 +4596,91 @@ HTML;
 
         fclose($output);
         $japp->close();
+    }
+
+    public function allineaSummaryReportUtenti (){
+        $db = JFactory::getDbo();
+        try{
+            $db->transactionStart();
+
+            $query = $db->getQuery(true)
+                ->select('*')
+                ->from($db->quoteName('#__gg_report'))
+                ->where('id_unita = 292');
+
+            $db->setQuery($query);
+            $records = $db->loadObjectList();
+
+            $utenti = [];
+            foreach ($records as $r) {
+                $utenti[$r->id_utente][] = $r;
+            }
+
+            $ordine = [911, 912, 917, 916, 918];
+
+            foreach ($utenti as $id_utente => $contenuti_raw) {
+                $contenuti = [];
+                foreach ($ordine as $idC) {
+                    foreach ($contenuti_raw as $r) {
+                        if ((int)$r->id_contenuto === $idC) {
+                            $contenuti[] = $r;
+                            break;
+                        }
+                    }
+                }
+
+                $startIndex = null;
+                foreach ($contenuti as $i => $r) {
+                    if ((int)$r->id_contenuto === 912) {
+                        $startIndex = $i;
+                        break;
+                    }
+                }
+                if ($startIndex === null) {
+                    continue;
+                }
+
+                $base_end = strtotime($contenuti[$startIndex]->data_extra);
+                $prev_end = $base_end;
+
+                for ($i = $startIndex + 1; $i < count($contenuti); $i++) {
+                    $r = $contenuti[$i];
+                    $start_orig = strtotime($r->data_primo_accesso);
+                    $end_orig   = strtotime($r->data_extra);
+                    $delta      = $end_orig - $start_orig;
+
+                    $prev_orig_end = strtotime($contenuti[$i - 1]->data_extra);
+                    $gap = $start_orig - $prev_orig_end;
+                    if($gap<0)
+                        $gap=0;
+
+                    //aggiungo un gap randomico per rendere di dati veritieri
+                    $new_start = $prev_end + $gap + rand(20, 70);
+                    $new_end   = $new_start + $delta;
+
+                    $query = $db->getQuery(true)
+                        ->update($db->quoteName('#__gg_report'))
+                        ->set('data_primo_accesso = ' . $db->quote(date('Y-m-d H:i:s', $new_start)))
+                        ->set('data_extra = ' . $db->quote(date('Y-m-d H:i:s', $new_end)))
+                        ->where('id_utente = ' . (int)$id_utente)
+                        ->where('id_contenuto = ' . (int)$r->id_contenuto)
+                        ->where('id_unita = 292');
+
+                    $db->setQuery($query);
+                    $db->execute();
+
+                    $prev_end = $new_end;
+                }
+            }
+
+            $db->transactionCommit();
+
+
+        }catch (Exception $e){
+            $db->transactionRollback();
+            utilityHelper::make_debug_log(__FUNCTION__, $e , __FUNCTION__);
+            $this->sendResponse(500, 'Internal server error');
+        }
     }
 
 
