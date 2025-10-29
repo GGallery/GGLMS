@@ -4789,7 +4789,9 @@ HTML;
             ->where('UM.idunita IN (' . $ids_string . ')')
             ->where('SV.userid = ' . (int) $userid)
             ->where("SV.varName = 'cmi.core.lesson_status'")
-            ->where("SV.varValue IN ('completed', 'passed', 'init')");
+            ->where("SV.varValue IN ('completed', 'passed', 'init')")
+            ->order('SV.timestamp ASC')
+            ->setLimit(1);
 
         $db->setQuery($query);
         $res = $db->loadResult();

@@ -102,10 +102,12 @@ class gglmsModelPdf extends JModelLegacy
             $info['coupon'] = $coupon;
             $info['piattaforma'] = $piattaforma;
 
+            $data_inizio = $this->hasUserStartedCorso($dati_corso[0]->id, $user->id);
+
             // header aggiuntivi per data inizio/fine corso
             if (!is_null($dati_corso)
                 && !empty($dati_corso)) {
-                $info['data_inizio_corso'] = isset($dati_corso[0]->data_inizio_corso) ? $dati_corso[0]->data_inizio_corso : "";
+                $info['data_inizio_corso'] = isset($data_inizio) ? $data_inizio : "";
                 $info['data_fine_corso'] = isset($dati_corso[0]->data_fine_corso) ? $dati_corso[0]->data_fine_corso : "";
             }
 
