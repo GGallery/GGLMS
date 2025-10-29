@@ -3,6 +3,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
+require_once JPATH_COMPONENT . '/controllers/api.php';
 
 
 /**
