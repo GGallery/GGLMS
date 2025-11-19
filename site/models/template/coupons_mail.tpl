@@ -6,7 +6,7 @@
     <body>
         <h1>Generazione coupon {$company_name} </h1>
 
-        <p>Spett.le {$recipient_name},</p>
+        <p>{$recipient_name},</p>
         <p>
             la procedura di generazione coupon &egrave; andata buon fine. Ecco {if ($coupons_count)>1}i{else}il{/if} {$coupons_count} coupon da Lei richiesti.
 
@@ -22,7 +22,7 @@
 
         <p>I codici devono essere distribuiti agli utenti che devono effettuare la formazione, uno per ciascuno.</p>
         <p>ISTRUZIONI PER I PARTECIPANTI: accedere alla piattaforma <a href="{$piattaforma_link}" target="_blank">{$piattaforma_name}</a> con il proprio account (o registrarne uno se non hanno mai effettuato l'accesso, scegliendo autonomamente username e password) e inserire il codice alla voce CODICE COUPON per sbloccare l'iscrizione. Il corso sarà disponibile alla voce I MIEI CORSI, senza più necessità di inserire il codice.<br/>
-        La validità dei codici è di 60 giorni dal momento dell'effettivo inserimento da parte dell'utente.<br/>
+        {$coupon_duration}.<br/>
         </p>
 
 

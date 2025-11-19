@@ -97,6 +97,7 @@ class gglmsModelgeneracoupon extends JModelLegacy
 
             $company_user = null;
             $new_societa = false;
+            $_customizing = '';
 
             // utente non esistente, devo crearlo insieme a gruppo e forum
             if (empty($user_id)) {
@@ -132,6 +133,11 @@ class gglmsModelgeneracoupon extends JModelLegacy
                     throw new RuntimeException("no user piattaforme found", E_USER_ERROR);
 
                 $data["id_piattaforma"] = $_tmp_id_piattaforma[0]->value;
+
+
+                if (strpos($_tmp_id_piattaforma[0]->dominio, 'celiachia') > -1) {
+                    $_customizing = 'celiachia';
+                }
 
             }
 
@@ -234,7 +240,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                             $nome_societa,
                             $id_gruppo_societa,
                             $data['email_coupon'],
-                            $from_api) === false) {
+                            $from_api,
+                            $_customizing) === false) {
                         throw new RuntimeException($this->_db->getErrorMsg(), E_USER_ERROR);
                     }
 
@@ -554,7 +561,8 @@ class gglmsModelgeneracoupon extends JModelLegacy
                                      $nome_societa,
                                      $id_gruppo_societa,
                                      $email_coupon = '',
-                                     $from_api=false)
+                                     $from_api=false,
+                                     $_customizing = '')
     {
 
         try {
@@ -628,7 +636,18 @@ class gglmsModelgeneracoupon extends JModelLegacy
             $smarty->assign('course_name', $this->_info_corso["titolo"]);
             $smarty->assign('company_name', $nome_societa);
             $smarty->assign('piattaforma_name', $info_piattaforma["alias"]);
-            $smarty->assign('recipient_name', $recipients["to"]->name);
+            // personalizzazione saluto
+            $recipientTo = 'Spett.le ' . $recipients["to"]->name;
+            if ($_customizing == 'celiachia') {
+                $recipientTo = 'Gentilissim*';
+            }
+            $smarty->assign('recipient_name', $recipientTo);
+            // personalizzazione durata coupon
+            $couponDuration = 'La validità dei codici è di 60 giorni dal momento dell\'effettivo inserimento da parte dell\'utente';
+            if ($_customizing == 'celiachia') {
+                $couponDuration = '';
+            }
+            $smarty->assign('coupon_duration', $couponDuration);
             $smarty->assign('piattaforma_link', 'https://' . $info_piattaforma["dominio"]);
 
 
