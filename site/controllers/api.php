@@ -4627,77 +4627,212 @@ HTML;
             $filterstato = $this->_filterparam->filterstato;
             $id_corso = $this->_filterparam->corso_id;
 
-            $group_id = $model_unita->get_id_gruppo_unit($id_corso);
-            $users = $model_user->get_user_by_usergroup($group_id);
+            $query = $this->_db->getQuery(true);
+            $query->select("accesso");
+            $query->from("#__gg_unit as u");
+            $query->where('u.id=' . $id_corso);
+            $this->_db->setQuery($query);
+            $accesso = $this->_db->loadResult();
 
+            if(isset($accesso) && ($accesso == "Accesso libero")){
 
-            $_all = [];
-
-            foreach ($users as $user) {
-                $user_id = (int)$user['user_id'];
+                $_all = [];
                 $db = JFactory::getDbo();
 
+                $query_content = $db->getQuery(true)
+                    ->select('c.id')
+                    ->from('#__gg_unit_map as m')
+                    ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
+                    ->where('m.idunita = ' . $id_corso)
+                    ->where('c.pubblicato = 1')
+                    ->where('m.ordinamento = 1');
+                $db->setQuery($query_content);
+                $primo_content = $db->loadResult();
 
+                $query_quiz = $db->getQuery(true)
+                             ->select('c.id_quizdeluxe')
+                            ->from('#__gg_unit_map as m')
+                            ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
+                            ->where('m.idunita = ' . $id_corso)
+                            ->where('c.tipologia = 7');
 
-                $query = $db->getQuery(true)
+                $db->setQuery($query_quiz);
+                $id_quiz= $db->loadResult();
+
+                $subQuiz = $db->getQuery(true)
                     ->select([
-                        'SQ.c_passed AS stato',
-                        'SQ.c_date_time AS data_fine',
+                        'c_student_id',
+                        'MAX(c_passed) AS c_passed',
+                        'c_date_time as data_fine'
                     ])
-                    ->from('#__gg_unit AS U')
-                    ->join('INNER', '#__gg_contenuti AS C ON C.id = U.id_contenuto_completamento')
-                    ->join('LEFT OUTER', '#__quiz_r_student_quiz AS SQ ON C.id_quizdeluxe = SQ.c_quiz_id')
-                    ->where('SQ.c_student_id = ' . $user_id)
-                    ->where('SQ.c_passed = 1')
-                    ->where('U.id = ' . (int)$id_corso)
-                    ->order('SQ.c_date_time DESC');
+                    ->from($db->quoteName('#__quiz_r_student_quiz'))
+                    ->where('c_quiz_id =' . $id_quiz)
+                    ->group('c_student_id');
 
+                $subScorm = $db->getQuery(true)
+                    ->select([
+                        'userid',
+                        'timestamp as data_inizio'
+                    ])
+                    ->from($db->quoteName('#__gg_scormvars'))
+                    ->where('scoid =' . $primo_content)
+                    ->where("varValue IN ('init','completed')")
+                    ->group('userid');
+
+                $query = $db->getQuery(true);
+                $query->select([
+                        'cp.user_id',
+                        "CASE
+                                WHEN quiz_completed.c_passed = 1 THEN '1'
+                                WHEN quiz_completed.c_passed = 0 THEN '0'
+                                WHEN sv_init.userid IS NOT NULL THEN '0'
+                                END AS stato_corso",
+                        'cp.cb_cognome',
+                        'cp.cb_nome',
+                        'u.email',
+                        'cp.cb_codicefiscale',
+                        'cp.cb_datadinascita',
+                        'cp.cb_luogodinascita',
+                        'cp.cb_provinciadinascita',
+                        'cp.cb_indirizzodiresidenza',
+                        'cp.cb_provdiresidenza',
+                        'cp.cb_cap',
+                        'cp.cb_telefono',
+                        'cp.cb_tipoattestato',
+                        'cp.cb_professionedisciplina',
+                        'sv_init.data_inizio',
+                        'quiz_completed.data_fine'
+                    ])
+                    ->from($db->quoteName('#__gg_scormvars', 'sv'))
+                    ->join('INNER', $db->quoteName('#__comprofiler', 'cp') . ' ON cp.user_id = sv.userid')
+                    ->join('INNER', $db->quoteName('#__users', 'u') . ' ON u.id = cp.user_id')
+                    ->join('LEFT', '(' . $subQuiz . ') AS quiz_completed ON quiz_completed.c_student_id = cp.user_id')
+                    ->join('LEFT', '(' . $subScorm . ') AS sv_init ON sv_init.userid = cp.user_id')
+                    ->where('sv_init.userid IS NOT NULL OR quiz_completed.c_student_id IS NOT NULL')
+                    ->group('cp.user_id');
 
                 $db->setQuery($query);
-                $row = $db->loadAssoc();
+                $results = $db->loadObjectList();
 
+                if(isset($results) && !empty($results)) {
 
-                $query_pagamento = $db->getQuery(true)
-                    ->select('totale')
-                    ->from('#__gg_quote_iscrizioni')
-                    ->where('user_id = ' . $user_id)
-                    ->where('gruppo_corso = ' . $group_id);
+                    foreach ($results as $row) {
 
-                $db->setQuery($query_pagamento);
-                $row_pagamento = $db->loadAssoc();
+                        $stato = $row->stato_corso ?? null;
 
-
-                $data_inizio = $this->hasUserStartedCorso($id_corso, $user_id);
-                $comprofiler_cb = utilityHelper::check_comprofiler_by_column_row('user_id', $user_id);
-
-                $stato = $row['stato'] ?? null;
-                $include = false;
-                switch ((int)$filterstato) {
-                    case 1:
-                        $include = ($stato === '1' || $stato === 1);
-                        break;
-                    case 2:
-                        $include = ($stato === '0' || $stato === 0 || $stato === null);
-                        break;
-                    default:
                         $include = true;
-                        break;
+
+                        if (!empty($filterstato)) {
+
+                            switch ((int)$filterstato) {
+                                case 1:
+                                    $include = ($stato === '1' || $stato === 1);
+                                    break;
+
+                                case 2:
+                                    $include = ($stato === '0' || $stato === 0 || $stato === null);
+                                    break;
+
+                                default:
+                                    $include = true;
+                                    break;
+                            }
+                        }
+
+                        if (!$include) {
+                            continue;
+                        }
+
+                        $_all[] = [
+                            'id_anagrafica' => $row->user_id,
+                            'cognome' => $row->cb_cognome,
+                            'nome' => $row->cb_nome,
+                            'stato' => $row->stato_corso ?? 0,
+                            'data_inizio' => $row->data_inizio ?? '',
+                            'data_fine' => $row->data_fine ?? '',
+                            'cb_codicefiscale' => $row->cb_codicefiscale ?? '',
+                            'cb_professionedisciplina' => $row->cb_professionedisciplina ?? '',
+                            'totale' => $row_pagamento['totale'] ?? '',
+                            'id_corso' => $id_corso,
+                        ];
+
+                    }
                 }
 
-                if ($include && $comprofiler_cb) {
-                    $_all[] = [
-                        'id_anagrafica'   => $user_id,
-                        'cognome'         => $comprofiler_cb['cb_cognome'],
-                        'nome'            => $comprofiler_cb['cb_nome'],
-                        'stato'           => $row['stato'] ?? 0,
-                        'data_inizio'     => $data_inizio ?? '',
-                        'data_fine'       => $row['data_fine'] ?? '',
-                        'cb_codicefiscale'  => $comprofiler_cb['cb_codicefiscale']?? '',
-                        'cb_professionedisciplina'  => $comprofiler_cb['cb_professionedisciplina'] ?? '',
-                        'totale' => $row_pagamento['totale'] ?? '',
-                        'id_corso'        => $id_corso,
-                    ];
+            }else {
+
+                $group_id = $model_unita->get_id_gruppo_unit($id_corso);
+                $users = $model_user->get_user_by_usergroup($group_id);
+
+
+                $_all = [];
+
+                foreach ($users as $user) {
+                    $user_id = (int)$user['user_id'];
+                    $db = JFactory::getDbo();
+
+
+                    $query = $db->getQuery(true)
+                        ->select([
+                            'SQ.c_passed AS stato',
+                            'SQ.c_date_time AS data_fine',
+                        ])
+                        ->from('#__gg_unit AS U')
+                        ->join('INNER', '#__gg_contenuti AS C ON C.id = U.id_contenuto_completamento')
+                        ->join('LEFT OUTER', '#__quiz_r_student_quiz AS SQ ON C.id_quizdeluxe = SQ.c_quiz_id')
+                        ->where('SQ.c_student_id = ' . $user_id)
+                        ->where('SQ.c_passed = 1')
+                        ->where('U.id = ' . (int)$id_corso)
+                        ->order('SQ.c_date_time DESC');
+
+
+                    $db->setQuery($query);
+                    $row = $db->loadAssoc();
+
+
+                    $query_pagamento = $db->getQuery(true)
+                        ->select('totale')
+                        ->from('#__gg_quote_iscrizioni')
+                        ->where('user_id = ' . $user_id)
+                        ->where('gruppo_corso = ' . $group_id);
+
+                    $db->setQuery($query_pagamento);
+                    $row_pagamento = $db->loadAssoc();
+
+
+                    $data_inizio = $this->hasUserStartedCorso($id_corso, $user_id);
+                    $comprofiler_cb = utilityHelper::check_comprofiler_by_column_row('user_id', $user_id);
+
+                    $stato = $row['stato'] ?? null;
+                    $include = false;
+                    switch ((int)$filterstato) {
+                        case 1:
+                            $include = ($stato === '1' || $stato === 1);
+                            break;
+                        case 2:
+                            $include = ($stato === '0' || $stato === 0 || $stato === null);
+                            break;
+                        default:
+                            $include = true;
+                            break;
+                    }
+
+                    if ($include && $comprofiler_cb) {
+                        $_all[] = [
+                            'id_anagrafica' => $user_id,
+                            'cognome' => $comprofiler_cb['cb_cognome'],
+                            'nome' => $comprofiler_cb['cb_nome'],
+                            'stato' => $row['stato'] ?? 0,
+                            'data_inizio' => $data_inizio ?? '',
+                            'data_fine' => $row['data_fine'] ?? '',
+                            'cb_codicefiscale' => $comprofiler_cb['cb_codicefiscale'] ?? '',
+                            'cb_professionedisciplina' => $comprofiler_cb['cb_professionedisciplina'] ?? '',
+                            'totale' => $row_pagamento['totale'] ?? '',
+                            'id_corso' => $id_corso,
+                        ];
+                    }
                 }
+
             }
 
 
