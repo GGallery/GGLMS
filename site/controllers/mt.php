@@ -221,8 +221,6 @@ class gglmsControllerMt extends JControllerLegacy {
                                 WHERE user_id = " . $this->_db->quote($singleQuota['user_id']) . "
                                 AND group_id = " . $this->_db->quote($singleQuota['group_id']);
 
-                echo $query_del; die();
-
                 $this->_db->setQuery($query_del);
                 if (!$this->_db->execute()) throw new Exception("delete query ko -> " . $query_del, E_USER_ERROR);
 
