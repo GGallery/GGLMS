@@ -320,11 +320,14 @@ class gglmsViewRegistrazioneAsand extends JViewLegacy {
 
                 $dt = new DateTime();
                 $this->requested_quota = utilityHelper::get_ug_from_object($_params, $requestedQuota);
-                $this->percentuale_pp = utilityHelper::get_ug_from_object($_params, 'percentuale_pp');
-                $this->fisso_pp = utilityHelper::get_ug_from_object($_params, 'fisso_pp');
-                // incremento PayPal
-                $ppAmount = utilityHelper::percentageFromNumber($this->percentuale_pp, $this->requested_quota);
-                $this->incremento_pp = $ppAmount+$this->fisso_pp;
+                
+                // $this->percentuale_pp = utilityHelper::get_ug_from_object($_params, 'percentuale_pp');
+                // $this->fisso_pp = utilityHelper::get_ug_from_object($_params, 'fisso_pp');
+                // // incremento PayPal
+                // $ppAmount = utilityHelper::percentageFromNumber($this->percentuale_pp, $this->requested_quota);
+                // $this->incremento_pp = $ppAmount+$this->fisso_pp;
+                
+                $this->incremento_pp = utilityHelper::get_ug_from_object($_params, 'fisso_pp_' . $requestedQuota);
 
                 // user id, quota richiesta, quota richiesta in euro, incremento spese paypal
                 $newToken = utilityHelper::build_randon_token($userId . "|==|" . $parsedToken[1] . "|==|" . $this->requested_quota . "|==|" . $this->incremento_pp);
