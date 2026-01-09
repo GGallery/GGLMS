@@ -3051,13 +3051,13 @@ HTML;
                 </div>
 
                 <div class="form-group row">
-                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="/privacy-policy" target="_blank">privacy</a> e do il consenso al trattamento dei miei dati</b></div>
+                  <div class="col-sm-2"><b>Ho letto l'informativa <a href="/privacy-policy" target="_blank">privacy</a> e presto il consenso alla pubblicazione dei miei dati personali nel registro/albo pubblico dell’Associazione disponibile sul sito web ASAND</b></div>
                   <div class="col-sm-10">
                     <div class="form-check">
                       <input class="form-check-input mt-0" type="checkbox" id="privacy_check">
-                      <label class="form-check-label mt-1" for="privacy_check">
+                      <!-- <label class="form-check-label mt-1" for="privacy_check">
                         Accetta termini e condizioni
-                      </label>
+                      </label> -->
                     </div>
                   </div>
                 </div>
