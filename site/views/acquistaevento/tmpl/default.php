@@ -31,8 +31,11 @@ defined('_JEXEC') or die;
 
         echo $this->payment_form;
 
-    } else if ($this->action == 'buy'
-        && !$this->hide_pp) { ?>
+    } else if (
+        ($this->action == 'buy'&& !$this->hide_pp)
+        || ($this->action == 'voucher_buy_request' && $this->sconto_voucher > 0)
+        ) { ?>
+
     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo $this->client_id; ?>&currency=EUR" data-sdk-integration-source="button-factory"></script>
 
         <div class="row">
@@ -907,6 +910,9 @@ defined('_JEXEC') or die;
         jQuery('#btn-voucher-apply').on('click', function (e) {
             let pHref = jQuery(this).attr("data-ref");
             const pVoucher = document.getElementById("v_code").value;
+
+            if (pVoucher == "") return;
+
             window.location.href = `${pHref}&vv=${pVoucher}`;
         });
 

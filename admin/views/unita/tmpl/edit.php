@@ -315,6 +315,12 @@ JHtml::_('formbehavior.chosen', 'select');
                 <div class="row-fluid">
                     <?php
                     if($this->item->id)
+                        echo $this->form->renderField('usa_voucher'); ?>
+                </div>
+                
+                <div class="row-fluid">
+                    <?php
+                    if($this->item->id)
                         echo $this->form->renderField('ecm_event'); ?>
                 </div>
 

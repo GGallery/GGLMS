@@ -1777,9 +1777,13 @@ HTML;
 
         $keyCheck = self::get_ug_from_object($_params, $configKey);
 
-        if (!is_null($keyCheck) && $keyCheck != "") return $keyCheck;
+        if (!is_null($keyCheck) && $keyCheck != "") {
+            return $keyCheck;
+        }
 
-        if (is_null($_config)) $_config = new gglmsModelConfig();
+        if (is_null($_config)) {
+            $_config = new gglmsModelConfig();
+        }
 
         return $_config->getConfigValue($configKey);
 
@@ -1882,7 +1886,10 @@ HTML;
                                                     $ug_group,
                                                     $_params,
                                                     $unit_gruppo = null,
-                                                    $send_email = true) {
+                                                    $send_email = true,
+                                                    $sconto_voucher = 0,
+                                                    $codice_voucher = ''
+                                                    ) {
 
         // mi servono informazioni sull'unita
         $unit_model = new gglmsModelUnita();
@@ -1919,7 +1926,11 @@ HTML;
                                             $unit_prezzo,
                                             null,
                                             $action,
-                                            $_email_from);
+                                            $_email_from,
+                                            false,
+                                            null,
+                                            $sconto_voucher,
+                                            $codice_voucher);
 
     }
 
@@ -2025,7 +2036,10 @@ HTML;
                                                       $template = "bb_buy_request",
                                                       $mail_from = null,
                                                       $quotaAnnualeAsand = false,
-                                                      $lastQuotaRef = null) {
+                                                      $lastQuotaRef = null,
+                                                      $sconto_voucher = 0,
+                                                      $codice_voucher = ''
+                                                      ) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2094,6 +2108,10 @@ HTML;
             $_label_extra .= self::setRicevutoLinkRef($lastQuotaRef);
             $formattedTotale =  number_format($totale, 2, ',', '');
             $totale = "0,00 (applicato uno sconto di &euro; " . $formattedTotale . " per utilizzo voucher)";
+        }
+
+        if ($sconto_voucher > 0 && $codice_voucher != '') {
+            $_label_extra .= '<p>Aapplicato uno sconto di &euro; ' . $sconto_voucher . ' per utilizzo voucher ' . $codice_voucher;
         }
 
         $body = <<<HTML
@@ -3100,7 +3118,9 @@ HTML;
                                                   $sconto_particolare = 0,
                                                   $acquisto_webinar = 0,
                                                   $perc_webinar = 0,
-                                                  $unit_prezzo = 0) {
+                                                  $unit_prezzo = 0,
+                                                  $sconto_voucher = 0
+                                                  ) {
 
         $_ret = array();
         $_label_sconto = JText::_('COM_PAYPAL_ACQUISTA_EVENTO_STR7');
@@ -3148,6 +3168,13 @@ HTML;
                     <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$sconto_particolare})</small></span>
 HTML;
             $_descrizione_sconto = " sconto personalizzato ";
+        } 
+        else if ($sconto_voucher > 0) {
+            $_tipo_sconto = <<< HTML
+                    <!-- style="color: red;" -->
+                    <span>€ {$unit_prezzo} <small>({$_label_sconto} € {$sconto_voucher})</small></span>
+HTML;
+            $_descrizione_sconto = " sconto voucher ";
         }
 
         // gestione dell'acquisto in modalità webinar
@@ -3194,7 +3221,18 @@ HTML;
     }
 
     // costruizione del token per l'url encodato - utilità per output.php
-    public static function build_token_url($unit_prezzo, $unit_id, $user_id, $sconto_data, $sconto_custom, $in_groups, $secret_key = 'GGallery00!', $is_asand = false, $sconto_associazione = 0) {
+    public static function build_token_url(
+        $unit_prezzo, 
+        $unit_id, 
+        $user_id, 
+        $sconto_data, 
+        $sconto_custom, 
+        $in_groups, 
+        $secret_key = 'GGallery00!', 
+        $is_asand = false, 
+        $sconto_associazione = 0,
+        $sconto_voucher = 0,
+        $codice_voucher = '') {
 
         $b_url = $unit_prezzo
             . '|==|' . $unit_id
@@ -3206,7 +3244,9 @@ HTML;
             . '|==|0'
             . '|==|0'
             . '|==|' . $is_asand
-            . '|==|' . $sconto_associazione;
+            . '|==|' . $sconto_associazione
+            . '|==|' . $sconto_voucher
+            . '|==|' . $codice_voucher;
         $token = self::encrypt_decrypt('encrypt', $b_url, $secret_key, $secret_key);
 
         return $token;

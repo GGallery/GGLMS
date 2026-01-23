@@ -42,6 +42,8 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
     protected $_ret;
     protected $is_asand = false;
     protected $sconto_associazione;
+    protected $sconto_voucher = 0;
+    protected $codice_voucher;
 
     function display($tpl = null)
     {
@@ -846,7 +848,7 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
 
                 $dt = new DateTime();
                 $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
-                $user = Jfactory::getUser($this->user_id);
+                $user = JFactory::getUser($this->user_id);
                 $userModel = new gglmsModelUsers();
                 $_user_details = $userModel->get_user_full_details_cb($this->user_id);
                 $_config = new gglmsModelConfig();
@@ -857,38 +859,96 @@ class gglmsViewAcquistaEvento extends JViewLegacy {
                 $_unit = $unit_model->getUnita($this->unit_id);
                 $unit_gruppo = $unit_model->get_id_gruppo_unit($this->unit_id);
 
-                $updateVoucher = $userModel->update_event_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+                $checkVoucherType = $userModel->check_event_voucher_type($voucherCode);
+                if (is_null($checkVoucherType)) {
+                    throw new Exception("Non è stato trovato nessun voucher spendibile con il codice " . $voucherCode, E_USER_ERROR);
+                }
 
-                if (!is_array($updateVoucher))
-                    throw new Exception($updateVoucher, E_USER_ERROR);
-                $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
+                // controllo se è un voucher per sconto su unità
+                if (isset($checkVoucherType['unit_id']) && $checkVoucherType['unit_id'] != "") {
 
-                if (!is_array($_insert_ug))
-                    throw new Exception($_insert_ug, E_USER_ERROR);
+                    if ($checkVoucherType['unit_id'] != $this->unit_id) {
+                        throw new Exception("Il voucher " . $voucherCode. " non è spendibile per l'evento che stai acquistando", E_USER_ERROR);
+                    }
+
+                    // controllo se c'è uno sconto
+                    if (!isset($checkVoucherType['sc_valore'])
+                        || is_null($checkVoucherType['sc_valore']) 
+                        || $checkVoucherType['sc_valore'] == 0) {
+                        throw new Exception("Il voucher " . $voucherCode. " applica un valore di sconto non conforme", E_USER_ERROR);
+                    }
+
+                    $this->client_id = $_config->getConfigValue('paypal_client_id');
+                    if ($this->is_asand) {
+                        $this->client_id = utilityHelper::getPayPalSecret($_params, 'paypal_client_id', $_config);
+                    }
+
+                    if (is_null($this->client_id)
+                        || $this->client_id == "")
+                        throw new Exception("Client ID di PayPal non valorizzato!", E_USER_ERROR);
+
+                    $this->codice_voucher = $voucherCode;
+                    $this->sconto_voucher = $checkVoucherType['sc_valore'];
+                    $this->unit_prezzo = $_unit->prezzo-$this->sconto_voucher;
+                    $this->unit_prezzo = number_format($this->unit_prezzo, 2, '.', '');
+                    $this->sconto_data = 0;
+                    $this->sconto_custom = 0;
+                    $this->sconto_associazione = 0;
+                    $this->hide_pp = 0;
+
+                    $_payment_form = outputHelper::get_payment_form_acquisto_evento($this->unit_prezzo,
+                                                                                    $this->unit_id,
+                                                                                    $this->user_id,
+                                                                                    $this->sconto_data,
+                                                                                    $this->sconto_custom,
+                                                                                    $this->in_groups,
+                                                                                    $this->sconto_particolare,
+                                                                                    $this->acquisto_webinar,
+                                                                                    $this->perc_webinar,
+                                                                                    $_params,
+                                                                                    $this->is_asand,
+                                                                                    $this->sconto_associazione,
+                                                                                    $checkVoucherType['sc_valore'],
+                                                                                    $voucherCode
+                                                                                    );
+
+                }
+                else {
+                    $updateVoucher = $userModel->update_event_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+
+                    if (!is_array($updateVoucher)) {
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+                    }
+
+                    $_insert_ug = UtilityHelper::set_usergroup_generic($this->user_id, $unit_gruppo);
+
+                    if (!is_array($_insert_ug))
+                        throw new Exception($_insert_ug, E_USER_ERROR);
 
 
-                $_order_details = 'Applicato sconto voucher';
+                    $_order_details = 'Applicato sconto voucher';
 
-                $_insert_servizi_extra = $userModel->insert_user_servizi_extra($this->user_id,
-                    $dt->format('Y'),
-                    $dt->format('Y-m-d H:i:s'),
-                    $_order_details,
-                    $this->unit_prezzo,
-                    array(),
-                    $this->action,
-                    true,
-                    $this->unit_id,
-                    $unit_gruppo);
+                    $_insert_servizi_extra = $userModel->insert_user_servizi_extra($this->user_id,
+                        $dt->format('Y'),
+                        $dt->format('Y-m-d H:i:s'),
+                        $_order_details,
+                        $this->unit_prezzo,
+                        array(),
+                        $this->action,
+                        true,
+                        $this->unit_id,
+                        $unit_gruppo);
 
-                if (!is_array($_insert_servizi_extra))
-                    throw new Exception($_insert_servizi_extra, E_USER_ERROR);
+                    if (!is_array($_insert_servizi_extra))
+                        throw new Exception($_insert_servizi_extra, E_USER_ERROR);
 
-                $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
-                $mail_to=[$user->email,$_email_from];
-                $_event_title = $_unit->titolo;
+                    $_email_from = UtilityHelper::get_params_from_object($_params, 'email_from');
+                    $mail_to=[$user->email,$_email_from];
+                    $_event_title = $_unit->titolo;
 
-                $_send_email = UtilityHelper::send_adesione_evento_email($mail_to,$_event_title,$_dettagli_utente);
-                $_payment_form = OutputHelper::get_user_insert_confirm_group_sponsor_evento($_event_title);
+                    $_send_email = UtilityHelper::send_adesione_evento_email($mail_to,$_event_title,$_dettagli_utente);
+                    $_payment_form = OutputHelper::get_user_insert_confirm_group_sponsor_evento($_event_title);
+                }
 
                 if (!is_array($_payment_form))
                     throw new Exception($_payment_form);

@@ -804,6 +804,26 @@ class gglmsModelUsers extends JModelLegacy
 
     }
 
+    public function check_event_voucher_type($codiceVoucher) {
+
+        try {
+
+            $query = $this->_db->getQuery(true)
+                ->select('*')
+                ->from('#__gg_event_voucher')
+                ->where('code = ' . $this->_db->quote($codiceVoucher))
+                ->where("date is null");
+
+            $this->_db->setQuery($query);
+            return $this->_db->loadAssoc();
+
+        }
+        catch(Exception $e) {
+            return __FUNCTION__ . ' error: ' . $e->getMessage();
+        }
+
+    }
+
     public function update_event_voucher_utilizzato($codiceVoucher, $userId, $dateTimeRef = null) {
 
         try {
@@ -895,7 +915,10 @@ class gglmsModelUsers extends JModelLegacy
                                               $send_email = true,
                                               $unit_id = null,
                                               $unit_gruppo = null,
-                                              $is_asand = false) {
+                                              $is_asand = false,
+                                              $sconto_voucher = 0,
+                                              $codice_voucher = ''
+                                              ) {
 
         try {
 
@@ -938,7 +961,14 @@ class gglmsModelUsers extends JModelLegacy
             if ($_template == 'acquistaevento') {
 
                 $_tipo_quota = 'evento';
-                if ($is_asand) $_tipo_quota = 'evento_nc';
+                if ($is_asand) {
+                    $_tipo_quota = 'evento_nc';
+
+                    if ($sconto_voucher > 0 && $codice_voucher != '') {
+                        $_order_details .= 'voucher ' . $codice_voucher . ' sconto: ' . $sconto_voucher;
+                    }
+                }
+
 
             }
             else if ($_template == 'bb_buy_request') {
@@ -1011,7 +1041,10 @@ class gglmsModelUsers extends JModelLegacy
                                                         $_template,
                                                         $ug_group,
                                                         $_params,
-                                                        $unit_gruppo);
+                                                        $unit_gruppo,
+                                                        true,
+                                                        $sconto_voucher,
+                                                        $codice_voucher);
 
             }
             else if ($_template == 'bb_buy_quota_asand'

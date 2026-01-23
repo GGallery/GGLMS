@@ -479,6 +479,7 @@ CREATE TABLE `#__gg_unit` (
   `attestato` varchar(255) DEFAULT NULL COMMENT 'Integrazione per migrazione da vecchio GGLMS',
   `on_sale` tinyint(1) UNSIGNED DEFAULT '0',
   `ecm_event` tinyint(1) UNSIGNED DEFAULT '0',
+  `usa_voucher` tinyint(1) UNSIGNED DEFAULT '0',
   `disponibile_dal` date DEFAULT NULL,
   `disponibile_al` date DEFAULT NULL,
   `prezzo` decimal(6,2) DEFAULT NULL,
@@ -863,6 +864,20 @@ CREATE TABLE `#__gg_quote_voucher` (
   `date` DATETIME NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for `#__gg_event_voucher`
+-- ----------------------------
+CREATE TABLE `#__gg_event_voucher` (
+	`id` int(10) NOT NULL AUTO_INCREMENT,
+	`code` text NOT NULL,
+	`user_id` int(11) DEFAULT NULL,
+	`group_id` int(11) DEFAULT NULL,
+	`unit_id` int(11) DEFAULT NULL,
+    `sc_valore` decimal(6,2) DEFAULT NULL,
+	`date` datetime DEFAULT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- ----------------------------
 -- colonne custom di #__comprofiler

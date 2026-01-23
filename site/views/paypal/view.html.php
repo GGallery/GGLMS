@@ -267,11 +267,27 @@ class gglmsViewPaypal extends JViewLegacy {
                 //$sconto_data = $decode_arr[3];
                 //$in_groups = $decode_arr[4];
 
+                $sconto_voucher = $decode_arr[11];
+                $codice_voucher = $decode_arr[12];
+
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->acquisto_evento_store_payment($order_id, $user_id, $unit_prezzo), true);
 
-                if (!isset($new_order['success']))
+                if (!isset($new_order['success'])) {
                     throw new Exception($new_order['error'], E_USER_ERROR);
+                }
+
+                if ($sconto_voucher > 0 && $codice_voucher != '' ) {
+                    $dt = new DateTime();
+                    $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
+
+                    $userModel = new gglmsModelUsers();
+                    $updateVoucher = $userModel->update_event_voucher_utilizzato($codice_voucher, $user_id, $dateTimeCorrente);
+
+                    if (!is_array($updateVoucher)) {
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+                    }
+                }
 
                 $unit_model = new gglmsModelUnita();
                 $unit_gruppo = $unit_model->get_id_gruppo_unit($unit_id);
@@ -286,7 +302,10 @@ class gglmsViewPaypal extends JViewLegacy {
                                                                             true,
                                                                             $unit_id,
                                                                             $unit_gruppo,
-                                                                            $this->is_asand);
+                                                                            $this->is_asand,
+                                                                            $sconto_voucher,
+                                                                            $codice_voucher
+                                                                            );
 
                 if (!is_array($_insert_evento))
                     $this->call_result = $_insert_evento;

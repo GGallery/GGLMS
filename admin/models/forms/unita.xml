@@ -297,6 +297,19 @@
             <option value="1">Si</option>
             <option value="0">No</option>
         </field>
+        
+        <field
+                name="usa_voucher"
+                type="radio"
+                label="Usa sconto voucher"
+                description="Se abilitato permette di applicare lo sconto al prezzo di partenza del corso. Non è compatibile con il voucher dei corsi ECM"
+                class="btn-group"
+                showon="is_corso:1[AND]accesso:gruppo[AND]ecm_event:0"
+                default="0"
+        >
+            <option value="1">Si</option>
+            <option value="0">No</option>
+        </field>
 
         <field
                 name="ecm_event"
@@ -304,7 +317,7 @@
                 label="Evento ECM"
                 description="Se abilitato forza le registrazioni ad includere i campi necessari per ECM (necessaria installazione del modulo di Acquisto corsi"
                 class="btn-group"
-                showon="is_corso:1[AND]accesso:gruppo"
+                showon="is_corso:1[AND]accesso:gruppo[AND]usa_voucher:0"
                 default="0"
         >
             <option value="1">Si</option>

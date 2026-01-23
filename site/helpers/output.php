@@ -1677,7 +1677,8 @@ HTML;
                                                                           $sconto_custom,
                                                                           $in_groups,
                                                                           $_params,
-                                                                          $is_asand = false) {
+                                                                          $is_asand = false
+                                                                          ) {
         try {
 
             $_ret = array();
@@ -1924,7 +1925,9 @@ HTML;
                                                             $perc_webinar = 0,
                                                             $_params,
                                                             $is_asand = false,
-                                                            $sconto_associazione = 0) {
+                                                            $sconto_associazione = 0,
+                                                            $sconto_voucher = 0,
+                                                            $codice_voucher = '') {
 
         try {
 
@@ -1936,6 +1939,7 @@ HTML;
                 || $unit_prezzo == 0)
                 throw new Exception("Il prezzo indicato per la transazione non è valido", 1);
 
+
             // controllo se l'unita indicata è valida
             if ($unit_id == ""
                 || $unit_id == 0)
@@ -1945,6 +1949,7 @@ HTML;
             $unit_model = new gglmsModelUnita();
             $_unit = $unit_model->getUnita($unit_id);
             $unit_prezzo_db = $_unit->prezzo;
+            $usaVoucher = $_unit->usa_voucher;
 
             // se compro l'evento in modalità webinar il prezzo deve essere adeguato
             if ($acquisto_webinar > 0) {
@@ -1953,14 +1958,17 @@ HTML;
             }
 
             $dt = new DateTime($_unit->data_inizio);
-            $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento($sconto_data,
+            $_tipo_sconto = UtilityHelper::get_tipo_sconto_evento(
+                $sconto_data,
                 $sconto_custom,
                 $in_groups,
                 $_unit,
                 $sconto_particolare,
                 $acquisto_webinar,
                 $perc_webinar,
-                $unit_prezzo);
+                $unit_prezzo,
+                $sconto_voucher
+                );
 
             $_descr_checkbox_evento = "Acquisto " . $_unit->titolo;
             $_descr_checkbox_evento .= $_tipo_sconto['descrizione_sconto'] != "" ? ' ' . $_tipo_sconto['descrizione_sconto'] : '';
@@ -1973,6 +1981,7 @@ HTML;
             $_descr_attr_evento .= ($sconto_particolare > 0) ? '-sc_ps' : '';
             $_descr_attr_evento .= ($acquisto_webinar > 0) ? '-webinar' : '';
             $_descr_attr_evento .= ($sconto_associazione > 0) ? '-sc_sinseb-sinut' : '';
+            $_descr_attr_evento .= ($sconto_voucher > 0 && $codice_voucher != '') ? '-sc_voucher-' . $codice_voucher : '';
 
             $_descrizione_hidden = $_descr_attr_evento;
 
@@ -1981,7 +1990,8 @@ HTML;
             $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_row_pagamento_bonfico = "";
 
-            $token = UtilityHelper::build_token_url($unit_prezzo,
+            $token = UtilityHelper::build_token_url(
+              $unit_prezzo,
               $unit_id,
               $user_id,
               $sconto_data,
@@ -1989,7 +1999,9 @@ HTML;
               $in_groups,
               'GGallery00!',
               $is_asand,
-              $sconto_associazione
+              $sconto_associazione,
+              $sconto_voucher,
+              $codice_voucher
             );
             $endpoint = UtilityHelper::build_encoded_link($token, 'acquistaevento', 'bb_buy_request');
             $endpointVoucherEvent = utilityHelper::build_encoded_link($token, 'acquistaevento', 'voucher_buy_request');
@@ -2059,7 +2071,10 @@ HTML;
             $userModel = new gglmsModelUsers();
             $unit_model = new gglmsModelUnita();
 
-            if($userModel->is_solo_eventi($user_id) && $unit_model->is_evento_ecm($unit_id)){
+            if(
+              ($userModel->is_solo_eventi($user_id) && $unit_model->is_evento_ecm($unit_id))
+              || ($usaVoucher == 1 && $sconto_voucher == 0)
+              ){
 
             $_row_pagamento_voucher = <<<HTML
     <div class="flex">
@@ -2070,9 +2085,31 @@ HTML;
         </div>
         <div class="row">
           <div class="offset-md-4 col-md-4">
-            <input type="text" class="form-control h6" id="v_code" name="v_code" placeholder="Inserisci qui il codice" />
+            <input 
+              type="text" 
+              class="form-control h6" 
+              id="v_code" 
+              name="v_code" 
+              placeholder="Inserisci qui il codice"
+              uid="{$unit_id}"
+              />
           </div>
         </div>
+HTML;
+
+if ($usaVoucher == 1 && $sconto_voucher == 0) {
+        $_row_pagamento_voucher .= <<<HTML
+        <div class="row">
+          <div class="col-md-4 mt-5 offset-md-4 text-center">
+            <button 
+            class="btn btn-primary" 
+            id="btn-voucher-apply" 
+            data-ref="{$endpointVoucherEvent}">Applica</button>
+          </div>
+        </div>
+HTML;
+} else {
+      $_row_pagamento_voucher .= <<<HTML
         <div class="row hidden" id="row_vcheck">
           <div class="col-md-4 offset-md-4 text-center" id="msg_vcheck"></div>
         </div>
@@ -2082,6 +2119,10 @@ HTML;
             <button class="btn btn-primary hidden" id="btn-voucher-apply" data-ref="">Applica</button>
           </div>
         </div>
+HTML;
+}
+
+$_row_pagamento_voucher .= <<<HTML
 </div>
 HTML;
             };
