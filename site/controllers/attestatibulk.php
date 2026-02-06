@@ -198,7 +198,11 @@ class gglmsControllerAttestatiBulk extends JControllerLegacy
                             $data->piattaforma,
                             $data->dominio,
                             true,
-                            $data->dati_corso);
+                            $data->dati_corso,
+                            $data->namedg,
+                            $data->codice_progressivo,
+                            $data->rischio
+                        );
 
                         // il rand non serve più dopo aver adottato il controllo dell'esistenza file multipla
 //                        $nome_file = 'attestato_' . $att_id . '_' .$data->user->cognome . rand() . '.pdf';
