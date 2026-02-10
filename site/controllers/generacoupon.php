@@ -176,6 +176,8 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
                 throw new Exception($_msg, E_USER_ERROR);
             }
 
+            $data['abilitato'] = 'on';
+
             // log dei paramentri ricevuti
             DEBUGG::log(json_encode($data), 'api_genera_coupon', 0, 1, 0 );
 
@@ -199,12 +201,12 @@ class gglmsControllerGeneraCoupon extends JControllerLegacy
 
             // Imposta header
             header('HTTP/1.1 500 Internal Server Error', true, 500);
-            
+
             // Prepara il JSON di errore
             $error = new stdClass();
             $error->success = false;
             $error->message = $e->getMessage();
-            
+
             // Invia risposta JSON
             echo json_encode($error);
 
