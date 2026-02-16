@@ -53,6 +53,10 @@ class JFormFieldlistagruppiabilitati extends JFormFieldList
             $query->select('id as value, title as text');
             $query->from('#__usergroups as e');
             $query->where("e.parent_id in($parent_id_accesso_corsi)");
+
+            // anche gruppi quota
+            $query = $query->orWhere("e.parent_id = 2");
+
             $query->order('id');
 
             // Get the options.
