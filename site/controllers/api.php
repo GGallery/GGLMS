@@ -4663,7 +4663,7 @@ HTML;
                     ->select([
                         'c_student_id',
                         'MAX(c_passed) AS c_passed',
-                        'c_date_time as data_fine'
+	                    'MAX(c_date_time) AS data_fine'
                     ])
                     ->from($db->quoteName('#__quiz_r_student_quiz'))
                     ->where('c_quiz_id =' . $id_quiz)
@@ -4672,7 +4672,7 @@ HTML;
                 $subScorm = $db->getQuery(true)
                     ->select([
                         'userid',
-                        'timestamp as data_inizio'
+	                    'MIN(timestamp) AS data_inizio'
                     ])
                     ->from($db->quoteName('#__gg_scormvars'))
                     ->where('scoid =' . $primo_content)
