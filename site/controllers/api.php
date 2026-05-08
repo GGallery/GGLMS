@@ -4656,7 +4656,7 @@ HTML;
 		                ->from('#__gg_unit as u')
 		                ->where('u.unitapadre  = ' . $id_corso)
 		                ->where('u.pubblicato = 1')
-		                ->order('u.ordinamento = 1');
+		                ->where('u.ordinamento = 1');
 
 	                $db->setQuery($query_unit);
 	                $primo_unit = $db->loadResult();
