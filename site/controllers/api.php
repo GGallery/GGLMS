@@ -4649,7 +4649,7 @@ HTML;
                 $db->setQuery($query_content);
                 $primo_content = $db->loadResult();
 
-                if(isset($primo_content) || $primo_content != "" || is_null($primo_content)){
+                if(!isset($primo_content) || $primo_content == "" || is_null($primo_content)){
 
 	                $query_unit = $db->getQuery(true)
 		                ->select('u.id')
