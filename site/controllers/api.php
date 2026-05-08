@@ -4649,6 +4649,29 @@ HTML;
                 $db->setQuery($query_content);
                 $primo_content = $db->loadResult();
 
+                if(isset($primo_content) || $primo_content != "" || is_null($primo_content)){
+
+	                $query_unit = $db->getQuery(true)
+		                ->select('u.id')
+		                ->from('#__gg_unit as u')
+		                ->where('u.unitapadre  = ' . $id_corso)
+		                ->where('u.pubblicato = 1')
+		                ->order('u.ordinamento = 1');
+
+	                $db->setQuery($query_unit);
+	                $primo_unit = $db->loadResult();
+
+	                $query_content = $db->getQuery(true)
+		                ->select('c.id')
+		                ->from('#__gg_unit_map as m')
+		                ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
+		                ->where('m.idunita = ' . $primo_unit)
+		                ->where('c.pubblicato = 1')
+		                ->where('m.ordinamento = 1');
+	                $db->setQuery($query_content);
+	                $primo_content = $db->loadResult();
+                }
+
                 $query_quiz = $db->getQuery(true)
                              ->select('c.id_quizdeluxe')
                             ->from('#__gg_unit_map as m')
@@ -4658,6 +4681,28 @@ HTML;
 
                 $db->setQuery($query_quiz);
                 $id_quiz= $db->loadResult();
+
+	            if(!isset($id_quiz) || $id_quiz == "" || is_null($id_quiz)){
+
+		            $query_unit = $db->getQuery(true)
+			            ->select('u.id')
+			            ->from('#__gg_unit as u')
+			            ->where('u.unitapadre  = ' . $id_corso)
+			            ->where('u.pubblicato = 1')
+			            ->where('MAX(u.ordinamento)');
+
+		            $db->setQuery($query_unit);
+		            $ultimo_unit = $db->loadResult();
+
+		            $query_quiz = $db->getQuery(true)
+			            ->select('c.id_quizdeluxe')
+			            ->from('#__gg_unit_map as m')
+			            ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
+			            ->where('m.idunita = ' . $ultimo_unit)
+			            ->where('c.tipologia = 7');
+		            $db->setQuery($query_quiz);
+		            $id_quiz = $db->loadResult();
+	            }
 
                 $subQuiz = $db->getQuery(true)
                     ->select([
