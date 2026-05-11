@@ -4643,7 +4643,7 @@ HTML;
                     ->select('c.id')
                     ->from('#__gg_unit_map as m')
                     ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
-                    ->where('m.idunita = ' . $id_corso)
+                    ->where('m.idunita = ' . (int) $id_corso)
                     ->where('c.pubblicato = 1')
                     ->where('m.ordinamento = 1');
                 $db->setQuery($query_content);
@@ -4654,21 +4654,21 @@ HTML;
 	                $query_unit = $db->getQuery(true)
 		                ->select('u.id')
 		                ->from('#__gg_unit as u')
-		                ->where('u.unitapadre  = ' . $id_corso)
+		                ->where('u.unitapadre  = ' . (int) $id_corso)
 		                ->where('u.pubblicato = 1')
 		                ->where('u.ordinamento = 1');
 
 	                $db->setQuery($query_unit);
 	                $primo_unit = $db->loadResult();
 
-	                $query_content = $db->getQuery(true)
+	                $query_conten = $db->getQuery(true)
 		                ->select('c.id')
 		                ->from('#__gg_unit_map as m')
 		                ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
-		                ->where('m.idunita = ' . $primo_unit)
+		                ->where('m.idunita = ' . (int)$primo_unit)
 		                ->where('c.pubblicato = 1')
 		                ->where('m.ordinamento = 1');
-	                $db->setQuery($query_content);
+	                $db->setQuery($query_conten);
 	                $primo_content = $db->loadResult();
                 }
 
@@ -4676,7 +4676,7 @@ HTML;
                              ->select('c.id_quizdeluxe')
                             ->from('#__gg_unit_map as m')
                             ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
-                            ->where('m.idunita = ' . $id_corso)
+                            ->where('m.idunita = ' . (int)$id_corso)
                             ->where('c.tipologia = 7');
 
                 $db->setQuery($query_quiz);
@@ -4687,20 +4687,20 @@ HTML;
 		            $query_unit = $db->getQuery(true)
 			            ->select('u.id')
 			            ->from('#__gg_unit as u')
-			            ->where('u.unitapadre  = ' . $id_corso)
+			            ->where('u.unitapadre  = ' . (int)$id_corso)
 			            ->where('u.pubblicato = 1')
-			            ->where('MAX(u.ordinamento)');
+			            ->order('u.ordinamento DESC');
 
-		            $db->setQuery($query_unit);
+		            $db->setQuery($query_unit, 0, 1);
 		            $ultimo_unit = $db->loadResult();
 
-		            $query_quiz = $db->getQuery(true)
+		            $query_qui = $db->getQuery(true)
 			            ->select('c.id_quizdeluxe')
 			            ->from('#__gg_unit_map as m')
 			            ->innerJoin('#__gg_contenuti as c on c.id = m.idcontenuto')
-			            ->where('m.idunita = ' . $ultimo_unit)
+			            ->where('m.idunita = ' . (int)$ultimo_unit)
 			            ->where('c.tipologia = 7');
-		            $db->setQuery($query_quiz);
+		            $db->setQuery($query_qui);
 		            $id_quiz = $db->loadResult();
 	            }
 
@@ -4711,7 +4711,7 @@ HTML;
 	                    'MAX(c_date_time) AS data_fine'
                     ])
                     ->from($db->quoteName('#__quiz_r_student_quiz'))
-                    ->where('c_quiz_id =' . $id_quiz)
+                    ->where('c_quiz_id =' . (int)$id_quiz)
                     ->group('c_student_id');
 
                 $subScorm = $db->getQuery(true)
@@ -4720,7 +4720,7 @@ HTML;
 	                    'MIN(timestamp) AS data_inizio'
                     ])
                     ->from($db->quoteName('#__gg_scormvars'))
-                    ->where('scoid =' . $primo_content)
+                    ->where('scoid =' . (int)$primo_content)
                     ->where("varValue IN ('init','completed')")
                     ->group('userid');
 
