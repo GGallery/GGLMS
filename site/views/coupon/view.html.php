@@ -20,9 +20,9 @@ jimport('joomla.application.component.helper');
 class gglmsViewCoupon extends JViewLegacy {
 
     protected $params;
-    protected string $currentUrl;
-    protected bool $hideCouponGeneration;
-    protected string $newPlatformUrl;
+    protected $currentUrl;
+    protected $hideCouponGeneration;
+    protected $newPlatformUrl;
 
     function display($tpl = null)
     {
