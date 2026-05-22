@@ -37,6 +37,7 @@ class gglmsViewCoupon extends JViewLegacy {
             'csifad.confindustriacuneo.it', 
             'fad.assoservizilegnano.it', 
             'serviziconfindustriavarese.ausindfad.it',
+            'skillabfad.it',
             //'test.gallerygroup.dvl.to',
         ];
         $urlPairs = [
@@ -45,6 +46,7 @@ class gglmsViewCoupon extends JViewLegacy {
             'csifad.confindustriacuneo.it' => 'https://csi-elearning.confindustriacuneo.it',
             'fad.assoservizilegnano.it' => 'https://elearning.assoservizilegnano.it',
             'serviziconfindustriavarese.ausindfad.it' => 'https://scv.ausindfad.it',
+            'skillabfad.it' => 'https://elearning.skillabfad.it',
             //'test.gallerygroup.dvl.to' => 'https://nasa.gov',
         ];
         $this->currentUrl = $_SERVER['HTTP_HOST'];
