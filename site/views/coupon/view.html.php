@@ -39,6 +39,7 @@ class gglmsViewCoupon extends JViewLegacy {
             'serviziconfindustriavarese.ausindfad.it',
             'skillabfad.it',
             'cesi.ausindfad.it',
+            'web.ausindfad.it',
             //'test.gallerygroup.dvl.to',
         ];
         $urlPairs = [
