@@ -47,7 +47,7 @@ class gglmsViewCoupon extends JViewLegacy {
             'web.assolombardaservizifad.it' => 'https://web2.assolombardaservizifad.it',
             'csifad.confindustriacuneo.it' => 'https://csi-elearning.confindustriacuneo.it',
             'fad.assoservizilegnano.it' => 'https://elearning.assoservizilegnano.it',
-            'serviziconfindustriavarese.ausindfad.it' => 'https://scv.ausindfad.it',
+            'serviziconfindustriavarese.ausindfad.it' => 'https://training.ausindfad.it',
             'skillabfad.it' => 'https://elearning.skillabfad.it',
             'cesi.ausindfad.it' => 'https://fad.cesi.al.it',
             //'test.gallerygroup.dvl.to' => 'https://nasa.gov',
