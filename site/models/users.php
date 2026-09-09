@@ -1189,7 +1189,7 @@ class gglmsModelUsers extends JModelLegacy
                                '" . $totale_espen . "',
                                NULL
                             )";
-            }elseif ($totale_espen && $tipo_quota = 'bonifico'){
+            }elseif ($totale_espen && $tipo_quota == 'bonifico'){
                 $query .= ", (
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
