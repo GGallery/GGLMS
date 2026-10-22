@@ -140,9 +140,10 @@ class gglmsViewRinnovoQuote extends JViewLegacy {
                 $_insert_quote = $_user_quote->insert_user_quote_stato_bonifico(
                     $this->user_id,
                     $dt->format('Y'),
-                    $dt->format('Y-m-d H:i:s'),
                     $totale_sinpe,
-                    $totale_espen);
+                    $dt->format('Y-m-d H:i:s'),
+                    $totale_espen
+                );
 
                 if (!is_array($_insert_quote)) $this->call_result = $_insert_quote;
                 else $this->call_result = "tuttook";

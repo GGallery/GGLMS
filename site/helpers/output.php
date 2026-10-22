@@ -1988,7 +1988,9 @@ HTML;
                                                       $_user_details,
                                                       $_gruppi_online="",
                                                       $_gruppi_moroso="",
-                                                      $_gruppi_decaduto="") {
+                                                      $_gruppi_decaduto="",
+                                                      $voucherDiscountPercent = 0,
+                                                      $voucherCode = '') {
 
         try {
 
@@ -2034,15 +2036,12 @@ HTML;
             $_anzianita = $_anno_corrente-$_anno_laurea;
             $_data_nascita = $_user_details['data_nascita'];
 
-            //$_nome_utente = $_user_details['nome_utente'];
-            //$_cognome_utente = $_user_details['cognome_utente'];
-            //$_codice_fiscale = $_user_details['codice_fiscale'];
-            //$_descrizione_hidden = "USERNAME: " . $_username . "\n";
-            //$_descrizione_hidden = (!is_null($_nome_utente) && $_nome_utente != "") ? "NOME: " . $_nome_utente . "\n" : "";
-            //$_descrizione_hidden .= (!is_null($_cognome_utente) && $_cognome_utente != "") ? "COGNOME: " . $_cognome_utente . "\n" : "";
-            //$_descrizione_hidden .= (!is_null($_codice_fiscale) && $_codice_fiscale != "") ? "CF/PIVA: " . $_codice_fiscale . "\n" : "";
-
-            $_tariffa = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita);
+            $_tariffa = UtilityHelper::calcola_quota_socio(
+              $_tipo_laurea, 
+              $_anzianita, 
+              $_data_nascita,
+              'sinpe'
+            );
             $_tariffa_espen = 0;
             $_diff_anni = $_anno_corrente-$_ultimo_anno_pagato;
 
@@ -2055,7 +2054,6 @@ HTML;
 HTML;
 
             // sinpe
-            $index = 1;
             for ($i=$_ultimo_anno_pagato; $i<=$_anno_corrente; $i++) {
                 if ($i > $_ultimo_anno_pagato)
                     $_anni_da_pagare .= $i . ",";
@@ -2064,52 +2062,105 @@ HTML;
             $_tariffa *= $_diff_anni;
             $_anni_da_pagare = trim(rtrim($_anni_da_pagare, ","));
             $_descr_attr_sinpe = "rinnovo_quote_sinpe_" . str_replace(",", "_", $_anni_da_pagare);
+            // pondera sconto %
+            $_descr_attr_sinpe .= $voucherDiscountPercent > 0 ? '_sconto_voucher_percent_' . $voucherDiscountPercent : '';
             $_descr_checkbox_sinpe = "Rinnovo quote SINPE per annualit&agrave; " . $_anni_da_pagare;
+            $_descr_checkbox_sinpe .= $voucherDiscountPercent > 0 ? '. Applicata percentuale di sconto voucher del <b>' . $voucherDiscountPercent . '%</b>.' : '';
 
             //$_descrizione_hidden .= $_descr_checkbox_sinpe . "\n";
             $_descrizione_hidden = $_descr_attr_sinpe . "\n";
 
-            $_html .= <<<HTML
-                    <tr>
-                        <td>
-                            <!-- <input type="checkbox" value="{$_tariffa}" id="anni_da_pagare" data-descr="{$_descr_attr_sinpe}" checked /> -->
-                            <input class="form-control" type="checkbox" value="{$_tariffa}" id="anni_da_pagare" data-descr="{$_descr_attr_sinpe}" checked />
-                        </td>
-                        <td>&nbsp;</td>
-                        <td id="cella_sinpe">
-                            {$_descr_checkbox_sinpe}
-                        </td>
-                        <td>&nbsp;</td>
-                        <td>
-                            <h5>€ <b>{$_tariffa}</b></h5>
-                        </td>
-                    </tr>
+            $_riga_prezzo = <<<HTML
+            <tr>
+                <td>
+                    <input class="form-control" type="checkbox" value="{$_tariffa}" id="anni_da_pagare" data-descr="{$_descr_attr_sinpe}" checked />
+                </td>
+                <td>&nbsp;</td>
+                <td id="cella_sinpe">
+                    {$_descr_checkbox_sinpe}
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <h5>€ <b>{$_tariffa}</b></h5>
+                </td>
+            </tr>
 HTML;
 
-            // se l'utente è in regola con la quota dell'anno scorso gli presento anche il rinnovo ESPEN
-            // sempre proposto a prescindere
-            //if ($_diff_anni == 1) {
-                $_tariffa_espen = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita, 'espen');
-                $_descr_attr_espen = "rinnovo_quote_espen_" . $_anno_corrente;
-                $_descr_checkbox_espen = "Rinnovo quota ESPEN per annualit&agrave; " . $_anno_corrente ." (facoltativo)";
-                $_html .= <<<HTML
-                    <tr>
-                        <td>
-                            <!-- <input class="form-check-input" type="checkbox" value="{$_tariffa}" id="anni_da_pagare_espen" data-descr="{$_descr_attr_espen}" /> -->
-                            <input class="form-control" type="checkbox" value="{$_tariffa}" id="anni_da_pagare_espen" data-descr="{$_descr_attr_espen}" />
-                        </td>
-                        <td>&nbsp;</td>
-                        <td id="cella_espen">
-                            {$_descr_checkbox_espen}
-                        </td>
-                        <td>&nbsp;</td>
-                        <td>
-                            <h5>€ <b>{$_tariffa_espen}</b></h5>
-                        </td>
-                    </tr>
-                    <input style="display: none;" type="text" id="anni_espen" value="{$_anno_corrente}" />
+            $voucherCodeHtml = "";
+            // righe sconto voucher
+            if ($voucherDiscountPercent > 0) {
+              // applica lo sconto % del voucher
+              $_get_sconto_voucher = utilityHelper::calcolaPrezzoScontato($_tariffa, $voucherDiscountPercent);
+              $_tariffa_old = $_tariffa;
+              $_tariffa = $_tariffa-$_get_sconto_voucher['sconto_applicato'];
+
+              // calcolo lo sconto applicato
+              $_riga_prezzo = <<<HTML
+              <tr>
+                  <td>
+                      <input class="form-control" type="checkbox" value="{$_tariffa}" id="anni_da_pagare" data-descr="{$_descr_attr_sinpe}" checked />
+                  </td>
+                  <td>&nbsp;</td>
+                  <td id="cella_sinpe">
+                      {$_descr_checkbox_sinpe}
+                  </td>
+                  <td>&nbsp;</td>
+                  <td>
+                      <h5>€ <b style="text-decoration: line-through;">{$_tariffa_old}</b></h5>
+                  </td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>
+                  <b>SCONTO VOUCHER</b>
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                  <h5>€ <b>{$_get_sconto_voucher['sconto_applicato']}</b></h5>
+                </td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>
+                  <b>PREZZO SCONTATO</b>
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                  <h5>€ <b>{$_tariffa}</b></h5>
+                </td>
+              </tr>
 HTML;
-            //}
+
+              $voucherCodeHtml =<<<HTML
+              <input style="display: none;" type="text" id="voucherCode" name="voucherCode" value="{$voucherCode}" />
+HTML;
+
+            }
+
+            $_html .= $_riga_prezzo;
+            
+            $_tariffa_espen = UtilityHelper::calcola_quota_socio($_tipo_laurea, $_anzianita, $_data_nascita, 'espen');
+            $_descr_attr_espen = "rinnovo_quote_espen_" . $_anno_corrente;
+            $_descr_checkbox_espen = "Rinnovo quota ESPEN per annualit&agrave; " . $_anno_corrente ." (facoltativo)";
+            $_html .= <<<HTML
+                  <tr>
+                      <td>
+                          <!-- <input class="form-check-input" type="checkbox" value="{$_tariffa}" id="anni_da_pagare_espen" data-descr="{$_descr_attr_espen}" /> -->
+                          <input class="form-control" type="checkbox" value="{$_tariffa}" id="anni_da_pagare_espen" data-descr="{$_descr_attr_espen}" />
+                      </td>
+                      <td>&nbsp;</td>
+                      <td id="cella_espen">
+                          {$_descr_checkbox_espen}
+                      </td>
+                      <td>&nbsp;</td>
+                      <td>
+                          <h5>€ <b>{$_tariffa_espen}</b></h5>
+                      </td>
+                  </tr>
+                  <input style="display: none;" type="text" id="anni_espen" value="{$_anno_corrente}" />
+HTML;
 
             $_html .= <<<HTML
                     <tr>
@@ -2131,6 +2182,7 @@ HTML;
                 <input style="display: none;" type="text" id="anni_sinpe" value="{$_anni_da_pagare}" />
                 <input type="hidden" id="user_id" value="{$user_id}" />
                 <input type="hidden" id="anno_corrente" value="{$_anno_corrente}" />
+                {$voucherCodeHtml}
                 <textarea style="display: none;" id="description" name="description">{$_descrizione_hidden}</textarea>
 HTML;
 
@@ -2196,12 +2248,6 @@ HTML;
                     </script>
 
 HTML;
-
-//        <div class="row">
-//                    <div class="col-12 text-center">
-//                        {$_testo_pagamento_bonifico}
-//                    </div>
-//                </div>
 
         return $_html;
 

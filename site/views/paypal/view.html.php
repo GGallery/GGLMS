@@ -58,6 +58,7 @@ class gglmsViewPaypal extends JViewLegacy {
             // parametri comuni
             $order_id = JRequest::getVar('order_id');
             $user_id = JRequest::getVar('user_id');
+            $voucherCode = JRequest::getVar('voucherCode', null);
 
             // parte dedicata al form di pagamento delle quote SINPE
             if ($pp == 'sinpe') {
@@ -68,11 +69,15 @@ class gglmsViewPaypal extends JViewLegacy {
                 $paypal = new gglmsControllerPaypal($this->client_id, $this->client_secret, $this->is_production);
                 $new_order = json_decode($paypal->quote_sinpe_store_payment($order_id, $user_id, $totale_sinpe, $totale_espen), true);
 
-                if (!isset($new_order['success'])) throw new Exception($new_order['error'], E_USER_ERROR);
+                if (!isset($new_order['success'])) {
+                    throw new Exception($new_order['error'], E_USER_ERROR);
+                }
 
                 // inserisco le quote per l'utente selezionato
                 $_user_details = $_user_quote->get_user_details_cb($user_id);
-                if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+                if (!is_array($_user_details)) {
+                    throw new Exception($_user_details, E_USER_ERROR);
+                }
 
                 $_insert_quote = $_user_quote->insert_user_quote_anno(
                                                 $user_id,
@@ -82,10 +87,26 @@ class gglmsViewPaypal extends JViewLegacy {
                                                 $new_order['totale'],
                                                 $new_order['totale_espen'],
                                                 $_user_details,
-                                                true);
+                                                true,
+                                                'paypal',
+                                                $voucherCode);
 
-                if (!is_array($_insert_quote)) $this->call_result = $_insert_quote;
-                else $this->call_result = "tuttook";
+                // spendo il voucher
+                if ($voucherCode) {
+                    $dt = new DateTime();
+                    $userModel = new gglmsModelUsers();
+                    $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $user_id, $dt->format('Y-m-d H:i:s'));
+                    if (!is_array($updateVoucher)) {
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+                    }
+                }
+
+                if (!is_array($_insert_quote)) {
+                    $this->call_result = $_insert_quote;
+                }
+                else {
+                    $this->call_result = "tuttook";
+                }
 
             }
             // acquisto di servizi extra (ad esempio ESPEN in un secondo momento)

@@ -18,7 +18,11 @@ class gglmsModelVoucher extends JModelLegacy {
 	}
 
     // controllo se il codice del voucher esiste e non è già stato speso
-    public function checkVoucherByCode(string $requestedVoucher, int $subscription = 1, int $course = 0) {
+    public function checkVoucherByCode(
+        string $requestedVoucher, 
+        int $subscription = 1, 
+        int $course = 0
+        ) {
 
         try {
 
@@ -28,9 +32,9 @@ class gglmsModelVoucher extends JModelLegacy {
                             AND buy_subscription = " . $subscription . "
                             AND buy_course = " . $course . "
                             AND user_id IS NULL";
+
             $this->_db->setQuery($checkVoucher);
 
-            //return $this->_db->loadResult();
             return $this->_db->loadAssoc();
 
         }

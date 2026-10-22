@@ -1144,7 +1144,8 @@ class gglmsModelUsers extends JModelLegacy
                                            $totale_espen=0,
                                            $_user_details = array(),
                                            $send_email = true,
-                                           $tipo_quota = 'paypal') {
+                                           $tipo_quota = 'paypal',
+                                           $voucherCode = null) {
 
         try {
 
@@ -1164,6 +1165,8 @@ class gglmsModelUsers extends JModelLegacy
                                                                 totale,
                                                                 dettagli_transazione)
                             VALUES ";
+
+            $_order_details .= $voucherCode ? '-Sconto voucher applicato: ' . $voucherCode : '';
 
             if($totale_sinpe && $tipo_quota == 'paypal') {
                 
@@ -1262,7 +1265,9 @@ class gglmsModelUsers extends JModelLegacy
                                                     $totale_sinpe,
                                                     $totale_espen,
                                                     $emailTemplate,
-                                                    $extraEmail
+                                                    $extraEmail,
+                                                    null,
+                                                    $voucherCode
                                                 );
 
             $_ret['success'] = "tuttook";
@@ -2132,9 +2137,10 @@ class gglmsModelUsers extends JModelLegacy
 
     public function insert_user_quote_stato_bonifico($user_id,
                                                     $_anno_quota,
-                                                    $_data_pagamento = null,
                                                     $totale_sinpe,
-                                                    $totale_espen = 0) {
+                                                    $_data_pagamento = null,
+                                                    $totale_espen = 0,
+                                                    $voucherCode = null) {
 
         try {
 
@@ -2158,6 +2164,8 @@ class gglmsModelUsers extends JModelLegacy
                                                           )
                             VALUES ";
 
+            $descrizioneVoucher = $voucherCode ? "'-Sconto voucher: " . $voucherCode . "'" : "NULL";
+
             if($totale_sinpe > 0 && $totale_espen == 0) {
 
                 $query .= "(
@@ -2167,12 +2175,12 @@ class gglmsModelUsers extends JModelLegacy
                                'bonifico',
                                '" . $_data_creazione . "',
                                '" . $totale_sinpe . "',
-                               NULL,
+                               " . $descrizioneVoucher . ", 
                                0,
                                0
                             )";
 
-            }elseif ($totale_espen > 0 && $totale_sinpe == 0) {
+            } elseif ($totale_espen > 0 && $totale_sinpe == 0) {
                 $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
@@ -2184,7 +2192,7 @@ class gglmsModelUsers extends JModelLegacy
                                0,
                                0
                             )";
-            }elseif ($totale_espen > 0 && $totale_sinpe > 0) {
+            } elseif ($totale_espen > 0 && $totale_sinpe > 0) {
                 $query .= "(
                                '" . $user_id . "',
                                '" . $_anno_quota . "',
@@ -2192,7 +2200,7 @@ class gglmsModelUsers extends JModelLegacy
                                'bonifico',
                                '" . $_data_creazione . "',
                                '" . $totale_sinpe . "',
-                               NULL,
+                               " . $descrizioneVoucher . ", 
                                0,
                                0
                             )";

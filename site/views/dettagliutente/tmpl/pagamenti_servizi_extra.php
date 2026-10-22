@@ -58,6 +58,7 @@ defined('_JEXEC') or die('Restricted access');
         var paymentErrorDetails = document.querySelector('#paymentErrorDetails');
         var paymentSuccess = document.querySelector('#paymentSuccess');
         var paymentSuccessDetails = document.querySelector('#paymentSuccessDetails');
+        var voucherCode = document.querySelector('#voucherCode');
 
         var elArr = [description, amount];
 
@@ -115,12 +116,17 @@ defined('_JEXEC') or die('Restricted access');
             onApprove: function (data, actions) {
                 return actions.order.capture().then(function (details) {
 
-                    window.location.href = 'index.php?option=com_gglms&view=paypal'
+                    var targetUrl = 'index.php?option=com_gglms&view=paypal'
                         + '&pp=servizi_extra'
                         + '&order_id=' + details.id
                         + '&user_id=' + jQuery('#user_id').val()
                         + '&totale=' + jQuery('#amount').val()
                         + '&totale_espen=' + jQuery('#amount_espen').val();
+
+                    if (voucherCode) {
+                        targetUrl += '&voucherCode=' + voucherCode.value;
+                    }
+                    window.location.href = targetUrl;
 
                 });
             },

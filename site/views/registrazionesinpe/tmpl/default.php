@@ -665,6 +665,7 @@ HTML;
             var paymentErrorDetails = document.querySelector('#paymentErrorDetails');
             var paymentSuccess = document.querySelector('#paymentSuccess');
             var paymentSuccessDetails = document.querySelector('#paymentSuccessDetails');
+            var voucherCode = document.querySelector('#voucherCode');
 
             var elArr = [description, amount];
 
@@ -683,8 +684,13 @@ HTML;
                 document.getElementById('btn-bonifico').disabled = true;
 
                 var pHref = jQuery(this).attr("data-ref");
-                window.location.href = pHref+ '&totale_sinpe=' + jQuery('#amount').val()
-                    + '&totale_espen=' + jQuery('#amount_espen').val();
+                var targetUrl = pHref  + '&totale_sinpe=' + jQuery('#amount').val() + '&totale_espen=' + jQuery('#amount_espen').val();
+
+                if (voucherCode) {
+                    targetUrl += '&voucherCode=' + voucherCode.value
+                }
+                
+                window.location.href = targetUrl;
             });
 
             paypal.Buttons({
@@ -730,15 +736,16 @@ HTML;
                 onApprove: function (data, actions) {
                     return actions.order.capture().then(function (details) {
 
-                        window.location.href = 'index.php?option=com_gglms&view=paypal'
+                        var targetUrl = 'index.php?option=com_gglms&view=paypal'
                                             + '&pp=sinpe'
                                             + '&order_id=' + details.id
                                             + '&user_id=' + jQuery('#user_id').val()
-                                            //+ '&gruppi_online=' + jQuery('#gruppi_online').val()
-                                            //+ '&gruppi_moroso=' + jQuery('#gruppi_moroso').val()
-                                            //+ '&gruppi_decaduto=' + jQuery('#gruppi_decaduto').val()
                                             + '&totale_sinpe=' + jQuery('#amount').val()
                                             + '&totale_espen=' + jQuery('#amount_espen').val();
+                        if (voucherCode) {
+                            targetUrl += '&voucherCode=' + voucherCode.value;
+                        }
+                        window.location.href = targetUrl;
 
                     });
                 },
@@ -763,8 +770,9 @@ HTML;
 
             jQuery('#anni_da_pagare_espen').on('change', function (){
 
-                if (!jQuery('#amount_espen').length)
+                if (!jQuery('#amount_espen').length) {
                     return false;
+                }
 
                 var amount = parseFloat(jQuery('#amount').val());
                 var amountEspen = parseFloat(jQuery('#tariffa_espen').val());

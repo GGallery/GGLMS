@@ -14,6 +14,7 @@ jimport('joomla.application.component.helper');
 
 require_once JPATH_COMPONENT . '/controllers/paypal.php';
 require_once JPATH_COMPONENT . '/models/users.php';
+require_once JPATH_COMPONENT . '/models/voucher.php';
 
 class gglmsViewRegistrazioneSinpe extends JViewLegacy {
 
@@ -93,13 +94,27 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
             else if ($this->action == 'bb_buy_request') {
 
                 $decryptedToken = utilityHelper::decrypt_random_token($pp);
-                if (is_null($decryptedToken) || !is_numeric($decryptedToken)) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+                $parsedToken = explode("|==|", $decryptedToken);
+                $parsedTokenCount = count($parsedToken);
+                //if (is_null($decryptedToken) || !is_numeric($decryptedToken)) throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+                if (is_null($decryptedToken) 
+                    || $parsedTokenCount > 2
+                    || !isset($parsedToken[0])
+                ) {
+                    throw new Exception("I parametri non sono conformi, impossibile continuare", E_USER_ERROR);
+                }
 
-                $this->user_id = $decryptedToken;
+                //$this->user_id = $decryptedToken;
+                $this->user_id = $parsedToken[0];
 
                 $userModel = new gglmsModelUsers();
                 $_user_details = $userModel->get_user_details_cb($this->user_id);
-                if (!is_array($_user_details)) throw new Exception($_user_details, E_USER_ERROR);
+                if (!is_array($_user_details)) {
+                    throw new Exception($_user_details, E_USER_ERROR);
+                }
+
+                // codice voucher
+                $voucherCode = isset($parsedToken[1]) ? $parsedToken[1] : null;
 
                 $totale_sinpe = JRequest::getVar('totale_sinpe');
                 $totale_espen = JRequest::getVar('totale_espen');
@@ -107,12 +122,26 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                 $_insert_quote = $userModel->insert_user_quote_stato_bonifico(
                     $this->user_id,
                     $dt->format('Y'),
-                    $dt->format('Y-m-d H:i:s'),
                     $totale_sinpe,
-                    $totale_espen);
+                    $dt->format('Y-m-d H:i:s'),
+                    $totale_espen,
+                    $voucherCode
+                );
 
-                if (!is_array($_insert_quote)) throw new Exception($_insert_quote, E_USER_ERROR);
-                else $this->payment_form = outputHelper::get_payment_form_error("La richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.");
+                if (!is_array($_insert_quote)) {
+                    throw new Exception($_insert_quote, E_USER_ERROR);
+                }
+                else {
+                    $this->payment_form = outputHelper::get_payment_form_error("La richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.");
+                }
+
+                // spendo il voucher
+                if ($voucherCode) {
+                    $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dt->format('Y-m-d H:i:s'));
+                    if (!is_array($updateVoucher)) {
+                        throw new Exception($updateVoucher, E_USER_ERROR);
+                    }
+                }
 
                 $_params = utilityHelper::get_params_from_plugin();
                 $email_default = utilityHelper::get_params_from_object($_params, "email_default");
@@ -128,7 +157,8 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                                                     0,
                                                     'richiesta_bonifico_sinpe',
                                                     $selectedUser->email,
-                                                    $_params
+                                                    $_params,
+                                                    $voucherCode
                                                 );
                 }
 
@@ -181,50 +211,69 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
 
                         $this->payment_form = outputHelper::get_payment_form_error($checking['success']);
 
+                        $this->in_error = 1;
                     }
                     else {
 
-                        $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
-                        $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
-                        if (!is_array($updateVoucher)) throw new Exception($updateVoucher, E_USER_ERROR);
+                        // verifico se il voucher esiste
+                        $voucher = new gglmsModelVoucher();
 
-                        $_insert_quote = $userModel->insert_user_quote_anno(
-                            $this->user_id,
-                            date('Y'),
-                            $dateTimeCorrente,
-                            'Pagamento quota con voucher codice: ' . $voucherCode,
-                            0,
-                            0,
-                            $_user_details,
-                            true,
-                            'voucher_sinpe'
-                        );
+                        // controllo se il codice del voucher esiste e non è già stato speso
+                        $resultVoucher = $voucher->checkVoucherByCode($voucherCode);
+                        if (empty($resultVoucher)) {
+                            throw new Exception('Il codice voucher immesso (' . $voucherCode. ') non è stato trovato oppure è già stato utilizzato');
+                        }
 
-                        $this->payment_form = outputHelper::get_payment_form_error("Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.");
+                        // verifico se il voucher ha uno sconto attivo
+                        if ($resultVoucher['sc_percentuale'] 
+                            && $resultVoucher['sc_percentuale'] > 0) {
+                            
+                            // verifico se esiste un data di scadenza per data di emissione e durata
+                            if ($resultVoucher['data_emissione'] && $resultVoucher['durata'] ) {
+                                $dataScadenzaVoucher = date('Y-m-d', strtotime($resultVoucher['data_emissione'] . ' +'.$resultVoucher['durata'].' days'));
+
+                                $timestampOggi = strtotime('today');
+                                $timestampConfronto = strtotime($dataScadenzaVoucher);
+
+                                if ($timestampOggi > $timestampConfronto) {
+                                    throw new Exception(
+                                        'Il codice voucher immesso (' . $voucherCode. ') è scaduto il ' . date('d-m-Y', strtotime($resultVoucher['data_emissione'])), E_USER_ERROR
+                                        );
+                                }
+                            }
+
+                            // vado al form di pagamento
+                            $this->get_payment_form($_anno_corrente, $_user_details, $pp, $resultVoucher['sc_percentuale'], $voucherCode);
+                        }
+                        else { // voucher che genera acquisto a zero
+
+                            $dateTimeCorrente = $dt->format('Y-m-d H:i:s');
+                            $updateVoucher = $userModel->update_voucher_utilizzato($voucherCode, $this->user_id, $dateTimeCorrente);
+                            if (!is_array($updateVoucher)) {
+                                throw new Exception($updateVoucher, E_USER_ERROR);
+                            }
+
+                            $_insert_quote = $userModel->insert_user_quote_anno(
+                                $this->user_id,
+                                date('Y'),
+                                $dateTimeCorrente,
+                                'Pagamento quota con voucher codice: ' . $voucherCode,
+                                0,
+                                0,
+                                $_user_details,
+                                true,
+                                'voucher_sinpe'
+                            );
+
+                            $this->payment_form = outputHelper::get_payment_form_error("Gentilissimo/a, il pagamento della quota associativa SINPE tramite voucher è stato completato correttamente e la tua iscrizione è stata confermata.");
+
+                            $this->in_error = 1;
+                        }
                     }
-
-                    $this->in_error = 1;
 
                 }
                 // devo verificare se è un biologo, in quel caso non deve vedere direttamente il pagamento
                 else if (utilityHelper::checkSinpeRegistrationTitle($_user_details['tipo_laurea'])) {
-                    //else if (strpos(strtolower($_user_details['tipo_laurea']), 'altra') !== false) {
-
-                    // rimuovo da moroso
-                    // $removeUserGroupId = utilityHelper::check_usergroups_by_name("Moroso");
-                    // if (is_null($removeUserGroupId)) throw new Exception("Non è stato trovato nessun usergroup moroso valido", E_USER_ERROR);
-
-                    // $deleteFromMoroso = $userModel->deleteUserFromUserGroup($this->user_id, $removeUserGroupId);
-                    // if (is_null($deleteFromMoroso)) throw new Exception("Si è verificato un errore durante la rimozione dell'utente dal gruppo Moroso", E_USER_ERROR);
-
-                    // // inserisco in preiscritto
-                    // $userGroupId = utilityHelper::check_usergroups_by_name("Preiscritto");
-                    // if (is_null($userGroupId)) throw new Exception("Non è stato trovato nessun usergroup preiscritto valido", E_USER_ERROR);
-
-                    // $insert_ug = $userModel->insert_user_into_usergroup($this->user_id, $userGroupId,true);
-                    // if (is_null($insert_ug)) throw new Exception("Inserimento utente in gruppo corso fallito: " . $userGroupId . ", " . $userGroupId, E_USER_ERROR);
-
-                    //$this->payment_form = outputHelper::get_payment_form_error("La tua richiesta di iscrizione è stata registrata. I tuoi dati saranno sottoposti al Consiglio Direttivo per approvazione e la segreteria ti invierà una mail con le istruzioni per completare la procedura di iscrizione.");
 
                     $checking = utilityHelper::checkSinpeRegistrationByTitle($this->user_id, $userModel);
                     if (!is_array($checking) || !isset($checking['success'])) {
@@ -234,19 +283,7 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
                     $this->in_error = 1;
                 }
                 else {
-                    $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
-                        $this->ultimo_anno_pagato,
-                        $_anno_corrente,
-                        $_user_details);
-
-                    if (!is_array($_payment_form)) throw new Exception($_payment_form);
-                    $this->payment_form = $_payment_form['success'];
-
-                    // verifico se esiste l'indicazione per il metodo di pagamento alternativi
-                    $_extra_pay = utilityHelper::get_params_from_plugin();
-                    $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay, 'registrazionesinpe', $pp);
-
-                    $this->call_result = 'tuttook';
+                    $this->get_payment_form($_anno_corrente, $_user_details, $pp);
                 }
 
             }
@@ -271,6 +308,29 @@ class gglmsViewRegistrazioneSinpe extends JViewLegacy {
 
     }
 
+    private function get_payment_form($_anno_corrente, $_user_details, $pp, $voucherDiscountPercent = 0, $voucherCode = '') {
+
+        $_payment_form = outputHelper::get_payment_form_from_year($this->user_id,
+            $this->ultimo_anno_pagato,
+            $_anno_corrente,
+            $_user_details,
+            "",
+            "",
+            "",
+            $voucherDiscountPercent,
+            $voucherCode
+        );
+
+        if (!is_array($_payment_form)) throw new Exception($_payment_form);
+        $this->payment_form = $_payment_form['success'];
+
+        // verifico se esiste l'indicazione per il metodo di pagamento alternativi
+        $_extra_pay = utilityHelper::get_params_from_plugin();
+        $this->payment_extra_form = outputHelper::get_payment_extra($_extra_pay, 'registrazionesinpe', $pp);
+
+        $this->call_result = 'tuttook';
+
+    }
 
 }
 

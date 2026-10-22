@@ -1653,6 +1653,26 @@ class utilityHelper
 
     }
 
+    public static function calcolaPrezzoScontato($prezzo, $scontoPercentuale, $precision = 2) {
+        // Validazione input
+        if ($prezzo < 0 || $scontoPercentuale < 0 || $scontoPercentuale > 100) {
+            return [
+                'prezzo_finale'     => 0,
+                'sconto_applicato'  => 0,
+            ];
+        }
+
+        // Calcolo
+        $importoSconto = $prezzo * ($scontoPercentuale / 100);
+        $prezzoFinale = $prezzo - $importoSconto;
+    
+        return [
+            'prezzo_finale' => round($prezzoFinale, $precision),
+            'sconto_applicato' => round($importoSconto, $precision)
+        ];
+    
+    }
+
     // restituisco da array l'ultimo anno di pagamento di una quota
     public static function get_ultimo_anno_quota($_user_quote) {
 
@@ -2174,7 +2194,8 @@ HTML;
                                                $totale_espen=0,
                                                $template="rinnovo",
                                                $extraEmail = null,
-                                               $_params = null) {
+                                               $_params = null,
+                                               $voucherCode = null) {
 
         $_nominativo = "";
         $_cf = "";
@@ -2207,6 +2228,8 @@ HTML;
         else if ($template == "voucher_sinpe")
             $oggetto = "SINPE - Effettuato nuovo pagamento quota con voucher";
 
+        $_html_voucher = $voucherCode ? '&nbsp;<b>*Sconto voucher applicato</b>' : '';
+
         if ($template != 'preiscritto'
             && $template != 'richiesta_bonifico_sinpe'
             && $template != 'conferma_bonifico_sinpe'
@@ -2219,7 +2242,7 @@ HTML;
                     <p>Anno di riferimento: {$_anno_quota}</p>
                     <p>Data creazione: {$dt->format('d/m/Y H:i:s')}</p>
                     <p>Dettagli ordine: {$_order_details}</p>
-                    <p>Totale pagato: &euro; <b>{$totale_sinpe}</b></p>
+                    <p>Totale pagato: &euro; <b>{$totale_sinpe}{$_html_voucher}</b></p>
                     <p>Di cui ESPEN: &euro; <b>{$totale_espen}</b></p>
 HTML;
         }
@@ -2235,15 +2258,6 @@ HTML;
             $_testo_pagamento_bonifico = UtilityHelper::get_params_from_object($_params, 'testo_pagamento_bonifico');
             $_testo_pagamento_bonifico = str_replace('Oppure bonifico bancario alle seguenti coordinate', 'Ecco i dati necessari per effettuare il bonifico:', $_testo_pagamento_bonifico);
 
-            /*
-            <p>Ecco i dati necessari per effettuare il bonifico:</p>
-            <p>
-            Banca Intesa San Paolo Spa<br />
-            IBAN: IT17K0306909606100000403014<br />
-            SWIFT: BCITITMM<br />
-            BENEFICIARIO: SINPE – Società Italiana di Nutrizione Artificiale e Metabolismo<br />
-            </p>
-            */
             $body = <<<HTML
                     <p>Gentilissimo/a, la tua richiesta di pagamento tramite bonifico è stata registrata correttamente. La tua iscrizione sarà confermata successivamente al completamento della transazione.</p>
                     {$_testo_pagamento_bonifico}
