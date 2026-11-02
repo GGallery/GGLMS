@@ -277,8 +277,9 @@ class gglmsModelSyncdatareport extends JModelLegacy
                 $query->where('q.timestamp > "' . $this->params->get('data_sync') . '"');
             */
             // la colonna q.timestamp non esiste in #__quiz_r_student_quiz
+            // c_date_time è in UTC mentre data_sync può essere in ora locale: il margine evita di perdere i quiz, rielaborarli è innocuo
             if ($_dt_ref)
-                $query->where('q.c_date_time > "' . $_dt_ref . '"');
+                $query->where('q.c_date_time > DATE_SUB("' . $_dt_ref . '", INTERVAL 3 HOUR)');
 
             $query->setLimit($offset, $limit);
 
